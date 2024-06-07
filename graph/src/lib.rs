@@ -1,14 +1,29 @@
 use std::{collections::HashMap, hash::Hash};
 
+use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
 pub trait ToGraph {
-    fn graph(&self) -> Graph;
+    fn graph(&self, graph: &mut Graph);
 }
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Graph {
     nodes: HashMap<Id, Node>,
+}
+
+impl Graph {
+    pub fn node(&mut self, id: &Option<Id>) -> &mut Node {
+        if let Some(id) = id {
+            if let Some(node) = self.nodes.get_mut(id) {
+                return node;
+            }
+            panic!("there should be a node at the given id")
+        } 
+        let id = Id::new();
+        self.nodes.insert(id.clone(), Node::default());
+        self.nodes.get_mut(&id).unwrap()
+    }
 }
 
 type Cast = Vec<String>;
@@ -21,25 +36,25 @@ pub struct Id {
 
 impl Eq for Id {}
 
+impl Id {
+    fn new() -> Self {
+        Id {
+            node: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
+            snap: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct Node {
-    id: Id,
-    root: Id,
     cast: Cast,
     body: Body,
+    root: Option<Id>,
 }
 
 impl Node {
-    pub fn id(&mut self, id: &str) -> &mut Self {
-        self.id.node = id.to_string();
-        self
-    }
-    pub fn snap(&mut self, id: &str) -> &mut Self {
-        self.id.snap = id.to_string();
-        self
-    }
     pub fn root(&mut self, id: &Id) -> &mut Self {
-        self.root = id.clone();
+        self.root = Some(id.clone());
         self
     }
     pub fn stem(&mut self, term: &str, id: &Id) -> &mut Self {
@@ -54,10 +69,6 @@ impl Node {
         self.body = Body::Leaf(Leaf::String(s.to_owned()));
         self
     }
-}
-
-pub fn node() -> Node {
-    Node::default()
 }
 
 type Terms = HashMap<String, Vec<Id>>;
@@ -108,3 +119,27 @@ impl Default for Leaf {
         Leaf::Bool(false)
     }
 }
+
+
+// pub fn node(id: &Option<Id>) -> Node {
+//     if let Some(id) = id {
+//         Node {
+//             id: id.clone(),
+//             ..Default::default()
+//         }
+//     } else {
+//         Node {
+//             id: Id::new(),
+//             ..Default::default()
+//         }
+//     }
+// }
+
+// pub fn id(&mut self, id: &str) -> &mut Self {
+//     self.id.node = id.to_string();
+//     self
+// }
+// pub fn snap(&mut self, id: &str) -> &mut Self {
+//     self.id.snap = id.to_string();
+//     self
+// }

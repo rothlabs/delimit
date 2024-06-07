@@ -21,14 +21,24 @@ impl Text for Leaf {
     }
 }
 
+impl ToGraph for Leaf {
+    fn graph(&self, graph: &mut Graph) {
+        let node = graph.node(&self.id);
+        node.string(&self.string);
+    }
+}
+
 pub fn leaf(string: &str) -> Rc<dyn Text> {
-    Rc::new(Leaf{string: Rc::new(string.to_owned()), id:None})
+    Rc::new(Leaf {
+        string: Rc::new(string.to_owned()),
+        id: None,
+    })
 }
 
 #[derive(Default)]
 pub struct List {
     pub stems: Vec<Rc<dyn Text>>,
-    pub separator: String, 
+    pub separator: String,
     pub id: Option<Id>,
 }
 
@@ -56,22 +66,15 @@ impl List {
 
 impl Text for List {
     fn string(&self) -> Rc<String> {
-        let strings: Vec<Rc<String>> = self.stems.iter().map(|n| n.string()).collect();
+        let strings: Vec<Rc<String>> = self.stems.iter().map(|s| s.string()).collect();
         let list: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
         Rc::new(list.join(&self.separator))
     }
 }
 
 impl ToGraph for List {
-    fn graph(&self) -> Graph {
-        let mut graph = Graph::default();
-        
-        graph
+    fn graph(&self, graph: &mut Graph) {
+        let node = graph.node(&self.id);
+        //node.string(&self.string);
     }
 }
-
-// if let Some(sep) = &self.separator {
-//     list.join(&sep.string())
-// } else {
-//     list.join("")
-// }

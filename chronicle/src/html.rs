@@ -18,7 +18,7 @@ trait Html {
 
 struct Leaf {
     text: Rc<dyn Text>,
-    id: Option<Id>
+    id: Option<Id>,
 }
 
 impl Html for Leaf {
@@ -29,7 +29,7 @@ impl Html for Leaf {
 
 fn leaf(string: &str) -> Rc<dyn Html> {
     let text = text::leaf(string);
-    Rc::new(Leaf{text, id:None})
+    Rc::new(Leaf { text, id: None })
 }
 
 pub struct Element {
@@ -43,7 +43,8 @@ impl Element {
     pub fn string(&self) -> Rc<String> {
         self.text().string()
     }
-    pub fn text(&self) -> Rc<dyn Text> {//Rc<dyn Text> {
+    pub fn text(&self) -> Rc<dyn Text> {
+        //Rc<dyn Text> {
         (self as &dyn Html).text()
     }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
