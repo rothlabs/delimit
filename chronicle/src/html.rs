@@ -20,7 +20,7 @@ trait Html {
 
 impl Html for String {
     fn text(&self) -> Rc<dyn Text> {
-        Rc::new(self.clone())
+        Rc::new(self.to_owned())
     }
 }
 

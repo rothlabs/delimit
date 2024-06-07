@@ -10,7 +10,7 @@ pub trait Text {
 
 impl Text for String {
     fn string(&self) -> String {
-        self.clone() 
+        self.to_owned() 
     }
 }
 

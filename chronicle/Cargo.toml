@@ -1,6 +1,7 @@
 [package]
-name = "chronicle"
-version = "0.1.0"
-edition = "2021"
+    name = "chronicle"
+    version = "0.1.0"
+    authors = ["Julian Erickson <julian@rothlabs.com>"]
+    edition = "2021"
 
 [dependencies]

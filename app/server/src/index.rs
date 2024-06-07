@@ -1,4 +1,4 @@
-use chronicle::html::*;
+use chronicle::html::doc;
 
 pub fn index() -> String {
     let mut html = doc().html();
