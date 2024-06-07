@@ -3,11 +3,13 @@ use std::{collections::HashMap, hash::Hash};
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
-pub trait ToGraph {
+pub const CONTENT: &str = "content";
+
+pub trait MutGraph {
     fn graph(&self, graph: &mut Graph);
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Graph {
     nodes: HashMap<Id, Node>,
 }
@@ -26,9 +28,7 @@ impl Graph {
     }
 }
 
-type Cast = Vec<String>;
-
-#[derive(Default, Clone, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Id {
     node: String,
     snap: String,
@@ -45,10 +45,12 @@ impl Id {
     }
 }
 
+type Cast = Vec<String>;
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct Node {
     cast: Cast,
-    body: Body,
+    terms: Terms,
     root: Option<Id>,
 }
 
@@ -57,89 +59,47 @@ impl Node {
         self.root = Some(id.clone());
         self
     }
-    pub fn stem(&mut self, term: &str, id: &Id) -> &mut Self {
-        if let Body::Terms(terms) = &mut self.body {
-            terms.push(term, id);
-        } else {
-            self.body = Body::Terms(Terms::make(term, id));
-        }
+    pub fn clear(&mut self) -> &mut Self {
+        self.terms.clear();
         self
     }
-    pub fn string(&mut self, s: &str) -> &mut Self {
-        self.body = Body::Leaf(Leaf::String(s.to_owned()));
+    pub fn stem(&mut self, term: &str, stem: &Id) -> &mut Self {
+        self.terms.push(term, Stem::Id(stem.clone()));
+        self
+    }
+    pub fn string(&mut self, term: &str, stem: &str) -> &mut Self {
+        self.terms.push(term, Stem::String(stem.into()));
         self
     }
 }
 
-type Terms = HashMap<String, Vec<Id>>;
+type Terms = HashMap<String, Vec<Stem>>;
 
-trait NodeTerms {
-    fn make(term: &str, id: &Id) -> Terms;
-    fn push(&mut self, term: &str, id: &Id);
+trait PushTerm {
+    fn push(&mut self, term: &str, stem: Stem);
 }
 
-impl NodeTerms for Terms {
-    fn make(term: &str, id: &Id) -> Terms {
-        let mut terms = Terms::new();
-        terms.insert(term.to_string(), vec![id.clone()]);
-        terms
-    }
-    fn push(&mut self, term: &str, id: &Id) {
-        if self.contains_key(term) {
-            let terms = self.get_mut(term).unwrap();
-            terms.push(id.clone());
+impl PushTerm for Terms {
+    fn push(&mut self, term: &str, stem: Stem) {
+        if let Some(term) = self.get_mut(term) {
+            term.push(stem);
         } else {
-            self.insert(term.to_string(), vec![id.clone()]);
+            self.insert(term.into(), vec![stem]);
         }
     }
 }
 
 #[derive(Serialize, Deserialize)]
-enum Body {
-    Leaf(Leaf),
-    Terms(Terms),
-}
-
-impl Default for Body {
-    fn default() -> Self {
-        Body::Leaf(Leaf::default())
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-enum Leaf {
+enum Stem {
+    Id(Id),
     Bool(bool),
     I32(i32),
     F64(f64),
     String(String),
 }
 
-impl Default for Leaf {
+impl Default for Stem {
     fn default() -> Self {
-        Leaf::Bool(false)
+        Stem::Bool(false)
     }
 }
-
-
-// pub fn node(id: &Option<Id>) -> Node {
-//     if let Some(id) = id {
-//         Node {
-//             id: id.clone(),
-//             ..Default::default()
-//         }
-//     } else {
-//         Node {
-//             id: Id::new(),
-//             ..Default::default()
-//         }
-//     }
-// }
-
-// pub fn id(&mut self, id: &str) -> &mut Self {
-//     self.id.node = id.to_string();
-//     self
-// }
-// pub fn snap(&mut self, id: &str) -> &mut Self {
-//     self.id.snap = id.to_string();
-//     self
-// }

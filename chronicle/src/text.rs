@@ -21,10 +21,10 @@ impl Text for Leaf {
     }
 }
 
-impl ToGraph for Leaf {
+impl MutGraph for Leaf {
     fn graph(&self, graph: &mut Graph) {
         let node = graph.node(&self.id);
-        node.string(&self.string);
+        node.string(&CONTENT, &self.string);
     }
 }
 
@@ -72,7 +72,7 @@ impl Text for List {
     }
 }
 
-impl ToGraph for List {
+impl MutGraph for List {
     fn graph(&self, graph: &mut Graph) {
         let node = graph.node(&self.id);
         //node.string(&self.string);
