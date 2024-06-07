@@ -5,27 +5,27 @@ use serde::{Deserialize, Serialize};
 
 pub const LEAF: &str = "leaf";
 
-pub trait MutGraph {
-    fn graph(&self, graph: &mut Graph) -> Id;
+pub trait Node {
+    fn save(&self, graph: &mut Graph) -> Id;
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Graph {
-    nodes: HashMap<Id, Node>,
+    units: HashMap<Id, Unit>,
 }
 
 impl Graph {
-    pub fn node(&mut self, id: &Option<Id>) -> (&mut Node, Id) {
+    pub fn unit(&mut self, id: &Option<Id>) -> (&mut Unit, Id) {
         if let Some(id) = id {
-            if let Some(node) = self.nodes.get_mut(id) {
-                node.clear();
-                return (node, id.clone());
+            if let Some(unit) = self.units.get_mut(id) {
+                unit.clear();
+                return (unit, id.clone());
             }
             panic!("there should be a node at the given id")
         } 
         let id = Id::new();
-        self.nodes.insert(id.clone(), Node::default());
-        (self.nodes.get_mut(&id).unwrap(), id)
+        self.units.insert(id.clone(), Unit::default());
+        (self.units.get_mut(&id).unwrap(), id)
     }
 }
 
@@ -49,13 +49,13 @@ impl Id {
 type Cast = Cow<'static, str>;
 
 #[derive(Default, Serialize, Deserialize)]
-pub struct Node {
+pub struct Unit {
     cast: Cast,
     root: Option<Id>,
     terms: Terms,
 }
 
-impl Node {
+impl Unit {
     pub fn cast(&mut self, cast: &'static str) -> &mut Self {
         self.cast = Cow::Borrowed(cast);
         self
@@ -72,8 +72,8 @@ impl Node {
         self.terms.push(term, Stem::Id(id.clone()));
         self
     }
-    pub fn nodes(&mut self, graph: &mut Graph, term: &str, node: &dyn MutGraph) -> &mut Self {
-        self.terms.push(term, Stem::Id(node.graph(graph)));
+    pub fn nodes(&mut self, graph: &mut Graph, term: &str, node: &dyn Node) -> &mut Self {
+        self.terms.push(term, Stem::Id(node.save(graph)));
         // for node in nodes.iter() {
         //     self.terms.push(term, Stem::Id(node.graph(graph)));
         // } 

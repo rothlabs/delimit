@@ -6,7 +6,7 @@ pub fn list() -> List {
     List::default()
 }
 
-pub trait Text: MutGraph {
+pub trait Text: Node {
     fn string(&self) -> Rc<String>;
 }
 
@@ -23,10 +23,10 @@ impl Text for Leaf {
     }
 }
 
-impl MutGraph for Leaf {
-    fn graph(&self, graph: &mut Graph) -> Id {
-        let (node, id) = graph.node(&self.id);
-        node.string(&LEAF, &self.string);
+impl Node for Leaf {
+    fn save(&self, graph: &mut Graph) -> Id {
+        let (unit, id) = graph.unit(&self.id);
+        unit.string(&LEAF, &self.string);
         id
     }
 }
@@ -75,12 +75,12 @@ impl Text for List {
     }
 }
 
-impl MutGraph for List {
-    fn graph(&self, graph: &mut Graph) -> Id {
-        let (node, id) = graph.node(&self.id);
-        node.cast("chronicle/list")
-            .string("separator", &self.separator)
-            .nodes(graph, "items", self.stems[0].as_ref());
+impl Node for List {
+    fn save(&self, graph: &mut Graph) -> Id {
+        let (unit, id) = graph.unit(&self.id);
+        unit.cast("chronicle/list")
+            .string("separator", &self.separator);
+            //.nodes(graph, "items", self.stems[0].as_ref());
         id
     }
 }
