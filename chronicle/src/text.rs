@@ -6,9 +6,11 @@ pub fn list() -> List {
     List::default()
 }
 
-pub trait Text {
+pub trait Text: MutGraph {
     fn string(&self) -> Rc<String>;
 }
+
+//trait TextNode: Text + MutGraph {}
 
 pub struct Leaf {
     string: Rc<String>,
@@ -22,9 +24,10 @@ impl Text for Leaf {
 }
 
 impl MutGraph for Leaf {
-    fn graph(&self, graph: &mut Graph) {
-        let node = graph.node(&self.id);
-        node.string(&CONTENT, &self.string);
+    fn graph(&self, graph: &mut Graph) -> Id {
+        let (node, id) = graph.node(&self.id);
+        node.string(&LEAF, &self.string);
+        id
     }
 }
 
@@ -73,8 +76,11 @@ impl Text for List {
 }
 
 impl MutGraph for List {
-    fn graph(&self, graph: &mut Graph) {
-        let node = graph.node(&self.id);
-        //node.string(&self.string);
+    fn graph(&self, graph: &mut Graph) -> Id {
+        let (node, id) = graph.node(&self.id);
+        node.cast("chronicle/list")
+            .string("separator", &self.separator)
+            .nodes(graph, "items", self.stems[0].as_ref());
+        id
     }
 }

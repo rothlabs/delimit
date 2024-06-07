@@ -1,12 +1,12 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{borrow::{Borrow, Cow}, collections::HashMap, hash::Hash, rc::Rc};
 
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
-pub const CONTENT: &str = "content";
+pub const LEAF: &str = "leaf";
 
 pub trait MutGraph {
-    fn graph(&self, graph: &mut Graph);
+    fn graph(&self, graph: &mut Graph) -> Id;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -15,16 +15,17 @@ pub struct Graph {
 }
 
 impl Graph {
-    pub fn node(&mut self, id: &Option<Id>) -> &mut Node {
+    pub fn node(&mut self, id: &Option<Id>) -> (&mut Node, Id) {
         if let Some(id) = id {
             if let Some(node) = self.nodes.get_mut(id) {
-                return node;
+                node.clear();
+                return (node, id.clone());
             }
             panic!("there should be a node at the given id")
         } 
         let id = Id::new();
         self.nodes.insert(id.clone(), Node::default());
-        self.nodes.get_mut(&id).unwrap()
+        (self.nodes.get_mut(&id).unwrap(), id)
     }
 }
 
@@ -45,16 +46,20 @@ impl Id {
     }
 }
 
-type Cast = Vec<String>;
+type Cast = Cow<'static, str>;
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Node {
     cast: Cast,
-    terms: Terms,
     root: Option<Id>,
+    terms: Terms,
 }
 
 impl Node {
+    pub fn cast(&mut self, cast: &'static str) -> &mut Self {
+        self.cast = Cow::Borrowed(cast);
+        self
+    }
     pub fn root(&mut self, id: &Id) -> &mut Self {
         self.root = Some(id.clone());
         self
@@ -63,8 +68,15 @@ impl Node {
         self.terms.clear();
         self
     }
-    pub fn stem(&mut self, term: &str, stem: &Id) -> &mut Self {
-        self.terms.push(term, Stem::Id(stem.clone()));
+    pub fn id(&mut self, term: &str, id: &Id) -> &mut Self {
+        self.terms.push(term, Stem::Id(id.clone()));
+        self
+    }
+    pub fn nodes(&mut self, graph: &mut Graph, term: &str, node: &dyn MutGraph) -> &mut Self {
+        self.terms.push(term, Stem::Id(node.graph(graph)));
+        // for node in nodes.iter() {
+        //     self.terms.push(term, Stem::Id(node.graph(graph)));
+        // } 
         self
     }
     pub fn string(&mut self, term: &str, stem: &str) -> &mut Self {
