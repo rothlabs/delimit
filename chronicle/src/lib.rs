@@ -1,5 +1,5 @@
-pub mod text;
 pub mod html;
+pub mod text;
 
 #[cfg(test)]
 mod tests {
@@ -8,6 +8,6 @@ mod tests {
     #[test]
     fn list_empty() {
         let list = list();
-        assert_eq!(list.string(), "");
+        assert_eq!(list.string().as_str(), "");
     }
 }

@@ -1,43 +1,52 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
 use serde::{Deserialize, Serialize};
 
-type Id = String;
-type Terms = HashMap<String, Vec<Id>>;
+pub trait ToGraph {
+    fn graph(&self) -> Graph;
+}
 
 #[derive(Default, Serialize, Deserialize)]
-struct Node {
+pub struct Graph {
+    nodes: HashMap<Id, Node>,
+}
+
+type Cast = Vec<String>;
+
+#[derive(Default, Clone, Hash, PartialEq, Serialize, Deserialize)]
+pub struct Id {
+    node: String,
+    snap: String,
+}
+
+impl Eq for Id {}
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct Node {
     id: Id,
-    pack: Id,
     root: Id,
+    cast: Cast,
     body: Body,
 }
 
 impl Node {
     pub fn id(&mut self, id: &str) -> &mut Self {
-        self.id = id.to_string();
-        self 
+        self.id.node = id.to_string();
+        self
     }
-    pub fn pack(&mut self, id: &str) -> &mut Self {
-        self.pack = id.to_string();
-        self 
+    pub fn snap(&mut self, id: &str) -> &mut Self {
+        self.id.snap = id.to_string();
+        self
     }
-    pub fn root(&mut self, id: &str) -> &mut Self {
-        self.root = id.to_string();
-        self 
+    pub fn root(&mut self, id: &Id) -> &mut Self {
+        self.root = id.clone();
+        self
     }
     pub fn stem(&mut self, term: &str, id: &Id) -> &mut Self {
         if let Body::Terms(terms) = &mut self.body {
-            if terms.contains_key(term) {
-                let terms = terms.get_mut(term).unwrap(); 
-                terms.push(id.to_string());
-            } else {
-                terms.insert(term.to_string(), vec![id.to_string()]);
-            }
+            terms.push(term, id);
         } else {
-            let mut terms = Terms::new();
-            terms.insert(term.to_string(), vec![id.to_string()]);
-            self.body = Body::Terms(terms);
+            self.body = Body::Terms(Terms::make(term, id));
         }
         self
     }
@@ -49,6 +58,29 @@ impl Node {
 
 pub fn node() -> Node {
     Node::default()
+}
+
+type Terms = HashMap<String, Vec<Id>>;
+
+trait NodeTerms {
+    fn make(term: &str, id: &Id) -> Terms;
+    fn push(&mut self, term: &str, id: &Id);
+}
+
+impl NodeTerms for Terms {
+    fn make(term: &str, id: &Id) -> Terms {
+        let mut terms = Terms::new();
+        terms.insert(term.to_string(), vec![id.clone()]);
+        terms
+    }
+    fn push(&mut self, term: &str, id: &Id) {
+        if self.contains_key(term) {
+            let terms = self.get_mut(term).unwrap();
+            terms.push(id.clone());
+        } else {
+            self.insert(term.to_string(), vec![id.clone()]);
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -76,10 +108,3 @@ impl Default for Leaf {
         Leaf::Bool(false)
     }
 }
-
-
-// #[derive(Default, Serialize, Deserialize)]
-// struct Id {
-//     node: String,
-//     pack: String, // [u8; 32]
-// }

@@ -5,3 +5,5 @@
     edition = "2021"
 
 [dependencies]
+    # graph
+        graph = { path = "../graph" }
