@@ -1,13 +1,14 @@
-use std::borrow::BorrowMut;
-
-use chronicle::{html::doc, text::{list, node::{leaf, Leaf, List, Node}}};
+use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
 
 pub fn index() -> String {
     //let mut su = string_unit("cool");
-    let mut leaf = leaf("cool");
+    let leaf = leaf("cool");
     let mut list = list();
     list.add_leaf(leaf.clone());
-    //let wow = leaf.string.borrow_mut();
+    let cell = leaf.string();
+    println!("{}", list.string().at.borrow());
+    cell.set_str("please work");
+    println!("{}", list.string().at.borrow());
 
     let mut html = doc().html();
     html.lang("en");

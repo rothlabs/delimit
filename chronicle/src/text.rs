@@ -2,9 +2,9 @@ use std::{any::Any, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use graph::{cell::StringUnit, Id};
+use graph::{leaf::StringCell, Id};
 pub mod node;
-use node::{Node, Leaf, List};
+use node::{Node, List};
 
 
 // pub fn leaf(value: &str) -> Text {
@@ -26,7 +26,7 @@ pub fn list() -> List {
 pub struct Text(pub Rc<dyn Node>);
 impl Text {
     pub fn string(&self) -> String {
-        self.0.string().0.as_ref().to_owned()
+        self.0.string().at.as_ref().borrow().to_owned()
     }
     pub fn serialize(&self) -> String {
         self.0.serialize()

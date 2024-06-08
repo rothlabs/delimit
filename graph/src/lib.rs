@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap, hash::Hash, rc::Rc};
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize, Serializer};
 
-pub mod cell;
+pub mod leaf;
 
 pub const LEAF: &str = "leaf";
 
