@@ -1,6 +1,13 @@
-use chronicle::html::doc;
+use chronicle::{html::doc, text::{leaf, list, node::{Leaf, List, Node}}};
+use graph::string_unit;
 
 pub fn index() -> String {
+    //let mut su = string_unit("cool");
+    let mut leaf = leaf("cool");
+    //leaf.str
+    //let mut text = list();
+    //text.item(node)
+
     let mut html = doc().html();
     html.lang("en");
     let mut title = html.head().title();
@@ -12,5 +19,14 @@ pub fn index() -> String {
         .content("width=device-width, initial-scale=1");
     meta = meta.root().meta();
     meta.name("author").content("Roth Labs LLC");
-    meta.up_to_doc().string()
+    let doc = meta.up_to_doc();
+    let text = doc.text();
+
+    // let wow = text.any().downcast_ref::<Leaf>().unwrap();
+    // // let wo2 = wow.items.last().unwrap().any().downcast_ref::<Leaf>().unwrap();
+    // // let wo3 = wo2.string().0;
+    // // println!("wo3 = {}", wo3);
+    let json = text.serialize();
+    println!("{json}");
+    doc.string()
 }

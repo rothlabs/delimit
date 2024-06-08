@@ -8,6 +8,6 @@ mod tests {
     #[test]
     fn list_empty() {
         let list = list();
-        assert_eq!(list.string().as_str(), "");
+        assert_eq!(list.string().0.as_str(), "");
     }
 }
