@@ -43,7 +43,7 @@ pub struct Id {
 impl Eq for Id {}
 
 impl Id {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Id {
             node: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
             snap: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),

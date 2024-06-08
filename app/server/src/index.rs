@@ -12,5 +12,5 @@ pub fn index() -> String {
         .content("width=device-width, initial-scale=1");
     meta = meta.root().meta();
     meta.name("author").content("Roth Labs LLC");
-    meta.up_to_doc().string().as_ref().to_owned()
+    meta.up_to_doc().string()
 }

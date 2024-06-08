@@ -1,64 +1,60 @@
 use std::rc::Rc;
 
-use graph::*;
+use graph::Id;
+use serde::Serialize;
 
 pub fn list() -> List {
     List::default()
 }
 
-pub trait Text: Node {
-    fn string(&self) -> Rc<String>;
+pub trait Text {
+    fn string(&self) -> RcString;
+    fn id(&self) -> &Id;
 }
 
-//trait TextNode: Text + MutGraph {}
-
+#[derive(Serialize)]
 pub struct Leaf {
-    string: Rc<String>,
-    id: Option<Id>,
+    string: RcString,
+    id: Id,
 }
 
 impl Text for Leaf {
-    fn string(&self) -> Rc<String> {
-        Rc::clone(&self.string)
+    fn string(&self) -> RcString {
+        self.string.clone()
+    }
+    fn id(&self) -> &Id {
+        &self.id
     }
 }
 
-impl Node for Leaf {
-    fn save(&mut self, graph: &mut Graph) {
-        self.id = graph.save(&self.id, &|unit| {
-            unit.string(&LEAF, &self.string);
-        });
-    }
+pub fn leaf(string: &str) -> RcText {
+    RcText(Rc::new(Leaf{
+        string: RcString(Rc::new(string.to_owned())),
+        id: Id::new(),
+    }))
 }
 
-pub fn leaf(string: &str) -> Rc<dyn Text> {
-    Rc::new(Leaf {
-        string: Rc::new(string.to_owned()),
-        id: None,
-    })
-}
-
-#[derive(Default)]
+#[derive(Default, Serialize)]
 pub struct List {
-    pub stems: Vec<Rc<dyn Text>>,
+    pub items: Vec<RcText>,
     pub separator: String,
-    pub id: Option<Id>,
+    pub id: Id,
 }
 
 impl List {
-    pub fn text(self) -> Rc<dyn Text> {
-        Rc::new(self)
+    pub fn text(self) -> RcText {
+        RcText(Rc::new(self))
     }
-    pub fn node(&mut self, node: &Rc<dyn Text>) -> &mut Self {
-        self.stems.push(Rc::clone(node));
+    pub fn node(&mut self, node: &RcText) -> &mut Self {
+        self.items.push(node.clone());
         self
     }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
-        self.stems.push(leaf(string));
+        self.items.push(leaf(string));
         self
     }
     pub fn list(&mut self, list: List) -> &mut Self {
-        self.stems.push(Rc::new(list));
+        self.items.push(RcText(Rc::new(list)));
         self
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
@@ -68,19 +64,64 @@ impl List {
 }
 
 impl Text for List {
-    fn string(&self) -> Rc<String> {
-        let strings: Vec<Rc<String>> = self.stems.iter().map(|s| s.string()).collect();
-        let list: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
-        Rc::new(list.join(&self.separator))
+    fn string(&self) -> RcString {
+        let strings: Vec<RcString> = self.items.iter().map(|i| i.0.string()).collect();
+        let list: Vec<&str> = strings.iter().map(|s| s.0.as_str()).collect();
+        RcString(Rc::new(list.join(&self.separator)))
+    }
+    fn id(&self) -> &Id {
+        &self.id
     }
 }
 
-impl Node for List {
-    fn save(&mut self, graph: &mut Graph) {
-        self.id = graph.save(&self.id, &|unit| {
-            unit.cast("chronicle/list")
-                .string("separator", &self.separator)
-                .nodes(graph, "items", self.stems[0].as_ref());
-        });
+#[derive(Clone)]
+pub struct RcString(pub Rc<String>);
+impl Serialize for RcString {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+        serializer.serialize_str(self.0.as_ref())
     }
 }
+
+#[derive(Clone)]
+pub struct RcText(pub Rc<dyn Text>);
+impl RcText {
+    pub fn string(&self) -> String {
+        self.0.string().0.as_ref().to_owned()
+    }
+}
+impl Serialize for RcText {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+        self.0.id().serialize(serializer)
+    }
+}
+
+
+
+// impl RcText {
+//     fn new(value: dyn Text) -> RcText {
+//         RcText(Rc::new(value))
+//     }
+// }
+
+
+//trait TextNode: Text + MutGraph {}
+
+// impl Node for Leaf {
+//     fn save(&mut self, graph: &mut Graph) {
+//         self.id = graph.save(&self.id, &|unit| {
+//             unit.string(&LEAF, &self.string);
+//         });
+//     }
+// }
+
+// impl Node for List {
+//     fn save(&mut self, graph: &mut Graph) {
+//         self.id = graph.save(&self.id, &|unit| {
+//             unit.cast("chronicle/list")
+//                 .string("separator", &self.separator)
+//                 .nodes(graph, "items", self.stems[0].as_ref());
+//         });
+//     }
+// }

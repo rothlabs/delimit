@@ -7,3 +7,6 @@
 [dependencies]
     # graph
         graph = { path = "../graph" }
+    # third party
+        # serde
+            serde = { version = "1.0", features = ["derive"] }

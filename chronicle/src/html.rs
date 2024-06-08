@@ -13,17 +13,17 @@ pub fn doc() -> Element {
 }
 
 trait Html {
-    fn text(&self) -> Rc<dyn Text>;
+    fn text(&self) -> RcText;
 }
 
 struct Leaf {
-    text: Rc<dyn Text>,
+    text: RcText,
     id: Option<Id>,
 }
 
 impl Html for Leaf {
-    fn text(&self) -> Rc<dyn Text> {
-        Rc::clone(&self.text)
+    fn text(&self) -> RcText {
+        self.text.clone()
     }
 }
 
@@ -36,15 +36,14 @@ pub struct Element {
     tag: &'static Tag,
     root: Option<Box<RefCell<Element>>>,
     stems: Vec<Rc<dyn Html>>,
-    attributes: Vec<Rc<dyn Text>>,
+    attributes: Vec<RcText>,
 }
 
 impl Element {
-    pub fn string(&self) -> Rc<String> {
+    pub fn string(&self) -> String {
         self.text().string()
     }
-    pub fn text(&self) -> Rc<dyn Text> {
-        //Rc<dyn Text> {
+    pub fn text(&self) -> RcText {
         (self as &dyn Html).text()
     }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
@@ -127,7 +126,7 @@ impl Default for Element {
 }
 
 impl Html for Element {
-    fn text(&self) -> Rc<dyn Text> {
+    fn text(&self) -> RcText {
         let mut ot = list();
         ot.leaf(&self.tag.open);
         for att in self.attributes.iter() {
@@ -140,7 +139,7 @@ impl Html for Element {
             el.node(&stem.text());
         }
         el.leaf(&self.tag.close).separator("\n");
-        Rc::new(el)
+        RcText(Rc::new(el))
     }
 }
 
@@ -153,6 +152,6 @@ fn element(root: Element, tag: &'static Tag) -> Element {
     }
 }
 
-fn attribute(name: &'static str, value: &str) -> Rc<dyn Text> {
+fn attribute(name: &'static str, value: &str) -> RcText {
     text::leaf(&format!(r#"{name}="{value}""#))
 }
