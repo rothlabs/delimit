@@ -2,17 +2,17 @@ use std::{any::Any, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use graph::{string_unit, Id, StringUnit};
+use graph::{cell::StringUnit, Id};
 pub mod node;
 use node::{Node, Leaf, List};
 
 
-pub fn leaf(value: &str) -> Text {
-    Text(Rc::new(Leaf {
-        string: string_unit(value),
-        id: Id::new("text/leaf"),
-    }))
-}
+// pub fn leaf(value: &str) -> Text {
+//     Text(Rc::new(Leaf {
+//         string: string_unit(value),
+//         id: Id::new("text/leaf"),
+//     }))
+// }
 
 pub fn list() -> List {
     List {

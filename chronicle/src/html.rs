@@ -28,7 +28,7 @@ impl Html for Leaf {
 }
 
 fn leaf(string: &str) -> Rc<dyn Html> {
-    let text = text::leaf(string);
+    let text = text::node::leaf_node(string);
     Rc::new(Leaf { text, id: None })
 }
 
@@ -128,17 +128,17 @@ impl Default for Element {
 impl Html for Element {
     fn text(&self) -> Text {
         let mut ot = list();
-        ot.leaf(&self.tag.open);
+        ot.add_string(&self.tag.open);
         for att in self.attributes.iter() {
-            ot.item(att);
+            ot.add_text(att);
         }
-        ot.leaf(">").separator(" ");
+        ot.add_string(">").separator(" ");
         let mut el = list();
-        el.list(ot);
+        el.add_list(ot);
         for stem in self.stems.iter() {
-            el.item(&stem.text());
+            el.add_text(&stem.text());
         }
-        el.leaf(&self.tag.close).separator("\n");
+        el.add_string(&self.tag.close).separator("\n");
         Text(Rc::new(el))
     }
 }
@@ -153,5 +153,5 @@ fn element(root: Element, tag: &'static Tag) -> Element {
 }
 
 fn attribute(name: &'static str, value: &str) -> Text {
-    text::leaf(&format!(r#"{name}="{value}""#))
+    text::node::leaf_node(&format!(r#"{name}="{value}""#))
 }

@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
-use serde::{Serialize};
+use serde::Serialize;
 
-use graph::Id;
-use super::{leaf, StringUnit, Text};
+use graph::{cell::string_unit, Id};
+use super::{StringUnit, Text};
 
 pub trait Node {
     fn string(&self) -> StringUnit;
@@ -29,6 +29,17 @@ impl Node for Leaf {
     }
 }
 
+pub fn leaf(value: &str) -> Rc<Leaf> {
+    Rc::new(Leaf {
+        string: string_unit(value),
+        id: Id::new("text/leaf"),
+    })
+}
+
+pub fn leaf_node(value: &str) -> Text {
+    Text(leaf(value))
+}
+
 #[derive(Serialize)]
 pub struct List {
     pub items: Vec<Text>,
@@ -40,15 +51,19 @@ impl List {
     pub fn text(self) -> Text {
         Text(Rc::new(self))
     }
-    pub fn item(&mut self, node: &Text) -> &mut Self {
+    pub fn add_text(&mut self, node: &Text) -> &mut Self {
         self.items.push(node.clone());
         self
     }
-    pub fn leaf(&mut self, string: &str) -> &mut Self {
-        self.items.push(leaf(string));
+    pub fn add_leaf(&mut self, value: Rc<Leaf>) -> &mut Self {
+        self.items.push(Text(value));
         self
     }
-    pub fn list(&mut self, list: List) -> &mut Self {
+    pub fn add_string(&mut self, string: &str) -> &mut Self {
+        self.items.push(leaf_node(string));
+        self
+    }
+    pub fn add_list(&mut self, list: List) -> &mut Self {
         self.items.push(Text(Rc::new(list)));
         self
     }

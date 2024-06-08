@@ -1,12 +1,13 @@
-use chronicle::{html::doc, text::{leaf, list, node::{Leaf, List, Node}}};
-use graph::string_unit;
+use std::borrow::BorrowMut;
+
+use chronicle::{html::doc, text::{list, node::{leaf, Leaf, List, Node}}};
 
 pub fn index() -> String {
     //let mut su = string_unit("cool");
     let mut leaf = leaf("cool");
-    //leaf.str
-    //let mut text = list();
-    //text.item(node)
+    let mut list = list();
+    list.add_leaf(leaf.clone());
+    //let wow = leaf.string.borrow_mut();
 
     let mut html = doc().html();
     html.lang("en");
