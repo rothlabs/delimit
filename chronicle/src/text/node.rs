@@ -1,14 +1,14 @@
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use serde::Serialize;
 
-use graph::{leaf::leaf_str, Id};
-use super::{StringCell, Text};
+use graph::{leaf::{leaf_str, Leaf}, Id};
+use super::Text;
 
 pub trait Node {
-    fn string(&self) -> StringCell<String>;
+    fn string(&self) -> Leaf<String>;
     fn serialize(&self) -> String;
-    fn id(&self) -> &Id;
+    fn id(&self) -> Id;
 }
 
 // #[derive(Serialize)]
@@ -17,15 +17,15 @@ pub trait Node {
 //     pub id: Id,
 // }
 
-impl Node for Leaf {
-    fn string(&self) -> StringCell<String> {
-        self.string.clone()
+impl Node for Leaf<String> {
+    fn string(&self) -> Leaf<String> {
+        self.clone()
     }
     fn serialize(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    fn id(&self) -> &Id {
-        &self.id
+    fn id(&self) -> Id {
+        self.0.as_ref().borrow().id.clone()
     }
 }
 
@@ -36,9 +36,9 @@ impl Node for Leaf {
 //     })
 // }
 
-pub fn leaf_node(value: &str) -> Text {
-    Text(leaf(value))
-}
+// pub fn leaf_node(value: &str) -> Text {
+//     Text(leaf(value))
+// }
 
 #[derive(Serialize)]
 pub struct List {
@@ -49,22 +49,22 @@ pub struct List {
 
 impl List {
     pub fn text(self) -> Text {
-        Text(Rc::new(self))
+        Text(Rc::new(RefCell::new(self)))
     }
-    pub fn add_text(&mut self, node: &Text) -> &mut Self {
-        self.items.push(node.clone());
+    pub fn add_text(&mut self, text: &Text) -> &mut Self {
+        self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, value: Rc<Leaf>) -> &mut Self {
-        self.items.push(Text(value));
+    pub fn add_leaf(&mut self, leaf: Leaf<String>) -> &mut Self {
+        //self.items.push(Text(leaf.clone()));
         self
     }
     pub fn add_string(&mut self, string: &str) -> &mut Self {
-        self.items.push(leaf_node(string));
+        //self.items.push(leaf_node(string));
         self
     }
     pub fn add_list(&mut self, list: List) -> &mut Self {
-        self.items.push(Text(Rc::new(list)));
+        self.items.push(Text(Rc::new(RefCell::new(list))));
         self
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
@@ -74,23 +74,31 @@ impl List {
 }
 
 impl Node for List {
-    fn string(&self) -> StringCell<String> {
-        let cells: Vec<StringCell<String>> = self.items.iter().map(|i| i.0.string()).collect();
+    fn string(&self) -> Leaf<String> {
+        let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.0.borrow().string()).collect();
         let mut string = String::new();
         for i in 0..cells.len()-1 {
-            string += &cells[i].at.borrow();
+            string += &cells[i].0.borrow().at;
             string += &self.separator;
         }
         if let Some(cell) = cells.last() {
-            string += &cell.at.borrow();
+            string += &cell.0.borrow().at;
         }
         leaf_str(&string) 
     }
     fn serialize(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    fn id(&self) -> &Id {
-        &self.id
+    fn id(&self) -> Id {
+        self.id.clone()
+    }
+}
+
+pub fn list() -> List {
+    List {
+        items: vec![],
+        separator: "".into(),
+        id: Id::new("text/list"),
     }
 }
 

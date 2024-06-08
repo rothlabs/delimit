@@ -5,37 +5,42 @@ use serde::{Serialize, Serializer};
 use crate::Id;
 
 #[derive(Clone)]
-pub struct StringCell<T>{
-    pub at: Rc<RefCell<T>>,
+pub struct Unit<T> {
+    pub at: T,
     pub id: Id,
 }
 
-impl<T: ToOwned<Owned = T>> StringCell<T> {
+#[derive(Clone)]
+pub struct Leaf<T>(
+    pub Rc<RefCell<Unit<T>>>
+);
+
+impl<T: ToOwned<Owned = T>> Leaf<T> {
     pub fn set(&self, value: &T) {
-        *self.at.as_ref().borrow_mut() = value.to_owned();
+        self.0.borrow_mut().at = value.to_owned(); 
     }
 }
 
-impl StringCell<String> {
+impl Leaf<String> {
     pub fn set_str(&self, value: &str) {
-        *self.at.as_ref().borrow_mut() = value.to_owned();
+        self.0.as_ref().borrow_mut().at = value.to_owned();
     }
 }
 
-impl Serialize for StringCell<String> {
+impl Serialize for Leaf<String> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        serializer.serialize_str(&self.at.borrow())
+        serializer.serialize_str(&self.0.borrow().at)
     }
 }
 
-pub fn leaf_str(value: &str) -> StringCell<String> {
-    StringCell{
-        at: Rc::new(RefCell::new(value.to_owned())),
+pub fn leaf_str(value: &str) -> Leaf<String> {
+    Leaf(Rc::new(RefCell::new(Unit {
+        at: value.to_owned(),
         id: Id::new("leaf/str"),
-    }
+    })))
 }
 
 // #[derive(Clone)]

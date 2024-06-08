@@ -1,8 +1,8 @@
-use std::{any::Any, rc::Rc};
+use std::{any::Any, cell::RefCell, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use graph::{leaf::StringCell, Id};
+use graph::Id;
 pub mod node;
 use node::{Node, List};
 
@@ -14,22 +14,16 @@ use node::{Node, List};
 //     }))
 // }
 
-pub fn list() -> List {
-    List {
-        items: vec![],
-        separator: "".into(),
-        id: Id::new("text/list"),
-    }
-}
+
 
 #[derive(Clone)]
-pub struct Text(pub Rc<dyn Node>);
+pub struct Text(pub Rc<RefCell<dyn Node>>);
 impl Text {
     pub fn string(&self) -> String {
-        self.0.string().at.as_ref().borrow().to_owned()
+        self.0.borrow().string().0.borrow().at.to_owned()
     }
     pub fn serialize(&self) -> String {
-        self.0.serialize()
+        self.0.borrow().serialize()
     }
     pub fn any(&self) -> &dyn Any {
         self
@@ -40,7 +34,7 @@ impl Serialize for Text {
     where
         S: Serializer,
     {
-        self.0.id().serialize(serializer)
+        self.0.borrow().id().serialize(serializer)
     }
 }
 
