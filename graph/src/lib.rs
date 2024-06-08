@@ -1,4 +1,4 @@
-use std::{borrow::{Borrow, Cow}, collections::HashMap, hash::Hash, rc::Rc};
+use std::{borrow::Cow, collections::HashMap, hash::Hash};
 
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
@@ -6,30 +6,35 @@ use serde::{Deserialize, Serialize};
 pub const LEAF: &str = "leaf";
 
 pub trait Node {
-    fn save(&self, graph: &mut Graph) -> Id;
+    fn save(&mut self, graph: &mut Graph);
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Graph {
     units: HashMap<Id, Unit>,
+    stack: Vec<Id>,
 }
 
 impl Graph {
-    pub fn unit(&mut self, id: &Option<Id>) -> (&mut Unit, Id) {
+    pub fn save(&mut self, id: &Option<Id>, func: &dyn Fn(&mut Unit)) -> Option<Id> {
         if let Some(id) = id {
             if let Some(unit) = self.units.get_mut(id) {
                 unit.clear();
-                return (unit, id.clone());
-            }
+                func(unit);
+                self.stack.push(id.clone());
+                return Some(id.clone());
+            } 
             panic!("there should be a node at the given id")
         } 
-        let id = Id::new();
+        self.stack.push(Id::new());
+        let id = self.stack.last().unwrap();
         self.units.insert(id.clone(), Unit::default());
-        (self.units.get_mut(&id).unwrap(), id)
+        func(self.units.get_mut(&id).unwrap());
+        Some(id.clone())
     }
 }
 
-#[derive(Clone, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Id {
     node: String,
     snap: String,
@@ -72,8 +77,10 @@ impl Unit {
         self.terms.push(term, Stem::Id(id.clone()));
         self
     }
-    pub fn nodes(&mut self, graph: &mut Graph, term: &str, node: &dyn Node) -> &mut Self {
-        self.terms.push(term, Stem::Id(node.save(graph)));
+    pub fn nodes(&mut self, graph: &mut Graph, term: &str, node: &mut dyn Node) -> &mut Self {
+        node.save(graph);
+        let id = graph.stack.pop().unwrap();
+        self.terms.push(term, Stem::Id(id));
         // for node in nodes.iter() {
         //     self.terms.push(term, Stem::Id(node.graph(graph)));
         // } 

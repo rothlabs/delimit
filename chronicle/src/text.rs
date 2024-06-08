@@ -24,10 +24,10 @@ impl Text for Leaf {
 }
 
 impl Node for Leaf {
-    fn save(&self, graph: &mut Graph) -> Id {
-        let (unit, id) = graph.unit(&self.id);
-        unit.string(&LEAF, &self.string);
-        id
+    fn save(&mut self, graph: &mut Graph) {
+        self.id = graph.save(&self.id, &|unit| {
+            unit.string(&LEAF, &self.string);
+        });
     }
 }
 
@@ -76,11 +76,11 @@ impl Text for List {
 }
 
 impl Node for List {
-    fn save(&self, graph: &mut Graph) -> Id {
-        let (unit, id) = graph.unit(&self.id);
-        unit.cast("chronicle/list")
-            .string("separator", &self.separator);
-            //.nodes(graph, "items", self.stems[0].as_ref());
-        id
+    fn save(&mut self, graph: &mut Graph) {
+        self.id = graph.save(&self.id, &|unit| {
+            unit.cast("chronicle/list")
+                .string("separator", &self.separator)
+                .nodes(graph, "items", self.stems[0].as_ref());
+        });
     }
 }
