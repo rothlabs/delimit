@@ -1,14 +1,21 @@
-use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
+//use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
+
+use chronicle::{text::node::list, html::node::doc};
+use graph::leaf::leaf_str;
 
 pub fn index() -> String {
+    //String::new()
     //let mut su = string_unit("cool");
-    let leaf = leaf("cool");
+    let leaf = leaf_str("cool");
     let mut list = list();
-    list.add_leaf(leaf.clone());
-    let cell = leaf.string();
-    println!("{}", list.string().at.borrow());
-    cell.set_str("please work");
-    println!("{}", list.string().at.borrow());
+    list.add_leaf(&leaf);
+    list.add_leaf(&leaf);
+    list.add_leaf(&leaf);
+    //let cell = leaf.string();
+    let text = list.text();
+    println!("{}", text.string());
+    leaf.set_str("please work");
+    println!("{}", text.string());
 
     let mut html = doc().html();
     html.lang("en");
@@ -21,8 +28,10 @@ pub fn index() -> String {
         .content("width=device-width, initial-scale=1");
     meta = meta.root().meta();
     meta.name("author").content("Roth Labs LLC");
-    let doc = meta.up_to_doc();
-    let text = doc.text();
+    let mut body = meta.up_to_html().body();
+    body.leaf("Let's roll.");
+    let text = body.up_to_doc().text();
+    //let text = doc.text();
 
     // let wow = text.any().downcast_ref::<Leaf>().unwrap();
     // // let wo2 = wow.items.last().unwrap().any().downcast_ref::<Leaf>().unwrap();
@@ -30,5 +39,7 @@ pub fn index() -> String {
     // // println!("wo3 = {}", wo3);
     let json = text.serialize();
     println!("{json}");
-    doc.string()
+    let t = text.string();
+    println!("{t}");
+    t
 }

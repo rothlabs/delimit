@@ -1,12 +1,12 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{Ref, RefCell}, ops::Deref, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
 use crate::Id;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Unit<T> {
-    pub at: T,
+    pub value: T,
     pub id: Id,
 }
 
@@ -16,14 +16,23 @@ pub struct Leaf<T>(
 );
 
 impl<T: ToOwned<Owned = T>> Leaf<T> {
-    pub fn set(&self, value: &T) {
-        self.0.borrow_mut().at = value.to_owned(); 
+    pub fn get(&self) -> Ref<'_, Unit<T>> { //  
+        self.0.as_ref().borrow()
     }
+    pub fn set(&self, value: &T) {
+        self.0.borrow_mut().value = value.to_owned(); 
+    }
+    // fn serialize(&self) -> String {
+    //     serde_json::to_string(self.0.borrow()).unwrap()
+    // }
+    // pub fn id(&self) -> Id { //  
+    //     self.0.as_ref().borrow().id.clone()
+    // }
 }
 
 impl Leaf<String> {
     pub fn set_str(&self, value: &str) {
-        self.0.as_ref().borrow_mut().at = value.to_owned();
+        self.0.as_ref().borrow_mut().value = value.to_owned();
     }
 }
 
@@ -32,16 +41,36 @@ impl Serialize for Leaf<String> {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&self.0.borrow().at)
+        serializer.serialize_str(&self.get().value)
     }
 }
 
 pub fn leaf_str(value: &str) -> Leaf<String> {
     Leaf(Rc::new(RefCell::new(Unit {
-        at: value.to_owned(),
+        value: value.to_owned(),
         id: Id::new("leaf/str"),
     })))
 }
+
+
+// pub fn id(&self) -> Ref<'_, Id> { //  impl  Deref<Target = Id> + '_
+// Ref::map(self.0.as_ref().borrow(), |r| &r.id)
+// }
+
+
+// impl Node for Leaf<String> {
+//     fn string(&self) -> Leaf<String> {
+//         self.clone()
+//     }
+//     fn serialize(&self) -> String {
+//         serde_json::to_string(self).unwrap()
+//     }
+//     fn id(&self) -> Id {
+//         self.0.as_ref().borrow().id.clone()
+//     }
+// }
+
+
 
 // #[derive(Clone)]
 // pub struct StringCell(pub Rc<RefCell<String>>);

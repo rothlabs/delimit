@@ -1,11 +1,48 @@
-use std::{any::Any, cell::RefCell, rc::Rc};
+use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
+use graph::{leaf::Leaf, Id};
 
-use graph::Id;
 pub mod node;
-use node::{Node, List};
 
+pub fn text(node: impl Node + 'static) -> Text {
+    Text(Rc::new(RefCell::new(node)))
+}
+
+#[derive(Clone)]
+pub struct Text(pub Rc<RefCell<dyn Node>>);
+
+impl Text {
+    pub fn get(&self) -> Ref<'_, dyn Node> { //  
+        self.0.as_ref().borrow()
+    }
+    pub fn string(&self) -> String {
+        self.get().leaf().get().value.clone()
+    }
+    pub fn serialize(&self) -> String {
+        self.get().serialize()
+    }
+}
+
+impl Serialize for Text {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.get().id().serialize(serializer)
+    }
+}
+
+pub trait Node {
+    fn id(&self) -> Id;
+    fn leaf(&self) -> Leaf<String>;
+    fn serialize(&self) -> String;
+}
+
+
+    // pub fn any(&self) -> &dyn Any {
+    //     self
+    // }
 
 // pub fn leaf(value: &str) -> Text {
 //     Text(Rc::new(Leaf {
@@ -13,30 +50,6 @@ use node::{Node, List};
 //         id: Id::new("text/leaf"),
 //     }))
 // }
-
-
-
-#[derive(Clone)]
-pub struct Text(pub Rc<RefCell<dyn Node>>);
-impl Text {
-    pub fn string(&self) -> String {
-        self.0.borrow().string().0.borrow().at.to_owned()
-    }
-    pub fn serialize(&self) -> String {
-        self.0.borrow().serialize()
-    }
-    pub fn any(&self) -> &dyn Any {
-        self
-    }
-}
-impl Serialize for Text {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.0.borrow().id().serialize(serializer)
-    }
-}
 
 // impl RcText {
 //     fn new(value: dyn Text) -> RcText {
