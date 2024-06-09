@@ -1,8 +1,8 @@
-use std::{cell::{Ref, RefCell}, ops::Deref, rc::Rc};
+use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use crate::Id;
+use super::node::Id;
 
 #[derive(Clone, Serialize)]
 pub struct Unit<T> {
@@ -11,13 +11,11 @@ pub struct Unit<T> {
 }
 
 #[derive(Clone)]
-pub struct Leaf<T>(
-    pub Rc<RefCell<Unit<T>>>
-);
+pub struct Leaf<T>(pub Rc<RefCell<Unit<T>>>);
 
 impl<T: ToOwned<Owned = T>> Leaf<T> {
     pub fn get(&self) -> Ref<'_, Unit<T>> { //  
-        self.0.as_ref().borrow()
+        self.0.borrow()
     }
     pub fn set(&self, value: &T) {
         self.0.borrow_mut().value = value.to_owned(); 

@@ -1,32 +1,9 @@
-use std::{borrow::Cow, hash::Hash};
-
-use rand::distributions::{Alphanumeric, DistString};
-use serde::{Deserialize, Serialize};
-
+pub mod pack;
+pub mod node;
+pub mod snap;
 pub mod leaf;
 
-pub const LEAF: &str = "leaf";
 
-type Cast = Cow<'static, str>;
-
-#[derive(Default, Clone, Hash, PartialEq, Serialize, Deserialize)]
-pub struct Id {
-    cast: Cast,
-    node: String,
-    snap: String,
-}
-
-impl Eq for Id {}
-
-impl Id {
-    pub fn new(cast: &'static str) -> Self {
-        Id {
-            cast: Cow::Borrowed(cast),
-            node: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
-            snap: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
-        }
-    }
-}
 
 // pub trait Node {
 //     fn save(&mut self, graph: &mut Graph);

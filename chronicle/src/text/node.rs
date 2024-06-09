@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::{Id, leaf::{Leaf, leaf_str}};
+use graph::{node::Id, leaf::{Leaf, leaf_str}};
 use super::{Node, Text, text};
 
 impl Node for Leaf<String> {
@@ -19,7 +19,7 @@ impl Node for Leaf<String> {
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
-    pub id: Id,
+    pub id: Id, // TODO: Vec<Rc<graph::node::Id>>
 }
 
 impl List {

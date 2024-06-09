@@ -1,7 +1,7 @@
 use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
-use graph::{leaf::Leaf, Id};
+use graph::{leaf::Leaf, node::Id};
 
 pub mod node;
 
@@ -13,7 +13,7 @@ pub fn text(node: impl Node + 'static) -> Text {
 pub struct Text(pub Rc<RefCell<dyn Node>>);
 
 impl Text {
-    pub fn get(&self) -> Ref<'_, dyn Node> { //  
+    pub fn get(&self) -> Ref<'_, dyn Node> { 
         self.0.as_ref().borrow()
     }
     pub fn string(&self) -> String {
@@ -38,6 +38,9 @@ pub trait Node {
     fn leaf(&self) -> Leaf<String>;
     fn serialize(&self) -> String;
 }
+
+
+
 
 
     // pub fn any(&self) -> &dyn Any {

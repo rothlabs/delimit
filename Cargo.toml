@@ -1,3 +1,7 @@
 [workspace]
-    members = ["app/server", "app/client", "chronicle", "graph"]
+    members = ["app/server", "app/client", "chronicle", "graph", "repo"]
     resolver = "2"
+
+[profile.release]
+    # Tell `rustc` to optimize for small code size.
+    opt-level = "s"
