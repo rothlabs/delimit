@@ -7,6 +7,14 @@ use crate::{snap::Snap, Id};
 #[derive(Clone)]
 pub struct Pack(pub Arc<Mutex<Package>>);
 
+impl Pack {
+    pub fn new() -> Pack {
+        Pack(Arc::new(Mutex::new(Package{
+            id: "old id".to_string(),
+        })))
+    }
+}
+
 impl Serialize for Pack {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

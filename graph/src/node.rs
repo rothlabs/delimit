@@ -3,7 +3,7 @@ use std::{borrow::Cow, cell::RefCell, rc::Rc};
 use serde::{Serializer, Serialize};
 use rand::distributions::{Alphanumeric, DistString};
 
-use crate::{app::App, snap::Snap, Id};
+use crate::{app::App, snap::{Snap, SnapCell}, Id};
 
 #[derive(Clone)]
 pub struct Node(pub Option<Rc<RefCell<Junction>>>);
@@ -44,7 +44,7 @@ pub struct Junction {
 
 #[derive(Serialize)]
 struct Pair {
-    snap: Snap, // called "version" in old django project
+    snap: SnapCell, // called "version" in old django project
     node: Id,
 }
 
