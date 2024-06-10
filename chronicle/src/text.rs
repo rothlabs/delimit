@@ -1,19 +1,19 @@
 use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
-use graph::{leaf::Leaf, node::Id};
+use graph::{leaf::Leaf, node::Node};
 
-pub mod node;
+pub mod app;
 
-pub fn text(node: impl Node + 'static) -> Text {
-    Text(Rc::new(RefCell::new(node)))
+pub fn text(app: impl App + 'static) -> Text {
+    Text(Rc::new(RefCell::new(app)))
 }
 
 #[derive(Clone)]
-pub struct Text(pub Rc<RefCell<dyn Node>>);
+pub struct Text(pub Rc<RefCell<dyn App>>);
 
 impl Text {
-    pub fn get(&self) -> Ref<'_, dyn Node> { 
+    pub fn get(&self) -> Ref<'_, dyn App> { 
         self.0.as_ref().borrow()
     }
     pub fn string(&self) -> String {
@@ -29,12 +29,12 @@ impl Serialize for Text {
     where
         S: Serializer,
     {
-        self.get().id().serialize(serializer)
+        self.get().node().serialize(serializer)
     }
 }
 
-pub trait Node {
-    fn id(&self) -> Id;
+pub trait App {
+    fn node(&self) -> Node;
     fn leaf(&self) -> Leaf<String>;
     fn serialize(&self) -> String;
 }

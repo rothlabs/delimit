@@ -1,14 +1,14 @@
 use std::cell::RefCell;
 
 use graph::leaf::{Leaf, leaf_str};
-use crate::text::{Text, text, node::list};
-use super::{Html, html, Node, tag::*, attribute::*};
+use crate::text::{Text, text, app::list};
+use super::{Html, html, App, tag::*, attribute::*};
 
 pub fn doc() -> Element {
     Element::default()
 }
 
-impl Node for Leaf<String> {
+impl App for Leaf<String> {
     fn text(&self) -> Text {
         text(self.clone())
     }
@@ -26,7 +26,7 @@ impl Element {
         self.text().string()
     }
     pub fn text(self) -> Text {
-        html(self).text() // (self as &dyn Node).text() 
+        html(self).text() // (self as &dyn App).text() 
     }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
         self.stems.push(html(leaf_str(string)));
@@ -115,7 +115,7 @@ impl Default for Element {
     }
 }
 
-impl Node for Element {
+impl App for Element {
     fn text(&self) -> Text {
         let mut ot = list();
         ot.add_string(&self.tag.open);

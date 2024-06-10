@@ -2,19 +2,19 @@ use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use super::node::Id;
+use super::node::Node;
 
 #[derive(Clone, Serialize)]
-pub struct Unit<T> {
+pub struct App<T> {
     pub value: T,
-    pub id: Id,
+    pub node: Node,
 }
 
 #[derive(Clone)]
-pub struct Leaf<T>(pub Rc<RefCell<Unit<T>>>);
+pub struct Leaf<T>(pub Rc<RefCell<App<T>>>);
 
 impl<T: ToOwned<Owned = T>> Leaf<T> {
-    pub fn get(&self) -> Ref<'_, Unit<T>> { //  
+    pub fn get(&self) -> Ref<'_, App<T>> { //  
         self.0.borrow()
     }
     pub fn set(&self, value: &T) {
@@ -39,14 +39,15 @@ impl Serialize for Leaf<String> {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&self.get().value)
+        self.get().node.serialize(serializer)
+        // serializer.serialize_str(&self.get().value)
     }
 }
 
 pub fn leaf_str(value: &str) -> Leaf<String> {
-    Leaf(Rc::new(RefCell::new(Unit {
+    Leaf(Rc::new(RefCell::new(App {
         value: value.to_owned(),
-        id: Id::new("leaf/str"),
+        node: Node(None), //Node::new("leaf/str"),
     })))
 }
 
