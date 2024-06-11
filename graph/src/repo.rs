@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::{Arc, Mutex}};
 
 use serde::{Serializer, Serialize};
 
-use crate::{app::App, node::Node, pack::Pack, snap::{Snap, SnapArc, SnapWeak, SnapWeakMutex}, user::User, Id};
+use crate::{edge::Edge, snap::{Snap, SnapArc, SnapWeak, SnapWeakMutex}, Id};
 
 #[derive(Clone)]
 pub struct RepoArcMutex(pub Arc<Mutex<Repo>>);

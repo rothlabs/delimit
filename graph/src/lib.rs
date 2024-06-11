@@ -1,12 +1,34 @@
+use rand::distributions::{Alphanumeric, DistString};
+use serde::Serialize;
+
+pub mod arc;
+pub mod mutex;
 pub mod repo;
 pub mod user;
 pub mod pack;
 pub mod snap;
 pub mod node;
-pub mod app;
+pub mod edge;
 pub mod leaf;
 
-pub type Id = String;
+pub use node::Node;
+pub use leaf::{Leaf, leaf_str};
+
+#[derive(Clone, Hash, PartialEq, Serialize)]
+pub struct Id(pub String);
+
+impl Id {
+    pub fn new() -> Id {
+        Id(
+            Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
+        )
+    }
+}
+
+impl Eq for Id {}
+
+
+
 
 
 

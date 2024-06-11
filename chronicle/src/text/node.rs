@@ -1,25 +1,25 @@
 use serde::Serialize;
 
-use graph::{node::Node, leaf::{Leaf, leaf_str}};
-use super::{App, Text, text};
+use graph::{Leaf, leaf_str, node::Meta};
+use super::{Node, Text, text};
 
-impl App for Leaf<String> {
+impl Node for Leaf<String> {
     fn leaf(&self) -> Leaf<String> {
         self.clone()
     }
-    fn serialize(&self) -> String {
+    fn json(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    fn node(&self) -> Node {
-        self.get().node.clone() 
-    }
+    // fn node(&self) -> Node {
+    //     self.get().id.clone() 
+    // }
 }
 
 #[derive(Serialize)]
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
-    pub node: Node, // TODO: Vec<Rc<Node>> type Node = String
+    pub meta: Meta,
 }
 
 impl List {
@@ -48,7 +48,7 @@ impl List {
     }
 }
 
-impl App for List {
+impl Node for List {
     fn leaf(&self) -> Leaf<String> {
         let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.get().leaf()).collect();
         let mut string = String::new();
@@ -61,19 +61,19 @@ impl App for List {
         }
         leaf_str(&string) 
     }
-    fn serialize(&self) -> String {
+    fn json(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    fn node(&self) -> Node {
-        self.node.clone()
-    }
+    // fn node(&self) -> Node {
+    //     self.node.clone()
+    // }
 }
 
 pub fn list() -> List {
     List {
         items: vec![],
         separator: "".into(),
-        node: Node(None),//Node::new("text/list"),
+        meta: Meta::new(),
     }
 }
 

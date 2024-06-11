@@ -1,55 +1,57 @@
-use std::{borrow::Cow, cell::RefCell, rc::Rc};
+// use std::borrow::Cow;
 
-use serde::{Serializer, Serialize};
-use rand::distributions::{Alphanumeric, DistString};
+use serde::Serialize;
 
-use crate::{app::App, snap::{Snap, SnapCell}, Id};
+use std::sync::Weak;
 
-#[derive(Clone)]
-pub struct Node(pub Option<Rc<RefCell<Junction>>>);
+use crate::Id;
 
-impl Node {
-    pub fn none() -> Node {
-        Node(None)
-    }
-    // pub fn new(cast: &'static str) -> Self {
-    //     Node(Rc::new(RefCell::new(Some(Junction {
-    //         id: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
-    //         cast: Cow::Borrowed(cast),
-    //         apps: vec![],
-    //         snaps: vec![],
-    //     }))))
-    // }
+pub trait Node {
+    fn id(&self) -> &str;
+    fn name(&self) -> &'static str;
 }
 
-impl Serialize for Node {
+#[derive(Serialize)]
+pub struct Meta {
+    id: Id,
+    roots: Vec<Root>,
+}
+
+impl Meta {
+    pub fn new() -> Meta {
+        Meta {
+            id: Id::new(),
+            roots: vec![],
+        }
+    }
+}
+
+pub struct Root(pub Weak<dyn Node>);
+
+impl Serialize for Root {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        if let Some(junction) = &self.0 {
-            junction.borrow().pair.serialize(serializer)
-            //serializer.serialize_str(&junction.borrow().id)
+        where
+            S: serde::Serializer {
+        if let Some(root) = self.0.upgrade() {
+            serializer.serialize_str(root.id())
         } else {
             serializer.serialize_str("")
         }
     }
 }
 
-#[derive(Serialize)]
-pub struct Junction {
-    pair: Pair,
-    app: App, // called "snap" in old django project
-}
 
-#[derive(Serialize)]
-struct Pair {
-    snap: SnapCell, // called "version" in old django project
-    node: Id,
-}
+// #[derive(Clone, Serialize)]
+// pub struct Id {
+//     id: crate::Id,
+//     cast: Cow<'static, str>,
+// }
 
-//type Cast = Cow<'static, str>;
-
-
-//#[derive(Default, Clone, Hash, PartialEq)]
-//impl Eq for Junction {}
+// impl Id {
+//     pub fn new(cast: &'static str) -> Id {
+//         Id {
+//             id: crate::Id::new(),
+//             cast: Cow::Borrowed(cast),
+//         }
+//     }
+// }

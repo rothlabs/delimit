@@ -2,12 +2,12 @@ use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
 
-use super::node::Node;
+use crate::Id;
 
 #[derive(Clone, Serialize)]
 pub struct App<T> {
     pub value: T,
-    pub node: Node,
+    pub id: Id,
 }
 
 #[derive(Clone)]
@@ -39,7 +39,7 @@ impl Serialize for Leaf<String> {
     where
         S: Serializer,
     {
-        self.get().node.serialize(serializer)
+        self.get().id.serialize(serializer)
         // serializer.serialize_str(&self.get().value)
     }
 }
@@ -47,7 +47,7 @@ impl Serialize for Leaf<String> {
 pub fn leaf_str(value: &str) -> Leaf<String> {
     Leaf(Rc::new(RefCell::new(App {
         value: value.to_owned(),
-        node: Node(None), //Node::new("leaf/str"),
+        id: Id::new(),
     })))
 }
 

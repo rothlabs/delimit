@@ -1,42 +1,43 @@
 use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use serde::{Serialize, Serializer};
-use graph::{leaf::Leaf, node::Node};
+use graph;
+use graph::Leaf;
 
-pub mod app;
+pub mod node;
 
-pub fn text(app: impl App + 'static) -> Text {
+pub fn text(app: impl Node + 'static) -> Text {
     Text(Rc::new(RefCell::new(app)))
 }
 
 #[derive(Clone)]
-pub struct Text(pub Rc<RefCell<dyn App>>);
+pub struct Text(pub Rc<RefCell<dyn Node>>);
 
 impl Text {
-    pub fn get(&self) -> Ref<'_, dyn App> { 
+    pub fn get(&self) -> Ref<'_, dyn Node> { 
         self.0.as_ref().borrow()
     }
     pub fn string(&self) -> String {
         self.get().leaf().get().value.clone()
     }
-    pub fn serialize(&self) -> String {
-        self.get().serialize()
+    pub fn json(&self) -> String {
+        self.get().json()
     }
 }
 
-impl Serialize for Text {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        self.get().node().serialize(serializer)
-    }
-}
+// impl Serialize for Text {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: Serializer,
+//     {
+//         self.get().node().serialize(serializer)
+//     }
+// }
 
-pub trait App {
-    fn node(&self) -> Node;
+pub trait Node {
+    //fn node(&self) -> Node;
     fn leaf(&self) -> Leaf<String>;
-    fn serialize(&self) -> String;
+    fn json(&self) -> String;
 }
 
 

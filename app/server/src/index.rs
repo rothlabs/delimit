@@ -1,6 +1,6 @@
 //use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
 
-use chronicle::{text::app::list, html::app::doc};
+use chronicle::{text::node::list, html::app::doc};
 use graph::leaf::leaf_str;
 
 pub fn index() -> String {
@@ -37,7 +37,7 @@ pub fn index() -> String {
     // // let wo2 = wow.items.last().unwrap().any().downcast_ref::<Leaf>().unwrap();
     // // let wo3 = wo2.string().0;
     // // println!("wo3 = {}", wo3);
-    let json = text.serialize();
+    let json = text.json();
     println!("{json}");
     let t = text.string();
     println!("{t}");
