@@ -9,9 +9,13 @@ pub mod pack;
 pub mod snap;
 pub mod node;
 pub mod edge;
+pub mod guard;
 pub mod leaf;
 
-pub use node::Node;
+pub use node::{Node, Nodish};
+pub use snap::Snap;
+pub use edge::Edge;
+pub use guard::Guard;
 pub use leaf::{Leaf, leaf_str};
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
@@ -22,6 +26,9 @@ impl Id {
         Id(
             Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
         )
+    }
+    pub fn string(&self) -> &str {
+        &self.0
     }
 }
 

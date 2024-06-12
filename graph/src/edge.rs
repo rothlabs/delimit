@@ -1,48 +1,45 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, MutexGuard}};
+use std::{collections::HashMap, sync::{Arc, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
 use serde::{Serializer, Serialize};
 
-use crate::Id;
+use crate::{Guard, Id, Node, Nodish, Snap};
 
-#[derive(Serialize)]
-pub struct Edge<T>(Gate<T>);
+//#[derive(Clone)]
+pub struct Edge<T: ?Sized> (
+    HashMap<Snap, Node<T>>
+);
 
-impl<T: Clone> Edge<T> {
-    fn get(&self, snap: &Id) -> Arc<T> { // TODO: maybe return Arc<dummy> if no key in hashmap?
-        match &self.0 {
-            Gate::Cold(cold) => cold.0.get(snap).unwrap().clone(),
-            Gate::Hot(hot) => {
-                let wow = hot.0.lock().expect("mutex should lock").get(snap).cloned();
-                if let Some(huh) = wow {
-                    *huh.lock().unwrap()
-                } else {
-                    0
-                }
-                //wow
-            },
-        }
+impl<T: ?Sized> Edge<T> {
+    pub fn get(&self, snap: &Snap) -> Guard<T> {
+        let w1 = self.0.get(snap);
+        let w2 = w1.expect("there should be a snap key");
+        let w4 = w2.content.read();
+        let w5 = w4.expect("the lock should not be poisoned");
+        Guard::new(w5)
     }
-    fn get_mut(&self, snap: &Id) -> MutexGuard<T> {
+    // fn write(&self, snap: &Snap) -> RwLockWriteGuard<T> {
+    //     self.0.get(snap)
+    //         .expect("there should be a snap key")
+    //         .write()
+    //         .expect("the lock should not be poisoned")
+    // }
+}
+
+impl<T: ?Sized> Clone for Edge<T> {
+    fn clone(&self) -> Self {
+        Self (
+            self.0.clone(),
+        )
+    }
+}
+
+// impl<T> Serialize for Edge<T> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: Serializer {
         
-    }
-}
-
-pub enum Gate<T> {
-    Cold(Cold<T>),
-    Hot(Hot<T>),
-}
-
-pub struct Cold<T>(pub HashMap<Id, Arc<T>>);
-
-pub struct Hot<T>(pub Mutex<HashMap<Id, Arc<Mutex<T>>>>);
-
-impl<T> Serialize for Hot<T> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer {
-                
-    }
-}
+//     }
+// }
 
 
 

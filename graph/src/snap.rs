@@ -23,7 +23,10 @@ pub struct SnapCell(pub Rc<RefCell<Snap>>);
 //     }
 // }
 
+#[derive(Clone, PartialEq, Hash)]
 pub struct Snap {
     id: Id,
     //nodes: Vec<Node>,
 }
+
+impl Eq for Snap {}
