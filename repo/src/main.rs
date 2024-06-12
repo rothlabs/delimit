@@ -2,8 +2,8 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 
 use bytes::Bytes;
-use graph::pack::Pack;
-use graph::repo::{Repo, RepoArc};
+//use graph::pack::Pack;
+use graph::Repo;
 use http_body_util::Full;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
@@ -20,7 +20,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let mut repo = RepoArc::new();
+    let mut repo = Repo::new();
     //repo.0.packs.insert("wow".to_string(), Pack::new());
     loop {
         let (tcp, _) = listener.accept().await?;
@@ -30,7 +30,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 }
 
-async fn future(io: Io, repo: RepoArc) {
+async fn future(io: Io, repo: Repo) {
     let result = http1::Builder::new()
         .serve_connection(io, service_fn(|req| service(req, repo.clone()))).await;
     if let Err(err) = result {
@@ -38,7 +38,7 @@ async fn future(io: Io, repo: RepoArc) {
     }
 }
 
-async fn service(_: Request<impl Body>, repo: RepoArc) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn service(_: Request<impl Body>, repo: Repo) -> Result<Response<Full<Bytes>>, Infallible> {
     // if let Ok(mut count) = repo.0.count.lock() {
     //     *count += 1;
     //     println!("count: {count}");

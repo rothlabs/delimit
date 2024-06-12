@@ -1,9 +1,9 @@
 use serde::Serialize;
 
-use graph::{leaf_str, node::Meta, Leaf, Snap};
-use super::{App, Text, text};
+use graph::{Leaf, leaf_str};
+use super::{Unit, Text, text};
 
-impl App for Leaf<String> {
+impl Unit for Leaf<String> {
     fn leaf(&self) -> Leaf<String> {
         self.clone()
     }
@@ -15,16 +15,15 @@ impl App for Leaf<String> {
     // }
 }
 
-//#[derive(Serialize)]
+#[derive(Serialize)]
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
-    pub meta: Meta,
 }
 
 impl List {
-    pub fn text(self, snap: &Snap) -> Text {
-        text(snap, self)
+    pub fn text(self) -> Text {
+        text(self)
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();
@@ -48,9 +47,9 @@ impl List {
     }
 }
 
-impl App for List {
+impl Unit for List {
     fn leaf(&self) -> Leaf<String> {
-        let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.get().leaf()).collect();
+        let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.read().leaf()).collect();
         let mut string = String::new();
         for i in 0..cells.len()-1 {
             string += &cells[i].get().value;
@@ -73,7 +72,6 @@ pub fn list() -> List {
     List {
         items: vec![],
         separator: "".into(),
-        meta: Meta::new(),
     }
 }
 

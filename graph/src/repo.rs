@@ -4,6 +4,17 @@ use serde::{Serializer, Serialize};
 
 use crate::{edge::Edge, Snap, Id};
 
+#[derive(Clone)]
+pub struct Repo {
+
+}
+
+impl Repo {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 // #[derive(Clone)]
 // pub struct RepoArcMutex(pub Arc<Mutex<Repo>>);
 

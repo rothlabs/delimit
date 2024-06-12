@@ -4,68 +4,79 @@ use serde::Serialize;
 
 use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock, Weak}};
 
-use crate::Id;
+use crate::{Guard, Id};
 
-pub struct Node<A: ?Sized> {
-    pub content: Arc<RwLock<A>>,
+pub struct Node<U: ?Sized> {
+    pub unit: Arc<RwLock<U>>,
     pub meta: Meta,
 }
 
-impl<A> Node<A> {
-    pub fn new(app: A) -> Self {
+impl<U> Node<U> {
+    pub fn new(unit: U) -> Self {
         Self {
-            content: Arc::new(RwLock::new(app)),
+            unit: Arc::new(RwLock::new(unit)),
             meta: Meta::new(),
         }
     }
+    pub fn read(&self) -> Guard<U> {
+        Guard::new(
+            self.unit.read().expect("the lock should not be poisoned")
+        )
+    }
 }
 
-impl<A: ?Sized> Clone for Node<A> {
+impl<U: ?Sized> Clone for Node<U> {
     fn clone(&self) -> Self {
         Self {
-            content: self.content.clone(),
+            unit: self.unit.clone(),
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<A> PartialEq for Node<A> {
-    fn eq(&self, rhs: &Node<A>) -> bool {
-        self.meta.id == rhs.meta.id
+impl<U> PartialEq for Node<U> {
+    fn eq(&self, rhs: &Node<U>) -> bool {
+        self.meta.node.id == rhs.meta.node.id
     }
 }
 
-impl<A> Hash for Node<A> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.meta.id.hash(state);
+impl<T> Serialize for Node<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        self.meta.serialize(serializer)
     }
 }
 
-// pub struct Content<T: ?Sized>(Arc<RwLock<T>>);
-
-// impl<T: ?Sized> Clone for Content<T> {
-//     fn clone(&self) -> Self {
-//         Self (self.0.clone())
-//     }
-// }
-
-// impl<T: ?Sized> PartialEq for Content<T> {
-//     fn eq(&self, other: &Content<T>) -> bool {
-//         self.0 == other.0
-//     }
-// }
-
-#[derive(Clone, PartialEq, Hash)]
+#[derive(Clone, Serialize)]
 pub struct Meta {
-    id: Id,
+    node: meta::Node,
+    //snap: meta::Snap,
 }
 
 impl Meta {
     pub fn new() -> Self {
         Self {
-            id: Id::new(),
+            node: meta::Node{id:Id::new()},
+            //snap: meta::Snap{}
         }
     }
+}
+
+mod meta {
+    use std::sync::Weak;
+
+    use serde::Serialize;
+
+    use crate::Id;
+
+    #[derive(Clone, Serialize)]
+    pub struct Node {
+        pub id: Id,
+    } 
+
+    #[derive(Clone)]
+    pub struct Snap(Weak<crate::Snap>);
 }
 
     //pub roots: Vec<Root>,
@@ -80,24 +91,25 @@ impl Meta {
 //     }
 // }
 
-pub trait Nodish {
-    fn id(&self) -> &Id;
-    fn name(&self) -> &'static str;
-}
+// pub struct Root(pub Weak<dyn Nodish>);
 
-pub struct Root(pub Weak<dyn Nodish>);
+// impl Serialize for Root {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         if let Some(root) = self.0.upgrade() {
+//             serializer.serialize_str(root.id().string())
+//         } else {
+//             serializer.serialize_str("")
+//         }
+//     }
+// }
 
-impl Serialize for Root {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
-        if let Some(root) = self.0.upgrade() {
-            serializer.serialize_str(root.id().string())
-        } else {
-            serializer.serialize_str("")
-        }
-    }
-}
+
+// pub trait Nodish {
+//     fn id(&self) -> &Id;
+//     fn name(&self) -> &'static str;
+// }
 
 
 // #[derive(Clone, Serialize)]

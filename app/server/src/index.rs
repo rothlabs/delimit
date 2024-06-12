@@ -1,6 +1,6 @@
 //use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
 
-use chronicle::{text::node::list, html::app::doc};
+use chronicle::{text::unit::list, html::app::doc};
 use graph::leaf::leaf_str;
 
 pub fn index() -> String {

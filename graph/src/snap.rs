@@ -10,10 +10,10 @@ use crate::{Id, Node};
 // #[derive(Clone)]
 // pub struct SnapWeakMutex(pub Weak<Mutex<Snap>>);
 
-#[derive(Clone, PartialEq, Hash)]
-pub struct Snap(pub Node<Unit>);
+// #[derive(Clone, PartialEq, Hash)]
+// pub struct Snap(pub Node<Unit>);
 
-impl Eq for Snap {}
+// impl Eq for Snap {}
 //pub struct SnapCell(pub Rc<RefCell<Snap>>);
 
 // impl Serialize for SnapCell {
@@ -26,7 +26,7 @@ impl Eq for Snap {}
 // }
 
 #[derive(Clone, PartialEq, Hash)]
-pub struct Unit {
+pub struct Snap {
     pub id: Id,
     //nodes: Vec<Node>,
 }

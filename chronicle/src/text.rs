@@ -1,31 +1,27 @@
-use std::{cell::{Ref, RefCell}, rc::Rc, sync::{Arc, RwLockReadGuard}};
+use serde::Serialize;
+use graph::{Node, Leaf, Guard};
 
-use serde::{Serialize, Serializer};
-use graph::{Edge, Snap, Guard};
-use graph::Leaf;
-//use graph;
+pub mod unit;
 
-pub mod node;
-
-pub fn text(snap: &Snap, app: impl App + 'static) -> Text {
-    Text(Edge::new(snap, Box::new(app)))
+pub fn text(unit: impl Unit + 'static) -> Text {
+    Text(Node::new(Box::new(unit)))
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Text(
-    pub Edge<Snap, Box<dyn App>>
+    pub Node<Box<dyn Unit>>
 );
 
 impl Text {
-    pub fn get(&self, snap: &Snap) -> Guard<Box<dyn App>> { 
-        self.0.read(snap)
+    pub fn read(&self) -> Guard<Box<dyn Unit>> { 
+        self.0.read()
     }
-    // pub fn string(&self) -> String {
-    //     self.get().leaf().get().value.clone()
-    // }
-    // pub fn json(&self) -> String {
-    //     self.get().json()
-    // }
+    pub fn string(&self) -> String {
+        self.read().leaf().get().value.clone()
+    }
+    pub fn json(&self) -> String {
+        self.read().json()
+    }
 }
 
 // impl Serialize for Text {
@@ -39,7 +35,7 @@ impl Text {
 
 //pub trait NewTrait: Node + Clone {}
 
-pub trait App {
+pub trait Unit {
     //fn node(&self) -> Node;
     fn leaf(&self) -> Leaf<String>;
     fn json(&self) -> String;
