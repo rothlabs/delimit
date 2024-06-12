@@ -6,9 +6,7 @@ pub struct Guard<'a, T: ?Sized> (
 
 impl<'a, T: ?Sized> Guard<'a, T> {
     pub fn new(rw_lock_guard: RwLockReadGuard<'a, T>) -> Self {
-        Guard (
-            rw_lock_guard,
-        )
+        Self(rw_lock_guard)
     }
 }
 

@@ -2,17 +2,19 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak}};
 
 use serde::{Serializer, Serialize};
 
-use crate::{Id};
+use crate::{Id, Node};
 
-#[derive(Clone)]
-pub struct SnapWeak(pub Weak<Snap>);
+// #[derive(Clone)]
+// pub struct SnapWeak(pub Weak<Snap>);
 
-#[derive(Clone)]
-pub struct SnapWeakMutex(pub Weak<Mutex<Snap>>);
+// #[derive(Clone)]
+// pub struct SnapWeakMutex(pub Weak<Mutex<Snap>>);
 
-#[derive(Clone)]
-pub struct SnapArc(pub Arc<Snap>);
-pub struct SnapCell(pub Rc<RefCell<Snap>>);
+#[derive(Clone, PartialEq, Hash)]
+pub struct Snap(pub Node<Unit>);
+
+impl Eq for Snap {}
+//pub struct SnapCell(pub Rc<RefCell<Snap>>);
 
 // impl Serialize for SnapCell {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -24,9 +26,9 @@ pub struct SnapCell(pub Rc<RefCell<Snap>>);
 // }
 
 #[derive(Clone, PartialEq, Hash)]
-pub struct Snap {
-    id: Id,
+pub struct Unit {
+    pub id: Id,
     //nodes: Vec<Node>,
 }
 
-impl Eq for Snap {}
+//impl Eq for Snap {}

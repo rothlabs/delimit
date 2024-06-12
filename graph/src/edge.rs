@@ -1,21 +1,25 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
+use std::{collections::HashMap, hash::Hash, ops::Deref};
 
 use serde::{Serializer, Serialize};
 
 use crate::{Guard, Id, Node, Nodish, Snap};
 
 //#[derive(Clone)]
-pub struct Edge<T: ?Sized> (
-    HashMap<Snap, Node<T>>
+pub struct Edge<K: Eq + PartialEq + Hash + Clone, A: ?Sized> (
+    HashMap<K, Node<A>>
 );
 
-impl<T: ?Sized> Edge<T> {
-    pub fn get(&self, snap: &Snap) -> Guard<T> {
-        let w1 = self.0.get(snap);
-        let w2 = w1.expect("there should be a snap key");
-        let w4 = w2.content.read();
-        let w5 = w4.expect("the lock should not be poisoned");
-        Guard::new(w5)
+impl<K: Eq + PartialEq + Hash + Clone, A: ?Sized> Edge<K, A> {
+    pub fn new(key: &K, app: Box<A>) -> Self {
+        let mut map = HashMap::new();
+        map.insert(key.clone(), Node::new(app));
+        Self(map)
+    }
+    pub fn get(&self, key: &K) -> Guard<A> {
+        Guard::new(
+            self.0.get(key).expect("there should be a matching key")
+                .content.read().expect("the lock should not be poisoned")
+        )
     }
     // fn write(&self, snap: &Snap) -> RwLockWriteGuard<T> {
     //     self.0.get(snap)
@@ -25,11 +29,9 @@ impl<T: ?Sized> Edge<T> {
     // }
 }
 
-impl<T: ?Sized> Clone for Edge<T> {
+impl<K: Eq + PartialEq + Hash + Clone, A: ?Sized> Clone for Edge<K, A> {
     fn clone(&self) -> Self {
-        Self (
-            self.0.clone(),
-        )
+        Self(self.0.clone())
     }
 }
 

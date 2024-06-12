@@ -1,9 +1,9 @@
 use serde::Serialize;
 
 use graph::{Leaf, leaf_str, node::Meta};
-use super::{Unit, Text, text};
+use super::{App, Text, text};
 
-impl Unit for Leaf<String> {
+impl App for Leaf<String> {
     fn leaf(&self) -> Leaf<String> {
         self.clone()
     }
@@ -48,7 +48,7 @@ impl List {
     }
 }
 
-impl Unit for List {
+impl App for List {
     fn leaf(&self) -> Leaf<String> {
         let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.get().leaf()).collect();
         let mut string = String::new();

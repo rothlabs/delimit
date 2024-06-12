@@ -7,17 +7,17 @@ use graph::Leaf;
 
 pub mod node;
 
-// pub fn text(app: impl TextContent + 'static) -> Text {
-//     Text(Rc::new(RefCell::new(app)))
-// }
+pub fn text(snap: &Snap, app: impl App + 'static) -> Text {
+    Text(Edge::new(snap, Box::new(app)))
+}
 
 #[derive(Clone)]
 pub struct Text(
-    pub Edge<dyn Unit>
+    pub Edge<Snap, dyn App>
 );
 
 impl Text {
-    pub fn get(&self, snap: &Snap) -> Guard<dyn Unit> { 
+    pub fn get(&self, snap: &Snap) -> Guard<dyn App> { 
         self.0.get(snap)
     }
     // pub fn string(&self) -> String {
@@ -39,7 +39,7 @@ impl Text {
 
 //pub trait NewTrait: Node + Clone {}
 
-pub trait Unit {
+pub trait App {
     //fn node(&self) -> Node;
     fn leaf(&self) -> Leaf<String>;
     fn json(&self) -> String;
