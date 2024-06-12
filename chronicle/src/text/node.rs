@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::{Leaf, leaf_str, node::Meta};
+use graph::{leaf_str, node::Meta, Leaf, Snap};
 use super::{App, Text, text};
 
 impl App for Leaf<String> {
@@ -15,7 +15,7 @@ impl App for Leaf<String> {
     // }
 }
 
-#[derive(Serialize)]
+//#[derive(Serialize)]
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
@@ -23,8 +23,8 @@ pub struct List {
 }
 
 impl List {
-    pub fn text(self) -> Text {
-        text(self)
+    pub fn text(self, snap: &Snap) -> Text {
+        text(snap, self)
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();

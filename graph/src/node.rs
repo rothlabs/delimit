@@ -7,12 +7,12 @@ use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock, Weak}};
 use crate::Id;
 
 pub struct Node<A: ?Sized> {
-    pub content: Arc<RwLock<Box<A>>>,
+    pub content: Arc<RwLock<A>>,
     pub meta: Meta,
 }
 
-impl<A: ?Sized> Node<A> {
-    pub fn new(app: Box<A>) -> Self {
+impl<A> Node<A> {
+    pub fn new(app: A) -> Self {
         Self {
             content: Arc::new(RwLock::new(app)),
             meta: Meta::new(),

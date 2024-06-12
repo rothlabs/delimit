@@ -9,13 +9,13 @@ pub struct Edge<K: Eq + PartialEq + Hash + Clone, A: ?Sized> (
     HashMap<K, Node<A>>
 );
 
-impl<K: Eq + PartialEq + Hash + Clone, A: ?Sized> Edge<K, A> {
-    pub fn new(key: &K, app: Box<A>) -> Self {
+impl<K: Eq + PartialEq + Hash + Clone, A> Edge<K, A> {
+    pub fn new(key: &K, app: A) -> Self {
         let mut map = HashMap::new();
         map.insert(key.clone(), Node::new(app));
         Self(map)
     }
-    pub fn get(&self, key: &K) -> Guard<A> {
+    pub fn read(&self, key: &K) -> Guard<A> {
         Guard::new(
             self.0.get(key).expect("there should be a matching key")
                 .content.read().expect("the lock should not be poisoned")

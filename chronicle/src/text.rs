@@ -13,12 +13,12 @@ pub fn text(snap: &Snap, app: impl App + 'static) -> Text {
 
 #[derive(Clone)]
 pub struct Text(
-    pub Edge<Snap, dyn App>
+    pub Edge<Snap, Box<dyn App>>
 );
 
 impl Text {
-    pub fn get(&self, snap: &Snap) -> Guard<dyn App> { 
-        self.0.get(snap)
+    pub fn get(&self, snap: &Snap) -> Guard<Box<dyn App>> { 
+        self.0.read(snap)
     }
     // pub fn string(&self) -> String {
     //     self.get().leaf().get().value.clone()
