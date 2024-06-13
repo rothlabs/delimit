@@ -1,18 +1,15 @@
 use serde::Serialize;
 
-use graph::{leaf_str, Leaf, Node};
+use graph::Edge;
 use super::{Unit, Text, text};
 
-impl Unit for Node<String> {
-    fn leaf(&self) -> Node<String> {
+impl Unit for Edge<String> {
+    fn leaf(&self) -> Edge<String> {
         self.clone()
     }
     fn json(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    // fn node(&self) -> Node {
-    //     self.get().id.clone() 
-    // }
 }
 
 #[derive(Serialize)]
@@ -33,12 +30,12 @@ impl List {
         self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, leaf: &Node<String>) -> &mut Self {
+    pub fn add_leaf(&mut self, leaf: &Edge<String>) -> &mut Self {
         self.items.push(text(leaf.clone()));
         self
     }
-    pub fn add_string(&mut self, string: &str) -> &mut Self {
-        self.items.push(text(Node::new(string.to_owned()))); // leaf_str(string)
+    pub fn add_string(&mut self, unit: &str) -> &mut Self {
+        self.items.push(text(Edge::str(unit))); 
         self
     }
     pub fn add_list(&mut self, list: List) -> &mut Self {
@@ -48,24 +45,21 @@ impl List {
 }
 
 impl Unit for List {
-    fn leaf(&self) -> Node<String> {
-        let cells: Vec<Node<String>> = self.items.iter().map(|i| i.read().leaf()).collect();
+    fn leaf(&self) -> Edge<String> {
+        let leafs: Vec<Edge<String>> = self.items.iter().map(|i| i.leaf()).collect();
         let mut string = String::new();
-        for i in 0..cells.len()-1 {
-            string += &cells[i].read();
+        for i in 0..leafs.len()-1 {
+            string += &leafs[i].read().read();
             string += &self.separator;
         }
-        if let Some(cell) = cells.last() {
-            string += &cell.read();
+        if let Some(leaf) = leafs.last() {
+            string += &leaf.read().read();
         }
-        Node::new(string)
+        Edge::new(string)
     }
     fn json(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
-    // fn node(&self) -> Node {
-    //     self.node.clone()
-    // }
 }
 
 pub fn list() -> List {

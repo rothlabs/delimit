@@ -1,10 +1,10 @@
 use std::{ops::{Deref, DerefMut}, sync::{RwLockReadGuard, RwLockWriteGuard}};
 
-pub struct Read<'a, T: ?Sized> (
+pub struct Read<'a, T> (
     pub RwLockReadGuard<'a, T>,
 );
 
-impl<'a, T: ?Sized> Read<'a, T> {
+impl<'a, T> Read<'a, T> {
     pub fn new(guard: RwLockReadGuard<'a, T>) -> Self {
         Self(guard)
     }
@@ -17,11 +17,11 @@ impl<T> Deref for Read<'_, T> {
     }
 }
 
-pub struct Write<'a, T: ?Sized> (
+pub struct Write<'a, T> (
     pub RwLockWriteGuard<'a, T>,
 );
 
-impl<'a, T: ?Sized> Write<'a, T> {
+impl<'a, T> Write<'a, T> {
     pub fn new(guard: RwLockWriteGuard<'a, T>) -> Self {
         Self(guard)
     }

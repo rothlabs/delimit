@@ -2,11 +2,16 @@
 
 use serde::Serialize;
 
-use std::sync::{Arc, RwLock};
+use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock}};
 
-use crate::{Id, Read, Write};
+use crate::{Flat, Flatten, Id, Read, Write};
 
-pub struct Node<U: ?Sized> {
+
+// Multiple Nodes can point to the same Unit.
+// Pointers to Unit should be serialized as hash digest of Unit.
+// Each Unit should be serialized once along side their hash digest.
+
+pub struct Node<U> {
     pub unit: Arc<RwLock<U>>,
     pub meta: Meta,
 }
@@ -28,9 +33,25 @@ impl<U> Node<U> {
             self.unit.write().expect("the lock should not be poisoned")
         )
     }
+    // pub fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
+    //     self.read().flatten(flat); 
+    // }
+    // TODO: pub fn duplicate(&self) -> Node<U>  // clone and set new ID
 }
 
-impl<U: ?Sized> Clone for Node<U> {
+// impl Flatten for String {
+//     fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
+//         flat.units.in
+//     }
+// }
+
+impl Node<String> {
+    pub fn str(unit: &str) -> Self {
+        Self::new(unit.to_owned())
+    }
+}
+
+impl<U> Clone for Node<U> {
     fn clone(&self) -> Self {
         Self {
             unit: self.unit.clone(),
@@ -45,7 +66,7 @@ impl<U> PartialEq for Node<U> {
     }
 }
 
-impl<T> Serialize for Node<T> {
+impl<U> Serialize for Node<U> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer {

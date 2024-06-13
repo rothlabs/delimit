@@ -1,26 +1,28 @@
 use serde::Serialize;
-use graph::{Node, Leaf, Read};
+use graph::{Node, Edge};
 
 pub mod unit;
 
 pub fn text(unit: impl Unit + 'static) -> Text {
-    Text(Node::new(Box::new(unit)))
+    Text(Edge::new(Box::new(unit)))
 }
 
 #[derive(Clone, Serialize)]
-pub struct Text(
-    pub Node<Box<dyn Unit>>
-);
+pub struct Text(pub Edge<Box<dyn Unit>>);
 
 impl Text {
-    pub fn read(&self) -> Read<Box<dyn Unit>> { 
-        self.0.read()
-    }
-    pub fn string(&self) -> String {
-        self.read().leaf().read().clone()
+    // pub fn read(&self) -> Read<Box<dyn Unit>> {
+    //     self.0.read().read()
+    // }
+    pub fn leaf(&self) -> Edge<String> {
+        self.0.read().read().leaf()
     }
     pub fn json(&self) -> String {
-        self.read().json()
+        self.0.read().read().json()
+    }
+    pub fn string(&self) -> String {
+        //self.leaf().read().clone()
+        self.leaf().read().read().clone()
     }
 }
 
@@ -37,7 +39,7 @@ impl Text {
 
 pub trait Unit {
     //fn node(&self) -> Node;
-    fn leaf(&self) -> Node<String>;
+    fn leaf(&self) -> Edge<String>;
     fn json(&self) -> String;
 }
 

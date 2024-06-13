@@ -6,14 +6,16 @@ pub mod user;
 pub mod pack;
 pub mod snap;
 pub mod node;
+pub mod edge;
+pub mod flat;
 pub mod guard;
-pub mod leaf;
 
 pub use repo::Repo;
 pub use snap::Snap;
 pub use node::Node;
+pub use edge::Edge;
+pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};
-pub use leaf::{Leaf, leaf_str};
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
 pub struct Id(pub String);
