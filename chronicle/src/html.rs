@@ -2,19 +2,19 @@ use std::{any::Any, cell::{Ref, RefCell}, rc::Rc};
 
 use super::text::Text;
 
-pub mod app;
+pub mod unit;
 mod tag;
 mod attribute;
 
-pub fn html(app: impl App + 'static) -> Html {
+pub fn html(app: impl Unit + 'static) -> Html {
     Html(Rc::new(RefCell::new(app)))
 }
 
 #[derive(Clone)]
-pub struct Html(pub Rc<RefCell<dyn App>>);
+pub struct Html(pub Rc<RefCell<dyn Unit>>);
 
 impl Html {
-    pub fn get(&self) -> Ref<'_, dyn App> {   
+    pub fn get(&self) -> Ref<'_, dyn Unit> {   
         self.0.as_ref().borrow()
     }
     pub fn text(&self) -> Text {
@@ -28,7 +28,7 @@ impl Html {
     }
 }
 
-pub trait App {
+pub trait Unit {
     fn text(&self) -> Text;
 }
 

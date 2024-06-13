@@ -1,20 +1,19 @@
 //use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
 
-use chronicle::{text::unit::list, html::app::doc};
-use graph::leaf::leaf_str;
+use chronicle::{text::unit::list, html::unit::doc};
+use graph::{leaf::leaf_str, Node};
 
 pub fn index() -> String {
     //String::new()
     //let mut su = string_unit("cool");
-    let leaf = leaf_str("cool");
+    let leaf = Node::new("cool".to_owned());//leaf_str("cool");
     let mut list = list();
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
-    //let cell = leaf.string();
     let text = list.text();
     println!("{}", text.string());
-    leaf.set_str("please work");
+    *leaf.write() += "test";
     println!("{}", text.string());
 
     let mut html = doc().html();

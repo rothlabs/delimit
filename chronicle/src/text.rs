@@ -1,5 +1,5 @@
 use serde::Serialize;
-use graph::{Node, Leaf, Guard};
+use graph::{Node, Leaf, Read};
 
 pub mod unit;
 
@@ -13,11 +13,11 @@ pub struct Text(
 );
 
 impl Text {
-    pub fn read(&self) -> Guard<Box<dyn Unit>> { 
+    pub fn read(&self) -> Read<Box<dyn Unit>> { 
         self.0.read()
     }
     pub fn string(&self) -> String {
-        self.read().leaf().get().value.clone()
+        self.read().leaf().read().clone()
     }
     pub fn json(&self) -> String {
         self.read().json()
@@ -37,7 +37,7 @@ impl Text {
 
 pub trait Unit {
     //fn node(&self) -> Node;
-    fn leaf(&self) -> Leaf<String>;
+    fn leaf(&self) -> Node<String>;
     fn json(&self) -> String;
 }
 

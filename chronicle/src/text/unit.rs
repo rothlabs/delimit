@@ -1,10 +1,10 @@
 use serde::Serialize;
 
-use graph::{Leaf, leaf_str};
+use graph::{leaf_str, Leaf, Node};
 use super::{Unit, Text, text};
 
-impl Unit for Leaf<String> {
-    fn leaf(&self) -> Leaf<String> {
+impl Unit for Node<String> {
+    fn leaf(&self) -> Node<String> {
         self.clone()
     }
     fn json(&self) -> String {
@@ -33,12 +33,12 @@ impl List {
         self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, leaf: &Leaf<String>) -> &mut Self {
+    pub fn add_leaf(&mut self, leaf: &Node<String>) -> &mut Self {
         self.items.push(text(leaf.clone()));
         self
     }
     pub fn add_string(&mut self, string: &str) -> &mut Self {
-        self.items.push(text(leaf_str(string)));
+        self.items.push(text(Node::new(string.to_owned()))); // leaf_str(string)
         self
     }
     pub fn add_list(&mut self, list: List) -> &mut Self {
@@ -48,17 +48,17 @@ impl List {
 }
 
 impl Unit for List {
-    fn leaf(&self) -> Leaf<String> {
-        let cells: Vec<Leaf<String>> = self.items.iter().map(|i| i.read().leaf()).collect();
+    fn leaf(&self) -> Node<String> {
+        let cells: Vec<Node<String>> = self.items.iter().map(|i| i.read().leaf()).collect();
         let mut string = String::new();
         for i in 0..cells.len()-1 {
-            string += &cells[i].get().value;
+            string += &cells[i].read();
             string += &self.separator;
         }
         if let Some(cell) = cells.last() {
-            string += &cell.get().value;
+            string += &cell.read();
         }
-        leaf_str(&string) 
+        Node::new(string)
     }
     fn json(&self) -> String {
         serde_json::to_string(self).unwrap()

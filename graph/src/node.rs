@@ -2,9 +2,9 @@
 
 use serde::Serialize;
 
-use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock, Weak}};
+use std::sync::{Arc, RwLock};
 
-use crate::{Guard, Id};
+use crate::{Id, Read, Write};
 
 pub struct Node<U: ?Sized> {
     pub unit: Arc<RwLock<U>>,
@@ -18,9 +18,14 @@ impl<U> Node<U> {
             meta: Meta::new(),
         }
     }
-    pub fn read(&self) -> Guard<U> {
-        Guard::new(
+    pub fn read(&self) -> Read<U> {
+        Read::new(
             self.unit.read().expect("the lock should not be poisoned")
+        )
+    }
+    pub fn write(&self) -> Write<U> {
+        Write::new(
+            self.unit.write().expect("the lock should not be poisoned")
         )
     }
 }

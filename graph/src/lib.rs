@@ -12,7 +12,7 @@ pub mod leaf;
 pub use repo::Repo;
 pub use snap::Snap;
 pub use node::Node;
-pub use guard::Guard;
+pub use guard::{Read, Write};
 pub use leaf::{Leaf, leaf_str};
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
