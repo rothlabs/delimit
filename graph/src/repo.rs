@@ -1,6 +1,5 @@
 use std::{rc::Rc, sync::Arc};
 
-
 #[derive(Clone)]
 pub struct Repo {
     pub count: Arc<i32>,
@@ -8,9 +7,7 @@ pub struct Repo {
 
 impl Repo {
     pub fn new() -> Self {
-        Self {
-            count: Arc::new(0),
-        }
+        Self { count: Arc::new(0) }
     }
 }
 
@@ -60,8 +57,6 @@ impl Repo {
 
 //     // }
 // }
-
-
 
 // impl Serialize for User {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

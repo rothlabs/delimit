@@ -5,10 +5,10 @@ use bytes::Bytes;
 //use graph::pack::Pack;
 use graph::Repo;
 use http_body_util::Full;
+use hyper::body::Body;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Request, Response};
-use hyper::body::Body;
 use hyper_util::rt::TokioIo;
 use tokio::net::{TcpListener, TcpStream};
 
@@ -32,7 +32,8 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
 async fn future(io: Io, repo: Repo) {
     let result = http1::Builder::new()
-        .serve_connection(io, service_fn(|req| service(req, repo.clone()))).await;
+        .serve_connection(io, service_fn(|req| service(req, repo.clone())))
+        .await;
     if let Err(err) = result {
         println!("Error serving connection: {:?}", err);
     }

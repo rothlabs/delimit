@@ -1,14 +1,14 @@
 use std::cell::RefCell;
 
-use graph::{Edge, Node};
-use crate::text::{Text, text, unit::list};
-use super::{Html, html, Unit, tag::*, attribute::*};
+use super::{attribute::*, html, tag::*, Html, Unit};
+use crate::text::{text, unit::list, Text};
+use graph::Edge;
 
 pub fn doc() -> Element {
     Element::default()
 }
 
-impl Unit for Edge<String> {
+impl Unit for Edge<String, ()> {
     fn text(&self) -> Text {
         text(self.clone())
     }
@@ -22,11 +22,11 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn string(&self) -> String { 
+    pub fn string(&self) -> String {
         self.text().string()
     }
     pub fn text(self) -> Text {
-        html(self).text() // (self as &dyn App).text() 
+        html(self).text() // (self as &dyn App).text()
     }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
         self.stems.push(html(Edge::new(string.to_owned())));
@@ -52,7 +52,8 @@ impl Element {
         panic!("element should have a root with given tag");
     }
     pub fn attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
-        self.attributes.push(text(Edge::new(format!(r#"{name}="{value}""#))));
+        self.attributes
+            .push(text(Edge::new(format!(r#"{name}="{value}""#))));
         self
     }
     pub fn stem(self, tag: &'static Tag) -> Self {

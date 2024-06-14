@@ -2,10 +2,12 @@
 
 use serde::Serialize;
 
-use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock}};
+use std::{
+    hash::{Hash, Hasher},
+    sync::{Arc, RwLock},
+};
 
-use crate::{Base, Flat, Flatten, Id, Read, Write};
-
+use crate::{Compute, Flat, Flatten, Id, Read, Write};
 
 // Multiple Nodes can point to the same Unit.
 // Pointers to Unit should be serialized as hash digest of Unit.
@@ -24,15 +26,10 @@ impl<U: Serialize> Node<U> {
         }
     }
     pub fn read(&self) -> Read<U> {
-        Read::new(
-            self.unit.read().expect("the lock should not be poisoned")
-        )
+        Read::new(self.unit.read().expect("the lock should not be poisoned"))
     }
     pub fn write(&self) -> Write<U> {
-        
-        Write::new(
-            self.unit.write().expect("the lock should not be poisoned")
-        )
+        Write::new(self.unit.write().expect("the lock should not be poisoned"))
     }
     pub fn unit_strong_count(&self) -> usize {
         Arc::strong_count(&self.unit)
@@ -42,8 +39,6 @@ impl<U: Serialize> Node<U> {
     // }
     // TODO: pub fn duplicate(&self) -> Node<U>  // clone and set new ID
 }
-
-
 
 // impl Flatten for String {
 //     fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
@@ -74,8 +69,9 @@ impl<U> PartialEq for Node<U> {
 
 impl<U> Serialize for Node<U> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         self.meta.serialize(serializer)
     }
 }
@@ -89,7 +85,7 @@ pub struct Meta {
 impl Meta {
     pub fn new() -> Self {
         Self {
-            node: meta::Node{id:Id::new()},
+            node: meta::Node { id: Id::new() },
             //snap: meta::Snap{}
         }
     }
@@ -105,13 +101,13 @@ mod meta {
     #[derive(Clone, Serialize)]
     pub struct Node {
         pub id: Id,
-    } 
+    }
 
     #[derive(Clone)]
     pub struct Snap(Weak<crate::Snap>);
 }
 
-    //pub roots: Vec<Root>,
+//pub roots: Vec<Root>,
 
 // impl<T: New> Content<T> {
 //     pub fn new() -> Content<T> {
@@ -137,12 +133,10 @@ mod meta {
 //     }
 // }
 
-
 // pub trait Nodish {
 //     fn id(&self) -> &Id;
 //     fn name(&self) -> &'static str;
 // }
-
 
 // #[derive(Clone, Serialize)]
 // pub struct Id {

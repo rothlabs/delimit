@@ -3,32 +3,30 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
-pub mod repo;
-pub mod user;
-pub mod pack;
-pub mod snap;
+pub mod compute;
 pub mod edge;
-pub mod node;
-pub mod base;
 pub mod flat;
 pub mod guard;
+pub mod node;
+pub mod pack;
+pub mod repo;
+pub mod snap;
+pub mod user;
 
-pub use repo::Repo;
-pub use snap::Snap;
+pub use compute::Compute;
 pub use edge::Edge;
-pub use node::Node;
-pub use base::Base;
 pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};
+pub use node::Node;
+pub use repo::Repo;
+pub use snap::Snap;
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
 pub struct Id(pub String);
 
 impl Id {
     pub fn new() -> Id {
-        Id(
-            Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
-        )
+        Id(Alphanumeric.sample_string(&mut rand::thread_rng(), 16))
     }
     pub fn string(&self) -> &str {
         &self.0
@@ -36,11 +34,6 @@ impl Id {
 }
 
 impl Eq for Id {}
-
-
-
-
-
 
 // pub trait Node {
 //     fn save(&mut self, graph: &mut Graph);

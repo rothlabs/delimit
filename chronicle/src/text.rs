@@ -1,7 +1,7 @@
 use dyn_clone::DynClone;
 use erased_serde::serialize_trait_object;
+use graph::{Compute, Edge};
 use serde::Serialize;
-use graph::{Edge, Base};
 
 pub mod unit;
 
@@ -9,11 +9,17 @@ pub fn text(unit: impl Unit + 'static) -> Text {
     Text(Edge::new(Box::new(unit)))
 }
 
+impl<P> Compute<P> for Box<dyn Unit> {
+    fn compute(&self) -> Option<P> {
+        None
+    }
+}
+
 #[derive(Clone, Serialize)]
-pub struct Text(pub Edge<Box<dyn Unit>>);
+pub struct Text(pub Edge<Box<dyn Unit>, Edge<String, ()>>);
 
 impl Text {
-    pub fn leaf(&self) -> Edge<String> {
+    pub fn leaf(&self) -> Edge<String, ()> {
         self.0.read().read().leaf()
         //self.0.compute::<Edge<String>>();
     }
@@ -27,7 +33,8 @@ impl Text {
 
 dyn_clone::clone_trait_object!(Unit);
 serialize_trait_object!(Unit);
-pub trait Unit: Base<Edge<String>> + DynClone + erased_serde::Serialize {
-    fn leaf(&self) -> Edge<String>;
+pub trait Unit: DynClone + erased_serde::Serialize {
+    // Base<Edge<String,()>> +
+    fn leaf(&self) -> Edge<String, ()>;
     fn json(&self) -> String;
 }

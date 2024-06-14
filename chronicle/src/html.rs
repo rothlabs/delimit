@@ -1,10 +1,14 @@
-use std::{any::Any, cell::{Ref, RefCell}, rc::Rc};
+use std::{
+    any::Any,
+    cell::{Ref, RefCell},
+    rc::Rc,
+};
 
 use super::text::Text;
 
-pub mod unit;
-mod tag;
 mod attribute;
+mod tag;
+pub mod unit;
 
 pub fn html(app: impl Unit + 'static) -> Html {
     Html(Rc::new(RefCell::new(app)))
@@ -14,7 +18,7 @@ pub fn html(app: impl Unit + 'static) -> Html {
 pub struct Html(pub Rc<RefCell<dyn Unit>>);
 
 impl Html {
-    pub fn get(&self) -> Ref<'_, dyn Unit> {   
+    pub fn get(&self) -> Ref<'_, dyn Unit> {
         self.0.as_ref().borrow()
     }
     pub fn text(&self) -> Text {
@@ -31,8 +35,3 @@ impl Html {
 pub trait Unit {
     fn text(&self) -> Text;
 }
-
-
-
-
-

@@ -1,10 +1,10 @@
 use serde::Serialize;
 
-use graph::{base::Dum, Edge, Base};
-use super::{Unit, Text, text};
+use super::{text, Text, Unit};
+use graph::{Compute, Edge};
 
-impl Unit for Edge<String> {
-    fn leaf(&self) -> Edge<String> {
+impl Unit for Edge<String, ()> {
+    fn leaf(&self) -> Edge<String, ()> {
         self.clone()
     }
     fn json(&self) -> String {
@@ -23,7 +23,6 @@ pub fn list() -> List {
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
-
 }
 
 impl List {
@@ -38,12 +37,12 @@ impl List {
         self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, leaf: &Edge<String>) -> &mut Self {
+    pub fn add_leaf(&mut self, leaf: &Edge<String, ()>) -> &mut Self {
         self.items.push(text(leaf.clone()));
         self
     }
     pub fn add_string(&mut self, unit: &str) -> &mut Self {
-        self.items.push(text(Edge::str(unit))); 
+        self.items.push(text(Edge::str(unit)));
         self
     }
     pub fn add_list(&mut self, list: List) -> &mut Self {
@@ -53,10 +52,10 @@ impl List {
 }
 
 impl Unit for List {
-    fn leaf(&self) -> Edge<String> {
-        let leafs: Vec<Edge<String>> = self.items.iter().map(|i| i.leaf()).collect();
+    fn leaf(&self) -> Edge<String, ()> {
+        let leafs: Vec<Edge<String, ()>> = self.items.iter().map(|i| i.leaf()).collect();
         let mut string = String::new();
-        for i in 0..leafs.len()-1 {
+        for i in 0..leafs.len() - 1 {
             string += &leafs[i].read().read();
             string += &self.separator;
         }
@@ -70,11 +69,11 @@ impl Unit for List {
     }
 }
 
-impl Base<Edge<String>> for List {
-    fn compute(&self) -> Edge<String> {
-        self.leaf()
-    }   
-}
+// impl Base<Edge<String, ()>> for List {
+//     fn compute(&self) -> Edge<String, ()> {
+//         self.leaf()
+//     }
+// }
 
 // impl Base for List {
 //     fn edges(&self) -> Vec<Box<dyn Base>> {
@@ -87,10 +86,6 @@ impl Base<Edge<String>> for List {
 //     }
 // }
 
-
-
-
-
 // pub fn leaf(value: &str) -> Rc<Leaf> {
 //     Rc::new(Leaf {
 //         string: leaf_str(value),
@@ -102,13 +97,12 @@ impl Base<Edge<String>> for List {
 //     Text(leaf(value))
 // }
 
-
 // .trim_end_matches(&self.separator)
-        //let list: Vec<&str> = strings.iter().map(|s| s.0.as_ref().borrow()).collect();
-        // let mut list = vec![];
-        // for cell in cells {
-        //     let s = cell.0.as_ref().borrow();
-        //     list.push(s.as_str());
-        // };
-        //StringCell( Rc::new(list.join(&self.separator)))
-        //string_unit(&list.join(&self.separator))
+//let list: Vec<&str> = strings.iter().map(|s| s.0.as_ref().borrow()).collect();
+// let mut list = vec![];
+// for cell in cells {
+//     let s = cell.0.as_ref().borrow();
+//     list.push(s.as_str());
+// };
+//StringCell( Rc::new(list.join(&self.separator)))
+//string_unit(&list.join(&self.separator))

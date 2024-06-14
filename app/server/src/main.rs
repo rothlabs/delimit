@@ -18,7 +18,10 @@ async fn index(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes
     Ok(Response::new(Full::new(Bytes::from(index))))
 }
 
-async fn handle(_: Request<impl hyper::body::Body>, count: i32) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn handle(
+    _: Request<impl hyper::body::Body>,
+    count: i32,
+) -> Result<Response<Full<Bytes>>, Infallible> {
     println!("count!!! {count}");
     let index = index::index();
     Ok(Response::new(Full::new(Bytes::from(index))))
@@ -38,7 +41,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut test_data = 0;
 
     loop {
-        
         // When an incoming TCP connection is received grab a TCP stream for
         // client<->server communication.
         //

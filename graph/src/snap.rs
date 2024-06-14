@@ -1,6 +1,10 @@
-use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak}};
+use std::{
+    cell::RefCell,
+    rc::Rc,
+    sync::{Arc, Mutex, Weak},
+};
 
-use serde::{Serializer, Serialize};
+use serde::{Serialize, Serializer};
 
 use crate::{Id, Node};
 

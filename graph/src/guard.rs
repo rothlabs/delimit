@@ -1,10 +1,11 @@
-use std::{ops::{Deref, DerefMut}, sync::{RwLockReadGuard, RwLockWriteGuard}};
+use std::{
+    ops::{Deref, DerefMut},
+    sync::{RwLockReadGuard, RwLockWriteGuard},
+};
 
 use serde::Serialize;
 
-pub struct Read<'a, T> (
-    pub RwLockReadGuard<'a, T>,
-);
+pub struct Read<'a, T>(pub RwLockReadGuard<'a, T>);
 
 impl<'a, T> Read<'a, T> {
     pub fn new(guard: RwLockReadGuard<'a, T>) -> Self {
@@ -21,15 +22,14 @@ impl<T> Deref for Read<'_, T> {
 
 impl<'a, T: Serialize> Serialize for Read<'a, T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         self.0.serialize(serializer)
     }
 }
 
-pub struct Write<'a, T> (
-    pub RwLockWriteGuard<'a, T>,
-);
+pub struct Write<'a, T>(pub RwLockWriteGuard<'a, T>);
 
 impl<'a, T> Write<'a, T> {
     pub fn new(guard: RwLockWriteGuard<'a, T>) -> Self {
