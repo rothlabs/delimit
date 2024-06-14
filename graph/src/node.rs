@@ -13,8 +13,9 @@ use crate::{Compute, Flat, Flatten, Id, Read, Write};
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
-pub struct Node<U> {
+pub struct Node<U, G> {
     pub unit: Arc<RwLock<U>>,
+    pub gain: Arc<RwLock<G>>,
     pub meta: Meta,
 }
 
