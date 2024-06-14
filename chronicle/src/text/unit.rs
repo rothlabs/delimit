@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::Edge;
+use graph::{base::Dum, Edge, Base};
 use super::{Unit, Text, text};
 
 impl Unit for Edge<String> {
@@ -12,10 +12,18 @@ impl Unit for Edge<String> {
     }
 }
 
-#[derive(Serialize)]
+pub fn list() -> List {
+    List {
+        items: vec![],
+        separator: "".into(),
+    }
+}
+
+#[derive(Clone, Serialize)]
 pub struct List {
     pub items: Vec<Text>,
     pub separator: String,
+
 }
 
 impl List {
@@ -62,12 +70,22 @@ impl Unit for List {
     }
 }
 
-pub fn list() -> List {
-    List {
-        items: vec![],
-        separator: "".into(),
-    }
+impl Base<Edge<String>> for List {
+    fn compute(&self) -> Edge<String> {
+        self.leaf()
+    }   
 }
+
+// impl Base for List {
+//     fn edges(&self) -> Vec<Box<dyn Base>> {
+//         let mut edges = vec![];
+//         for item in self.items.iter() {
+//             let edge = item.0.clone(); // as Edge<Box<dyn Base>>;
+//             let wow = edges.push(edge);
+//         }
+//         edges
+//     }
+// }
 
 
 

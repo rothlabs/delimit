@@ -1,5 +1,7 @@
 use std::{ops::{Deref, DerefMut}, sync::{RwLockReadGuard, RwLockWriteGuard}};
 
+use serde::Serialize;
+
 pub struct Read<'a, T> (
     pub RwLockReadGuard<'a, T>,
 );
@@ -14,6 +16,14 @@ impl<T> Deref for Read<'_, T> {
     type Target = T;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<'a, T: Serialize> Serialize for Read<'a, T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        self.0.serialize(serializer)
     }
 }
 

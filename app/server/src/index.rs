@@ -12,6 +12,7 @@ pub fn index() -> String {
     let text = list.text();
     println!("{}", text.string());
     *leaf.write().write() += "test";
+    //leaf.write().meta.node.id = Id::new();
     println!("{}", text.string());
 
     let mut html = doc().html();

@@ -1,3 +1,5 @@
+// #![feature(arbitrary_self_types)]
+
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
@@ -5,15 +7,17 @@ pub mod repo;
 pub mod user;
 pub mod pack;
 pub mod snap;
-pub mod node;
 pub mod edge;
+pub mod node;
+pub mod base;
 pub mod flat;
 pub mod guard;
 
 pub use repo::Repo;
 pub use snap::Snap;
-pub use node::Node;
 pub use edge::Edge;
+pub use node::Node;
+pub use base::Base;
 pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};
 

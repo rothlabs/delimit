@@ -5,3 +5,8 @@
 [profile.release]
     # Tell `rustc` to optimize for small code size.
     opt-level = "s"
+
+[workspace.dependencies]
+    # dtolnay on github
+        dyn-clone = "1.0.17"
+        erased-serde = "0.4"

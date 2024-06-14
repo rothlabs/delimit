@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use std::{hash::{Hash, Hasher}, sync::{Arc, RwLock}};
 
-use crate::{Flat, Flatten, Id, Read, Write};
+use crate::{Base, Flat, Flatten, Id, Read, Write};
 
 
 // Multiple Nodes can point to the same Unit.
@@ -16,7 +16,7 @@ pub struct Node<U> {
     pub meta: Meta,
 }
 
-impl<U> Node<U> {
+impl<U: Serialize> Node<U> {
     pub fn new(unit: U) -> Self {
         Self {
             unit: Arc::new(RwLock::new(unit)),
@@ -29,15 +29,21 @@ impl<U> Node<U> {
         )
     }
     pub fn write(&self) -> Write<U> {
+        
         Write::new(
             self.unit.write().expect("the lock should not be poisoned")
         )
     }
+    pub fn unit_strong_count(&self) -> usize {
+        Arc::strong_count(&self.unit)
+    }
     // pub fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
-    //     self.read().flatten(flat); 
+    //     let unit = serde_json::to_string(&self.read()).unwrap();
     // }
     // TODO: pub fn duplicate(&self) -> Node<U>  // clone and set new ID
 }
+
+
 
 // impl Flatten for String {
 //     fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
@@ -76,7 +82,7 @@ impl<U> Serialize for Node<U> {
 
 #[derive(Clone, Serialize)]
 pub struct Meta {
-    node: meta::Node,
+    pub node: meta::Node,
     //snap: meta::Snap,
 }
 

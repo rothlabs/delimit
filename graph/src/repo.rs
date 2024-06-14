@@ -1,13 +1,16 @@
+use std::{rc::Rc, sync::Arc};
 
 
 #[derive(Clone)]
 pub struct Repo {
-
+    pub count: Arc<i32>,
 }
 
 impl Repo {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            count: Arc::new(0),
+        }
     }
 }
 
