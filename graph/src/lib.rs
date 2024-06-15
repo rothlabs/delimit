@@ -5,6 +5,7 @@ use serde::Serialize;
 
 pub mod compute;
 pub mod edge;
+pub mod swap;
 pub mod flat;
 pub mod guard;
 pub mod node;
@@ -15,6 +16,7 @@ pub mod user;
 
 pub use compute::Compute;
 pub use edge::Edge;
+pub use swap::Swap;
 pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};
 pub use node::Node;

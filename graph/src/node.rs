@@ -13,28 +13,30 @@ use crate::{Compute, Flat, Flatten, Id, Read, Write};
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
+#[derive(Clone, Serialize)]
 pub struct Node<U, G> {
-    pub unit: Arc<RwLock<U>>,
-    pub gain: Arc<RwLock<G>>,
+    pub unit: U,
+    pub gain: Option<G>,
     pub meta: Meta,
 }
 
-impl<U: Serialize> Node<U> {
+impl<U, G> Node<U, G> {
     pub fn new(unit: U) -> Self {
         Self {
-            unit: Arc::new(RwLock::new(unit)),
+            unit, // Arc::new(RwLock::new(unit))
+            gain: None,
             meta: Meta::new(),
         }
     }
-    pub fn read(&self) -> Read<U> {
-        Read::new(self.unit.read().expect("the lock should not be poisoned"))
-    }
-    pub fn write(&self) -> Write<U> {
-        Write::new(self.unit.write().expect("the lock should not be poisoned"))
-    }
-    pub fn unit_strong_count(&self) -> usize {
-        Arc::strong_count(&self.unit)
-    }
+    // pub fn read(&self) -> Read<U> {
+    //     Read::new(self.unit.read().expect("the lock should not be poisoned"))
+    // }
+    // pub fn write(&self) -> Write<U> {
+    //     Write::new(self.unit.write().expect("the lock should not be poisoned"))
+    // }
+    // pub fn unit_strong_count(&self) -> usize {
+    //     Arc::strong_count(&self.unit)
+    // }
     // pub fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
     //     let unit = serde_json::to_string(&self.read()).unwrap();
     // }
@@ -47,35 +49,35 @@ impl<U: Serialize> Node<U> {
 //     }
 // }
 
-impl Node<String> {
+impl Node<String, ()> {
     pub fn str(unit: &str) -> Self {
         Self::new(unit.to_owned())
     }
 }
 
-impl<U> Clone for Node<U> {
-    fn clone(&self) -> Self {
-        Self {
-            unit: self.unit.clone(),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// impl<U> Clone for Node<U> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             unit: self.unit.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
-impl<U> PartialEq for Node<U> {
-    fn eq(&self, rhs: &Node<U>) -> bool {
+impl<U, G> PartialEq for Node<U, G> {
+    fn eq(&self, rhs: &Node<U, G>) -> bool {
         self.meta.node.id == rhs.meta.node.id
     }
 }
 
-impl<U> Serialize for Node<U> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}
+// impl<U: Serialize, G> Serialize for Node<U, G> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.meta.serialize(serializer)
+//     }
+// }
 
 #[derive(Clone, Serialize)]
 pub struct Meta {
