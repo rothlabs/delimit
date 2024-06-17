@@ -3,31 +3,33 @@
 use serde::Serialize;
 
 use std::{
-    hash::{Hash, Hasher},
-    sync::{Arc, RwLock},
+    collections::HashMap, hash::{Hash, Hasher}, sync::{Arc, RwLock}
 };
 
-use crate::{Compute, Flat, Flatten, Id, Read, Write};
+use crate::{Solve, Flat, Flatten, Id, Read, Write};
 
 // Multiple Nodes can point to the same Unit.
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
 #[derive(Clone, Serialize)]
-pub struct Node<U, G> {
+pub struct Node<U, A, G> { // unit, args, goal
     pub unit: U,
-    pub gain: Option<G>,
+    pub work: HashMap<A, G>,
     pub meta: Meta,
 }
 
-impl<U, G> Node<U, G> {
+impl<U, A, G> Node<U, A, G> {
     pub fn new(unit: U) -> Self {
         Self {
-            unit, // Arc::new(RwLock::new(unit))
-            gain: None,
+            unit, 
+            work: HashMap::new(),
             meta: Meta::new(),
         }
     }
+    // pub fn read(&self) -> &U {
+    //     &self.unit
+    // }
     // pub fn read(&self) -> Read<U> {
     //     Read::new(self.unit.read().expect("the lock should not be poisoned"))
     // }
@@ -49,7 +51,7 @@ impl<U, G> Node<U, G> {
 //     }
 // }
 
-impl Node<String, ()> {
+impl Node<String, (), ()> {
     pub fn str(unit: &str) -> Self {
         Self::new(unit.to_owned())
     }
@@ -64,8 +66,8 @@ impl Node<String, ()> {
 //     }
 // }
 
-impl<U, G> PartialEq for Node<U, G> {
-    fn eq(&self, rhs: &Node<U, G>) -> bool {
+impl<U, A, G> PartialEq for Node<U, A, G> {
+    fn eq(&self, rhs: &Node<U, A, G>) -> bool {
         self.meta.node.id == rhs.meta.node.id
     }
 }

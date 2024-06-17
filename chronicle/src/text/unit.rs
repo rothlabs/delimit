@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use super::{text, Text, Unit};
-use graph::{Compute, Edge};
+use graph::{Edge, LeafStr, Snap, Solve};
 
-impl Unit for Edge<String, ()> {
-    fn leaf(&self) -> Edge<String, ()> {
+impl Unit for LeafStr {
+    fn leaf(&self) -> LeafStr {
         self.clone()
     }
-    fn json(&self) -> String {
+    fn serial(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
 }
@@ -26,8 +26,8 @@ pub struct List {
 }
 
 impl List {
-    pub fn text(self) -> Text {
-        text(self)
+    pub fn text(self, snap: &Snap) -> Text {
+        text(snap, self)
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();
@@ -37,7 +37,7 @@ impl List {
         self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, leaf: &Edge<String, ()>) -> &mut Self {
+    pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
         self.items.push(text(leaf.clone()));
         self
     }
@@ -52,11 +52,11 @@ impl List {
 }
 
 impl Unit for List {
-    fn leaf(&self) -> Edge<String, ()> {
-        let leafs: Vec<Edge<String, ()>> = self.items.iter().map(|i| i.leaf()).collect();
+    fn leaf(&self) -> LeafStr {
+        let leafs: Vec<LeafStr> = self.items.iter().map(|i| i.leaf()).collect();
         let mut string = String::new();
         for i in 0..leafs.len() - 1 {
-            string += &leafs[i].read().read();
+            string += &leafs[i].solve(()).unwrap();
             string += &self.separator;
         }
         if let Some(leaf) = leafs.last() {
@@ -64,7 +64,7 @@ impl Unit for List {
         }
         Edge::new(string)
     }
-    fn json(&self) -> String {
+    fn serial(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
 }

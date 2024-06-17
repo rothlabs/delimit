@@ -14,3 +14,5 @@
         # clone
             dyn-clone = {workspace = true}
             erased-serde = {workspace = true}
+        # enum macros
+            enum-as-inner = {workspace = true}

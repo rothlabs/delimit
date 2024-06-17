@@ -10,3 +10,5 @@
     # dtolnay on github
         dyn-clone = "1.0.17"
         erased-serde = "0.4"
+    # enum macros
+        enum-as-inner = "0.6.0"

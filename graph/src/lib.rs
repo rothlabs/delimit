@@ -3,7 +3,7 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
-pub mod compute;
+pub mod solve;
 pub mod edge;
 pub mod swap;
 pub mod flat;
@@ -14,8 +14,8 @@ pub mod repo;
 pub mod snap;
 pub mod user;
 
-pub use compute::Compute;
-pub use edge::Edge;
+pub use solve::Solve;
+pub use edge::{Edge, LeafStr};
 pub use swap::Swap;
 pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};

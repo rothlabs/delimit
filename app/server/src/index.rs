@@ -35,7 +35,7 @@ pub fn index() -> String {
     // // let wo2 = wow.items.last().unwrap().any().downcast_ref::<Leaf>().unwrap();
     // // let wo3 = wo2.string().0;
     // // println!("wo3 = {}", wo3);
-    let json = text.json();
+    let json = text.serial();
     println!("{json}");
     let t = text.string();
     println!("{t}");
