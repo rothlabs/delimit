@@ -1,11 +1,11 @@
 use serde::Serialize;
 
 use super::{text, Text, Unit};
-use graph::{Edge, LeafStr, Snap, Solve};
+use graph::{Edge, LeafStr, Snap};
 
-impl Unit for LeafStr {
-    fn leaf(&self) -> LeafStr {
-        self.clone()
+impl Unit for String {
+    fn leaf(&self, snap: Snap) -> LeafStr {
+        snap.str(self)
     }
     fn serial(&self) -> String {
         serde_json::to_string(self).unwrap()
@@ -37,37 +37,47 @@ impl List {
         self.items.push(text.clone());
         self
     }
-    pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
-        self.items.push(text(leaf.clone()));
+    pub fn add_string(&mut self, snap: &Snap, unit: &str) -> &mut Self {
+        self.items.push(text(snap, unit.to_owned()));
         self
     }
-    pub fn add_string(&mut self, unit: &str) -> &mut Self {
-        self.items.push(text(Edge::str(unit)));
+    pub fn add_list(&mut self, snap: &Snap, list: List) -> &mut Self {
+        self.items.push(text(snap, list));
         self
     }
-    pub fn add_list(&mut self, list: List) -> &mut Self {
-        self.items.push(text(list));
-        self
-    }
+        // pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
+    //     self.items.push(text(&leaf.snap(), leaf.clone()) ); 
+    //     self
+    // }
 }
 
 impl Unit for List {
-    fn leaf(&self) -> LeafStr {
+    fn leaf(&self, snap: Snap) -> LeafStr {
         let leafs: Vec<LeafStr> = self.items.iter().map(|i| i.leaf()).collect();
         let mut string = String::new();
         for i in 0..leafs.len() - 1 {
-            string += &leafs[i].solve(()).unwrap();
+            leafs[i].read(|unit| string += unit); // string += &leafs[i].solve(());
             string += &self.separator;
         }
         if let Some(leaf) = leafs.last() {
-            string += &leaf.read().read();
+            leaf.read(|unit| string += unit);
         }
-        Edge::new(string)
+        snap.edge(string) // Edge::new(&snap, string)
     }
     fn serial(&self) -> String {
         serde_json::to_string(self).unwrap()
     }
 }
+
+// impl Unit for LeafStr {
+//     fn leaf(&self, _: Snap) -> LeafStr {
+//         self.clone()
+//     }
+//     fn serial(&self) -> String {
+//         serde_json::to_string(self).unwrap()
+//     }
+// }
+
 
 // impl Base<Edge<String, ()>> for List {
 //     fn compute(&self) -> Edge<String, ()> {

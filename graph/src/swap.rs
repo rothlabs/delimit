@@ -19,8 +19,11 @@ impl<U, A, G> Swap<U, A, G> {
             snap: snap.clone(),
         }
     }
-    pub fn get(&self) -> &Node<U, A, G> {
+    pub fn node(&self) -> &Node<U, A, G> {
         self.node.get(&self.snap).expect("there should be a node at this snap")
+    }
+    pub fn snap(&self) -> &Snap {
+        &self.snap
     }
 }
 
