@@ -1,19 +1,21 @@
-use std::cell::RefCell;
+use std::{borrow::Cow, cell::RefCell};
 
 use super::{attribute::*, html, tag::*, Html, Unit};
 use crate::text::{text, unit::list, Text};
-use graph::Edge;
+use graph::{Edge, Snap};
+use serde::Serialize;
 
 pub fn doc() -> Element {
     Element::default()
 }
 
-impl Unit for Edge<String, ()> {
-    fn text(&self) -> Text {
-        text(self.clone())
+impl Unit for Text {
+    fn text(&self, _: &Snap) -> Text {
+        self.clone()
     }
 }
 
+#[derive(Clone, Serialize)]
 pub struct Element {
     tag: &'static Tag,
     root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
@@ -22,12 +24,12 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn string(&self) -> String {
-        self.text().string()
+    pub fn text(self, snap: &Snap) -> Text {
+        html(snap, self).text() // (self as &dyn App).text()
     }
-    pub fn text(self) -> Text {
-        html(self).text() // (self as &dyn App).text()
-    }
+    // pub fn string(&self) -> String {
+    //     self.text().string()
+    // }
     pub fn leaf(&mut self, string: &str) -> &mut Self {
         self.stems.push(html(Edge::new(string.to_owned())));
         self
@@ -117,13 +119,13 @@ impl Default for Element {
 }
 
 impl Unit for Element {
-    fn text(&self) -> Text {
+    fn text(&self, snap: &Snap) -> Text {
         let mut ot = list();
-        ot.add_string(&self.tag.open);
+        ot.add_string(snap, &self.tag.open);
         for att in self.attributes.iter() {
             ot.add_text(att);
         }
-        ot.add_string(">").separator(" ");
+        ot.add_string(snap, ">").separator(" ");
         let mut el = list();
         el.add_list(ot);
         for stem in self.stems.iter() {
@@ -133,6 +135,14 @@ impl Unit for Element {
         text(el)
     }
 }
+
+// impl Serialize for Element {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+        
+//     }
+// }
 
 // fn attribute(name: &'static str, value: &str) -> Text {
 //     text(leaf_str(&format!(r#"{name}="{value}""#)))

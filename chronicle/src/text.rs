@@ -6,26 +6,8 @@ use serde::Serialize;
 
 pub mod unit;
 
-pub struct Task {
-    pub snap: Snap,
-    pub query: Query,
-}
-
-pub enum Query {
-    Leaf(()),
-    Serial(()),
-} 
-
-#[derive(Clone, EnumAsInner)]
-pub enum Goal {
-    Leaf(LeafStr),
-    Serial(String),
-    // String(String),
-} 
-
-pub fn text(snap: &Snap, unit: impl Unit + 'static) -> Text {
-    Text(snap.edge(Box::new(unit)))
-}
+#[derive(Clone, Serialize)]
+pub struct Text(pub Edge<Box<dyn Unit>, Task, Goal>);
 
 impl Solve<Task, Goal> for Box<dyn Unit> {
     fn solve(&self, task: Task) -> Option<Goal> {
@@ -35,9 +17,6 @@ impl Solve<Task, Goal> for Box<dyn Unit> {
         }
     }
 }
-
-#[derive(Clone, Serialize)]
-pub struct Text(pub Edge<Box<dyn Unit>, Task, Goal>);
 
 impl Text {
     pub fn leaf(&self) -> LeafStr { 
@@ -59,6 +38,27 @@ pub trait Unit: DynClone + erased_serde::Serialize {
     fn leaf(&self, snap: Snap) -> LeafStr;
     fn serial(&self) -> String;
 }
+
+pub fn text(snap: &Snap, unit: impl Unit + 'static) -> Text {
+    Text(snap.edge(Box::new(unit)))
+}
+
+pub struct Task {
+    pub snap: Snap,
+    pub query: Query,
+}
+
+pub enum Query {
+    Leaf(()),
+    Serial(()),
+} 
+
+#[derive(Clone, EnumAsInner)]
+pub enum Goal {
+    Leaf(LeafStr),
+    Serial(String),
+    // String(String),
+} 
 
 
         // if let Goal::Leaf(goal) = self.0.solve(Task::Leaf(())).unwrap() {

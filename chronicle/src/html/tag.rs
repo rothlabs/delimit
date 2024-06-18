@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
-#[derive(Default)]
+use serde::Serialize;
+
+#[derive(Default, Clone, Serialize)]
 pub struct Tag {
     pub open: Cow<'static, str>,
     pub close: Cow<'static, str>,
