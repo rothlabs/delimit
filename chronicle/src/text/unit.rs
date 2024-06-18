@@ -12,16 +12,9 @@ impl Unit for String {
     }
 }
 
-pub fn list() -> List {
-    List {
-        items: vec![],
-        separator: "".into(),
-    }
-}
-
 #[derive(Clone, Serialize)]
 pub struct List {
-    pub items: Vec<Text>,
+    pub items: Vec<Item>,
     pub separator: String,
 }
 
@@ -34,15 +27,15 @@ impl List {
         self
     }
     pub fn add_text(&mut self, text: &Text) -> &mut Self {
-        self.items.push(text.clone());
+        self.items.push(Item::Text(text.clone()));
         self
     }
-    pub fn add_string(&mut self, snap: &Snap, unit: &str) -> &mut Self {
-        self.items.push(text(snap, unit.to_owned()));
+    pub fn add_str(&mut self, unit: &str) -> &mut Self {
+        self.items.push(Item::String(unit.to_owned()));
         self
     }
     pub fn add_list(&mut self, snap: &Snap, list: List) -> &mut Self {
-        self.items.push(text(snap, list));
+        self.items.push(Item::Text(text(snap, list)));
         self
     }
         // pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
@@ -53,14 +46,13 @@ impl List {
 
 impl Unit for List {
     fn leaf(&self, snap: Snap) -> LeafStr {
-        let leafs: Vec<LeafStr> = self.items.iter().map(|i| i.leaf()).collect();
         let mut string = String::new();
-        for i in 0..leafs.len() - 1 {
-            leafs[i].read(|unit| string += unit); // string += &leafs[i].solve(());
+        for i in 0..self.items.len() - 1 {
+            self.items[i].read(|s| string += s);
             string += &self.separator;
         }
-        if let Some(leaf) = leafs.last() {
-            leaf.read(|unit| string += unit);
+        if let Some(item) = self.items.last() {
+            item.read(|s| string += s);
         }
         snap.edge(string) // Edge::new(&snap, string)
     }
@@ -68,6 +60,50 @@ impl Unit for List {
         serde_json::to_string(self).unwrap()
     }
 }
+
+pub fn list() -> List {
+    List {
+        items: vec![],
+        separator: "".into(),
+    }
+}
+
+#[derive(Clone, Serialize)]
+enum Item {
+    Text(Text),
+    String(String),
+}
+
+impl Item {
+    fn read<F: FnOnce(&String)>(&self, f: F) {
+        match self {
+            Item::Text(t) => t.leaf().read(f),
+            Item::String(s) => f(s), 
+        };
+    }
+}
+
+
+
+        // //let leafs: Vec<LeafStr> = self.items.iter().map(|i| i.leaf()).collect();
+        // let mut string = String::new();
+        // for i in 0..self.items.len() - 1 {
+        //     match &self.items[i] {
+        //         Item::Text(t) => t.leaf().read(|unit| string += unit),
+        //         Item::String(s) => string += &s, 
+        //     }
+        //     // /leafs[i].read(|unit| string += unit); // string += &leafs[i].solve(());
+        //     string += &self.separator;
+        // }
+        // if let Some(item) = self.items.last() {
+        //     match item {
+        //         Item::Text(t) => t.leaf().read(|unit| string += unit),
+        //         Item::String(s) => string += &s, 
+        //     }
+        //     //leaf.read(|unit| string += unit);
+        // }
+        // snap.edge(string) // Edge::new(&snap, string)
+
 
 // impl Unit for LeafStr {
 //     fn leaf(&self, _: Snap) -> LeafStr {

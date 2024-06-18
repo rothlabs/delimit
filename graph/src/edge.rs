@@ -6,6 +6,12 @@ use crate::{Solve, Id, Node, Read, Snap, Swap, Write};
 
 pub type LeafStr = Edge<String, (), ()>;
 
+#[derive(Clone, Serialize)]
+pub struct UnitStr {
+    pub at: String,
+    pub snap: Snap,
+}
+
 // TODO: type params: Unit, Args, Gain (U, A, G)
 pub struct Edge<U, A, G> {
     swap: Arc<RwLock<Swap<U, A, G>>>,  
