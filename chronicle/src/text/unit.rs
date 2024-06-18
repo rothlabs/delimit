@@ -1,16 +1,7 @@
 use serde::Serialize;
 
 use super::{text, Text, Unit};
-use graph::{Edge, LeafStr, Snap};
-
-impl Unit for String {
-    fn leaf(&self, snap: Snap) -> LeafStr {
-        snap.str(self)
-    }
-    fn serial(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
+use graph::LeafStr;
 
 #[derive(Clone, Serialize)]
 pub struct List {
@@ -19,8 +10,9 @@ pub struct List {
 }
 
 impl List {
-    pub fn text(self, snap: &Snap) -> Text {
-        text(snap, self)
+    pub fn text(self) -> Text {
+        //Text(self.snap.edge(Box::new(self)))
+        text(self)
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();
@@ -34,18 +26,18 @@ impl List {
         self.items.push(Item::String(unit.to_owned()));
         self
     }
-    pub fn add_list(&mut self, snap: &Snap, list: List) -> &mut Self {
-        self.items.push(Item::Text(text(snap, list)));
+    pub fn add_list(&mut self, list: List) -> &mut Self {
+        self.items.push(Item::Text(text(list)));
         self
     }
-        // pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
-    //     self.items.push(text(&leaf.snap(), leaf.clone()) ); 
-    //     self
-    // }
+    pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
+        self.items.push(Item::LeafStr(leaf.clone())); 
+        self
+    }
 }
 
 impl Unit for List {
-    fn leaf(&self, snap: Snap) -> LeafStr {
+    fn leaf(&self) -> LeafStr {
         let mut string = String::new();
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
@@ -54,10 +46,13 @@ impl Unit for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        snap.edge(string) // Edge::new(&snap, string)
+        LeafStr::new(&string) // snap.edge(string) // 
     }
     fn serial(&self) -> String {
         serde_json::to_string(self).unwrap()
+    }
+    fn string(&self) -> String {
+        self.leaf().string()
     }
 }
 
@@ -69,19 +64,33 @@ pub fn list() -> List {
 }
 
 #[derive(Clone, Serialize)]
-enum Item {
-    Text(Text),
+pub enum Item {
     String(String),
+    LeafStr(LeafStr),
+    Text(Text),
 }
 
 impl Item {
     fn read<F: FnOnce(&String)>(&self, f: F) {
         match self {
-            Item::Text(t) => t.leaf().read(f),
             Item::String(s) => f(s), 
+            Item::LeafStr(l) => l.read(f),
+            Item::Text(t) => t.leaf().read(f),
         };
     }
 }
+
+
+
+// impl Unit for EdgeStr {
+//     fn leaf(&self) -> EdgeStr {
+//         self.clone()
+//         //self.snap.edge(self.unit.clone())
+//     }
+//     fn serial(&self) -> String {
+//         serde_json::to_string(self).unwrap()
+//     }
+// }
 
 
 

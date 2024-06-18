@@ -12,18 +12,17 @@ mod tag;
 pub mod unit;
 
 #[derive(Clone, Serialize)]
-pub struct Html(pub Edge<Element, Task, Text>);
+pub struct Html(pub Edge<Element, (), Text>);
 
-impl Solve<Task, Text> for Element {
-    fn solve(&self, task: Task) -> Option<Text> {
-        Some(self.text(&task.snap))
+impl Solve<(), Text> for Element {
+    fn solve(&self, _: ()) -> Option<Text> {
+        Some(self.text())
     }
 }
 
 impl Html {
     pub fn text(&self) -> Text {
-        let task = Task{snap: self.0.snap()};
-        self.0.solve(task)
+        self.0.solve(())
     }
     // pub fn get(&self) -> Ref<'_, dyn Unit> {
     //     self.0.as_ref().borrow()
@@ -42,8 +41,8 @@ impl Html {
 //     fn text(&self, snap: &Snap) -> Text;
 // }
 
-pub fn html(snap: &Snap, element: Element) -> Html {
-    Html(snap.edge(element))
+pub fn html(element: Element) -> Html {
+    Html(Edge::new(element))
 }
 
 pub struct Task {

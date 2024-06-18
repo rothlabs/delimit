@@ -5,6 +5,7 @@ use serde::Serialize;
 
 pub mod solve;
 pub mod edge;
+pub mod leaf;
 pub mod swap;
 pub mod flat;
 pub mod guard;
@@ -15,7 +16,8 @@ pub mod snap;
 pub mod user;
 
 pub use solve::Solve;
-pub use edge::{Edge, LeafStr};
+pub use edge::Edge;
+pub use leaf::{LeafStr};
 pub use swap::Swap;
 pub use flat::{Flat, Flatten};
 pub use guard::{Read, Write};

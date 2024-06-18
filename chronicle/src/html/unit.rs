@@ -5,14 +5,8 @@ use crate::text::{text, unit::{list, List}, Text};
 use graph::{Edge, Snap};
 use serde::Serialize;
 
-pub fn doc(snap: &Snap) -> Element {
-    Element {
-        tag: &DOCTYPE,
-        root: None,
-        items: vec![],
-        attributes: vec![],
-        snap: snap.clone(),
-    }
+pub fn doc() -> Element {
+    Element::default()
 }
 
 // impl Unit for Text {
@@ -27,12 +21,11 @@ pub struct Element {
     root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
     items: Vec<Item>,
     attributes: Vec<Attribute>,
-    snap: Snap,
 }
 
 impl Element {
     pub fn text(&self) -> Text {
-        let mut open_tag = list(&self.snap);
+        let mut open_tag = list();
         open_tag.add_str(&self.tag.open);
         for att in self.attributes.iter() {
             att.to_list(&mut open_tag);
@@ -53,17 +46,17 @@ impl Element {
     //     self.items.push(html(Edge::new(string.to_owned())));
     //     self
     // }
-    pub fn add_string(&mut self, unit: &str) -> &mut Self {
-        self.items.push(Item::String(unit.to_owned()));
+    pub fn add_str(&mut self, value: &str) -> &mut Self {
+        self.items.push(Item::String(value.to_owned()));
         self
     }
-    pub fn root(self, snap: &Snap) -> Self {
+    pub fn root(self) -> Self {
         let mut root = self
             .root
             .as_ref()
             .expect("element should have a root")
             .replace(Element::default());
-        root.items.push(Item::Html(html(snap, self)));
+        root.items.push(Item::Html(html(self)));
         root
     }
     fn up(self, tag: &Tag) -> Self {
@@ -130,16 +123,16 @@ impl Element {
     }
 }
 
-// impl Default for Element {
-//     fn default() -> Self {
-//         Element {
-//             tag: &DOCTYPE,
-//             root: None,
-//             items: vec![],
-//             attributes: vec![],
-//         }
-//     }
-// }
+impl Default for Element {
+    fn default() -> Self {
+        Element {
+            tag: &DOCTYPE,
+            root: None,
+            items: vec![],
+            attributes: vec![],
+        }
+    }
+}
 
 #[derive(Clone, Serialize)]
 enum Item {

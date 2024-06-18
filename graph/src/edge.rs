@@ -2,15 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{Solve, Id, Node, Read, Snap, Swap, Write};
-
-pub type LeafStr = Edge<String, (), ()>;
-
-#[derive(Clone, Serialize)]
-pub struct UnitStr {
-    pub at: String,
-    pub snap: Snap,
-}
+use crate::{Solve, Id, Swap};
 
 // TODO: type params: Unit, Args, Gain (U, A, G)
 pub struct Edge<U, A, G> {
@@ -19,9 +11,9 @@ pub struct Edge<U, A, G> {
 }
 
 impl<U: Solve<A, G> + Clone + Serialize, A, G: Clone> Edge<U, A, G> { 
-    pub fn new(snap: &Snap, unit: U) -> Self {
+    pub fn new(unit: U) -> Self {
         Self {
-            swap: Arc::new(RwLock::new(Swap::new(snap, unit))),
+            swap: Arc::new(RwLock::new(Swap::new(unit))),
             meta: Meta::new(),
         }
     }
@@ -33,10 +25,14 @@ impl<U: Solve<A, G> + Clone + Serialize, A, G: Clone> Edge<U, A, G> {
         let swap = self.swap.read().expect("the lock should not be poisoned"); 
         read(&swap.node().unit);
     }
-    pub fn snap(&self) -> Snap { 
-        let swap = self.swap.read().expect("the lock should not be poisoned"); 
-        swap.snap().clone()
+    pub fn write<F: FnOnce(&mut U)>(&self, write: F) { 
+        let mut swap = self.swap.write().expect("the lock should not be poisoned"); 
+        write(&mut swap.get_mut().unit);
     }
+    // pub fn snap(&self) -> Snap { 
+    //     let swap = self.swap.read().expect("the lock should not be poisoned"); 
+    //     swap.snap().clone()
+    // }
 }
 
 impl<U, A, G> Clone for Edge<U, A, G> {

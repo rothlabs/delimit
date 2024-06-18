@@ -1,24 +1,24 @@
 //use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
 
 use chronicle::{html::unit::doc, text::unit::list};
-use graph::Edge;
+use graph::LeafStr;
 
 pub fn index() -> String {
-    let leaf = Edge::str("cool");
+    let leaf = LeafStr::new("cool");
     let mut list = list();
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
     let text = list.text();
     println!("{}", text.string());
-    *leaf.write().write() += "test";
+    leaf.write(|unit| unit.push_str("test"));
     //leaf.write().meta.node.id = Id::new();
     println!("{}", text.string());
 
     let mut html = doc().html();
     html.lang("en");
     let mut title = html.head().title();
-    title.leaf("Delimit");
+    title.add_str("Delimit");
     let mut meta = title.root().meta();
     meta.charset("utf-8");
     meta = meta.root().meta();
@@ -27,7 +27,7 @@ pub fn index() -> String {
     meta = meta.root().meta();
     meta.name("author").content("Roth Labs LLC");
     let mut body = meta.up_to_html().body();
-    body.leaf("Let's roll.");
+    body.add_str("Let's roll.");
     let text = body.up_to_doc().text();
     //let text = doc.text();
 

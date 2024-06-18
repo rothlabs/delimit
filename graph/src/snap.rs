@@ -4,7 +4,7 @@ use std::{
 
 use serde::{Serialize, Serializer};
 
-use crate::{Edge, Id, LeafStr, Node, Solve};
+use crate::{Edge, Id, Node, Solve};
 
 #[derive(Clone)]
 pub struct Snap {
@@ -12,14 +12,14 @@ pub struct Snap {
     pub meta: Meta,
 }
 
-impl Snap {
-    pub fn edge<U: Clone + Serialize + Solve<A, G>, A, G: Clone>(&self, unit: U) -> Edge<U, A, G> {
-        Edge::new(self, unit)
-    }
-    pub fn str(self, unit: &str) -> LeafStr {
-        self.edge(unit.to_owned())
-    }
-}
+// impl Snap {
+//     pub fn edge<U: Clone + Serialize + Solve<A, G>, A, G: Clone>(self, unit: U) -> Edge<U, A, G> {
+//         Edge::new(self, unit)
+//     }
+//     pub fn str(self, unit: &str) -> EdgeStr {
+//         self.edge(unit.to_owned())
+//     }
+// }
 
 impl Hash for Snap {
     fn hash<H: Hasher>(&self, state: &mut H) {
