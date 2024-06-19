@@ -15,8 +15,16 @@ const GOAL: &str = "there should be a goal";
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
+pub struct Node<U, T, G>(pub Arc<RwLock<Base<U, T, G>>>);
+
+impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
+    pub fn new(unit: U) -> Self {
+        Self(Arc::new(RwLock::new(Base::new(unit))))
+    }
+}
+
 #[derive(Clone, Serialize)]
-pub struct Node<U, T, G> {
+pub struct Base<U, T, G> {
     pub unit: U,
     pub work: HashMap<T, G>,
     pub meta: Meta,
@@ -24,7 +32,7 @@ pub struct Node<U, T, G> {
     pub roots: Vec<Weak<RwLock<dyn Root>>>,
 }
 
-impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
+impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Base<U, T, G> {
     pub fn new(unit: U) -> Self {
         Self {
             unit,
@@ -54,8 +62,8 @@ impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
 //     }
 // }
 
-impl<U, A, G> PartialEq for Node<U, A, G> {
-    fn eq(&self, rhs: &Node<U, A, G>) -> bool {
+impl<U, A, G> PartialEq for Base<U, A, G> {
+    fn eq(&self, rhs: &Base<U, A, G>) -> bool {
         self.meta.node.id == rhs.meta.node.id
     }
 }
@@ -65,7 +73,7 @@ pub trait Root: { //DynClone {
     fn clear_work(&mut self);
 }
 
-impl<U, T, G> Root for Node<U, T, G> {
+impl<U, T, G> Root for Base<U, T, G> {
     fn clear_work(&mut self) {
         self.work.clear();
         for root in self.roots.iter() {

@@ -16,7 +16,7 @@ pub mod user;
 pub use edge::Edge;
 pub use flat::{Flat, Flatten};
 pub use leaf::LeafStr;
-pub use node::{Node, Stem};
+pub use node::{Base, Stem};
 //pub use node::Root;
 pub use repo::Repo;
 pub use snap::Snap;

@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash};
 
 use serde::Serialize;
 
-use crate::{Node, Snap, Solve};
+use crate::{node::Node, Base, Snap, Solve};
 
 const SNAP_KEY: &str = "there should be a snap key and node value";
 
@@ -17,13 +17,13 @@ impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Swap<U, T, G> {
             mode: Mode::Node(Node::new(unit)),
         }
     }
-    pub fn now(&self) -> &Node<U, T, G> {
+    pub fn now(&self) -> &Base<U, T, G> { // pub fn read<F: FnOnce(&U)>(&self, read: F) {
         match &self.mode {
-            Mode::Node(node) => node,
+            Mode::Node(node) => node.0.read(),
             Mode::Nodes(nodes) => nodes.map.get(&nodes.now).expect(SNAP_KEY),
         }
     }
-    pub fn now_mut(&mut self) -> &mut Node<U, T, G> {
+    pub fn now_mut(&mut self) -> &mut Base<U, T, G> {
         match &mut self.mode {
             Mode::Node(node) => node,
             Mode::Nodes(nodes) => nodes.map.get_mut(&nodes.now).expect(SNAP_KEY),

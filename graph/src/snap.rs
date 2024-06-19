@@ -6,7 +6,7 @@ use std::{
 
 use serde::{Serialize, Serializer};
 
-use crate::{Edge, Id, Node, Solve};
+use crate::{Edge, Id, Base, Solve};
 
 #[derive(Clone)]
 pub struct Snap {
