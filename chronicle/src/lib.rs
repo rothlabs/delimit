@@ -1,6 +1,9 @@
 pub mod html;
 pub mod text;
 
+// pub use text::unit::list;
+// pub use html::unit::doc;
+
 // #[cfg(test)]
 // mod tests {
 //     use super::text::*;

@@ -1,19 +1,17 @@
-use std::{borrow::Cow, cell::RefCell};
+use std::cell::RefCell;
+
+use serde::Serialize;
+
+use crate::text::{
+    unit::{list, List},
+    Text,
+};
 
 use super::{attribute::*, html, tag::*, Html};
-use crate::text::{text, unit::{list, List}, Text};
-use graph::{Edge, Snap};
-use serde::Serialize;
 
 pub fn doc() -> Element {
     Element::default()
 }
-
-// impl Unit for Text {
-//     fn text(&self, _: &Snap) -> Text {
-//         self.clone()
-//     }
-// }
 
 #[derive(Clone, Serialize)]
 pub struct Element {
@@ -28,24 +26,17 @@ impl Element {
         let mut open_tag = list();
         open_tag.add_str(&self.tag.open);
         for att in self.attributes.iter() {
-            att.to_list(&mut open_tag);
+            att.add_self_to_list(&mut open_tag);
         }
         open_tag.add_str(">").separator(" ");
         let mut items = list();
         items.add_list(open_tag);
         for item in self.items.iter() {
-            item.to_list(&mut items); //el.add_text(&stem.text());
+            item.add_self_to_list(&mut items);
         }
         items.add_str(&self.tag.close).separator("\n");
         items.text()
     }
-    // pub fn string(&self) -> String {
-    //     self.text().string()
-    // }
-    // pub fn leaf(&mut self, string: &str) -> &mut Self {
-    //     self.items.push(html(Edge::new(string.to_owned())));
-    //     self
-    // }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.items.push(Item::String(value.to_owned()));
         self
@@ -142,9 +133,9 @@ enum Item {
 }
 
 impl Item {
-    fn to_list(&self, list: &mut List) {
+    fn add_self_to_list(&self, list: &mut List) {
         match self {
-            Item::String(s) => list.add_str(s), 
+            Item::String(s) => list.add_str(s),
             Item::Text(t) => list.add_text(t),
             Item::Html(h) => list.add_text(&h.text()),
         };
@@ -158,43 +149,10 @@ enum Attribute {
 }
 
 impl Attribute {
-    fn to_list(&self, list: &mut List) {
+    fn add_self_to_list(&self, list: &mut List) {
         match self {
-            Attribute::String(s) => list.add_str(s), 
+            Attribute::String(s) => list.add_str(s),
             Attribute::Text(t) => list.add_text(t),
         };
     }
 }
-
-
-// impl Unit for Element {
-//     fn text(&self, snap: &Snap) -> Text {
-//         let mut ot = list();
-//         ot.add_string(snap, &self.tag.open);
-//         for att in self.attributes.iter() {
-//             ot.add_text(att);
-//         }
-//         ot.add_string(snap, ">").separator(" ");
-//         let mut el = list();
-//         el.add_list(ot);
-//         for stem in self.items.iter() {
-//             el.add_text(&stem.text());
-//         }
-//         el.add_string(&self.tag.close).separator("\n");
-//         text(el)
-//     }
-// }
-
-
-
-// impl Serialize for Element {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-        
-//     }
-// }
-
-// fn attribute(name: &'static str, value: &str) -> Text {
-//     text(leaf_str(&format!(r#"{name}="{value}""#)))
-// }

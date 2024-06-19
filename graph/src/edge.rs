@@ -1,41 +1,48 @@
-use std::sync::{Arc, RwLock};
+use std::{hash::Hash, sync::{Arc, RwLock}};
 
 use serde::Serialize;
 
-use crate::{Solve, Id, Swap};
+use crate::{Id, Solve, Stem, Swap};
 
-// TODO: type params: Unit, Args, Gain (U, A, G)
-pub struct Edge<U, A, G> {
-    swap: Arc<RwLock<Swap<U, A, G>>>,  
+const NO_POISON: &str = "the lock should not be poisoned";
+//const GOAL: &str = "there should be a goal";
+
+pub struct Edge<U, T, G> {
+    swap: Arc<RwLock<Swap<U, T, G>>>,
     meta: Meta,
 }
 
-impl<U: Solve<A, G> + Clone + Serialize, A, G: Clone> Edge<U, A, G> { 
+impl<U: Clone + Serialize + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Edge<U, T, G> {
     pub fn new(unit: U) -> Self {
+        // TODO: read edges and set self as root for stems
+        // for stem in unit.stems().iter() {
+
+        // }
         Self {
             swap: Arc::new(RwLock::new(Swap::new(unit))),
             meta: Meta::new(),
         }
     }
-    pub fn solve(&self, task: A) -> G { 
-        let swap = self.swap.read().expect("the lock should not be poisoned");
-        swap.node().unit.solve(task).expect("there should be a goal").clone()
+    pub fn solve(&self, task: T) -> G {
+        let mut swap = self.swap.write().expect(NO_POISON);
+        swap.now_mut().solve(task)
     }
-    pub fn read<F: FnOnce(&U)>(&self, read: F) { 
-        let swap = self.swap.read().expect("the lock should not be poisoned"); 
-        read(&swap.node().unit);
+    pub fn read<F: FnOnce(&U)>(&self, read: F) {
+        let swap = self.swap.read().expect(NO_POISON);
+        read(&swap.now().unit);
     }
-    pub fn write<F: FnOnce(&mut U)>(&self, write: F) { 
-        let mut swap = self.swap.write().expect("the lock should not be poisoned"); 
-        write(&mut swap.get_mut().unit);
+    pub fn write<F: FnOnce(&mut U)>(&self, write: F) {
+        let mut swap = self.swap.write().expect(NO_POISON);
+        write(&mut swap.now_mut().unit);
+        // TODO: read edges and set self as root for stems
     }
-    // pub fn snap(&self) -> Snap { 
-    //     let swap = self.swap.read().expect("the lock should not be poisoned"); 
-    //     swap.snap().clone()
-    // }
+    pub fn unit(&self) -> U {
+        let swap = self.swap.read().expect(NO_POISON);
+        swap.now().unit.clone()
+    }
 }
 
-impl<U, A, G> Clone for Edge<U, A, G> {
+impl<U, T, G> Clone for Edge<U, T, G> {
     fn clone(&self) -> Self {
         Self {
             swap: self.swap.clone(),
@@ -44,25 +51,26 @@ impl<U, A, G> Clone for Edge<U, A, G> {
     }
 }
 
-impl<U, A, G> Serialize for Edge<U, A, G> {
+impl<U, T, G> Serialize for Edge<U, T, G> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        self.meta.serialize(serializer) //.read().expect("swap should not be poisoned").serialize(serializer)
+        self.meta.serialize(serializer)
     }
+}
+
+impl<U, T, G> Stem for Edge<U, T, G> {
+    
 }
 
 #[derive(Clone, Serialize)]
 struct Meta {
-    id: Id, 
+    id: Id,
 }
 
 impl Meta {
     fn new() -> Self {
-        Self {
-            id: Id::new(),
-        }
+        Self { id: Id::new() }
     }
 }
-

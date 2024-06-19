@@ -11,8 +11,7 @@
         # serde
             serde = { version = "1.0", features = ["derive"] }
             serde_json = "1.0"
-        # clone
+        # macros
             dyn-clone = {workspace = true}
             erased-serde = {workspace = true}
-        # enum macros
             enum-as-inner = {workspace = true}

@@ -1,5 +1,7 @@
 use std::{
-    hash::{Hash, Hasher}, rc::Rc, sync::{Arc, RwLock}
+    hash::{Hash, Hasher},
+    rc::Rc,
+    sync::{Arc, RwLock},
 };
 
 use serde::{Serialize, Serializer};
@@ -27,7 +29,7 @@ impl Hash for Snap {
     }
 }
 
-impl PartialEq for Snap  {
+impl PartialEq for Snap {
     fn eq(&self, rhs: &Snap) -> bool {
         self.meta.id == rhs.meta.id
     }
@@ -43,7 +45,6 @@ impl Serialize for Snap {
         self.meta.serialize(serializer)
     }
 }
-
 
 #[derive(Clone, Serialize)]
 pub struct Meta {

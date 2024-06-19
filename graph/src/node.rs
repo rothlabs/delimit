@@ -1,44 +1,47 @@
-// use std::borrow::Cow;
+use std::{cell::RefCell, collections::HashMap, hash::Hash, sync::{Arc, RwLock, Weak}};
 
 use serde::Serialize;
+// use dyn_clone::{clone_trait_object, DynClone};
+// /use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
-use std::{
-    collections::HashMap, hash::{Hash, Hasher}, sync::{Arc, RwLock}
-};
+use crate::{Id, Solve};
 
-use crate::{Solve, Flat, Flatten, Id, Read, Write};
+const GOAL: &str = "there should be a goal";
+
+//pub trait Task: Clone + Eq + PartialEq + Hash  {}
+//impl Task for () {}
 
 // Multiple Nodes can point to the same Unit.
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
 #[derive(Clone, Serialize)]
-pub struct Node<U, A, G> { // unit, args, goal
+pub struct Node<U, T, G> {
     pub unit: U,
-    pub work: HashMap<A, G>,
+    pub work: HashMap<T, G>,
     pub meta: Meta,
+    #[serde(skip)]
+    pub roots: Vec<Weak<RwLock<dyn Root>>>,
 }
 
-impl<U, A, G> Node<U, A, G> {
+impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
     pub fn new(unit: U) -> Self {
         Self {
-            unit, 
+            unit,
             work: HashMap::new(),
             meta: Meta::new(),
+            roots: vec![],
         }
     }
-    // pub fn read(&self) -> &U {
-    //     &self.unit
-    // }
-    // pub fn read(&self) -> Read<U> {
-    //     Read::new(self.unit.read().expect("the lock should not be poisoned"))
-    // }
-    // pub fn write(&self) -> Write<U> {
-    //     Write::new(self.unit.write().expect("the lock should not be poisoned"))
-    // }
-    // pub fn unit_strong_count(&self) -> usize {
-    //     Arc::strong_count(&self.unit)
-    // }
+    pub fn solve(&mut self, task: T) -> G {
+        if let Some(goal) = self.work.get(&task) {
+            goal.clone()
+        } else {
+            let goal = self.unit.solve(task.clone()).expect(GOAL);
+            self.work.insert(task, goal.clone());
+            goal
+        }
+    }
     // pub fn flatten(&self, flat: &mut Flat) { // , state: &mut Hasher
     //     let unit = serde_json::to_string(&self.read()).unwrap();
     // }
@@ -51,35 +54,34 @@ impl<U, A, G> Node<U, A, G> {
 //     }
 // }
 
-impl Node<String, (), ()> {
-    pub fn str(unit: &str) -> Self {
-        Self::new(unit.to_owned())
-    }
-}
-
-// impl<U> Clone for Node<U> {
-//     fn clone(&self) -> Self {
-//         Self {
-//             unit: self.unit.clone(),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
 impl<U, A, G> PartialEq for Node<U, A, G> {
     fn eq(&self, rhs: &Node<U, A, G>) -> bool {
         self.meta.node.id == rhs.meta.node.id
     }
 }
 
-// impl<U: Serialize, G> Serialize for Node<U, G> {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         self.meta.serialize(serializer)
-//     }
-// }
+//clone_trait_object!(Root);
+pub trait Root: { //DynClone {
+    fn clear_work(&mut self);
+}
+
+impl<U, T, G> Root for Node<U, T, G> {
+    fn clear_work(&mut self) {
+        self.work.clear();
+        for root in self.roots.iter() {
+            if let Some(root) = root.upgrade() { 
+                if let Ok(root) = &mut root.write() {
+                    root.clear_work();
+                }
+            } // TODO: collect indices of dropped roots to remove from vec (do the same for poisoned?)
+        }
+    }
+}
+
+pub trait Stem {
+    
+}
+
 
 #[derive(Clone, Serialize)]
 pub struct Meta {
@@ -111,49 +113,3 @@ mod meta {
     #[derive(Clone)]
     pub struct Snap(Weak<crate::Snap>);
 }
-
-//pub roots: Vec<Root>,
-
-// impl<T: New> Content<T> {
-//     pub fn new() -> Content<T> {
-//         Content {
-//             at: T::new(),
-//             id: Id::new(),
-//             roots: vec![],
-//         }
-//     }
-// }
-
-// pub struct Root(pub Weak<dyn Nodish>);
-
-// impl Serialize for Root {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         if let Some(root) = self.0.upgrade() {
-//             serializer.serialize_str(root.id().string())
-//         } else {
-//             serializer.serialize_str("")
-//         }
-//     }
-// }
-
-// pub trait Nodish {
-//     fn id(&self) -> &Id;
-//     fn name(&self) -> &'static str;
-// }
-
-// #[derive(Clone, Serialize)]
-// pub struct Id {
-//     id: crate::Id,
-//     cast: Cow<'static, str>,
-// }
-
-// impl Id {
-//     pub fn new(cast: &'static str) -> Id {
-//         Id {
-//             id: crate::Id::new(),
-//             cast: Cow::Borrowed(cast),
-//         }
-//     }
-// }

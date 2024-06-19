@@ -1,6 +1,4 @@
-//use chronicle::{html::doc, text::{list, node::{leaf, Node}}};
-
-use chronicle::{html::unit::doc, text::unit::list};
+use chronicle::{html::doc, text::list};
 use graph::LeafStr;
 
 pub fn index() -> String {
@@ -12,7 +10,6 @@ pub fn index() -> String {
     let text = list.text();
     println!("{}", text.string());
     leaf.write(|unit| unit.push_str("test"));
-    //leaf.write().meta.node.id = Id::new();
     println!("{}", text.string());
 
     let mut html = doc().html();
@@ -29,12 +26,6 @@ pub fn index() -> String {
     let mut body = meta.up_to_html().body();
     body.add_str("Let's roll.");
     let text = body.up_to_doc().text();
-    //let text = doc.text();
-
-    // let wow = text.any().downcast_ref::<Leaf>().unwrap();
-    // // let wo2 = wow.items.last().unwrap().any().downcast_ref::<Leaf>().unwrap();
-    // // let wo3 = wo2.string().0;
-    // // println!("wo3 = {}", wo3);
     let json = text.serial();
     println!("{json}");
     let t = text.string();
