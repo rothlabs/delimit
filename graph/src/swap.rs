@@ -4,6 +4,7 @@ use serde::Serialize;
 
 use crate::{node::Node, Base, Snap, Solve};
 
+const NO_POISON: &str = "the lock should not be poisoned";
 const SNAP_KEY: &str = "there should be a snap key and node value";
 
 #[derive(Serialize)]
@@ -11,34 +12,58 @@ pub struct Swap<U, A, G> {
     mode: Mode<U, A, G>,
 }
 
-impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Swap<U, T, G> {
+impl<U: Clone + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Swap<U, T, G> {
     pub fn new(unit: U) -> Self {
         Self {
-            mode: Mode::Node(Node::new(unit)),
+            mode: Mode::Mono(Node::new(unit)),
         }
     }
-    pub fn now(&self) -> &Base<U, T, G> { // pub fn read<F: FnOnce(&U)>(&self, read: F) {
+    pub fn unit(&self) -> U {
         match &self.mode {
-            Mode::Node(node) => node.0.read(),
-            Mode::Nodes(nodes) => nodes.map.get(&nodes.now).expect(SNAP_KEY),
+            Mode::Mono(node) => node.base.read().expect(NO_POISON).unit.clone(),
+            Mode::Mult(mult) => {
+                let base = &mult.map.get(&mult.now).expect(SNAP_KEY).base;
+                base.read().expect(NO_POISON).unit.clone()
+            },
         }
     }
-    pub fn now_mut(&mut self) -> &mut Base<U, T, G> {
+    pub fn solve(&self, task: T) -> G {
+        match &self.mode {
+            Mode::Mono(node) => node.base.write().expect(NO_POISON).solve(task),
+            Mode::Mult(mult) => {
+                let base = &mult.map.get(&mult.now).expect(SNAP_KEY).base;
+                base.write().expect(NO_POISON).solve(task)
+            },
+        }
+    }
+    pub fn read<F: FnOnce(&Base<U, T, G>)>(&self, read: F) {
+        match &self.mode {
+            Mode::Mono(node) => read(&node.base.read().expect(NO_POISON)),
+            Mode::Mult(mult) => {
+                let base = &mult.map.get(&mult.now).expect(SNAP_KEY).base;
+                read(&base.read().expect(NO_POISON));
+            },
+        }
+    }
+    pub fn write<F: FnOnce(&mut Base<U, T, G>)>(&mut self, write: F) {
         match &mut self.mode {
-            Mode::Node(node) => node,
-            Mode::Nodes(nodes) => nodes.map.get_mut(&nodes.now).expect(SNAP_KEY),
+            Mode::Mono(node) => write(&mut node.base.write().expect(NO_POISON)),
+            Mode::Mult(mult) => {
+                let base = &mult.map.get_mut(&mult.now).expect(SNAP_KEY).base;
+                write(&mut base.write().expect(NO_POISON));
+            },
         }
     }
 }
 
 #[derive(Serialize)]
 enum Mode<U, A, G> {
-    Nodes(Nodes<U, A, G>),
-    Node(Node<U, A, G>),
+    Mult(Mult<U, A, G>),
+    Mono(Node<U, A, G>),
 }
 
 #[derive(Serialize)]
-struct Nodes<U, A, G> {
+struct Mult<U, A, G> {
     map: HashMap<Snap, Node<U, A, G>>,
     now: Snap,
 }
@@ -52,5 +77,17 @@ struct Nodes<U, A, G> {
 //             map,
 //             now: snap.clone(),
 //         }),
+//     }
+// }
+
+
+// pub fn now(&self) -> RwLockReadGuard<'_, Base<U, T, G>> {  
+//     match &self.mode {
+//         Mode::Mono(node) => node.0.read().expect(NO_POISON),
+//         Mode::Snaps(nodes) => {
+//             let arc = nodes.map.get(&nodes.now).expect(SNAP_KEY).0;
+//             let wow = arc.read().expect(NO_POISON);
+//             wow
+//         },
 //     }
 // }

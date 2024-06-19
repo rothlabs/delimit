@@ -15,11 +15,17 @@ const GOAL: &str = "there should be a goal";
 // Pointers to Unit should be serialized as hash digest of Unit.
 // Each Unit should be serialized once along side their hash digest.
 
-pub struct Node<U, T, G>(pub Arc<RwLock<Base<U, T, G>>>);
+pub struct Node<U, T, G>{
+    pub base: Arc<RwLock<Base<U, T, G>>>,
+    pub meta: Meta,
+}
 
 impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
     pub fn new(unit: U) -> Self {
-        Self(Arc::new(RwLock::new(Base::new(unit))))
+        Self {
+            base: Arc::new(RwLock::new(Base::new(unit))),
+            meta: Meta::new(),
+        }
     }
 }
 
@@ -27,7 +33,6 @@ impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Node<U, T, G> {
 pub struct Base<U, T, G> {
     pub unit: U,
     pub work: HashMap<T, G>,
-    pub meta: Meta,
     #[serde(skip)]
     pub roots: Vec<Weak<RwLock<dyn Root>>>,
 }
@@ -37,7 +42,6 @@ impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Base<U, T, G> {
         Self {
             unit,
             work: HashMap::new(),
-            meta: Meta::new(),
             roots: vec![],
         }
     }
@@ -62,11 +66,11 @@ impl<U: Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Base<U, T, G> {
 //     }
 // }
 
-impl<U, A, G> PartialEq for Base<U, A, G> {
-    fn eq(&self, rhs: &Base<U, A, G>) -> bool {
-        self.meta.node.id == rhs.meta.node.id
-    }
-}
+// impl<U, A, G> PartialEq for Base<U, A, G> {
+//     fn eq(&self, rhs: &Base<U, A, G>) -> bool {
+//         self.meta.node.id == rhs.meta.node.id
+//     }
+// }
 
 //clone_trait_object!(Root);
 pub trait Root: { //DynClone {
@@ -83,6 +87,15 @@ impl<U, T, G> Root for Base<U, T, G> {
                 }
             } // TODO: collect indices of dropped roots to remove from vec (do the same for poisoned?)
         }
+    }
+}
+
+impl<U, T, G> Serialize for Node<U, T, G> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
     }
 }
 

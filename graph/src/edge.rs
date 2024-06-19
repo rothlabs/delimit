@@ -23,22 +23,22 @@ impl<U: Clone + Serialize + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Cl
             meta: Meta::new(),
         }
     }
+    pub fn unit(&self) -> U {
+        let swap = self.swap.read().expect(NO_POISON);
+        swap.unit()
+    }
     pub fn solve(&self, task: T) -> G {
-        let mut swap = self.swap.write().expect(NO_POISON);
-        swap.now_mut().solve(task)
+        let swap = self.swap.write().expect(NO_POISON);
+        swap.solve(task)
     }
     pub fn read<F: FnOnce(&U)>(&self, read: F) {
         let swap = self.swap.read().expect(NO_POISON);
-        read(&swap.now().unit);
+        swap.read(|base| read(&base.unit));
     }
     pub fn write<F: FnOnce(&mut U)>(&self, write: F) {
         let mut swap = self.swap.write().expect(NO_POISON);
-        write(&mut swap.now_mut().unit);
+        swap.write(|base| write(&mut base.unit));
         // TODO: read edges and set self as root for stems
-    }
-    pub fn unit(&self) -> U {
-        let swap = self.swap.read().expect(NO_POISON);
-        swap.now().unit.clone()
     }
 }
 
