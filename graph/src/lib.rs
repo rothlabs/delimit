@@ -10,7 +10,7 @@ pub mod pack;
 pub mod repo;
 pub mod snap;
 pub mod solve;
-pub mod swap;
+pub mod roll;
 pub mod user;
 
 pub use edge::Edge;
@@ -21,7 +21,7 @@ pub use node::{Base, Stem};
 pub use repo::Repo;
 pub use snap::Snap;
 pub use solve::Solve;
-pub use swap::Swap;
+pub use roll::Roll;
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
 pub struct Id(pub String);

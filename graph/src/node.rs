@@ -99,9 +99,7 @@ impl<U, T, G> Serialize for Node<U, T, G> {
     }
 }
 
-pub trait Stem {
-    
-}
+pub trait Stem {}
 
 
 #[derive(Clone, Serialize)]

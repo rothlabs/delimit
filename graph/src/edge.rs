@@ -2,13 +2,13 @@ use std::{hash::Hash, sync::{Arc, RwLock}};
 
 use serde::Serialize;
 
-use crate::{Id, Solve, Stem, Swap};
+use crate::{Id, Solve, Stem, Roll};
 
 const NO_POISON: &str = "the lock should not be poisoned";
 //const GOAL: &str = "there should be a goal";
 
 pub struct Edge<U, T, G> {
-    swap: Arc<RwLock<Swap<U, T, G>>>,
+    roll: Arc<RwLock<Roll<U, T, G>>>,
     meta: Meta,
 }
 
@@ -19,25 +19,27 @@ impl<U: Clone + Serialize + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Cl
 
         // }
         Self {
-            swap: Arc::new(RwLock::new(Swap::new(unit))),
+            roll: Arc::new(RwLock::new(Roll::new(unit))),
             meta: Meta::new(),
         }
     }
     pub fn unit(&self) -> U {
-        let swap = self.swap.read().expect(NO_POISON);
-        swap.unit()
+        let roll = self.roll.read().expect(NO_POISON);
+        let base = roll.read();
+        base.unit.clone()
     }
-    pub fn solve(&self, task: T) -> G {
-        let swap = self.swap.write().expect(NO_POISON);
-        swap.solve(task)
+    pub fn solve(&self, task: T) -> G { // TODO: rename to goal?
+        let roll = self.roll.read().expect(NO_POISON);
+        let mut base = roll.write();
+        base.solve(task)
     }
     pub fn read<F: FnOnce(&U)>(&self, read: F) {
-        let swap = self.swap.read().expect(NO_POISON);
-        swap.read(|base| read(&base.unit));
+        let roll = self.roll.read().expect(NO_POISON);
+        read(&roll.read().unit); 
     }
     pub fn write<F: FnOnce(&mut U)>(&self, write: F) {
-        let mut swap = self.swap.write().expect(NO_POISON);
-        swap.write(|base| write(&mut base.unit));
+        let roll = self.roll.read().expect(NO_POISON);
+        write(&mut roll.write().unit);
         // TODO: read edges and set self as root for stems
     }
 }
@@ -45,7 +47,7 @@ impl<U: Clone + Serialize + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Cl
 impl<U, T, G> Clone for Edge<U, T, G> {
     fn clone(&self) -> Self {
         Self {
-            swap: self.swap.clone(),
+            roll: self.roll.clone(),
             meta: self.meta.clone(),
         }
     }
@@ -60,9 +62,7 @@ impl<U, T, G> Serialize for Edge<U, T, G> {
     }
 }
 
-impl<U, T, G> Stem for Edge<U, T, G> {
-    
-}
+impl<U, T, G> Stem for Edge<U, T, G> {}
 
 #[derive(Clone, Serialize)]
 struct Meta {
