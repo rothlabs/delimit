@@ -2,32 +2,23 @@ use std::any::Any;
 
 use serde::Serialize;
 
-use crate::{root::AnyRoot, Root, Stem};
+use crate::{edge::BoxAny, Edge};
 
 #[derive(Clone, Serialize)]
-pub struct LeafStr{
-    pub stem: Stem<String, (), ()>,
-    pub root: Option<AnyRoot>,
-}
+pub struct LeafStr(pub Edge<String, (), (), (), BoxAny, BoxAny, BoxAny, BoxAny>);
 
 impl LeafStr {
     pub fn new(unit: &str) -> Self {
-        Self {
-            stem: Stem::new(unit.to_owned()),
-            root: None, 
-        }
+        Self (Edge::new(unit.to_owned()))
     }
     pub fn read<F: FnOnce(&String)>(&self, read: F) {
-        self.stem.read(read);
+        self.0.read(read);
     }
     pub fn write<F: FnOnce(&mut String)>(&self, write: F) {
-        self.stem.write(write);
-        if let Some(root) = &self.root {
-            //oot.0.
-        }
+        self.0.write(write);
     }
     pub fn unit(&self) -> String {
-        self.stem.unit()
+        self.0.unit()
     }
 }
 

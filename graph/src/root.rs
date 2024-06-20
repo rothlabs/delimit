@@ -4,7 +4,7 @@ use std::{
 
 use serde::Serialize;
 
-use crate::{Meta, Node, Solve, Stem};
+use crate::{Meta, Node, SolveReact, Edge};
 
 const GOAL: &str = "there should be a goal";
 
@@ -15,7 +15,7 @@ pub struct Root<U, T, L> {
 
 impl<U, T, L> Root<U, T, L> 
 where
-    U: Clone + Solve<T, L>,
+    U: Clone + SolveReact<T, L>,
     T: Clone + Eq + PartialEq + Hash,
     L: Clone,
 {

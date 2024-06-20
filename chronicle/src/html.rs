@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::{Stem, Solve};
+use graph::{Edge, SolveReact};
 use unit::Element;
 
 use super::text::Text;
@@ -11,9 +11,9 @@ pub mod unit;
 pub use unit::doc;
 
 #[derive(Clone, Serialize)]
-pub struct Html(pub Stem<Element, (), Text>);
+pub struct Html(pub Edge<Element, (), Text>);
 
-impl Solve<(), Text> for Element {
+impl SolveReact<(), Text> for Element {
     fn solve(&self, _: ()) -> Option<Text> {
         Some(self.text())
     }
@@ -26,5 +26,5 @@ impl Html {
 }
 
 pub fn html(element: Element) -> Html {
-    Html(Stem::new(element))
+    Html(Edge::new(element))
 }

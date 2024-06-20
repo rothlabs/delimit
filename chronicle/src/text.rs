@@ -4,16 +4,16 @@ use dyn_clone::{clone_trait_object, DynClone};
 use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
-use graph::{self, Stem};
-use graph::{LeafStr, Solve};
+use graph::{self, Edge};
+use graph::{LeafStr, SolveReact};
 
 pub mod unit;
 pub use unit::list;
 
 #[derive(Clone, Serialize)]
-pub struct Text(pub Stem<Box<dyn Unit>, Task, Load>);
+pub struct Text(pub Edge<Box<dyn Unit>, Task, Load>);
 
-impl Solve<Task, Load> for Box<dyn Unit> {
+impl SolveReact<Task, Load> for Box<dyn Unit> {
     fn solve(&self, task: Task) -> Option<Load> {
         match task {
             Task::Leaf(_) => Some(Load::Leaf(self.leaf())),
@@ -47,7 +47,7 @@ pub trait Unit: DynClone + DynSerialize {
 }
 
 pub fn text(unit: impl Unit + 'static) -> Text {
-    Text(Stem::new(Box::new(unit)))
+    Text(Edge::new(Box::new(unit)))
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]
