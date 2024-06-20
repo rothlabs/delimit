@@ -1,13 +1,13 @@
 use serde::Serialize;
 
-use crate::{Edge, Stem};
+use crate::Stem;
 
 #[derive(Clone, Serialize)]
-pub struct LeafStr(pub Edge<String, (), ()>);
+pub struct LeafStr(pub Stem<String, (), ()>);
 
 impl LeafStr {
     pub fn new(unit: &str) -> Self {
-        LeafStr(Edge::new(unit.to_owned()))
+        LeafStr(Stem::new(unit.to_owned()))
     }
     pub fn read<F: FnOnce(&String)>(&self, read: F) {
         self.0.read(read);
@@ -21,5 +21,5 @@ impl LeafStr {
 }
 
 // impl Stem for LeafStr {
-    
+
 // }

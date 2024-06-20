@@ -1,5 +1,3 @@
-use std::clone;
-
 use serde::Serialize;
 
 use dyn_clone::{clone_trait_object, DynClone};
@@ -7,24 +5,21 @@ use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
 use graph::{self, Stem};
-use graph::{Edge, LeafStr, Solve};
+use graph::{LeafStr, Solve};
 
 pub mod unit;
 pub use unit::list;
 
 #[derive(Clone, Serialize)]
-pub struct Text(pub Edge<Box<dyn Unit>, Task, Goal>);
+pub struct Text(pub Stem<Box<dyn Unit>, Task, Load>);
 
-impl Solve<Task, Goal> for Box<dyn Unit> {
-    fn solve(&self, task: Task) -> Option<Goal> {
+impl Solve<Task, Load> for Box<dyn Unit> {
+    fn solve(&self, task: Task) -> Option<Load> {
         match task {
-            Task::Leaf(_) => Some(Goal::Leaf(self.leaf())),
-            Task::Serial(_) => Some(Goal::String(self.serial())),
-            Task::String(_) => Some(Goal::String(self.string())),
+            Task::Leaf(_) => Some(Load::Leaf(self.leaf())),
+            Task::Serial(_) => Some(Load::String(self.serial())),
+            Task::String(_) => Some(Load::String(self.string())),
         }
-    }
-    fn stems(&self) -> Vec<Box<dyn Stem>> {
-        self.all_stems()
     }
 }
 
@@ -43,21 +38,16 @@ impl Text {
     }
 }
 
-// impl Stem for Text {
-    
-// }
-
 clone_trait_object!(Unit);
 serialize_trait_object!(Unit);
 pub trait Unit: DynClone + DynSerialize {
     fn leaf(&self) -> LeafStr;
     fn string(&self) -> String;
     fn serial(&self) -> String;
-    fn all_stems(&self) -> Vec<Box<dyn Stem>>;
 }
 
 pub fn text(unit: impl Unit + 'static) -> Text {
-    Text(Edge::new(Box::new(unit)))
+    Text(Stem::new(Box::new(unit)))
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -67,10 +57,8 @@ pub enum Task {
     Serial(()),
 }
 
-//impl graph::Task for Task {}
-
 #[derive(Clone, EnumAsInner)]
-pub enum Goal {
+pub enum Load {
     Leaf(LeafStr),
     String(String),
 }

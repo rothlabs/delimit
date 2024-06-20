@@ -61,17 +61,6 @@ impl Unit for List {
     fn string(&self) -> String {
         self.leaf().unit()
     }
-    fn all_stems(&self) -> Vec<Box<dyn Stem>> {
-        let mut stems = vec![];
-        for item in self.items.iter() {
-            match item {
-                Item::LeafStr(s) => stems.push(Box::new(s.0.clone()) as Box<dyn Stem>),
-                Item::Text(s) => stems.push(Box::new(s.0.clone()) as Box<dyn Stem>),
-                _ => ()
-            }
-        }
-        stems
-    }
 }
 
 #[derive(Clone, Serialize)]

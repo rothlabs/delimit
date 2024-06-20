@@ -1,15 +1,14 @@
-use crate::Stem;
-
-pub trait Solve<T, G> {
-    fn solve(&self, task: T) -> Option<G>;
-    fn stems(&self) -> Vec<Box<dyn Stem>>;
+pub trait Solve<T, L> {
+    fn solve(&self, task: T) -> Option<L>;
 }
 
-impl<T, G> Solve<T, G> for String {
-    fn solve(&self, _: T) -> Option<G> {
+impl<T, L> Solve<T, L> for String {
+    fn solve(&self, _: T) -> Option<L> {
         None
     }
-    fn stems(&self) -> Vec<Box<dyn Stem>> {
-        vec![]
-    }
 }
+
+// fn stems(&self) -> Vec<Box<dyn Stem>>;
+// fn stems(&self) -> Vec<Box<dyn Stem>> {
+//     vec![]
+// }

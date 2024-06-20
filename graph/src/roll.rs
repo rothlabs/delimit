@@ -2,20 +2,20 @@ use std::{collections::HashMap, hash::Hash, sync::{RwLockReadGuard, RwLockWriteG
 
 use serde::Serialize;
 
-use crate::{node::Node, Base, Snap, Solve};
+use crate::{stem::Stem, Base, Snap, Solve};
 
 const NO_POISON: &str = "the lock should not be poisoned";
 const SNAP_KEY: &str = "there should be a snap key and node value";
 
 #[derive(Serialize)]
 pub enum Roll<U, T, G> {
-    Node(Node<U, T, G>),
+    Node(Stem<U, T, G>),
     Mult(Mult<U, T, G>),
 }
 
 impl<U: Clone + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Roll<U, T, G> {
     pub fn new(unit: U) -> Self {
-        Self::Node(Node::new(unit))
+        Self::Node(Stem::new(unit))
     }
     pub fn read(&self) -> RwLockReadGuard<'_, Base<U, T, G>> {
         match self {
@@ -33,7 +33,7 @@ impl<U: Clone + Solve<T, G>, T: Clone + Eq + PartialEq + Hash, G: Clone> Roll<U,
 
 #[derive(Serialize)]
 pub struct Mult<U, T, G> {
-    map: HashMap<Snap, Node<U, T, G>>,
+    map: HashMap<Snap, Stem<U, T, G>>,
     now: Snap,
 }
 
