@@ -1,22 +1,33 @@
+use std::any::Any;
+
 use serde::Serialize;
 
-use crate::Stem;
+use crate::{root::AnyRoot, Root, Stem};
 
 #[derive(Clone, Serialize)]
-pub struct LeafStr(pub Stem<String, (), ()>);
+pub struct LeafStr{
+    pub stem: Stem<String, (), ()>,
+    pub root: Option<AnyRoot>,
+}
 
 impl LeafStr {
     pub fn new(unit: &str) -> Self {
-        LeafStr(Stem::new(unit.to_owned()))
+        Self {
+            stem: Stem::new(unit.to_owned()),
+            root: None, 
+        }
     }
     pub fn read<F: FnOnce(&String)>(&self, read: F) {
-        self.0.read(read);
+        self.stem.read(read);
     }
     pub fn write<F: FnOnce(&mut String)>(&self, write: F) {
-        self.0.write(write);
+        self.stem.write(write);
+        if let Some(root) = &self.root {
+            //oot.0.
+        }
     }
     pub fn unit(&self) -> String {
-        self.0.unit()
+        self.stem.unit()
     }
 }
 

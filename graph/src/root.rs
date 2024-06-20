@@ -1,6 +1,5 @@
 use std::{
-    hash::Hash,
-    sync::{RwLock, Weak},
+    any::Any, hash::Hash, sync::{RwLock, Weak}
 };
 
 use serde::Serialize;
@@ -11,17 +10,28 @@ const GOAL: &str = "there should be a goal";
 
 pub struct Root<U, T, L> {
     pub node: Weak<RwLock<Node<U, T, L>>>,
-    pub meta: Meta,
+    pub meta: Meta, // TODO: remove meta?
 }
 
-impl<U: Solve<T, L>, T: Clone + Eq + PartialEq + Hash, L: Clone> Root<U, T, L> {
-    // pub fn new(stem: Stem<U, T, L>) -> Self {
+impl<U, T, L> Root<U, T, L> 
+where
+    U: Clone + Solve<T, L>,
+    T: Clone + Eq + PartialEq + Hash,
+    L: Clone,
+{
+    pub fn react(&self) { 
+        // let mut node = self.node.write().expect(NO_POISON);
+        // node.solve(task)
+    }
+}
 
-    //     Self {
-    //         node: Weak::new(RwLock::new(Node::new(unit))),
-    //         meta: Meta::new(),
-    //     }
-    // }
+impl<U, T, L> Clone for Root<U, T, L> {
+    fn clone(&self) -> Self {
+        Self {
+            node: self.node.clone(),
+            meta: self.meta.clone(),
+        }
+    }
 }
 
 impl<U, T, L> Serialize for Root<U, T, L> {
@@ -32,3 +42,6 @@ impl<U, T, L> Serialize for Root<U, T, L> {
         self.meta.serialize(serializer)
     }
 }
+
+#[derive(Clone, Serialize)]
+pub struct AnyRoot(pub Root<Box<dyn Any>, Box<dyn Any>, Box<dyn Any>>);
