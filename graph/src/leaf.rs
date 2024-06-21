@@ -2,17 +2,17 @@ use std::any::Any;
 
 use serde::Serialize;
 
-use crate::{Edge, node};
+use crate::{node, Edge};
 
 type RootStr = Node<BoxAny, (), (), ()>;
-type StemStr = node::Main<String, (), (), ()>;
+type StemStr = node::Node<String, (), (), ()>;
 
 #[derive(Clone, Serialize)]
 pub struct LeafStr(pub Edge<RootStr, StemStr>);
 
 impl LeafStr {
     pub fn new(unit: &str) -> Self {
-        Self (Edge::new(unit.to_owned()))
+        Self(Edge::new(unit.to_owned()))
     }
     pub fn read<F: FnOnce(&String)>(&self, read: F) {
         self.0.read(read);

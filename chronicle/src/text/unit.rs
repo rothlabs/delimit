@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::{LeafStr, Edge};
+use graph::{Edge, LeafStr};
 
 use super::{text, Text, Unit};
 
