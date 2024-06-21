@@ -1,20 +1,24 @@
-pub mod main;
-pub mod reactive;
+mod node;
+mod leaf;
+mod reactor;
 
-pub use main::Node;
-//pub use reactive;
+pub use node::Node;
+pub use leaf::Leaf;
+pub use reactor::Reactor;
 
-const LOAD: &str = "there should be a load";
+pub trait Read {
+    type Unit;
+    fn read(&self) -> &Self::Unit;
+}
 
-pub trait UnitRef {
-    type Unit: Clone;
-    fn unit(&self) -> &Self::Unit;
-    fn unit_mut(&mut self) -> &mut Self::Unit;
+pub trait Write {
+    type Unit;
+    fn write(&mut self) -> &mut Self::Unit;
 }
 
 pub trait Solve {
     type Task;
-    type Load; //: Clone;
+    type Load;
     fn solve(&mut self, task: Self::Task) -> Self::Load;
 }
 

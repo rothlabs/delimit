@@ -1,11 +1,12 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
-pub mod leaf;
+//pub mod leaf;
 pub mod meta;
 pub mod node;
 //pub mod root;
 pub mod edge;
+pub mod link;
 pub mod solve;
 //pub mod edge;
 //pub mod flat;
@@ -15,7 +16,7 @@ pub mod repo;
 //pub mod roll;
 //pub mod user;
 
-pub use leaf::LeafStr;
+//pub use leaf::LeafStr;
 pub use meta::Meta;
 //pub use node::ReadWrite;
 //pub use root::Root;
@@ -25,6 +26,9 @@ pub use solve::SolveReact;
 pub use repo::Repo;
 // pub use snap::Snap;
 // pub use roll::Roll;
+
+const NO_POISON: &str = "the lock should not be poisoned";
+const ROOT: &str = "there should be a root";
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
 pub struct Id(pub String);

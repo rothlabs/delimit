@@ -1,32 +1,32 @@
 use std::sync::{Arc, RwLock};
 
 use crate::node;
-use crate::node::UnitRef;
 
-mod main;
+mod edge;
+mod reactor;
 
-pub use main::Edge;
-
-const NO_POISON: &str = "the lock should not be poisoned";
-const ROOT: &str = "there should be a root";
+pub use edge::Edge;
+pub use reactor::Reactor;
 
 pub trait Read {
-    type Stem: UnitRef;
-    fn read<F: FnOnce(&<Self::Stem as UnitRef>::Unit)>(&self, read: F);
+    type Stem: node::Read;
+    fn read<F: FnOnce(&<Self::Stem as node::Read>::Unit)>(&self, read: F);
 }
 
 pub trait Write {
-    type Root: node::React;
-    type Stem: UnitRef;
-    fn write<F: FnOnce(&mut <Self::Stem as UnitRef>::Unit) -> <Self::Root as node::React>::Vary>(
-        &self,
-        write: F,
-    );
+    type Root;
+    type Stem: node::Write;
+    fn write<F: FnOnce(&mut <Self::Stem as node::Write>::Unit)>(&self, write: F);
 }
 
 pub trait AsUnit {
-    type Stem: node::UnitRef;
-    fn unit(&self) -> <Self::Stem as node::UnitRef>::Unit;
+    type Stem: node::Read;
+    fn unit(&self) -> <Self::Stem as node::Read>::Unit;
+}
+
+pub trait SetRoot {
+    type Root;
+    fn root(&mut self, stem: &Arc<RwLock<Self::Root>>);
 }
 
 pub trait Solve {
@@ -34,9 +34,9 @@ pub trait Solve {
     fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load;
 }
 
-pub trait SetRoot {
-    type Root;
-    fn root(&mut self, stem: &Arc<RwLock<Self::Root>>);
+pub trait React {
+    type Root: node::React;
+    fn react(&self, vary: <Self::Root as node::React>::Vary);
 }
 
 // pub trait Solve {

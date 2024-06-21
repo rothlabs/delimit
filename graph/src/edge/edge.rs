@@ -5,12 +5,9 @@ use std::{
 
 use serde::Serialize;
 
-use crate::{
-    node::{self, React, Solve, UnitRef},
-    Meta,
-};
+use crate::{node, Meta, NO_POISON, ROOT};
 
-use super::{AsUnit, Read, Write, NO_POISON, ROOT};
+use super::{AsUnit, Read, Write};
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
@@ -20,43 +17,53 @@ pub struct Edge<R, S> {
 
 impl<R, S> Read for Edge<R, S>
 where
-    S: UnitRef,
+    S: node::Read,
 {
     type Stem = S;
     fn read<F: FnOnce(&S::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
-        read(&stem.unit());
+        read(&stem.read());
     }
 }
 
-impl<R, S> Write for Edge<R, S> 
-where 
-    R: node::React,
-    S: UnitRef,
+impl<R, S> Write for Edge<R, S>
+where
+    S: node::Write,
 {
     type Root = R;
     type Stem = S;
-    fn write<F: FnOnce(&mut S::Unit) -> R::Vary>(&self, write: F) {
+    fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
-        let variance = write(&mut stem.unit_mut());
-        if let Some(weak) = &self.root {
-            let arc = weak.upgrade().expect(ROOT);
-            let mut root = arc.write().expect(NO_POISON);
-            root.react(variance);
-        }
+        write(&mut stem.write());
     }
 }
 
-impl<R, S> AsUnit for Edge<R, S> 
-where 
-    S: UnitRef,
+impl<R, S> AsUnit for Edge<R, S>
+where
+    S: node::Read,
+    S::Unit: Clone,
 {
     type Stem = S;
     fn unit(&self) -> S::Unit {
         let stem = self.stem.read().expect(NO_POISON);
-        stem.unit().clone()
+        stem.read().clone()
     }
 }
+
+// fn write<F: FnOnce(&mut S::Unit) -> R::Vary>(&self, write: F) {
+//     let mut stem = self.stem.write().expect(NO_POISON);
+//     let variance = write(&mut stem.unit_mut());
+//     if let Some(weak) = &self.root {
+//         let arc = weak.upgrade().expect(ROOT);
+//         let mut root = arc.write().expect(NO_POISON);
+//         root.react(variance);
+//     }
+// }
+
+
+
+
+
 
 // impl<R, S> Edge for Main<R, S>
 // where

@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
 use serde::Serialize;
 
-use super::{React, Solve, UnitRef};
+use super::{Read, Write, Solve, React};
 
 #[derive(Clone, Serialize)]
 pub struct Node<U, T, L, V> {
@@ -21,15 +21,16 @@ impl<U, T, L, V> Node<U, T, L, V> {
     }
 }
 
-impl<U, T, L, V> UnitRef for Node<U, T, L, V>
-where
-    U: Clone,
-{
+impl<U, T, L, V> Read for Node<U, T, L, V> {
     type Unit = U;
-    fn unit(&self) -> &U {
+    fn read(&self) -> &U {
         &self.unit
     }
-    fn unit_mut(&mut self) -> &mut U {
+}
+
+impl<U, T, L, V> Write for Node<U, T, L, V> {
+    type Unit = U;
+    fn write(&mut self) -> &mut Self::Unit {
         &mut self.unit
     }
 }
