@@ -5,10 +5,11 @@ use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
 use graph::{self, Edge};
-use graph::{LeafStr, SolveReact};
 
 pub mod unit;
 pub use unit::list;
+
+// Text should be a Link that 
 
 #[derive(Clone, Serialize)]
 pub struct Text(pub Edge<Box<dyn Unit>, Task, Load>);

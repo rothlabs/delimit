@@ -5,9 +5,9 @@ use std::{
 
 use serde::Serialize;
 
-use crate::{node, Meta, NO_POISON, ROOT};
+use crate::{node, Meta, NO_POISON};
 
-use super::{AsUnit, Read, Write};
+use super::{AsUnit, Read, Write}; 
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
