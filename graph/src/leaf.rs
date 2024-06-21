@@ -2,10 +2,13 @@ use std::any::Any;
 
 use serde::Serialize;
 
-use crate::{edge::BoxAny, Edge};
+use crate::{Edge, node};
+
+type RootStr = Node<BoxAny, (), (), ()>;
+type StemStr = node::Main<String, (), (), ()>;
 
 #[derive(Clone, Serialize)]
-pub struct LeafStr(pub Edge<String, (), (), (), BoxAny, BoxAny, BoxAny, BoxAny>);
+pub struct LeafStr(pub Edge<RootStr, StemStr>);
 
 impl LeafStr {
     pub fn new(unit: &str) -> Self {

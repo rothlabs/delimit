@@ -1,85 +1,51 @@
 use std::{
-    any::Any, hash::Hash, sync::{Arc, RwLock, Weak}
+    any::Any, sync::{Arc, RwLock, Weak}
 };
 
 use serde::Serialize;
 
-use crate::{Meta, Node, SolveReact};
+use crate::{Meta, Node};
+
+mod main;
+
+pub use main::Main;
 
 const NO_POISON: &str = "the lock should not be poisoned";
-const LOAD: &str = "there should be a goal";
 const ROOT: &str = "there should be a root";
 
-pub struct Edge<SU, ST, SL, SV, RU, RT, RL, RV> {
-    pub stem: Arc<RwLock<Node<SU, ST, SL, SV>>>,
-    pub root: Option<Weak<RwLock<Node<RU, RT, RL, RV>>>>,
-    pub meta: Meta,
+pub trait Edge {
+    type R: Node;
+    type S: Node;
+    fn new(unit: <Self::S as Node>::U) -> Self;
+    fn solve(&self, task: <Self::S as Node>::T) -> <Self::S as Node>::L;
+    fn unit(&self) -> <Self::S as Node>::U;
+    fn read<F: FnOnce(&<Self::S as Node>::U)>(&self, read: F);
+    fn write<F: FnOnce(&mut <Self::S as Node>::U) -> <Self::R as Node>::V>(&self, write: F);
+    fn root(&mut self, stem: &Arc<RwLock<Self::R>>);
 }
 
-impl<SU, ST, SL, SV, RU, RT, RL, RV> Edge<SU, ST, SL, SV, RU, RT, RL, RV>
-where
-    SU: Clone + SolveReact<ST, SL, SV>,
-    ST: Clone + Eq + PartialEq + Hash,
-    SL: Clone,
-    RU: Clone + SolveReact<RT, RL, RV>,
-    RT: Clone + Eq + PartialEq + Hash,
-    RL: Clone,
-{
-    pub fn new(unit: SU) -> Self {
-        Self {
-            stem: Arc::new(RwLock::new(Node::new(unit))),
-            root: None,
-            meta: Meta::new(),
-        }
-    }
-    pub fn solve(&self, task: ST) -> SL { // TODO: rename to load?
-        let mut node = self.stem.write().expect(NO_POISON);
-        node.solve(task)
-    }
-    pub fn unit(&self) -> SU {
-        let node = self.stem.read().expect(NO_POISON);
-        node.unit.clone()
-    }
-    pub fn read<F: FnOnce(&SU)>(&self, read: F) {
-        let node = self.stem.read().expect(NO_POISON);
-        read(&node.unit); 
-    }
-    pub fn write<F: FnOnce(&mut SU) -> RV>(&self, write: F) {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        let variance = write(&mut stem.unit);
-        if let Some(weak) = &self.root {
-            let arc = weak.upgrade().expect(ROOT);
-            let mut root = arc.write().expect(NO_POISON);
-            root.react(variance);
-        }
-    }
-    pub fn root(&mut self, stem: &Arc<RwLock<Node<RU, RT, RL, RV>>>) {
-        self.root = Some(Arc::downgrade(stem));
-    }
-}
+// //#[derive(Clone)]
+// pub struct BoxAny(pub Box<dyn Any>);
 
-impl<SU, ST, SL, SV, RU, RT, RL, RV> Clone for Edge<SU, ST, SL, SV, RU, RT, RL, RV> {
-    fn clone(&self) -> Self {
-        Self {
-            stem: self.stem.clone(),
-            root: self.root.clone(),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// impl Clone for BoxAny {
+//     fn clone(&self) -> Self {
+//         Self(
+//             Box::new(self.0)
+//         )
+//     }
+// }
 
-impl<SU, ST, SL, SV, RU, RT, RL, RV>  Serialize for Edge<SU, ST, SL, SV, RU, RT, RL, RV>  {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}
 
-//#[derive(Clone)]
-pub struct BoxAny(pub Box<dyn Any>);
 
+// impl Clone for dyn Edge<R = dyn Node<U = dyn Any, T = dyn Any, L = dyn Any, V = dyn Any>, S = dyn Node<U = dyn Any, T = dyn Any, L = dyn Any, V = dyn Any>> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             stem: self.stem.clone(),
+//             root: self.root.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 
 // impl Flatten for String {
