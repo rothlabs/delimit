@@ -4,13 +4,13 @@ use crate::{edge, node, NO_POISON, ROOT};
 
 use super::React;
 
-pub struct Reactor(Weak<RwLock<Box<dyn React<Edge = edge::Reactor>>>>);
+#[derive(Clone)]
+pub struct Reactor(Weak<RwLock<Box<dyn React>>>);
 
 impl React for Reactor {
-    type Edge = edge::Reactor;
-    fn react(&self, vary: <<Self::Edge as edge::React>::Root as node::React>::Vary) {
+    fn react(&self) {
         let arc = self.0.upgrade().expect(ROOT);
         let root = arc.write().expect(NO_POISON);
-        root.react(vary);
+        root.react();
     }
 }

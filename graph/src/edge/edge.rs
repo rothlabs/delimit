@@ -1,18 +1,29 @@
-use std::{
-    any::Any,
-    sync::{Arc, RwLock, Weak},
-};
+use std::sync::{Arc, RwLock, Weak};
 
 use serde::Serialize;
 
 use crate::{node, Meta, NO_POISON};
 
-use super::{AsUnit, Read, Write}; 
+use super::{AsUnit, New, Read, Solve, Write}; 
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
     pub stem: Arc<RwLock<S>>,
     pub meta: Meta,
+}
+
+impl<R, S> New for Edge<R, S>
+where
+    S: node::New,
+{
+    type Unit = S::Unit;
+    fn new(unit: Self::Unit) -> Self {
+        Self {
+            root: None,
+            stem: Arc::new(RwLock::new(S::new(unit))),
+            meta: Meta::new(),
+        }
+    }
 }
 
 impl<R, S> Read for Edge<R, S>
@@ -49,6 +60,37 @@ where
         stem.read().clone()
     }
 }
+
+impl<R, S> Solve for Edge<R, S> 
+where
+    S: node::Solve,
+{
+    type Stem = S;
+    fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.solve(task)      
+    }
+}
+
+// impl<R, S> Clone for Edge<R, S> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             stem: self.stem.clone(),
+//             root: self.root.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
+
+impl<R, St> Serialize for Edge<R, St> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
+    }
+}
+
 
 // fn write<F: FnOnce(&mut S::Unit) -> R::Vary>(&self, write: F) {
 //     let mut stem = self.stem.write().expect(NO_POISON);
@@ -105,21 +147,4 @@ where
 //     }
 // }
 
-impl<R, S> Clone for Edge<R, S> {
-    fn clone(&self) -> Self {
-        Self {
-            stem: self.stem.clone(),
-            root: self.root.clone(),
-            meta: self.meta.clone(),
-        }
-    }
-}
 
-impl<R, St> Serialize for Edge<R, St> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}

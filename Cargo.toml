@@ -12,3 +12,5 @@
         erased-serde = "0.4"
     # enum macros
         enum-as-inner = "0.6.0"
+    # mcarton/rust-derivative
+        derivative = "2.2.0"

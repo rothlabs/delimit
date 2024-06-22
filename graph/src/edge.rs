@@ -3,10 +3,21 @@ use std::sync::{Arc, RwLock};
 use crate::node;
 
 mod edge;
+mod leaf;
+mod solver;
 mod reactor;
+mod responder;
 
 pub use edge::Edge;
-pub use reactor::Reactor;
+pub use leaf::Leaf;
+pub use solver::Solver;
+pub use reactor::Reactor; 
+pub use responder::Responder;
+
+pub trait New {
+    type Unit;
+    fn new(unit: Self::Unit) -> Self;
+}
 
 pub trait Read {
     type Stem: node::Read;
@@ -35,8 +46,12 @@ pub trait Solve {
 }
 
 pub trait React {
-    type Root: node::React;
-    fn react(&self, vary: <Self::Root as node::React>::Vary);
+    fn react(&self);
+}
+
+pub trait Respond {
+    type Root: node::Respond;
+    fn respond(&self, memo: <Self::Root as node::Respond>::Memo);
 }
 
 // pub trait Solve {

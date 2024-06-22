@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use graph::{Edge, LeafStr};
+use graph::{node::{Leaf, New, Read}, Edge};
 
 use super::{text, Text, Unit};
 
@@ -11,7 +11,7 @@ pub fn list() -> List {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize)] 
 pub struct List {
     pub items: Vec<Item>,
     pub separator: String,
@@ -19,7 +19,7 @@ pub struct List {
 
 impl List {
     pub fn text(self) -> Text {
-        text(self)
+        text(Box::new(self))
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();
@@ -34,17 +34,17 @@ impl List {
         self
     }
     pub fn add_list(&mut self, list: List) -> &mut Self {
-        self.items.push(Item::Text(text(list)));
+        self.items.push(Item::Text(text(Box::new(list))));
         self
     }
-    pub fn add_leaf(&mut self, leaf: &LeafStr) -> &mut Self {
-        self.items.push(Item::LeafStr(leaf.clone()));
+    pub fn add_leaf(&mut self, leaf: &Leaf<String>) -> &mut Self {
+        self.items.push(Item::Leaf(leaf.clone()));
         self
     }
 }
 
 impl Unit for List {
-    fn leaf(&self) -> LeafStr {
+    fn leaf(&self) -> Leaf<String> {
         let mut string = String::new();
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
@@ -53,20 +53,21 @@ impl Unit for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        LeafStr::new(&string)
+        Leaf::new(string)
     }
     fn serial(&self) -> String {
-        serde_json::to_string(self).unwrap()
+        String::new()
+        // serde_json::to_string(self).unwrap()
     }
     fn string(&self) -> String {
-        self.leaf().unit()
+        self.leaf().read().clone()
     }
 }
 
 #[derive(Clone, Serialize)]
 pub enum Item {
     String(String),
-    LeafStr(LeafStr),
+    Leaf(Leaf<String>),
     Text(Text),
 }
 
@@ -74,8 +75,8 @@ impl Item {
     fn read<F: FnOnce(&String)>(&self, f: F) {
         match self {
             Item::String(s) => f(s),
-            Item::LeafStr(l) => l.read(f),
-            Item::Text(t) => t.leaf().read(f),
+            Item::Leaf(l) => f(l.read()),
+            Item::Text(t) => f(t.leaf().read()),
         };
     }
 }

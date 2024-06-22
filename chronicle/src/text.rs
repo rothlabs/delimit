@@ -4,28 +4,32 @@ use dyn_clone::{clone_trait_object, DynClone};
 use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
-use graph::{self, Edge};
+use graph::{self, link::{New, Solver, Solve}, node::{self, Leaf}};
 
 pub mod unit;
 pub use unit::list;
 
-// Text should be a Link that 
 
 #[derive(Clone, Serialize)]
-pub struct Text(pub Edge<Box<dyn Unit>, Task, Load>);
+pub struct Text(
+    pub Solver<Box<dyn Unit>, Task, Load>
+); 
+// pub struct Text(pub Link<Edge<Reactor, Solver<Box<dyn Unit>, Task, Load>>>); 
 
-impl SolveReact<Task, Load> for Box<dyn Unit> {
-    fn solve(&self, task: Task) -> Option<Load> {
+impl node::Solve for Box<dyn Unit> {
+    type Load = Load;
+    type Task = Task;
+    fn solve(&mut self, task: Task) -> Load {
         match task {
-            Task::Leaf(_) => Some(Load::Leaf(self.leaf())),
-            Task::Serial(_) => Some(Load::String(self.serial())),
-            Task::String(_) => Some(Load::String(self.string())),
+            Task::Leaf(_) => Load::Leaf(self.leaf()),
+            Task::Serial(_) => Load::String(self.serial()),
+            Task::String(_) => Load::String(self.string()),
         }
     }
 }
 
 impl Text {
-    pub fn leaf(&self) -> LeafStr {
+    pub fn leaf(&self) -> Leaf<String> {
         let task = Task::Leaf(());
         self.0.solve(task).as_leaf().unwrap().to_owned()
     }
@@ -41,14 +45,14 @@ impl Text {
 
 clone_trait_object!(Unit);
 serialize_trait_object!(Unit);
-pub trait Unit: DynClone + DynSerialize {
-    fn leaf(&self) -> LeafStr;
+pub trait Unit: DynClone + DynSerialize { 
+    fn leaf(&self) -> Leaf<String>;
     fn string(&self) -> String;
     fn serial(&self) -> String;
 }
 
-pub fn text(unit: impl Unit + 'static) -> Text {
-    Text(Edge::new(Box::new(unit)))
+pub fn text(unit: Box<dyn Unit>) -> Text {
+    Text(Solver::new(unit))
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -60,6 +64,6 @@ pub enum Task {
 
 #[derive(Clone, EnumAsInner)]
 pub enum Load {
-    Leaf(LeafStr),
+    Leaf(Leaf<String>),
     String(String),
 }

@@ -1,10 +1,10 @@
 use super::React;
 
-pub struct Reactor(Box<dyn React<Vary = ()>>);
+//#[derive(Clone)]
+pub struct Reactor(Box<dyn React>);
 
 impl React for Reactor {
-    type Vary = ();
-    fn react(&mut self, vary: Self::Vary) {
-        self.0.react(vary);
+    fn react(&mut self) {
+        self.0.react();
     }
 }

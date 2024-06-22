@@ -14,3 +14,5 @@
         # macros
             # dyn-clone = {workspace = true}
             # erased-serde = {workspace = true}
+        # derive
+            derivative = {workspace = true}

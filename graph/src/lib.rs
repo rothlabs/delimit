@@ -21,6 +21,7 @@ pub use meta::Meta;
 //pub use node::ReadWrite;
 //pub use root::Root;
 pub use edge::Edge;
+pub use link::Link;
 //pub use solve::SolveReact;
 // pub use flat::{Flat, Flatten};
 pub use repo::Repo;
