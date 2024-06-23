@@ -14,6 +14,11 @@ pub use reactor::Reactor;
 pub use responder::Responder;
 pub use solver::Solver;
 
+pub trait SetRoot {
+    type Node;
+    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>);
+}
+
 pub trait Read {
     type Stem: node::Read;
     fn read<F: FnOnce(&<Self::Stem as node::Read>::Unit)>(&self, read: F);
@@ -29,11 +34,6 @@ pub trait CloneUnit {
     fn unit(&self) -> <Self::Stem as node::Read>::Unit;
 }
 
-pub trait SetRoot {
-    type Node;
-    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>);
-}
-
 pub trait Solve {
     type Stem: node::Solve;
     fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load;
@@ -46,6 +46,17 @@ pub trait React {
 pub trait Respond {
     type Root: node::Respond;
     fn respond(&self, memo: <Self::Root as node::Respond>::Memo);
+}
+
+pub trait AddLink {
+    type Stem: node::AddLink;
+    fn add_link<
+        F: FnOnce(&mut <Self::Stem as node::AddLink>::Unit, <Self::Stem as node::AddLink>::Link),
+    >(
+        &mut self,
+        link: <Self::Stem as node::AddLink>::Link,
+        add: F,
+    );
 }
 
 // pub trait Solve {

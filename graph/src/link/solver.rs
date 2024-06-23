@@ -7,28 +7,28 @@ use crate::{edge, node, Link, New};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
-pub struct Solver<U, T, L>(Link<edge::Solver<U, T, L>>);
+pub struct Solver<U, T, L, S>(Link<edge::Solver<U, T, L, S>>);
 
-impl<U, T, L> New for Solver<U, T, L> {
+impl<U, T, L, S> New for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(Link::new(unit))
     }
 }
 
-impl<U, T, L> super::Solve for Solver<U, T, L>
+impl<U, T, L, S> super::Solve for Solver<U, T, L, S>
 where
     U: node::Solve<Task = T, Load = L>,
     T: Clone + Eq + PartialEq + Hash,
     L: Clone,
 {
-    type Edge = edge::Solver<U, T, L>;
+    type Edge = edge::Solver<U, T, L, S>;
     fn solve(&self, task: U::Task) -> U::Load {
         self.0.solve(task)
     }
 }
 
-impl<U, T, L> Serialize for Solver<U, T, L> {
+impl<U, T, L, St> Serialize for Solver<U, T, L, St> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -37,13 +37,13 @@ impl<U, T, L> Serialize for Solver<U, T, L> {
     }
 }
 
-// impl<U, T, L> Clone for Solver<U, T, L> {
+// impl<U, T, L, S> Clone for Solver<U, T, L, S> {
 //     fn clone(&self) -> Self {
 //         Self(self.0.clone())
 //     }
 // }
 
-// impl<U, T, L> Clone for Solver<U, T, L> {
+// impl<U, T, L, S> Clone for Solver<U, T, L, S> {
 //     fn clone(&self) -> Self {
 //         Self {
 //             edge: self.edge.clone(),
@@ -52,7 +52,7 @@ impl<U, T, L> Serialize for Solver<U, T, L> {
 //     }
 // }
 
-// impl<U, T, L> Serialize for Solver<U, T, L> {
+// impl<U, T, L, S> Serialize for Solver<U, T, L, S> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 //     where
 //         S: serde::Serializer,

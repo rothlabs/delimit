@@ -1,4 +1,4 @@
-use std::sync::{RwLock, Arc};
+use std::sync::{Arc, RwLock};
 
 use crate::{edge, node};
 
@@ -13,11 +13,6 @@ pub use link::Link;
 pub use reactor::Reactor;
 pub use responder::Responder;
 pub use solver::Solver;
-
-// pub trait New {
-//     type Unit;
-//     fn new(unit: Self::Unit) -> Self;
-// }
 
 pub trait SetRoot {
     type Node;

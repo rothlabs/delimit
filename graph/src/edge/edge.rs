@@ -2,9 +2,9 @@ use std::sync::{Arc, RwLock, Weak};
 
 use serde::Serialize;
 
-use crate::{node, Meta, New, NO_POISON};
+use crate::{link::{self, SetRoot}, node, Meta, New, NO_POISON};
 
-use super::{CloneUnit, Read, SetRoot, Solve, Write};
+use super::{CloneUnit, Read, Solve, Write};
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
@@ -79,15 +79,19 @@ where
     }
 }
 
-// impl<R, S> Clone for Edge<R, S> {
-//     fn clone(&self) -> Self {
-//         Self {
-//             stem: self.stem.clone(),
-//             root: self.root.clone(),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
+impl<R, S> super::AddLink for Edge<R, S>
+where
+    S: node::AddLink,
+    S::Link: link::SetRoot<Node = S>,
+{
+    type Stem = S;
+    fn add_link<F: FnOnce(&mut S::Unit, S::Link)>(&mut self, link: S::Link, add: F) {
+        //let mut link = link.clone();
+        let link = link.set_root(&self.stem);
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.add_link(link, add);
+    }
+}
 
 impl<R, St> Serialize for Edge<R, St> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -97,6 +101,16 @@ impl<R, St> Serialize for Edge<R, St> {
         self.meta.serialize(serializer)
     }
 }
+
+// impl<R, S> Clone for Edge<R, S> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             stem: self.stem.clone(),
+//             root: self.root.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 // fn write<F: FnOnce(&mut S::Unit) -> R::Vary>(&self, write: F) {
 //     let mut stem = self.stem.write().expect(NO_POISON);

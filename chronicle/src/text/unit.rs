@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use graph::{
-    link::{Leaf, Read, CloneUnit},
+    link::{CloneUnit, Leaf, Read},
     New,
 };
 

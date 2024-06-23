@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::{edge, node, Link, New};
 
-use super::{CloneUnit, Read, SetRoot, Write}; 
+use super::{CloneUnit, Read, SetRoot, Write};
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -15,7 +15,7 @@ impl<U> New for Leaf<U> {
     }
 }
 
-// impl<U> SetRoot for Leaf<U> 
+// impl<U> SetRoot for Leaf<U>
 // // where
 // //     U: edge::SetRoot
 // {

@@ -24,9 +24,9 @@ where
     }
 }
 
-impl<E> SetRoot for Link<E> 
+impl<E> SetRoot for Link<E>
 where
-    E: edge::SetRoot
+    E: edge::SetRoot,
 {
     type Node = E::Node;
     fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
