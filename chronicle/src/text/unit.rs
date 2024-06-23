@@ -1,7 +1,8 @@
 use serde::Serialize;
 
 use graph::{
-    link::{Leaf, Read, ToUnit}, New 
+    link::{Leaf, Read, CloneUnit},
+    New,
 };
 
 use super::{text, Text, Unit};
@@ -78,7 +79,7 @@ impl Item {
         match self {
             Item::String(s) => f(s),
             Item::Leaf(l) => l.read(f),
-            Item::Text(t) => t.leaf().read(f)//f(t.leaf().read()),
+            Item::Text(t) => t.leaf().read(f), //f(t.leaf().read()),
         };
     }
 }

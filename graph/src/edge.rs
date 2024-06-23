@@ -14,30 +14,24 @@ pub use reactor::Reactor;
 pub use responder::Responder;
 pub use solver::Solver;
 
-// pub trait New {
-//     type Unit;
-//     fn new(unit: Self::Unit) -> Self;
-// }
-
 pub trait Read {
     type Stem: node::Read;
     fn read<F: FnOnce(&<Self::Stem as node::Read>::Unit)>(&self, read: F);
 }
 
 pub trait Write {
-    //type Root;
     type Stem: node::Write;
     fn write<F: FnOnce(&mut <Self::Stem as node::Write>::Unit)>(&self, write: F);
 }
 
-pub trait ToUnit {
+pub trait CloneUnit {
     type Stem: node::Read;
     fn unit(&self) -> <Self::Stem as node::Read>::Unit;
 }
 
 pub trait SetRoot {
-    type Root;
-    fn root(&mut self, stem: &Arc<RwLock<Self::Root>>);
+    type Node;
+    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>);
 }
 
 pub trait Solve {

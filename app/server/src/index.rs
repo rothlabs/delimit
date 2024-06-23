@@ -1,19 +1,21 @@
 use chronicle::text::list;
-use graph::{link::{Leaf, Write}, New}; // html::doc,
-
+use graph::{
+    link::{Leaf, Write},
+    New,
+}; // html::doc,
 
 pub fn index() -> String {
     let leaf = Leaf::new("cool".to_owned());
     let mut list = list();
     list.add_leaf(&leaf);
-    list.add_leaf(&leaf);
+    list.add_str(" wow ");
     list.add_leaf(&leaf);
     let text = list.text();
     println!("{}", text.string());
-    leaf.write(|unit| unit.push_str("test")); // leaf.write(|unit| unit.push_str("test"));
+    leaf.write(|unit| unit.push_str(" changed!"));
     println!("{}", text.string());
 
-    String::new()
+    text.string()
     // let mut html = doc().html();
     // html.lang("en");
     // let mut title = html.head().title();

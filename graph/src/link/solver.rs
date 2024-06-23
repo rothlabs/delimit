@@ -23,7 +23,7 @@ where
     L: Clone,
 {
     type Edge = edge::Solver<U, T, L>;
-    fn solve(&self, task: <U as node::Solve>::Task) -> <U as node::Solve>::Load {
+    fn solve(&self, task: U::Task) -> U::Load {
         self.0.solve(task)
     }
 }

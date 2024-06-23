@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{node, Meta, New, NO_POISON};
 
-use super::{ToUnit, Read, Solve, Write};
+use super::{CloneUnit, Read, SetRoot, Solve, Write};
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
@@ -26,6 +26,14 @@ where
     }
 }
 
+impl<R, S> SetRoot for Edge<R, S> {
+    type Node = R;
+    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
+        let root = Arc::downgrade(node);
+        self.root = Some(root);
+    }
+}
+
 impl<R, S> Read for Edge<R, S>
 where
     S: node::Read,
@@ -44,11 +52,11 @@ where
     type Stem = S;
     fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
-        write(&mut stem.write());
+        stem.write(write);
     }
 }
 
-impl<R, S> ToUnit for Edge<R, S>
+impl<R, S> CloneUnit for Edge<R, S>
 where
     S: node::Read,
     S::Unit: Clone,
@@ -65,7 +73,7 @@ where
     S: node::Solve,
 {
     type Stem = S;
-    fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load {
+    fn solve(&self, task: S::Task) -> S::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.solve(task)
     }

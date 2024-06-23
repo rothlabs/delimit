@@ -1,3 +1,5 @@
+use std::sync::{RwLock, Arc};
+
 use crate::{edge, node};
 
 mod leaf;
@@ -17,6 +19,11 @@ pub use solver::Solver;
 //     fn new(unit: Self::Unit) -> Self;
 // }
 
+pub trait SetRoot {
+    type Node;
+    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>);
+}
+
 pub trait Read {
     type Edge: edge::Read;
     fn read<F: FnOnce(&<<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(&self, read: F);
@@ -30,9 +37,9 @@ pub trait Write {
     );
 }
 
-pub trait ToUnit {
-    type Edge: edge::ToUnit;
-    fn unit(&self) -> <<Self::Edge as edge::ToUnit>::Stem as node::Read>::Unit;
+pub trait CloneUnit {
+    type Edge: edge::CloneUnit;
+    fn unit(&self) -> <<Self::Edge as edge::CloneUnit>::Stem as node::Read>::Unit;
 }
 
 pub trait Solve {

@@ -13,10 +13,10 @@ use tokio::net::TcpListener;
 
 // An async function that consumes a request, does nothing with it and returns a
 // response.
-async fn index(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes>>, Infallible> {
-    let index = index::index();
-    Ok(Response::new(Full::new(Bytes::from(index))))
-}
+// async fn index(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes>>, Infallible> {
+//     let index = index::index();
+//     Ok(Response::new(Full::new(Bytes::from(index))))
+// }
 
 async fn handle(
     _: Request<impl hyper::body::Body>,

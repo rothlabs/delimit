@@ -1,12 +1,9 @@
 use std::{collections::HashMap, hash::Hash};
 
-use serde::Serialize;
-
 use crate::New;
 
 use super::{React, Read, Solve, Write};
 
-#[derive(Clone, Serialize)]
 pub struct Solver<U, T, L> {
     pub unit: U,
     pub work: HashMap<T, L>,
@@ -31,8 +28,8 @@ impl<U, T, L> Read for Solver<U, T, L> {
 
 impl<U, T, L> Write for Solver<U, T, L> {
     type Unit = U;
-    fn write(&mut self) -> &mut Self::Unit {
-        &mut self.unit
+    fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
+        write(&mut self.unit);
     }
 }
 
@@ -48,7 +45,7 @@ where
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
-            let load = self.unit.solve(task.clone()); // .expect(LOAD)
+            let load = self.unit.solve(task.clone());
             self.work.insert(task, load.clone());
             load
         }

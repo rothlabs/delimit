@@ -20,10 +20,10 @@ pub trait Read {
 
 pub trait Write {
     type Unit;
-    fn write(&mut self) -> &mut Self::Unit;
+    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F); //  -> &mut Self::Unit
 }
 
-// TODO: move to basis.rs because it can be used for units as well?
+// TODO: move to base.rs because it can be used for units as well?
 pub trait Solve {
     type Task;
     type Load;

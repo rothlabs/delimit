@@ -1,10 +1,9 @@
 use std::sync::{RwLock, Weak};
 
-use crate::{edge, node, NO_POISON, ROOT};
+use crate::{NO_POISON, ROOT};
 
 use super::React;
 
-#[derive(Clone)]
 pub struct Reactor(Weak<RwLock<Box<dyn React>>>);
 
 impl React for Reactor {

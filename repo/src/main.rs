@@ -20,7 +20,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let mut repo = Repo::new();
+    let repo = Repo::new();
     //repo.0.packs.insert("wow".to_string(), Pack::new());
     loop {
         let (tcp, _) = listener.accept().await?;

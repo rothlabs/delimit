@@ -1,11 +1,10 @@
-use derivative::Derivative;
 use serde::Serialize;
 
 use crate::{edge, node, Link, New};
 
-use super::{Read, ToUnit, Write};
+use super::{CloneUnit, Read, SetRoot, Write}; 
 
-#[derive(Derivative)]
+#[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct Leaf<U>(Link<edge::Leaf<U>>);
 
@@ -16,21 +15,35 @@ impl<U> New for Leaf<U> {
     }
 }
 
-impl<U: Clone> Read for Leaf<U> {
+// impl<U> SetRoot for Leaf<U> 
+// // where
+// //     U: edge::SetRoot
+// {
+//     type Node = E::Node;
+//     fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
+//         let mut edge = self.edge.write().expect(NO_POISON);
+//         edge.set_root(node);
+//     }
+// }
+
+impl<U> Read for Leaf<U> {
     type Edge = edge::Leaf<U>;
     fn read<F: FnOnce(&<<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(&self, read: F) {
         self.0.read(read);
     }
 }
 
-impl<U: Clone> Write for Leaf<U> {
+impl<U> Write for Leaf<U> {
     type Edge = edge::Leaf<U>;
-    fn write<F: FnOnce(&mut <<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(&self, read: F) {
+    fn write<F: FnOnce(&mut <<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(
+        &self,
+        read: F,
+    ) {
         self.0.write(read);
     }
 }
 
-impl<U: Clone> ToUnit for Leaf<U> {
+impl<U: Clone> CloneUnit for Leaf<U> {
     type Edge = edge::Leaf<U>;
     fn unit(&self) -> <<Self::Edge as edge::Read>::Stem as node::Read>::Unit {
         self.0.unit()

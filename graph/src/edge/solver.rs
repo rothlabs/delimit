@@ -9,7 +9,7 @@ pub struct Solver<U, T, L>(Edge<Reactor, node::Solver<U, T, L>>);
 
 impl<U, T, L> New for Solver<U, T, L> {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn new(unit: U) -> Self {
         Self(edge::Edge::new(unit))
     }
 }
@@ -21,7 +21,7 @@ where
     L: Clone,
 {
     type Stem = node::Solver<U, T, L>;
-    fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load {
+    fn solve(&self, task: U::Task) -> U::Load {
         self.0.solve(task)
     }
 }

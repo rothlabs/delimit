@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{edge, node, Meta, New, NO_POISON};
 
-use super::{Read, Solve, ToUnit, Write};
+use super::{CloneUnit, Read, SetRoot, Solve, Write};
 
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
@@ -21,6 +21,17 @@ where
             edge: Arc::new(RwLock::new(E::new(unit))),
             meta: Meta::new(),
         }
+    }
+}
+
+impl<E> SetRoot for Link<E> 
+where
+    E: edge::SetRoot
+{
+    type Node = E::Node;
+    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
+        let mut edge = self.edge.write().expect(NO_POISON);
+        edge.set_root(node);
     }
 }
 
@@ -46,9 +57,9 @@ where
     }
 }
 
-impl<E> ToUnit for Link<E>
-where 
-    E: edge::ToUnit
+impl<E> CloneUnit for Link<E>
+where
+    E: edge::CloneUnit,
 {
     type Edge = E;
     fn unit(&self) -> <E::Stem as node::Read>::Unit {
