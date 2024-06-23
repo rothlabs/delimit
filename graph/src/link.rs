@@ -14,11 +14,6 @@ pub use reactor::Reactor;
 pub use responder::Responder;
 pub use solver::Solver;
 
-pub trait SetRoot {
-    type Node;
-    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>);
-}
-
 pub trait Read {
     type Edge: edge::Read;
     fn read<F: FnOnce(&<<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(&self, read: F);

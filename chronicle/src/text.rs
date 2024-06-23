@@ -6,7 +6,7 @@ use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
 use graph::{
     link::{Leaf, Solve, Solver},
-    node, New,
+    node, FromUnit,
 };
 
 pub mod unit;

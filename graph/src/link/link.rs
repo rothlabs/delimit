@@ -2,18 +2,18 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{edge, node, Meta, New, NO_POISON};
+use crate::{edge, node, FromRoot, Meta, FromUnit, NO_POISON};
 
-use super::{CloneUnit, Read, SetRoot, Solve, Write};
+use super::{CloneUnit, Read, Solve, Write};
 
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     meta: Meta,
 }
 
-impl<E> New for Link<E>
+impl<E> FromUnit for Link<E>
 where
-    E: New,
+    E: FromUnit,
 {
     type Unit = E::Unit;
     fn new(unit: E::Unit) -> Self {
@@ -24,14 +24,17 @@ where
     }
 }
 
-impl<E> SetRoot for Link<E>
+impl<E> FromRoot for Link<E>
 where
-    E: edge::SetRoot,
+    E: FromRoot,
 {
-    type Node = E::Node;
-    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
-        let mut edge = self.edge.write().expect(NO_POISON);
-        edge.set_root(node);
+    type Root = E::Root;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        let edge = self.edge.read().expect(NO_POISON);
+        Self { 
+            edge: Arc::new(RwLock::new(edge.from_root(root))), 
+            meta: self.meta.clone(),
+        }
     }
 }
 

@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::{
     link::{React, Reactor},
-    New,
+    FromUnit,
 };
 
 use super::{Read, Write};
@@ -12,7 +12,7 @@ pub struct Leaf<U> {
     reactors: Vec<Reactor>,
 }
 
-impl<U> New for Leaf<U> {
+impl<U> FromUnit for Leaf<U> {
     type Unit = U;
     fn new(unit: Self::Unit) -> Self {
         Self {

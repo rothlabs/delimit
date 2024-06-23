@@ -3,13 +3,13 @@ use std::hash::Hash;
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::{edge, node, Link, New};
+use crate::{edge, node, Link, FromUnit};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct Solver<U, T, L, S>(Link<edge::Solver<U, T, L, S>>);
 
-impl<U, T, L, S> New for Solver<U, T, L, S> {
+impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(Link::new(unit))

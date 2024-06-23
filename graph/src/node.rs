@@ -8,11 +8,6 @@ pub use reactor::Reactor;
 pub use responder::Responder;
 pub use solver::Solver;
 
-// pub trait New {
-//     type Unit;
-//     fn new(unit: Self::Unit) -> Self;
-// }
-
 pub trait Read {
     type Unit;
     fn read(&self) -> &Self::Unit;

@@ -1,30 +1,28 @@
+use std::sync::{Arc, RwLock};
+
 use serde::Serialize;
 
-use crate::{edge, node, Link, New};
+use crate::{edge, node, FromRoot, FromUnit, Link};
 
-use super::{CloneUnit, Read, SetRoot, Write};
+use super::{CloneUnit, Read, Write};
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
 pub struct Leaf<U>(Link<edge::Leaf<U>>);
 
-impl<U> New for Leaf<U> {
+impl<U> FromUnit for Leaf<U> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(Link::new(unit))
     }
 }
 
-// impl<U> SetRoot for Leaf<U>
-// // where
-// //     U: edge::SetRoot
-// {
-//     type Node = E::Node;
-//     fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
-//         let mut edge = self.edge.write().expect(NO_POISON);
-//         edge.set_root(node);
-//     }
-// }
+impl<U> FromRoot for Leaf<U> {
+    type Root = <edge::Leaf<U> as FromRoot>::Root;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        Self(self.0.from_root(root))
+    }
+}
 
 impl<U> Read for Leaf<U> {
     type Edge = edge::Leaf<U>;

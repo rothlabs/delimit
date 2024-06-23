@@ -1,6 +1,6 @@
 use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
-use crate::New;
+use crate::FromUnit;
 
 use super::{AddLink, React, Read, Solve, Write};
 
@@ -10,7 +10,7 @@ pub struct Solver<U, T, L, S> {
     stem: PhantomData<S>,
 }
 
-impl<U, T, L, S> New for Solver<U, T, L, S> {
+impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self {

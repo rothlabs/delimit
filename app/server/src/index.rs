@@ -1,7 +1,7 @@
 use chronicle::text::list;
 use graph::{
     link::{Leaf, Write},
-    New,
+    FromUnit,
 }; // html::doc,
 
 pub fn index() -> String {

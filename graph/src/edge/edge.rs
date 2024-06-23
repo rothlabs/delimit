@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock, Weak};
 
 use serde::Serialize;
 
-use crate::{link::{self, SetRoot}, node, Meta, New, NO_POISON};
+use crate::{link, node, FromRoot, Meta, FromUnit, NO_POISON};
 
 use super::{CloneUnit, Read, Solve, Write};
 
@@ -12,9 +12,9 @@ pub struct Edge<R, S> {
     pub meta: Meta,
 }
 
-impl<R, S> New for Edge<R, S>
+impl<R, S> FromUnit for Edge<R, S>
 where
-    S: New,
+    S: FromUnit,
 {
     type Unit = S::Unit;
     fn new(unit: Self::Unit) -> Self {
@@ -26,11 +26,14 @@ where
     }
 }
 
-impl<R, S> SetRoot for Edge<R, S> {
-    type Node = R;
-    fn set_root(&mut self, node: &Arc<RwLock<Self::Node>>) {
-        let root = Arc::downgrade(node);
-        self.root = Some(root);
+impl<R, S> FromRoot for Edge<R, S> {
+    type Root = R;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        Self {
+            root: Some(Arc::downgrade(root)),
+            stem: self.stem.clone(),
+            meta: self.meta.clone(),
+        }
     }
 }
 
@@ -82,12 +85,11 @@ where
 impl<R, S> super::AddLink for Edge<R, S>
 where
     S: node::AddLink,
-    S::Link: link::SetRoot<Node = S>,
+    S::Link: FromRoot<Root = S>,
 {
     type Stem = S;
-    fn add_link<F: FnOnce(&mut S::Unit, S::Link)>(&mut self, link: S::Link, add: F) {
-        //let mut link = link.clone();
-        let link = link.set_root(&self.stem);
+    fn add_link<F: FnOnce(&mut S::Unit, S::Link)>(&mut self, link: &S::Link, add: F) {
+        let link = link.from_root(&self.stem);
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_link(link, add);
     }

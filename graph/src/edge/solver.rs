@@ -1,13 +1,13 @@
 use std::hash::Hash;
 
 use crate::node::{self, Reactor};
-use crate::{Edge, New};
+use crate::{Edge, FromUnit};
 
 use super::edge;
 
 pub struct Solver<U, T, L, S>(Edge<Reactor, node::Solver<U, T, L, S>>);
 
-impl<U, T, L, S> New for Solver<U, T, L, S> {
+impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(edge::Edge::new(unit))
@@ -26,15 +26,15 @@ where
     }
 }
 
-impl<U, T, L, S> super::AddLink for Solver<U, T, L, S> {
-    type Unit = U;
-    type Stem = S;
-    fn add_link<F: FnOnce(&mut Self::Unit, &mut Self::Stem)>(
-        &mut self,
-        stem: &mut Self::Stem,
-        add: F,
-    ) {
-        self.0.stem.write();
-        //add(&mut self.0.stem.write(), stem);
-    }
-}
+// impl<U, T, L, S> super::AddLink for Solver<U, T, L, S> {
+//     type Unit = U;
+//     type Stem = S;
+//     fn add_link<F: FnOnce(&mut Self::Unit, &mut Self::Stem)>(
+//         &mut self,
+//         stem: &mut Self::Stem,
+//         add: F,
+//     ) {
+//         self.0.stem.write();
+//         //add(&mut self.0.stem.write(), stem);
+//     }
+// }

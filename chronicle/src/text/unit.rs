@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use graph::{
     link::{CloneUnit, Leaf, Read},
-    New,
+    FromUnit,
 };
 
 use super::{text, Text, Unit};
