@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock, Weak};
 
 use serde::Serialize;
 
-use crate::{link, node, FromRoot, Meta, FromUnit, NO_POISON};
+use crate::{base, node, FromRoot, FromUnit, AddLink, Meta, NO_POISON};
 
 use super::{CloneUnit, Read, Solve, Write};
 
@@ -73,7 +73,7 @@ where
 
 impl<R, S> Solve for Edge<R, S>
 where
-    S: node::Solve,
+    S: base::Solve,
 {
     type Stem = S;
     fn solve(&self, task: S::Task) -> S::Load {
@@ -82,16 +82,16 @@ where
     }
 }
 
-impl<R, S> super::AddLink for Edge<R, S>
+impl<R, S> AddLink for Edge<R, S>
 where
-    S: node::AddLink,
+    S: AddLink,
     S::Link: FromRoot<Root = S>,
 {
-    type Stem = S;
-    fn add_link<F: FnOnce(&mut S::Unit, S::Link)>(&mut self, link: &S::Link, add: F) {
+    type Link = S::Link;
+    fn add_link(&mut self, link: S::Link) {
         let link = link.from_root(&self.stem);
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_link(link, add);
+        stem.add_link(link);
     }
 }
 
@@ -111,6 +111,19 @@ impl<R, St> Serialize for Edge<R, St> {
 //             root: self.root.clone(),
 //             meta: self.meta.clone(),
 //         }
+//     }
+// }
+
+// impl<R, S> super::AddLink for Edge<R, S>
+// where
+//     S: node::AddLink,
+//     S::Link: FromRoot<Root = S>,
+// {
+//     type Stem = S;
+//     fn add_link<F: FnOnce(&mut S::Unit, S::Link)>(&mut self, link: &S::Link, add: F) {
+//         let link = link.from_root(&self.stem);
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.add_link(link, add);
 //     }
 // }
 

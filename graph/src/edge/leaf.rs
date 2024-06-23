@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
 use crate::node::{self, Reactor};
-use crate::{Edge, FromRoot, Meta, FromUnit};
+use crate::{Edge, FromRoot, FromUnit, Meta};
 
 use super::{CloneUnit, Read, Write};
 

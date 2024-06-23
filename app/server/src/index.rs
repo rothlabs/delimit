@@ -1,16 +1,18 @@
 use chronicle::text::list;
 use graph::{
-    link::{Leaf, Write},
+    //AddLink,
     FromUnit,
+    link::{Leaf, Write},
 }; // html::doc,
 
 pub fn index() -> String {
     let leaf = Leaf::new("cool".to_owned());
     let mut list = list();
-    list.add_leaf(&leaf);
+    // list.add_leaf(&leaf);
     list.add_str(" wow ");
-    list.add_leaf(&leaf);
+    // list.add_leaf(&leaf);
     let text = list.text();
+    text.ad
     println!("{}", text.string());
     leaf.write(|unit| unit.push_str(" changed!"));
     println!("{}", text.string());

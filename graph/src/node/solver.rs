@@ -1,8 +1,8 @@
 use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
-use crate::FromUnit;
+use crate::{FromUnit, Solve, AddLink};
 
-use super::{AddLink, React, Read, Solve, Write};
+use super::{React, Read, Write};
 
 pub struct Solver<U, T, L, S> {
     pub unit: U,
@@ -63,10 +63,20 @@ where
     }
 }
 
-impl<U, T, L, S> AddLink for Solver<U, T, L, S> {
-    type Unit = U;
+impl<U, T, L, S> AddLink for Solver<U, T, L, S> 
+where
+    U: AddLink<Link = S>,
+{
     type Link = S;
-    fn add_link<F: FnOnce(&mut U, S)>(&mut self, stem: S, add: F) {
-        add(&mut self.unit, stem);
+    fn add_link(&mut self, link: S) {
+        self.unit.add_link(link);
     }
 }
+
+// impl<U, T, L, S> AddLink for Solver<U, T, L, S> {
+//     type Unit = U;
+//     type Link = S;
+//     fn add_link<F: FnOnce(&mut U, S)>(&mut self, stem: S, add: F) {
+//         add(&mut self.unit, stem);
+//     }
+// }

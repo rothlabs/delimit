@@ -1,11 +1,11 @@
 use serde::Serialize;
 
 use graph::{
-    link::{CloneUnit, Leaf, Read},
+    link::{CloneUnit, Leaf},
     FromUnit,
 };
 
-use super::{text, Text, Unit};
+use super::{text, Stem, Text, Unit};
 
 pub fn list() -> List {
     List {
@@ -16,7 +16,7 @@ pub fn list() -> List {
 
 #[derive(Clone, Serialize)]
 pub struct List {
-    pub items: Vec<Item>,
+    pub items: Vec<Stem>,
     pub separator: String,
 }
 
@@ -28,22 +28,22 @@ impl List {
         self.separator = sep.to_owned();
         self
     }
-    pub fn add_text(&mut self, text: &Text) -> &mut Self {
-        self.items.push(Item::Text(text.clone()));
-        self
-    }
-    pub fn add_str(&mut self, unit: &str) -> &mut Self {
-        self.items.push(Item::String(unit.to_owned()));
-        self
-    }
-    pub fn add_list(&mut self, list: List) -> &mut Self {
-        self.items.push(Item::Text(text(Box::new(list))));
-        self
-    }
-    pub fn add_leaf(&mut self, leaf: &Leaf<String>) -> &mut Self {
-        self.items.push(Item::Leaf(leaf.clone()));
-        self
-    }
+    // pub fn add_text(&mut self, text: &Text) -> &mut Self {
+    //     self.items.push(Stem::Text(text.clone()));
+    //     self
+    // }
+    // pub fn add_str(&mut self, unit: &str) -> &mut Self {
+    //     self.items.push(Stem::String(unit.to_owned()));
+    //     self
+    // }
+    // pub fn add_list(&mut self, list: List) -> &mut Self {
+    //     self.items.push(Stem::Text(text(Box::new(list))));
+    //     self
+    // }
+    // pub fn add_leaf(&mut self, leaf: &Leaf<String>) -> &mut Self {
+    //     self.items.push(Stem::Leaf(leaf.clone()));
+    //     self
+    // }
 }
 
 impl Unit for List {
@@ -65,21 +65,15 @@ impl Unit for List {
     fn string(&self) -> String {
         self.leaf().unit()
     }
-}
-
-#[derive(Clone, Serialize)]
-pub enum Item {
-    String(String),
-    Leaf(Leaf<String>),
-    Text(Text),
-}
-
-impl Item {
-    fn read<F: FnOnce(&String)>(&self, f: F) {
-        match self {
-            Item::String(s) => f(s),
-            Item::Leaf(l) => l.read(f),
-            Item::Text(t) => t.leaf().read(f), //f(t.leaf().read()),
-        };
+    fn add_item(&mut self, item: Stem) {
+        self.items.push(item);
+        // match link {
+        //     //Stem::String(s) => f(s),
+        //     Stem::Leaf(l) => {
+        //         self.items.push(Stem::Leaf(leaf.clone()));
+        //     },
+        //     //Stem::Text(t) => t.leaf().read(f),
+        //     _ => (),
+        // };
     }
 }

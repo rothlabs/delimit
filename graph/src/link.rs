@@ -1,6 +1,4 @@
-use std::sync::{Arc, RwLock};
-
-use crate::{edge, node};
+use crate::{base, edge, node};
 
 mod leaf;
 mod link;
@@ -36,8 +34,8 @@ pub trait Solve {
     type Edge: edge::Solve;
     fn solve(
         &self,
-        task: <<Self::Edge as edge::Solve>::Stem as node::Solve>::Task,
-    ) -> <<Self::Edge as edge::Solve>::Stem as node::Solve>::Load;
+        task: <<Self::Edge as edge::Solve>::Stem as base::Solve>::Task,
+    ) -> <<Self::Edge as edge::Solve>::Stem as base::Solve>::Load;
 }
 
 pub trait React {

@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{edge, node, FromRoot, Meta, FromUnit, NO_POISON};
+use crate::{base, edge, node, FromRoot, FromUnit, AddLink, Meta, NO_POISON};
 
 use super::{CloneUnit, Read, Solve, Write};
 
@@ -31,8 +31,8 @@ where
     type Root = E::Root;
     fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
-        Self { 
-            edge: Arc::new(RwLock::new(edge.from_root(root))), 
+        Self {
+            edge: Arc::new(RwLock::new(edge.from_root(root))),
             meta: self.meta.clone(),
         }
     }
@@ -76,9 +76,20 @@ where
     E: edge::Solve,
 {
     type Edge = E;
-    fn solve(&self, task: <E::Stem as node::Solve>::Task) -> <E::Stem as node::Solve>::Load {
+    fn solve(&self, task: <E::Stem as base::Solve>::Task) -> <E::Stem as base::Solve>::Load {
         let edge = self.edge.read().expect(NO_POISON);
         edge.solve(task)
+    }
+}
+
+impl<E> AddLink for Link<E> 
+where 
+    E: AddLink
+{
+    type Link = <E as AddLink>::Link;
+    fn add_link(&mut self, link: Self::Link) {
+        let mut edge = self.edge.write().expect(NO_POISON);
+        edge.add_link(link);
     }
 }
 

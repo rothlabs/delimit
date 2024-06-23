@@ -9,3 +9,14 @@ pub trait FromRoot {
     type Root;
     fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self;
 }
+
+pub trait Solve {
+    type Task;
+    type Load;
+    fn solve(&mut self, task: Self::Task) -> Self::Load;
+}
+
+pub trait AddLink { 
+    type Link;
+    fn add_link(&mut self, link: Self::Link);
+}

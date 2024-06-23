@@ -1,6 +1,4 @@
-use std::sync::{Arc, RwLock};
-
-use crate::node;
+use crate::{base, node};
 
 mod edge;
 mod leaf;
@@ -30,8 +28,8 @@ pub trait CloneUnit {
 }
 
 pub trait Solve {
-    type Stem: node::Solve;
-    fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load;
+    type Stem: base::Solve;
+    fn solve(&self, task: <Self::Stem as base::Solve>::Task) -> <Self::Stem as base::Solve>::Load;
 }
 
 pub trait React {
@@ -43,16 +41,20 @@ pub trait Respond {
     fn respond(&self, memo: <Self::Root as node::Respond>::Memo);
 }
 
-pub trait AddLink {
-    type Stem: node::AddLink;
-    fn add_link<
-        F: FnOnce(&mut <Self::Stem as node::AddLink>::Unit, <Self::Stem as node::AddLink>::Link),
-    >(
-        &mut self,
-        link: &<Self::Stem as node::AddLink>::Link,
-        add: F,
-    );
-}
+// pub trait AddLink {
+//     type Stem: node::AddLink;
+//     fn add_link<
+//         F: FnOnce(&mut <Self::Stem as node::AddLink>::Unit, <Self::Stem as node::AddLink>::Link),
+//     >(
+//         &mut self,
+//         link: &<Self::Stem as node::AddLink>::Link,
+//         add: F,
+//     );
+// }
+
+
+
+
 
 // pub trait Solve {
 //     type R: Bodied;

@@ -3,7 +3,7 @@ use std::hash::Hash;
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::{edge, node, Link, FromUnit};
+use crate::{base, edge, node, Link, AddLink, FromUnit, FromRoot};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -18,7 +18,7 @@ impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
 
 impl<U, T, L, S> super::Solve for Solver<U, T, L, S>
 where
-    U: node::Solve<Task = T, Load = L>,
+    U: base::Solve<Task = T, Load = L>,
     T: Clone + Eq + PartialEq + Hash,
     L: Clone,
 {
@@ -26,6 +26,17 @@ where
     fn solve(&self, task: U::Task) -> U::Load {
         self.0.solve(task)
     }
+}
+
+impl<U, T, L, S> AddLink for Solver<U, T, L, S> 
+where
+    U: base::AddLink<Link = S>,
+    S: FromRoot<Root = node::Solver<U, T, L, S>>,
+{
+    type Link = <U as AddLink>::Link;
+    fn add_link(&mut self, link: Self::Link) {
+        self.0.add_link(link);
+    }    
 }
 
 impl<U, T, L, St> Serialize for Solver<U, T, L, St> {

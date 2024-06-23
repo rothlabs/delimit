@@ -5,8 +5,7 @@ use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
 use graph::{
-    link::{Leaf, Solve, Solver},
-    node, FromUnit,
+    self, link::{Leaf, Read, Solve, Solver}, node, AddLink, FromRoot, FromUnit
 };
 
 pub mod unit;
@@ -17,7 +16,7 @@ pub fn text(unit: Box<dyn Unit>) -> Text {
 }
 
 #[derive(Clone, Serialize)]
-pub struct Text(pub Solver<Box<dyn Unit>, Task, Load>);
+pub struct Text(pub Solver<Box<dyn Unit>, Task, Load, Stem>);
 
 impl Text {
     pub fn leaf(&self) -> Leaf<String> {
@@ -29,9 +28,12 @@ impl Text {
     pub fn string(&self) -> String {
         self.0.solve(Task::String).as_string().unwrap().to_owned()
     }
+    pub fn add_link(&self, link: &Stem) {
+        //self.0.add_link(link);
+    }
 }
 
-impl node::Solve for Box<dyn Unit> {
+impl graph::Solve for Box<dyn Unit> {
     type Load = Load;
     type Task = Task;
     fn solve(&mut self, task: Task) -> Load {
@@ -43,12 +45,20 @@ impl node::Solve for Box<dyn Unit> {
     }
 }
 
+impl graph::AddLink for Box<dyn Unit> {
+    type Link = Stem;
+    fn add_link(&mut self, link: Self::Link) {
+        self.add_item(link);
+    }
+}
+
 clone_trait_object!(Unit);
 serialize_trait_object!(Unit);
 pub trait Unit: DynClone + DynSerialize {
     fn leaf(&self) -> Leaf<String>;
     fn string(&self) -> String;
     fn serial(&self) -> String;
+    fn add_item(&mut self, link: Stem);
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -63,5 +73,44 @@ pub enum Load {
     Leaf(Leaf<String>),
     String(String),
 }
+
+#[derive(Clone, Serialize)]
+pub enum Stem {
+    //String(String),
+    Leaf(Leaf<String>),
+    Text(Text),
+}
+
+impl Stem {
+    fn read<F: FnOnce(&String)>(&self, f: F) {
+        match self {
+            //Stem::String(s) => f(s),
+            Stem::Leaf(l) => l.read(f),
+            Stem::Text(t) => t.leaf().read(f),
+        };
+    }
+}
+
+impl FromRoot for Stem {
+    type Root = node::Solver<Box<dyn Unit>, Task, Load, Stem>;
+    fn from_root(&self, root: &std::sync::Arc<std::sync::RwLock<Self::Root>>) -> Self {
+        match self {
+            Self::Leaf(leaf) => {
+                Self::Leaf(leaf.from_root(root))
+            },
+            Self::Text(text) => {
+                text.
+            },
+        }
+    }
+}
+
+// impl FromRoot for Stem {
+//     type Root = Solver<Box<dyn Unit>, Task, Load, Stem>;
+//     fn from_root(&self, root: &std::sync::Arc<std::sync::RwLock<Self::Root>>) -> Self {
+        
+//     }
+// }
+
 
 // pub struct Text(pub Link<Edge<Reactor, Solver<Box<dyn Unit>, Task, Load>>>);
