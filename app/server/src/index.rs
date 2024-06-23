@@ -1,15 +1,16 @@
-use chronicle::{text::list}; // html::doc, 
-use graph::node::{Leaf, New, Write};
+use chronicle::text::list;
+use graph::{link::{Leaf, Write}, New}; // html::doc,
+
 
 pub fn index() -> String {
-    let mut leaf = Leaf::new("cool".to_owned());
+    let leaf = Leaf::new("cool".to_owned());
     let mut list = list();
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
     list.add_leaf(&leaf);
     let text = list.text();
     println!("{}", text.string());
-    *leaf.write() += "test"; // leaf.write(|unit| unit.push_str("test"));
+    leaf.write(|unit| unit.push_str("test")); // leaf.write(|unit| unit.push_str("test"));
     println!("{}", text.string());
 
     String::new()

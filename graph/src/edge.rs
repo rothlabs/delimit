@@ -4,20 +4,20 @@ use crate::node;
 
 mod edge;
 mod leaf;
-mod solver;
 mod reactor;
 mod responder;
+mod solver;
 
 pub use edge::Edge;
 pub use leaf::Leaf;
-pub use solver::Solver;
-pub use reactor::Reactor; 
+pub use reactor::Reactor;
 pub use responder::Responder;
+pub use solver::Solver;
 
-pub trait New {
-    type Unit;
-    fn new(unit: Self::Unit) -> Self;
-}
+// pub trait New {
+//     type Unit;
+//     fn new(unit: Self::Unit) -> Self;
+// }
 
 pub trait Read {
     type Stem: node::Read;
@@ -25,12 +25,12 @@ pub trait Read {
 }
 
 pub trait Write {
-    type Root;
+    //type Root;
     type Stem: node::Write;
     fn write<F: FnOnce(&mut <Self::Stem as node::Write>::Unit)>(&self, write: F);
 }
 
-pub trait AsUnit {
+pub trait ToUnit {
     type Stem: node::Read;
     fn unit(&self) -> <Self::Stem as node::Read>::Unit;
 }

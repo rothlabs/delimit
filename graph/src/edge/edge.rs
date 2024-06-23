@@ -2,9 +2,9 @@ use std::sync::{Arc, RwLock, Weak};
 
 use serde::Serialize;
 
-use crate::{node, Meta, NO_POISON};
+use crate::{node, Meta, New, NO_POISON};
 
-use super::{AsUnit, New, Read, Solve, Write}; 
+use super::{ToUnit, Read, Solve, Write};
 
 pub struct Edge<R, S> {
     pub root: Option<Weak<RwLock<R>>>,
@@ -14,7 +14,7 @@ pub struct Edge<R, S> {
 
 impl<R, S> New for Edge<R, S>
 where
-    S: node::New,
+    S: New,
 {
     type Unit = S::Unit;
     fn new(unit: Self::Unit) -> Self {
@@ -41,7 +41,6 @@ impl<R, S> Write for Edge<R, S>
 where
     S: node::Write,
 {
-    type Root = R;
     type Stem = S;
     fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
@@ -49,7 +48,7 @@ where
     }
 }
 
-impl<R, S> AsUnit for Edge<R, S>
+impl<R, S> ToUnit for Edge<R, S>
 where
     S: node::Read,
     S::Unit: Clone,
@@ -61,14 +60,14 @@ where
     }
 }
 
-impl<R, S> Solve for Edge<R, S> 
+impl<R, S> Solve for Edge<R, S>
 where
     S: node::Solve,
 {
     type Stem = S;
     fn solve(&self, task: <Self::Stem as node::Solve>::Task) -> <Self::Stem as node::Solve>::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve(task)      
+        stem.solve(task)
     }
 }
 
@@ -91,7 +90,6 @@ impl<R, St> Serialize for Edge<R, St> {
     }
 }
 
-
 // fn write<F: FnOnce(&mut S::Unit) -> R::Vary>(&self, write: F) {
 //     let mut stem = self.stem.write().expect(NO_POISON);
 //     let variance = write(&mut stem.unit_mut());
@@ -101,11 +99,6 @@ impl<R, St> Serialize for Edge<R, St> {
 //         root.react(variance);
 //     }
 // }
-
-
-
-
-
 
 // impl<R, S> Edge for Main<R, S>
 // where
@@ -146,5 +139,3 @@ impl<R, St> Serialize for Edge<R, St> {
 //         self.root = Some(Arc::downgrade(stem));
 //     }
 // }
-
-

@@ -1,4 +1,4 @@
-use std::sync::{Weak, RwLock};
+use std::sync::{RwLock, Weak};
 
 use crate::{edge, node, NO_POISON, ROOT};
 

@@ -2,7 +2,9 @@ use std::{collections::HashMap, hash::Hash};
 
 use serde::Serialize;
 
-use super::{New, Read, Write, Solve, React};
+use crate::New;
+
+use super::{React, Read, Solve, Write};
 
 #[derive(Clone, Serialize)]
 pub struct Solver<U, T, L> {

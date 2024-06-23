@@ -2,6 +2,7 @@ use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
 //pub mod leaf;
+pub mod base;
 pub mod meta;
 pub mod node;
 //pub mod root;
@@ -17,6 +18,7 @@ pub mod repo;
 //pub mod user;
 
 //pub use leaf::LeafStr;
+pub use base::New;
 pub use meta::Meta;
 //pub use node::ReadWrite;
 //pub use root::Root;

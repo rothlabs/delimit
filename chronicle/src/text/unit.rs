@@ -1,6 +1,8 @@
 use serde::Serialize;
 
-use graph::{node::{Leaf, New, Read}, Edge};
+use graph::{
+    link::{Leaf, Read, ToUnit}, New 
+};
 
 use super::{text, Text, Unit};
 
@@ -11,7 +13,7 @@ pub fn list() -> List {
     }
 }
 
-#[derive(Clone, Serialize)] 
+#[derive(Clone, Serialize)]
 pub struct List {
     pub items: Vec<Item>,
     pub separator: String,
@@ -60,7 +62,7 @@ impl Unit for List {
         // serde_json::to_string(self).unwrap()
     }
     fn string(&self) -> String {
-        self.leaf().read().clone()
+        self.leaf().unit()
     }
 }
 
@@ -75,8 +77,8 @@ impl Item {
     fn read<F: FnOnce(&String)>(&self, f: F) {
         match self {
             Item::String(s) => f(s),
-            Item::Leaf(l) => f(l.read()),
-            Item::Text(t) => f(t.leaf().read()),
+            Item::Leaf(l) => l.read(f),
+            Item::Text(t) => t.leaf().read(f)//f(t.leaf().read()),
         };
     }
 }

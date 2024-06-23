@@ -1,21 +1,21 @@
 use crate::{edge, node};
 
-mod link;
 mod leaf;
-mod solver;
+mod link;
 mod reactor;
 mod responder;
+mod solver;
 
-pub use link::Link;
 pub use leaf::Leaf;
-pub use solver::Solver;
+pub use link::Link;
 pub use reactor::Reactor;
 pub use responder::Responder;
+pub use solver::Solver;
 
-pub trait New {
-    type Unit;
-    fn new(unit: Self::Unit) -> Self;
-}
+// pub trait New {
+//     type Unit;
+//     fn new(unit: Self::Unit) -> Self;
+// }
 
 pub trait Read {
     type Edge: edge::Read;
@@ -30,9 +30,17 @@ pub trait Write {
     );
 }
 
+pub trait ToUnit {
+    type Edge: edge::ToUnit;
+    fn unit(&self) -> <<Self::Edge as edge::ToUnit>::Stem as node::Read>::Unit;
+}
+
 pub trait Solve {
     type Edge: edge::Solve;
-    fn solve(&self, task: <<Self::Edge as edge::Solve>::Stem as node::Solve>::Task) -> <<Self::Edge as edge::Solve>::Stem as node::Solve>::Load;
+    fn solve(
+        &self,
+        task: <<Self::Edge as edge::Solve>::Stem as node::Solve>::Task,
+    ) -> <<Self::Edge as edge::Solve>::Stem as node::Solve>::Load;
 }
 
 pub trait React {

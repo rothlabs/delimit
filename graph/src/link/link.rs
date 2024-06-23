@@ -2,9 +2,9 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{edge, node, Meta, NO_POISON};
+use crate::{edge, node, Meta, New, NO_POISON};
 
-use super::{New, Read, Solve, Write};
+use super::{Read, Solve, ToUnit, Write};
 
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
@@ -13,7 +13,7 @@ pub struct Link<E> {
 
 impl<E> New for Link<E>
 where
-    E: edge::New,
+    E: New,
 {
     type Unit = E::Unit;
     fn new(unit: E::Unit) -> Self {
@@ -46,7 +46,18 @@ where
     }
 }
 
-impl<E> Solve for Link<E> 
+impl<E> ToUnit for Link<E>
+where 
+    E: edge::ToUnit
+{
+    type Edge = E;
+    fn unit(&self) -> <E::Stem as node::Read>::Unit {
+        let edge = self.edge.read().expect(NO_POISON);
+        edge.unit()
+    }
+}
+
+impl<E> Solve for Link<E>
 where
     E: edge::Solve,
 {
@@ -68,9 +79,9 @@ impl<E> Clone for Link<E> {
 
 impl<E> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         self.meta.serialize(serializer)
     }
-    
 }
