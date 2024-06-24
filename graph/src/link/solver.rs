@@ -1,4 +1,4 @@
-use std::hash::Hash;
+use std::{hash::Hash, sync::{Arc, RwLock}};
 
 use derivative::Derivative;
 use serde::Serialize;
@@ -13,6 +13,13 @@ impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(Link::new(unit))
+    }
+}
+
+impl<U, T, L, S> FromRoot for Solver<U, T, L, S> {
+    type Root = <edge::Solver<U, T, L, S> as FromRoot>::Root;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        Self(self.0.from_root(root))
     }
 }
 

@@ -1,8 +1,8 @@
 use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
-use crate::{FromUnit, Solve, AddLink};
+use crate::{FromUnit, AddLink, Solve, React};
 
-use super::{React, Read, Write};
+use super::{Read, Write};
 
 pub struct Solver<U, T, L, S> {
     pub unit: U,

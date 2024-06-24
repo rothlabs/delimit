@@ -1,4 +1,5 @@
 use std::hash::Hash;
+use std::sync::{Arc, RwLock};
 
 use crate::node::{self, Reactor};
 use crate::{base, AddLink, Edge, FromRoot, FromUnit};
@@ -11,6 +12,13 @@ impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     type Unit = U;
     fn new(unit: U) -> Self {
         Self(edge::Edge::new(unit))
+    }
+}
+
+impl<U, T, L, S> FromRoot for Solver<U, T, L, S> {
+    type Root = Reactor;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        Self(self.0.from_root(root))
     }
 }
 

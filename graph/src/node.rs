@@ -25,9 +25,9 @@ pub trait Write {
 //     fn solve(&mut self, task: Self::Task) -> Self::Load;
 // }
 
-pub trait React {
-    fn react(&mut self);
-}
+// pub trait React {
+//     fn react(&mut self); 
+// }
 
 pub trait Respond {
     type Memo;

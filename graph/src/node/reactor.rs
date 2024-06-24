@@ -1,4 +1,4 @@
-use super::React;
+use crate::React;
 
 pub struct Reactor(Box<dyn React>);
 

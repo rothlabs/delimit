@@ -1,3 +1,5 @@
+use std::sync::{Arc, RwLock};
+
 use serde::Serialize;
 
 use dyn_clone::{clone_trait_object, DynClone};
@@ -5,7 +7,7 @@ use enum_as_inner::EnumAsInner;
 use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 
 use graph::{
-    self, link::{Leaf, Read, Solve, Solver}, node, AddLink, FromRoot, FromUnit
+    self, link::{Leaf, Read, Solve, Solver}, node::{self, Reactor}, AddLink, FromRoot, FromUnit
 };
 
 pub mod unit;
@@ -28,8 +30,8 @@ impl Text {
     pub fn string(&self) -> String {
         self.0.solve(Task::String).as_string().unwrap().to_owned()
     }
-    pub fn add_link(&self, link: &Stem) {
-        //self.0.add_link(link);
+    pub fn add_link(&mut self, link: Stem) {
+        self.0.add_link(link);
     }
 }
 
@@ -45,10 +47,17 @@ impl graph::Solve for Box<dyn Unit> {
     }
 }
 
-impl graph::AddLink for Box<dyn Unit> {
+impl AddLink for Box<dyn Unit> {
     type Link = Stem;
     fn add_link(&mut self, link: Self::Link) {
         self.add_item(link);
+    }
+}
+
+impl FromRoot for Text {
+    type Root = Reactor;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+        Self(self.0.from_root(root))
     }
 }
 
@@ -92,14 +101,14 @@ impl Stem {
 }
 
 impl FromRoot for Stem {
-    type Root = node::Solver<Box<dyn Unit>, Task, Load, Stem>;
-    fn from_root(&self, root: &std::sync::Arc<std::sync::RwLock<Self::Root>>) -> Self {
+    type Root = node::Solver<Box<dyn Unit>, Task, Load, Stem>; // as Reactor;
+    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
         match self {
             Self::Leaf(leaf) => {
                 Self::Leaf(leaf.from_root(root))
             },
             Self::Text(text) => {
-                text.
+                Self::Text(text.from_root(root))
             },
         }
     }
