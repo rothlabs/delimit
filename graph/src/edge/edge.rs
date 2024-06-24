@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     base::{self, AddReactor},
-    node, AddLink, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
+    node, AddStem, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
 };
 
 use super::{CloneUnit, Read, Solve, Write};
@@ -94,17 +94,17 @@ where
     }
 }
 
-impl<S> AddLink for Edge<S>
+impl<S> AddStem for Edge<S>
 where
-    S: AddLink + React + 'static,
-    S::Link: FromReactor,
+    S: AddStem + React + 'static,
+    S::Stem: FromReactor,
 {
-    type Link = S::Link;
-    fn add_link(&mut self, link: S::Link) {
+    type Stem = S::Stem;
+    fn add_stem(&mut self, stem: S::Stem) {
         let reactor = Reactor::new(&self.stem);
-        let link = link.from_reactor(reactor);
+        let link = stem.from_reactor(reactor);
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_link(link);
+        stem.add_stem(link);
     }
 }
 

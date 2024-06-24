@@ -1,6 +1,6 @@
 use std::hash::Hash;
 
-use crate::{base, AddLink, Edge, FromReactor, FromUnit, React};
+use crate::{base, AddStem, Edge, FromReactor, FromUnit, React};
 use crate::{node, Reactor};
 
 use super::edge;
@@ -35,15 +35,15 @@ where
     }
 }
 
-impl<U, T, L, S> AddLink for Solver<U, T, L, S>
+impl<U, T, L, S> AddStem for Solver<U, T, L, S>
 where
-    U: AddLink<Link = S> + React + 'static,
+    U: AddStem<Stem = S> + React + 'static,
     T: 'static,
     L: 'static,
     S: FromReactor + 'static,
 {
-    type Link = U::Link;
-    fn add_link(&mut self, link: U::Link) {
-        self.0.add_link(link);
+    type Stem = U::Stem;
+    fn add_stem(&mut self, stem: U::Stem) {
+        self.0.add_stem(stem);
     }
 }

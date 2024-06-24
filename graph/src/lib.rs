@@ -18,7 +18,7 @@ pub mod repo;
 //pub mod user;
 
 //pub use leaf::LeafStr;
-pub use base::{AddLink, FromReactor, FromUnit, React, Reactor, Solve, AddReactor};
+pub use base::{AddStem, FromReactor, FromUnit, React, Reactor, Solve, AddReactor};
 pub use meta::Meta;
 //pub use node::ReadWrite;
 //pub use root::Root;

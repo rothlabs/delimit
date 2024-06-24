@@ -7,7 +7,7 @@ use erased_serde::{serialize_trait_object, Serialize as DynSerialize};
 use graph::{
     self,
     link::{Leaf, Read, Solve, Solver},
-    AddLink, FromReactor, FromUnit, React, Reactor,
+    AddStem, FromReactor, FromUnit, React, Reactor,
 };
 
 pub mod unit;
@@ -31,7 +31,7 @@ impl Text {
         self.0.solve(Task::String).as_string().unwrap().to_owned()
     }
     pub fn add_leaf(&mut self, leaf: &Leaf<String>) {
-        self.0.add_link(Stem::Leaf(leaf.clone()));
+        self.0.add_stem(Stem::Leaf(leaf.clone()));
     }
 }
 
@@ -47,7 +47,7 @@ pub trait Unit: DynClone + DynSerialize {
     fn leaf(&self) -> Leaf<String>;
     fn string(&self) -> String;
     fn serial(&self) -> String;
-    fn add_item(&mut self, link: Stem);
+    fn add_item(&mut self, stem: Stem);
 }
 
 impl graph::Solve for Box<dyn Unit> {
@@ -68,10 +68,10 @@ impl React for Box<dyn Unit> {
     }
 }
 
-impl AddLink for Box<dyn Unit> {
-    type Link = Stem;
-    fn add_link(&mut self, link: Self::Link) {
-        self.add_item(link);
+impl AddStem for Box<dyn Unit> {
+    type Stem = Stem;
+    fn add_stem(&mut self, stem: Self::Stem) {
+        self.add_item(stem);
     }
 }
 

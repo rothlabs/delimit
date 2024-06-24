@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{base, edge, node, AddLink, FromReactor, FromUnit, Meta, Reactor, NO_POISON};
+use crate::{base, edge, node, AddStem, FromReactor, FromUnit, Meta, Reactor, NO_POISON};
 
 use super::{CloneUnit, Read, Solve, Write};
 
@@ -81,14 +81,14 @@ where
     }
 }
 
-impl<E> AddLink for Link<E>
+impl<E> AddStem for Link<E>
 where
-    E: AddLink,
+    E: AddStem,
 {
-    type Link = <E as AddLink>::Link;
-    fn add_link(&mut self, link: Self::Link) {
+    type Stem = <E as AddStem>::Stem;
+    fn add_stem(&mut self, stem: Self::Stem) {
         let mut edge = self.edge.write().expect(NO_POISON);
-        edge.add_link(link);
+        edge.add_stem(stem);
     }
 }
 

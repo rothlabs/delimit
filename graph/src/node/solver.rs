@@ -1,14 +1,14 @@
 use std::{collections::HashMap, hash::Hash, marker::PhantomData};
 
-use crate::{base::AddReactor, AddLink, FromUnit, React, Reactor, Solve};
+use crate::{AddReactor, AddStem, FromUnit, React, Reactor, Solve};
 
 use super::{Read, Write};
 
 pub struct Solver<U, T, L, S> {
     unit: U,
-    stem: PhantomData<S>,
     work: HashMap<T, L>,
     reactors: Vec<Reactor>,
+    stem: PhantomData<S>,
 }
 
 impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
@@ -16,9 +16,9 @@ impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     fn new(unit: U) -> Self {
         Self {
             unit,
-            stem: PhantomData {},
             work: HashMap::new(),
             reactors: vec![],
+            stem: PhantomData {},
         }
     }
 }
@@ -73,23 +73,19 @@ where
     }
 }
 
-impl<U, T, L, S> AddLink for Solver<U, T, L, S>
+impl<U, T, L, S> AddStem for Solver<U, T, L, S>
 where
-    U: AddLink<Link = S> + React,
+    U: AddStem<Stem = S> + React,
 {
-    type Link = S;
-    fn add_link(&mut self, link: S) {
-        self.unit.add_link(link);
+    type Stem = S;
+    fn add_stem(&mut self, stem: S) {
+        self.unit.add_stem(stem);
         self.react();
     }
 }
 
-impl<U, T, L, S> AddReactor for Solver<U, T, L, S> 
-where
-    U: React, 
-{
+impl<U, T, L, S> AddReactor for Solver<U, T, L, S> {
     fn add_reactor(&mut self, reactor: &Reactor) {
         self.reactors.push(reactor.clone());
-        self.react();
     }
 }

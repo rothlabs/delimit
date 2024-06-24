@@ -3,7 +3,7 @@ use std::hash::Hash;
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::{base, edge, AddLink, FromReactor, FromUnit, Link, React, Reactor};
+use crate::{base, edge, AddStem, FromReactor, FromUnit, Link, React, Reactor};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -37,16 +37,16 @@ where
     }
 }
 
-impl<U, T, L, S> AddLink for Solver<U, T, L, S>
+impl<U, T, L, S> AddStem for Solver<U, T, L, S>
 where
-    U: AddLink<Link = S> + React + 'static,
+    U: AddStem<Stem = S> + React + 'static,
     T: 'static,
     L: 'static,
     S: FromReactor + 'static,
 {
-    type Link = U::Link;
-    fn add_link(&mut self, link: Self::Link) {
-        self.0.add_link(link);
+    type Stem = U::Stem;
+    fn add_stem(&mut self, stem: Self::Stem) {
+        self.0.add_stem(stem);
     }
 }
 

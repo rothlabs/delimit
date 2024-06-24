@@ -7,9 +7,9 @@ pub trait FromUnit {
     fn new(unit: Self::Unit) -> Self;
 }
 
-pub trait AddLink {
-    type Link;
-    fn add_link(&mut self, link: Self::Link);
+pub trait AddStem {
+    type Stem;
+    fn add_stem(&mut self, stem: Self::Stem);
 }
 
 pub trait Solve {
