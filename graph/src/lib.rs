@@ -18,7 +18,7 @@ pub mod repo;
 //pub mod user;
 
 //pub use leaf::LeafStr;
-pub use base::{FromRoot, FromUnit, Solve, AddLink, React};
+pub use base::{AddLink, FromReactor, FromUnit, React, Reactor, Solve, AddReactor};
 pub use meta::Meta;
 //pub use node::ReadWrite;
 //pub use root::Root;
@@ -32,6 +32,7 @@ pub use repo::Repo;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 const ROOT: &str = "there should be a root";
+const REACTOR: &str = "there should be a reactor";
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
 pub struct Id(pub String);

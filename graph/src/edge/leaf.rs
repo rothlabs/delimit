@@ -1,11 +1,11 @@
 use std::sync::{Arc, RwLock};
 
-use crate::node::{self, Reactor};
-use crate::{Edge, FromRoot, FromUnit, Meta};
+use crate::{node, Reactor};
+use crate::{Edge, FromReactor, FromUnit, Meta};
 
 use super::{CloneUnit, Read, Write};
 
-pub struct Leaf<U>(Edge<Reactor, node::Leaf<U>>);
+pub struct Leaf<U>(Edge<node::Leaf<U>>);
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
@@ -18,10 +18,9 @@ impl<U> FromUnit for Leaf<U> {
     }
 }
 
-impl<U> FromRoot for Leaf<U> {
-    type Root = Reactor;
-    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
-        Self(self.0.from_root(root))
+impl<U> FromReactor for Leaf<U> {
+    fn from_reactor(&self, root: Reactor) -> Self {
+        Self(self.0.from_reactor(root))
     }
 }
 

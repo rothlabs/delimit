@@ -49,6 +49,9 @@ impl List {
 impl Unit for List {
     fn leaf(&self) -> Leaf<String> {
         let mut string = String::new();
+        if self.items.len() < 1 {
+            return Leaf::new(string);
+        }
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
             string += &self.separator;
@@ -67,13 +70,5 @@ impl Unit for List {
     }
     fn add_item(&mut self, item: Stem) {
         self.items.push(item);
-        // match link {
-        //     //Stem::String(s) => f(s),
-        //     Stem::Leaf(l) => {
-        //         self.items.push(Stem::Leaf(leaf.clone()));
-        //     },
-        //     //Stem::Text(t) => t.leaf().read(f),
-        //     _ => (),
-        // };
     }
 }

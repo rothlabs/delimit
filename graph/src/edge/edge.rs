@@ -1,18 +1,21 @@
-use std::sync::{Arc, RwLock, Weak};
+use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{base, node, FromRoot, FromUnit, AddLink, Meta, NO_POISON};
+use crate::{
+    base::{self, AddReactor},
+    node, AddLink, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
+};
 
 use super::{CloneUnit, Read, Solve, Write};
 
-pub struct Edge<R, S> {
-    pub root: Option<Weak<RwLock<R>>>,
+pub struct Edge<S> {
+    pub root: Option<Reactor>,
     pub stem: Arc<RwLock<S>>,
     pub meta: Meta,
 }
 
-impl<R, S> FromUnit for Edge<R, S>
+impl<S> FromUnit for Edge<S>
 where
     S: FromUnit,
 {
@@ -26,18 +29,22 @@ where
     }
 }
 
-impl<R, S> FromRoot for Edge<R, S> {
-    type Root = R;
-    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+impl<S> FromReactor for Edge<S>
+where
+    S: AddReactor,
+{
+    fn from_reactor(&self, reactor: Reactor) -> Self {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.add_reactor(&reactor);
         Self {
-            root: Some(Arc::downgrade(root)),
+            root: Some(reactor),
             stem: self.stem.clone(),
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<R, S> Read for Edge<R, S>
+impl<S> Read for Edge<S>
 where
     S: node::Read,
 {
@@ -48,7 +55,7 @@ where
     }
 }
 
-impl<R, S> Write for Edge<R, S>
+impl<S> Write for Edge<S>
 where
     S: node::Write,
 {
@@ -56,10 +63,15 @@ where
     fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
+        //println!("edge::Edge::write");
+        if let Some(root) = &self.root {
+            println!("edge::Edge::write -> reactor.react()");
+            root.react();
+        }
     }
 }
 
-impl<R, S> CloneUnit for Edge<R, S>
+impl<S> CloneUnit for Edge<S>
 where
     S: node::Read,
     S::Unit: Clone,
@@ -71,7 +83,7 @@ where
     }
 }
 
-impl<R, S> Solve for Edge<R, S>
+impl<S> Solve for Edge<S>
 where
     S: base::Solve,
 {
@@ -82,20 +94,21 @@ where
     }
 }
 
-impl<R, S> AddLink for Edge<R, S>
+impl<S> AddLink for Edge<S>
 where
-    S: AddLink,
-    S::Link: FromRoot<Root = S>,
+    S: AddLink + React + 'static,
+    S::Link: FromReactor,
 {
     type Link = S::Link;
     fn add_link(&mut self, link: S::Link) {
-        let link = link.from_root(&self.stem);
+        let reactor = Reactor::new(&self.stem);
+        let link = link.from_reactor(reactor);
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_link(link);
     }
 }
 
-impl<R, St> Serialize for Edge<R, St> {
+impl<St> Serialize for Edge<St> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -104,7 +117,16 @@ impl<R, St> Serialize for Edge<R, St> {
     }
 }
 
-// impl<R, S> Clone for Edge<R, S> {
+// impl<S> link::React for Edge<S> {
+//     fn react(&self) {
+//         println!("edge::Edge::react!!!!!");
+//         if let Some(root) = &self.root {
+//             root.react();
+//         }
+//     }
+// }
+
+// impl<S> Clone for Edge<S> {
 //     fn clone(&self) -> Self {
 //         Self {
 //             stem: self.stem.clone(),
@@ -114,7 +136,7 @@ impl<R, St> Serialize for Edge<R, St> {
 //     }
 // }
 
-// impl<R, S> super::AddLink for Edge<R, S>
+// impl<S> super::AddLink for Edge<S>
 // where
 //     S: node::AddLink,
 //     S::Link: FromRoot<Root = S>,
@@ -137,7 +159,7 @@ impl<R, St> Serialize for Edge<R, St> {
 //     }
 // }
 
-// impl<R, S> Edge for Main<R, S>
+// impl<S> Edge for Main<S>
 // where
 //     R: React,
 //     S: UnitRef + Solve,

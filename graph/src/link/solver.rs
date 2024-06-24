@@ -1,9 +1,9 @@
-use std::{hash::Hash, sync::{Arc, RwLock}};
+use std::hash::Hash;
 
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::{base, edge, node, Link, AddLink, FromUnit, FromRoot};
+use crate::{base, edge, AddLink, FromReactor, FromUnit, Link, React, Reactor};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -16,10 +16,12 @@ impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
     }
 }
 
-impl<U, T, L, S> FromRoot for Solver<U, T, L, S> {
-    type Root = <edge::Solver<U, T, L, S> as FromRoot>::Root;
-    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
-        Self(self.0.from_root(root))
+impl<U, T, L, S> FromReactor for Solver<U, T, L, S> 
+where 
+    U: React,
+{
+    fn from_reactor(&self, root: Reactor) -> Self {
+        Self(self.0.from_reactor(root))
     }
 }
 
@@ -35,15 +37,17 @@ where
     }
 }
 
-impl<U, T, L, S> AddLink for Solver<U, T, L, S> 
+impl<U, T, L, S> AddLink for Solver<U, T, L, S>
 where
-    U: base::AddLink<Link = S>,
-    S: FromRoot<Root = node::Solver<U, T, L, S>>,
+    U: AddLink<Link = S> + React + 'static,
+    T: 'static,
+    L: 'static,
+    S: FromReactor + 'static,
 {
-    type Link = <U as AddLink>::Link;
+    type Link = U::Link;
     fn add_link(&mut self, link: Self::Link) {
         self.0.add_link(link);
-    }    
+    }
 }
 
 impl<U, T, L, St> Serialize for Solver<U, T, L, St> {

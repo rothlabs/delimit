@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{base, edge, node, FromRoot, FromUnit, AddLink, Meta, NO_POISON};
+use crate::{base, edge, node, AddLink, FromReactor, FromUnit, Meta, Reactor, NO_POISON};
 
 use super::{CloneUnit, Read, Solve, Write};
 
@@ -24,15 +24,14 @@ where
     }
 }
 
-impl<E> FromRoot for Link<E>
+impl<E> FromReactor for Link<E>
 where
-    E: FromRoot,
+    E: FromReactor,
 {
-    type Root = E::Root;
-    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
+    fn from_reactor(&self, reactor: Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: Arc::new(RwLock::new(edge.from_root(root))),
+            edge: Arc::new(RwLock::new(edge.from_reactor(reactor))),
             meta: self.meta.clone(),
         }
     }
@@ -82,9 +81,9 @@ where
     }
 }
 
-impl<E> AddLink for Link<E> 
-where 
-    E: AddLink
+impl<E> AddLink for Link<E>
+where
+    E: AddLink,
 {
     type Link = <E as AddLink>::Link;
     fn add_link(&mut self, link: Self::Link) {

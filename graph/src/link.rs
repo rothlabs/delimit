@@ -2,14 +2,10 @@ use crate::{base, edge, node};
 
 mod leaf;
 mod link;
-mod reactor;
-mod responder;
 mod solver;
 
 pub use leaf::Leaf;
 pub use link::Link;
-pub use reactor::Reactor;
-pub use responder::Responder;
 pub use solver::Solver;
 
 pub trait Read {
@@ -36,10 +32,6 @@ pub trait Solve {
         &self,
         task: <<Self::Edge as edge::Solve>::Stem as base::Solve>::Task,
     ) -> <<Self::Edge as edge::Solve>::Stem as base::Solve>::Load;
-}
-
-pub trait React {
-    fn react(&self);
 }
 
 pub trait Respond {

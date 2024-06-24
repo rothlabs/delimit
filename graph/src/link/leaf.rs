@@ -1,8 +1,6 @@
-use std::sync::{Arc, RwLock};
-
 use serde::Serialize;
 
-use crate::{edge, node, FromRoot, FromUnit, Link};
+use crate::{edge, node, FromReactor, FromUnit, Link, Reactor};
 
 use super::{CloneUnit, Read, Write};
 
@@ -17,10 +15,9 @@ impl<U> FromUnit for Leaf<U> {
     }
 }
 
-impl<U> FromRoot for Leaf<U> {
-    type Root = <edge::Leaf<U> as FromRoot>::Root;
-    fn from_root(&self, root: &Arc<RwLock<Self::Root>>) -> Self {
-        Self(self.0.from_root(root))
+impl<U> FromReactor for Leaf<U> {
+    fn from_reactor(&self, root: Reactor) -> Self {
+        Self(self.0.from_reactor(root))
     }
 }
 

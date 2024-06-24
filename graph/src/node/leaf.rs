@@ -1,9 +1,6 @@
 use serde::Serialize;
 
-use crate::{
-    link::{React, Reactor},
-    FromUnit,
-};
+use crate::{AddReactor, FromUnit, Reactor};
 
 use super::{Read, Write};
 
@@ -22,6 +19,12 @@ impl<U> FromUnit for Leaf<U> {
     }
 }
 
+impl<U> AddReactor for Leaf<U> {
+    fn add_reactor(&mut self, reactor: &Reactor) {
+        self.reactors.push(reactor.clone());
+    }
+}
+
 impl<U> Read for Leaf<U> {
     type Unit = U;
     fn read(&self) -> &Self::Unit {
@@ -33,7 +36,7 @@ impl<U> Write for Leaf<U> {
     type Unit = U;
     fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
         write(&mut self.unit);
-        for reactor in self.reactors.iter() {
+        for reactor in &self.reactors {
             reactor.react();
         }
     }
@@ -47,12 +50,3 @@ impl<U: Serialize> Serialize for Leaf<U> {
         self.unit.serialize(serializer)
     }
 }
-
-// impl<U> Leaf<U> {
-//     fn set(&mut self, unit: U) {
-//         self.unit = unit;
-//         for reactor in self.reactors.iter() {
-//             reactor.react();
-//         }
-//     }
-// }
