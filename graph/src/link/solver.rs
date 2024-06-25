@@ -3,7 +3,7 @@ use std::hash::Hash;
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::{base, edge, AddStem, FromReactor, FromUnit, Link, React, Reactor};
+use crate::{base, edge, AddStem, FromReactor, FromUnit, Link, React, Reactor, Solve, Work};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -29,32 +29,29 @@ where
     }
 }
 
-impl<U, T, L, S> super::Solve for Solver<U, T, L, S>
+impl<U, W> Solve for Solver<U, W>
 where
-    U: base::Solve<Task = T, Load = L>,
-    T: Clone + Eq + PartialEq + Hash,
-    L: Clone,
+    edge::Solver<U, W>: Solve<Task = W::Task, Load = W::Load>,
+    W: Work,
 {
-    type Edge = edge::Solver<U, T, L, S>;
-    fn solve(&self, task: U::Task) -> U::Load {
+    type Load = W::Load;
+    type Task = W::Task;
+    fn solve(&self, task: Self::Task) -> Self::Load {
         self.0.solve(task)
     }
 }
 
-impl<U, T, L, S> AddStem for Solver<U, T, L, S>
+impl<U, W> AddStem for Solver<U, W>
 where
-    U: AddStem<Stem = S> + React + 'static,
-    T: 'static,
-    L: 'static,
-    S: FromReactor + 'static,
+    edge::Solver<U, W>: AddStem, 
 {
-    type Stem = U::Stem;
+    type Stem = <edge::Solver<U, W> as AddStem>::Stem;
     fn add_stem(&mut self, stem: Self::Stem) {
         self.0.add_stem(stem);
     }
 }
 
-impl<U, T, L, St> Serialize for Solver<U, T, L, St> {
+impl<U, W> Serialize for Solver<U, W> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

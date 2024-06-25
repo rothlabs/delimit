@@ -1,9 +1,7 @@
 use std::sync::{Arc, RwLock};
 
-use crate::{node, Read, Write, Reactor};
-use crate::{Edge, FromReactor, FromUnit, Meta};
+use crate::*;
 
-use super::CloneUnit;
 
 pub struct Leaf<U>(Edge<node::Leaf<U>>);
 
@@ -24,15 +22,15 @@ impl<U> FromReactor for Leaf<U> {
     }
 }
 
-impl<U> super::Read for Leaf<U> {
-    type Unit = <node::Leaf<U> as Read>::Unit;
+impl<U> ReadWith for Leaf<U> {
+    type Unit = U;
     fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
         self.0.read(read);
     }
 }
 
-impl<U> super::Write for Leaf<U> {
-    type Unit = <node::Leaf<U> as Read>::Unit;
+impl<U> WriteInner for Leaf<U> {
+    type Unit = U;
     fn write<F: FnOnce(&mut Self::Unit)>(&self, read: F) {
         self.0.write(read);
     }

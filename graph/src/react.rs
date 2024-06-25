@@ -1,10 +1,15 @@
 use std::{collections::HashSet, hash::Hash, sync::{Arc, RwLock, Weak}};
 
-use crate::{Link, Meta, NO_POISON};
+use crate::{Meta, NO_POISON};
 
 pub trait React {
     fn clear(&mut self) -> Reactors;
     fn react(&mut self);
+}
+
+pub trait ReactLink {
+    fn edge(&self) -> &Arc<RwLock<dyn React>>;
+    fn meta(&self) -> &Meta;
 }
 
 pub trait AddReactor {
@@ -22,11 +27,10 @@ pub struct Reactor {
 }
 
 impl Reactor {
-    pub fn new<E: React + 'static>(link: &Link<E>) -> Self { 
-        let edge = Arc::downgrade(&link.edge);
+    pub fn new<E: ReactLink>(link: &E) -> Self { //  + 'static
         Self {
-            edge,
-            meta: link.meta.clone(),
+            edge: Arc::downgrade(link.edge()),
+            meta: link.meta().clone(),
         }
     }
     pub fn clear(&self) -> Reactors {

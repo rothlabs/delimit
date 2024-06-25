@@ -1,9 +1,6 @@
 use serde::Serialize;
 
-use crate::{edge, node, FromReactor, FromUnit, Link, Reactor};
-
-use edge::{CloneUnit, Read, Write};
-//use super::{CloneUnit, Read, Write};
+use crate::*;
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -22,14 +19,14 @@ impl<U> FromReactor for Leaf<U> {
     }
 }
 
-impl<U> Read for Leaf<U> {
+impl<U> ReadWith for Leaf<U> {
     type Unit = U;
     fn read<F: FnOnce(&U)>(&self, read: F) {
         self.0.read(read);
     }
 }
 
-impl<U> Write for Leaf<U> {
+impl<U> WriteInner for Leaf<U> {
     type Unit = U;
     fn write<F: FnOnce(&mut U)>(&self, read: F) {
         self.0.write(read);

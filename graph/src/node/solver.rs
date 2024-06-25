@@ -1,6 +1,4 @@
-use crate::{AddReactor, AddStem, Clear, FromUnit, React, Reactor, Reactors, Solve, Work};
-
-use super::{Read, Write};
+use crate::*;
 
 pub struct Solver<U, W> {
     unit: U,
@@ -40,7 +38,7 @@ where
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn solve(&mut self, task: W::Task) -> W::Load {
+    fn solve(&self, task: W::Task) -> W::Load {
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
@@ -53,8 +51,7 @@ where
 
 impl<U, W> Write for Solver<U, W> 
 where 
-    U: Write + React,
-    W: Clear,
+    U: Write,
 {
     type Unit = U::Unit;
     fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
@@ -65,8 +62,7 @@ where
 
 impl<U, W> AddStem for Solver<U, W>
 where
-    U: AddStem + React,
-    W: Clear,
+    U: AddStem,
 {
     type Stem = U::Stem;
     fn add_stem(&mut self, stem: U::Stem) {

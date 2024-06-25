@@ -1,7 +1,4 @@
-use crate::{base, AddStem, Clear, Edge, FromReactor, FromUnit, React, Work};
-use crate::{node, Reactor};
-
-use super::edge;
+use crate::*;
 
 pub struct Solver<N, W>(Edge<node::Solver<N, W>>);
 
@@ -22,12 +19,13 @@ impl<N, W> FromReactor for Solver<N, W> {
     }
 }
 
-impl<N, W> super::Solve for Solver<N, W>
+impl<N, W> Solve for Solver<N, W>
 where
-    N: base::Solve<Task = W::Task, Load = W::Load>,
+    N: Solve<Task = W::Task, Load = W::Load>,
     W: Work,
 {
-    type Stem = node::Solver<N, W>;
+    type Load = W::Load;
+    type Task = W::Task;
     fn solve(&self, task: W::Task) -> W::Load {
         self.0.solve(task)
     }

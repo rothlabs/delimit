@@ -2,12 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{
-    Read, Write, Solve,
-    AddReactor, AddStem, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
-};
-
-use super::CloneUnit;
+use crate::*;
 
 pub struct Edge<S> {
     pub root: Option<Reactor>,
@@ -44,7 +39,7 @@ impl<S> FromReactor for Edge<S>
     }
 }
 
-impl<S> super::Read for Edge<S>
+impl<S> ReadWith for Edge<S>
 where
     S: Read,
 {
@@ -67,18 +62,19 @@ where
     }
 }
 
-impl<S> super::Solve for Edge<S>
+impl<S> Solve for Edge<S>
 where
     S: Solve,
 {
-    type Stem = S;
+    type Load = S::Load;
+    type Task = S::Task;
     fn solve(&self, task: S::Task) -> S::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.solve(task)
     }
 }
 
-impl<S> super::Write for Edge<S>
+impl<S> WriteInner for Edge<S>
 where
     S: Write,
 {

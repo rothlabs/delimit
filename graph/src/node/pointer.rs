@@ -1,8 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::FromUnit;
-
-use super::Read;
+use crate::*;
 
 
 pub struct Pointer<U, S> {

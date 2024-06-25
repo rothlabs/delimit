@@ -2,14 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{
-    base, edge, 
-    AddStem, FromReactor, FromUnit, Meta, Reactor, NO_POISON
-};
-
-use edge::{Read, Write, CloneUnit};
-
-use super::Solve;
+use crate::*;
 
 pub struct Link<E> {
     pub edge: Arc<RwLock<E>>,
@@ -42,9 +35,9 @@ where
     }
 }
 
-impl<E> Read for Link<E>
+impl<E> ReadWith for Link<E>
 where
-    E: Read,
+    E: ReadWith,
 {
     type Unit = E::Unit;
     fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -53,9 +46,9 @@ where
     }
 }
 
-impl<E> Write for Link<E>
+impl<E> WriteInner for Link<E>
 where
-    E: Write,
+    E: WriteInner,
 {
     type Unit = E::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
@@ -77,10 +70,11 @@ where
 
 impl<E> Solve for Link<E>
 where
-    E: edge::Solve,
+    E: Solve,
 {
-    type Edge = E;
-    fn solve(&self, task: <E::Stem as base::Solve>::Task) -> <E::Stem as base::Solve>::Load {
+    type Load = E::Load;
+    type Task = E::Task;
+    fn solve(&self, task: Self::Task) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
         edge.solve(task)
     }
@@ -88,11 +82,11 @@ where
 
 impl<E> AddStem for Link<E>
 where
-    E: AddStem,
+    E: AddStem, // + React + 'static,
 {
     type Stem = <E as AddStem>::Stem;
     fn add_stem(&mut self, stem: Self::Stem) {
-        // let reactor = Reactor::new(&self.stem);
+        //let reactor = Reactor::new(&self);
         // let link = stem.from_reactor(reactor);
         // let mut stem = self.stem.write().expect(NO_POISON);
         // stem.add_stem(link);
