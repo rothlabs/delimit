@@ -37,7 +37,7 @@ impl<U> WriteInner for Leaf<U> {
 }
 
 impl<U: Clone> CloneUnit for Leaf<U> {
-    type Unit = <node::Leaf<U> as Read>::Unit;
+    type Unit = U; 
     fn unit(&self) -> Self::Unit {
         self.0.unit()
     }
