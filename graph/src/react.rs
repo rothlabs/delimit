@@ -7,13 +7,14 @@ pub trait React {
     fn react(&mut self);
 }
 
-pub trait ReactLink {
-    fn edge(&self) -> &Arc<RwLock<dyn React>>;
-    fn meta(&self) -> &Meta;
+pub trait AsReactor {
+    fn as_reactor(&self) -> Reactor;
+    // fn edge(&self) -> &Arc<RwLock<dyn React>>;
+    // fn meta(&self) -> &Meta;
 }
 
 pub trait AddReactor {
-    fn add_reactor(&mut self, reactor: &Reactor);
+    fn add_reactor<T: AsReactor>(&mut self, link: &T);
 }
 
 pub trait FromReactor {
@@ -27,12 +28,12 @@ pub struct Reactor {
 }
 
 impl Reactor {
-    pub fn new<E: ReactLink>(link: &E) -> Self { //  + 'static
-        Self {
-            edge: Arc::downgrade(link.edge()),
-            meta: link.meta().clone(),
-        }
-    }
+    // pub fn new<E: ToReactor>(link: &E) -> Self { //  + 'static
+    //     Self {
+    //         edge: Arc::downgrade(link.edge()),
+    //         meta: link.meta().clone(),
+    //     }
+    // }
     pub fn clear(&self) -> Reactors {
         if let Some(edge) = self.edge.upgrade() {
             let mut edge = edge.write().expect(NO_POISON);
@@ -63,6 +64,12 @@ impl Hash for Reactor {
     }
 }
 
+// impl AsReactor for Reactor {
+//     fn as_reactor(&self) -> Reactor {
+//         self
+//     }
+// }
+
 pub struct Reactors(HashSet<Reactor>);
 
 impl Reactors {
@@ -79,15 +86,15 @@ impl Reactors {
         for reactor in &self.0 {
             let rcts = reactor.clear();
             if rcts.0.len() < 1 {
-                reactors.add(reactor);
+                reactors.0.insert(reactor.clone());
             } else {
                 reactors.0.extend(rcts.0);
             }
         }
         reactors
     }
-    pub fn add(&mut self, reactor: &Reactor) {
-        self.0.insert(reactor.clone());
+    pub fn add<T: AsReactor>(&mut self, link: &T) {
+        self.0.insert(link.as_reactor());
     }
 }
 

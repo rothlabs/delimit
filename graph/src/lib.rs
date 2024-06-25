@@ -11,7 +11,7 @@ pub mod react;
 pub use base::{Work, AddStem, FromUnit, Clear};
 pub use read::{Read, ReadWith, CloneUnit, Solve};
 pub use write::{Write, WriteInner};
-pub use react::{FromReactor, AddReactor, React, Reactor, Reactors};
+pub use react::{FromReactor, AsReactor, AddReactor, React, Reactor, Reactors};
 pub use meta::Meta;
 pub use edge::Edge;
 pub use link::Link;

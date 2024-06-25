@@ -33,8 +33,8 @@ impl<U> Write for Leaf<U> {
 }
 
 impl<U> AddReactor for Leaf<U> {
-    fn add_reactor(&mut self, reactor: &Reactor) {
-        self.reactors.add(reactor);
+    fn add_reactor<T: AsReactor>(&mut self, link: &T) {
+        self.reactors.add(link);
     }
 }
 
