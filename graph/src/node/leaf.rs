@@ -1,27 +1,19 @@
 use serde::Serialize;
 
-use crate::{AddReactor, FromUnit, Reactor};
-
-use super::{Read, Write};
+use crate::{AddReactor, FromUnit, Reactor, Reactors, Read, Write};
 
 pub struct Leaf<U> {
     unit: U,
-    reactors: Vec<Reactor>,
+    reactors: Reactors,
 }
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             unit,
-            reactors: vec![],
+            reactors: Reactors::default(),
         }
-    }
-}
-
-impl<U> AddReactor for Leaf<U> {
-    fn add_reactor(&mut self, reactor: &Reactor) {
-        self.reactors.push(reactor.clone());
     }
 }
 
@@ -36,9 +28,13 @@ impl<U> Write for Leaf<U> {
     type Unit = U;
     fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
         write(&mut self.unit);
-        for reactor in &self.reactors {
-            reactor.react();
-        }
+        self.reactors.cycle();
+    }
+}
+
+impl<U> AddReactor for Leaf<U> {
+    fn add_reactor(&mut self, reactor: &Reactor) {
+        self.reactors.add(reactor);
     }
 }
 

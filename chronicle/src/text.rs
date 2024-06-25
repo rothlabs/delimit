@@ -14,7 +14,7 @@ pub mod unit;
 pub use unit::list;
 
 pub fn text(unit: Box<dyn Unit>) -> Text {
-    Text(Solver::new(unit))
+    Text(Solver::from_unit(unit))
 }
 
 #[derive(Clone, Serialize)]

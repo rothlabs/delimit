@@ -50,7 +50,7 @@ impl Unit for List {
     fn leaf(&self) -> Leaf<String> {
         let mut string = String::new();
         if self.items.len() < 1 {
-            return Leaf::new(string);
+            return Leaf::from_unit(string);
         }
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
@@ -59,7 +59,7 @@ impl Unit for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        Leaf::new(string)
+        Leaf::from_unit(string)
     }
     fn serial(&self) -> String {
         String::new()

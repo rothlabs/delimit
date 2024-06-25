@@ -7,16 +7,20 @@ use crate::{base, edge, AddStem, FromReactor, FromUnit, Link, React, Reactor};
 
 #[derive(Derivative)]
 #[derivative(Clone(bound = ""))]
-pub struct Solver<U, T, L, S>(Link<edge::Solver<U, T, L, S>>);
+pub struct Solver<U, W>(Link<edge::Solver<U, W>>);
 
-impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
-    type Unit = U;
-    fn new(unit: U) -> Self {
-        Self(Link::new(unit))
+impl<U, W> FromUnit for Solver<U, W>
+where
+    U: FromUnit,
+    W: Default
+{
+    type Unit = U::Unit;
+    fn from_unit(unit: Self::Unit) -> Self {
+        Self(Link::from_unit(unit))
     }
 }
 
-impl<U, T, L, S> FromReactor for Solver<U, T, L, S> 
+impl<U, W> FromReactor for Solver<U, W> 
 where 
     U: React,
 {

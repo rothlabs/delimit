@@ -2,13 +2,18 @@ use std::sync::{Arc, RwLock};
 
 use serde::Serialize;
 
-use crate::{base, edge, node, AddStem, FromReactor, FromUnit, Meta, Reactor, NO_POISON};
+use crate::{
+    base, edge, 
+    AddStem, FromReactor, FromUnit, Meta, Reactor, NO_POISON
+};
 
-use super::{CloneUnit, Read, Solve, Write};
+use edge::{Read, Write, CloneUnit};
+
+use super::Solve;
 
 pub struct Link<E> {
-    edge: Arc<RwLock<E>>,
-    meta: Meta,
+    pub edge: Arc<RwLock<E>>,
+    pub meta: Meta,
 }
 
 impl<E> FromUnit for Link<E>
@@ -16,9 +21,9 @@ where
     E: FromUnit,
 {
     type Unit = E::Unit;
-    fn new(unit: E::Unit) -> Self {
+    fn from_unit(unit: E::Unit) -> Self {
         Self {
-            edge: Arc::new(RwLock::new(E::new(unit))),
+            edge: Arc::new(RwLock::new(E::from_unit(unit))),
             meta: Meta::new(),
         }
     }
@@ -39,10 +44,10 @@ where
 
 impl<E> Read for Link<E>
 where
-    E: edge::Read,
+    E: Read,
 {
-    type Edge = E;
-    fn read<F: FnOnce(&<E::Stem as node::Read>::Unit)>(&self, read: F) {
+    type Unit = E::Unit;
+    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.read(read);
     }
@@ -50,10 +55,10 @@ where
 
 impl<E> Write for Link<E>
 where
-    E: edge::Write,
+    E: Write,
 {
-    type Edge = E;
-    fn write<F: FnOnce(&mut <E::Stem as node::Write>::Unit)>(&self, write: F) {
+    type Unit = E::Unit;
+    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.write(write);
     }
@@ -61,10 +66,10 @@ where
 
 impl<E> CloneUnit for Link<E>
 where
-    E: edge::CloneUnit,
+    E: CloneUnit,
 {
-    type Edge = E;
-    fn unit(&self) -> <E::Stem as node::Read>::Unit {
+    type Unit = E::Unit;
+    fn unit(&self) -> Self::Unit {
         let edge = self.edge.read().expect(NO_POISON);
         edge.unit()
     }
@@ -87,6 +92,10 @@ where
 {
     type Stem = <E as AddStem>::Stem;
     fn add_stem(&mut self, stem: Self::Stem) {
+        // let reactor = Reactor::new(&self.stem);
+        // let link = stem.from_reactor(reactor);
+        // let mut stem = self.stem.write().expect(NO_POISON);
+        // stem.add_stem(link);
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.add_stem(stem);
     }

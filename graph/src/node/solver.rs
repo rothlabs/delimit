@@ -1,91 +1,96 @@
-use std::{collections::HashMap, hash::Hash, marker::PhantomData};
-
-use crate::{AddReactor, AddStem, FromUnit, React, Reactor, Solve};
+use crate::{AddReactor, AddStem, Clear, FromUnit, React, Reactor, Reactors, Solve, Work};
 
 use super::{Read, Write};
 
-pub struct Solver<U, T, L, S> {
+pub struct Solver<U, W> {
     unit: U,
-    work: HashMap<T, L>,
-    reactors: Vec<Reactor>,
-    stem: PhantomData<S>,
+    work: W,
+    reactors: Reactors, // TODO: make reactors a generic type? So reaction logic can be switched out?
 }
 
-impl<U, T, L, S> FromUnit for Solver<U, T, L, S> {
-    type Unit = U;
-    fn new(unit: U) -> Self {
+impl<U, W> FromUnit for Solver<U, W> 
+where 
+    U: FromUnit,
+    W: Default,
+{
+    type Unit = U::Unit;
+    fn from_unit(unit: U::Unit) -> Self {
         Self {
-            unit,
-            work: HashMap::new(),
-            reactors: vec![],
-            stem: PhantomData {},
+            unit: U::from_unit(unit),
+            work: W::default(),
+            reactors: Reactors::default(),
         }
     }
 }
 
-impl<U, T, L, S> Read for Solver<U, T, L, S> {
-    type Unit = U;
-    fn read(&self) -> &U {
-        &self.unit
-    }
-}
-
-impl<U, T, L, S> Write for Solver<U, T, L, S> 
+impl<U, W> Read for Solver<U, W>
 where 
-    U: React,
+    U: Read, 
 {
-    type Unit = U;
-    fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
-        write(&mut self.unit);
-        self.react();
+    type Unit = U::Unit;
+    fn read(&self) -> &U::Unit {
+        &self.unit.read()
     }
 }
 
-impl<U, T, L, S> Solve for Solver<U, T, L, S>
+impl<U, W> Solve for Solver<U, W>
 where
-    U: Solve<Task = T, Load = L>,
-    T: Clone + Eq + PartialEq + Hash,
-    L: Clone,
+    W: Work,
+    U: Solve<Task = W::Task, Load = W::Load>,
 {
-    type Task = T;
-    type Load = L;
-    fn solve(&mut self, task: T) -> L {
+    type Task = W::Task;
+    type Load = W::Load;
+    fn solve(&mut self, task: W::Task) -> W::Load {
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
             let load = self.unit.solve(task.clone());
-            self.work.insert(task, load.clone());
+            self.work.add(task, load.clone());
             load
         }
     }
 }
 
-impl<U, T, L, S> React for Solver<U, T, L, S>
+impl<U, W> Write for Solver<U, W> 
+where 
+    U: Write + React,
+    W: Clear,
+{
+    type Unit = U::Unit;
+    fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
+        self.unit.write(write);
+        self.reactors.cycle();
+    }
+}
+
+impl<U, W> AddStem for Solver<U, W>
+where
+    U: AddStem + React,
+    W: Clear,
+{
+    type Stem = U::Stem;
+    fn add_stem(&mut self, stem: U::Stem) {
+        self.unit.add_stem(stem);
+        self.reactors.cycle();
+    }
+}
+
+impl<U, W> React for Solver<U, W>
 where
     U: React,
+    W: Clear,
 {
-    fn react(&mut self) {
+    fn clear(&mut self) -> Reactors {
         self.work.clear();
+        self.reactors.clear()
+    }
+    fn react(&mut self) {
         self.unit.react();
-        for reactor in &self.reactors {
-            reactor.react();
-        }
     }
 }
 
-impl<U, T, L, S> AddStem for Solver<U, T, L, S>
-where
-    U: AddStem<Stem = S> + React,
-{
-    type Stem = S;
-    fn add_stem(&mut self, stem: S) {
-        self.unit.add_stem(stem);
-        self.react();
-    }
-}
-
-impl<U, T, L, S> AddReactor for Solver<U, T, L, S> {
+impl<N, W> AddReactor for Solver<N, W> {
     fn add_reactor(&mut self, reactor: &Reactor) {
-        self.reactors.push(reactor.clone());
+        self.reactors.add(reactor);
     }
 }

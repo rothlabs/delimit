@@ -3,11 +3,11 @@ use std::sync::{Arc, RwLock};
 use serde::Serialize;
 
 use crate::{
-    base::{self, AddReactor},
-    node, AddStem, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
+    Read, Write, Solve,
+    AddReactor, AddStem, FromReactor, FromUnit, Meta, React, Reactor, NO_POISON,
 };
 
-use super::{CloneUnit, Read, Solve, Write};
+use super::CloneUnit;
 
 pub struct Edge<S> {
     pub root: Option<Reactor>,
@@ -20,22 +20,22 @@ where
     S: FromUnit,
 {
     type Unit = S::Unit;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(S::new(unit))),
+            stem: Arc::new(RwLock::new(S::from_unit(unit))),
             meta: Meta::new(),
         }
     }
 }
 
 impl<S> FromReactor for Edge<S>
-where
-    S: AddReactor,
+// where
+//     S: AddReactor,
 {
     fn from_reactor(&self, reactor: Reactor) -> Self {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_reactor(&reactor);
+        // let mut stem = self.stem.write().expect(NO_POISON);
+        // stem.add_reactor(&reactor);
         Self {
             root: Some(reactor),
             stem: self.stem.clone(),
@@ -44,48 +44,32 @@ where
     }
 }
 
-impl<S> Read for Edge<S>
+impl<S> super::Read for Edge<S>
 where
-    S: node::Read,
+    S: Read,
 {
-    type Stem = S;
-    fn read<F: FnOnce(&S::Unit)>(&self, read: F) {
+    type Unit = S::Unit;
+    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(&stem.read());
     }
 }
 
-impl<S> Write for Edge<S>
-where
-    S: node::Write,
-{
-    type Stem = S;
-    fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.write(write);
-        //println!("edge::Edge::write");
-        if let Some(root) = &self.root {
-            println!("edge::Edge::write -> reactor.react()");
-            root.react();
-        }
-    }
-}
-
 impl<S> CloneUnit for Edge<S>
 where
-    S: node::Read,
-    S::Unit: Clone,
+    S: Read,
+    S::Unit: Clone
 {
-    type Stem = S;
-    fn unit(&self) -> S::Unit {
+    type Unit = S::Unit;
+    fn unit(&self) -> Self::Unit {
         let stem = self.stem.read().expect(NO_POISON);
         stem.read().clone()
     }
 }
 
-impl<S> Solve for Edge<S>
+impl<S> super::Solve for Edge<S>
 where
-    S: base::Solve,
+    S: Solve,
 {
     type Stem = S;
     fn solve(&self, task: S::Task) -> S::Load {
@@ -94,17 +78,30 @@ where
     }
 }
 
+impl<S> super::Write for Edge<S>
+where
+    S: Write,
+{
+    type Unit = S::Unit;
+    fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.write(write);
+        //println!("edge::Edge::write");
+        if let Some(root) = &self.root {
+            println!("edge::Edge::write -> reactor.react()");
+        }
+    }
+}
+
 impl<S> AddStem for Edge<S>
 where
-    S: AddStem + React + 'static,
-    S::Stem: FromReactor,
+    S: AddStem, // + React + 'static,
+    //S::Stem: FromReactor,
 {
     type Stem = S::Stem;
     fn add_stem(&mut self, stem: S::Stem) {
-        let reactor = Reactor::new(&self.stem);
-        let link = stem.from_reactor(reactor);
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_stem(link);
+        let mut edge_stem = self.stem.write().expect(NO_POISON);
+        edge_stem.add_stem(stem);
     }
 }
 
@@ -116,6 +113,19 @@ impl<St> Serialize for Edge<St> {
         self.meta.serialize(serializer)
     }
 }
+
+
+// impl<S> super::Read for Edge<S>
+// where
+//     S: Read + AddReactor,
+// {
+//     type Stem = S;
+//     fn read<F: FnOnce(&S::Unit)>(&self, read: F) {
+//         let stem = self.stem.read().expect(NO_POISON);
+//         read(&stem.read());
+//         //stem.add_reactor(&reactor);
+//     }
+// }
 
 // impl<S> link::React for Edge<S> {
 //     fn react(&self) {

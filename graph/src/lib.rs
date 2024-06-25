@@ -1,34 +1,20 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Serialize;
 
-//pub mod leaf;
 pub mod base;
 pub mod meta;
 pub mod node;
-//pub mod root;
 pub mod edge;
 pub mod link;
-//pub mod solve;
-//pub mod edge;
-//pub mod flat;
-//pub mod pack;
 pub mod repo;
-//pub mod snap;
-//pub mod roll;
-//pub mod user;
+pub mod react;
 
-//pub use leaf::LeafStr;
-pub use base::{AddStem, FromReactor, FromUnit, React, Reactor, Solve, AddReactor};
+pub use base::{Work, AddStem, FromUnit, Solve, Clear, Read, Write};
+pub use react::{FromReactor, AddReactor, React, Reactor, Reactors};
 pub use meta::Meta;
-//pub use node::ReadWrite;
-//pub use root::Root;
 pub use edge::Edge;
 pub use link::Link;
-//pub use solve::SolveReact;
-// pub use flat::{Flat, Flatten};
 pub use repo::Repo;
-// pub use snap::Snap;
-// pub use roll::Roll;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 const ROOT: &str = "there should be a root";

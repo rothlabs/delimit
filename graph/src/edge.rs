@@ -8,19 +8,19 @@ pub use edge::Edge;
 pub use leaf::Leaf;
 pub use solver::Solver;
 
+pub trait CloneUnit {
+    type Unit;
+    fn unit(&self) -> Self::Unit;
+}
+
 pub trait Read {
-    type Stem: node::Read;
-    fn read<F: FnOnce(&<Self::Stem as node::Read>::Unit)>(&self, read: F);
+    type Unit;
+    fn read<F: FnOnce(&Self::Unit)>(&self, read: F);
 }
 
 pub trait Write {
-    type Stem: node::Write;
-    fn write<F: FnOnce(&mut <Self::Stem as node::Write>::Unit)>(&self, write: F);
-}
-
-pub trait CloneUnit {
-    type Stem: node::Read;
-    fn unit(&self) -> <Self::Stem as node::Read>::Unit;
+    type Unit;
+    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F);
 }
 
 pub trait Solve {
@@ -36,3 +36,18 @@ pub trait Respond {
     type Root: node::Respond;
     fn respond(&self, memo: <Self::Root as node::Respond>::Memo);
 }
+
+// pub trait CloneUnit {
+//     type Stem: base::Read;
+//     fn unit(&self) -> <Self::Stem as base::Read>::Unit;
+// }
+
+// pub trait Read {
+//     type Stem: base::Read;
+//     fn read<F: FnOnce(&<Self::Stem as base::Read>::Unit)>(&self, read: F);
+// }
+
+// pub trait Write {
+//     type Stem: base::Write;
+//     fn write<F: FnOnce(&mut <Self::Stem as base::Write>::Unit)>(&self, write: F);
+// }

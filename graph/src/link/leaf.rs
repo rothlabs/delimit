@@ -2,7 +2,8 @@ use serde::Serialize;
 
 use crate::{edge, node, FromReactor, FromUnit, Link, Reactor};
 
-use super::{CloneUnit, Read, Write};
+use edge::{CloneUnit, Read, Write};
+//use super::{CloneUnit, Read, Write};
 
 #[derive(derivative::Derivative)]
 #[derivative(Clone(bound = ""))]
@@ -10,8 +11,8 @@ pub struct Leaf<U>(Link<edge::Leaf<U>>);
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
-    fn new(unit: U) -> Self {
-        Self(Link::new(unit))
+    fn from_unit(unit: U) -> Self {
+        Self(Link::from_unit(unit))
     }
 }
 
@@ -22,25 +23,22 @@ impl<U> FromReactor for Leaf<U> {
 }
 
 impl<U> Read for Leaf<U> {
-    type Edge = edge::Leaf<U>;
-    fn read<F: FnOnce(&<<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(&self, read: F) {
+    type Unit = U;
+    fn read<F: FnOnce(&U)>(&self, read: F) {
         self.0.read(read);
     }
 }
 
 impl<U> Write for Leaf<U> {
-    type Edge = edge::Leaf<U>;
-    fn write<F: FnOnce(&mut <<Self::Edge as edge::Read>::Stem as node::Read>::Unit)>(
-        &self,
-        read: F,
-    ) {
+    type Unit = U;
+    fn write<F: FnOnce(&mut U)>(&self, read: F) {
         self.0.write(read);
     }
 }
 
 impl<U: Clone> CloneUnit for Leaf<U> {
-    type Edge = edge::Leaf<U>;
-    fn unit(&self) -> <<Self::Edge as edge::Read>::Stem as node::Read>::Unit {
+    type Unit = U;
+    fn unit(&self) -> U {
         self.0.unit()
     }
 }

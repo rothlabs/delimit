@@ -6,7 +6,7 @@ use graph::{
 }; // html::doc,
 
 pub fn index() -> String {
-    let leaf = Leaf::new("cool".to_owned());
+    let leaf = Leaf::from_unit("cool".to_owned());
     let mut list = list();
     list.separator(" _sep_ ");
     let mut text = list.text();

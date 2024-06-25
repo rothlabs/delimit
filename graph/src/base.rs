@@ -2,9 +2,34 @@ use std::sync::{Arc, RwLock, Weak};
 
 use crate::{NO_POISON, REACTOR};
 
+pub trait New {
+    fn new() -> Self;
+}
+
 pub trait FromUnit {
     type Unit;
-    fn new(unit: Self::Unit) -> Self;
+    fn from_unit(unit: Self::Unit) -> Self;
+}
+
+pub trait Read {
+    type Unit;
+    fn read(&self) -> &Self::Unit;
+}
+
+pub trait Write {
+    type Unit;
+    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F); 
+}
+
+pub trait Work {
+    type Task: Clone;
+    type Load: Clone;
+    fn get(&self, task: &Self::Task) -> Option<Self::Load>;
+    fn add(&self, task: Self::Task, load: Self::Load);
+}
+
+pub trait Clear {
+    fn clear(&self);
 }
 
 pub trait AddStem {
@@ -18,31 +43,11 @@ pub trait Solve {
     fn solve(&mut self, task: Self::Task) -> Self::Load;
 }
 
-pub trait React {
-    fn react(&mut self);
-}
-
-pub trait AddReactor {
-    fn add_reactor(&mut self, reactor: &Reactor);
-}
-
-pub trait FromReactor {
-    fn from_reactor(&self, reactor: Reactor) -> Self;
-}
-
-#[derive(Clone)]
-pub struct Reactor(Weak<RwLock<dyn React>>);
-
-impl Reactor {
-    pub fn new<R: React + 'static>(reactor: &Arc<RwLock<R>>) -> Self {
-        let reactor = Arc::downgrade(&reactor);
-        Self(reactor)
-    }
-    pub fn react(&self) {
-        let reactor = self.0.upgrade().expect(REACTOR);
-        let mut reactor = reactor.write().expect(NO_POISON);
-        reactor.react();
-    }
+pub trait Seek {
+    type Root;
+    type Task;
+    fn root(&self) -> &Self::Root;
+    fn task(&self) -> &Self::Task;
 }
 
 // pub struct Reactors(Vec<Reactor>);
