@@ -5,7 +5,10 @@ pub fn index() -> String {
     let leaf = Leaf::from_unit("cool".to_owned());
     let mut list = List::default();
     list.separator(" _sep_ ");
+    list.add_str("wow");
     let mut text = list.text();
+    text.write(|unit| unit.add_str("wow"));
+    //text.add_str("hi there");
     // text.add_leaf(&leaf);
     // println!("{}", text.string());
     // leaf.write(|unit| unit.push_str(" changed!"));

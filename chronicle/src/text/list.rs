@@ -8,6 +8,10 @@ pub struct List {
 }
 
 impl List {
+    pub fn add_str(&mut self, item: &str) -> &mut Self {
+        self.items.push(Stem::String(item.to_owned()));
+        self
+    }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         self.separator = sep.to_owned();
         self
@@ -34,7 +38,7 @@ impl ToString for List {
     }
 }
 
-impl SolveText for List {}
+impl Unit for List {}
 
 
 

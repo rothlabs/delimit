@@ -26,7 +26,7 @@ impl<U> ReadWith for Leaf<U> {
     }
 }
 
-impl<U> WriteInner for Leaf<U> {
+impl<U> Writer for Leaf<U> {
     type Unit = U;
     fn write<F: FnOnce(&mut U)>(&self, read: F) {
         self.0.write(read);

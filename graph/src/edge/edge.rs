@@ -18,7 +18,7 @@ where
     fn from_unit(unit: Self::Unit) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(S::from_unit(unit))),
+            stem: Arc::new(RwLock::new(S::from_unit(unit))), 
             meta: Meta::new(),
         }
     }
@@ -74,12 +74,12 @@ where
     }
 }
 
-impl<S> WriteInner for Edge<S>
+impl<S> Writer for Edge<S>
 where
     S: Write,
 {
     type Unit = S::Unit;
-    fn write<F: FnOnce(&mut S::Unit)>(&self, write: F) {
+    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
         //println!("edge::Edge::write");

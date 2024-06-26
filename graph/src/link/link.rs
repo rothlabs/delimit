@@ -46,9 +46,9 @@ where
     }
 }
 
-impl<E> WriteInner for Link<E>
+impl<E> Writer for Link<E>
 where
-    E: WriteInner,
+    E: Writer,
 {
     type Unit = E::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {

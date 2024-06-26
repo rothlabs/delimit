@@ -8,13 +8,13 @@ pub struct Solver<U, W> {
 
 impl<U, W> FromUnit for Solver<U, W> 
 where 
-    U: FromUnit,
+    //U: FromUnit,
     W: Default,
 {
-    type Unit = U::Unit;
-    fn from_unit(unit: U::Unit) -> Self {
+    type Unit = U; //::Unit;
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
-            unit: U::from_unit(unit),
+            unit, //U::from_unit(unit),
             work: W::default(),
             reactors: Reactors::default(),
         }

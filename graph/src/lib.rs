@@ -11,7 +11,7 @@ pub mod make;
 
 pub use base::{Work, AddStem, FromUnit, FromUnit2, Clear};
 pub use read::{Read, ReadWith, CloneUnit, Solve};
-pub use write::{Write, WriteInner};
+pub use write::{Write, Writer};
 pub use react::{FromReactor, AsReactor, AddReactor, React, Reactor, Reactors};
 pub use make::{ToString, ToLeaf};
 pub use node::{

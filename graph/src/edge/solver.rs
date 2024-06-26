@@ -1,14 +1,14 @@
 use crate::*;
 
-pub struct Solver<N, W>(Edge<node::Solver<N, W>>);
+pub struct Solver<U, W>(Edge<node::Solver<U, W>>);
 
-impl<N, W> FromUnit for Solver<N, W>
+impl<U, W> FromUnit for Solver<U, W>
 where  
-    N: FromUnit,
+    //N: FromUnit,
     W: Default,
 {
-    type Unit = N::Unit;
-    fn from_unit(unit: N::Unit) -> Self {
+    type Unit = U; //N::Unit;
+    fn from_unit(unit: Self::Unit) -> Self {
         Self(edge::Edge::from_unit(unit))
     }
 }
@@ -28,6 +28,16 @@ where
     type Task = W::Task;
     fn solve(&self, task: W::Task) -> W::Load {
         self.0.solve(task)
+    }
+}
+
+impl<U, W> Writer for Solver<U, W> 
+where 
+    U: Write,
+{
+    type Unit = U::Unit;
+    fn write<F: FnOnce(&mut U::Unit)>(&self, write: F) {
+        self.0.write(write);
     }
 }
 

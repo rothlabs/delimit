@@ -19,10 +19,10 @@ pub struct Solver<U, W>(Link<edge::Solver<U, W>>);
 
 impl<U, W> FromUnit for Solver<U, W>
 where
-    U: FromUnit,
+    //U: FromUnit,
     W: Default
 {
-    type Unit = U::Unit;
+    type Unit = U;//U::Unit;
     fn from_unit(unit: Self::Unit) -> Self {
         Self(Link::from_unit(unit))
     }
@@ -46,6 +46,16 @@ where
     type Task = W::Task;
     fn solve(&self, task: Self::Task) -> Self::Load {
         self.0.solve(task)
+    }
+}
+
+impl<U, W> Writer for Solver<U, W> 
+where 
+    U: Write
+{
+    type Unit = U::Unit;
+    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+        self.0.write(write);
     }
 }
 

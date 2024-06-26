@@ -2,22 +2,36 @@ use graph::*;
 
 pub mod list;
 
-pub struct Text(Solver<Pair, Work>);
+pub struct Text(Solver<Box<dyn Unit>, Work>);
 
-impl FromUnit for Text {
-    type Unit = Box<dyn SolveText>;
-    fn from_unit(unit: Self::Unit) -> Self {
-        Self(Solver::from_unit(unit))
-    }
-}
-
-// impl Text {
-//     fn from_unit(unit: Box<dyn Texty>) -> Self {
+// impl FromUnit for Text {
+//     type Unit = Box<dyn Unit>;
+//     fn from_unit(unit: Self::Unit) -> Self {
 //         Self(Solver::from_unit(unit))
 //     }
 // }
 
-pub trait SolveText: ToString + ToLeaf<String> {}
+impl Text {
+    fn from_unit(unit: Box<dyn Unit>) -> Self {
+        Self(Solver::from_unit(unit))
+    }
+}
+
+impl Writer for Text {
+    type Unit = Box<dyn Unit>;
+    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+        self.0.write(write);
+    }
+}
+
+impl Write for Box<dyn Unit> {
+    type Unit = Self;
+    fn write<F: FnOnce(&mut Self)>(&mut self, write: F) {
+        write(self);
+    }
+}
+
+pub trait Unit: ToString + ToLeaf<String> {}
 
 pub enum Stem {
     String(String),
@@ -35,14 +49,14 @@ impl Stem {
     }
 }
 
-struct Pair(node::Pair<Box<dyn SolveText>, Text>);
+// struct Pair(node::Pair<Box<dyn Unit>, Text>);
 
-impl FromUnit for Pair {
-    type Unit = Box<dyn SolveText>;
-    fn from_unit(unit: Self::Unit) -> Self {
-        Self(node::Pair::from_unit(unit))
-    }
-}
+// impl FromUnit for Pair {
+//     type Unit = Box<dyn Unit>;
+//     fn from_unit(unit: Self::Unit) -> Self {
+//         Self(node::Pair::from_unit(unit))
+//     }
+// }
 
 #[derive(Default)]
 struct Work(node::Work<Task, Load>);
