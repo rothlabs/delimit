@@ -1,6 +1,14 @@
 //pub mod html;
 pub mod text;
 
+pub use text::list::List;
+
+// pub use text::{
+//     Text,
+//     // Task,
+//     // Load,
+// };
+
 // pub use text::unit::list;
 // pub use html::unit::doc;
 

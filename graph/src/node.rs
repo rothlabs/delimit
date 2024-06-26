@@ -1,10 +1,10 @@
 mod leaf;
-mod pointer;
+mod pair;
 mod work;
 mod solver;
 
 pub use leaf::Leaf;
-pub use pointer::Pointer;
+pub use pair::Pair;
 pub use work::Work;
 pub use solver::Solver;
 

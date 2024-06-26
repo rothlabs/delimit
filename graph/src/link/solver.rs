@@ -7,6 +7,16 @@ use crate::*;
 #[derivative(Clone(bound = ""))]
 pub struct Solver<U, W>(Link<edge::Solver<U, W>>);
 
+// impl<U, W> FromUnit2 for Solver<U, W>
+// where
+//     U: FromUnit,
+//     W: Default
+// {
+//     fn from_unit2<T>(unit: T) -> Self {
+//         Self(Link::from_unit(unit))
+//     }
+// }
+
 impl<U, W> FromUnit for Solver<U, W>
 where
     U: FromUnit,
