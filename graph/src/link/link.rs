@@ -22,18 +22,18 @@ where
     }
 }
 
-impl<E> FromReactor for Link<E>
-where
-    E: FromReactor,
-{
-    fn from_reactor(&self, reactor: Reactor) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
-            edge: Arc::new(RwLock::new(edge.from_reactor(reactor))),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// impl<E> WithReactor for Link<E>
+// where
+//     E: WithReactor,
+// {
+//     fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: Arc::new(RwLock::new(edge.with_reactor(item))),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<E> Reader for Link<E>
 where
@@ -82,18 +82,32 @@ where
 
 impl<E> AddStem for Link<E>
 where
-    E: AddStem, // + React + 'static,
+    E: AddStem + ToReactor, // + React + 'static,
+                //S::Stem: FromReactor,
 {
-    type Stem = <E as AddStem>::Stem;
-    fn add_stem(&mut self, stem: Self::Stem) {
-        //let reactor = Reactor::new(&self);
-        // let link = stem.from_reactor(reactor);
-        // let mut stem = self.stem.write().expect(NO_POISON);
-        // stem.add_stem(link);
-        let mut edge = self.edge.write().expect(NO_POISON);
-        edge.add_stem(stem);
+    type Unit = E::Unit;
+    fn add_stem<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F) {
+        let mut edge = self.edge.read().expect(NO_POISON);
+        let reactor = edge.reactor(); // make a reactor from edge stem
+        let link = stem.with_reactor(reactor);
+        //edge_stem.add_stem(stem);
     }
 }
+
+// impl<E> AddStem for Link<E>
+// where
+//     E: AddStem, // + React + 'static,
+// {
+//     type Stem = <E as AddStem>::Stem;
+//     fn add_stem(&mut self, stem: Self::Stem) {
+//         //let reactor = Reactor::new(&self);
+//         // let link = stem.from_reactor(reactor);
+//         // let mut stem = self.stem.write().expect(NO_POISON);
+//         // stem.add_stem(link);
+//         let mut edge = self.edge.write().expect(NO_POISON);
+//         edge.add_stem(stem);
+//     }
+// }
 
 impl<E> Clone for Link<E> {
     fn clone(&self) -> Self {

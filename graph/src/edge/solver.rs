@@ -13,9 +13,9 @@ where
     }
 }
 
-impl<U, W> FromReactor for Solver<U, W> {
-    fn from_reactor(&self, reactor: Reactor) -> Self {
-        Self(self.0.from_reactor(reactor))
+impl<U, W> WithReactor for Solver<U, W> {
+    fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
+        Self(self.0.with_reactor(item))
     }
 }
 
@@ -51,17 +51,17 @@ where
     }
 }
 
-impl<N, W> AddStem for Solver<N, W>
-where
-    N: AddStem + React + 'static,
-    W: Clear + 'static,
-    N::Stem: FromReactor,
-{
-    type Stem = N::Stem;
-    fn add_stem(&mut self, stem: N::Stem) {
-        self.0.add_stem(stem);
-    }
-}
+// impl<N, W> AddStem for Solver<N, W>
+// where
+//     N: AddStem + React + 'static,
+//     W: Clear + 'static,
+//     N::Stem: WithReactor,
+// {
+//     type Stem = N::Stem;
+//     fn add_stem(&mut self, stem: N::Stem) {
+//         self.0.add_stem(stem);
+//     }
+// }
 
 // impl<N, W> AddStem for Solver<N, W>
 // where

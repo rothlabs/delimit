@@ -6,11 +6,11 @@ fn new_list(leaf: &Leaf<String>) -> Text<List> {
     let text = ", ".text_list();
     text.writer(|list| {
         list.add_str("str");
+        //list.add_leaf(leaf);
+    });
+    text.stemmer(leaf, |list, leaf| {
         list.add_leaf(leaf);
     });
-    // text.stem(leaf, |list, leaf| {
-    //     list.add_leaf(leaf);
-    // });
     text
 }
 

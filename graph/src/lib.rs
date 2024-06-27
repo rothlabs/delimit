@@ -18,7 +18,7 @@ pub use link::{Leaf, Link, Solver};
 pub use make::{ToLeaf, ToString};
 pub use meta::Meta;
 pub use node::Pair;
-pub use react::{AddReactor, AsReactor, FromReactor, React, Reactor, Reactors};
+pub use react::{AddReactor, ToReactor, WithReactor, React, Reactor, Reactors};
 pub use read::{CloneUnit, Read, Reader, Solve};
 pub use repo::Repo;
 pub use write::{SolveMut, Write, Writer};

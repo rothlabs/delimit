@@ -11,18 +11,18 @@ pub trait React {
     fn react(&mut self);
 }
 
-pub trait AsReactor {
-    fn as_reactor(&self) -> Reactor;
+pub trait ToReactor {
+    fn reactor(&self) -> Reactor;
     // fn edge(&self) -> &Arc<RwLock<dyn React>>;
     // fn meta(&self) -> &Meta;
 }
 
 pub trait AddReactor {
-    fn add_reactor<T: AsReactor>(&mut self, link: &T);
+    fn add_reactor<T: ToReactor>(&mut self, link: &T);
 }
 
-pub trait FromReactor {
-    fn from_reactor(&self, reactor: Reactor) -> Self;
+pub trait WithReactor {
+    fn with_reactor<T: ToReactor>(&self, item: T) -> Self;
 }
 
 #[derive(Clone)]
@@ -85,8 +85,8 @@ impl Reactors {
         }
         reactors
     }
-    pub fn add<T: AsReactor>(&mut self, link: &T) {
-        self.0.insert(link.as_reactor());
+    pub fn add<T: ToReactor>(&mut self, link: &T) {
+        self.0.insert(link.reactor());
     }
 }
 

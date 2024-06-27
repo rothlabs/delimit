@@ -61,16 +61,16 @@ where
     }
 }
 
-impl<U, W> AddStem for Solver<U, W>
-where
-    U: AddStem,
-{
-    type Stem = U::Stem;
-    fn add_stem(&mut self, stem: U::Stem) {
-        self.unit.add_stem(stem);
-        self.reactors.cycle();
-    }
-}
+// impl<U, W> AddStem for Solver<U, W>
+// where
+//     U: AddStem,
+// {
+//     type Stem = U::Stem;
+//     fn add_stem(&mut self, stem: U::Stem) {
+//         self.unit.add_stem(stem);
+//         self.reactors.cycle();
+//     }
+// }
 
 impl<U, W> React for Solver<U, W>
 where
@@ -87,7 +87,7 @@ where
 }
 
 impl<N, W> AddReactor for Solver<N, W> {
-    fn add_reactor<T: AsReactor>(&mut self, link: &T) {
+    fn add_reactor<T: ToReactor>(&mut self, link: &T) {
         self.reactors.add(link);
     }
 }

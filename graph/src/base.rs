@@ -1,11 +1,13 @@
+use crate::*;
+
 pub trait FromUnit {
     type Unit;
     fn from_unit(unit: Self::Unit) -> Self;
 }
 
 pub trait AddStem {
-    type Stem;
-    fn add_stem(&mut self, stem: Self::Stem);
+    type Unit;
+    fn add_stem<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
 }
 
 pub trait Memory {

@@ -17,14 +17,11 @@ where
     }
 }
 
-impl<U, W> FromReactor for Solver<U, W>
-where
-    U: React,
-{
-    fn from_reactor(&self, root: Reactor) -> Self {
-        Self(self.0.from_reactor(root))
-    }
-}
+// impl<U, W> WithReactor for Solver<U, W> {
+//     fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
+//         Self(self.0.with_reactor(item))
+//     }
+// }
 
 impl<U, W> Solve for Solver<U, W>
 where
@@ -58,15 +55,15 @@ where
     }
 }
 
-impl<U, W> AddStem for Solver<U, W>
-where
-    edge::Solver<U, W>: AddStem,
-{
-    type Stem = <edge::Solver<U, W> as AddStem>::Stem;
-    fn add_stem(&mut self, stem: Self::Stem) {
-        self.0.add_stem(stem);
-    }
-}
+// impl<U, W> AddStem for Solver<U, W>
+// where
+//     edge::Solver<U, W>: AddStem,
+// {
+//     type Stem = <edge::Solver<U, W> as AddStem>::Stem;
+//     fn add_stem(&mut self, stem: Self::Stem) {
+//         self.0.add_stem(stem);
+//     }
+// }
 
 impl<U, W> Serialize for Solver<U, W> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

@@ -13,11 +13,11 @@ impl<U> FromUnit for Leaf<U> {
     }
 }
 
-impl<U> FromReactor for Leaf<U> {
-    fn from_reactor(&self, root: Reactor) -> Self {
-        Self(self.0.from_reactor(root))
-    }
-}
+// impl<U> WithReactor for Leaf<U> {
+//     fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
+//         Self(self.0.with_reactor(item))
+//     }
+// }
 
 impl<U> Reader for Leaf<U> {
     type Unit = U;

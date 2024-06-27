@@ -22,8 +22,8 @@ impl List {
         self.items.push(Stem::String(item.to_owned()));
         self
     }
-    pub fn add_leaf(&mut self, item: &Leaf<String>) -> &mut Self {
-        self.items.push(Stem::Leaf(item.clone()));
+    pub fn add_leaf(&mut self, item: Leaf<String>) -> &mut Self {
+        self.items.push(Stem::Leaf(item));
         self
     }
     pub fn text(self) -> Text<Self> {

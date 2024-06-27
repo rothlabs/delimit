@@ -24,15 +24,10 @@ where
     }
 }
 
-impl<S> FromReactor for Edge<S>
-// where
-//     S: AddReactor,
-{
-    fn from_reactor(&self, reactor: Reactor) -> Self {
-        // let mut stem = self.stem.write().expect(NO_POISON);
-        // stem.add_reactor(&reactor);
+impl<S> WithReactor for Edge<S> {
+    fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
         Self {
-            root: Some(reactor),
+            root: Some(item.reactor()),
             stem: self.stem.clone(),
             meta: self.meta.clone(),
         }
@@ -89,17 +84,18 @@ where
     }
 }
 
-impl<S> AddStem for Edge<S>
-where
-    S: AddStem, // + React + 'static,
-                //S::Stem: FromReactor,
-{
-    type Stem = S::Stem;
-    fn add_stem(&mut self, stem: S::Stem) {
-        let mut edge_stem = self.stem.write().expect(NO_POISON);
-        edge_stem.add_stem(stem);
-    }
-}
+// impl<S> AddStem for Edge<S>
+// where
+//     S: AddStem, // + React + 'static,
+//                 //S::Stem: FromReactor,
+// {
+//     type Unit = S::Unit;
+//     fn add_stem<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F) {
+//         let mut edge_stem = self.stem.write().expect(NO_POISON);
+//         let reactor = edge_stem.reactor();
+//         edge_stem.add_stem(stem);
+//     }
+// }
 
 impl<St> Serialize for Edge<St> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
