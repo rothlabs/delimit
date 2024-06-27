@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 pub mod base;
 pub mod edge;
 pub mod link;
@@ -17,8 +20,8 @@ pub use meta::Meta;
 pub use node::Pair;
 pub use react::{AddReactor, AsReactor, FromReactor, React, Reactor, Reactors};
 pub use read::{CloneUnit, Read, Reader, Solve};
-pub use write::{Write, Writer, SolveMut};
 pub use repo::Repo;
+pub use write::{SolveMut, Write, Writer};
 
 const NO_POISON: &str = "the lock should not be poisoned";
 

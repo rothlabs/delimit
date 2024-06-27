@@ -39,6 +39,7 @@ where
     type Task = W::Task;
     type Load = W::Load;
     fn solve_mut(&mut self, task: W::Task) -> W::Load {
+        // self.unit.solve(task)
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {

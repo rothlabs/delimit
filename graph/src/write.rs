@@ -7,7 +7,7 @@ pub trait Write {
 
 pub trait Writer {
     type Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F);
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F);
 }
 
 impl<T: Unit> Write for T {

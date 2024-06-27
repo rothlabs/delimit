@@ -44,7 +44,7 @@ where
     S: Read,
 {
     type Unit = S::Unit;
-    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(&stem.read());
     }
@@ -79,13 +79,13 @@ where
     S: Write,
 {
     type Unit = S::Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
         //println!("edge::Edge::write");
-        if let Some(root) = &self.root {
-            println!("edge::Edge::write -> reactor.react()");
-        }
+        // if let Some(root) = &self.root {
+        //     println!("edge::Edge::write -> reactor.react()");
+        // }
     }
 }
 

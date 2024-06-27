@@ -1,7 +1,11 @@
-//pub mod html;
+#[cfg(test)]
+mod test;
+
 pub mod text;
+//pub mod html;
 
 pub use text::list::List;
+pub use text::{Text, TextList};
 
 // pub use text::{
 //     Text,

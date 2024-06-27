@@ -7,12 +7,12 @@ pub fn index() -> String {
     list.separator(" _sep_ ");
     list.add_str("wow");
     let text = list.text();
-    text.write(|list| {
+    text.writer(|list| {
         list.add_str("item");
     });
 
     text.string()
-    
+
     //text.add_str("hi there");
     // text.add_leaf(&leaf);
     // println!("{}", text.string());

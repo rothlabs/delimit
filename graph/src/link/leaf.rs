@@ -21,15 +21,15 @@ impl<U> FromReactor for Leaf<U> {
 
 impl<U> Reader for Leaf<U> {
     type Unit = U;
-    fn read<F: FnOnce(&U)>(&self, read: F) {
-        self.0.read(read);
+    fn reader<F: FnOnce(&U)>(&self, read: F) {
+        self.0.reader(read);
     }
 }
 
 impl<U> Writer for Leaf<U> {
     type Unit = U;
-    fn write<F: FnOnce(&mut U)>(&self, read: F) {
-        self.0.write(read);
+    fn writer<F: FnOnce(&mut U)>(&self, read: F) {
+        self.0.writer(read);
     }
 }
 
@@ -37,6 +37,12 @@ impl<U: Clone> CloneUnit for Leaf<U> {
     type Unit = U;
     fn unit(&self) -> U {
         self.0.unit()
+    }
+}
+
+impl<U> PartialEq for Leaf<U> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
     }
 }
 
@@ -48,10 +54,6 @@ impl<U> Serialize for Leaf<U> {
         self.0.serialize(serializer)
     }
 }
-
-
-
-
 
 // impl<U> Clone for Leaf<U> {
 //     fn clone(&self) -> Self {

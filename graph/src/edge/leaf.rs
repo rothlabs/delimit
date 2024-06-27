@@ -23,15 +23,15 @@ impl<U> FromReactor for Leaf<U> {
 
 impl<U> Reader for Leaf<U> {
     type Unit = U;
-    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        self.0.read(read);
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+        self.0.reader(read);
     }
 }
 
 impl<U> Writer for Leaf<U> {
     type Unit = U;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, read: F) {
-        self.0.write(read);
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, read: F) {
+        self.0.writer(read);
     }
 }
 

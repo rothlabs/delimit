@@ -7,8 +7,8 @@ pub struct Work<T, L> {
     map: HashMap<T, L>,
 }
 
-impl<T, L> Memory for Work<T, L> 
-where 
+impl<T, L> Memory for Work<T, L>
+where
     T: Clone + Eq + PartialEq + Hash,
     L: Clone,
 {
@@ -16,9 +16,8 @@ where
     type Task = T;
     fn add(&mut self, task: Self::Task, load: Self::Load) {
         self.map.insert(task, load);
-
-    }   
+    }
     fn get(&self, task: &Self::Task) -> Option<&Self::Load> {
         self.map.get(task)
-    } 
+    }
 }

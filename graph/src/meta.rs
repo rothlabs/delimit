@@ -16,7 +16,7 @@ impl Id {
 
 impl Eq for Id {}
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, PartialEq, Eq, Serialize)]
 pub struct Meta {
     pub id: Id,
 }

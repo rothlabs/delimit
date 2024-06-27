@@ -14,7 +14,7 @@ impl<T: Unit> Read for T {
 
 pub trait Reader {
     type Unit;
-    fn read<F: FnOnce(&Self::Unit)>(&self, read: F);
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F);
 }
 
 pub trait CloneUnit {

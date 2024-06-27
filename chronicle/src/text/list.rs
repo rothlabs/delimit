@@ -8,12 +8,22 @@ pub struct List {
 }
 
 impl List {
+    pub fn from_separator(sep: &str) -> Self {
+        Self {
+            items: vec![],
+            separator: sep.to_owned(),
+        }
+    }
+    pub fn separator(&mut self, sep: &str) -> &mut Self {
+        self.separator = sep.to_owned();
+        self
+    }
     pub fn add_str(&mut self, item: &str) -> &mut Self {
         self.items.push(Stem::String(item.to_owned()));
         self
     }
-    pub fn separator(&mut self, sep: &str) -> &mut Self {
-        self.separator = sep.to_owned();
+    pub fn add_leaf(&mut self, item: &Leaf<String>) -> &mut Self {
+        self.items.push(Stem::Leaf(item.clone()));
         self
     }
     pub fn text(self) -> Text<Self> {
@@ -46,6 +56,7 @@ impl Solve for List {
     fn solve(&self, task: Self::Task) -> Self::Load {
         match task {
             Task::String => Load::String(self.string()),
+            Task::Leaf => Load::Leaf(self.leaf()),
         }
     }
 }

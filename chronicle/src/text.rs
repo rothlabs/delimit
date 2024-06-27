@@ -1,35 +1,39 @@
 use graph::*;
+use list::List;
 
 pub mod list;
 
 pub struct Text<T>(Solver<T, Work>);
 
-impl<T> Text<T> { 
+impl<T> Text<T>
+where
+    T: Solve<Load = Load, Task = Task>,
+{
     fn from_unit(unit: T) -> Self {
         Self(Solver::from_unit(unit))
+    }
+    pub fn string(&self) -> String {
+        if let Load::String(string) = self.0.solve(Task::String) {
+            return string;
+        }
+        panic!("should return Load::String(string)")
+    }
+    pub fn leaf(&self) -> Leaf<String> {
+        if let Load::Leaf(leaf) = self.0.solve(Task::Leaf) {
+            return leaf;
+        }
+        panic!("should return Load::Leaf(Leaf<String>)")
     }
 }
 
 impl<T: Write> Writer for Text<T> {
     type Unit = T::Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
-        self.0.write(write);
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+        self.0.writer(write);
     }
 }
 
-impl<T> ToString for Text<T> 
-where 
-    T: Solve<Load = Load, Task = Task>,
-{
-    fn string(&self) -> String {
-        if let Load::String(string) = self.0.solve(Task::String) {
-            string
-        } else {
-            panic!("task produced wrong load")
-        }
-    }
-}
-
+//TODO impl from_reactor
 pub enum Stem {
     String(String),
     Leaf(Leaf<String>),
@@ -37,10 +41,12 @@ pub enum Stem {
 }
 
 impl Stem {
-    fn read<F: FnOnce(&String)>(&self, f: F) {
+    fn read<F: FnOnce(&String)>(&self, read: F) {
         match self {
-            Stem::String(s) => f(s),
-            Stem::Leaf(l) => l.read(f),
+            Stem::String(string) => read(string),
+            Stem::Leaf(leaf) => {
+                leaf.reader(read);
+            },
             //Stem::Text(t) => t.leaf().read(f),
         };
     }
@@ -51,7 +57,7 @@ type Work = node::Work<Task, Load>;
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Task {
     String,
-    // Leaf,
+    Leaf,
     // Serial,
 }
 
@@ -73,6 +79,16 @@ impl Default for Load {
     }
 }
 
+pub trait TextList {
+    fn text_list(self) -> Text<List>;
+}
+
+impl TextList for &str {
+    fn text_list(self) -> Text<List> {
+        List::from_separator(self).text()
+    }
+}
+
 // impl<T: Read> Reader for Text<T> {
 //     type Unit = T::Unit;
 //     fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -80,13 +96,11 @@ impl Default for Load {
 //     }
 // }
 
-
 // #[derive(Default)]
 // struct Work(node::Work<Task, Load>);
 
-
-// impl<T> Solve for Text<T> 
-// where 
+// impl<T> Solve for Text<T>
+// where
 //     T: Solve<Load = Load, Task = Task>,
 // {
 //     type Load = Load;

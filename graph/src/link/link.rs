@@ -40,9 +40,9 @@ where
     E: Reader,
 {
     type Unit = E::Unit;
-    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.read(read);
+        edge.reader(read);
     }
 }
 
@@ -51,9 +51,9 @@ where
     E: Writer,
 {
     type Unit = E::Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.write(write);
+        edge.writer(write);
     }
 }
 
@@ -101,6 +101,12 @@ impl<E> Clone for Link<E> {
             edge: self.edge.clone(),
             meta: self.meta.clone(),
         }
+    }
+}
+
+impl<E> PartialEq for Link<E> {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
     }
 }
 

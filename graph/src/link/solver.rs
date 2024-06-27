@@ -11,7 +11,7 @@ impl<U, W> FromUnit for Solver<U, W>
 where
     W: Default,
 {
-    type Unit = U; 
+    type Unit = U;
     fn from_unit(unit: U) -> Self {
         Self(Link::from_unit(unit))
     }
@@ -43,8 +43,8 @@ where
     U: Read,
 {
     type Unit = U::Unit;
-    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        self.0.read(read);
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+        self.0.reader(read);
     }
 }
 
@@ -53,8 +53,8 @@ where
     U: Write,
 {
     type Unit = U::Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
-        self.0.write(write);
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+        self.0.writer(write);
     }
 }
 

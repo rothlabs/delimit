@@ -27,23 +27,23 @@ pub trait FromReactor {
 
 #[derive(Clone)]
 pub struct Reactor {
-    edge: Weak<RwLock<dyn React>>,
+    item: Weak<RwLock<dyn React>>,
     meta: Meta,
 }
 
 impl Reactor {
     pub fn clear(&self) -> Reactors {
-        if let Some(edge) = self.edge.upgrade() {
-            let mut edge = edge.write().expect(NO_POISON);
-            edge.clear()
+        if let Some(item) = self.item.upgrade() {
+            let mut item = item.write().expect(NO_POISON);
+            item.clear()
         } else {
             Reactors::default()
         }
     }
     pub fn react(&self) {
-        if let Some(edge) = self.edge.upgrade() {
-            let mut edge = edge.write().expect(NO_POISON);
-            edge.react();
+        if let Some(item) = self.item.upgrade() {
+            let mut item = item.write().expect(NO_POISON);
+            item.react();
         }
     }
 }
@@ -96,21 +96,18 @@ impl Default for Reactors {
     }
 }
 
-
-
-
 // impl AsReactor for Reactor {
 //     fn as_reactor(&self) -> Reactor {
 //         self
 //     }
 // }
 
-    // pub fn new<E: ToReactor>(link: &E) -> Self { //  + 'static
-    //     Self {
-    //         edge: Arc::downgrade(link.edge()),
-    //         meta: link.meta().clone(),
-    //     }
-    // }
+// pub fn new<E: ToReactor>(link: &E) -> Self { //  + 'static
+//     Self {
+//         edge: Arc::downgrade(link.edge()),
+//         meta: link.meta().clone(),
+//     }
+// }
 
 // pub fn root(&self) -> bool {
 //     if let Some(edge) = self.edge.upgrade() {
