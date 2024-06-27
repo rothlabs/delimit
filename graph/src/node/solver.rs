@@ -6,8 +6,8 @@ pub struct Solver<U, W> {
     reactors: Reactors, // TODO: make reactors a generic type? So reaction logic can be switched out?
 }
 
-impl<U, W> FromUnit for Solver<U, W> 
-where 
+impl<U, W> FromUnit for Solver<U, W>
+where
     //U: FromUnit,
     W: Default,
 {
@@ -22,8 +22,8 @@ where
 }
 
 impl<U, W> Read for Solver<U, W>
-where 
-    U: Read, 
+where
+    U: Read,
 {
     type Unit = U::Unit;
     fn read(&self) -> &U::Unit {
@@ -31,14 +31,14 @@ where
     }
 }
 
-impl<U, W> Solve for Solver<U, W>
+impl<U, W> SolveMut for Solver<U, W>
 where
-    W: Work,
+    W: Memory,
     U: Solve<Task = W::Task, Load = W::Load>,
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn solve(&self, task: W::Task) -> W::Load {
+    fn solve_mut(&mut self, task: W::Task) -> W::Load {
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
@@ -49,8 +49,8 @@ where
     }
 }
 
-impl<U, W> Write for Solver<U, W> 
-where 
+impl<U, W> Write for Solver<U, W>
+where
     U: Write,
 {
     type Unit = U::Unit;

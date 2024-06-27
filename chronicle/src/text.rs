@@ -2,41 +2,38 @@ use graph::*;
 
 pub mod list;
 
-pub struct Text(Solver<Box<dyn Unit>, Work>);
+pub struct Text<T>(Solver<T, Work>);
 
-// impl FromUnit for Text {
-//     type Unit = Box<dyn Unit>;
-//     fn from_unit(unit: Self::Unit) -> Self {
-//         Self(Solver::from_unit(unit))
-//     }
-// }
-
-impl Text {
-    fn from_unit(unit: Box<dyn Unit>) -> Self {
+impl<T> Text<T> { 
+    fn from_unit(unit: T) -> Self {
         Self(Solver::from_unit(unit))
     }
 }
 
-impl Writer for Text {
-    type Unit = Box<dyn Unit>;
+impl<T: Write> Writer for Text<T> {
+    type Unit = T::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         self.0.write(write);
     }
 }
 
-impl Write for Box<dyn Unit> {
-    type Unit = Self;
-    fn write<F: FnOnce(&mut Self)>(&mut self, write: F) {
-        write(self);
+impl<T> ToString for Text<T> 
+where 
+    T: Solve<Load = Load, Task = Task>,
+{
+    fn string(&self) -> String {
+        if let Load::String(string) = self.0.solve(Task::String) {
+            string
+        } else {
+            panic!("task produced wrong load")
+        }
     }
 }
-
-pub trait Unit: ToString + ToLeaf<String> {}
 
 pub enum Stem {
     String(String),
     Leaf(Leaf<String>),
-    //Text(Text),
+    // Text(Text),
 }
 
 impl Stem {
@@ -49,30 +46,23 @@ impl Stem {
     }
 }
 
-// struct Pair(node::Pair<Box<dyn Unit>, Text>);
-
-// impl FromUnit for Pair {
-//     type Unit = Box<dyn Unit>;
-//     fn from_unit(unit: Self::Unit) -> Self {
-//         Self(node::Pair::from_unit(unit))
-//     }
-// }
-
-#[derive(Default)]
-struct Work(node::Work<Task, Load>);
+type Work = node::Work<Task, Load>;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
-enum Task {
-    Leaf,
+pub enum Task {
     String,
-    Serial,
+    // Leaf,
+    // Serial,
 }
 
 impl Default for Task {
-    fn default() -> Self {Task::String}
+    fn default() -> Self {
+        Task::String
+    }
 }
 
-enum Load {
+#[derive(Clone)] // EnumAsInner
+pub enum Load {
     String(String),
     Leaf(Leaf<String>),
 }
@@ -83,6 +73,44 @@ impl Default for Load {
     }
 }
 
+// impl<T: Read> Reader for Text<T> {
+//     type Unit = T::Unit;
+//     fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
+//         self.0.read(read);
+//     }
+// }
+
+
+// #[derive(Default)]
+// struct Work(node::Work<Task, Load>);
+
+
+// impl<T> Solve for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task>,
+// {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solve(&self, task: Self::Task) -> Self::Load {
+//         self.0.solve(task)
+//     }
+// }
+
+// impl FromUnit for Text {
+//     type Unit = Box<dyn Unit>;
+//     fn from_unit(unit: Self::Unit) -> Self {
+//         Self(Solver::from_unit(unit))
+//     }
+// }
+
+// struct Pair(node::Pair<Box<dyn Unit>, Text>);
+
+// impl FromUnit for Pair {
+//     type Unit = Box<dyn Unit>;
+//     fn from_unit(unit: Self::Unit) -> Self {
+//         Self(node::Pair::from_unit(unit))
+//     }
+// }
 
 // use serde::Serialize;
 

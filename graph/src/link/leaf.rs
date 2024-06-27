@@ -19,7 +19,7 @@ impl<U> FromReactor for Leaf<U> {
     }
 }
 
-impl<U> ReadWith for Leaf<U> {
+impl<U> Reader for Leaf<U> {
     type Unit = U;
     fn read<F: FnOnce(&U)>(&self, read: F) {
         self.0.read(read);
@@ -48,6 +48,10 @@ impl<U> Serialize for Leaf<U> {
         self.0.serialize(serializer)
     }
 }
+
+
+
+
 
 // impl<U> Clone for Leaf<U> {
 //     fn clone(&self) -> Self {

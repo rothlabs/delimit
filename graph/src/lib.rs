@@ -1,28 +1,28 @@
 pub mod base;
-pub mod meta;
-pub mod node;
 pub mod edge;
 pub mod link;
-pub mod repo;
-pub mod read;
-pub mod write;
-pub mod react;
 pub mod make;
+pub mod meta;
+pub mod node;
+pub mod react;
+pub mod read;
+pub mod repo;
+pub mod write;
 
-pub use base::{Work, AddStem, FromUnit, FromUnit2, Clear};
-pub use read::{Read, ReadWith, CloneUnit, Solve};
-pub use write::{Write, Writer};
-pub use react::{FromReactor, AsReactor, AddReactor, React, Reactor, Reactors};
-pub use make::{ToString, ToLeaf};
-pub use node::{
-    //Leaf,
-    Pair,
-};
-pub use meta::Meta;
+pub use base::{AddStem, Clear, FromUnit, Memory};
 pub use edge::Edge;
-pub use link::{Link, Solver, Leaf};
+pub use link::{Leaf, Link, Solver};
+pub use make::{ToLeaf, ToString};
+pub use meta::Meta;
+pub use node::Pair;
+pub use react::{AddReactor, AsReactor, FromReactor, React, Reactor, Reactors};
+pub use read::{CloneUnit, Read, Reader, Solve};
+pub use write::{Write, Writer, SolveMut};
 pub use repo::Repo;
 
 const NO_POISON: &str = "the lock should not be poisoned";
+
+pub trait Unit {}
+
 // const ROOT: &str = "there should be a root";
 // const REACTOR: &str = "there should be a reactor";

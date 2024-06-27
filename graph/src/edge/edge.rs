@@ -18,7 +18,7 @@ where
     fn from_unit(unit: Self::Unit) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(S::from_unit(unit))), 
+            stem: Arc::new(RwLock::new(S::from_unit(unit))),
             meta: Meta::new(),
         }
     }
@@ -39,7 +39,7 @@ impl<S> FromReactor for Edge<S>
     }
 }
 
-impl<S> ReadWith for Edge<S>
+impl<S> Reader for Edge<S>
 where
     S: Read,
 {
@@ -53,7 +53,7 @@ where
 impl<S> CloneUnit for Edge<S>
 where
     S: Read,
-    S::Unit: Clone
+    S::Unit: Clone,
 {
     type Unit = S::Unit;
     fn unit(&self) -> Self::Unit {
@@ -64,13 +64,13 @@ where
 
 impl<S> Solve for Edge<S>
 where
-    S: Solve,
+    S: SolveMut,
 {
     type Load = S::Load;
     type Task = S::Task;
     fn solve(&self, task: S::Task) -> S::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve(task)
+        stem.solve_mut(task)
     }
 }
 
@@ -92,7 +92,7 @@ where
 impl<S> AddStem for Edge<S>
 where
     S: AddStem, // + React + 'static,
-    //S::Stem: FromReactor,
+                //S::Stem: FromReactor,
 {
     type Stem = S::Stem;
     fn add_stem(&mut self, stem: S::Stem) {
@@ -109,7 +109,6 @@ impl<St> Serialize for Edge<St> {
         self.meta.serialize(serializer)
     }
 }
-
 
 // impl<S> super::Read for Edge<S>
 // where

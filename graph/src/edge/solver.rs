@@ -3,7 +3,7 @@ use crate::*;
 pub struct Solver<U, W>(Edge<node::Solver<U, W>>);
 
 impl<U, W> FromUnit for Solver<U, W>
-where  
+where
     //N: FromUnit,
     W: Default,
 {
@@ -13,16 +13,16 @@ where
     }
 }
 
-impl<N, W> FromReactor for Solver<N, W> {
+impl<U, W> FromReactor for Solver<U, W> {
     fn from_reactor(&self, reactor: Reactor) -> Self {
         Self(self.0.from_reactor(reactor))
     }
 }
 
-impl<N, W> Solve for Solver<N, W>
+impl<U, W> Solve for Solver<U, W>
 where
-    N: Solve<Task = W::Task, Load = W::Load>,
-    W: Work,
+    U: Solve<Task = W::Task, Load = W::Load>,
+    W: Memory,
 {
     type Load = W::Load;
     type Task = W::Task;
@@ -31,8 +31,18 @@ where
     }
 }
 
-impl<U, W> Writer for Solver<U, W> 
-where 
+impl<U, W> Reader for Solver<U, W>
+where
+    U: Read,
+{
+    type Unit = U::Unit;
+    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
+        self.0.read(read);
+    }
+}
+
+impl<U, W> Writer for Solver<U, W>
+where
     U: Write,
 {
     type Unit = U::Unit;
@@ -52,8 +62,6 @@ where
         self.0.add_stem(stem);
     }
 }
-
-
 
 // impl<N, W> AddStem for Solver<N, W>
 // where

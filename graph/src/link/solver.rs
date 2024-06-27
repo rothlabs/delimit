@@ -7,29 +7,18 @@ use crate::*;
 #[derivative(Clone(bound = ""))]
 pub struct Solver<U, W>(Link<edge::Solver<U, W>>);
 
-// impl<U, W> FromUnit2 for Solver<U, W>
-// where
-//     U: FromUnit,
-//     W: Default
-// {
-//     fn from_unit2<T>(unit: T) -> Self {
-//         Self(Link::from_unit(unit))
-//     }
-// }
-
 impl<U, W> FromUnit for Solver<U, W>
 where
-    //U: FromUnit,
-    W: Default
+    W: Default,
 {
-    type Unit = U;//U::Unit;
-    fn from_unit(unit: Self::Unit) -> Self {
+    type Unit = U; 
+    fn from_unit(unit: U) -> Self {
         Self(Link::from_unit(unit))
     }
 }
 
-impl<U, W> FromReactor for Solver<U, W> 
-where 
+impl<U, W> FromReactor for Solver<U, W>
+where
     U: React,
 {
     fn from_reactor(&self, root: Reactor) -> Self {
@@ -40,18 +29,28 @@ where
 impl<U, W> Solve for Solver<U, W>
 where
     edge::Solver<U, W>: Solve<Task = W::Task, Load = W::Load>,
-    W: Work,
+    W: Memory,
 {
     type Load = W::Load;
     type Task = W::Task;
-    fn solve(&self, task: Self::Task) -> Self::Load {
+    fn solve(&self, task: W::Task) -> W::Load {
         self.0.solve(task)
     }
 }
 
-impl<U, W> Writer for Solver<U, W> 
-where 
-    U: Write
+impl<U, W> Reader for Solver<U, W>
+where
+    U: Read,
+{
+    type Unit = U::Unit;
+    fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {
+        self.0.read(read);
+    }
+}
+
+impl<U, W> Writer for Solver<U, W>
+where
+    U: Write,
 {
     type Unit = U::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
@@ -61,7 +60,7 @@ where
 
 impl<U, W> AddStem for Solver<U, W>
 where
-    edge::Solver<U, W>: AddStem, 
+    edge::Solver<U, W>: AddStem,
 {
     type Stem = <edge::Solver<U, W> as AddStem>::Stem;
     fn add_stem(&mut self, stem: Self::Stem) {

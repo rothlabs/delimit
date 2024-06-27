@@ -35,9 +35,9 @@ where
     }
 }
 
-impl<E> ReadWith for Link<E>
+impl<E> Reader for Link<E>
 where
-    E: ReadWith,
+    E: Reader,
 {
     type Unit = E::Unit;
     fn read<F: FnOnce(&Self::Unit)>(&self, read: F) {

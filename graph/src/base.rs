@@ -1,13 +1,6 @@
-use crate::link::Leaf;
-
-
 pub trait FromUnit {
     type Unit;
     fn from_unit(unit: Self::Unit) -> Self;
-}
-
-pub trait FromUnit2 {
-    fn from_unit2<T>(unit: T) -> Self;
 }
 
 pub trait AddStem {
@@ -15,11 +8,11 @@ pub trait AddStem {
     fn add_stem(&mut self, stem: Self::Stem);
 }
 
-pub trait Work {
-    type Task: Clone;
+pub trait Memory {
     type Load: Clone;
-    fn get(&self, task: &Self::Task) -> Option<Self::Load>;
-    fn add(&self, task: Self::Task, load: Self::Load);
+    type Task: Clone;
+    fn add(&mut self, task: Self::Task, load: Self::Load);
+    fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
 pub trait Clear {

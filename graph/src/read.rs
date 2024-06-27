@@ -1,9 +1,18 @@
+use crate::*;
+
 pub trait Read {
     type Unit;
     fn read(&self) -> &Self::Unit;
 }
 
-pub trait ReadWith {
+impl<T: Unit> Read for T {
+    type Unit = T;
+    fn read(&self) -> &Self::Unit {
+        self
+    }
+}
+
+pub trait Reader {
     type Unit;
     fn read<F: FnOnce(&Self::Unit)>(&self, read: F);
 }

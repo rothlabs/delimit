@@ -1,13 +1,18 @@
-use graph::*;
 use chronicle::*;
+use graph::*;
 
 pub fn index() -> String {
-    let leaf = Leaf::from_unit("cool".to_owned());
+    let mut leaf = "cool".leaf();
     let mut list = List::default();
     list.separator(" _sep_ ");
     list.add_str("wow");
-    let mut text = list.text();
-    text.write(|unit| unit.add_str("wow"));
+    let text = list.text();
+    text.write(|list| {
+        list.add_str("item");
+    });
+
+    text.string()
+    
     //text.add_str("hi there");
     // text.add_leaf(&leaf);
     // println!("{}", text.string());
@@ -17,7 +22,7 @@ pub fn index() -> String {
     // leaf.write(|unit| unit.push_str(" wow"));
     // println!("{}", text.string());
     // text.string()
-    String::new()
+    //String::new()
 
     // let mut html = doc().html();
     // html.lang("en");

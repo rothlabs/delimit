@@ -1,5 +1,5 @@
-use graph::*;
 use crate::text::*;
+//use graph::*;
 
 #[derive(Default)]
 pub struct List {
@@ -16,16 +16,18 @@ impl List {
         self.separator = sep.to_owned();
         self
     }
-    pub fn text(self) -> Text {
-        Text::from_unit(Box::new(self))
+    pub fn text(self) -> Text<Self> {
+        Text::from_unit(self)
     }
 }
+
+impl Unit for List {}
 
 impl ToString for List {
     fn string(&self) -> String {
         let mut string = String::new();
         if self.items.len() < 1 {
-            return string
+            return string;
         }
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
@@ -38,9 +40,17 @@ impl ToString for List {
     }
 }
 
-impl Unit for List {}
+impl Solve for List {
+    type Task = Task;
+    type Load = Load;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        match task {
+            Task::String => Load::String(self.string()),
+        }
+    }
+}
 
-
+//impl Unit for List {}
 
 // pub fn list() -> List {
 //     List {
