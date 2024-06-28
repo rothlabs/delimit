@@ -56,9 +56,11 @@ where
 {
     type Unit = S::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        let stem = self.stem.read().expect(NO_POISON);
-        //stem.add_reactor(link);
+        let mut stem = self.stem.write().expect(NO_POISON);
         read(&stem.read());
+        if let Some(root) = &self.root {
+            stem.add_reactor(&root);
+        }
     }
 }
 

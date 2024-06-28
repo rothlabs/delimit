@@ -18,7 +18,7 @@ pub trait ToReactor {
 }
 
 pub trait AddReactor {
-    fn add_reactor<T: ToReactor>(&mut self, link: &T);
+    fn add_reactor(&mut self, reactor: &Reactor);
 }
 
 pub trait WithReactor {
@@ -50,7 +50,7 @@ impl Reactor {
 
 impl PartialEq for Reactor {
     fn eq(&self, other: &Self) -> bool {
-        self.meta.id == other.meta.id
+        Weak::ptr_eq(&self.item, &other.item) && self.meta.id == other.meta.id
     }
 }
 
@@ -86,8 +86,8 @@ impl Reactors {
         }
         reactors
     }
-    pub fn add<T: ToReactor>(&mut self, link: &T) {
-        self.0.insert(link.reactor());
+    pub fn add(&mut self, reactor: &Reactor) {
+        self.0.insert(reactor.clone());
     }
 }
 
@@ -96,6 +96,15 @@ impl Default for Reactors {
         Self(HashSet::new())
     }
 }
+
+
+// pub fn add<T: ToReactor>(&mut self, link: &T) {
+//     self.0.insert(link.reactor());
+// }
+
+// pub trait AddReactor {
+//     fn add_reactor<T: ToReactor>(&mut self, link: &T);
+// }
 
 // impl AsReactor for Reactor {
 //     fn as_reactor(&self) -> Reactor {

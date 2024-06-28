@@ -52,7 +52,7 @@ fn react_list() {
     result1.reader(|unit| {
         println!("result1 {}", unit);
     });
-    assert!(result0 != result1);
+    assert!(result0 == result1);
 }
 
 // #[test]

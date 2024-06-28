@@ -86,7 +86,7 @@ where
 }
 
 impl<N, W> AddReactor for Solver<N, W> {
-    fn add_reactor<T: ToReactor>(&mut self, link: &T) {
-        self.reactors.add(link);
+    fn add_reactor(&mut self, reactor: &Reactor) {
+        self.reactors.add(reactor);
     }
 }
