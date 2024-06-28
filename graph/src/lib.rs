@@ -12,13 +12,13 @@ pub mod read;
 pub mod repo;
 pub mod write;
 
-pub use base::{AddStem, Clear, FromUnit, Memory};
+pub use base::{AddStem, Clear, FromUnit, Memory, Stemmer};
 pub use edge::Edge;
 pub use link::{Leaf, Link, Solver};
 pub use make::{ToLeaf, ToString};
 pub use meta::Meta;
 pub use node::Pair;
-pub use react::{AddReactor, ToReactor, WithReactor, React, Reactor, Reactors};
+pub use react::{AddReactor, React, Reactor, Reactors, ToReactor, WithReactor};
 pub use read::{CloneUnit, Read, Reader, Solve};
 pub use repo::Repo;
 pub use write::{SolveMut, Write, Writer};

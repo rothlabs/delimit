@@ -26,6 +26,16 @@ where
     }
 }
 
+impl<U> Stemmer for Text<U>
+where
+    U: React + 'static,
+{
+    type Unit = U;
+    fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F) {
+        self.0.stemmer(stem, add_stem);
+    }
+}
+
 impl<T: Write> Writer for Text<T> {
     type Unit = T::Unit;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
@@ -46,7 +56,7 @@ impl Stem {
             Stem::String(string) => read(string),
             Stem::Leaf(leaf) => {
                 leaf.reader(read);
-            },
+            }
             //Stem::Text(t) => t.leaf().read(f),
         };
     }

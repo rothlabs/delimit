@@ -8,13 +8,12 @@ pub struct Solver<U, W> {
 
 impl<U, W> FromUnit for Solver<U, W>
 where
-    //U: FromUnit,
     W: Default,
 {
-    type Unit = U; //::Unit;
+    type Unit = U;
     fn from_unit(unit: Self::Unit) -> Self {
         Self {
-            unit, //U::from_unit(unit),
+            unit, 
             work: W::default(),
             reactors: Reactors::default(),
         }
@@ -53,24 +52,24 @@ where
 impl<U, W> Write for Solver<U, W>
 where
     U: Write,
+    W: Clear
 {
     type Unit = U::Unit;
     fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
         self.unit.write(write);
         self.reactors.cycle();
+        self.work.clear();
+        // println!("cycle reactors in node::Solver")
     }
 }
 
-// impl<U, W> AddStem for Solver<U, W>
-// where
-//     U: AddStem,
-// {
-//     type Stem = U::Stem;
-//     fn add_stem(&mut self, stem: U::Stem) {
-//         self.unit.add_stem(stem);
-//         self.reactors.cycle();
-//     }
-// }
+impl<U, W> AddStem for Solver<U, W> {
+    type Unit = U;
+    fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
+        add_stem(&mut self.unit, stem);
+        self.reactors.cycle();
+    }
+}
 
 impl<U, W> React for Solver<U, W>
 where

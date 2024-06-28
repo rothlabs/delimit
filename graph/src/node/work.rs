@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::*;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Work<T, L> {
     map: HashMap<T, L>,
 }
@@ -19,5 +19,11 @@ where
     }
     fn get(&self, task: &Self::Task) -> Option<&Self::Load> {
         self.map.get(task)
+    }
+}
+
+impl<T, L> Clear for Work<T, L> {
+    fn clear(&mut self) {
+        self.map.clear();
     }
 }

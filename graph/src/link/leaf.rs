@@ -2,8 +2,7 @@ use serde::Serialize;
 
 use crate::*;
 
-#[derive(derivative::Derivative)]
-#[derivative(Clone(bound = ""))]
+#[derive(Clone, Serialize, PartialEq)]
 pub struct Leaf<U>(Link<edge::Leaf<U>>);
 
 impl<U> FromUnit for Leaf<U> {
@@ -13,11 +12,11 @@ impl<U> FromUnit for Leaf<U> {
     }
 }
 
-// impl<U> WithReactor for Leaf<U> {
-//     fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
-//         Self(self.0.with_reactor(item))
-//     }
-// }
+impl WithReactor for Leaf<String> {
+    fn with_reactor(&self, reactor: Reactor) -> Self {
+        Self(self.0.with_reactor(reactor))
+    }
+}
 
 impl<U> Reader for Leaf<U> {
     type Unit = U;
@@ -40,20 +39,20 @@ impl<U: Clone> CloneUnit for Leaf<U> {
     }
 }
 
-impl<U> PartialEq for Leaf<U> {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
+// impl<U> PartialEq for Leaf<U> {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.0 == other.0
+//     }
+// }
 
-impl<U> Serialize for Leaf<U> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.0.serialize(serializer)
-    }
-}
+// impl<U> Serialize for Leaf<U> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.0.serialize(serializer)
+//     }
+// }
 
 // impl<U> Clone for Leaf<U> {
 //     fn clone(&self) -> Self {

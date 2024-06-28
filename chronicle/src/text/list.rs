@@ -61,6 +61,13 @@ impl Solve for List {
     }
 }
 
+impl React for List {
+    fn clear(&mut self) -> Reactors {
+        Reactors::default()
+    }
+    fn react(&mut self) {}
+}
+
 //impl Unit for List {}
 
 // pub fn list() -> List {

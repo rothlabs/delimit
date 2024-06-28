@@ -1,10 +1,10 @@
 use crate::*;
 
+#[derive(Clone)]
 pub struct Solver<U, W>(Edge<node::Solver<U, W>>);
 
 impl<U, W> FromUnit for Solver<U, W>
 where
-    //N: FromUnit,
     W: Default,
 {
     type Unit = U; //N::Unit;
@@ -13,9 +13,19 @@ where
     }
 }
 
+impl<U, W> ToReactor for Solver<U, W>
+where
+    U: React + 'static,
+    W: Clear + 'static,
+{
+    fn reactor(&self) -> Reactor {
+        self.0.reactor()
+    }
+}
+
 impl<U, W> WithReactor for Solver<U, W> {
-    fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
-        Self(self.0.with_reactor(item))
+    fn with_reactor(&self, reactor: Reactor) -> Self {
+        Self(self.0.with_reactor(reactor))
     }
 }
 
@@ -44,10 +54,21 @@ where
 impl<U, W> Writer for Solver<U, W>
 where
     U: Write,
+    W: Clear
 {
     type Unit = U::Unit;
-    fn writer<F: FnOnce(&mut U::Unit)>(&self, write: F) {
+    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         self.0.writer(write);
+    }
+}
+
+impl<U, W> AddStem for Solver<U, W>
+// where
+//     U: AddStem
+{
+    type Unit = U;
+    fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
+        self.0.add_stem(stem, add_stem);
     }
 }
 

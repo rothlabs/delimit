@@ -4,6 +4,9 @@ use serde::Serialize;
 
 use crate::*;
 
+// #[derive(derivative::Derivative)]
+// #[derivative(Clone(bound = ""))]
+// #[derive(Clone)]
 pub struct Edge<S> {
     pub root: Option<Reactor>,
     pub stem: Arc<RwLock<S>>,
@@ -25,10 +28,23 @@ where
 }
 
 impl<S> WithReactor for Edge<S> {
-    fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
+    fn with_reactor(&self, reactor: Reactor) -> Self {
         Self {
-            root: Some(item.reactor()),
+            root: Some(reactor),
             stem: self.stem.clone(),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
+impl<S> ToReactor for Edge<S>
+where
+    S: React + 'static,
+{
+    fn reactor(&self) -> Reactor {
+        let stem = self.stem.clone() as Arc<RwLock<dyn React>>;
+        Reactor {
+            item: Arc::downgrade(&stem),
             meta: self.meta.clone(),
         }
     }
@@ -36,11 +52,12 @@ impl<S> WithReactor for Edge<S> {
 
 impl<S> Reader for Edge<S>
 where
-    S: Read,
+    S: Read + AddReactor,
 {
     type Unit = S::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
+        //stem.add_reactor(link);
         read(&stem.read());
     }
 }
@@ -84,6 +101,36 @@ where
     }
 }
 
+impl<S> AddStem for Edge<S>
+where
+    S: AddStem,
+{
+    type Unit = S::Unit;
+    fn add_stem<T, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F) {
+        let mut edge_stem = self.stem.write().expect(NO_POISON);
+        edge_stem.add_stem(stem, add_stem);
+    }
+}
+
+impl<S> Clone for Edge<S> {
+    fn clone(&self) -> Self {
+        Self {
+            root: None,
+            stem: self.stem.clone(),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
+impl<St> Serialize for Edge<St> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
+    }
+}
+
 // impl<S> AddStem for Edge<S>
 // where
 //     S: AddStem, // + React + 'static,
@@ -96,15 +143,6 @@ where
 //         edge_stem.add_stem(stem);
 //     }
 // }
-
-impl<St> Serialize for Edge<St> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}
 
 // impl<S> super::Read for Edge<S>
 // where

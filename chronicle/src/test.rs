@@ -6,7 +6,6 @@ fn new_list(leaf: &Leaf<String>) -> Text<List> {
     let text = ", ".text_list();
     text.writer(|list| {
         list.add_str("str");
-        //list.add_leaf(leaf);
     });
     text.stemmer(leaf, |list, leaf| {
         list.add_leaf(leaf);
@@ -43,11 +42,18 @@ fn react_list() {
     let text = new_list(&leaf);
     let result0 = text.leaf();
     leaf.writer(|string| string.push_str("_mutated"));
+    // text.writer(|list| {
+    //     list.separator(" wow ");
+    // });
     let result1 = text.leaf();
+    result0.reader(|unit| {
+        println!("result0 {}", unit);
+    });
+    result1.reader(|unit| {
+        println!("result1 {}", unit);
+    });
     assert!(result0 != result1);
 }
-
-
 
 // #[test]
 // fn react_list() {

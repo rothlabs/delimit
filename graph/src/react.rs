@@ -22,13 +22,13 @@ pub trait AddReactor {
 }
 
 pub trait WithReactor {
-    fn with_reactor<T: ToReactor>(&self, item: T) -> Self;
+    fn with_reactor(&self, reactor: Reactor) -> Self;
 }
 
 #[derive(Clone)]
 pub struct Reactor {
-    item: Weak<RwLock<dyn React>>,
-    meta: Meta,
+    pub item: Weak<RwLock<dyn React>>,
+    pub meta: Meta,
 }
 
 impl Reactor {
@@ -62,6 +62,7 @@ impl Hash for Reactor {
     }
 }
 
+//#[derive(Clone)]
 pub struct Reactors(HashSet<Reactor>);
 
 impl Reactors {

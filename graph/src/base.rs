@@ -5,9 +5,14 @@ pub trait FromUnit {
     fn from_unit(unit: Self::Unit) -> Self;
 }
 
+pub trait Stemmer {
+    type Unit;
+    fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F);
+}
+
 pub trait AddStem {
     type Unit;
-    fn add_stem<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
+    fn add_stem<T, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
 }
 
 pub trait Memory {
@@ -18,7 +23,7 @@ pub trait Memory {
 }
 
 pub trait Clear {
-    fn clear(&self);
+    fn clear(&mut self);
 }
 
 // pub trait Seek {

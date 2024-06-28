@@ -2,6 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
+#[derive(Clone)]
 pub struct Leaf<U>(Edge<node::Leaf<U>>);
 
 impl<U> FromUnit for Leaf<U> {
@@ -16,8 +17,8 @@ impl<U> FromUnit for Leaf<U> {
 }
 
 impl<U> WithReactor for Leaf<U> {
-    fn with_reactor<T: ToReactor>(&self, item: T) -> Self {
-        Self(self.0.with_reactor(item))
+    fn with_reactor(&self, reactor: Reactor) -> Self {
+        Self(self.0.with_reactor(reactor))
     }
 }
 
