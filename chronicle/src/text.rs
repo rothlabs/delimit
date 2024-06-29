@@ -1,16 +1,21 @@
 use graph::*;
-use list::List;
 
-pub mod list;
+pub use list::{List, TextList};
 
-pub struct Text<T>(Solver<T, Work>);
+#[cfg(test)]
+mod tests;
+
+mod list;
+
+pub struct Text<T>(pub Solver<T, Work>);
 
 impl<T> Text<T>
 where
     T: Solve<Load = Load, Task = Task>,
+    T: React + Write + 'static,
 {
-    fn from_unit(unit: T) -> Self {
-        Self(Solver::from_unit(unit))
+    fn new(unit: T) -> Self {
+        Self(Solver::new(unit))
     }
     pub fn string(&self) -> String {
         if let Load::String(string) = self.0.solve(Task::String) {
@@ -24,57 +29,37 @@ where
         }
         panic!("should return Load::Leaf(Leaf<String>)")
     }
-}
-
-impl<U> Stemmer for Text<U>
-where
-    U: React + 'static,
-{
-    type Unit = U;
-    fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F) {
+    pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
         self.0.stemmer(stem, add_stem);
     }
-}
-
-impl<T: Write> Writer for Text<T> {
-    type Unit = T::Unit;
-    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+    pub fn writer<F: FnOnce(&mut T::Unit)>(&self, write: F) {
         self.0.writer(write);
     }
 }
 
-//TODO impl from_reactor
-pub enum Stem {
+pub enum Item {
     String(String),
     Leaf(Leaf<String>),
     // Text(Text),
 }
 
-impl Stem {
+impl Item {
     fn read<F: FnOnce(&String)>(&self, read: F) {
         match self {
-            Stem::String(string) => read(string),
-            Stem::Leaf(leaf) => {
-                leaf.reader(read);
-            }
-            //Stem::Text(t) => t.leaf().read(f),
+            Item::String(string) => read(string),
+            Item::Leaf(leaf) => leaf.reader(read),
+            // Stem::Text(t) => t.leaf().read(f),
         };
     }
 }
 
-type Work = node::Work<Task, Load>;
+type Work = graph::Work<Task, Load>;
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Default, Clone, Eq, PartialEq, Hash)]
 pub enum Task {
+    #[default]
     String,
     Leaf,
-    // Serial,
-}
-
-impl Default for Task {
-    fn default() -> Self {
-        Task::String
-    }
 }
 
 #[derive(Clone)] // EnumAsInner
@@ -89,15 +74,22 @@ impl Default for Load {
     }
 }
 
-pub trait TextList {
-    fn text_list(self) -> Text<List>;
-}
+// impl<T: Write> Writer for Text<T> {
+//     type Unit = T::Unit;
+//     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+//         self.0.writer(write);
+//     }
+// }
 
-impl TextList for &str {
-    fn text_list(self) -> Text<List> {
-        List::from_separator(self).text()
-    }
-}
+// impl<U> Stemmer for Text<U>
+// where
+//     U: React + 'static,
+// {
+//     type Unit = U;
+//     fn stemmer<T: WithReactor, F: FnOnce(&mut U, T)>(&self, stem: &T, add_stem: F) {
+//         self.0.stemmer(stem, add_stem);
+//     }
+// }
 
 // impl<T: Read> Reader for Text<T> {
 //     type Unit = T::Unit;

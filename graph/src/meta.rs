@@ -3,7 +3,7 @@ use serde::Serialize;
 use rand::distributions::{Alphanumeric, DistString};
 
 #[derive(Clone, Hash, PartialEq, Serialize)]
-pub struct Id(pub String);
+pub struct Id(String);
 
 impl Id {
     pub fn new() -> Id {
@@ -11,6 +11,12 @@ impl Id {
     }
     pub fn string(&self) -> &str {
         &self.0
+    }
+}
+
+impl Default for Id {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -24,5 +30,11 @@ pub struct Meta {
 impl Meta {
     pub fn new() -> Self {
         Self { id: Id::new() }
+    }
+}
+
+impl Default for Meta {
+    fn default() -> Self {
+        Self::new()
     }
 }

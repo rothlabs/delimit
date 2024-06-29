@@ -7,9 +7,9 @@ impl<U, W> FromUnit for Solver<U, W>
 where
     W: Default,
 {
-    type Unit = U; //N::Unit;
-    fn from_unit(unit: Self::Unit) -> Self {
-        Self(edge::Edge::from_unit(unit))
+    type Unit = U;
+    fn new(unit: Self::Unit) -> Self {
+        Self(edge::Edge::new(unit))
     }
 }
 
@@ -54,7 +54,7 @@ where
 impl<U, W> Writer for Solver<U, W>
 where
     U: Write,
-    W: Clear
+    W: Clear,
 {
     type Unit = U::Unit;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
@@ -62,13 +62,25 @@ where
     }
 }
 
-impl<U, W> AddStem for Solver<U, W>
-// where
-//     U: AddStem
-{
+impl<U, W> AddStem for Solver<U, W> {
     type Unit = U;
     fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
         self.0.add_stem(stem, add_stem);
+    }
+}
+
+impl<U, W> AddReactor for Solver<U, W> {
+    fn add_reactor(&mut self, reactor: &Reactor) {
+        self.0.add_reactor(reactor);
+    }
+}
+
+impl<U, W> React for Solver<U, W> {
+    fn clear(&mut self) -> Reactors {
+        self.0.clear()
+    }
+    fn react(&mut self) {
+        self.0.react();
     }
 }
 

@@ -15,4 +15,6 @@
             # dyn-clone = {workspace = true}
             # erased-serde = {workspace = true}
         # derive
-            derivative = {workspace = true}
+            # derivative = {workspace = true}
+            #     #[derive(derivative::Derivative)]
+            #     #[derivative(Clone(bound = ""))]

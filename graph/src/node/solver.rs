@@ -11,9 +11,9 @@ where
     W: Default,
 {
     type Unit = U;
-    fn from_unit(unit: Self::Unit) -> Self {
+    fn new(unit: Self::Unit) -> Self {
         Self {
-            unit, 
+            unit,
             work: W::default(),
             reactors: Reactors::default(),
         }
@@ -26,7 +26,7 @@ where
 {
     type Unit = U::Unit;
     fn read(&self) -> &U::Unit {
-        &self.unit.read()
+        self.unit.read()
     }
 }
 
@@ -38,7 +38,6 @@ where
     type Task = W::Task;
     type Load = W::Load;
     fn solve_mut(&mut self, task: W::Task) -> W::Load {
-        // self.unit.solve(task)
         if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
@@ -52,14 +51,13 @@ where
 impl<U, W> Write for Solver<U, W>
 where
     U: Write,
-    W: Clear
+    W: Clear,
 {
     type Unit = U::Unit;
     fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
         self.unit.write(write);
-        self.reactors.cycle();
         self.work.clear();
-        // println!("cycle reactors in node::Solver")
+        self.reactors.cycle();
     }
 }
 

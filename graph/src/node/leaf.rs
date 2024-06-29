@@ -9,7 +9,7 @@ pub struct Leaf<U> {
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
-    fn from_unit(unit: Self::Unit) -> Self {
+    fn new(unit: Self::Unit) -> Self {
         Self {
             unit,
             reactors: Reactors::default(),

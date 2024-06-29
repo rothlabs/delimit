@@ -1,10 +1,9 @@
 use crate::text::*;
-//use graph::*;
 
 #[derive(Default)]
 pub struct List {
-    pub items: Vec<Stem>,
-    pub separator: String,
+    items: Vec<Item>,
+    separator: String,
 }
 
 impl List {
@@ -15,28 +14,30 @@ impl List {
         }
     }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
-        self.separator = sep.to_owned();
+        sep.clone_into(&mut self.separator);
         self
     }
     pub fn add_str(&mut self, item: &str) -> &mut Self {
-        self.items.push(Stem::String(item.to_owned()));
+        self.items.push(Item::String(item.to_owned()));
         self
     }
-    pub fn add_leaf(&mut self, item: Leaf<String>) -> &mut Self {
-        self.items.push(Stem::Leaf(item));
-        self
+    pub fn add_leaf(&mut self, item: Leaf<String>) {
+        self.items.push(Item::Leaf(item));
+    }
+    pub fn remove(&mut self, index: usize) {
+        self.items.remove(index);
     }
     pub fn text(self) -> Text<Self> {
-        Text::from_unit(self)
+        Text::new(self)
     }
 }
 
 impl Unit for List {}
 
-impl ToString for List {
+impl GraphString for List {
     fn string(&self) -> String {
         let mut string = String::new();
-        if self.items.len() < 1 {
+        if self.items.is_empty() {
             return string;
         }
         for i in 0..self.items.len() - 1 {
@@ -66,6 +67,16 @@ impl React for List {
         Reactors::default()
     }
     fn react(&mut self) {}
+}
+
+pub trait TextList {
+    fn text_list(self) -> Text<List>;
+}
+
+impl TextList for &str {
+    fn text_list(self) -> Text<List> {
+        List::from_separator(self).text()
+    }
 }
 
 //impl Unit for List {}

@@ -13,8 +13,6 @@ pub trait React {
 
 pub trait ToReactor {
     fn reactor(&self) -> Reactor;
-    // fn edge(&self) -> &Arc<RwLock<dyn React>>;
-    // fn meta(&self) -> &Meta;
 }
 
 pub trait AddReactor {
@@ -33,6 +31,7 @@ pub struct Reactor {
 
 impl Reactor {
     pub fn clear(&self) -> Reactors {
+        // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
             item.clear()
@@ -62,7 +61,7 @@ impl Hash for Reactor {
     }
 }
 
-//#[derive(Clone)]
+#[derive(Default)]
 pub struct Reactors(HashSet<Reactor>);
 
 impl Reactors {
@@ -78,7 +77,7 @@ impl Reactors {
         let mut reactors = Reactors::default();
         for reactor in &self.0 {
             let rcts = reactor.clear();
-            if rcts.0.len() < 1 {
+            if rcts.0.is_empty() {
                 reactors.0.insert(reactor.clone());
             } else {
                 reactors.0.extend(rcts.0);
@@ -91,12 +90,11 @@ impl Reactors {
     }
 }
 
-impl Default for Reactors {
-    fn default() -> Self {
-        Self(HashSet::new())
-    }
-}
-
+// impl Default for Reactors {
+//     fn default() -> Self {
+//         Self(HashSet::new())
+//     }
+// }
 
 // pub fn add<T: ToReactor>(&mut self, link: &T) {
 //     self.0.insert(link.reactor());

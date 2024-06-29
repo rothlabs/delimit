@@ -10,8 +10,8 @@ where
     W: Default,
 {
     type Unit = U;
-    fn from_unit(unit: U) -> Self {
-        Self(Link::from_unit(unit))
+    fn new(unit: U) -> Self {
+        Self(Link::new(unit))
     }
 }
 
@@ -35,7 +35,8 @@ where
 
 impl<U, W> Reader for Solver<U, W>
 where
-    U: Read,
+    U: Read + React + 'static,
+    W: Clear + 'static,
 {
     type Unit = U::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -64,7 +65,6 @@ where
         self.0.stemmer(stem, add_stem);
     }
 }
-
 
 // impl<U, W> Serialize for Solver<U, W> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

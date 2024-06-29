@@ -1,8 +1,7 @@
 use chronicle::*;
-use graph::*;
 
 pub fn index() -> String {
-    let mut leaf = "cool".leaf();
+    // let leaf = "cool".leaf();
     let mut list = List::default();
     list.separator(" _sep_ ");
     list.add_str("wow");

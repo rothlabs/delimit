@@ -39,7 +39,7 @@ async fn future(io: Io, repo: Repo) {
     }
 }
 
-async fn service(_: Request<impl Body>, repo: Repo) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn service(_: Request<impl Body>, _: Repo) -> Result<Response<Full<Bytes>>, Infallible> {
     // if let Ok(mut count) = repo.0.count.lock() {
     //     *count += 1;
     //     println!("count: {count}");

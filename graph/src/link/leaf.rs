@@ -7,8 +7,8 @@ pub struct Leaf<U>(Link<edge::Leaf<U>>);
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
-    fn from_unit(unit: U) -> Self {
-        Self(Link::from_unit(unit))
+    fn new(unit: U) -> Self {
+        Self(Link::new(unit))
     }
 }
 
@@ -18,7 +18,7 @@ impl WithReactor for Leaf<String> {
     }
 }
 
-impl<U> Reader for Leaf<U> {
+impl<U: 'static> Reader for Leaf<U> {
     type Unit = U;
     fn reader<F: FnOnce(&U)>(&self, read: F) {
         self.0.reader(read);
@@ -36,6 +36,32 @@ impl<U: Clone> CloneUnit for Leaf<U> {
     type Unit = U;
     fn unit(&self) -> U {
         self.0.unit()
+    }
+}
+
+pub trait ToLeaf<T> {
+    fn leaf(&self) -> Leaf<T>;
+}
+
+impl ToLeaf<String> for str {
+    fn leaf(&self) -> Leaf<String> {
+        Leaf::new(self.to_owned())
+    }
+}
+
+impl<T: GraphString> ToLeaf<String> for T {
+    fn leaf(&self) -> Leaf<String> {
+        self.string().into_leaf()
+    }
+}
+
+pub trait IntoLeaf<T> {
+    fn into_leaf(self) -> Leaf<T>;
+}
+
+impl<T> IntoLeaf<T> for T {
+    fn into_leaf(self) -> Leaf<T> {
+        Leaf::new(self)
     }
 }
 

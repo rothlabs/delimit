@@ -11,6 +11,12 @@ impl Repo {
     }
 }
 
+impl Default for Repo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // #[derive(Clone)]
 // pub struct RepoArcMutex(pub Arc<Mutex<Repo>>);
 
