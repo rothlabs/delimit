@@ -104,7 +104,7 @@ impl<S> AddReactor for Edge<S>
 where
     S: AddReactor,
 {
-    fn add_reactor(&mut self, reactor: &Reactor) {
+    fn add_reactor(&mut self, reactor: Reactor) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_reactor(reactor);
     }

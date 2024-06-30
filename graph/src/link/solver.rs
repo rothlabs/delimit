@@ -21,6 +21,7 @@ impl<U, W> WithReactor for Solver<U, W> {
     }
 }
 
+// task solution
 impl<U, W> Solve for Solver<U, W>
 where
     U: Solve<Task = W::Task, Load = W::Load>,

@@ -44,7 +44,7 @@ impl<U: Clone> CloneUnit for Leaf<U> {
 }
 
 impl<U> AddReactor for Leaf<U> {
-    fn add_reactor(&mut self, reactor: &Reactor) {
+    fn add_reactor(&mut self, reactor: Reactor) {
         self.0.add_reactor(reactor);
     }
 }

@@ -73,7 +73,7 @@ where
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
         let reactor = self.reactor();
-        edge.add_reactor(&reactor);
+        edge.add_reactor(reactor);
     }
 }
 

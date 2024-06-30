@@ -37,22 +37,6 @@ where
     }
 }
 
-pub enum Item {
-    String(String),
-    Leaf(Leaf<String>),
-    // Text(Text),
-}
-
-impl Item {
-    fn read<F: FnOnce(&String)>(&self, read: F) {
-        match self {
-            Item::String(string) => read(string),
-            Item::Leaf(leaf) => leaf.reader(read),
-            // Stem::Text(t) => t.leaf().read(f),
-        };
-    }
-}
-
 type Work = graph::Work<Task, Load>;
 
 #[derive(Default, Clone, Eq, PartialEq, Hash)]
@@ -73,6 +57,28 @@ impl Default for Load {
         Load::String(String::new())
     }
 }
+
+pub enum Item {
+    String(String),
+    Leaf(Leaf<String>),
+    Text(Text<List>),
+    //Text(Text<Box<dyn TextUnit>>),
+}
+
+//pub trait TextUnit: Unit + Write + GraphString + Solve<Load = Load, Task = Task> + React + 'static {}
+
+impl Item {
+    fn read<F: FnOnce(&String)>(&self, read: F) {
+        match self {
+            Item::String(string) => read(string),
+            Item::Leaf(leaf) => leaf.reader(read),
+            Item::Text(text) => read(&text.string()),
+        };
+    }
+}
+
+
+
 
 // impl<T: Write> Writer for Text<T> {
 //     type Unit = T::Unit;

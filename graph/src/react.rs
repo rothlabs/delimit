@@ -16,7 +16,7 @@ pub trait ToReactor {
 }
 
 pub trait AddReactor {
-    fn add_reactor(&mut self, reactor: &Reactor);
+    fn add_reactor(&mut self, reactor: Reactor);
 }
 
 pub trait WithReactor {
@@ -85,8 +85,8 @@ impl Reactors {
         }
         reactors
     }
-    pub fn add(&mut self, reactor: &Reactor) {
-        self.0.insert(reactor.clone());
+    pub fn add(&mut self, reactor: Reactor) {
+        self.0.insert(reactor);
     }
 }
 
