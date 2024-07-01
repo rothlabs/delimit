@@ -32,36 +32,67 @@ where
     pub fn writer<F: FnOnce(&mut T::Unit)>(&self, write: F) {
         self.0.writer(write);
     }
+    pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
+        self.0.stemmer(stem, add_stem);
+    }
     pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
         self.0.stem_solver(stem, add_stem);
     }
 }
 
-//trait TextSolve: Solve + SolverWithReactor {} // <Task = Task, Load = Load>
+impl<T> SolveReact<Task, Load> for Text<T> 
+where 
+    T: Solve<Load = Load, Task = Task> + 'static
+{}
+
+impl<T> Solve for Text<T> 
+where 
+    T: Solve<Load = Load, Task = Task> + 'static,
+{
+    type Load = Load;
+    type Task = Task;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        self.0.solve(task)
+    }
+}
+
+impl<T> SolverWithReactor for Text<T> 
+where 
+    T: Solve<Load = Load, Task = Task> + 'static,
+{
+    type Load = Load;
+    type Task = Task;
+    fn solver_with_reactor(
+            &self,
+            reactor: Reactor,
+        ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
+        self.0.solver_with_reactor(reactor)
+    }
+}
+
 
 pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);
 
-// pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
+impl SolveReact<Task, Load> for TextSolver {}
 
-// impl TextSolver {
-//     fn solve(&self, task: Task) -> Load {
-//         self.0.0.solve(task)
-//     }
-// }
+impl Solve for TextSolver {
+    type Load = Load;
+    type Task = Task;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        self.0.solve(task)
+    }
+}
 
-// pub struct TextSolver(Box<dyn Solve<Task = Task, Load = Load>>);
-
-// impl TextSolver {
-//     fn solve(&self, task: Task) -> Load {
-//         self.0.solve(task)
-//     }
-// }
-
-// impl WithReactor for TextSolver {
-//     fn with_reactor(&self, reactor: Reactor) -> Self {
-//         self.0.
-//     }
-// }
+impl SolverWithReactor for TextSolver {
+    type Load = Load;
+    type Task = Task;
+    fn solver_with_reactor(
+            &self,
+            reactor: Reactor,
+        ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
+        self.0.solver_with_reactor(reactor)
+    }
+}
 
 type Work = graph::Work<Task, Load>;
 
@@ -103,6 +134,31 @@ impl Item {
         };
     }
 }
+
+// pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
+
+// impl TextSolver {
+//     fn solve(&self, task: Task) -> Load {
+//         self.0.0.solve(task)
+//     }
+// }
+
+// pub struct TextSolver(Box<dyn Solve<Task = Task, Load = Load>>);
+
+// impl TextSolver {
+//     fn solve(&self, task: Task) -> Load {
+//         self.0.solve(task)
+//     }
+// }
+
+// impl WithReactor for TextSolver {
+//     fn with_reactor(&self, reactor: Reactor) -> Self {
+//         self.0.
+//     }
+// }
+
+
+
 
 // impl<T: Write> Writer for Text<T> {
 //     type Unit = T::Unit;

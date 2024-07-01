@@ -142,6 +142,7 @@ where
     type Load = E::Load;
     type Task = E::Task;
     fn stem_solver<T: SolveReact<Self::Task, Self::Load>, F: FnOnce(&mut Self::Unit, Box<dyn SolveReact<Self::Task, Self::Load>>)>(&self, stem: &T, add_stem: F) {
+        // TODO: make a writer that saves the WriteGuard in a struct and allows writing to unit and adding stems from that
         let mut edge = self.edge.write().expect(NO_POISON);
         let reactor_node = edge.reactor(); // make a reactor from edge stem
         let stem = stem.solver_with_reactor(reactor_node); // make a new link with reactor node

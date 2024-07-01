@@ -26,8 +26,8 @@ impl List {
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
     }
-    pub fn add_text(&mut self, text: TextSolver) {
-        self.items.push(Item::Text(text));
+    pub fn add_text(&mut self, text: Box<dyn SolveReact<Task, Load>>) {
+        self.items.push(Item::Text(TextSolver(text)));
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);

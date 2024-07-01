@@ -6,7 +6,7 @@ use crate::text::*;
 
 use super::{attribute::*, tag::*, Html};
 
-#[derive(Clone)]
+//#[derive(Clone)]
 pub struct Element {
     tag: &'static Tag,
     root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
@@ -31,9 +31,9 @@ impl Element {
         for att in self.attributes.iter() {
             att.add_self_to_list(&open_tag);
         }
-        open_tag.add_str(">").separator(" ");
-        let mut items = List::new();
-        items.add_list(open_tag);
+        open_tag.writer(|list| {list.add_str(">");});
+        let mut items = "\n".text_list();//List::new();
+        items.stem_solver(&open_tag, List::add_text);
         for item in self.items.iter() {
             item.add_self_to(&mut items);
         }
@@ -140,17 +140,17 @@ impl Item {
     }
 }
 
-#[derive(Clone, Serialize)]
+//#[derive(Clone)]
 enum Attribute {
     String(String),
-    Text(Text),
+    Text(TextSolver),
 }
 
 impl Attribute {
-    fn add_self_to_list(&self, list: &mut List) {
+    fn add_self_to_list(&self, text: &Text<List>) {
         match self {
-            Attribute::String(s) => list.add_str(s),
-            Attribute::Text(t) => list.add_text(t),
+            Attribute::String(s) => text.writer(|list| list.add_str(s)),
+            Attribute::Text(t) => text.stem_solver(t, List::add_text),
         };
     }
 }
