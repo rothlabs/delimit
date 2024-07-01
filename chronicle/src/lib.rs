@@ -1,5 +1,5 @@
-pub mod text;
 pub mod html;
+pub mod text;
 
 pub use text::Text;
 pub use text::{List, TextList}; //, TextString};

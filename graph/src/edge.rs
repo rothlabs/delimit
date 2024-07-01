@@ -121,6 +121,20 @@ where
     }
 }
 
+// impl<S> AddSolverStem for Edge<S>
+// where
+//     S: AddStem,
+//     S: Solve,
+// {
+//     type Unit = S::Unit; // <Task = Self::Task, Load = Self::Load>
+//     // type Load = S::Load;
+//     // type Task = S::Task;
+//     fn add_solver_stem<T, F: FnOnce(&mut S::Unit, T)>(&mut self, stem: T, add_stem: F) {
+//         let mut edge_stem = self.stem.write().expect(NO_POISON);
+//         edge_stem.add_stem(stem, add_stem);
+//     }
+// }
+
 impl<S> React for Edge<S> {
     fn clear(&mut self) -> Reactors {
         if let Some(root) = &self.root {

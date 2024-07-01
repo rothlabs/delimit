@@ -5,6 +5,12 @@ use crate::*;
 #[derive(Clone, Serialize, PartialEq)]
 pub struct Solver<U, W>(Link<edge::Solver<U, W>>);
 
+impl<U, W, T, L> SolveReact<T, L> for Solver<U, W> 
+where
+    U: Solve<Task = T, Load = L> + 'static,
+    W: Memory<Task = T, Load = L> + 'static,
+{}
+
 impl<U, W> FromUnit for Solver<U, W>
 where
     W: Default,
@@ -21,15 +27,30 @@ impl<U, W> WithReactor for Solver<U, W> {
     }
 }
 
+impl<U, W> SolverWithReactor for Solver<U, W>
+where
+    U: Solve<Task = W::Task, Load = W::Load> + 'static,
+    W: Memory + 'static,
+{
+    type Load = U::Load;
+    type Task = U::Task;
+    fn solver_with_reactor(
+        &self,
+        reactor: Reactor,
+    ) -> Box<dyn SolveReact<U::Task, U::Load>> {
+        Box::new(Self(self.0.with_reactor(reactor)))
+    }
+}
+
 // task solution
 impl<U, W> Solve for Solver<U, W>
 where
     U: Solve<Task = W::Task, Load = W::Load>,
     W: Memory,
 {
-    type Load = W::Load;
-    type Task = W::Task;
-    fn solve(&self, task: W::Task) -> W::Load {
+    type Load = U::Load;
+    type Task = U::Task;
+    fn solve(&self, task: U::Task) -> U::Load {
         self.0.solve(task)
     }
 }
@@ -64,6 +85,20 @@ where
     type Unit = U;
     fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F) {
         self.0.stemmer(stem, add_stem);
+    }
+}
+
+impl<U, W> StemSolver for Solver<U, W> 
+where 
+    U: Solve<Task = W::Task, Load = W::Load>,
+    U: React + 'static,
+    W: Memory + Clear + 'static,
+{
+    type Unit = U;
+    type Load = U::Load;
+    type Task = U::Task;
+    fn stem_solver<T: SolveReact<Self::Task, Self::Load>, F: FnOnce(&mut Self::Unit, Box<dyn SolveReact<Self::Task, Self::Load>>)>(&self, stem: &T, add_stem: F) {
+        self.0.stem_solver(stem, add_stem);
     }
 }
 

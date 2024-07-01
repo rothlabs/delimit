@@ -1,12 +1,12 @@
 // use serde::Serialize;
-use graph::*;
 use crate::text::*;
+use graph::*;
 
 use element::Element;
 
 mod attribute;
-mod tag;
 pub mod element;
+mod tag;
 
 // #[derive(Clone, Serialize)]
 pub struct Html(Solver<Element, Work>);

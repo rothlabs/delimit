@@ -18,6 +18,13 @@ pub trait Stemmer {
     fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F);
 }
 
+pub trait StemSolver {
+    type Unit;
+    type Load;
+    type Task;
+    fn stem_solver<T: SolveReact<Self::Task, Self::Load>, F: FnOnce(&mut Self::Unit, Box<dyn SolveReact<Self::Task, Self::Load>>)>(&self, stem: &T, add_stem: F);
+}
+
 #[derive(Clone)]
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
@@ -121,6 +128,24 @@ where
         let reactor_node = edge.reactor(); // make a reactor from edge stem
         let stem = stem.with_reactor(reactor_node); // make a new link with reactor node
         edge.add_stem(stem, add_stem);
+    }
+}
+
+impl<E> StemSolver for Link<E>
+where
+    E: ToReactor + AddStem,
+    E: Solve,
+{
+    type Unit = E::Unit;
+    // type Load = <E as read::Solve>::Load;
+    // type Task = <E as read::Solve>::Task;
+    type Load = E::Load;
+    type Task = E::Task;
+    fn stem_solver<T: SolveReact<Self::Task, Self::Load>, F: FnOnce(&mut Self::Unit, Box<dyn SolveReact<Self::Task, Self::Load>>)>(&self, stem: &T, add_stem: F) {
+        let mut edge = self.edge.write().expect(NO_POISON);
+        let reactor_node = edge.reactor(); // make a reactor from edge stem
+        let stem = stem.solver_with_reactor(reactor_node); // make a new link with reactor node
+        edge.add_stem(stem, add_stem); 
     }
 }
 

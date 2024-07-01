@@ -1,3 +1,5 @@
+use crate::*;
+
 use std::{
     collections::HashSet,
     hash::Hash,
@@ -21,6 +23,15 @@ pub trait AddReactor {
 
 pub trait WithReactor {
     fn with_reactor(&self, reactor: Reactor) -> Self;
+}
+
+pub trait SolverWithReactor {
+    type Task;
+    type Load;
+    fn solver_with_reactor(
+        &self,
+        reactor: Reactor,
+    ) -> Box<dyn SolveReact<Self::Task, Self::Load>>;
 }
 
 #[derive(Clone)]

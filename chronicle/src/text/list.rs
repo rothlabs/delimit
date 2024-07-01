@@ -20,7 +20,7 @@ impl List {
         sep.clone_into(&mut self.separator);
         self
     }
-    pub fn add_str(&mut self, item: &str) { 
+    pub fn add_str(&mut self, item: &str) {
         self.items.push(Item::String(item.to_owned()));
     }
     pub fn add_leaf(&mut self, item: Leaf<String>) {

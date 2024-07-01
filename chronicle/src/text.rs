@@ -29,18 +29,17 @@ where
         }
         panic!("should return Load::Leaf(Leaf<String>)")
     }
-    pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
-        self.0.stemmer(stem, add_stem);
-    }
     pub fn writer<F: FnOnce(&mut T::Unit)>(&self, write: F) {
         self.0.writer(write);
     }
+    pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
+        self.0.stem_solver(stem, add_stem);
+    }
 }
 
-//trait Wow: Solve<Task = Task, Load = Load> + WithReactor {}
+//trait TextSolve: Solve + SolverWithReactor {} // <Task = Task, Load = Load>
 
-// As a TextSolver stored in some unit, it should already have a Reactor known so WithReactor is not needed
-pub struct TextSolver(Box<dyn Solve<Task = Task, Load = Load>>);
+pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);
 
 // pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
 

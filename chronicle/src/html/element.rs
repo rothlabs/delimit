@@ -25,7 +25,7 @@ impl Element {
     }
     pub fn text(&self) -> Text<List> {
         let mut open_tag = " ".text_list();
-        open_tag.writer(|list| { 
+        open_tag.writer(|list| {
             list.add_str(&self.tag.open);
         });
         for att in self.attributes.iter() {
@@ -134,7 +134,7 @@ impl Item {
     fn add_self_to(&self, text: &Text<List>) {
         match self {
             Item::String(s) => text.writer(|list| list.add_str(s)),
-            Item::Text(t) => text.stemmer(t, List::add_text),
+            Item::Text(t) => text.stem_solver(t, List::add_text),
             //Item::Html(h) => list.add_text(&h.text()),
         };
     }
