@@ -2,11 +2,11 @@
 use graph::*;
 use crate::text::*;
 
-use unit::Element;
+use element::Element;
 
 mod attribute;
 mod tag;
-pub mod unit;
+pub mod element;
 
 // #[derive(Clone, Serialize)]
 pub struct Html(Solver<Element, Work>);
@@ -23,10 +23,9 @@ type Work = graph::Work<Task, Load>;
 enum Task {
     #[default]
     String,
-    Leaf,
 }
 
 #[derive(Clone)]
 enum Load {
-    
+    String(String),
 }

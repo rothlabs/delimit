@@ -7,7 +7,7 @@ mod tests;
 
 mod list;
 
-pub struct Text<T>(pub Solver<T, Work>);
+pub struct Text<T>(Solver<T, Work>);
 
 impl<T> Text<T>
 where
@@ -37,6 +37,33 @@ where
     }
 }
 
+//trait Wow: Solve<Task = Task, Load = Load> + WithReactor {}
+
+// As a TextSolver stored in some unit, it should already have a Reactor known so WithReactor is not needed
+pub struct TextSolver(Box<dyn Solve<Task = Task, Load = Load>>);
+
+// pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
+
+// impl TextSolver {
+//     fn solve(&self, task: Task) -> Load {
+//         self.0.0.solve(task)
+//     }
+// }
+
+// pub struct TextSolver(Box<dyn Solve<Task = Task, Load = Load>>);
+
+// impl TextSolver {
+//     fn solve(&self, task: Task) -> Load {
+//         self.0.solve(task)
+//     }
+// }
+
+// impl WithReactor for TextSolver {
+//     fn with_reactor(&self, reactor: Reactor) -> Self {
+//         self.0.
+//     }
+// }
+
 type Work = graph::Work<Task, Load>;
 
 #[derive(Default, Clone, Eq, PartialEq, Hash)]
@@ -61,24 +88,22 @@ impl Default for Load {
 pub enum Item {
     String(String),
     Leaf(Leaf<String>),
-    Text(Text<List>),
-    //Text(Text<Box<dyn TextUnit>>),
+    Text(TextSolver),
 }
-
-//pub trait TextUnit: Unit + Write + GraphString + Solve<Load = Load, Task = Task> + React + 'static {}
 
 impl Item {
     fn read<F: FnOnce(&String)>(&self, read: F) {
         match self {
             Item::String(string) => read(string),
             Item::Leaf(leaf) => leaf.reader(read),
-            Item::Text(text) => read(&text.string()),
+            Item::Text(text) => {
+                if let Load::String(string) = text.0.solve(Task::String) {
+                    read(&string);
+                }
+            }
         };
     }
 }
-
-
-
 
 // impl<T: Write> Writer for Text<T> {
 //     type Unit = T::Unit;

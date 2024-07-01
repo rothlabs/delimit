@@ -2,18 +2,11 @@ use std::cell::RefCell;
 
 use serde::Serialize;
 
-use crate::text::{
-    unit::{list, List},
-    Text,
-};
+use crate::text::*;
 
-use super::{attribute::*, html, tag::*, Html};
+use super::{attribute::*, tag::*, Html};
 
-pub fn doc() -> Element {
-    Element::default()
-}
-
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct Element {
     tag: &'static Tag,
     root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
@@ -22,17 +15,27 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn text(&self) -> Text {
-        let mut open_tag = list();
-        open_tag.add_str(&self.tag.open);
+    pub fn new() -> Self {
+        Self {
+            tag: &DOCTYPE,
+            root: None,
+            items: vec![],
+            attributes: vec![],
+        }
+    }
+    pub fn text(&self) -> Text<List> {
+        let mut open_tag = " ".text_list();
+        open_tag.writer(|list| { 
+            list.add_str(&self.tag.open);
+        });
         for att in self.attributes.iter() {
-            att.add_self_to_list(&mut open_tag);
+            att.add_self_to_list(&open_tag);
         }
         open_tag.add_str(">").separator(" ");
-        let mut items = list();
+        let mut items = List::new();
         items.add_list(open_tag);
         for item in self.items.iter() {
-            item.add_self_to_list(&mut items);
+            item.add_self_to(&mut items);
         }
         items.add_str(&self.tag.close).separator("\n");
         items.text()
@@ -116,28 +119,23 @@ impl Element {
 
 impl Default for Element {
     fn default() -> Self {
-        Element {
-            tag: &DOCTYPE,
-            root: None,
-            items: vec![],
-            attributes: vec![],
-        }
+        Element::new()
     }
 }
 
-#[derive(Clone, Serialize)]
+//#[derive(Clone)]
 enum Item {
     String(String),
-    Text(Text),
-    Html(Html),
+    Text(TextSolver),
+    //Html(Html),
 }
 
 impl Item {
-    fn add_self_to_list(&self, list: &mut List) {
+    fn add_self_to(&self, text: &Text<List>) {
         match self {
-            Item::String(s) => list.add_str(s),
-            Item::Text(t) => list.add_text(t),
-            Item::Html(h) => list.add_text(&h.text()),
+            Item::String(s) => text.writer(|list| list.add_str(s)),
+            Item::Text(t) => text.stemmer(t, List::add_text),
+            //Item::Html(h) => list.add_text(&h.text()),
         };
     }
 }

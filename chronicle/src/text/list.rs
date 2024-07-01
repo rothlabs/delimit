@@ -7,6 +7,9 @@ pub struct List {
 }
 
 impl List {
+    pub fn new() -> Self {
+        List::default()
+    }
     pub fn from_separator(sep: &str) -> Self {
         Self {
             items: vec![],
@@ -17,12 +20,14 @@ impl List {
         sep.clone_into(&mut self.separator);
         self
     }
-    pub fn add_str(&mut self, item: &str) -> &mut Self {
+    pub fn add_str(&mut self, item: &str) { 
         self.items.push(Item::String(item.to_owned()));
-        self
     }
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
+    }
+    pub fn add_text(&mut self, text: TextSolver) {
+        self.items.push(Item::Text(text));
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);

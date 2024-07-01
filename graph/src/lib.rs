@@ -31,7 +31,7 @@ pub trait FromUnit {
     fn new(unit: Self::Unit) -> Self;
 }
 
-/// Make a string. ToLeaf comes for free. 
+/// Make a string. ToLeaf comes for free.
 pub trait GraphString {
     fn string(&self) -> String;
 }
