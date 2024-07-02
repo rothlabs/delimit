@@ -25,23 +25,23 @@ pub trait WithReactor {
     fn with_reactor(&self, reactor: Reactor) -> Self;
 }
 
-pub trait SolverWithReactor {
-    type Task;
-    type Load;
-    fn solver_with_reactor(
-        &self,
-        reactor: Reactor,
-    ) -> Arc<RwLock<dyn Solve<Task = Self::Task, Load = Self::Load>>>;
-}
-
 // pub trait SolverWithReactor {
 //     type Task;
 //     type Load;
 //     fn solver_with_reactor(
 //         &self,
 //         reactor: Reactor,
-//     ) -> Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
+//     ) -> Arc<RwLock<dyn Solve<Task = Self::Task, Load = Self::Load>>>;
 // }
+
+pub trait SolverWithReactor {
+    type Task;
+    type Load;
+    fn solver_with_reactor(
+        &self,
+        reactor: Reactor,
+    ) -> Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
+}
 
 #[derive(Clone)]
 pub struct Reactor {

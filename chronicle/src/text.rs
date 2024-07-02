@@ -1,6 +1,5 @@
 use graph::*;
 
-use link::Solver;
 pub use list::{List, TextList};
 
 #[cfg(test)]
@@ -15,7 +14,7 @@ where
     T: Solve<Load = Load, Task = Task>,
     T: React + Write + 'static,
 {
-    fn new(unit: T) -> Self {
+    pub fn new(unit: T) -> Self {
         Self(UnitSolver::new(unit))
     }
     pub fn string(&self) -> String {
@@ -36,12 +35,6 @@ where
     pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
         self.0.stemmer(stem, add_stem);
     }
-    // pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
-    //     self.0.stem_solver(stem, add_stem);
-    // }
-    // pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
-    //     self.0.stem_solver(stem, add_stem);
-    // }
 }
 
 impl<U> WithReactor for Text<U> {
@@ -49,6 +42,12 @@ impl<U> WithReactor for Text<U> {
         Self (
             self.0.with_reactor(reactor)
         )
+    }
+}
+
+impl<U> Clone for Text<U> {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
     }
 }
 

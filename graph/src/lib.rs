@@ -8,8 +8,7 @@ pub mod repo;
 pub mod work;
 pub mod write;
 
-//pub use edge::Edge;
-pub use link::{Leaf, UnitSolver, Stemmer, StemSolver, ToLeaf};
+pub use link::{Leaf, UnitSolver, Stemmer, ToLeaf};
 pub use meta::Meta;
 pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, ToReactor, WithReactor};
 pub use read::{CloneUnit, Read, Reader, Solve};
@@ -25,25 +24,10 @@ pub trait ToSolver {
 
 pub trait SolveReact<T, L>: Solve<Task = T, Load = L> + SolverWithReactor<Task = T, Load = L> {}
 
-// pub trait SolveReact: Solve + SolverWithReactor 
-// where 
-//     <SolveReact as Solve>
-// {
-//     type Taske;
-//     type Load;
-// }
-
 pub trait AddStem {
     type Unit;
     fn add_stem<T, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
 }
-
-// pub trait AddSolverStem {
-//     type Unit;
-//     //type Task;
-//     //type Load; : SolveReact<Self::Task, Self::Load>
-//     fn add_solver_stem<T, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
-// }
 
 pub trait Clear {
     fn clear(&mut self);

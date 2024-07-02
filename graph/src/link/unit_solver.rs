@@ -4,10 +4,19 @@ use serde::Serialize;
 
 use crate::*;
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct UnitSolver<U, W>{
     edge: Arc<RwLock<edge::Solver<U, W>>>,
     meta: Meta,
+}
+
+impl<U, W> Clone for UnitSolver<U, W> {
+    fn clone(&self) -> Self {
+        Self {
+            edge: self.edge.clone(),
+            meta: self.meta.clone(),
+        }
+    }
 }
 
 impl<U, W> PartialEq for UnitSolver<U, W> {
@@ -37,7 +46,7 @@ where
     type Task = W::Task;
     type Load = W::Load;
     fn to_solver(&self) -> link::Solver<W::Task, W::Load> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Solve<Task = W::Task, Load = W::Load>>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn SolveReact<W::Task, W::Load>>>;
         link::Solver {
             edge,
             meta: self.meta.clone(),

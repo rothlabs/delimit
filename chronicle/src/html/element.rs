@@ -1,12 +1,8 @@
 use std::cell::RefCell;
 
-use serde::Serialize;
+use crate::text::{Text, List};
+use crate::html::*;
 
-use crate::text::*;
-
-use super::{attribute::*, tag::*, Html};
-
-//#[derive(Clone)]
 pub struct Element {
     tag: &'static Tag,
     root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
@@ -29,13 +25,13 @@ impl Element {
             list.add_str(&self.tag.open);
         });
         for att in self.attributes.iter() {
-            att.add_self_to_list(&open_tag);
+            att.collect(&open_tag);
         }
         open_tag.writer(|list| {list.add_str(">");});
         let mut items = "\n".text_list();
         items.stemmer(&open_tag, List::add_text);
         for item in self.items.iter() {
-            item.add_self_to(&mut items);
+            item.collect(&mut items);
         }
         items.writer(|list| {
             list.add_str(&self.tag.close);
@@ -52,7 +48,7 @@ impl Element {
             .as_ref()
             .expect("element should have a root")
             .replace(Element::default());
-        root.items.push(Item::Html(html(self)));
+        root.items.push(Item::Html(Html::new(self)));
         root
     }
     fn up(self, tag: &Tag) -> Self {
@@ -125,34 +121,13 @@ impl Default for Element {
     }
 }
 
-//#[derive(Clone)]
-enum Item {
-    String(String),
-    Text(TextSolver),
-    //Html(Html),
-}
-
-impl Item {
-    fn add_self_to(&self, text: &Text<List>) {
-        match self {
-            Item::String(s) => text.writer(|list| list.add_str(s)),
-            Item::Text(t) => text.stemmer(t, List::add_text),
-            //Item::Html(h) => list.add_text(&h.text()),
-        };
+impl Solve for Element {
+    type Task = Task;
+    type Load = Load;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        match task {
+            Task::Text => Load::Text(self.text()),
+        }
     }
 }
 
-//#[derive(Clone)]
-enum Attribute {
-    String(String),
-    Text(TextSolver),
-}
-
-impl Attribute {
-    fn add_self_to_list(&self, text: &Text<List>) {
-        match self {
-            Attribute::String(s) => text.writer(|list| list.add_str(s)),
-            Attribute::Text(t) => text.stem_solver(t, List::add_text),
-        };
-    }
-}

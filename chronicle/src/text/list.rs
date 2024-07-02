@@ -29,6 +29,9 @@ impl List {
     pub fn add_text<U: Solve<Task = Task, Load = Load> + 'static>(&mut self, text: Text<U>) {
         self.items.push(Item::Text(text.0.to_solver()));
     }
+    pub fn add_solver(&mut self, text: TextSolver) {
+        self.items.push(Item::Text(text));
+    }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
     }
