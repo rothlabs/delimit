@@ -40,8 +40,6 @@ impl List {
     }
 }
 
-impl Unit for List {}
-
 impl GraphString for List {
     fn string(&self) -> String {
         let mut string = String::new();

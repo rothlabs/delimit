@@ -11,8 +11,7 @@ pub struct Text<T>(UnitSolver<T, Work>);
 
 impl<T> Text<T>
 where
-    T: Solve<Load = Load, Task = Task>,
-    T: React + Write + 'static,
+    T: Solve<Load = Load, Task = Task> + React + 'static,
 {
     pub fn new(unit: T) -> Self {
         Self(UnitSolver::new(unit))
@@ -29,7 +28,7 @@ where
         }
         panic!("should return Load::Leaf(Leaf<String>)")
     }
-    pub fn writer<F: FnOnce(&mut T::Unit)>(&self, write: F) {
+    pub fn writer<F: FnOnce(&mut T)>(&self, write: F) {
         self.0.writer(write);
     }
     pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {

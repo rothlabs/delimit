@@ -50,12 +50,23 @@ where
 
 impl<U, W> Write for UnitSolver<U, W>
 where
-    U: Write,
     W: Clear,
 {
-    type Unit = U::Unit;
-    fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
-        self.unit.write(write);
+    type Unit = U;
+    fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
+        write(&mut self.unit);
+        self.work.clear();
+        self.reactors.cycle();
+    }
+}
+
+impl<U, W> WriteWithReactor for UnitSolver<U, W>
+where
+    W: Clear,
+{
+    type Unit = U;
+    fn write_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(&mut self, write: F, reactor: &Reactor) {
+        write(&mut self.unit, reactor);
         self.work.clear();
         self.reactors.cycle();
     }

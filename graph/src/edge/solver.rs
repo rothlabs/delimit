@@ -100,15 +100,26 @@ where
 
 impl<U, W> Writer for Solver<U, W>
 where
-    U: Write,
     W: Clear,
 {
-    type Unit = U::Unit;
+    type Unit = U;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
     }
 }
+
+// impl<U, W> WriterReact for Solver<U, W>
+// where
+//     U: WriteReact,// + React,
+//     W: Clear,
+// {
+//     type Unit = U::Unit;
+//     fn writer_react<F: FnOnce(&mut Self::Unit, Reactor)>(&self, write: F) {
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.write_react(write);
+//     }
+// }
 
 impl<U, W> AddStem for Solver<U, W> {
     type Unit = U;

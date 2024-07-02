@@ -10,11 +10,15 @@ pub trait Writer {
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F);
 }
 
-impl<T: Unit> Write for T {
-    type Unit = T;
-    fn write<F: FnOnce(&mut T)>(&mut self, write: F) {
-        write(self)
-    }
+pub trait WriteWithReactor {
+    type Unit;
+    fn write_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(&mut self, write: F, reactor: &Reactor);
+}
+
+
+pub trait WriterWithReactor {
+    type Unit;
+    fn writer_with_reactor<F: Fn(&mut Self::Unit, &Reactor)>(&self, write: F);
 }
 
 pub trait SolveMut {

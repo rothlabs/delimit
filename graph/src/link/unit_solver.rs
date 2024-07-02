@@ -4,7 +4,6 @@ use serde::Serialize;
 
 use crate::*;
 
-// #[derive(Clone)]
 pub struct UnitSolver<U, W>{
     edge: Arc<RwLock<edge::Solver<U, W>>>,
     meta: Meta,
@@ -109,13 +108,25 @@ where
 
 impl<U, W> Writer for UnitSolver<U, W>
 where
-    U: Write,
     W: Clear,
 {
-    type Unit = U::Unit;
+    type Unit = U; 
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer(write);
+    }
+}
+
+impl<U, W> WriterWithReactor for UnitSolver<U, W>
+where
+    U: React + 'static,
+    W: Clear + 'static,
+{
+    type Unit = U;
+    fn writer_with_reactor<F: Fn(&mut U, &Reactor)>(&self, write: F) {
+        let edge = self.edge.read().expect(NO_POISON);
+        let mut stem = edge.stem.write().expect(NO_POISON);
+        stem.write_with_reactor(write, &edge.reactor());
     }
 }
 
@@ -125,10 +136,10 @@ where
     W: Clear + 'static,
 {
     type Unit = U;
-    fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F) {
+    fn stemmer<T: WithReactor, F: FnOnce(&mut U, T)>(&self, stem: &T, add_stem: F) {
         let mut edge = self.edge.write().expect(NO_POISON);
-        let reactor_node = edge.reactor(); // make a reactor from edge stem
-        let stem = stem.with_reactor(reactor_node); // make a new link with reactor node
+        let reactor = edge.reactor(); // make a reactor from edge stem
+        let stem = stem.with_reactor(reactor); // make a new link with reactor node
         edge.add_stem(stem, add_stem);
     }
 }

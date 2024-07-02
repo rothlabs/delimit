@@ -14,7 +14,7 @@ pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, ToReact
 pub use read::{CloneUnit, Read, Reader, Solve};
 pub use repo::Repo;
 pub use work::Work;
-pub use write::{SolveMut, Write, Writer};
+pub use write::{SolveMut, Write, Writer, WriteWithReactor, WriterWithReactor};
 
 pub trait ToSolver {
     type Task;
@@ -42,9 +42,6 @@ pub trait FromUnit {
 pub trait GraphString {
     fn string(&self) -> String;
 }
-
-/// Marker resulting in Read + Write
-pub trait Unit {}
 
 pub trait Memory {
     type Task: Clone;
