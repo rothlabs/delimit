@@ -17,6 +17,12 @@ pub use repo::Repo;
 pub use work::Work;
 pub use write::{SolveMut, Write, Writer};
 
+pub trait ToSolver {
+    type Task;
+    type Load;
+    fn to_solver(&self) -> link::Solver<Self::Task, Self::Load>;
+}
+
 pub trait SolveReact<T, L>: Solve<Task = T, Load = L> + SolverWithReactor<Task = T, Load = L> {}
 
 // pub trait SolveReact: Solve + SolverWithReactor 

@@ -33,7 +33,7 @@ impl Element {
         }
         open_tag.writer(|list| {list.add_str(">");});
         let mut items = "\n".text_list();//List::new();
-        items.stem_solver(&open_tag, List::add_text);
+        items.stemmer(&open_tag, List::add_text);
         for item in self.items.iter() {
             item.add_self_to(&mut items);
         }

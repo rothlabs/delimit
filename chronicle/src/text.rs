@@ -1,5 +1,6 @@
 use graph::*;
 
+use link::Solver;
 pub use list::{List, TextList};
 
 #[cfg(test)]
@@ -38,61 +39,20 @@ where
     // pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
     //     self.0.stem_solver(stem, add_stem);
     // }
+    // pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
+    //     self.0.stem_solver(stem, add_stem);
+    // }
 }
 
-// impl<T> SolveReact<Task, Load> for Text<T> 
-// where 
-//     T: Solve<Load = Load, Task = Task> + 'static
-// {}
-
-// impl<T> Solve for Text<T> 
-// where 
-//     T: Solve<Load = Load, Task = Task> + 'static,
-// {
-//     type Load = Load;
-//     type Task = Task;
-//     fn solve(&self, task: Self::Task) -> Self::Load {
-//         self.0.solve(task)
-//     }
-// }
-
-// impl<T> SolverWithReactor for Text<T> 
-// where 
-//     T: Solve<Load = Load, Task = Task> + 'static,
-// {
-//     type Load = Load;
-//     type Task = Task;
-//     fn solver_with_reactor(
-//             &self,
-//             reactor: Reactor,
-//         ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
-//         self.0.solver_with_reactor(reactor)
-//     }
-// }
-
-
-pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);
-
-impl SolveReact<Task, Load> for TextSolver {}
-
-impl Solve for TextSolver {
-    type Load = Load;
-    type Task = Task;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        self.0.solve(task)
+impl<U> WithReactor for Text<U> {
+    fn with_reactor(&self, reactor: Reactor) -> Self {
+        Self (
+            self.0.with_reactor(reactor)
+        )
     }
 }
 
-impl SolverWithReactor for TextSolver {
-    type Load = Load;
-    type Task = Task;
-    fn solver_with_reactor(
-            &self,
-            reactor: Reactor,
-        ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
-        self.0.solver_with_reactor(reactor)
-    }
-}
+pub type TextSolver = link::Solver<Task, Load>;
 
 type Work = graph::Work<Task, Load>;
 
@@ -127,13 +87,74 @@ impl Item {
             Item::String(string) => read(string),
             Item::Leaf(leaf) => leaf.reader(read),
             Item::Text(text) => {
-                if let Load::String(string) = text.0.solve(Task::String) {
+                if let Load::String(string) = text.solve(Task::String) {
                     read(&string);
                 }
             }
         };
     }
 }
+
+
+
+// impl<T> SolveReact<Task, Load> for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static
+// {}
+
+// impl<T> Solve for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static,
+// {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solve(&self, task: Self::Task) -> Self::Load {
+//         self.0.solve(task)
+//     }
+// }
+
+// impl<T> SolverWithReactor for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static,
+// {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solver_with_reactor(
+//             &self,
+//             reactor: Reactor,
+//         ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
+//         self.0.solver_with_reactor(reactor)
+//     }
+// }
+
+ ///////////////////////////////////////////////////////
+
+// pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);
+
+// impl SolveReact<Task, Load> for TextSolver {}
+
+// impl Solve for TextSolver {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solve(&self, task: Self::Task) -> Self::Load {
+//         self.0.solve(task)
+//     }
+// }
+
+// impl SolverWithReactor for TextSolver {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solver_with_reactor(
+//             &self,
+//             reactor: Reactor,
+//         ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
+//         self.0.solver_with_reactor(reactor)
+//     }
+// }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 // pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
 

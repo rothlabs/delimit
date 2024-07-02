@@ -29,11 +29,18 @@ where
     }
 }
 
-impl<U, W> WithReactor for UnitSolver<U, W> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
-            edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
+impl<U, W> ToSolver for UnitSolver<U, W> 
+where 
+    U: 'static,
+    W: Memory + 'static,
+{
+    type Task = W::Task;
+    type Load = W::Load;
+    fn to_solver(&self) -> link::Solver<Self::Task, Self::Load> {
+        //let edge = self.edge.read().expect(NO_POISON);
+        let edge = self.edge.clone() as Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
+        link::Solver {
+            edge,
             meta: self.meta.clone(),
         }
     }
@@ -53,20 +60,15 @@ where
     }
 }
 
-// impl<U, W> SolverWithReactor for UnitSolver<U, W>
-// where
-//     U: Solve<Task = W::Task, Load = W::Load> + 'static,
-//     W: Memory + 'static,
-// {
-//     type Load = U::Load;
-//     type Task = U::Task;
-//     fn solver_with_reactor(
-//         &self,
-//         reactor: Reactor,
-//     ) -> Box<dyn SolveReact<U::Task, U::Load>> {
-//         Box::new(Self(self.0.with_reactor(reactor)))
-//     }
-// }
+impl<U, W> WithReactor for UnitSolver<U, W> {
+    fn with_reactor(&self, reactor: Reactor) -> Self {
+        let edge = self.edge.read().expect(NO_POISON);
+        Self {
+            edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
+            meta: self.meta.clone(),
+        }
+    }
+}
 
 // task solution
 impl<U, W> Solve for UnitSolver<U, W>
@@ -131,6 +133,22 @@ impl<U, W> Serialize for  UnitSolver<U, W>  {
         self.meta.serialize(serializer)
     }
 }
+
+
+// impl<U, W> SolverWithReactor for UnitSolver<U, W>
+// where
+//     U: Solve<Task = W::Task, Load = W::Load> + 'static,
+//     W: Memory + 'static,
+// {
+//     type Load = U::Load;
+//     type Task = U::Task;
+//     fn solver_with_reactor(
+//         &self,
+//         reactor: Reactor,
+//     ) -> Box<dyn SolveReact<U::Task, U::Load>> {
+//         Box::new(Self(self.0.with_reactor(reactor)))
+//     }
+// }
 
 // impl<U, W> StemSolver for UnitSolver<U, W> 
 // where 

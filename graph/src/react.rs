@@ -3,7 +3,7 @@ use crate::*;
 use std::{
     collections::HashSet,
     hash::Hash,
-    sync::{RwLock, Weak},
+    sync::{Arc, RwLock, Weak},
 };
 
 use crate::{Meta, NO_POISON};
@@ -25,13 +25,23 @@ pub trait WithReactor {
     fn with_reactor(&self, reactor: Reactor) -> Self;
 }
 
+// pub trait SolverWithReactor {
+//     type Wow;
+//     type Task;
+//     type Load;
+//     fn solver_with_reactor(
+//         &self,
+//         reactor: Reactor,
+//     ) -> Arc<RwLock<Self::Wow>>;
+// }
+
 pub trait SolverWithReactor {
     type Task;
     type Load;
     fn solver_with_reactor(
         &self,
         reactor: Reactor,
-    ) -> Box<dyn SolveReact<Self::Task, Self::Load>>;
+    ) -> Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
 }
 
 #[derive(Clone)]
