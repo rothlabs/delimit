@@ -31,14 +31,13 @@ where
 
 impl<U, W> ToSolver for UnitSolver<U, W> 
 where 
-    U: 'static,
+    U: Solve<Task = W::Task, Load = W::Load> + 'static,
     W: Memory + 'static,
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn to_solver(&self) -> link::Solver<Self::Task, Self::Load> {
-        //let edge = self.edge.read().expect(NO_POISON);
-        let edge = self.edge.clone() as Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
+    fn to_solver(&self) -> link::Solver<W::Task, W::Load> {
+        let edge = self.edge.clone() as Arc<RwLock<dyn Solve<Task = W::Task, Load = W::Load>>>;
         link::Solver {
             edge,
             meta: self.meta.clone(),

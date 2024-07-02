@@ -24,7 +24,7 @@ impl Element {
         }
     }
     pub fn text(&self) -> Text<List> {
-        let mut open_tag = " ".text_list();
+        let open_tag = " ".text_list();
         open_tag.writer(|list| {
             list.add_str(&self.tag.open);
         });
@@ -32,13 +32,15 @@ impl Element {
             att.add_self_to_list(&open_tag);
         }
         open_tag.writer(|list| {list.add_str(">");});
-        let mut items = "\n".text_list();//List::new();
+        let mut items = "\n".text_list();
         items.stemmer(&open_tag, List::add_text);
         for item in self.items.iter() {
             item.add_self_to(&mut items);
         }
-        items.add_str(&self.tag.close).separator("\n");
-        items.text()
+        items.writer(|list| {
+            list.add_str(&self.tag.close);
+        });
+        items
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.items.push(Item::String(value.to_owned()));
@@ -134,7 +136,7 @@ impl Item {
     fn add_self_to(&self, text: &Text<List>) {
         match self {
             Item::String(s) => text.writer(|list| list.add_str(s)),
-            Item::Text(t) => text.stem_solver(t, List::add_text),
+            Item::Text(t) => text.stemmer(t, List::add_text),
             //Item::Html(h) => list.add_text(&h.text()),
         };
     }

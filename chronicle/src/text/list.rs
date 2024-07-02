@@ -26,9 +26,8 @@ impl List {
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
     }
-    pub fn add_text<U>(&mut self, text: Text<U>) {
-        
-        self.items.push(Item::Text(text));
+    pub fn add_text<U: Solve<Task = Task, Load = Load> + 'static>(&mut self, text: Text<U>) {
+        self.items.push(Item::Text(text.0.to_solver()));
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);

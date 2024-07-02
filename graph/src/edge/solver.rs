@@ -23,11 +23,11 @@ where
     }
 }
 
-impl<U, W, T, L> SolveReact<T, L> for Solver<U, W> 
-where
-    U: Solve<Task = T, Load = L> + 'static,
-    W: Memory<Task = T, Load = L> + 'static,
-{}
+// impl<U, W, T, L> SolveReact<T, L> for Solver<U, W> 
+// where
+//     U: Solve<Task = T, Load = L> + 'static,
+//     W: Memory<Task = T, Load = L> + 'static,
+// {}
 
 
 // impl<U, W> SolverWithReactor for Solver<U, W>
