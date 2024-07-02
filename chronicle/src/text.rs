@@ -9,11 +9,11 @@ mod list;
 
 pub struct Text<T>(UnitSolver<T, Work>);
 
-impl<T> Text<T>
+impl<U> Text<U>
 where
-    T: Solve<Load = Load, Task = Task> + React + 'static,
+    U: Solve<Load = Load, Task = Task> + React + 'static,
 {
-    pub fn new(unit: T) -> Self {
+    pub fn new(unit: U) -> Self {
         Self(UnitSolver::new(unit))
     }
     pub fn string(&self) -> String {
@@ -28,16 +28,19 @@ where
         }
         panic!("should return Load::Leaf(Leaf<String>)")
     }
-    pub fn writer<F: FnOnce(&mut T)>(&self, write: F) {
+    pub fn writer<F: FnOnce(&mut U)>(&self, write: F) {
         self.0.writer(write);
     }
-    pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
+    pub fn writer_with_reactor<F: Fn(&mut U, &Reactor)>(&self, writer: F) {
+        self.0.writer_with_reactor(writer);
+    }
+    pub fn stemmer<S: WithReactor, F: FnOnce(&mut U, S)>(&self, stem: &S, add_stem: F) {
         self.0.stemmer(stem, add_stem);
     }
 }
 
 impl<U> WithReactor for Text<U> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         Self (
             self.0.with_reactor(reactor)
         )

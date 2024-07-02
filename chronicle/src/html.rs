@@ -59,11 +59,11 @@ enum Item {
 }
 
 impl Item {
-    fn collect(&self, text: &Text<List>) {
+    fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
-            Item::String(string) => text.writer(|list| list.add_str(string)),
+            Item::String(string) => list.add_str(string),
             // Item::Text(solver) => text.stemmer(solver, List::add_solver),
-            Item::Html(html) => text.stemmer(&html.text(), List::add_text), // list.add_text(&h.text()),
+            Item::Html(html) => list.add_text(&html.text().with_reactor(reactor))
         };
     }
 }
@@ -74,10 +74,30 @@ enum Attribute {
 }
 
 impl Attribute {
-    fn collect(&self, text: &Text<List>) {
+    fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
-            Attribute::String(string) => text.writer(|list| list.add_str(string)),
-            Attribute::Text(solver) => text.stemmer(solver, List::add_solver),
+            Attribute::String(string) => list.add_str(string),
+            Attribute::Text(solver) => list.add_solver(solver.with_reactor(reactor)),
         };
     }
 }
+
+
+// impl Item {
+//     fn collect(&self, text: &Text<List>) {
+//         match self {
+//             Item::String(string) => text.writer(|list| list.add_str(string)),
+//             // Item::Text(solver) => text.stemmer(solver, List::add_solver),
+//             Item::Html(html) => text.stemmer(&html.text(), List::add_text), // list.add_text(&h.text()),
+//         };
+//     }
+// }
+
+// impl Attribute {
+//     fn collect(&self, text: &Text<List>) {
+//         match self {
+//             Attribute::String(string) => text.writer(|list| list.add_str(string)),
+//             Attribute::Text(solver) => text.stemmer(solver, List::add_solver),
+//         };
+//     }
+// }

@@ -68,7 +68,7 @@ where
 }
 
 impl<U, W> WithReactor for UnitSolver<U, W> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
@@ -139,7 +139,7 @@ where
     fn stemmer<T: WithReactor, F: FnOnce(&mut U, T)>(&self, stem: &T, add_stem: F) {
         let mut edge = self.edge.write().expect(NO_POISON);
         let reactor = edge.reactor(); // make a reactor from edge stem
-        let stem = stem.with_reactor(reactor); // make a new link with reactor node
+        let stem = stem.with_reactor(&reactor); // make a new link with reactor node
         edge.add_stem(stem, add_stem);
     }
 }

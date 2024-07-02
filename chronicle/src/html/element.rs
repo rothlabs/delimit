@@ -14,22 +14,26 @@ impl Element {
     pub fn new() -> Self {
         Element::default()
     }
+    fn open_tag(&self, list: &mut List, reactor: &Reactor) {
+        list.add_str(&self.tag.open);
+        for att in self.attributes.iter() {
+            att.collect(list, reactor);
+        }
+        list.add_str(">");
+    }
+    fn write_body(&self, list: &mut List, reactor: &Reactor) {
+        for item in self.items.iter() {
+            item.collect(list, reactor);
+        }
+        list.add_str(&self.tag.close);
+    }
     pub fn text(&self) -> Text<List> {
         let open_tag = " ".text_list();
-        open_tag.writer(|list| {
-            list.add_str(&self.tag.open);
-        });
-        for att in self.attributes.iter() {
-            att.collect(&open_tag);
-        }
-        open_tag.writer(|list| {list.add_str(">");});
-        let mut items = "\n".text_list();
-        items.stemmer(&open_tag, List::add_text);
-        for item in self.items.iter() {
-            item.collect(&mut items);
-        }
-        items.writer(|list| {
-            list.add_str(&self.tag.close);
+        open_tag.writer_with_reactor(|list, reactor| self.open_tag(list, reactor));
+        let items = "\n".text_list();
+        items.writer_with_reactor(|list, reactor| {
+            list.add_text(&open_tag); 
+            self.write_body(list, reactor);
         });
         items
     }

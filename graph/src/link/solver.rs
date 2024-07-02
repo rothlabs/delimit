@@ -18,10 +18,10 @@ impl<T, L> Solve for Solver<T, L> {
 }
 
 impl<T, L> WithReactor for Solver<T, L> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.solver_with_reactor(reactor), 
+            edge: edge.solver_with_reactor(reactor.clone()), 
             meta: self.meta.clone(),
         }
     }

@@ -27,7 +27,7 @@ impl<U> FromUnit for Leaf<U> {
 }
 
 impl WithReactor for Leaf<String> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),

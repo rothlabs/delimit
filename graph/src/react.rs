@@ -22,7 +22,7 @@ pub trait AddReactor {
 }
 
 pub trait WithReactor {
-    fn with_reactor(&self, reactor: Reactor) -> Self;
+    fn with_reactor(&self, reactor: &Reactor) -> Self;
 }
 
 // pub trait SolverWithReactor {

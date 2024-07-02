@@ -21,9 +21,9 @@ impl<U> FromUnit for Leaf<U> {
 }
 
 impl<U> WithReactor for Leaf<U> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         Self {
-            root: Some(reactor),
+            root: Some(reactor.clone()),
             stem: self.stem.clone(),
             meta: self.meta.clone(),
         }

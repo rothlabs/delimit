@@ -65,9 +65,9 @@ where
 }
 
 impl<U, W> WithReactor for Solver<U, W> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
         Self {
-            root: Some(reactor),
+            root: Some(reactor.clone()),
             stem: self.stem.clone(),
             meta: self.meta.clone(),
         }
