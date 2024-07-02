@@ -1,7 +1,13 @@
+use std::sync::{Arc, RwLock};
+
 use crate::*;
 
 #[derive(Clone)]
-pub struct Solver<U, W>(Edge<node::Solver<U, W>>);
+pub struct Solver<U, W>{
+    pub root: Option<Reactor>,
+    pub stem: Arc<RwLock<node::UnitSolver<U, W>>>,
+    pub meta: Meta,
+}
 
 impl<U, W> FromUnit for Solver<U, W>
 where
@@ -9,7 +15,11 @@ where
 {
     type Unit = U;
     fn new(unit: Self::Unit) -> Self {
-        Self(edge::Edge::new(unit))
+        Self {
+            root: None,
+            stem: Arc::new(RwLock::new(node::UnitSolver::new(unit))),
+            meta: Meta::new(),
+        }
     }
 }
 
@@ -19,13 +29,21 @@ where
     W: Clear + 'static,
 {
     fn reactor(&self) -> Reactor {
-        self.0.reactor()
+        let stem = self.stem.clone() as Arc<RwLock<dyn React>>;
+        Reactor {
+            item: Arc::downgrade(&stem),
+            meta: self.meta.clone(),
+        }
     }
 }
 
 impl<U, W> WithReactor for Solver<U, W> {
     fn with_reactor(&self, reactor: Reactor) -> Self {
-        Self(self.0.with_reactor(reactor))
+        Self {
+            root: Some(reactor),
+            stem: self.stem.clone(),
+            meta: self.meta.clone(),
+        }
     }
 }
 
@@ -37,7 +55,8 @@ where
     type Load = W::Load;
     type Task = W::Task;
     fn solve(&self, task: W::Task) -> W::Load {
-        self.0.solve(task)
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.solve_mut(task)
     }
 }
 
@@ -47,7 +66,8 @@ where
 {
     type Unit = U::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        self.0.reader(read);
+        let stem = self.stem.read().expect(NO_POISON);
+        read(stem.read());
     }
 }
 
@@ -58,28 +78,37 @@ where
 {
     type Unit = U::Unit;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
-        self.0.writer(write);
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.write(write);
     }
 }
 
 impl<U, W> AddStem for Solver<U, W> {
     type Unit = U;
     fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
-        self.0.add_stem(stem, add_stem);
+        let mut edge_stem = self.stem.write().expect(NO_POISON);
+        edge_stem.add_stem(stem, add_stem);
     }
 }
 
 impl<U, W> AddReactor for Solver<U, W> {
     fn add_reactor(&mut self, reactor: Reactor) {
-        self.0.add_reactor(reactor);
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.add_reactor(reactor);
     }
 }
 
 impl<U, W> React for Solver<U, W> {
     fn clear(&mut self) -> Reactors {
-        self.0.clear()
+        if let Some(root) = &self.root {
+            root.clear()
+        } else {
+            Reactors::default()
+        }
     }
     fn react(&mut self) {
-        self.0.react();
+        if let Some(root) = &self.root {
+            root.react();
+        }
     }
 }

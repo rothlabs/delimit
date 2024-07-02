@@ -1,4 +1,4 @@
-pub mod html;
+//pub mod html;
 pub mod text;
 
 pub use text::Text;

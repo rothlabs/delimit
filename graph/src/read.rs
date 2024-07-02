@@ -27,3 +27,19 @@ pub trait Solve {
     type Load;
     fn solve(&self, task: Self::Task) -> Self::Load;
 }
+
+
+// // pub struct TaskLoad<T, L> {
+// //     task: T,
+// //     laod: L,
+// // }
+
+pub trait TaskLoad {
+    type Task;
+    type Load;
+}
+
+pub trait Solve2 {
+    type Work: TaskLoad;
+    fn solve(&self, task: <Self::Work as TaskLoad>::Task) -> <Self::Work as TaskLoad>::Load;
+}

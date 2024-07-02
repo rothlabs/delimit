@@ -1,125 +1,156 @@
-use std::sync::{Arc, RwLock};
-
-use serde::Serialize;
-
-use crate::*;
-
 pub use leaf::Leaf;
 pub use solver::Solver;
 
 mod leaf;
 mod solver;
 
-pub struct Edge<S> {
-    pub root: Option<Reactor>,
-    pub stem: Arc<RwLock<S>>,
-    pub meta: Meta,
-}
+// pub struct Edge<S> {
+//     pub root: Option<Reactor>,
+//     pub stem: Arc<RwLock<S>>,
+//     pub meta: Meta,
+// }
 
-impl<S> FromUnit for Edge<S>
-where
-    S: FromUnit,
-{
-    type Unit = S::Unit;
-    fn new(unit: Self::Unit) -> Self {
-        Self {
-            root: None,
-            stem: Arc::new(RwLock::new(S::new(unit))),
-            meta: Meta::new(),
-        }
-    }
-}
+// impl<S> FromUnit for Edge<S>
+// where
+//     S: FromUnit,
+// {
+//     type Unit = S::Unit;
+//     fn new(unit: Self::Unit) -> Self {
+//         Self {
+//             root: None,
+//             stem: Arc::new(RwLock::new(S::new(unit))),
+//             meta: Meta::new(),
+//         }
+//     }
+// }
 
-impl<S> WithReactor for Edge<S> {
-    fn with_reactor(&self, reactor: Reactor) -> Self {
-        Self {
-            root: Some(reactor),
-            stem: self.stem.clone(),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// impl<S> WithReactor for Edge<S> {
+//     fn with_reactor(&self, reactor: Reactor) -> Self {
+//         Self {
+//             root: Some(reactor),
+//             stem: self.stem.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
-/// make a reactor from the stem for use as the root of another edge
-impl<S> ToReactor for Edge<S>
-where
-    S: React + 'static,
-{
-    fn reactor(&self) -> Reactor {
-        let stem = self.stem.clone() as Arc<RwLock<dyn React>>;
-        Reactor {
-            item: Arc::downgrade(&stem),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// /// make a reactor from the stem for use as the root of another edge
+// impl<S> ToReactor for Edge<S>
+// where
+//     S: React + 'static,
+// {
+//     fn reactor(&self) -> Reactor {
+//         let stem = self.stem.clone() as Arc<RwLock<dyn React>>;
+//         Reactor {
+//             item: Arc::downgrade(&stem),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
-impl<S> Reader for Edge<S>
-where
-    S: Read,
-{
-    type Unit = S::Unit;
-    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        let stem = self.stem.read().expect(NO_POISON);
-        read(stem.read());
-    }
-}
+// impl<S> Reader for Edge<S>
+// where
+//     S: Read,
+// {
+//     type Unit = S::Unit;
+//     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+//         let stem = self.stem.read().expect(NO_POISON);
+//         read(stem.read());
+//     }
+// }
 
-impl<S> CloneUnit for Edge<S>
-where
-    S: Read,
-    S::Unit: Clone,
-{
-    type Unit = S::Unit;
-    fn unit(&self) -> S::Unit {
-        let stem = self.stem.read().expect(NO_POISON);
-        stem.read().clone()
-    }
-}
+// impl<S> CloneUnit for Edge<S>
+// where
+//     S: Read,
+//     S::Unit: Clone,
+// {
+//     type Unit = S::Unit;
+//     fn unit(&self) -> S::Unit {
+//         let stem = self.stem.read().expect(NO_POISON);
+//         stem.read().clone()
+//     }
+// }
 
-impl<S> Solve for Edge<S>
-where
-    S: SolveMut,
-{
-    type Load = S::Load;
-    type Task = S::Task;
-    fn solve(&self, task: S::Task) -> S::Load {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve_mut(task)
-    }
-}
+// impl<S> Solve for Edge<S>
+// where
+//     S: SolveMut,
+// {
+//     type Load = S::Load;
+//     type Task = S::Task;
+//     fn solve(&self, task: S::Task) -> S::Load {
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.solve_mut(task)
+//     }
+// }
 
-impl<S> Writer for Edge<S>
-where
-    S: Write,
-{
-    type Unit = S::Unit;
-    fn writer<F: FnOnce(&mut S::Unit)>(&self, write: F) {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.write(write);
-    }
-}
+// impl<S> Writer for Edge<S>
+// where
+//     S: Write,
+// {
+//     type Unit = S::Unit;
+//     fn writer<F: FnOnce(&mut S::Unit)>(&self, write: F) {
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.write(write);
+//     }
+// }
 
-impl<S> AddReactor for Edge<S>
-where
-    S: AddReactor,
-{
-    fn add_reactor(&mut self, reactor: Reactor) {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_reactor(reactor);
-    }
-}
+// impl<S> AddReactor for Edge<S>
+// where
+//     S: AddReactor,
+// {
+//     fn add_reactor(&mut self, reactor: Reactor) {
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.add_reactor(reactor);
+//     }
+// }
 
-impl<S> AddStem for Edge<S>
-where
-    S: AddStem,
-{
-    type Unit = S::Unit;
-    fn add_stem<T, F: FnOnce(&mut S::Unit, T)>(&mut self, stem: T, add_stem: F) {
-        let mut edge_stem = self.stem.write().expect(NO_POISON);
-        edge_stem.add_stem(stem, add_stem);
-    }
-}
+// impl<S> AddStem for Edge<S>
+// where
+//     S: AddStem,
+// {
+//     type Unit = S::Unit;
+//     fn add_stem<T, F: FnOnce(&mut S::Unit, T)>(&mut self, stem: T, add_stem: F) {
+//         let mut edge_stem = self.stem.write().expect(NO_POISON);
+//         edge_stem.add_stem(stem, add_stem);
+//     }
+// }
+
+// impl<S> React for Edge<S> {
+//     fn clear(&mut self) -> Reactors {
+//         if let Some(root) = &self.root {
+//             root.clear()
+//         } else {
+//             Reactors::default()
+//         }
+//     }
+//     fn react(&mut self) {
+//         if let Some(root) = &self.root {
+//             root.react();
+//         }
+//     }
+// }
+
+// impl<S> Clone for Edge<S> {
+//     fn clone(&self) -> Self {
+//         Self {
+//             root: None,
+//             stem: self.stem.clone(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
+
+// impl<St> Serialize for Edge<St> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.meta.serialize(serializer)
+//     }
+// }
+
+
+////////////////////////////////////////////////////////////////
 
 // impl<S> AddSolverStem for Edge<S>
 // where
@@ -134,40 +165,6 @@ where
 //         edge_stem.add_stem(stem, add_stem);
 //     }
 // }
-
-impl<S> React for Edge<S> {
-    fn clear(&mut self) -> Reactors {
-        if let Some(root) = &self.root {
-            root.clear()
-        } else {
-            Reactors::default()
-        }
-    }
-    fn react(&mut self) {
-        if let Some(root) = &self.root {
-            root.react();
-        }
-    }
-}
-
-impl<S> Clone for Edge<S> {
-    fn clone(&self) -> Self {
-        Self {
-            root: None,
-            stem: self.stem.clone(),
-            meta: self.meta.clone(),
-        }
-    }
-}
-
-impl<St> Serialize for Edge<St> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}
 
 // impl<S> AddStem for Edge<S>
 // where

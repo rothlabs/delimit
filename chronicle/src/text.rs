@@ -7,7 +7,7 @@ mod tests;
 
 mod list;
 
-pub struct Text<T>(Solver<T, Work>);
+pub struct Text<T>(UnitSolver<T, Work>);
 
 impl<T> Text<T>
 where
@@ -15,7 +15,7 @@ where
     T: React + Write + 'static,
 {
     fn new(unit: T) -> Self {
-        Self(Solver::new(unit))
+        Self(UnitSolver::new(unit))
     }
     pub fn string(&self) -> String {
         if let Load::String(string) = self.0.solve(Task::String) {
@@ -35,40 +35,40 @@ where
     pub fn stemmer<S: WithReactor, F: FnOnce(&mut T, S)>(&self, stem: &S, add_stem: F) {
         self.0.stemmer(stem, add_stem);
     }
-    pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
-        self.0.stem_solver(stem, add_stem);
-    }
+    // pub fn stem_solver<S: SolveReact<Task, Load>, F: FnOnce(&mut T, Box<dyn SolveReact<Task, Load>>)>(&self, stem: &S, add_stem: F) {
+    //     self.0.stem_solver(stem, add_stem);
+    // }
 }
 
-impl<T> SolveReact<Task, Load> for Text<T> 
-where 
-    T: Solve<Load = Load, Task = Task> + 'static
-{}
+// impl<T> SolveReact<Task, Load> for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static
+// {}
 
-impl<T> Solve for Text<T> 
-where 
-    T: Solve<Load = Load, Task = Task> + 'static,
-{
-    type Load = Load;
-    type Task = Task;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        self.0.solve(task)
-    }
-}
+// impl<T> Solve for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static,
+// {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solve(&self, task: Self::Task) -> Self::Load {
+//         self.0.solve(task)
+//     }
+// }
 
-impl<T> SolverWithReactor for Text<T> 
-where 
-    T: Solve<Load = Load, Task = Task> + 'static,
-{
-    type Load = Load;
-    type Task = Task;
-    fn solver_with_reactor(
-            &self,
-            reactor: Reactor,
-        ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
-        self.0.solver_with_reactor(reactor)
-    }
-}
+// impl<T> SolverWithReactor for Text<T> 
+// where 
+//     T: Solve<Load = Load, Task = Task> + 'static,
+// {
+//     type Load = Load;
+//     type Task = Task;
+//     fn solver_with_reactor(
+//             &self,
+//             reactor: Reactor,
+//         ) -> Box<dyn SolveReact<Self::Task, Self::Load>> {
+//         self.0.solver_with_reactor(reactor)
+//     }
+// }
 
 
 pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);

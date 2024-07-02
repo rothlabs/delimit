@@ -1,41 +1,89 @@
+use std::sync::{Arc, RwLock};
+
 use serde::Serialize;
 
 use crate::*;
 
-#[derive(Clone, Serialize, PartialEq)]
-pub struct Leaf<U>(Link<edge::Leaf<U>>);
+#[derive(Clone)]
+pub struct Leaf<U> {
+    edge: Arc<RwLock<edge::Leaf<U>>>,
+    meta: Meta,
+}
+
+impl<U> PartialEq for Leaf<U> {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::<RwLock<edge::Leaf<U>>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+    }
+}
 
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
     fn new(unit: U) -> Self {
-        Self(Link::new(unit))
+        Self {
+            edge: Arc::new(RwLock::new(edge::Leaf::new(unit))),
+            meta: Meta::new(),
+        }
     }
 }
 
 impl WithReactor for Leaf<String> {
     fn with_reactor(&self, reactor: Reactor) -> Self {
-        Self(self.0.with_reactor(reactor))
+        let edge = self.edge.read().expect(NO_POISON);
+        Self {
+            edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
+            meta: self.meta.clone(),
+        }
     }
 }
 
-impl<U: 'static> Reader for Leaf<U> {
+impl<U> ToReactor for Leaf<U>
+where
+    U: 'static,
+{
+    fn reactor(&self) -> Reactor {
+        let edge = self.edge.clone() as Arc<RwLock<dyn React>>;
+        Reactor {
+            item: Arc::downgrade(&edge),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
+impl<U> Reader for Leaf<U> 
+where 
+    U: 'static,
+{
     type Unit = U;
     fn reader<F: FnOnce(&U)>(&self, read: F) {
-        self.0.reader(read);
+        let mut edge = self.edge.write().expect(NO_POISON);
+        edge.reader(read);
+        let reactor = self.reactor();
+        edge.add_reactor(reactor);
     }
 }
 
 impl<U> Writer for Leaf<U> {
     type Unit = U;
-    fn writer<F: FnOnce(&mut U)>(&self, read: F) {
-        self.0.writer(read);
+    fn writer<F: FnOnce(&mut U)>(&self, write: F) {
+        let edge = self.edge.read().expect(NO_POISON);
+        edge.writer(write);
     }
 }
 
 impl<U: Clone> CloneUnit for Leaf<U> {
     type Unit = U;
     fn unit(&self) -> U {
-        self.0.unit()
+        let edge = self.edge.read().expect(NO_POISON);
+        edge.unit()
+    }
+}
+
+impl<U> Serialize for  Leaf<U>  {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
     }
 }
 

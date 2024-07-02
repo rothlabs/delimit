@@ -9,7 +9,7 @@ pub mod element;
 mod tag;
 
 // #[derive(Clone, Serialize)]
-pub struct Html(Solver<Element, Work>);
+pub struct Html(UnitSolver<Element, Work>);
 
 impl Html {
     // pub fn text(&self) -> Text<List> {

@@ -1,12 +1,12 @@
 use crate::*;
 
-pub struct Solver<U, W> {
+pub struct UnitSolver<U, W> {
     unit: U,
     work: W,
     reactors: Reactors, 
 }
 
-impl<U, W> FromUnit for Solver<U, W>
+impl<U, W> FromUnit for UnitSolver<U, W>
 where
     W: Default,
 {
@@ -20,7 +20,17 @@ where
     }
 }
 
-impl<U, W> SolveMut for Solver<U, W>
+impl<U, W> Read for UnitSolver<U, W>
+where
+    U: Read,
+{
+    type Unit = U::Unit;
+    fn read(&self) -> &U::Unit {
+        self.unit.read()
+    }
+}
+
+impl<U, W> SolveMut for UnitSolver<U, W>
 where
     W: Memory,
     U: Solve<Task = W::Task, Load = W::Load>,
@@ -38,7 +48,20 @@ where
     }
 }
 
-impl<U, W> React for Solver<U, W>
+impl<U, W> Write for UnitSolver<U, W>
+where
+    U: Write,
+    W: Clear,
+{
+    type Unit = U::Unit;
+    fn write<F: FnOnce(&mut U::Unit)>(&mut self, write: F) {
+        self.unit.write(write);
+        self.work.clear();
+        self.reactors.cycle();
+    }
+}
+
+impl<U, W> React for UnitSolver<U, W>
 where
     U: React,
     W: Clear,
@@ -52,7 +75,15 @@ where
     }
 }
 
-impl<N, W> AddReactor for Solver<N, W> {
+impl<U, W> AddStem for UnitSolver<U, W> {
+    type Unit = U;
+    fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
+        add_stem(&mut self.unit, stem);
+        self.reactors.cycle();
+    }
+}
+
+impl<N, W> AddReactor for UnitSolver<N, W> {
     fn add_reactor(&mut self, reactor: Reactor) {
         self.reactors.add(reactor);
     }

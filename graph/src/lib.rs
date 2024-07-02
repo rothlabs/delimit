@@ -8,8 +8,8 @@ pub mod repo;
 pub mod work;
 pub mod write;
 
-pub use edge::Edge;
-pub use link::{Leaf, Link, Solver, Stemmer, StemSolver, ToLeaf};
+//pub use edge::Edge;
+pub use link::{Leaf, UnitSolver, Stemmer, StemSolver, ToLeaf};
 pub use meta::Meta;
 pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, ToReactor, WithReactor};
 pub use read::{CloneUnit, Read, Reader, Solve};
@@ -57,8 +57,8 @@ pub trait GraphString {
 pub trait Unit {}
 
 pub trait Memory {
-    type Load: Clone;
     type Task: Clone;
+    type Load: Clone;
     fn add(&mut self, task: Self::Task, load: Self::Load);
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
