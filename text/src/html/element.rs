@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use crate::html::*;
-use crate::text::{List, Text};
+use crate::plain::{List, Text};
 
 pub struct Element {
     tag: &'static Tag,

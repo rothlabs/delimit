@@ -1,8 +1,8 @@
 pub mod html;
-pub mod text;
+pub mod plain;
 
-pub use text::Text;
-pub use text::{List, TextList}; //, TextString};
+pub use plain::Text;
+pub use plain::{List, TextList}; //, TextString};
 
 // pub use text::{
 //     Text,

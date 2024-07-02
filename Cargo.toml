@@ -1,5 +1,5 @@
 [workspace]
-    members = ["app/server", "app/client", "chronicle", "graph", "repo"]
+    members = ["app/server", "app/client", "text", "graph", "repo"]
     resolver = "2"
 
 # [profile.release]

@@ -1,6 +1,6 @@
 use crate::*;
 
-pub use leaf::{Leaf, ToLeaf};
+pub use leaf::{Leaf, ToLeaf, IntoLeaf};
 pub use solver::Solver;
 pub use tasker::Tasker;
 pub use unit_solver::UnitSolver;

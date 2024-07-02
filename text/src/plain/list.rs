@@ -1,4 +1,4 @@
-use crate::text::*;
+use crate::plain::*;
 
 #[derive(Default)]
 pub struct List {
@@ -26,8 +26,8 @@ impl List {
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
     }
-    pub fn add_text<U: SolveTask<Task = Task, Load = Load> + 'static>(&mut self, text: &Text<U>) {
-        self.items.push(Item::Text(text.0.to_tasker()));
+    pub fn add_text<U: Solve<Load = Leaf<String>> + 'static>(&mut self, text: &Text<U>) {
+        self.items.push(Item::Text(text.0.to_solver()));
     }
     pub fn add_solver(&mut self, text: TextSolver) {
         self.items.push(Item::Text(text));
@@ -37,14 +37,15 @@ impl List {
     }
     pub fn text(self) -> Text<Self> {
         Text::new(self)
-    }
+    } 
 }
 
-impl GraphString for List {
-    fn string(&self) -> String {
+impl Solve for List {
+    type Load = Leaf<String>;
+    fn solve(&self) -> Self::Load {
         let mut string = String::new();
         if self.items.is_empty() {
-            return string;
+            return string.into_leaf();
         }
         for i in 0..self.items.len() - 1 {
             self.items[i].read(|s| string += s);
@@ -53,18 +54,7 @@ impl GraphString for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        string
-    }
-}
-
-impl SolveTask for List {
-    type Task = Task;
-    type Load = Load;
-    fn solve_task(&self, task: Self::Task) -> Self::Load {
-        match task {
-            Task::String => Load::String(self.string()),
-            Task::Leaf => Load::Leaf(self.leaf()),
-        }
+        string.into_leaf()
     }
 }
 
@@ -84,6 +74,30 @@ impl TextList for &str {
         List::from_separator(self).text()
     }
 }
+
+// impl GraphString for List {
+//     fn string(&self) -> String {
+//         let mut string = String::new();
+//         if self.items.is_empty() {
+//             return string;
+//         }
+//         for i in 0..self.items.len() - 1 {
+//             self.items[i].read(|s| string += s);
+//             string += &self.separator;
+//         }
+//         if let Some(item) = self.items.last() {
+//             item.read(|s| string += s);
+//         }
+//         string
+//     }
+// }
+
+// impl Solve for List {
+//     type Load = Leaf<String>;
+//     fn solve(&self) -> Self::Load {
+//         self.leaf()
+//     }
+// }
 
 //impl Unit for List {}
 

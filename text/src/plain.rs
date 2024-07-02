@@ -3,30 +3,21 @@ use graph::*;
 pub use list::{List, TextList};
 
 #[cfg(test)]
-mod tests;
+mod tests; 
 
 mod list;
 
-pub struct Text<T>(UnitTasker<T, Work>);
+pub struct Text<U>(UnitSolver<U, Leaf<String>>);
 
 impl<U> Text<U>
 where
-    U: SolveTask<Load = Load, Task = Task> + React + 'static,
+    U: Solve<Load = Leaf<String>> + React + 'static,
 {
     pub fn new(unit: U) -> Self {
-        Self(UnitTasker::new(unit))
+        Self(UnitSolver::new(unit))
     }
-    pub fn string(&self) -> String {
-        if let Load::String(string) = self.0.solve_task(Task::String) {
-            return string;
-        }
-        panic!("should return Load::String(string)")
-    }
-    pub fn leaf(&self) -> Leaf<String> {
-        if let Load::Leaf(leaf) = self.0.solve_task(Task::Leaf) {
-            return leaf;
-        }
-        panic!("should return Load::Leaf(Leaf<String>)")
+    pub fn solve(&self) -> Leaf<String> {
+        self.0.solve()
     }
     pub fn writer<F: FnOnce(&mut U)>(&self, write: F) {
         self.0.writer(write);
@@ -51,28 +42,7 @@ impl<U> Clone for Text<U> {
     }
 }
 
-pub type TextSolver = link::Tasker<Task, Load>;
-
-type Work = graph::Work<Task, Load>;
-
-#[derive(Default, Clone, Eq, PartialEq, Hash)]
-pub enum Task {
-    #[default]
-    String,
-    Leaf,
-}
-
-#[derive(Clone)] // EnumAsInner
-pub enum Load {
-    String(String),
-    Leaf(Leaf<String>),
-}
-
-impl Default for Load {
-    fn default() -> Self {
-        Load::String(String::new())
-    }
-}
+pub type TextSolver = link::Solver<Leaf<String>>;
 
 pub enum Item {
     String(String),
@@ -85,14 +55,42 @@ impl Item {
         match self {
             Item::String(string) => read(string),
             Item::Leaf(leaf) => leaf.reader(read),
-            Item::Text(text) => {
-                if let Load::String(string) = text.solve_task(Task::String) {
-                    read(&string);
-                }
-            }
+            Item::Text(text) => text.solve().reader(|string| read(string)),
         };
     }
 }
+
+
+
+// type Work = graph::Work<Task, Load>;
+
+// #[derive(Default, Clone, Eq, PartialEq, Hash)]
+// pub enum Task {
+//     #[default]
+//     String,
+//     Leaf,
+// }
+
+// #[derive(Clone)] // EnumAsInner
+// pub enum Load {
+//     String(String),
+//     Leaf(Leaf<String>),
+// }
+
+// impl Default for Load {
+//     fn default() -> Self {
+//         Load::String(String::new())
+//     }
+// }
+
+
+
+
+
+
+
+
+
 
 // impl<T> SolveReact<Task, Load> for Text<T>
 // where

@@ -1,4 +1,5 @@
-use chronicle::*;
+use text::*;
+use graph::CloneUnit;
 
 pub fn index() -> String {
     // let leaf = "cool".leaf();
@@ -10,7 +11,7 @@ pub fn index() -> String {
         list.add_str("item");
     });
 
-    text.string()
+    text.solve().unit()
 
     //text.add_str("hi there");
     // text.add_leaf(&leaf);

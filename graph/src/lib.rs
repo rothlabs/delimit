@@ -8,7 +8,7 @@ pub mod repo;
 pub mod work;
 pub mod write;
 
-pub use link::{Leaf, Stemmer, ToLeaf, UnitTasker};
+pub use link::{Leaf, Stemmer, ToLeaf, IntoLeaf, UnitSolver, UnitTasker};
 pub use meta::Meta;
 pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor, WithReactor};
 pub use read::{CloneUnit, Read, Reader, Solve, SolveTask};

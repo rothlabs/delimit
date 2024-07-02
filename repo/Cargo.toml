@@ -19,4 +19,4 @@
         # graph
             graph = { path = "../graph" }
         # # text
-        #     chronicle = { path = "../chronicle" }
+        #     text = { path = "../text" }
