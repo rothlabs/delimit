@@ -3,7 +3,7 @@ use graph::*;
 pub use list::{List, TextList};
 
 #[cfg(test)]
-mod tests; 
+mod tests;
 
 mod list;
 
@@ -42,12 +42,12 @@ impl<U> Clone for Text<U> {
     }
 }
 
-pub type TextSolver = link::Solver<Leaf<String>>;
+pub type Solver = link::Solver<Leaf<String>>;
 
 pub enum Item {
     String(String),
     Leaf(Leaf<String>),
-    Text(TextSolver),
+    Solver(Solver),
 }
 
 impl Item {
@@ -55,12 +55,10 @@ impl Item {
         match self {
             Item::String(string) => read(string),
             Item::Leaf(leaf) => leaf.reader(read),
-            Item::Text(text) => text.solve().reader(|string| read(string)),
+            Item::Solver(solver) => solver.solve().reader(read),
         };
     }
 }
-
-
 
 // type Work = graph::Work<Task, Load>;
 
@@ -82,15 +80,6 @@ impl Item {
 //         Load::String(String::new())
 //     }
 // }
-
-
-
-
-
-
-
-
-
 
 // impl<T> SolveReact<Task, Load> for Text<T>
 // where

@@ -34,7 +34,7 @@ fn solve_twice_for_same_link() {
     assert!(text.solve() == text.solve());
 }
 
-#[test] 
+#[test]
 fn react_from_self() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);

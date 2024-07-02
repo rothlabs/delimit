@@ -39,10 +39,7 @@ where
     L: Clone + 'static,
 {
     type Load = L;
-    fn solver_with_reactor(
-        &self,
-        reactor: Reactor,
-    ) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
+    fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
         Arc::new(RwLock::new(Self {
             root: Some(reactor),
             stem: self.stem.clone(),

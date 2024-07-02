@@ -2,7 +2,7 @@ use crate::plain::*;
 
 #[derive(Default)]
 pub struct List {
-    items: Vec<Item>,
+    pub items: Vec<Item>,
     separator: String,
 }
 
@@ -27,17 +27,17 @@ impl List {
         self.items.push(Item::Leaf(item));
     }
     pub fn add_text<U: Solve<Load = Leaf<String>> + 'static>(&mut self, text: &Text<U>) {
-        self.items.push(Item::Text(text.0.to_solver()));
+        self.items.push(Item::Solver(text.0.to_solver()));
     }
-    pub fn add_solver(&mut self, text: TextSolver) {
-        self.items.push(Item::Text(text));
+    pub fn add_solver(&mut self, solver: &Solver, reactor: &Reactor) {
+        self.items.push(Item::Solver(solver.with_reactor(reactor)));
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
     }
     pub fn text(self) -> Text<Self> {
         Text::new(self)
-    } 
+    }
 }
 
 impl Solve for List {

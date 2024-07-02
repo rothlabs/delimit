@@ -8,9 +8,9 @@ pub struct UnitTasker<U, W> {
     pub meta: Meta,
 }
 
-impl<U, W> UnitTasker<U, W> 
-where 
-    W: Clear, 
+impl<U, W> UnitTasker<U, W>
+where
+    W: Clear,
 {
     pub fn writer_with_reactor<F: FnOnce(&mut U, &Reactor)>(&self, write: F, reactor: &Reactor) {
         let mut stem = self.stem.write().expect(NO_POISON);

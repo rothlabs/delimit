@@ -8,18 +8,18 @@ pub mod repo;
 pub mod work;
 pub mod write;
 
-pub use link::{Leaf, Stemmer, ToLeaf, IntoLeaf, UnitSolver, UnitTasker};
+pub use link::{IntoLeaf, Leaf, Stemmer, ToLeaf, UnitSolver, UnitTasker};
 pub use meta::Meta;
-pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor, WithReactor};
+pub use react::{
+    AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
+    WithReactor,
+};
 pub use read::{CloneUnit, Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use work::Work;
 pub use write::{SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterWithReactor};
 
-pub trait SolveShare<L>:
-    Solve<Load = L> + SolverWithReactor<Load = L>
-{
-}
+pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
 
 pub trait SolveTaskShare<T, L>:
     SolveTask<Task = T, Load = L> + TaskerWithReactor<Task = T, Load = L>

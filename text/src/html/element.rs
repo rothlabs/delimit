@@ -14,14 +14,14 @@ impl Element {
     pub fn new() -> Self {
         Element::default()
     }
-    fn open_tag(&self, list: &mut List, reactor: &Reactor) {
+    fn write_open(&self, list: &mut List, reactor: &Reactor) {
         list.add_str(&self.tag.open);
         for att in self.attributes.iter() {
             att.collect(list, reactor);
         }
         list.add_str(">");
     }
-    fn write_body(&self, list: &mut List, reactor: &Reactor) {
+    fn write_items(&self, list: &mut List, reactor: &Reactor) {
         for item in self.items.iter() {
             item.collect(list, reactor);
         }
@@ -29,11 +29,11 @@ impl Element {
     }
     pub fn text(&self) -> Text<List> {
         let open_tag = " ".text_list();
-        open_tag.writer_with_reactor(|list, reactor| self.open_tag(list, reactor));
+        open_tag.writer_with_reactor(|list, reactor| self.write_open(list, reactor));
         let items = "\n".text_list();
         items.writer_with_reactor(|list, reactor| {
             list.add_text(&open_tag);
-            self.write_body(list, reactor);
+            self.write_items(list, reactor);
         });
         items
     }
@@ -101,16 +101,16 @@ impl Element {
         self.up(&DOCTYPE)
     }
     pub fn lang(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(&LANG, val)
+        self.add_attribute(LANG, val)
     }
     pub fn charset(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(&CHARSET, val)
+        self.add_attribute(CHARSET, val)
     }
     pub fn name(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(&NAME, val)
+        self.add_attribute(NAME, val)
     }
     pub fn content(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(&CONTENT, val)
+        self.add_attribute(CONTENT, val)
     }
 }
 

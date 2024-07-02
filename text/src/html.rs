@@ -1,4 +1,4 @@
-use crate::plain::*;
+use crate::plain::{self, *};
 use graph::*;
 
 pub use attribute::*;
@@ -54,7 +54,7 @@ impl Default for Load {
 
 enum Item {
     String(String),
-    // Text(TextSolver),
+    Text(plain::Solver),
     Html(Html),
 }
 
@@ -62,7 +62,7 @@ impl Item {
     fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
             Item::String(string) => list.add_str(string),
-            // Item::Text(solver) => text.stemmer(solver, List::add_solver),
+            Item::Text(solver) => list.add_solver(solver, reactor),
             Item::Html(html) => list.add_text(&html.text().with_reactor(reactor)),
         };
     }
@@ -70,14 +70,14 @@ impl Item {
 
 enum Attribute {
     String(String),
-    Text(TextSolver),
+    Text(plain::Solver),
 }
 
 impl Attribute {
     fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
             Attribute::String(string) => list.add_str(string),
-            Attribute::Text(solver) => list.add_solver(solver.with_reactor(reactor)),
+            Attribute::Text(solver) => list.add_solver(solver, reactor),
         };
     }
 }

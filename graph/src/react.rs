@@ -27,10 +27,7 @@ pub trait WithReactor {
 
 pub trait SolverWithReactor {
     type Load;
-    fn solver_with_reactor(
-        &self,
-        reactor: Reactor,
-    ) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
+    fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
 }
 
 pub trait TaskerWithReactor {

@@ -34,5 +34,3 @@ pub trait SolveTaskMut {
     type Load;
     fn solve_task_mut(&mut self, task: Self::Task) -> Self::Load;
 }
-
-

@@ -1,5 +1,5 @@
-use text::*;
 use graph::CloneUnit;
+use text::*;
 
 pub fn index() -> String {
     // let leaf = "cool".leaf();
