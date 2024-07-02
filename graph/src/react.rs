@@ -25,22 +25,21 @@ pub trait WithReactor {
     fn with_reactor(&self, reactor: &Reactor) -> Self;
 }
 
-// pub trait SolverWithReactor {
-//     type Task;
-//     type Load;
-//     fn solver_with_reactor(
-//         &self,
-//         reactor: Reactor,
-//     ) -> Arc<RwLock<dyn Solve<Task = Self::Task, Load = Self::Load>>>;
-// }
-
 pub trait SolverWithReactor {
-    type Task;
     type Load;
     fn solver_with_reactor(
         &self,
         reactor: Reactor,
-    ) -> Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>>;
+    ) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
+}
+
+pub trait TaskerWithReactor {
+    type Task;
+    type Load;
+    fn tasker_with_reactor(
+        &self,
+        reactor: Reactor,
+    ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load>>>;
 }
 
 #[derive(Clone)]
@@ -56,7 +55,7 @@ impl Reactor {
             let mut item = item.write().expect(NO_POISON);
             item.clear()
         } else {
-            Reactors::default()
+            Reactors::new()
         }
     }
     pub fn react(&self) {
@@ -85,6 +84,9 @@ impl Hash for Reactor {
 pub struct Reactors(HashSet<Reactor>);
 
 impl Reactors {
+    pub fn new() -> Self {
+        Self::default()
+    }
     // TODO: make method to remove reactors with dropped edges
     pub fn cycle(&mut self) {
         let reactors = self.clear();
@@ -94,7 +96,7 @@ impl Reactors {
         }
     }
     pub fn clear(&self) -> Reactors {
-        let mut reactors = Reactors::default();
+        let mut reactors = Reactors::new();
         for reactor in &self.0 {
             let rcts = reactor.clear();
             if rcts.0.is_empty() {

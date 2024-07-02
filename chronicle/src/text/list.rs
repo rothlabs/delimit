@@ -26,8 +26,8 @@ impl List {
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
     }
-    pub fn add_text<U: Solve<Task = Task, Load = Load> + 'static>(&mut self, text: &Text<U>) {
-        self.items.push(Item::Text(text.0.to_solver()));
+    pub fn add_text<U: SolveTask<Task = Task, Load = Load> + 'static>(&mut self, text: &Text<U>) {
+        self.items.push(Item::Text(text.0.to_tasker()));
     }
     pub fn add_solver(&mut self, text: TextSolver) {
         self.items.push(Item::Text(text));
@@ -57,10 +57,10 @@ impl GraphString for List {
     }
 }
 
-impl Solve for List {
+impl SolveTask for List {
     type Task = Task;
     type Load = Load;
-    fn solve(&self, task: Self::Task) -> Self::Load {
+    fn solve_task(&self, task: Self::Task) -> Self::Load {
         match task {
             Task::String => Load::String(self.string()),
             Task::Leaf => Load::Leaf(self.leaf()),
@@ -70,7 +70,7 @@ impl Solve for List {
 
 impl React for List {
     fn clear(&mut self) -> Reactors {
-        Reactors::default()
+        Reactors::new()
     }
     fn react(&mut self) {}
 }

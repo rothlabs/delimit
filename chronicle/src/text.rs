@@ -7,23 +7,23 @@ mod tests;
 
 mod list;
 
-pub struct Text<T>(UnitSolver<T, Work>);
+pub struct Text<T>(UnitTasker<T, Work>);
 
 impl<U> Text<U>
 where
-    U: Solve<Load = Load, Task = Task> + React + 'static,
+    U: SolveTask<Load = Load, Task = Task> + React + 'static,
 {
     pub fn new(unit: U) -> Self {
-        Self(UnitSolver::new(unit))
+        Self(UnitTasker::new(unit))
     }
     pub fn string(&self) -> String {
-        if let Load::String(string) = self.0.solve(Task::String) {
+        if let Load::String(string) = self.0.solve_task(Task::String) {
             return string;
         }
         panic!("should return Load::String(string)")
     }
     pub fn leaf(&self) -> Leaf<String> {
-        if let Load::Leaf(leaf) = self.0.solve(Task::Leaf) {
+        if let Load::Leaf(leaf) = self.0.solve_task(Task::Leaf) {
             return leaf;
         }
         panic!("should return Load::Leaf(Leaf<String>)")
@@ -41,9 +41,7 @@ where
 
 impl<U> WithReactor for Text<U> {
     fn with_reactor(&self, reactor: &Reactor) -> Self {
-        Self (
-            self.0.with_reactor(reactor)
-        )
+        Self(self.0.with_reactor(reactor))
     }
 }
 
@@ -53,7 +51,7 @@ impl<U> Clone for Text<U> {
     }
 }
 
-pub type TextSolver = link::Solver<Task, Load>;
+pub type TextSolver = link::Tasker<Task, Load>;
 
 type Work = graph::Work<Task, Load>;
 
@@ -88,7 +86,7 @@ impl Item {
             Item::String(string) => read(string),
             Item::Leaf(leaf) => leaf.reader(read),
             Item::Text(text) => {
-                if let Load::String(string) = text.solve(Task::String) {
+                if let Load::String(string) = text.solve_task(Task::String) {
                     read(&string);
                 }
             }
@@ -96,15 +94,13 @@ impl Item {
     }
 }
 
-
-
-// impl<T> SolveReact<Task, Load> for Text<T> 
-// where 
+// impl<T> SolveReact<Task, Load> for Text<T>
+// where
 //     T: Solve<Load = Load, Task = Task> + 'static
 // {}
 
-// impl<T> Solve for Text<T> 
-// where 
+// impl<T> Solve for Text<T>
+// where
 //     T: Solve<Load = Load, Task = Task> + 'static,
 // {
 //     type Load = Load;
@@ -114,8 +110,8 @@ impl Item {
 //     }
 // }
 
-// impl<T> SolverWithReactor for Text<T> 
-// where 
+// impl<T> SolverWithReactor for Text<T>
+// where
 //     T: Solve<Load = Load, Task = Task> + 'static,
 // {
 //     type Load = Load;
@@ -128,7 +124,7 @@ impl Item {
 //     }
 // }
 
- ///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 
 // pub struct TextSolver(Box<dyn SolveReact<Task, Load>>);
 
@@ -153,9 +149,7 @@ impl Item {
 //     }
 // }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-
 
 // pub struct TextSolver(Text<Box<dyn Solve<Task = Task, Load = Load>>>);
 
@@ -178,9 +172,6 @@ impl Item {
 //         self.0.
 //     }
 // }
-
-
-
 
 // impl<T: Write> Writer for Text<T> {
 //     type Unit = T::Unit;

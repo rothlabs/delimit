@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
-use crate::text::{Text, List};
 use crate::html::*;
+use crate::text::{List, Text};
 
 pub struct Element {
     tag: &'static Tag,
@@ -32,7 +32,7 @@ impl Element {
         open_tag.writer_with_reactor(|list, reactor| self.open_tag(list, reactor));
         let items = "\n".text_list();
         items.writer_with_reactor(|list, reactor| {
-            list.add_text(&open_tag); 
+            list.add_text(&open_tag);
             self.write_body(list, reactor);
         });
         items
@@ -125,13 +125,12 @@ impl Default for Element {
     }
 }
 
-impl Solve for Element {
+impl SolveTask for Element {
     type Task = Task;
     type Load = Load;
-    fn solve(&self, task: Self::Task) -> Self::Load {
+    fn solve_task(&self, task: Self::Task) -> Self::Load {
         match task {
             Task::Text => Load::Text(self.text()),
         }
     }
 }
-

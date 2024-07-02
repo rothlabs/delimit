@@ -1,74 +1,85 @@
 use crate::*;
 
-pub struct UnitSolver<U, L> {
+pub struct UnitTasker<U, W> {
     unit: U,
-    load: Option<L>,
+    work: W,
     reactors: Reactors,
 }
 
-impl<U, L> FromUnit for UnitSolver<U, L> {
+impl<U, W> FromUnit for UnitTasker<U, W>
+where
+    W: Default,
+{
     type Unit = U;
     fn new(unit: Self::Unit) -> Self {
         Self {
             unit,
-            load: None,
+            work: W::default(),
             reactors: Reactors::new(),
         }
     }
 }
 
-impl<U, L> Read for UnitSolver<U, L> {
+impl<U, W> Read for UnitTasker<U, W> {
     type Unit = U;
     fn read(&self) -> &U {
         &self.unit
     }
 }
 
-impl<U, L> SolveMut for UnitSolver<U, L>
+impl<U, W> SolveTaskMut for UnitTasker<U, W>
 where
-    U: Solve<Load = L>,
-    L: Clone,
+    W: Memory,
+    U: SolveTask<Task = W::Task, Load = W::Load>,
 {
-    type Load = L;
-    fn solve_mut(&mut self) -> L {
-        if let Some(load) = &self.load {
+    type Task = W::Task;
+    type Load = W::Load;
+    fn solve_task_mut(&mut self, task: W::Task) -> W::Load {
+        if let Some(load) = self.work.get(&task) {
             load.clone()
         } else {
-            let load = self.unit.solve();
-            self.load = Some(load.clone());
+            let load = self.unit.solve_task(task.clone());
+            self.work.add(task, load.clone());
             load
         }
     }
 }
 
-impl<U, L> Write for UnitSolver<U, L> {
+impl<U, W> Write for UnitTasker<U, W>
+where
+    W: Clear,
+{
     type Unit = U;
     fn write<F: FnOnce(&mut U)>(&mut self, write: F) {
         write(&mut self.unit);
-        self.load = None;
+        self.work.clear();
         self.reactors.cycle();
     }
 }
 
-impl<U, L> WriteWithReactor for UnitSolver<U, L> {
+impl<U, W> WriteWithReactor for UnitTasker<U, W>
+where
+    W: Clear,
+{
     type Unit = U;
-    fn write_with_reactor<F: FnOnce(&mut U, &Reactor)>(
+    fn write_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(
         &mut self,
         write: F,
         reactor: &Reactor,
     ) {
         write(&mut self.unit, reactor);
-        self.load = None;
+        self.work.clear();
         self.reactors.cycle();
     }
 }
 
-impl<U, L> React for UnitSolver<U, L>
+impl<U, W> React for UnitTasker<U, W>
 where
     U: React,
+    W: Clear,
 {
     fn clear(&mut self) -> Reactors {
-        self.load = None;
+        self.work.clear();
         self.reactors.clear()
     }
     fn react(&mut self) {
@@ -76,7 +87,7 @@ where
     }
 }
 
-impl<U, L> AddStem for UnitSolver<U, L> {
+impl<U, W> AddStem for UnitTasker<U, W> {
     type Unit = U;
     fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
         add_stem(&mut self.unit, stem);
@@ -84,7 +95,7 @@ impl<U, L> AddStem for UnitSolver<U, L> {
     }
 }
 
-impl<U, L> AddReactor for UnitSolver<U, L> {
+impl<U, W> AddReactor for UnitTasker<U, W> {
     fn add_reactor(&mut self, reactor: Reactor) {
         self.reactors.add(reactor);
     }

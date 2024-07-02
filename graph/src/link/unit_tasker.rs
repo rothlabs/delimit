@@ -4,12 +4,12 @@ use serde::Serialize;
 
 use crate::*;
 
-pub struct UnitSolver<U, L> {
-    edge: Arc<RwLock<edge::UnitSolver<U, L>>>,
+pub struct UnitTasker<U, W> {
+    edge: Arc<RwLock<edge::UnitTasker<U, W>>>,
     meta: Meta,
 }
 
-impl<U, W> Clone for UnitSolver<U, W> {
+impl<U, W> Clone for UnitTasker<U, W> {
     fn clone(&self) -> Self {
         Self {
             edge: self.edge.clone(),
@@ -18,42 +18,46 @@ impl<U, W> Clone for UnitSolver<U, W> {
     }
 }
 
-impl<U, W> PartialEq for UnitSolver<U, W> {
+impl<U, W> PartialEq for UnitTasker<U, W> {
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<edge::UnitSolver<U, W>>>::ptr_eq(&self.edge, &other.edge)
+        Arc::<RwLock<edge::UnitTasker<U, W>>>::ptr_eq(&self.edge, &other.edge)
             && self.meta == other.meta
     }
 }
 
-impl<U, L> FromUnit for UnitSolver<U, L> {
+impl<U, W> FromUnit for UnitTasker<U, W>
+where
+    W: Default,
+{
     type Unit = U;
     fn new(unit: U) -> Self {
         Self {
-            edge: Arc::new(RwLock::new(edge::UnitSolver::new(unit))),
+            edge: Arc::new(RwLock::new(edge::UnitTasker::new(unit))),
             meta: Meta::new(),
         }
     }
 }
 
-impl<U, L> ToSolver for UnitSolver<U, L>
+impl<U, W> ToTasker for UnitTasker<U, W>
 where
-    U: Solve<Load = L> + 'static,
-    L: Clone + 'static,
+    U: SolveTask<Task = W::Task, Load = W::Load> + 'static,
+    W: Memory + 'static,
 {
-    type Load = L;
-    fn to_solver(&self) -> link::Solver<L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
-        link::Solver {
+    type Task = W::Task;
+    type Load = W::Load;
+    fn to_tasker(&self) -> link::Tasker<W::Task, W::Load> {
+        let edge = self.edge.clone() as Arc<RwLock<dyn SolveTaskShare<W::Task, W::Load>>>;
+        link::Tasker {
             edge,
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<U, L> ToReactor for UnitSolver<U, L>
+impl<U, W> ToReactor for UnitTasker<U, W>
 where
     U: 'static,
-    L: 'static,
+    W: 'static,
 {
     fn reactor(&self) -> Reactor {
         let edge = self.edge.clone() as Arc<RwLock<dyn React>>;
@@ -64,7 +68,7 @@ where
     }
 }
 
-impl<U, W> WithReactor for UnitSolver<U, W> {
+impl<U, W> WithReactor for UnitTasker<U, W> {
     fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -74,22 +78,24 @@ impl<U, W> WithReactor for UnitSolver<U, W> {
     }
 }
 
-impl<U, L> Solve for UnitSolver<U, L>
+// task solution
+impl<U, W> SolveTask for UnitTasker<U, W>
 where
-    U: Solve<Load = L>,
-    L: Clone,
+    U: SolveTask<Task = W::Task, Load = W::Load>,
+    W: Memory,
 {
-    type Load = L;
-    fn solve(&self) -> L {
+    type Load = U::Load;
+    type Task = U::Task;
+    fn solve_task(&self, task: U::Task) -> U::Load {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.solve()
+        edge.solve_task(task)
     }
 }
 
-impl<U, L> Reader for UnitSolver<U, L>
+impl<U, W> Reader for UnitTasker<U, W>
 where
     U: React + 'static,
-    L: 'static,
+    W: Clear + 'static,
 {
     type Unit = U;
     fn reader<F: FnOnce(&U)>(&self, read: F) {
@@ -101,7 +107,10 @@ where
     }
 }
 
-impl<U, L> Writer for UnitSolver<U, L> {
+impl<U, W> Writer for UnitTasker<U, W>
+where
+    W: Clear,
+{
     type Unit = U;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
@@ -109,10 +118,10 @@ impl<U, L> Writer for UnitSolver<U, L> {
     }
 }
 
-impl<U, L> WriterWithReactor for UnitSolver<U, L>
+impl<U, W> WriterWithReactor for UnitTasker<U, W>
 where
     U: React + 'static,
-    L: 'static,
+    W: Clear + 'static,
 {
     type Unit = U;
     fn writer_with_reactor<F: FnOnce(&mut U, &Reactor)>(&self, write: F) {
@@ -121,10 +130,10 @@ where
     }
 }
 
-impl<U, L> Stemmer for UnitSolver<U, L>
+impl<U, W> Stemmer for UnitTasker<U, W>
 where
     U: React + 'static,
-    L: 'static,
+    W: Clear + 'static,
 {
     type Unit = U;
     fn stemmer<T: WithReactor, F: FnOnce(&mut U, T)>(&self, stem: &T, add_stem: F) {
@@ -135,7 +144,7 @@ where
     }
 }
 
-impl<U, W> Serialize for UnitSolver<U, W> {
+impl<U, W> Serialize for UnitTasker<U, W> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

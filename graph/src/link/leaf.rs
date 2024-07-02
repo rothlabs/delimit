@@ -49,8 +49,8 @@ where
     }
 }
 
-impl<U> Reader for Leaf<U> 
-where 
+impl<U> Reader for Leaf<U>
+where
     U: 'static,
 {
     type Unit = U;
@@ -78,7 +78,7 @@ impl<U: Clone> CloneUnit for Leaf<U> {
     }
 }
 
-impl<U> Serialize for  Leaf<U>  {
+impl<U> Serialize for Leaf<U> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

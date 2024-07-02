@@ -8,21 +8,34 @@ pub mod repo;
 pub mod work;
 pub mod write;
 
-pub use link::{Leaf, UnitSolver, Stemmer, ToLeaf};
+pub use link::{Leaf, Stemmer, ToLeaf, UnitTasker};
 pub use meta::Meta;
-pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, ToReactor, WithReactor};
-pub use read::{CloneUnit, Read, Reader, Solve};
+pub use react::{AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor, WithReactor};
+pub use read::{CloneUnit, Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use work::Work;
-pub use write::{SolveMut, Write, Writer, WriteWithReactor, WriterWithReactor};
+pub use write::{SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterWithReactor};
 
-pub trait ToSolver {
-    type Task;
-    type Load;
-    fn to_solver(&self) -> link::Solver<Self::Task, Self::Load>;
+pub trait SolveShare<L>:
+    Solve<Load = L> + SolverWithReactor<Load = L>
+{
 }
 
-pub trait SolveReact<T, L>: Solve<Task = T, Load = L> + SolverWithReactor<Task = T, Load = L> {}
+pub trait SolveTaskShare<T, L>:
+    SolveTask<Task = T, Load = L> + TaskerWithReactor<Task = T, Load = L>
+{
+}
+
+pub trait ToSolver {
+    type Load;
+    fn to_solver(&self) -> link::Solver<Self::Load>;
+}
+
+pub trait ToTasker {
+    type Task;
+    type Load;
+    fn to_tasker(&self) -> link::Tasker<Self::Task, Self::Load>;
+}
 
 pub trait AddStem {
     type Unit;

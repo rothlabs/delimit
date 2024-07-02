@@ -2,8 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-#[derive(Clone)]
-pub struct Leaf<U>{
+pub struct Leaf<U> {
     root: Option<Reactor>,
     stem: Arc<RwLock<node::Leaf<U>>>,
     meta: Meta,
@@ -66,7 +65,7 @@ impl<U> React for Leaf<U> {
         if let Some(root) = &self.root {
             root.clear()
         } else {
-            Reactors::default()
+            Reactors::new()
         }
     }
     fn react(&mut self) {

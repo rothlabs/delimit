@@ -2,17 +2,20 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-#[derive(Clone)]
-pub struct Solver<U, W>{
+pub struct UnitSolver<U, L> {
     pub root: Option<Reactor>,
-    pub stem: Arc<RwLock<node::UnitSolver<U, W>>>,
+    pub stem: Arc<RwLock<node::UnitSolver<U, L>>>,
     pub meta: Meta,
 }
 
-impl<U, W> FromUnit for Solver<U, W>
-where
-    W: Default,
-{
+impl<U, L> UnitSolver<U, L> {
+    pub fn writer_with_reactor<F: FnOnce(&mut U, &Reactor)>(&self, write: F, reactor: &Reactor) {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.write_with_reactor(write, reactor);
+    }
+}
+
+impl<U, L> FromUnit for UnitSolver<U, L> {
     type Unit = U;
     fn new(unit: Self::Unit) -> Self {
         Self {
@@ -23,37 +26,35 @@ where
     }
 }
 
-impl<U, W, T, L> SolveReact<T, L> for Solver<U, W> 
+impl<U, L> SolveShare<L> for UnitSolver<U, L>
 where
-    U: Solve<Task = T, Load = L> + 'static,
-    W: Memory<Task = T, Load = L> + 'static,
-{}
-
-
-impl<U, W> SolverWithReactor for Solver<U, W>
-where
-    U: Solve<Task = W::Task, Load = W::Load> + 'static,
-    W: Memory + 'static,
+    U: Solve<Load = L> + 'static,
+    L: Clone + 'static,
 {
-    type Load = W::Load;
-    type Task = W::Task;
+}
+
+impl<U, L> SolverWithReactor for UnitSolver<U, L>
+where
+    U: Solve<Load = L> + 'static,
+    L: Clone + 'static,
+{
+    type Load = L;
     fn solver_with_reactor(
-            &self,
-            reactor: Reactor,
-        ) -> Arc<RwLock<dyn SolveReact<Self::Task, Self::Load>>> {
-        let wow = Self {
+        &self,
+        reactor: Reactor,
+    ) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
+        Arc::new(RwLock::new(Self {
             root: Some(reactor),
             stem: self.stem.clone(),
             meta: self.meta.clone(),
-        };
-        Arc::new(RwLock::new(wow))
+        }))
     }
 }
 
-impl<U, W> ToReactor for Solver<U, W>
+impl<U, L> ToReactor for UnitSolver<U, L>
 where
     U: React + 'static,
-    W: Clear + 'static,
+    L: 'static,
 {
     fn reactor(&self) -> Reactor {
         let stem = self.stem.clone() as Arc<RwLock<dyn React>>;
@@ -64,7 +65,7 @@ where
     }
 }
 
-impl<U, W> WithReactor for Solver<U, W> {
+impl<U, L> WithReactor for UnitSolver<U, L> {
     fn with_reactor(&self, reactor: &Reactor) -> Self {
         Self {
             root: Some(reactor.clone()),
@@ -74,34 +75,27 @@ impl<U, W> WithReactor for Solver<U, W> {
     }
 }
 
-impl<U, W> Solve for Solver<U, W>
+impl<U, L> Solve for UnitSolver<U, L>
 where
-    U: Solve<Task = W::Task, Load = W::Load>,
-    W: Memory,
+    U: Solve<Load = L>,
+    L: Clone,
 {
-    type Load = W::Load;
-    type Task = W::Task;
-    fn solve(&self, task: W::Task) -> W::Load {
+    type Load = L;
+    fn solve(&self) -> L {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve_mut(task)
+        stem.solve_mut()
     }
 }
 
-impl<U, W> Reader for Solver<U, W>
-where
-    U: Read,
-{
-    type Unit = U::Unit;
-    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+impl<U, W> Reader for UnitSolver<U, W> {
+    type Unit = U;
+    fn reader<F: FnOnce(&U)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(stem.read());
     }
 }
 
-impl<U, W> Writer for Solver<U, W>
-where
-    W: Clear,
-{
+impl<U, L> Writer for UnitSolver<U, L> {
     type Unit = U;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
@@ -109,19 +103,7 @@ where
     }
 }
 
-// impl<U, W> WriterReact for Solver<U, W>
-// where
-//     U: WriteReact,// + React,
-//     W: Clear,
-// {
-//     type Unit = U::Unit;
-//     fn writer_react<F: FnOnce(&mut Self::Unit, Reactor)>(&self, write: F) {
-//         let mut stem = self.stem.write().expect(NO_POISON);
-//         stem.write_react(write);
-//     }
-// }
-
-impl<U, W> AddStem for Solver<U, W> {
+impl<U, L> AddStem for UnitSolver<U, L> {
     type Unit = U;
     fn add_stem<T, F: FnOnce(&mut U, T)>(&mut self, stem: T, add_stem: F) {
         let mut edge_stem = self.stem.write().expect(NO_POISON);
@@ -129,19 +111,19 @@ impl<U, W> AddStem for Solver<U, W> {
     }
 }
 
-impl<U, W> AddReactor for Solver<U, W> {
+impl<U, L> AddReactor for UnitSolver<U, L> {
     fn add_reactor(&mut self, reactor: Reactor) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_reactor(reactor);
     }
 }
 
-impl<U, W> React for Solver<U, W> {
+impl<U, L> React for UnitSolver<U, L> {
     fn clear(&mut self) -> Reactors {
         if let Some(root) = &self.root {
             root.clear()
         } else {
-            Reactors::default()
+            Reactors::new()
         }
     }
     fn react(&mut self) {

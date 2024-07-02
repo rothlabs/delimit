@@ -12,7 +12,7 @@ impl<U> FromUnit for Leaf<U> {
     fn new(unit: Self::Unit) -> Self {
         Self {
             unit,
-            reactors: Reactors::default(),
+            reactors: Reactors::new(),
         }
     }
 }

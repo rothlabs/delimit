@@ -14,7 +14,12 @@ pub trait CloneUnit {
 }
 
 pub trait Solve {
+    type Load;
+    fn solve(&self) -> Self::Load;
+}
+
+pub trait SolveTask {
     type Task;
     type Load;
-    fn solve(&self, task: Self::Task) -> Self::Load;
+    fn solve_task(&self, task: Self::Task) -> Self::Load;
 }

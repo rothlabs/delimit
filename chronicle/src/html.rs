@@ -1,8 +1,8 @@
-use graph::*;
 use crate::text::*;
+use graph::*;
 
-pub use element::Element;
 pub use attribute::*;
+pub use element::Element;
 pub use tag::*;
 
 #[cfg(test)]
@@ -12,14 +12,14 @@ mod attribute;
 mod element;
 mod tag;
 
-pub struct Html(UnitSolver<Element, Work>);
+pub struct Html(UnitTasker<Element, Work>);
 
 impl Html {
     fn new(element: Element) -> Self {
-        Self(UnitSolver::new(element))
+        Self(UnitTasker::new(element))
     }
     pub fn text(&self) -> Text<List> {
-        if let Load::Text(text) = self.0.solve(Task::Text) {
+        if let Load::Text(text) = self.0.solve_task(Task::Text) {
             return text;
         }
         panic!("should have returned text");
@@ -28,7 +28,7 @@ impl Html {
 
 impl Default for Html {
     fn default() -> Self {
-        Self(UnitSolver::new(Element::new()))
+        Self(UnitTasker::new(Element::new()))
     }
 }
 
@@ -63,7 +63,7 @@ impl Item {
         match self {
             Item::String(string) => list.add_str(string),
             // Item::Text(solver) => text.stemmer(solver, List::add_solver),
-            Item::Html(html) => list.add_text(&html.text().with_reactor(reactor))
+            Item::Html(html) => list.add_text(&html.text().with_reactor(reactor)),
         };
     }
 }
@@ -81,7 +81,6 @@ impl Attribute {
         };
     }
 }
-
 
 // impl Item {
 //     fn collect(&self, text: &Text<List>) {

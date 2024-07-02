@@ -2,24 +2,25 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub struct Solver<L> {
-    pub edge: Arc<RwLock<dyn SolveShare<L>>>,
+pub struct Tasker<T, L> {
+    pub edge: Arc<RwLock<dyn SolveTaskShare<T, L>>>,
     pub meta: Meta,
 }
 
-impl<L> Solve for Solver<L> {
+impl<T, L> SolveTask for Tasker<T, L> {
+    type Task = T;
     type Load = L;
-    fn solve(&self) -> L {
+    fn solve_task(&self, task: T) -> L {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.solve()
+        edge.solve_task(task)
     }
 }
 
-impl<L> WithReactor for Solver<L> {
+impl<T, L> WithReactor for Tasker<T, L> {
     fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.solver_with_reactor(reactor.clone()),
+            edge: edge.tasker_with_reactor(reactor.clone()),
             meta: self.meta.clone(),
         }
     }
