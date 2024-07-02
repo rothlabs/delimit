@@ -26,6 +26,12 @@ impl Html {
     }
 }
 
+impl Default for Html {
+    fn default() -> Self {
+        Self(UnitSolver::new(Element::new()))
+    }
+}
+
 type Work = graph::Work<Task, Load>;
 
 #[derive(Default, Clone, Eq, PartialEq, Hash)]

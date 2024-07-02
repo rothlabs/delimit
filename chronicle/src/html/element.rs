@@ -12,12 +12,7 @@ pub struct Element {
 
 impl Element {
     pub fn new() -> Self {
-        Self {
-            tag: &DOCTYPE,
-            root: None,
-            items: vec![],
-            attributes: vec![],
-        }
+        Element::default()
     }
     pub fn text(&self) -> Text<List> {
         let open_tag = " ".text_list();
@@ -117,7 +112,12 @@ impl Element {
 
 impl Default for Element {
     fn default() -> Self {
-        Element::new()
+        Self {
+            tag: &DOCTYPE,
+            root: None,
+            items: vec![],
+            attributes: vec![],
+        }
     }
 }
 
