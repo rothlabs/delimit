@@ -50,7 +50,7 @@ where
 
 impl<U, L> ToReactor for UnitSolver<U, L>
 where
-    U: React + 'static,
+    U: 'static,
     L: 'static,
 {
     fn reactor(&self) -> Reactor {

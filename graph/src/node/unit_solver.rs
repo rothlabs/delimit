@@ -60,15 +60,16 @@ impl<U, L> WriteWithReactor for UnitSolver<U, L> {
 }
 
 impl<U, L> React for UnitSolver<U, L>
-where
-    U: React,
+// where
+//     U: React,
 {
     fn clear(&mut self) -> Reactors {
         self.load = None;
+        // if these were Responders, it would need to take a default memo and still return reactors
         self.reactors.clear()
     }
     fn react(&mut self) {
-        self.unit.react();
+        // self.unit.react();
     }
 }
 

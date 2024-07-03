@@ -55,14 +55,6 @@ impl Solve for List {
     }
 }
 
-// TODO: remove need for reactor for Unit that does not need to react
-impl React for List {
-    fn clear(&mut self) -> Reactors {
-        Reactors::new()
-    }
-    fn react(&mut self) {}
-}
-
 pub trait TextList {
     fn text_list(self) -> Text<List>;
 }
@@ -72,4 +64,12 @@ impl TextList for &str {
         List::from_separator(self).text()
     }
 }
+
+// // TODO: remove need for reactor for Unit that does not need to react
+// impl React for List {
+//     fn clear(&mut self) -> Reactors {
+//         Reactors::new()
+//     }
+//     fn react(&mut self) {}
+// }
 

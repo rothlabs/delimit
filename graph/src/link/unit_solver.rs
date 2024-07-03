@@ -111,7 +111,7 @@ impl<U, L> Writer for UnitSolver<U, L> {
 
 impl<U, L> WriterWithReactor for UnitSolver<U, L>
 where
-    U: React + 'static,
+    U: 'static,
     L: 'static,
 {
     type Unit = U;
@@ -123,7 +123,7 @@ where
 
 impl<U, L> Stemmer for UnitSolver<U, L>
 where
-    U: React + 'static,
+    U: 'static,
     L: 'static,
 {
     type Unit = U;
