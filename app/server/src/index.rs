@@ -1,4 +1,4 @@
-use graph::CloneUnit;
+use graph::*;
 use text::*;
 
 pub fn index() -> String {
