@@ -28,13 +28,13 @@ pub trait SolveTaskShare<T, L>:
 
 pub trait ToSolver {
     type Load;
-    fn to_solver(&self) -> link::Solver<Self::Load>;
+    fn solver(&self) -> link::Solver<Self::Load>;
 }
 
 pub trait ToTasker {
     type Task;
     type Load;
-    fn to_tasker(&self) -> link::Tasker<Self::Task, Self::Load>;
+    fn tasker(&self) -> link::Tasker<Self::Task, Self::Load>;
 }
 
 pub trait AddStem {

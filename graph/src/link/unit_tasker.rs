@@ -45,7 +45,7 @@ where
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn to_tasker(&self) -> link::Tasker<W::Task, W::Load> {
+    fn tasker(&self) -> link::Tasker<W::Task, W::Load> {
         let edge = self.edge.clone() as Arc<RwLock<dyn SolveTaskShare<W::Task, W::Load>>>;
         link::Tasker {
             edge,

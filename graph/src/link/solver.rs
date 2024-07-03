@@ -7,6 +7,15 @@ pub struct Solver<L> {
     pub meta: Meta,
 }
 
+impl<L> Clone for Solver<L> {
+    fn clone(&self) -> Self {
+        Self {
+            edge: self.edge.clone(),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
 impl<L> Solve for Solver<L> {
     type Load = L;
     fn solve(&self) -> L {

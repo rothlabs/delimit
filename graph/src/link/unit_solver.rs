@@ -41,7 +41,7 @@ where
     L: Clone + 'static,
 {
     type Load = L;
-    fn to_solver(&self) -> link::Solver<L> {
+    fn solver(&self) -> link::Solver<L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
         link::Solver {
             edge,

@@ -12,46 +12,20 @@ mod attribute;
 mod element;
 mod tag;
 
-pub struct Html(UnitTasker<Element, Work>);
+pub struct Html(UnitSolver<Element, plain::View>);
 
 impl Html {
     fn new(element: Element) -> Self {
-        Self(UnitTasker::new(element))
+        Self(UnitSolver::new(element))
     }
     pub fn solve(&self) -> plain::View {
-        if let Load::Text(text) = self.0.solve_task(Task::Text) {
-            return plain::View {
-                solver: text.solver(),
-                exact: plain::Exact::List(text),
-            };
-        }
-        panic!("should have returned text");
+        self.0.solve()
     }
 }
 
 impl Default for Html {
     fn default() -> Self {
-        Self(UnitTasker::new(Element::new()))
-    }
-}
-
-type Work = graph::Work<Task, Load>;
-
-#[derive(Default, Clone, Eq, PartialEq, Hash)]
-pub enum Task {
-    #[default]
-    Text,
-}
-
-#[derive(Clone)]
-pub enum Load {
-    Text(Text<List>),
-    Serial(String),
-}
-
-impl Default for Load {
-    fn default() -> Self {
-        Load::Text(Text::new(List::new()))
+        Self(UnitSolver::new(Element::new()))
     }
 }
 

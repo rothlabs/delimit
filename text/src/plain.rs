@@ -20,7 +20,7 @@ where
         self.0.solve()
     }
     pub fn solver(&self) -> link::Solver<Leaf<String>> {
-        self.0.to_solver()
+        self.0.solver()
     }
     pub fn writer<F: FnOnce(&mut U)>(&self, write: F) {
         self.0.writer(write);
@@ -45,20 +45,6 @@ impl<U> Clone for Text<U> {
     }
 }
 
-//pub type Solver = link::Solver<Leaf<String>>;
-
-//pub trait Into
-
-#[derive(Clone)]
-pub enum Exact {
-    List(Text<List>),
-}
-
-pub struct View {
-    pub exact: Exact,
-    pub solver: link::Solver<Leaf<String>>,
-}
-
 pub enum Item {
     String(String),
     Leaf(Leaf<String>),
@@ -72,6 +58,26 @@ impl Item {
             Item::Leaf(leaf) => leaf.reader(read),
             Item::View(view) => view.solver.solve().reader(read),
         };
+    }
+}
+
+#[derive(Clone)]
+pub struct View {
+    pub exact: Exact,
+    pub solver: link::Solver<Leaf<String>>,
+}
+
+#[derive(Clone)]
+pub enum Exact {
+    List(Text<List>),
+}
+
+impl View {
+    pub fn list(text: &Text<List>) -> Self {
+        View {
+            exact: Exact::List(text.clone()),
+            solver: text.solver(),
+        }
     }
 }
 

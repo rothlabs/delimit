@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use crate::html::*;
-use crate::plain::{List, Text};
+use crate::plain::List;
 
 pub struct Element {
     tag: &'static Tag,
@@ -21,27 +21,11 @@ impl Element {
         }
         list.add_str(">");
     }
-    fn write_items(&self, list: &mut List, reactor: &Reactor) {
+    fn write_items_and_close(&self, list: &mut List, reactor: &Reactor) {
         for item in self.items.iter() {
             item.collect(list, reactor);
         }
         list.add_str(&self.tag.close);
-    }
-    pub fn text(&self) -> Text<List> {
-        let open_tag = " ".text_list();
-        open_tag.writer_with_reactor(|list, reactor| self.write_open(list, reactor));
-        let items = "\n".text_list();
-        items.writer_with_reactor(|list, reactor| {
-            list.add_view(
-                &plain::View {
-                    solver: open_tag.solver(),
-                    exact: plain::Exact::List(open_tag.clone()),
-                },
-                reactor,
-            );
-            self.write_items(list, reactor);
-        });
-        items
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.items.push(Item::String(value.to_owned()));
@@ -52,7 +36,7 @@ impl Element {
             .root
             .as_ref()
             .expect("element should have a root")
-            .replace(Element::default());
+            .replace(Element::new());
         root.items.push(Item::Html(Html::new(self)));
         root
     }
@@ -131,12 +115,16 @@ impl Default for Element {
     }
 }
 
-impl SolveTask for Element {
-    type Task = Task;
-    type Load = Load;
-    fn solve_task(&self, task: Self::Task) -> Self::Load {
-        match task {
-            Task::Text => Load::Text(self.text()),
-        }
+impl Solve for Element {
+    type Load = View;
+    fn solve(&self) -> Self::Load {
+        let open_tag = " ".text_list();
+        open_tag.writer_with_reactor(|list, reactor| self.write_open(list, reactor));
+        let text = "\n".text_list();
+        text.writer_with_reactor(|list, reactor| {
+            list.add_view(&plain::View::list(&open_tag), reactor);
+            self.write_items_and_close(list, reactor);
+        });
+        plain::View::list(&text)
     }
 }
