@@ -32,7 +32,13 @@ impl Element {
         open_tag.writer_with_reactor(|list, reactor| self.write_open(list, reactor));
         let items = "\n".text_list();
         items.writer_with_reactor(|list, reactor| {
-            list.add_text(&open_tag);
+            list.add_view(
+                &plain::View {
+                    solver: open_tag.solver(),
+                    exact: plain::Exact::List(open_tag.clone()),
+                },
+                reactor,
+            );
             self.write_items(list, reactor);
         });
         items

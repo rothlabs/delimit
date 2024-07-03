@@ -26,11 +26,12 @@ impl List {
     pub fn add_leaf(&mut self, item: Leaf<String>) {
         self.items.push(Item::Leaf(item));
     }
-    pub fn add_text<U: Solve<Load = Leaf<String>> + 'static>(&mut self, text: &Text<U>) {
-        self.items.push(Item::Solver(text.0.to_solver()));
-    }
-    pub fn add_solver(&mut self, solver: &Solver, reactor: &Reactor) {
-        self.items.push(Item::Solver(solver.with_reactor(reactor)));
+    pub fn add_view(&mut self, view: &View, reactor: &Reactor) {
+        let view_with_reactor = View {
+            solver: view.solver.with_reactor(reactor),
+            exact: view.exact.clone(),
+        };
+        self.items.push(Item::View(view_with_reactor));
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
@@ -74,6 +75,13 @@ impl TextList for &str {
         List::from_separator(self).text()
     }
 }
+
+// pub fn add_text<U: Solve<Load = Leaf<String>> + 'static>(&mut self, text: &Text<U>) {
+//     self.items.push(Item::View(text.0.to_solver()));
+// }
+// pub fn add_solver(&mut self, solver: &Solver, reactor: &Reactor) {
+//     self.items.push(Item::View(solver.with_reactor(reactor)));
+// }
 
 // impl GraphString for List {
 //     fn string(&self) -> String {

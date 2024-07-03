@@ -18,9 +18,12 @@ impl Html {
     fn new(element: Element) -> Self {
         Self(UnitTasker::new(element))
     }
-    pub fn text(&self) -> Text<List> {
+    pub fn solve(&self) -> plain::View {
         if let Load::Text(text) = self.0.solve_task(Task::Text) {
-            return text;
+            return plain::View {
+                solver: text.solver(),
+                exact: plain::Exact::List(text),
+            };
         }
         panic!("should have returned text");
     }
@@ -54,7 +57,7 @@ impl Default for Load {
 
 enum Item {
     String(String),
-    Text(plain::Solver),
+    Text(plain::View),
     Html(Html),
 }
 
@@ -62,25 +65,32 @@ impl Item {
     fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
             Item::String(string) => list.add_str(string),
-            Item::Text(solver) => list.add_solver(solver, reactor),
-            Item::Html(html) => list.add_text(&html.text().with_reactor(reactor)),
+            Item::Text(view) => list.add_view(view, reactor),
+            Item::Html(html) => list.add_view(&html.solve(), reactor),
         };
     }
 }
 
 enum Attribute {
     String(String),
-    Text(plain::Solver),
+    Text(plain::View),
 }
 
 impl Attribute {
     fn collect(&self, list: &mut List, reactor: &Reactor) {
         match self {
             Attribute::String(string) => list.add_str(string),
-            Attribute::Text(solver) => list.add_solver(solver, reactor),
+            Attribute::Text(view) => list.add_view(view, reactor),
         };
     }
 }
+
+// pub fn text(&self) -> Text<List> {
+//     if let Load::Text(text) = self.0.solve_task(Task::Text) {
+//         return text;
+//     }
+//     panic!("should have returned text");
+// }
 
 // impl Item {
 //     fn collect(&self, text: &Text<List>) {
