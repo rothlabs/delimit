@@ -72,4 +72,3 @@ impl TextList for &str {
 //     }
 //     fn react(&mut self) {}
 // }
-
