@@ -8,20 +8,20 @@ mod tests;
 
 mod struct_rs;
 
-pub type Rust<U> = UnitSolver<U, plain::View>;
+pub type Rust<U> = UnitSolver<U, plain::Role>;
 
 enum Item {
     String(String),
-    Text(plain::View),
+    Text(plain::Role),
     Rust(View),
 }
 
 impl Item {
     fn add_to_list(&self, list: &mut plain::List, reactor: &Reactor) {
         match self {
-            Item::String(string) => list.add_str(string),
-            Item::Text(view) => list.add_view(view, reactor),
-            Item::Rust(view) => list.add_view(&view.solver.solve(), reactor),
+            Item::String(string) => {list.items.add_str(string);},
+            Item::Text(view) => {list.items.add_role(view, reactor);},
+            Item::Rust(view) => {list.items.add_role(&view.solver.solve(), reactor);},
         };
     }
 }
@@ -29,7 +29,7 @@ impl Item {
 #[derive(Clone)]
 pub struct View {
     pub exact: Exact,
-    pub solver: link::Solver<plain::View>,
+    pub solver: link::Solver<plain::Role>,
 }
 
 impl View {

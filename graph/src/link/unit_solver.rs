@@ -109,13 +109,13 @@ impl<U, L> Writer for UnitSolver<U, L> {
     }
 }
 
-impl<U, L> WriterWithReactor for UnitSolver<U, L>
+impl<U, L> WriterWithPack for UnitSolver<U, L>
 where
     U: 'static,
     L: 'static,
 {
     type Unit = U;
-    fn writer_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&self, write: F) {
+    fn writer_pack<F: FnOnce(&mut WriterPack<U>)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer_with_reactor(write, &edge.reactor());
     }

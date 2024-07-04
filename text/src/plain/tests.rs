@@ -2,10 +2,11 @@ use super::*;
 
 fn new_list(leaf: &Leaf<String>) -> Text<List> {
     let text = ", ".text_list();
-    text.writer(|list| {
-        list.add_str("str");
+    text.writer_pack(|pack| {
+        pack.unit.items
+            .add_str("str")
+            .add_leaf(leaf, pack.reactor);
     });
-    text.stemmer(leaf, List::add_leaf);
     text
 }
 

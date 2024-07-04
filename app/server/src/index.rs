@@ -5,10 +5,10 @@ pub fn index() -> String {
     // let leaf = "cool".leaf();
     let mut list = List::default();
     list.separator(" _sep_ ");
-    list.add_str("wow");
+    list.items.add_str("wow");
     let text = list.text();
     text.writer(|list| {
-        list.add_str("item");
+        list.items.add_str("item");
     });
 
     text.solve().solve()

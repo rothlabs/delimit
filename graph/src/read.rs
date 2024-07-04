@@ -4,7 +4,7 @@ pub trait Read {
 }
 
 pub trait Reader {
-    type Unit;
+    type Unit; // TODO: rename to item because it can refer to load or unit?
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F);
 }
 

@@ -8,6 +8,7 @@ pub mod repo;
 pub mod work;
 pub mod write;
 pub mod unit;
+pub mod view;
 
 pub use link::{IntoLeaf, Leaf, Stemmer, ToLeaf, Solver, UnitSolver, UnitTasker};
 pub use meta::Meta;
@@ -18,8 +19,9 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use work::Work;
-pub use write::{SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterWithReactor, WriterPack};
+pub use write::{SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterWithPack, WriterPack};
 pub use unit::Gate;
+pub use view::{Role, View, AddToView, AddStr};
 
 pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
 
@@ -60,21 +62,7 @@ pub trait Memory {
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
-pub enum SolveLay<L> {
-    Bare(L),
-    Leaf(Leaf<L>),
-    Solver(Solver<L>),
-}
 
-impl<L: Clone> SolveLay<L> {
-    pub fn solve(&self) -> L {
-        match self {
-            SolveLay::Bare(unit) => unit.clone(),
-            SolveLay::Leaf(leaf) => leaf.solve(),
-            SolveLay::Solver(solver) => solver.solve(),
-        }
-    }
-}
 
 const NO_POISON: &str = "the lock should not be poisoned";
 

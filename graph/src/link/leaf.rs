@@ -33,7 +33,7 @@ impl<L> FromUnit for Leaf<L> {
     }
 }
 
-impl WithReactor for Leaf<String> {
+impl<L> WithReactor for Leaf<L> {
     fn with_reactor(&self, reactor: &Reactor) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -42,6 +42,16 @@ impl WithReactor for Leaf<String> {
         }
     }
 }
+
+// impl WithReactor for Leaf<String> {
+//     fn with_reactor(&self, reactor: &Reactor) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<L> ToReactor for Leaf<L>
 where
@@ -61,7 +71,7 @@ where
     L: 'static,
 {
     type Unit = L;
-    fn reader<F: FnOnce(&L)>(&self, read: F) {
+    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
         let reactor = self.reactor();

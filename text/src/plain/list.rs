@@ -2,7 +2,7 @@ use crate::plain::*;
 
 #[derive(Default)]
 pub struct List {
-    pub items: Vec<Item>,
+    pub items: Vec<View>,
     separator: String,
 }
 
@@ -20,15 +20,6 @@ impl List {
         sep.clone_into(&mut self.separator);
         self
     }
-    pub fn add_str(&mut self, item: &str) {
-        self.items.push(Item::String(item.to_owned()));
-    }
-    pub fn add_leaf(&mut self, item: Leaf<String>) {
-        self.items.push(Item::Leaf(item));
-    }
-    pub fn add_view(&mut self, view: &View, reactor: &Reactor) {
-        self.items.push(Item::View(view.with_reactor(reactor)));
-    }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
     }
@@ -45,11 +36,11 @@ impl Solve for List {
             return string.into_leaf();
         }
         for i in 0..self.items.len() - 1 {
-            self.items[i].read(|s| string += s);
+            self.items[i].reader(|s| string += s);
             string += &self.separator;
         }
         if let Some(item) = self.items.last() {
-            item.read(|s| string += s);
+            item.reader(|s| string += s);
         }
         string.into_leaf()
     }
@@ -64,6 +55,16 @@ impl TextList for &str {
         List::from_separator(self).text()
     }
 }
+
+    // pub fn add_str(&mut self, item: &str) {
+    //     self.items.push(View::Bare(item.to_owned()));
+    // }
+    // pub fn add_leaf(&mut self, item: Leaf<String>) {
+    //     self.items.push(View::Leaf(item));
+    // }
+    // pub fn add_role(&mut self, role: &Role, reactor: &Reactor) {
+    //     self.items.push(View::Role(role.with_reactor(reactor)));
+    // }
 
 // // TODO: remove need for reactor for Unit that does not need to react
 // impl React for List {

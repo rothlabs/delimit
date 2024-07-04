@@ -12,13 +12,13 @@ mod attribute;
 mod element;
 mod tag;
 
-pub struct Html(UnitSolver<Element, plain::View>);
+pub struct Html(UnitSolver<Element, plain::Role>);
 
 impl Html {
     fn new(element: Element) -> Self {
         Self(UnitSolver::new(element))
     }
-    pub fn solve(&self) -> plain::View {
+    pub fn solve(&self) -> plain::Role {
         self.0.solve()
     }
 }
@@ -31,30 +31,30 @@ impl Default for Html {
 
 enum Item {
     String(String),
-    Text(plain::View),
+    Text(plain::Role),
     Html(Html),
 }
 
 impl Item {
     fn collect(&self, pack: &mut WriterPack<List>) {
         match self {
-            Item::String(string) => pack.unit.add_str(string),
-            Item::Text(view) => pack.unit.add_view(view, pack.reactor),
-            Item::Html(html) => pack.unit.add_view(&html.solve(), pack.reactor),
+            Item::String(string) => {pack.unit.items.add_bare(string);},
+            Item::Text(view) => {pack.unit.items.add_role(view, pack.reactor);},
+            Item::Html(html) => pack.unit.items.add_role(&html.solve(), pack.reactor),
         };
     }
 }
 
 enum Attribute {
     String(String),
-    Text(plain::View),
+    Text(plain::Role),
 }
 
 impl Attribute {
     fn collect(&self, pack: &mut WriterPack<List>) {
         match self {
-            Attribute::String(string) => pack.unit.add_str(string),
-            Attribute::Text(view) => pack.unit.add_view(view, pack.reactor),
+            Attribute::String(string) => {pack.unit.items.add_str(string);},
+            Attribute::Text(view) => {pack.unit.items.add_role(view, pack.reactor);},
         };
     }
 }

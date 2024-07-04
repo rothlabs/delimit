@@ -15,17 +15,17 @@ impl Element {
         Element::default()
     }
     fn write_open(&self, pack: &mut WriterPack<List>) {
-        pack.unit.add_str(&self.tag.open);
+        pack.unit.items.add_str(&self.tag.open);
         for att in self.attributes.iter() {
             att.collect(pack);
         }
-        pack.unit.add_str(">");
+        pack.unit.items.add_str(">");
     }
     fn write_items_and_close(&self, pack: &mut WriterPack<List>) {
         for item in self.items.iter() {
             item.collect(pack);
         }
-        pack.unit.add_str(&self.tag.close);
+        pack.unit.items.add_str(&self.tag.close);
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.items.push(Item::String(value.to_owned()));
@@ -116,15 +116,15 @@ impl Default for Element {
 }
 
 impl Solve for Element {
-    type Load = View;
+    type Load = plain::Role;
     fn solve(&self) -> Self::Load {
         let open_tag = " ".text_list();
-        open_tag.writer_with_reactor(|pack| self.write_open(pack));
+        open_tag.writer_pack(|pack| self.write_open(pack));
         let text = "\n".text_list();
-        text.writer_with_reactor(|pack| {
-            pack.unit.add_view(&plain::View::list(&open_tag), pack.reactor);
+        text.writer_pack(|pack| {
+            pack.unit.items.add_role(&plain::list(&open_tag), pack.reactor);
             self.write_items_and_close(pack);
         });
-        plain::View::list(&text)
+        plain::list(&text)
     }
 }
