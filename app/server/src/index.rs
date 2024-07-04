@@ -11,7 +11,7 @@ pub fn index() -> String {
         list.add_str("item");
     });
 
-    text.solve().unit()
+    text.solve().solve()
 
     //text.add_str("hi there");
     // text.add_leaf(&leaf);

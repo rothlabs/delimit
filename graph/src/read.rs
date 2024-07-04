@@ -8,11 +8,6 @@ pub trait Reader {
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F);
 }
 
-pub trait CloneUnit {
-    type Unit;
-    fn unit(&self) -> Self::Unit;
-}
-
 pub trait Solve {
     type Load;
     fn solve(&self) -> Self::Load;
@@ -23,3 +18,9 @@ pub trait SolveTask {
     type Load;
     fn solve_task(&self, task: Self::Task) -> Self::Load;
 }
+
+
+// pub trait CloneUnit {
+//     type Unit;
+//     fn unit(&self) -> Self::Unit;
+// }

@@ -5,20 +5,27 @@ use serde::Serialize;
 use crate::*;
 
 #[derive(Clone)]
-pub struct Leaf<U> {
-    edge: Arc<RwLock<edge::Leaf<U>>>,
+pub struct Leaf<L> {
+    edge: Arc<RwLock<edge::Leaf<L>>>,
     meta: Meta,
 }
 
-impl<U> PartialEq for Leaf<U> {
+// impl<L: Clone> Leaf<L> {
+//     pub fn load(&self) -> L {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         edge.solve()
+//     }
+// }
+
+impl<L> PartialEq for Leaf<L> {
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<edge::Leaf<U>>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+        Arc::<RwLock<edge::Leaf<L>>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
     }
 }
 
-impl<U> FromUnit for Leaf<U> {
-    type Unit = U;
-    fn new(unit: U) -> Self {
+impl<L> FromUnit for Leaf<L> {
+    type Unit = L;
+    fn new(unit: L) -> Self {
         Self {
             edge: Arc::new(RwLock::new(edge::Leaf::new(unit))),
             meta: Meta::new(),
@@ -36,9 +43,9 @@ impl WithReactor for Leaf<String> {
     }
 }
 
-impl<U> ToReactor for Leaf<U>
+impl<L> ToReactor for Leaf<L>
 where
-    U: 'static,
+    L: 'static,
 {
     fn reactor(&self) -> Reactor {
         let edge = self.edge.clone() as Arc<RwLock<dyn React>>;
@@ -49,12 +56,12 @@ where
     }
 }
 
-impl<U> Reader for Leaf<U>
+impl<L> Reader for Leaf<L>
 where
-    U: 'static,
+    L: 'static,
 {
-    type Unit = U;
-    fn reader<F: FnOnce(&U)>(&self, read: F) {
+    type Unit = L;
+    fn reader<F: FnOnce(&L)>(&self, read: F) {
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
         let reactor = self.reactor();
@@ -62,23 +69,23 @@ where
     }
 }
 
-impl<U> Writer for Leaf<U> {
-    type Unit = U;
-    fn writer<F: FnOnce(&mut U)>(&self, write: F) {
+impl<L> Writer for Leaf<L> {
+    type Unit = L;
+    fn writer<F: FnOnce(&mut L)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer(write);
     }
 }
 
-impl<U: Clone> CloneUnit for Leaf<U> {
-    type Unit = U;
-    fn unit(&self) -> U {
+impl<U: Clone> Solve for Leaf<U> {
+    type Load = U;
+    fn solve(&self) -> U {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.unit()
+        edge.solve()
     }
 }
 
-impl<U> Serialize for Leaf<U> {
+impl<L> Serialize for Leaf<L> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -87,8 +94,8 @@ impl<U> Serialize for Leaf<U> {
     }
 }
 
-pub trait ToLeaf<T> {
-    fn leaf(&self) -> Leaf<T>;
+pub trait ToLeaf<L> {
+    fn leaf(&self) -> Leaf<L>;
 }
 
 impl ToLeaf<String> for str {
@@ -97,21 +104,35 @@ impl ToLeaf<String> for str {
     }
 }
 
-impl<T: GraphString> ToLeaf<String> for T {
-    fn leaf(&self) -> Leaf<String> {
-        self.string().into_leaf()
-    }
+pub trait IntoLeaf<L> {
+    fn into_leaf(self) -> Leaf<L>;
 }
 
-pub trait IntoLeaf<T> {
-    fn into_leaf(self) -> Leaf<T>;
-}
-
-impl<T> IntoLeaf<T> for T {
-    fn into_leaf(self) -> Leaf<T> {
+impl<L> IntoLeaf<L> for L {
+    fn into_leaf(self) -> Leaf<L> {
         Leaf::new(self)
     }
 }
+
+
+
+// impl<U: Clone> CloneUnit for Leaf<U> {
+//     type Unit = U;
+//     fn unit(&self) -> U {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         edge.unit()
+//     }
+// }
+
+
+
+// impl<T: GraphString> ToLeaf<String> for T {
+//     fn leaf(&self) -> Leaf<String> {
+//         self.string().into_leaf()
+//     }
+// }
+
+
 
 // impl<U> PartialEq for Leaf<U> {
 //     fn eq(&self, other: &Self) -> bool {

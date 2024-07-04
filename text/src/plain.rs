@@ -9,6 +9,8 @@ mod list;
 
 pub type Text<U> = UnitSolver<U, Leaf<String>>;
 
+
+// Viewer?!?! Can make generic and impl solve and read. can access the view.exect to travers
 pub enum Item {
     String(String),
     Leaf(Leaf<String>),
@@ -25,6 +27,9 @@ impl Item {
     }
 }
 
+//pub type Gate = graph::Gate<Item>;
+
+// make generic?!?! can make generic. 
 #[derive(Clone)]
 pub struct View {
     pub exact: Exact,

@@ -124,7 +124,7 @@ where
     W: Clear + 'static,
 {
     type Unit = U;
-    fn writer_with_reactor<F: FnOnce(&mut U, &Reactor)>(&self, write: F) {
+    fn writer_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer_with_reactor(write, &edge.reactor());
     }

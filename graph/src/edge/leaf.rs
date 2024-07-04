@@ -45,11 +45,11 @@ impl<U> Writer for Leaf<U> {
     }
 }
 
-impl<U: Clone> CloneUnit for Leaf<U> {
-    type Unit = U;
-    fn unit(&self) -> Self::Unit {
+impl<U: Clone> Solve for Leaf<U> {
+    type Load = U;
+    fn solve(&self) -> U {
         let stem = self.stem.read().expect(NO_POISON);
-        stem.read().clone()
+        stem.unit.clone()
     }
 }
 
@@ -74,3 +74,12 @@ impl<U> React for Leaf<U> {
         }
     }
 }
+
+
+// impl<U: Clone> CloneUnit for Leaf<U> {
+//     type Unit = U;
+//     fn unit(&self) -> Self::Unit {
+//         let stem = self.stem.read().expect(NO_POISON);
+//         stem.read().clone()
+//     }
+// }

@@ -9,7 +9,7 @@ pub struct UnitSolver<U, L> {
 }
 
 impl<U, L> UnitSolver<U, L> {
-    pub fn writer_with_reactor<F: FnOnce(&mut U, &Reactor)>(&self, write: F, reactor: &Reactor) {
+    pub fn writer_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&self, write: F, reactor: &Reactor) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write_with_reactor(write, reactor);
     }

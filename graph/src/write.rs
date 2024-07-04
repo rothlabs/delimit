@@ -12,7 +12,7 @@ pub trait Writer {
 
 pub trait WriteWithReactor {
     type Unit;
-    fn write_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(
+    fn write_with_reactor<F: FnOnce(&mut WriterPack<Self::Unit>)>(
         &mut self,
         write: F,
         reactor: &Reactor,
@@ -21,7 +21,7 @@ pub trait WriteWithReactor {
 
 pub trait WriterWithReactor {
     type Unit;
-    fn writer_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(&self, write: F);
+    fn writer_with_reactor<F: FnOnce(&mut WriterPack<Self::Unit>)>(&self, write: F);
 }
 
 pub trait SolveMut {
@@ -34,3 +34,17 @@ pub trait SolveTaskMut {
     type Load;
     fn solve_task_mut(&mut self, task: Self::Task) -> Self::Load;
 }
+
+pub struct WriterPack<'a, U: 'a> {
+    pub unit: &'a mut U,
+    pub reactor: &'a Reactor
+}
+
+// pub trait WriteWithReactor {
+//     type Unit;
+//     fn write_with_reactor<F: FnOnce(&mut Self::Unit, &Reactor)>(
+//         &mut self,
+//         write: F,
+//         reactor: &Reactor,
+//     );
+// }

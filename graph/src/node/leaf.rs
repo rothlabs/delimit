@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::*;
 
 pub struct Leaf<U> {
-    unit: U,
+    pub unit: U,
     reactors: Reactors,
 }
 
