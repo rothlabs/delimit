@@ -3,21 +3,34 @@ use crate::plain::*;
 pub type Gate = graph::Gate<Item, Leaf<bool>>;
 
 pub trait TextGate {
-    fn text_gate(self, on: &Leaf<bool>) -> Text<Gate>;
+    fn gate(self, on: &Leaf<bool>) -> Role;
 }
 
 impl TextGate for &str {
-    fn text_gate(self, on: &Leaf<bool>) -> Text<Gate> {
-        Text::new(Gate {
+    fn gate(self, on: &Leaf<bool>) -> Role {
+        let text = Text::new(Gate {
             active: Item::Bare(self.into()),
             default: Item::default(),
             on: on.clone(),
-        })
+        });
+        Role {
+            solver: text.solver(),
+            exact: Exact::Gate(text),
+        }
     }
 }
 
-// Text::new(Gate::new(
-//     &Item::Bare(self.into()),
-//     &Item::default(),
-//     on,
-// ))
+// pub trait TextGate {
+//     fn gate(self, on: &Leaf<bool>) -> Text<Gate>;
+// }
+
+// impl TextGate for &str {
+//     fn gate(self, on: &Leaf<bool>) -> Text<Gate> {
+//         Text::new(Gate {
+//             active: Item::Bare(self.into()),
+//             default: Item::default(),
+//             on: on.clone(),
+//         })
+//     }
+// }
+

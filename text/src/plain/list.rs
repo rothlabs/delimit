@@ -1,3 +1,5 @@
+use std::default;
+
 use crate::plain::*;
 
 #[derive(Default)]
@@ -7,24 +9,21 @@ pub struct List {
 }
 
 impl List {
-    pub fn new() -> Self {
-        List::default()
-    }
-    pub fn from_separator(sep: &str) -> Self {
-        Self {
-            items: vec![],
-            separator: sep.to_owned(),
-        }
-    }
+    // pub fn new() -> Self {
+    //     List::default()
+    // }
+    // pub fn from_separator(sep: &str) -> Self {
+    //     Self {
+    //         items: vec![],
+    //         separator: sep.to_owned(),
+    //     }
+    // }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         sep.clone_into(&mut self.separator);
         self
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
-    }
-    pub fn text(self) -> Text<Self> {
-        Text::new(self)
     }
 }
 
@@ -47,14 +46,41 @@ impl Solve for List {
 }
 
 pub trait TextList {
-    fn text_list(self) -> Text<List>;
+    fn list(self) -> Role;
 }
 
 impl TextList for &str {
-    fn text_list(self) -> Text<List> {
-        List::from_separator(self).text()
+    fn list(self) -> Role {
+        let text = Text::new(List{
+            separator: self.into(),
+            items: vec![],
+        });
+        Role {
+            solver: text.solver(),
+            exact: Exact::List(text),
+        }
     }
 }
+
+
+// pub trait TextList {
+//     fn list(self) -> Text<List>;
+// }
+
+// impl TextList for &str {
+//     fn list(self) -> Text<List> {
+//         List::from_separator(self).text()
+//     }
+// }
+
+
+
+    // pub fn text(self) -> Text<Self> {
+    //     Text::new(self)
+    // }
+
+
+
 
 // pub fn add_str(&mut self, item: &str) {
 //     self.items.push(View::Bare(item.to_owned()));

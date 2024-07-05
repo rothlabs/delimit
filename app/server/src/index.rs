@@ -2,16 +2,17 @@ use graph::*;
 use text::*;
 
 pub fn index() -> String {
+    String::new()
     // let leaf = "cool".leaf();
-    let mut list = List::default();
-    list.separator(" _sep_ ");
-    list.items.add_str("wow");
-    let text = list.text();
-    text.writer(|list| {
-        list.items.add_str("item");
-    });
+    // let mut list = List::default();
+    // list.separator(" _sep_ ");
+    // list.items.add_str("wow");
+    // let text = list.text();
+    // text.writer(|list| {
+    //     list.items.add_str("item");
+    // });
 
-    text.solve().solve()
+    // text.solve().solve()
 
     //text.add_str("hi there");
     // text.add_leaf(&leaf);

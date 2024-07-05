@@ -118,15 +118,15 @@ impl Default for Element {
 impl Solve for Element {
     type Load = plain::Role;
     fn solve(&self) -> Self::Load {
-        let open_tag = " ".text_list();
-        open_tag.writer_pack(|pack| self.write_open(pack));
-        let text = "\n".text_list();
-        text.writer_pack(|pack| {
+        let open_tag = " ".list();
+        open_tag.list().writer_pack(|pack| self.write_open(pack));
+        let text = "\n".list();
+        text.list().writer_pack(|pack| {
             pack.unit
                 .items
-                .add_role(&plain::list(&open_tag), pack.reactor);
+                .add_role(&open_tag, pack.reactor);
             self.write_items_and_close(pack);
         });
-        plain::list(&text)
+        text
     }
 }

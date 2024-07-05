@@ -1,8 +1,8 @@
 use super::*;
 
-fn new_list(leaf: &Leaf<String>) -> Text<List> {
-    let text = ", ".text_list();
-    text.writer_pack(|pack| {
+fn new_list(leaf: &Leaf<String>) -> crate::plain::Role {
+    let text = ", ".list();
+    text.list().writer_pack(|pack| {
         pack.unit.items.add_str("str").add_leaf(leaf, pack.reactor);
     });
     text
@@ -12,7 +12,7 @@ fn new_list(leaf: &Leaf<String>) -> Text<List> {
 fn solve_list_as_string() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    text.solve().reader(|string| {
+    text.list().solve().reader(|string| {
         assert_eq!(string, "str, leaf");
     });
 }
@@ -21,7 +21,7 @@ fn solve_list_as_string() {
 fn solve_list_as_leaf() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    text.solve().reader(|string| {
+    text.list().solve().reader(|string| {
         assert_eq!(string, "str, leaf");
     });
 }
@@ -30,18 +30,18 @@ fn solve_list_as_leaf() {
 fn solve_twice_for_same_link() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    assert!(text.solve() == text.solve());
+    assert!(text.list().solve() == text.list().solve());
 }
 
 #[test]
 fn react_from_self() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    let a = text.solve();
-    text.writer(|list| {
+    let a = text.list().solve();
+    text.list().writer(|list| {
         list.separator(" > ");
     });
-    let b = text.solve();
+    let b = text.list().solve();
     assert!(a != b);
 }
 
@@ -49,9 +49,9 @@ fn react_from_self() {
 fn react_from_stem() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    let a = text.solve();
+    let a = text.list().solve();
     leaf.writer(|string| string.push_str("_mutated"));
-    let b = text.solve();
+    let b = text.list().solve();
     assert!(a != b);
 }
 
@@ -59,10 +59,10 @@ fn react_from_stem() {
 fn no_reactions_after_dropping_stem() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
-    let _r = text.solve();
-    text.writer(|list| list.remove(1));
-    let a = text.solve();
+    let _r = text.list().solve();
+    text.list().writer(|list| list.remove(1));
+    let a = text.list().solve();
     leaf.writer(|string| string.push_str("_mutated"));
-    let b = text.solve();
+    let b = text.list().solve();
     assert!(a == b);
 }

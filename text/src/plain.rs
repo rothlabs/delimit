@@ -29,19 +29,42 @@ pub enum Exact {
     Unknown,
 }
 
-pub fn list(text: &Text<List>) -> Role {
-    Role {
-        exact: Exact::List(text.clone()),
-        solver: text.solver(),
+pub trait ToExact {
+    fn gate(&self) -> &Text<Gate>;
+    fn list(&self) -> &Text<List>;
+}
+
+impl ToExact for Role {
+    fn gate(&self) -> &Text<Gate> {
+        if let Exact::Gate(text) = &self.exact {
+            return text
+        }
+        panic!("not a gate")
+    }
+    fn list(&self) -> &Text<List> {
+        if let Exact::List(text) = &self.exact {
+            return text
+        }
+        panic!("not a list")
     }
 }
 
-pub fn gate(text: &Text<Gate>) -> Role {
-    Role {
-        exact: Exact::Gate(text.clone()),
-        solver: text.solver(),
-    }
-}
+
+// pub fn list(text: &Text<List>) -> Role {
+//     Role {
+//         exact: Exact::List(text.clone()),
+//         solver: text.solver(),
+//     }
+// }
+
+// pub fn gate(text: &Text<Gate>) -> Role {
+//     Role {
+//         exact: Exact::Gate(text.clone()),
+//         solver: text.solver(),
+//     }
+// }
+
+
 
 // impl Text<Gate> {
 //     fn role(&self) -> Role {
