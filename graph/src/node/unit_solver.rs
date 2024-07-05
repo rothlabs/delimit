@@ -53,7 +53,10 @@ impl<U, L> Write for UnitSolver<U, L> {
 impl<U, L> WriteWithReactor for UnitSolver<U, L> {
     type Unit = U;
     fn write_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&mut self, write: F, reactor: &Reactor) {
-        write(&mut WriterPack{unit: &mut self.unit, reactor: reactor});
+        write(&mut WriterPack {
+            unit: &mut self.unit,
+            reactor: reactor,
+        });
         self.load = None;
         self.reactors.cycle();
     }

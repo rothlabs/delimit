@@ -37,7 +37,7 @@ pub trait SolveTaskMut {
 
 pub struct WriterPack<'a, U: 'a> {
     pub unit: &'a mut U,
-    pub reactor: &'a Reactor
+    pub reactor: &'a Reactor,
 }
 
 // pub trait WriteWithReactor {

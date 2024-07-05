@@ -5,12 +5,12 @@ pub mod node;
 pub mod react;
 pub mod read;
 pub mod repo;
-pub mod work;
-pub mod write;
 pub mod unit;
 pub mod view;
+pub mod work;
+pub mod write;
 
-pub use link::{IntoLeaf, Leaf, Stemmer, ToLeaf, Solver, UnitSolver, UnitTasker};
+pub use link::{IntoLeaf, Leaf, Solver, Stemmer, ToLeaf, UnitSolver, UnitTasker};
 pub use meta::Meta;
 pub use react::{
     AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
@@ -18,10 +18,14 @@ pub use react::{
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
-pub use work::Work;
-pub use write::{SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterWithPack, WriterPack};
 pub use unit::Gate;
-pub use view::{Role, View, AddToView, AddStr};
+pub use view::{AddStr, AddToView, View};
+pub use work::Work;
+pub use write::{
+    SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterPack, WriterWithPack,
+};
+
+const NO_POISON: &str = "the lock should not be poisoned";
 
 pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
 
@@ -62,10 +66,23 @@ pub trait Memory {
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
+#[derive(Clone)]
+pub struct Role<L, E> {
+    pub exact: E,
+    pub solver: Solver<L>,
+}
 
-
-const NO_POISON: &str = "the lock should not be poisoned";
-
+impl<L, E> WithReactor for Role<L, E>
+where
+    E: Clone,
+{
+    fn with_reactor(&self, reactor: &Reactor) -> Self {
+        Self {
+            exact: self.exact.clone(),
+            solver: self.solver.with_reactor(reactor),
+        }
+    }
+}
 
 // impl<L: 'static> SolveLay<L> {
 //     pub fn read<F: FnOnce(&L)>(&self, read: F) {
@@ -76,9 +93,6 @@ const NO_POISON: &str = "the lock should not be poisoned";
 //         };
 //     }
 // }
-
-
-
 
 // /// Make a string. ToLeaf comes for free.
 // pub trait GraphString {

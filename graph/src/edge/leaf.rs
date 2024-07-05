@@ -75,7 +75,6 @@ impl<U> React for Leaf<U> {
     }
 }
 
-
 // impl<U: Clone> CloneUnit for Leaf<U> {
 //     type Unit = U;
 //     fn unit(&self) -> Self::Unit {

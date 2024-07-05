@@ -3,9 +3,7 @@ use super::*;
 fn new_list(leaf: &Leaf<String>) -> Text<List> {
     let text = ", ".text_list();
     text.writer_pack(|pack| {
-        pack.unit.items
-            .add_str("str")
-            .add_leaf(leaf, pack.reactor);
+        pack.unit.items.add_str("str").add_leaf(leaf, pack.reactor);
     });
     text
 }

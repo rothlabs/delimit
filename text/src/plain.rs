@@ -1,23 +1,32 @@
 use graph::*;
 
+pub use gate::{Gate, TextGate};
 pub use list::{List, TextList};
 
 #[cfg(test)]
 mod tests;
 
+mod gate;
 mod list;
 
-pub type Load = Leaf<String>;
-
-pub type Text<U> = UnitSolver<U, Load>;
-
-pub type View = graph::View<Load, Exact>;
+pub enum View<L, E> {
+    Text(Item),
+    Role(graph::Role<L, E>),
+}
 
 pub type Role = graph::Role<Load, Exact>;
+
+type Item = graph::View<Load, Exact>;
+
+type Load = Leaf<String>;
+
+type Text<U> = UnitSolver<U, Load>;
 
 #[derive(Clone)]
 pub enum Exact {
     List(Text<List>),
+    Gate(Text<Gate>),
+    Unknown,
 }
 
 pub fn list(text: &Text<List>) -> Role {
@@ -27,9 +36,16 @@ pub fn list(text: &Text<List>) -> Role {
     }
 }
 
+// pub fn gate(text: &Text<Gate>) -> Role {
+//     Role {
+//         exact: Exact::Gate(text.clone()),
+//         solver: text.solver(),
+//     }
+// }
+
 // //pub type Gate = graph::Gate<Item>;
 
-// // make generic?!?! can make generic. 
+// // make generic?!?! can make generic.
 // #[derive(Clone)]
 // pub struct View {
 //     pub exact: Exact,
@@ -51,11 +67,6 @@ pub fn list(text: &Text<List>) -> Role {
 //     }
 // }
 
-
-
-
-
-
 // // Viewer?!?! Can make generic and impl solve and read. can access the view.exect to travers
 // pub enum Item {
 //     String(String),
@@ -75,7 +86,7 @@ pub fn list(text: &Text<List>) -> Role {
 
 // //pub type Gate = graph::Gate<Item>;
 
-// // make generic?!?! can make generic. 
+// // make generic?!?! can make generic.
 // #[derive(Clone)]
 // pub struct View {
 //     pub exact: Exact,

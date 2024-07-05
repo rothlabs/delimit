@@ -6,18 +6,10 @@ pub struct Gate<T, O> {
     pub on: O,
 }
 
-// impl<L> Gate<L> {
-//     fn new(load: L, default: L) -> Self {
-//         Self {
-//             on: BareLeaf::new(true)
-//         }
-//     }
-// }
-
-impl<T, O> Solve for Gate<T, O> 
-where 
+impl<T, O> Solve for Gate<T, O>
+where
     T: Solve,
-    O: Solve<Load = bool>, 
+    O: Solve<Load = bool>,
 {
     type Load = T::Load;
     fn solve(&self) -> T::Load {
@@ -28,3 +20,18 @@ where
         }
     }
 }
+
+
+// impl<L, O> Gate<L, O>
+// where
+//     L: Clone,
+//     O: Clone,
+// {
+//     pub fn new(active: &L, default: &L, on: &O) -> Self {
+//         Self {
+//             active: active.clone(),
+//             default: default.clone(),
+//             on: on.clone(),
+//         }
+//     }
+// }

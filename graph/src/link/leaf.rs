@@ -124,8 +124,6 @@ impl<L> IntoLeaf<L> for L {
     }
 }
 
-
-
 // impl<U: Clone> CloneUnit for Leaf<U> {
 //     type Unit = U;
 //     fn unit(&self) -> U {
@@ -134,15 +132,11 @@ impl<L> IntoLeaf<L> for L {
 //     }
 // }
 
-
-
 // impl<T: GraphString> ToLeaf<String> for T {
 //     fn leaf(&self) -> Leaf<String> {
 //         self.string().into_leaf()
 //     }
 // }
-
-
 
 // impl<U> PartialEq for Leaf<U> {
 //     fn eq(&self, other: &Self) -> bool {

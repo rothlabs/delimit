@@ -19,7 +19,6 @@ pub trait SolveTask {
     fn solve_task(&self, task: Self::Task) -> Self::Load;
 }
 
-
 // pub trait CloneUnit {
 //     type Unit;
 //     fn unit(&self) -> Self::Unit;

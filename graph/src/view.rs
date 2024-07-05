@@ -1,14 +1,25 @@
 use crate::*;
 
-pub enum View<L: Reader, E> {
-    Bare(L::Unit),
+#[derive(Clone)]
+pub enum View<L: Reader, E> { // remove Reader bound
+    Bare(L::Unit), // replace with L
     Leaf(Leaf<L::Unit>),
-    Role(Role<L, E>),
+    Role(Role<L, E>), // TODO: replace L with Leaf<L>
 }
 
-impl<L, E> Reader for View<L, E> 
-where 
-    L: Reader + 'static, 
+impl<L, E> Default for View<L, E>
+where
+    L: Reader,
+    L::Unit: Default,
+{
+    fn default() -> Self {
+        Self::Bare(L::Unit::default())
+    }
+}
+
+impl<L, E> Reader for View<L, E>
+where
+    L: Reader + 'static,
 {
     type Unit = L::Unit;
     fn reader<F: FnOnce(&L::Unit)>(&self, read: F) {
@@ -20,6 +31,13 @@ where
     }
 }
 
+// impl<L, E> Solve for View<L, E> 
+// where 
+//     L: Reader,
+// {
+//     type Load = L::Unit;
+// }
+
 pub trait AddToView {
     type Load: Reader;
     type Exact;
@@ -28,8 +46,8 @@ pub trait AddToView {
     fn add_role(&mut self, role: &Role<Self::Load, Self::Exact>, reactor: &Reactor);
 }
 
-impl<L, E> AddToView for Vec<View<L, E>> 
-where 
+impl<L, E> AddToView for Vec<View<L, E>>
+where
     L: Reader + Clone,
     L::Unit: Clone,
     E: Clone,
@@ -59,23 +77,18 @@ impl<E> AddStr for Vec<View<Leaf<String>, E>> {
     }
 }
 
-#[derive(Clone)]
-pub struct Role<L, E> {
-    pub exact: E,
-    pub solver: Solver<L>,
-}
-
-impl<L, E> WithReactor for Role<L, E> 
-where 
-    E: Clone,
-{
-    fn with_reactor(&self, reactor: &Reactor) -> Self {
-        Self {
-            exact: self.exact.clone(),
-            solver: self.solver.with_reactor(reactor),
-        }
-    }
-}
+// // this Reader impl might only be needed to satisfy a bound in View
+// // find a way to remove it
+// impl<L, E> Reader for Role<L, E>
+// where
+//     L: Reader,
+// {
+//     type Unit = L::Unit;
+//     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+//         self.solver.solve().reader(read);
+//         panic!("reading a role directly should not be used?");
+//     }
+// }
 
 // pub trait ToViewsBuilder<L: Reader, E> {
 //     fn builder(&mut self) -> ViewsBuilder<L, E>;
@@ -89,24 +102,20 @@ where
 
 // pub struct ViewsBuilder<'a, L: Reader, E> {
 //     views: &'a mut Vec<View<L, E>>,
-//     reactor: Option<&'a Reactor>, 
+//     reactor: Option<&'a Reactor>,
 // }
 
 // impl<'a, L: Reader, E> ViewsBuilder<'a, L, E> {
-    
+
 // }
-
-
-
-
 
 // pub trait AddLeaf {
 //     type Item;
 //     fn add_leaf(&mut self, bare: &Self::Item);
 // }
 
-// impl<L, E> AddLeaf for Vec<View<L, E>> 
-// where 
+// impl<L, E> AddLeaf for Vec<View<L, E>>
+// where
 //     L: Reader + Clone,
 // {
 //     type Item = L::Unit;
@@ -115,7 +124,6 @@ where
 //     }
 // }
 
-
 // impl<L, E> Solve for Role<L, E> {
 //     type Load = L;
 //     fn solve(&self) -> Self::Load {
@@ -123,10 +131,9 @@ where
 //     }
 // }
 
-
-// impl<L, E> Reader for View<L, E> 
-// where 
-//     L: Reader + 'static, 
+// impl<L, E> Reader for View<L, E>
+// where
+//     L: Reader + 'static,
 // {
 //     type Unit = L::Unit;
 //     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -134,8 +141,8 @@ where
 //     }
 // }
 
-// impl<L, E> Solve for Viewer<L, E> 
-// where 
+// impl<L, E> Solve for Viewer<L, E>
+// where
 //     L: Clone,
 // {
 //     type Load = L;

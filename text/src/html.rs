@@ -1,5 +1,5 @@
-use graph::*;
 use crate::plain::{self, *};
+use graph::*;
 
 pub use attribute::*;
 pub use element::Element;
@@ -38,8 +38,12 @@ enum Item {
 impl Item {
     fn collect(&self, pack: &mut WriterPack<List>) {
         match self {
-            Item::String(string) => {pack.unit.items.add_bare(string);},
-            Item::Text(view) => {pack.unit.items.add_role(view, pack.reactor);},
+            Item::String(string) => {
+                pack.unit.items.add_bare(string);
+            }
+            Item::Text(view) => {
+                pack.unit.items.add_role(view, pack.reactor);
+            }
             Item::Html(html) => pack.unit.items.add_role(&html.solve(), pack.reactor),
         };
     }
@@ -53,8 +57,12 @@ enum Attribute {
 impl Attribute {
     fn collect(&self, pack: &mut WriterPack<List>) {
         match self {
-            Attribute::String(string) => {pack.unit.items.add_str(string);},
-            Attribute::Text(view) => {pack.unit.items.add_role(view, pack.reactor);},
+            Attribute::String(string) => {
+                pack.unit.items.add_str(string);
+            }
+            Attribute::Text(view) => {
+                pack.unit.items.add_role(view, pack.reactor);
+            }
         };
     }
 }
