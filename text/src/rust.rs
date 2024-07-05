@@ -10,7 +10,7 @@ mod struct_rs;
 
 pub type Role = graph::Role<Load, Exact>;
 
-type Item = plain::View<Load, Exact>;
+type Item = plain::View<Exact>;
 
 type Load = plain::Role;
 
@@ -21,12 +21,12 @@ pub enum Exact {
     StructRs(Rust<StructRs>),
 }
 
-pub fn struct_rs(rust: &Rust<StructRs>) -> Role {
-    Role {
-        exact: Exact::StructRs(rust.clone()),
-        solver: rust.solver(),
-    }
-}
+// pub fn struct_rs(rust: &Rust<StructRs>) -> Role {
+//     Role {
+//         exact: Exact::StructRs(rust.clone()),
+//         solver: rust.solver(),
+//     }
+// }
 
 // enum Item {
 //     String(String),

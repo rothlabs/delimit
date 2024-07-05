@@ -44,7 +44,9 @@ impl Item {
             Item::Text(view) => {
                 pack.unit.items.add_role(view, pack.reactor);
             }
-            Item::Html(html) => pack.unit.items.add_role(&html.solve(), pack.reactor),
+            Item::Html(html) => {
+                pack.unit.items.add_role(&html.solve(), pack.reactor);
+            },
         };
     }
 }

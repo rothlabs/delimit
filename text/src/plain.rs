@@ -9,9 +9,18 @@ mod tests;
 mod gate;
 mod list;
 
-pub enum View<L, E> {
+pub enum View<E> {
     Text(Item),
-    Role(graph::Role<L, E>),
+    Role(graph::Role<Role, E>),
+}
+
+impl<E> View<E> {
+    pub fn item(&self, reactor: &Reactor) -> Item {
+        match self {
+            View::Text(item) => item.clone(),
+            View::Role(role) => Item::Role(role.solver.solve().with_reactor(reactor)),   
+        }
+    }
 }
 
 pub type Role = graph::Role<Load, Exact>;
@@ -29,25 +38,25 @@ pub enum Exact {
     Unknown,
 }
 
-pub trait ToExact {
-    fn gate(&self) -> &Text<Gate>;
-    fn list(&self) -> &Text<List>;
-}
+// pub trait ToExact {
+//     fn gate(&self) -> &Text<Gate>;
+//     fn list(&self) -> &Text<List>;
+// }
 
-impl ToExact for Role {
-    fn gate(&self) -> &Text<Gate> {
-        if let Exact::Gate(text) = &self.exact {
-            return text
-        }
-        panic!("not a gate")
-    }
-    fn list(&self) -> &Text<List> {
-        if let Exact::List(text) = &self.exact {
-            return text
-        }
-        panic!("not a list")
-    }
-}
+// impl ToExact for Role {
+//     fn gate(&self) -> &Text<Gate> {
+//         if let Exact::Gate(text) = &self.exact {
+//             return text
+//         }
+//         panic!("not a gate")
+//     }
+//     fn list(&self) -> &Text<List> {
+//         if let Exact::List(text) = &self.exact {
+//             return text
+//         }
+//         panic!("not a list")
+//     }
+// }
 
 
 // pub fn list(text: &Text<List>) -> Role {

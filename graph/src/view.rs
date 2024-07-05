@@ -1,5 +1,7 @@
 use crate::*;
 
+
+// TODO: impl WithReactor
 #[derive(Clone)]
 pub enum LeafView<L, E> { 
     Bare(L), 
@@ -44,21 +46,26 @@ where
     }
 }
 
-pub trait AddToLeafView {
+pub trait AddToLeafViews<L, E> {
     type Load;
     type Exact;
+    fn add(&mut self, item: LeafView<L, E>) -> &mut Self;
     fn add_bare(&mut self, bare: &Self::Load) -> &mut Self;
     fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &Reactor);
-    fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Reactor);
+    fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Reactor) -> &mut Self;
 }
 
-impl<L, E> AddToLeafView for Vec<LeafView<L, E>>
+impl<L, E> AddToLeafViews<L, E> for Vec<LeafView<L, E>>
 where
     L: Clone,
     E: Clone,
 {
     type Load = L;
     type Exact = E;
+    fn add(&mut self, item: LeafView<L, E>) -> &mut Self {
+        self.push(item);
+        self
+    }
     fn add_bare(&mut self, bare: &L) -> &mut Self {
         self.push(LeafView::Bare(bare.clone()));
         self
@@ -66,8 +73,9 @@ where
     fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Reactor) {
         self.push(LeafView::Leaf(leaf.with_reactor(reactor)));
     }
-    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Reactor) {
+    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Reactor) -> &mut Self {
         self.push(LeafView::Role(role.with_reactor(reactor)));
+        self
     }
 }
 
