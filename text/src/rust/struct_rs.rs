@@ -1,4 +1,4 @@
-use plain::TextGate;
+use plain::*;
 
 use crate::rust::*;
 
@@ -16,8 +16,8 @@ impl Solve for StructRs {
         let text = "\n".text_list();
         let pub_rs = "pub".text_gate(&self.pub_rs);
         text.writer_pack(|pack| {
-            // pack.unit.items.add_role(pub_rs, pack.reactor);
+            pack.unit.items.add_role(&gate(&pub_rs), pack.reactor);
         });
-        plain::list(&text)
+        list(&text)
     }
 }

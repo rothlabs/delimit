@@ -19,7 +19,7 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
-pub use view::{AddStr, AddToView, View};
+pub use view::{AddStr, AddToLeafView, LeafView};
 pub use work::Work;
 pub use write::{
     SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterPack, WriterWithPack,

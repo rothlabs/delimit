@@ -1,68 +1,73 @@
 use crate::*;
 
 #[derive(Clone)]
-pub enum View<L: Reader, E> { // remove Reader bound
-    Bare(L::Unit), // replace with L
-    Leaf(Leaf<L::Unit>),
-    Role(Role<L, E>), // TODO: replace L with Leaf<L>
+pub enum LeafView<L, E> { 
+    Bare(L), 
+    Leaf(Leaf<L>),
+    Role(Role<Leaf<L>, E>),
 }
 
-impl<L, E> Default for View<L, E>
+impl<L, E> Default for LeafView<L, E>
 where
-    L: Reader,
-    L::Unit: Default,
+    L: Default,
 {
     fn default() -> Self {
-        Self::Bare(L::Unit::default())
+        Self::Bare(L::default())
     }
 }
 
-impl<L, E> Reader for View<L, E>
+impl<L, E> Reader for LeafView<L, E>
 where
-    L: Reader + 'static,
+    L: 'static,
 {
-    type Unit = L::Unit;
-    fn reader<F: FnOnce(&L::Unit)>(&self, read: F) {
+    type Unit = L;
+    fn reader<F: FnOnce(&L)>(&self, read: F) {
         match self {
-            View::Bare(bare) => read(bare),
-            View::Leaf(leaf) => leaf.reader(read),
-            View::Role(role) => role.solver.solve().reader(read),
+            LeafView::Bare(bare) => read(bare),
+            LeafView::Leaf(leaf) => leaf.reader(read),
+            LeafView::Role(role) => role.solver.solve().reader(read),
         };
     }
 }
 
-// impl<L, E> Solve for View<L, E> 
-// where 
-//     L: Reader,
-// {
-//     type Load = L::Unit;
-// }
-
-pub trait AddToView {
-    type Load: Reader;
-    type Exact;
-    fn add_bare(&mut self, bare: &<Self::Load as Reader>::Unit) -> &mut Self;
-    fn add_leaf(&mut self, leaf: &Leaf<<Self::Load as Reader>::Unit>, reactor: &Reactor);
-    fn add_role(&mut self, role: &Role<Self::Load, Self::Exact>, reactor: &Reactor);
+impl<L, E> Solve for LeafView<L, E> 
+where 
+    L: Clone + 'static,
+{
+    type Load = Leaf<L>;
+    fn solve(&self) -> Leaf<L> {
+        match self {
+            LeafView::Bare(bare) => bare.clone().into_leaf(),
+            LeafView::Leaf(leaf) => leaf.clone(),
+            LeafView::Role(role) => role.solver.solve(),
+        }
+    }
 }
 
-impl<L, E> AddToView for Vec<View<L, E>>
+pub trait AddToLeafView {
+    type Load;
+    type Exact;
+    fn add_bare(&mut self, bare: &Self::Load) -> &mut Self;
+    fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &Reactor);
+    fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Reactor);
+}
+
+impl<L, E> AddToLeafView for Vec<LeafView<L, E>>
 where
-    L: Reader + Clone,
-    L::Unit: Clone,
+    L: Clone,
     E: Clone,
 {
     type Load = L;
     type Exact = E;
-    fn add_bare(&mut self, bare: &L::Unit) -> &mut Self {
-        self.push(View::Bare(bare.clone()));
+    fn add_bare(&mut self, bare: &L) -> &mut Self {
+        self.push(LeafView::Bare(bare.clone()));
         self
     }
-    fn add_leaf(&mut self, leaf: &Leaf<L::Unit>, reactor: &Reactor) {
-        self.push(View::Leaf(leaf.with_reactor(reactor)));
+    fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Reactor) {
+        self.push(LeafView::Leaf(leaf.with_reactor(reactor)));
     }
-    fn add_role(&mut self, role: &Role<L, E>, reactor: &Reactor) {
-        self.push(View::Role(role.with_reactor(reactor)));
+    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Reactor) {
+        self.push(LeafView::Role(role.with_reactor(reactor)));
     }
 }
 
@@ -70,9 +75,9 @@ pub trait AddStr {
     fn add_str(&mut self, load: &str) -> &mut Self;
 }
 
-impl<E> AddStr for Vec<View<Leaf<String>, E>> {
+impl<E> AddStr for Vec<LeafView<String, E>> {
     fn add_str(&mut self, load: &str) -> &mut Self {
-        self.push(View::Bare(load.to_owned()));
+        self.push(LeafView::Bare(load.into()));
         self
     }
 }

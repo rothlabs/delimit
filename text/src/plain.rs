@@ -16,7 +16,7 @@ pub enum View<L, E> {
 
 pub type Role = graph::Role<Load, Exact>;
 
-type Item = graph::View<Load, Exact>;
+type Item = LeafView<String, Exact>;
 
 type Load = Leaf<String>;
 
@@ -36,10 +36,19 @@ pub fn list(text: &Text<List>) -> Role {
     }
 }
 
-// pub fn gate(text: &Text<Gate>) -> Role {
-//     Role {
-//         exact: Exact::Gate(text.clone()),
-//         solver: text.solver(),
+pub fn gate(text: &Text<Gate>) -> Role {
+    Role {
+        exact: Exact::Gate(text.clone()),
+        solver: text.solver(),
+    }
+}
+
+// impl Text<Gate> {
+//     fn role(&self) -> Role {
+//         Role {
+//             exact: Exact::Gate(self.clone()),
+//             solver: self.solver(),
+//         }
 //     }
 // }
 
