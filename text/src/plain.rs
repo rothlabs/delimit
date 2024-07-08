@@ -1,27 +1,15 @@
 use graph::*;
 
+pub use view::View;
 pub use gate::{Gate, TextGate};
 pub use list::{List, TextList};
 
 #[cfg(test)]
 mod tests;
 
+mod view;
 mod gate;
 mod list;
-
-pub enum View<E> {
-    Text(Item),
-    Role(graph::Role<Role, E>),
-}
-
-impl<E> View<E> {
-    pub fn item(&self, reactor: &Reactor) -> Item {
-        match self {
-            View::Text(item) => item.clone(),
-            View::Role(role) => Item::Role(role.solver.solve().with_reactor(reactor)),   
-        }
-    }
-}
 
 pub type Role = graph::Role<Load, Exact>;
 
@@ -37,6 +25,26 @@ pub enum Exact {
     Gate(Text<Gate>),
     Unknown,
 }
+
+pub fn string<E>(string: &str) -> View<E> {
+    View::Text(LeafView::Bare(string.into()))
+}
+
+// type Bool = LeafView<bool, ExactBool>;
+
+// #[derive(Clone)]
+// pub enum ExactBool {
+//     Unknown,
+// }
+
+// impl<E> View<E> {
+//     pub fn item(&self, reactor: &Reactor) -> Item {
+//         match self {
+//             View::Text(item) => item.clone(),
+//             View::Role(role) => Item::Role(role.solver.solve().with_reactor(reactor)),
+//         }
+//     }
+// }
 
 // pub trait ToExact {
 //     fn gate(&self) -> &Text<Gate>;
@@ -58,7 +66,6 @@ pub enum Exact {
 //     }
 // }
 
-
 // pub fn list(text: &Text<List>) -> Role {
 //     Role {
 //         exact: Exact::List(text.clone()),
@@ -72,8 +79,6 @@ pub enum Exact {
 //         solver: text.solver(),
 //     }
 // }
-
-
 
 // impl Text<Gate> {
 //     fn role(&self) -> Role {

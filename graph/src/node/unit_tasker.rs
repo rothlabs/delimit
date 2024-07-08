@@ -62,9 +62,8 @@ where
     W: Clear,
 {
     type Unit = U;
-    fn write_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&mut self, write: F, reactor: &Reactor) {
-        // write(&mut self.unit, reactor);
-        write(&mut WriterPack {
+    fn write_with_reactor<F: FnOnce(&mut Pack<U>)>(&mut self, write: F, reactor: &Reactor) {
+        write(&mut Pack {
             unit: &mut self.unit,
             reactor: reactor,
         });

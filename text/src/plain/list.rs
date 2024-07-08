@@ -1,5 +1,3 @@
-use std::default;
-
 use crate::plain::*;
 
 #[derive(Default)]
@@ -51,7 +49,7 @@ pub trait TextList {
 
 impl TextList for &str {
     fn list(self) -> (Role, Text<List>) {
-        let text = Text::new(List{
+        let text = Text::new(List {
             separator: self.into(),
             items: vec![],
         });
@@ -63,7 +61,6 @@ impl TextList for &str {
     }
 }
 
-
 // pub trait TextList {
 //     fn list(self) -> Text<List>;
 // }
@@ -74,14 +71,9 @@ impl TextList for &str {
 //     }
 // }
 
-
-
-    // pub fn text(self) -> Text<Self> {
-    //     Text::new(self)
-    // }
-
-
-
+// pub fn text(self) -> Text<Self> {
+//     Text::new(self)
+// }
 
 // pub fn add_str(&mut self, item: &str) {
 //     self.items.push(View::Bare(item.to_owned()));

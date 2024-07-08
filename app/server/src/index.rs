@@ -1,6 +1,3 @@
-use graph::*;
-use text::*;
-
 pub fn index() -> String {
     String::new()
     // let leaf = "cool".leaf();

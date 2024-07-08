@@ -9,11 +9,11 @@ pub struct Gate<T, O> {
 impl<T, O> Solve for Gate<T, O>
 where
     T: Solve,
-    O: Solve<Load = bool>,
+    O: Solve<Load = Leaf<bool>>,
 {
     type Load = T::Load;
     fn solve(&self) -> T::Load {
-        if self.on.solve() {
+        if self.on.solve().load() {
             self.active.solve()
         } else {
             self.default.solve()
@@ -21,6 +21,11 @@ where
     }
 }
 
+// if self.on.solve().solve() {
+//     self.active.solve()
+// } else {
+//    self.default.solve()
+// }
 
 // impl<L, O> Gate<L, O>
 // where

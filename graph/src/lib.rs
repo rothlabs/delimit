@@ -19,10 +19,10 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
-pub use view::{AddStr, AddToLeafViews, LeafView};
+pub use view::{AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
 pub use work::Work;
 pub use write::{
-    SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, WriterPack, WriterWithPack,
+    SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, Pack, WriterWithPack,
 };
 
 const NO_POISON: &str = "the lock should not be poisoned";
@@ -66,10 +66,23 @@ pub trait Memory {
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
+pub trait SolveWithReactor {
+    //////////////////////////////////////////////////
+    type Item;
+    fn solve_with_reactor(&self, reactor: &Reactor) -> Self::Item;
+}
+
 #[derive(Clone)]
 pub struct Role<L, E> {
     pub exact: E,
     pub solver: Solver<L>,
+}
+
+impl<L, E> Solve for Role<L, E> {
+    type Load = L;
+    fn solve(&self) -> Self::Load {
+        self.solver.solve()
+    }
 }
 
 impl<L, E> WithReactor for Role<L, E>

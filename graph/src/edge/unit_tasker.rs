@@ -12,7 +12,7 @@ impl<U, W> UnitTasker<U, W>
 where
     W: Clear,
 {
-    pub fn writer_with_reactor<F: FnOnce(&mut WriterPack<U>)>(&self, write: F, reactor: &Reactor) {
+    pub fn writer_with_reactor<F: FnOnce(&mut Pack<U>)>(&self, write: F, reactor: &Reactor) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write_with_reactor(write, reactor);
     }

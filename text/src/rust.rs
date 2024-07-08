@@ -1,11 +1,13 @@
-use crate::plain::{self, TextList};
+use crate::plain;
 use graph::*;
 
-pub use struct_rs::StructRs;
+pub use generics::{generics, Generics};
+pub use struct_rs::{struct_rs, StructRs};
 
 #[cfg(test)]
 mod tests;
 
+mod generics;
 mod struct_rs;
 
 pub type Role = graph::Role<Load, Exact>;
@@ -19,6 +21,7 @@ type Rust<U> = UnitSolver<U, Load>;
 #[derive(Clone)]
 pub enum Exact {
     StructRs(Rust<StructRs>),
+    Generics(Rust<Generics>),
 }
 
 // pub fn struct_rs(rust: &Rust<StructRs>) -> Role {

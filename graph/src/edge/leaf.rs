@@ -8,6 +8,13 @@ pub struct Leaf<U> {
     meta: Meta,
 }
 
+impl<U: Clone> Leaf<U> {
+    pub fn load(&self) -> U {
+        let stem = self.stem.read().expect(NO_POISON);
+        stem.unit.clone()
+    }
+}
+
 impl<U> FromUnit for Leaf<U> {
     type Unit = U;
     fn new(unit: U) -> Self {
@@ -45,13 +52,13 @@ impl<U> Writer for Leaf<U> {
     }
 }
 
-impl<U: Clone> Solve for Leaf<U> {
-    type Load = U;
-    fn solve(&self) -> U {
-        let stem = self.stem.read().expect(NO_POISON);
-        stem.unit.clone()
-    }
-}
+// impl<U: Clone> Solve for Leaf<U> {
+//     type Load = U;
+//     fn solve(&self) -> U {
+//         let stem = self.stem.read().expect(NO_POISON);
+//         stem.unit.clone()
+//     }
+// }
 
 impl<U> AddReactor for Leaf<U> {
     fn add_reactor(&mut self, reactor: Reactor) {

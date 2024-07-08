@@ -36,7 +36,7 @@ enum Item {
 }
 
 impl Item {
-    fn collect(&self, pack: &mut WriterPack<List>) {
+    fn collect(&self, pack: &mut Pack<List>) {
         match self {
             Item::String(string) => {
                 pack.unit.items.add_bare(string);
@@ -46,7 +46,7 @@ impl Item {
             }
             Item::Html(html) => {
                 pack.unit.items.add_role(&html.solve(), pack.reactor);
-            },
+            }
         };
     }
 }
@@ -57,7 +57,7 @@ enum Attribute {
 }
 
 impl Attribute {
-    fn collect(&self, pack: &mut WriterPack<List>) {
+    fn collect(&self, pack: &mut Pack<List>) {
         match self {
             Attribute::String(string) => {
                 pack.unit.items.add_str(string);

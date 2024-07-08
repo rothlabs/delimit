@@ -14,14 +14,14 @@ impl Element {
     pub fn new() -> Self {
         Element::default()
     }
-    fn write_open(&self, pack: &mut WriterPack<List>) {
+    fn write_open(&self, pack: &mut Pack<List>) {
         pack.unit.items.add_str(&self.tag.open);
         for att in self.attributes.iter() {
             att.collect(pack);
         }
         pack.unit.items.add_str(">");
     }
-    fn write_items_and_close(&self, pack: &mut WriterPack<List>) {
+    fn write_items_and_close(&self, pack: &mut Pack<List>) {
         for item in self.items.iter() {
             item.collect(pack);
         }
@@ -119,12 +119,10 @@ impl Solve for Element {
     type Load = plain::Role;
     fn solve(&self) -> Self::Load {
         let (open_tag, open_tag_list) = " ".list();
-        open_tag_list.writer_pack(|pack| self.write_open(pack));
+        open_tag_list.writer(|pack| self.write_open(pack));
         let (text, text_list) = "\n".list();
-        text_list.writer_pack(|pack| {
-            pack.unit
-                .items
-                .add_role(&open_tag, pack.reactor);
+        text_list.writer(|pack| {
+            pack.unit.items.add_role(&open_tag, pack.reactor);
             self.write_items_and_close(pack);
         });
         text

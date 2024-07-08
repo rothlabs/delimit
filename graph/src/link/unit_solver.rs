@@ -101,21 +101,13 @@ where
     }
 }
 
-impl<U, L> Writer for UnitSolver<U, L> {
-    type Unit = U;
-    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.writer(write);
-    }
-}
-
 impl<U, L> WriterWithPack for UnitSolver<U, L>
 where
     U: 'static,
     L: 'static,
 {
     type Unit = U;
-    fn writer_pack<F: FnOnce(&mut WriterPack<U>)>(&self, write: F) {
+    fn writer<F: FnOnce(&mut Pack<U>)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer_with_reactor(write, &edge.reactor());
     }
@@ -143,3 +135,11 @@ impl<U, W> Serialize for UnitSolver<U, W> {
         self.meta.serialize(serializer)
     }
 }
+
+// impl<U, L> Writer for UnitSolver<U, L> {
+//     type Unit = U;
+//     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         edge.writer(write);
+//     }
+// }

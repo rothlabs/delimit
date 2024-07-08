@@ -2,8 +2,12 @@ use super::*;
 
 fn new_list(leaf: &Leaf<String>) -> Text<List> {
     let (_, text_list) = ", ".list();
-    text_list.writer_pack(|pack| {
-        pack.unit.items.add_str("str").add_leaf(leaf, pack.reactor);
+    text_list.writer(|pack| {
+        pack.unit
+            .items
+            .reactor(pack.reactor)
+            .add_str("str")
+            .add_leaf(leaf);
     });
     text_list
 }
@@ -38,8 +42,8 @@ fn react_from_self() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
     let a = text.solve();
-    text.writer(|list| {
-        list.separator(" > ");
+    text.writer(|pack| {
+        pack.unit.separator(" > ");
     });
     let b = text.solve();
     assert!(a != b);
@@ -60,7 +64,7 @@ fn no_reactions_after_dropping_stem() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
     let _r = text.solve();
-    text.writer(|list| list.remove(1));
+    text.writer(|pack| pack.unit.remove(1));
     let a = text.solve();
     leaf.writer(|string| string.push_str("_mutated"));
     let b = text.solve();

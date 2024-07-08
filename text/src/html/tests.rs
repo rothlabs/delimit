@@ -1,6 +1,6 @@
-use super::*;
+// use super::*;
 
 #[test]
 fn index_page() {
-    let doc = Html::default();
+    // let doc = Html::default();
 }

@@ -10,12 +10,12 @@ pub struct Leaf<L> {
     meta: Meta,
 }
 
-// impl<L: Clone> Leaf<L> {
-//     pub fn load(&self) -> L {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         edge.solve()
-//     }
-// }
+impl<L: Clone> Leaf<L> {
+    pub fn load(&self) -> L {
+        let edge = self.edge.read().expect(NO_POISON);
+        edge.load()
+    }
+}
 
 impl<L> PartialEq for Leaf<L> {
     fn eq(&self, other: &Self) -> bool {
@@ -42,16 +42,6 @@ impl<L> WithReactor for Leaf<L> {
         }
     }
 }
-
-// impl WithReactor for Leaf<String> {
-//     fn with_reactor(&self, reactor: &Reactor) -> Self {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Self {
-//             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
 
 impl<L> ToReactor for Leaf<L>
 where
@@ -87,14 +77,6 @@ impl<L> Writer for Leaf<L> {
     }
 }
 
-impl<U: Clone> Solve for Leaf<U> {
-    type Load = U;
-    fn solve(&self) -> U {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.solve()
-    }
-}
-
 impl<L> Serialize for Leaf<L> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -123,6 +105,24 @@ impl<L> IntoLeaf<L> for L {
         Leaf::new(self)
     }
 }
+
+// impl WithReactor for Leaf<String> {
+//     fn with_reactor(&self, reactor: &Reactor) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
+
+// impl<U: Clone> Solve for Leaf<U> {
+//     type Load = U;
+//     fn solve(&self) -> U {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         edge.solve()
+//     }
+// }
 
 // impl<U: Clone> CloneUnit for Leaf<U> {
 //     type Unit = U;
