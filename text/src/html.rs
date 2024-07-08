@@ -12,62 +12,101 @@ mod attribute;
 mod element;
 mod tag;
 
-pub struct Html(UnitSolver<Element, plain::Role>);
+pub type Role = graph::Role<Load, Exact>;
 
-impl Html {
-    fn new(element: Element) -> Self {
-        Self(UnitSolver::new(element))
-    }
-    pub fn solve(&self) -> plain::Role {
-        self.0.solve()
-    }
+type Item = plain::View<Exact>;
+
+//type Attribute = plain::Role;
+
+type Load = plain::Role;
+
+type Html<U> = UnitSolver<U, Load>;
+
+#[derive(Clone)]
+pub enum Exact {
+    Element(Html<Element>),
+    Attribute(Html<Attribute>),
 }
 
-impl Default for Html {
-    fn default() -> Self {
-        Self(UnitSolver::new(Element::new()))
-    }
-}
 
-enum Item {
-    String(String),
-    Text(plain::Role),
-    Html(Html),
-}
+// pub struct Html(UnitSolver<Element, plain::Role>);
 
-impl Item {
-    fn collect(&self, pack: &mut Pack<List>) {
-        match self {
-            Item::String(string) => {
-                pack.unit.items.add_bare(string);
-            }
-            Item::Text(view) => {
-                pack.unit.items.add_role(view, pack.reactor);
-            }
-            Item::Html(html) => {
-                pack.unit.items.add_role(&html.solve(), pack.reactor);
-            }
-        };
-    }
-}
+// impl Html {
+//     fn new(element: Element) -> Self {
+//         Self(UnitSolver::new(element))
+//     }
+//     pub fn solve(&self) -> plain::Role {
+//         self.0.solve()
+//     }
+// }
 
-enum Attribute {
-    String(String),
-    Text(plain::Role),
-}
+// impl Default for Html {
+//     fn default() -> Self {
+//         Self(UnitSolver::new(Element::new()))
+//     }
+// }
 
-impl Attribute {
-    fn collect(&self, pack: &mut Pack<List>) {
-        match self {
-            Attribute::String(string) => {
-                pack.unit.items.add_str(string);
-            }
-            Attribute::Text(view) => {
-                pack.unit.items.add_role(view, pack.reactor);
-            }
-        };
-    }
-}
+// enum Item {
+//     String(String),
+//     Text(plain::Role),
+//     Html(Html),
+// }
+
+// impl Item {
+//     fn collect(&self, pack: &mut Pack<List>) {
+//         match self {
+//             Item::String(string) => {
+//                 pack.unit.items.add_bare(string);
+//             }
+//             Item::Text(view) => {
+//                 pack.unit.items.add_role(view, pack.reactor);
+//             }
+//             Item::Html(html) => {
+//                 pack.unit.items.add_role(&html.solve(), pack.reactor);
+//             }
+//         };
+//     }
+// }
+
+// enum Attribute {
+//     String(String),
+//     Text(plain::Role),
+// }
+
+// impl Attribute {
+//     fn collect(&self, pack: &mut Pack<List>) {
+//         match self {
+//             Attribute::String(string) => {
+//                 pack.unit.items.add_str(string);
+//             }
+//             Attribute::Text(view) => {
+//                 pack.unit.items.add_role(view, pack.reactor);
+//             }
+//         };
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // pub fn text(&self) -> Text<List> {
 //     if let Load::Text(text) = self.0.solve_task(Task::Text) {

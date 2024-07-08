@@ -5,9 +5,8 @@ use crate::plain::List;
 
 pub struct Element {
     tag: &'static Tag,
-    root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
     items: Vec<Item>,
-    attributes: Vec<Attribute>,
+    attributes: Vec<Item>,
 }
 
 impl Element {
@@ -15,29 +14,33 @@ impl Element {
         Element::default()
     }
     fn write_open(&self, pack: &mut Pack<List>) {
-        pack.unit.items.add_str(&self.tag.open);
-        for att in self.attributes.iter() {
-            att.collect(pack);
+        let mut tag = pack.unit.items.reactor(pack.reactor);
+        tag.add_str(&self.tag.open);
+        for att in &self.attributes {
+            tag.add_role(att);
+            //pack.unit.items.reactor(pack.reactor).add_role(att);
         }
-        pack.unit.items.add_str(">");
+        tag.add_str(">");
+        //pack.unit.items.add_str(">");
     }
     fn write_items_and_close(&self, pack: &mut Pack<List>) {
         for item in self.items.iter() {
-            item.collect(pack);
+            pack.unit.items.reactor(pack.reactor).add(item);//item.collect(pack);
         }
         pack.unit.items.add_str(&self.tag.close);
     }
-    pub fn add_str(&mut self, value: &str) -> &mut Self {
-        self.items.push(Item::String(value.to_owned()));
-        self
-    }
+    // pub fn add_str(&mut self, value: &str) -> &mut Self {
+    //     self.items.push(Item::String(value.to_owned()));
+    //     self
+    // }
     pub fn root(self) -> Self {
         let mut root = self
             .root
             .as_ref()
             .expect("element should have a root")
             .replace(Element::new());
-        root.items.push(Item::Html(Html::new(self)));
+        //root.items.push(Item::Role(Html::new(self)));
+        root.items.add_role();
         root
     }
     fn up(self, tag: &Tag) -> Self {

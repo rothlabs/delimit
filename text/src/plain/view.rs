@@ -12,6 +12,7 @@ impl<E: Clone> View<E> {
             View::Role(role) => View::Role(role.with_reactor(reactor)),
         }
     }
+    // pub fn add_role(&self)
 }
 
 impl<E> SolveWithReactor for View<E> {
