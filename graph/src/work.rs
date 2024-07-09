@@ -2,15 +2,57 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::*;
 
-pub struct UnitLoad<U, L> {
+pub struct Bare<L> {
+    load: L,
+}
+
+impl<L> FromWorkItem for Bare<L> 
+{
+    type Item = L;
+    fn new(load: Self::Item) -> Self {
+        Self {
+            load,
+        }
+    }
+}
+
+impl<L> ToLoad for Bare<L> 
+where 
+    L: Clone,
+{
+    type Load = L;
+    fn load(&self) -> Self::Load {
+        self.load.clone()
+    }
+}
+
+impl<L> Read for Bare<L> {
+    type Unit = L;
+    fn read(&self) -> &Self::Unit {
+        &self.load
+    }
+}
+
+impl<L> Write for Bare<L> {
+    type Unit = L;
+    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
+        write(&mut self.load);
+    }
+}
+
+impl<L> Clear for Bare<L> {
+    fn clear(&mut self) {}
+}
+
+pub struct Pair<U, L> {
     unit: U,
     load: Option<L>,
 }
 
-impl<U, L> FromUnit for UnitLoad<U, L> 
+impl<U, L> FromWorkItem for Pair<U, L> 
 {
-    type Unit = U;
-    fn from_unit(unit: Self::Unit) -> Self {
+    type Item = U;
+    fn new(unit: Self::Item) -> Self {
         Self {
             unit,
             load: None,
@@ -18,14 +60,20 @@ impl<U, L> FromUnit for UnitLoad<U, L>
     }
 }
 
-impl<U, L> Write for UnitLoad<U, L> {
+impl<U, L> Clear for Pair<U, L> {
+    fn clear(&mut self) {
+        self.load = None;
+    }
+}
+
+impl<U, L> Write for Pair<U, L> {
     type Unit = U;
     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
         write(&mut self.unit);
     }
 }
 
-impl<U, L> WriteWithReactor for UnitLoad<U, L> {
+impl<U, L> WriteWithReactor for Pair<U, L> {
     type Unit = U;
     fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(
             &mut self,
@@ -40,7 +88,7 @@ impl<U, L> WriteWithReactor for UnitLoad<U, L> {
     }
 }
 
-impl<U, L> SolveMut for UnitLoad<U, L> 
+impl<U, L> SolveMut for Pair<U, L> 
 where 
     U: Solve<Load = L>,
     L: Clone,

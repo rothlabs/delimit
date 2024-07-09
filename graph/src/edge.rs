@@ -42,40 +42,26 @@ where
     }
 }
 
-impl<R, S> ToWork for Edge<R, S> 
+impl<R, S> ToLoad for Edge<R, S> 
 where 
-    S: ToWork,
-{
-    type Work = S::Work;
-    fn work(&self) -> Self::Work {
-        let stem = self.stem.read().expect(NO_POISON);
-        stem.work()
-    }
-}
-
-impl<R, S> FromUnit for Edge<R, S> 
-where 
-    S: FromUnit,
-{
-    type Unit = S::Unit;
-    fn from_unit(unit: Self::Unit) -> Self {
-        Self {
-            root: None,
-            stem: Arc::new(RwLock::new(S::from_unit(unit))),
-            meta: Meta::new(),
-        }
-    }
-}
-
-impl<R, S> FromLoad for Edge<R, S> 
-where 
-    S: FromLoad,
+    S: ToLoad,
 {
     type Load = S::Load;
-    fn from_load(unit: Self::Load) -> Self {
+    fn load(&self) -> Self::Load {
+        let stem = self.stem.read().expect(NO_POISON);
+        stem.load()
+    }
+}
+
+impl<R, S> FromWorkItem for Edge<R, S> 
+where 
+    S: FromWorkItem,
+{
+    type Item = S::Item;
+    fn new(unit: Self::Item) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(S::from_load(unit))),
+            stem: Arc::new(RwLock::new(S::new(unit))),
             meta: Meta::new(),
         }
     }
@@ -180,6 +166,22 @@ where
         stem.add_root(reactor);
     }
 }
+
+
+
+// impl<R, S> FromLoad for Edge<R, S> 
+// where 
+//     S: FromLoad,
+// {
+//     type Load = S::Load;
+//     fn from_load(unit: Self::Load) -> Self {
+//         Self {
+//             root: None,
+//             stem: Arc::new(RwLock::new(S::from_load(unit))),
+//             meta: Meta::new(),
+//         }
+//     }
+// }
 
 
 // impl<R, S> Clone for Edge<R, S> 

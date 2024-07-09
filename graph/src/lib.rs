@@ -20,7 +20,7 @@ pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
 pub use view::{AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
-pub use work::{Work, UnitLoad};
+pub use work::{Bare, Pair, Work};
 pub use write::{
     SolveMut, SolveTaskMut, Write, WriteWithReactor, WriterWithReactor, Writer, Pack, WriterWithPack,
 };
@@ -29,9 +29,9 @@ pub use edge::Edge;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
-pub trait ToWork {
-    type Work;
-    fn work(&self) -> Self::Work;
+pub trait ToLoad {
+    type Load;
+    fn load(&self) -> Self::Load;
 }
 
 pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
@@ -61,15 +61,15 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-pub trait FromUnit {
-    type Unit;
-    fn from_unit(unit: Self::Unit) -> Self;
+pub trait FromWorkItem {
+    type Item;
+    fn new(unit: Self::Item) -> Self;
 }
 
-pub trait FromLoad {
-    type Load;
-    fn from_load(unit: Self::Load) -> Self;
-}
+// pub trait FromLoad {
+//     type Load;
+//     fn from_load(unit: Self::Load) -> Self;
+// }
 
 pub trait Memory {
     type Task: Clone;

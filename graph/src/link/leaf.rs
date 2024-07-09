@@ -8,7 +8,7 @@ pub trait ToLeaf<L> {
 
 impl ToLeaf<String> for str {
     fn leaf(&self) -> Leaf<String> {
-        Leaf::from_load(self.to_owned())
+        Leaf::new(self.to_owned())
     }
 }
 
@@ -18,7 +18,7 @@ pub trait IntoLeaf<L> {
 
 impl<L> IntoLeaf<L> for L {
     fn into_leaf(self) -> Leaf<L> {
-        Leaf::from_load(self)
+        Leaf::new(self)
     }
 }
 

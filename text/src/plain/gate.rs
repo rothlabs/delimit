@@ -8,7 +8,7 @@ pub trait TextGate {
 
 impl TextGate for &str {
     fn gate(self, on: &LeafEye<bool>) -> Role {
-        let text = Text::from_unit(Gate {
+        let text = Text::new(Gate {
             active: Item::Bare(self.into()),
             default: Item::default(),
             on: on.clone(),

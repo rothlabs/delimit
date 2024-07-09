@@ -8,59 +8,61 @@ use crate::*;
 //mod unit_solver;
 //mod unit_tasker;
 
-pub type Leaf<L> = Node<Reactors, L>;
+pub type Leaf<L> = Node<Reactors, Bare<L>>;
 
-pub type UnitSolver<U, L> = Node<Reactors, UnitLoad<U, L>>;
+pub type UnitSolver<U, L> = Node<Reactors, Pair<U, L>>;
 
 pub struct Node<R, W> {
     root: R,
     work: W,
 }
 
-impl<R, W> ToWork for Node<R, W> 
+impl<R, W> ToLoad for Node<R, W> 
 where 
-    W: Clone,
+    W: ToLoad,
 {
-    type Work = W;
-    fn work(&self) -> Self::Work {
-        self.work.clone()
+    type Load = W::Load;
+    fn load(&self) -> Self::Load {
+        self.work.load()
     }
 }
 
-impl<R, W> FromLoad for Node<R, W> 
-where 
-    R: Default
-{
-    type Load = W;
-    fn from_load(unit: Self::Load) -> Self {
-        Self {
-            root: R::default(),
-            work: unit, 
-        }
-    }
-}
+// impl<R, W> FromLoad for Node<R, W> 
+// where 
+//     R: Default
+// {
+//     type Load = W;
+//     fn from_load(unit: Self::Load) -> Self {
+//         Self {
+//             root: R::default(),
+//             work: unit, 
+//         }
+//     }
+// }
 
-impl<R, W> FromUnit for Node<R, W> 
+impl<R, W> FromWorkItem for Node<R, W> 
 where 
     R: Default,
-    W: FromUnit,
+    W: FromWorkItem,
 {
-    type Unit = W::Unit;
-    fn from_unit(unit: Self::Unit) -> Self {
+    type Item = W::Item;
+    fn new(unit: Self::Item) -> Self {
         Self { 
             root: R::default(),
-            work: W::from_unit(unit), 
+            work: W::new(unit), 
         }
     }
 }
 
 impl<R, W> Write for Node<R, W> 
 where 
+    R: Cycle,
     W: Write,
 {
     type Unit = W::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
         self.work.write(write);
+        self.root.cycle();
     }
 }
 
@@ -76,10 +78,13 @@ where
     }
 }
 
-impl<R, W> Read for Node<R, W> {
-    type Unit = W;
+impl<R, W> Read for Node<R, W> 
+where 
+    W: Read,
+{
+    type Unit = W::Unit;
     fn read(&self) -> &Self::Unit {
-        &self.work
+        self.work.read()
     }
 }
 
@@ -96,8 +101,10 @@ where
 impl<R, W> ReactMut for Node<R, W> 
 where 
     R: React,
+    W: Clear,
 {
     fn clear(&mut self) -> Reactors {
+        self.work.clear();
         self.root.clear()
     }
     fn react(&mut self) {

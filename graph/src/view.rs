@@ -164,7 +164,7 @@ pub enum LeafEye<L> {
 
 impl<L> LeafEye<L> {
     pub fn new(load: L) -> Self {
-        Self::Leaf(Leaf::from_load(load))
+        Self::Leaf(Leaf::new(load))
     }
 }
 

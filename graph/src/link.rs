@@ -37,14 +37,14 @@ impl<L> Link<dyn SolveShare<L>> {
     }
 }
 
-impl<E> ToWork for Link<E> 
+impl<E> ToLoad for Link<E> 
 where 
-    E: ToWork,
+    E: ToLoad,
 {
-    type Work = E::Work;
-    fn work(&self) -> Self::Work {
+    type Load = E::Load;
+    fn load(&self) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.work()
+        edge.load()
     }
 }
 
@@ -63,27 +63,14 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> FromUnit for Link<E>
+impl<E> FromWorkItem for Link<E>
 where
-    E: FromUnit,
+    E: FromWorkItem,
 {
-    type Unit = E::Unit;
-    fn from_unit(unit: Self::Unit) -> Self {
+    type Item = E::Item;
+    fn new(unit: Self::Item) -> Self {
         Self {
-            edge: Arc::new(RwLock::new(E::from_unit(unit))),
-            meta: Meta::new(),
-        }
-    }
-}
-
-impl<E> FromLoad for Link<E>
-where
-    E: FromLoad,
-{
-    type Load = E::Load;
-    fn from_load(unit: Self::Load) -> Self {
-        Self {
-            edge: Arc::new(RwLock::new(E::from_load(unit))),
+            edge: Arc::new(RwLock::new(E::new(unit))),
             meta: Meta::new(),
         }
     }
@@ -179,6 +166,20 @@ where
         }
     }
 }
+
+
+// impl<E> FromLoad for Link<E>
+// where
+//     E: FromLoad,
+// {
+//     type Load = E::Load;
+//     fn from_load(unit: Self::Load) -> Self {
+//         Self {
+//             edge: Arc::new(RwLock::new(E::from_load(unit))),
+//             meta: Meta::new(),
+//         }
+//     }
+// }
 
 
 // impl<L> WithReactor for Leaf<L> 
