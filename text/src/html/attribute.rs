@@ -1,5 +1,3 @@
-//use crate::plain::List;
-
 use crate::html::*;
 
 pub const LANG: &str = "lang";
@@ -12,28 +10,45 @@ pub struct Attribute {
     value: Item,
 }
 
+impl Attribute {
+    pub fn new() -> (Item, Html<Attribute>) {
+        let exact = Html::new(Attribute {
+            name: plain::string("untitled"),
+            value: plain::string("empty"),
+        });
+        let role = Item::Role(Role {
+            exact: Exact::Attribute(exact.clone()),
+            solver: exact.solver(),
+        });
+        (role, exact)
+    }
+}
+
 impl Solve for Attribute {
     type Load = Load;
     fn solve(&self) -> Self::Load {
         let (text, list) = "".list();
-        list.writer(|pack|{
-            pack.unit.items.reactor(pack.reactor)
-                .add(&self.name)
+        list.writer(|pack| {
+            pack.unit
+                .items
+                .root(pack.root)
+                .add_view(&self.name)
                 .add_str(r#"=""#)
-                .add(&self.value);
+                .add_view(&self.value)
+                .add_str(r#"""#);
         });
         text
     }
 }
 
-pub fn attribute() -> (plain::View<Exact>, Html<Attribute>) {
-    let rust = Html::new(Attribute {
-        name: plain::string("Untitled"),
-        fields: vec![],
-    });
-    let role = plain::View::Role(Role {
-        exact: Exact::Generics(rust.clone()),
-        solver: rust.solver(),
-    });
-    (role, rust)
-}
+// pub fn attribute() -> (Item, Html<Attribute>) {
+//     let exact = Html::new(Attribute {
+//         name: plain::string("untitled"),
+//         value: plain::string("empty"),
+//     });
+//     let role = Item::Role(Role {
+//         exact: Exact::Attribute(exact.clone()),
+//         solver: exact.solver(),
+//     });
+//     (role, exact)
+// }

@@ -16,8 +16,6 @@ pub type Role = graph::Role<Load, Exact>;
 
 type Item = plain::View<Exact>;
 
-//type Attribute = plain::Role;
-
 type Load = plain::Role;
 
 type Html<U> = UnitSolver<U, Load>;
@@ -25,9 +23,9 @@ type Html<U> = UnitSolver<U, Load>;
 #[derive(Clone)]
 pub enum Exact {
     Element(Html<Element>),
+    Tag(Html<Tag>),
     Attribute(Html<Attribute>),
 }
-
 
 // pub struct Html(UnitSolver<Element, plain::Role>);
 
@@ -85,28 +83,6 @@ pub enum Exact {
 //         };
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // pub fn text(&self) -> Text<List> {
 //     if let Load::Text(text) = self.0.solve_task(Task::Text) {

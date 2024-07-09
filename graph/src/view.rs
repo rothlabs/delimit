@@ -88,8 +88,8 @@ where
     fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Root) {
         self.push(LeafView::Leaf(leaf.with_root(reactor)));
     }
-    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Root) -> &mut Self {
-        self.push(LeafView::Role(role.with_root(reactor)));
+    fn add_role(&mut self, role: &Role<Leaf<L>, E>, root: &Root) -> &mut Self {
+        self.push(LeafView::Role(role.with_root(root)));
         self
     }
 }
@@ -106,21 +106,18 @@ impl<E> AddStr for Vec<LeafView<String, E>> {
 }
 
 pub trait ToLeafViewsBuilder<'a, L, E> {
-    fn reactor(&'a mut self, reactor: &'a Root) -> LeafViewsBuilder<L, E>;
+    fn root(&'a mut self, reactor: &'a Root) -> LeafViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToLeafViewsBuilder<'a, L, E> for Vec<LeafView<L, E>> {
-    fn reactor(&'a mut self, reactor: &'a Root) -> LeafViewsBuilder<L, E> {
-        LeafViewsBuilder {
-            views: self,
-            reactor,
-        }
+    fn root(&'a mut self, root: &'a Root) -> LeafViewsBuilder<L, E> {
+        LeafViewsBuilder { views: self, root }
     }
 }
 
 pub struct LeafViewsBuilder<'a, L, E> {
     views: &'a mut Vec<LeafView<L, E>>,
-    reactor: &'a Root,
+    root: &'a Root,
 }
 
 impl<'a, L, E> LeafViewsBuilder<'a, L, E>
@@ -128,8 +125,8 @@ where
     L: Clone,
     E: Clone,
 {
-    pub fn add<T: SolveWithReactor<Item = LeafView<L, E>>>(&mut self, item: &T) -> &mut Self {
-        self.views.push(item.solve_with_reactor(self.reactor));
+    pub fn add_view<T: SolveWithRoot<Item = LeafView<L, E>>>(&mut self, item: &T) -> &mut Self {
+        self.views.push(item.solve_with_root(self.root));
         self
     }
     pub fn add_bare(&mut self, bare: &L) -> &mut Self {
@@ -137,11 +134,11 @@ where
         self
     }
     pub fn add_leaf(&mut self, leaf: &Leaf<L>) -> &mut Self {
-        self.views.add_leaf(leaf, self.reactor);
+        self.views.add_leaf(leaf, self.root);
         self
     }
     pub fn add_role(&mut self, role: &Role<Leaf<L>, E>) -> &mut Self {
-        self.views.add_role(role, self.reactor);
+        self.views.add_role(role, self.root);
         self
     }
 }

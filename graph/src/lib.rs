@@ -76,10 +76,9 @@ pub trait Memory {
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
-pub trait SolveWithReactor {
-    //////////////////////////////////////////////////
+pub trait SolveWithRoot {
     type Item;
-    fn solve_with_reactor(&self, reactor: &Root) -> Self::Item;
+    fn solve_with_root(&self, root: &Root) -> Self::Item;
 }
 
 pub struct Role<L, E> {
