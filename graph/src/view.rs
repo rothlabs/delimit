@@ -63,7 +63,7 @@ where
 pub trait AddToLeafViews<L, E> {
     type Load;
     type Exact;
-    fn add(&mut self, item: &LeafView<L, E>) -> &mut Self;
+    fn add_view(&mut self, item: &LeafView<L, E>) -> &mut Self;
     fn add_bare(&mut self, bare: &Self::Load) -> &mut Self;
     fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &Root);
     fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Root)
@@ -77,7 +77,7 @@ where
 {
     type Load = L;
     type Exact = E;
-    fn add(&mut self, item: &LeafView<L, E>) -> &mut Self {
+    fn add_view(&mut self, item: &LeafView<L, E>) -> &mut Self {
         self.push(item.clone());
         self
     }

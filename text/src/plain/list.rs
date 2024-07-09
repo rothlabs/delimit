@@ -44,20 +44,20 @@ impl Solve for List {
 }
 
 pub trait TextList {
-    fn list(self) -> (Role, Text<List>);
+    fn list(self) -> Hold<Text<List>, Role>;
 }
 
 impl TextList for &str {
-    fn list(self) -> (Role, Text<List>) {
-        let text = Text::new(List {
+    fn list(self) -> Hold<Text<List>, Role> {
+        let link = Text::new(List {
             separator: self.into(),
             items: vec![],
         });
-        let role = Role {
-            exact: Exact::List(text.clone()),
-            solver: text.solver(),
+        let view = Role {
+            exact: Exact::List(link.clone()),
+            solver: link.solver(),
         };
-        (role, text)
+        Hold{link, view}
     }
 }
 

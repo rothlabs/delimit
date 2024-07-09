@@ -1,34 +1,29 @@
 use crate::html::*;
 
-pub const LANG: &str = "lang";
-pub const CHARSET: &str = "charset";
-pub const NAME: &str = "name";
-pub const CONTENT: &str = "content";
-
 pub struct Attribute {
     name: Item,
     value: Item,
 }
 
 impl Attribute {
-    pub fn new() -> (Item, Html<Attribute>) {
-        let exact = Html::new(Attribute {
-            name: plain::string("untitled"),
-            value: plain::string("empty"),
+    pub fn new(name: &Item, value: &Item) -> Hold<Html<Self>, Item> {
+        let link = Html::new(Self {
+            name: name.clone(),
+            value: value.clone(),
         });
-        let role = Item::Role(Role {
-            exact: Exact::Attribute(exact.clone()),
-            solver: exact.solver(),
+        let view = Item::Role(Role {
+            exact: Exact::Attribute(link.clone()),
+            solver: link.solver(),
         });
-        (role, exact)
+        Hold { link, view }
     }
 }
 
 impl Solve for Attribute {
     type Load = Load;
-    fn solve(&self) -> Self::Load {
-        let (text, list) = "".list();
-        list.writer(|pack| {
+    fn solve(&self) -> Load {
+        let Hold{link, view} = "".list();
+        link.writer(|pack| {
             pack.unit
                 .items
                 .root(pack.root)
@@ -37,9 +32,20 @@ impl Solve for Attribute {
                 .add_view(&self.value)
                 .add_str(r#"""#);
         });
-        text
+        view
     }
 }
+
+pub const LANG: &str = "lang";
+pub const CHARSET: &str = "charset";
+pub const NAME: &str = "name";
+pub const CONTENT: &str = "content";
+
+
+
+
+
+
 
 // pub fn attribute() -> (Item, Html<Attribute>) {
 //     let exact = Html::new(Attribute {

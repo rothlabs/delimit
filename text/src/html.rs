@@ -1,6 +1,7 @@
 use crate::plain::{self, *};
 use graph::*;
 
+pub use doc::*;
 pub use attribute::*;
 pub use element::Element;
 pub use tag::*;
@@ -8,6 +9,7 @@ pub use tag::*;
 #[cfg(test)]
 mod tests;
 
+mod doc;
 mod attribute;
 mod element;
 mod tag;

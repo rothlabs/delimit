@@ -1,5 +1,6 @@
 use crate::plain::*;
 
+#[derive(Clone)]
 pub enum View<E> {
     Text(Item),
     Role(graph::Role<Role, E>),
@@ -9,10 +10,10 @@ impl<E> View<E>
 where
     E: Clone,
 {
-    pub fn reactor(&self, reactor: &Root) -> Self {
+    pub fn root(&self, root: &Root) -> Self {
         match self {
-            View::Text(text) => View::Text(text.with_root(reactor)),
-            View::Role(role) => View::Role(role.with_root(reactor)),
+            View::Text(text) => View::Text(text.with_root(root)),
+            View::Role(role) => View::Role(role.with_root(root)),
         }
     }
 }
@@ -26,6 +27,19 @@ impl<E> SolveWithRoot for View<E> {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // pub trait ToPlain {
 //     fn plain(&self, reactor: &Reactor) -> ;

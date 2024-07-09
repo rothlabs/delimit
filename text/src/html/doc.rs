@@ -1,53 +1,39 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use crate::html::*;
 use crate::plain::List;
 
-pub struct Element {
-    tag: &'static Tag,
-    root: Option<Box<RefCell<Element>>>, // Todo: change to Option<Html>?
-    items: Vec<Item>,
-    attributes: Vec<Attribute>,
+pub struct ElementPart {
+    root: Option<Box<RefCell<ElementPart>>>,
+    tag_name: &'static TagName,
+    tag: Hold<Html<Tag>, Item>,
+    element: Hold<Html<Element>, Item>,
+    attributes: HashMap<String, Item>, 
+    // element_view: Item,
+    // element: Html<Element>,
+    // items: Vec<Item>,
+    // attributes: Vec<Attribute>,
 }
 
-impl Element {
+impl ElementPart {
     pub fn new() -> Self {
-        Element::default()
+        ElementPart::default()
     }
-    fn write_open(&self, pack: &mut Pack<List>) {
-        let mut tag = pack.unit.items.reactor(pack.reactor);
-        tag.add_str(&self.tag.open);
-        for att in &self.attributes {
-            tag.add_role(att);
-            //pack.unit.items.reactor(pack.reactor).add_role(att);
-        }
-        tag.add_str(">");
-        //pack.unit.items.add_str(">");
-    }
-    fn write_items_and_close(&self, pack: &mut Pack<List>) {
-        for item in self.items.iter() {
-            pack.unit.items.reactor(pack.reactor).add(item);//item.collect(pack);
-        }
-        pack.unit.items.add_str(&self.tag.close);
-    }
-    // pub fn add_str(&mut self, value: &str) -> &mut Self {
-    //     self.items.push(Item::String(value.to_owned()));
-    //     self
-    // }
     pub fn root(self) -> Self {
         let mut root = self
             .root
             .as_ref()
             .expect("element should have a root")
-            .replace(Element::new());
+            .replace(ElementPart::new());
         //root.items.push(Item::Role(Html::new(self)));
-        root.items.add_role();
+        //root.items.add_role();
         root
     }
-    fn up(self, tag: &Tag) -> Self {
+    fn up(self, tag: &TagName) -> Self {
         let mut root = self.root();
         for _ in 0..100 {
-            if root.tag.open == tag.open {
+            if root.tag_name.open == tag.open {
                 return root;
             }
             root = root.root();
@@ -55,16 +41,23 @@ impl Element {
         panic!("element should have a root with given tag");
     }
     pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
-        self.attributes
-            .push(Attribute::String(format!(r#"{name}="{value}""#)));
+        // self.attributes
+        //     .push(Attribute::String(format!(r#"{name}="{value}""#)));
+        if let Some(item) = self.attributes.get(name) {
+            let Hold{link, view} = Attribute::new(item, &plain::string(value));
+        }
+        self.tag.link.writer(|pack| {
+            //pack.unit.attributes.
+        });
         self
     }
-    pub fn stem(self, tag: &'static Tag) -> Self {
-        Element {
-            tag,
+    pub fn stem(self, tag_name: &'static TagName) -> Self {
+        ElementPart {
+            tag_name,
+            attributes: self.attributes.clone(),
             root: Some(Box::new(RefCell::new(self))),
-            items: vec![],
-            attributes: vec![],
+            tag: Tag::new(),
+            element: Element::new(),
         }
     }
     pub fn html(self) -> Self {
@@ -108,31 +101,17 @@ impl Element {
     }
 }
 
-impl Default for Element {
+impl Default for ElementPart {
     fn default() -> Self {
         Self {
-            tag: &DOCTYPE,
+            tag_name: &DOCTYPE,
             root: None,
-            items: vec![],
-            attributes: vec![],
+            tag: Tag::new(),
+            element: Element::new(),
+            attributes: HashMap::new(),
         }
     }
 }
-
-impl Solve for Element {
-    type Load = plain::Role;
-    fn solve(&self) -> Self::Load {
-        let (open_tag, open_tag_list) = " ".list();
-        open_tag_list.writer(|pack| self.write_open(pack));
-        let (text, text_list) = "\n".list();
-        text_list.writer(|pack| {
-            pack.unit.items.add_role(&open_tag, pack.reactor);
-            self.write_items_and_close(pack);
-        });
-        text
-    }
-}
-
 
 // use std::cell::RefCell;
 

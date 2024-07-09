@@ -27,6 +27,11 @@ pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, Writ
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
+pub struct Hold<L, V> {
+    pub link: L,
+    pub view: V,
+}
+
 pub trait ToLoad {
     type Load;
     fn load(&self) -> Self::Load;

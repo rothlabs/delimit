@@ -1,15 +1,15 @@
 use super::*;
 
 fn new_list(leaf: &Leaf<String>) -> Text<List> {
-    let (_, text_list) = ", ".list();
-    text_list.writer(|pack| {
+    let list = ", ".list();
+    list.link.writer(|pack| {
         pack.unit
             .items
             .root(pack.root)
             .add_str("str")
             .add_leaf(leaf);
     });
-    text_list
+    list.link
 }
 
 #[test]
