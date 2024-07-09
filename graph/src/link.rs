@@ -18,7 +18,7 @@ mod leaf;
 // mod unit_tasker;
 
 // pub type Solver<L> = Link<Edge<Reactor, dyn SolveShare<L> + 'static>>;
-pub type Solver<L> = Link<dyn SolveShare<L> + 'static>;
+pub type Solver<L> = Link<dyn SolveShare<L>>;
 
 pub type UnitSolver<U, L> = Link<edge::UnitSolver<U, L>>;
 
@@ -63,9 +63,9 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> FromWorkItem for Link<E>
+impl<E> FromItem for Link<E>
 where
-    E: FromWorkItem,
+    E: FromItem,
 {
     type Item = E::Item;
     fn new(unit: Self::Item) -> Self {
@@ -117,7 +117,7 @@ where
 // TODO: use generics on Reader<T> to make multiple implmentations with different bounds
 impl<E> Reader for Link<E>
 where
-    E: Reader + ReactMut + ToReactor + AddRoot<Item = Reactor> + 'static,
+    E: Reader + ReactMut + ToReactor + AddRoot<Root = Reactor> + 'static,
 {
     type Unit = E::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -142,30 +142,50 @@ where
 
 impl<E> WriterWithPack for Link<E>
 where
-    E: WriterWithReactor + ToReactor,
+    E: WriterWithPack,
 {
     type Unit = E::Unit;
-    fn writer_pack<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
+    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.writer_with_reactor(write, &edge.reactor());
+        edge.writer(write);
     }
 }
 
-
-impl<U, L> ToSolver for UnitSolver<U, L>
+impl<ER, NR, U, L> ToSolver for Link<Edge<ER, Node<NR, Pair<U, L>>>>
 where
-    U: Solve<Load = L> + 'static,
-    L: Clone + 'static,
+    ER: 'static,
+    NR: 'static,
+    U: 'static,
+    L: 'static,
+    Edge<ER, Node<NR, Pair<U, L>>>: SolveShare<L>,
 {
     type Load = L;
-    fn solver(&self) -> link::Solver<L> {
+    fn solver(&self) -> Solver<L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
-        link::Solver {
+        Solver {
             edge,
             meta: self.meta.clone(),
         }
     }
 }
+
+
+
+
+// impl<U, L> ToSolver for UnitSolver<U, L>
+// where
+//     U: Solve<Load = L> + 'static,
+//     L: Clone + 'static,
+// {
+//     type Load = L;
+//     fn solver(&self) -> link::Solver<L> {
+//         let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
+//         link::Solver {
+//             edge,
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 
 // impl<E> FromLoad for Link<E>

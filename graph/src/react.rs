@@ -23,8 +23,8 @@ pub trait ToReactor {
 }
 
 pub trait AddRoot {
-    type Item;
-    fn add_root(&mut self, reactor: Self::Item);
+    type Root;
+    fn add_root(&mut self, reactor: Self::Root);
 }
 
 pub trait WithRoot {
@@ -33,15 +33,9 @@ pub trait WithRoot {
 }
 
 pub trait SolverWithReactor {
-    //type Root;
     type Load;
     fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
 }
-// pub trait SolverWithReactor {
-//     type Item;
-//     type Load;
-//     fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<Self::Item>>;
-// }
 
 pub trait TaskerWithReactor {
     type Task;
@@ -79,32 +73,6 @@ impl React for Reactor {
         }
     }
 }
-
-// impl Default for Reactor {
-//     fn default() -> Self {
-//         Self {
-//             item
-//         }
-//     }
-// }
-
-// impl Reactor {
-//     pub fn clear(&self) -> Reactors {
-//         // println!("strong_count: {}", Weak::strong_count(&self.item));
-//         if let Some(item) = self.item.upgrade() {
-//             let mut item = item.write().expect(NO_POISON);
-//             item.clear()
-//         } else {
-//             Reactors::new()
-//         }
-//     }
-//     pub fn react(&self) {
-//         if let Some(item) = self.item.upgrade() {
-//             let mut item = item.write().expect(NO_POISON);
-//             item.react();
-//         }
-//     }
-// }
 
 impl PartialEq for Reactor {
     fn eq(&self, other: &Self) -> bool {
@@ -159,11 +127,38 @@ impl React for Reactors {
 }
 
 impl AddRoot for Reactors {
-    type Item = Reactor;
-    fn add_root(&mut self, reactor: Self::Item) {
+    type Root = Reactor;
+    fn add_root(&mut self, reactor: Self::Root) {
         self.0.insert(reactor);
     }
 }
+
+
+// impl Default for Reactor {
+//     fn default() -> Self {
+//         Self {
+//             item
+//         }
+//     }
+// }
+
+// impl Reactor {
+//     pub fn clear(&self) -> Reactors {
+//         // println!("strong_count: {}", Weak::strong_count(&self.item));
+//         if let Some(item) = self.item.upgrade() {
+//             let mut item = item.write().expect(NO_POISON);
+//             item.clear()
+//         } else {
+//             Reactors::new()
+//         }
+//     }
+//     pub fn react(&self) {
+//         if let Some(item) = self.item.upgrade() {
+//             let mut item = item.write().expect(NO_POISON);
+//             item.react();
+//         }
+//     }
+// }
 
 
 // impl Reactors {

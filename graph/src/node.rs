@@ -17,6 +17,20 @@ pub struct Node<R, W> {
     work: W,
 }
 
+impl<R, W> FromItem for Node<R, W> 
+where 
+    R: Default,
+    W: FromItem,
+{
+    type Item = W::Item;
+    fn new(item: Self::Item) -> Self {
+        Self { 
+            root: R::default(),
+            work: W::new(item), 
+        }
+    }
+}
+
 impl<R, W> ToLoad for Node<R, W> 
 where 
     W: ToLoad,
@@ -24,33 +38,6 @@ where
     type Load = W::Load;
     fn load(&self) -> Self::Load {
         self.work.load()
-    }
-}
-
-// impl<R, W> FromLoad for Node<R, W> 
-// where 
-//     R: Default
-// {
-//     type Load = W;
-//     fn from_load(unit: Self::Load) -> Self {
-//         Self {
-//             root: R::default(),
-//             work: unit, 
-//         }
-//     }
-// }
-
-impl<R, W> FromWorkItem for Node<R, W> 
-where 
-    R: Default,
-    W: FromWorkItem,
-{
-    type Item = W::Item;
-    fn new(unit: Self::Item) -> Self {
-        Self { 
-            root: R::default(),
-            work: W::new(unit), 
-        }
     }
 }
 
@@ -116,8 +103,8 @@ impl<R, W> AddRoot for Node<R, W>
 where 
     R: AddRoot,
 {
-    type Item = R::Item;
-    fn add_root(&mut self, root: Self::Item) {
+    type Root = R::Root;
+    fn add_root(&mut self, root: Self::Root) {
         self.root.add_root(root);
     }
 }

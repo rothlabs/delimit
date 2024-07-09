@@ -6,7 +6,7 @@ pub struct Bare<L> {
     load: L,
 }
 
-impl<L> FromWorkItem for Bare<L> 
+impl<L> FromItem for Bare<L> 
 {
     type Item = L;
     fn new(load: Self::Item) -> Self {
@@ -49,7 +49,7 @@ pub struct Pair<U, L> {
     load: Option<L>,
 }
 
-impl<U, L> FromWorkItem for Pair<U, L> 
+impl<U, L> FromItem for Pair<U, L> 
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -66,12 +66,12 @@ impl<U, L> Clear for Pair<U, L> {
     }
 }
 
-impl<U, L> Write for Pair<U, L> {
-    type Unit = U;
-    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
-        write(&mut self.unit);
-    }
-}
+// impl<U, L> Write for Pair<U, L> {
+//     type Unit = U;
+//     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
+//         write(&mut self.unit);
+//     }
+// }
 
 impl<U, L> WriteWithReactor for Pair<U, L> {
     type Unit = U;

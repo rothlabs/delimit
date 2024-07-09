@@ -61,7 +61,7 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-pub trait FromWorkItem {
+pub trait FromItem {
     type Item;
     fn new(unit: Self::Item) -> Self;
 }

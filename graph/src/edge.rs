@@ -53,9 +53,9 @@ where
     }
 }
 
-impl<R, S> FromWorkItem for Edge<R, S> 
+impl<R, S> FromItem for Edge<R, S> 
 where 
-    S: FromWorkItem,
+    S: FromItem,
 {
     type Item = S::Item;
     fn new(unit: Self::Item) -> Self {
@@ -105,16 +105,27 @@ where
     }
 }
 
-impl<R, S> WriterWithReactor for Edge<R, S> 
+impl<R, S> WriterWithPack for Edge<R, S> 
 where 
-    S: WriteWithReactor
+    S: WriteWithReactor + ReactMut + 'static,
 {
     type Unit = S::Unit;
-    fn writer_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F, reactor: &Reactor) {
+    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.write_with_reactor(write, reactor);
+        stem.write_with_reactor(write, &self.reactor());
     }
 }
+
+// impl<R, S> WriterWithReactor for Edge<R, S> 
+// where 
+//     S: WriteWithReactor
+// {
+//     type Unit = S::Unit;
+//     fn writer_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F, reactor: &Reactor) {
+//         let mut stem = self.stem.write().expect(NO_POISON);
+//         stem.write_with_reactor(write, reactor);
+//     }
+// }
 
 impl<R, S> Reader for Edge<R, S> 
 where
@@ -158,10 +169,10 @@ where
 
 impl<R, S> AddRoot for Edge<R, S>  
 where 
-    S: AddRoot<Item = R>,
+    S: AddRoot<Root = R>,
 {
-    type Item = R;
-    fn add_root(&mut self, reactor: Self::Item) {
+    type Root = R;
+    fn add_root(&mut self, reactor: Self::Root) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_root(reactor);
     }
