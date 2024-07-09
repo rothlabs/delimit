@@ -28,10 +28,10 @@ pub struct Link<E: ?Sized> {
 }
 
 impl<L> Link<dyn SolveShare<L>> {
-    pub fn with_reactor(&self, reactor: &RootNode) -> Self {
+    pub fn with_reactor(&self, reactor: &Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.solver_with_reactor(reactor.clone()),
+            edge: edge.solver_with_root(reactor.clone()),
             meta: self.meta.clone(),
         }
     }
@@ -50,8 +50,8 @@ impl<L> Link<dyn SolveShare<L>> {
 //     }
 // }
 
-impl<E> ToLoad for Link<E> 
-where 
+impl<E> ToLoad for Link<E>
+where
     E: ToLoad,
 {
     type Load = E::Load;
@@ -89,16 +89,16 @@ where
     }
 }
 
-impl<E> WithRoot for Link<E> 
-where 
+impl<E> WithRoot for Link<E>
+where
     E: WithRoot,
 {
     type Root = E::Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            meta: self.meta.clone(),
             edge: Arc::new(RwLock::new(edge.with_root(root))),
+            meta: self.meta.clone(),
         }
     }
 }
@@ -142,9 +142,9 @@ where
     }
 }
 
-impl<E> Writer for Link<E> 
-where 
-    E: Writer
+impl<E> Writer for Link<E>
+where
+    E: Writer,
 {
     type Unit = E::Unit;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
@@ -182,9 +182,6 @@ where
     }
 }
 
-
-
-
 // impl<U, L> ToSolver for UnitSolver<U, L>
 // where
 //     U: Solve<Load = L> + 'static,
@@ -200,7 +197,6 @@ where
 //     }
 // }
 
-
 // impl<E> FromLoad for Link<E>
 // where
 //     E: FromLoad,
@@ -214,9 +210,8 @@ where
 //     }
 // }
 
-
-// impl<L> WithReactor for Leaf<L> 
-// where 
+// impl<L> WithReactor for Leaf<L>
+// where
 
 // {
 //     fn with_reactor(&self, reactor: &Reactor) -> Self {

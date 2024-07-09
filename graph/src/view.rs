@@ -50,7 +50,7 @@ where
     L: Clone,
     E: Clone,
 {
-    type Root = RootNode;
+    type Root = Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             LeafView::Bare(bare) => LeafView::Bare(bare.clone()),
@@ -65,12 +65,9 @@ pub trait AddToLeafViews<L, E> {
     type Exact;
     fn add(&mut self, item: &LeafView<L, E>) -> &mut Self;
     fn add_bare(&mut self, bare: &Self::Load) -> &mut Self;
-    fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &RootNode);
-    fn add_role(
-        &mut self,
-        role: &Role<Leaf<Self::Load>, Self::Exact>,
-        reactor: &RootNode,
-    ) -> &mut Self;
+    fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &Root);
+    fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Root)
+        -> &mut Self;
 }
 
 impl<L, E> AddToLeafViews<L, E> for Vec<LeafView<L, E>>
@@ -88,10 +85,10 @@ where
         self.push(LeafView::Bare(bare.clone()));
         self
     }
-    fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &RootNode) {
+    fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Root) {
         self.push(LeafView::Leaf(leaf.with_root(reactor)));
     }
-    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &RootNode) -> &mut Self {
+    fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Root) -> &mut Self {
         self.push(LeafView::Role(role.with_root(reactor)));
         self
     }
@@ -109,11 +106,11 @@ impl<E> AddStr for Vec<LeafView<String, E>> {
 }
 
 pub trait ToLeafViewsBuilder<'a, L, E> {
-    fn reactor(&'a mut self, reactor: &'a RootNode) -> LeafViewsBuilder<L, E>;
+    fn reactor(&'a mut self, reactor: &'a Root) -> LeafViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToLeafViewsBuilder<'a, L, E> for Vec<LeafView<L, E>> {
-    fn reactor(&'a mut self, reactor: &'a RootNode) -> LeafViewsBuilder<L, E> {
+    fn reactor(&'a mut self, reactor: &'a Root) -> LeafViewsBuilder<L, E> {
         LeafViewsBuilder {
             views: self,
             reactor,
@@ -123,7 +120,7 @@ impl<'a, L, E> ToLeafViewsBuilder<'a, L, E> for Vec<LeafView<L, E>> {
 
 pub struct LeafViewsBuilder<'a, L, E> {
     views: &'a mut Vec<LeafView<L, E>>,
-    reactor: &'a RootNode,
+    reactor: &'a Root,
 }
 
 impl<'a, L, E> LeafViewsBuilder<'a, L, E>
@@ -132,7 +129,7 @@ where
     E: Clone,
 {
     pub fn add<T: SolveWithReactor<Item = LeafView<L, E>>>(&mut self, item: &T) -> &mut Self {
-        self.views.push(item.solve_with_reactor(&self.reactor));
+        self.views.push(item.solve_with_reactor(self.reactor));
         self
     }
     pub fn add_bare(&mut self, bare: &L) -> &mut Self {

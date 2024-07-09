@@ -19,12 +19,10 @@ pub trait EventMut {
 }
 
 pub trait React {
-    // fn clear(&self) -> Reactors;
     fn react(&self);
 }
 
 pub trait ReactMut {
-    // fn clear(&mut self) -> Reactors;
     fn react_mut(&mut self);
 }
 
@@ -42,9 +40,9 @@ pub trait WithRoot {
     fn with_root(&self, root: &Self::Root) -> Self;
 }
 
-pub trait SolverWithReactor {
+pub trait SolverWithRoot {
     type Load;
-    fn solver_with_reactor(&self, reactor: RootNode) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
+    fn solver_with_root(&self, reactor: Root) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
 }
 
 pub trait TaskerWithReactor {
@@ -106,17 +104,15 @@ impl Hash for RootEdge {
     }
 }
 
-
-
-
 ///////////////////
 #[derive(Clone)]
-pub struct RootNode { // points to node?
+pub struct Root {
+    // points to node?
     pub item: Weak<RwLock<dyn EventReactMut>>,
     pub meta: Meta,
 }
 
-impl Event for RootNode {
+impl Event for Root {
     type Roots = Reactors;
     fn event(&self) -> Self::Roots {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
@@ -129,7 +125,7 @@ impl Event for RootNode {
     }
 }
 
-impl React for RootNode {
+impl React for Root {
     fn react(&self) {
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
@@ -138,10 +134,6 @@ impl React for RootNode {
     }
 }
 ///////////////////
-
-
-
-
 
 #[derive(Default)]
 pub struct Reactors(HashSet<RootEdge>);
@@ -179,12 +171,6 @@ impl Event for Reactors {
     }
 }
 
-// impl React for Reactors {
-//     fn react(&self) {
-        
-//     }
-// }
-
 impl AddRoot for Reactors {
     type Root = RootEdge;
     fn add_root(&mut self, reactor: Self::Root) {
@@ -192,6 +178,11 @@ impl AddRoot for Reactors {
     }
 }
 
+// impl React for Reactors {
+//     fn react(&self) {
+
+//     }
+// }
 
 // impl Default for Reactor {
 //     fn default() -> Self {
@@ -218,7 +209,6 @@ impl AddRoot for Reactors {
 //         }
 //     }
 // }
-
 
 // impl Reactors {
 //     pub fn new() -> Self {
@@ -248,8 +238,6 @@ impl AddRoot for Reactors {
 //     //     self.0.insert(reactor);
 //     // }
 // }
-
-
 
 // impl Default for Reactors {
 //     fn default() -> Self {

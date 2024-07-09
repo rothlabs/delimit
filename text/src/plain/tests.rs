@@ -5,7 +5,7 @@ fn new_list(leaf: &Leaf<String>) -> Text<List> {
     text_list.writer(|pack| {
         pack.unit
             .items
-            .reactor(pack.reactor)
+            .reactor(pack.root)
             .add_str("str")
             .add_leaf(leaf);
     });

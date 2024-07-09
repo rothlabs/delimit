@@ -10,22 +10,20 @@ pub mod view;
 pub mod work;
 pub mod write;
 
-pub use link::{Link, Leaf, IntoLeaf, Solver, ToLeaf, UnitSolver};
+pub use edge::Edge;
+pub use link::{IntoLeaf, Leaf, Link, Solver, ToLeaf, UnitSolver};
 pub use meta::Meta;
+pub use node::Node;
 pub use react::{
-    AddRoot, React, ReactMut, RootEdge, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
-    WithRoot, Cycle, EventReact, EventReactMut, RootNode, Event, EventMut,
+    AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Reactors, Root,
+    RootEdge, SolverWithRoot, TaskerWithReactor, ToReactor, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
 pub use view::{AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
 pub use work::{Bare, Pair, Work};
-pub use write::{
-    SolveMut, SolveTaskMut, Write, WriteWithReactor, WriterWithReactor, Writer, Pack, WriterWithPack,
-};
-pub use node::Node;
-pub use edge::Edge;
+pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
@@ -34,7 +32,7 @@ pub trait ToLoad {
     fn load(&self) -> Self::Load;
 }
 
-pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
+pub trait SolveShare<L>: Solve<Load = L> + SolverWithRoot<Load = L> {}
 
 pub trait SolveTaskShare<T, L>:
     SolveTask<Task = T, Load = L> + TaskerWithReactor<Task = T, Load = L>
@@ -81,7 +79,7 @@ pub trait Memory {
 pub trait SolveWithReactor {
     //////////////////////////////////////////////////
     type Item;
-    fn solve_with_reactor(&self, reactor: &RootNode) -> Self::Item;
+    fn solve_with_reactor(&self, reactor: &Root) -> Self::Item;
 }
 
 pub struct Role<L, E> {
@@ -89,8 +87,8 @@ pub struct Role<L, E> {
     pub solver: Solver<L>,
 }
 
-impl<L, E> Clone for Role<L, E> 
-where 
+impl<L, E> Clone for Role<L, E>
+where
     E: Clone,
 {
     fn clone(&self) -> Self {
@@ -112,7 +110,7 @@ impl<L, E> WithRoot for Role<L, E>
 where
     E: Clone,
 {
-    type Root = RootNode;
+    type Root = Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
             exact: self.exact.clone(),

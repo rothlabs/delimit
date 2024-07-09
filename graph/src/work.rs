@@ -6,18 +6,15 @@ pub struct Bare<L> {
     load: L,
 }
 
-impl<L> FromItem for Bare<L> 
-{
+impl<L> FromItem for Bare<L> {
     type Item = L;
     fn new(load: Self::Item) -> Self {
-        Self {
-            load,
-        }
+        Self { load }
     }
 }
 
-impl<L> ToLoad for Bare<L> 
-where 
+impl<L> ToLoad for Bare<L>
+where
     L: Clone,
 {
     type Load = L;
@@ -40,23 +37,19 @@ impl<L> Write for Bare<L> {
     }
 }
 
-impl<L> Clear for Bare<L> {
-    fn clear(&mut self) {}
-}
+// impl<L> Clear for Bare<L> {
+//     fn clear(&mut self) {}
+// }
 
 pub struct Pair<U, L> {
     unit: U,
     load: Option<L>,
 }
 
-impl<U, L> FromItem for Pair<U, L> 
-{
+impl<U, L> FromItem for Pair<U, L> {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
-        Self {
-            unit,
-            load: None,
-        }
+        Self { unit, load: None }
     }
 }
 
@@ -66,30 +59,19 @@ impl<U, L> Clear for Pair<U, L> {
     }
 }
 
-// impl<U, L> Write for Pair<U, L> {
-//     type Unit = U;
-//     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
-//         write(&mut self.unit);
-//     }
-// }
-
-impl<U, L> WriteWithReactor for Pair<U, L> {
+impl<U, L> WriteWithRoot for Pair<U, L> {
     type Unit = U;
-    fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(
-            &mut self,
-            write: F,
-            reactor: &RootNode,
-        ) {
+    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &Root) {
         write(&mut Pack {
             unit: &mut self.unit,
-            reactor,
+            root: reactor,
         });
         self.load = None;
     }
 }
 
-impl<U, L> SolveMut for Pair<U, L> 
-where 
+impl<U, L> SolveMut for Pair<U, L>
+where
     U: Solve<Load = L>,
     L: Clone,
 {
@@ -104,8 +86,6 @@ where
         }
     }
 }
-
-
 
 #[derive(Default, Clone)]
 pub struct Work<T, L> {

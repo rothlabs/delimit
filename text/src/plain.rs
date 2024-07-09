@@ -1,15 +1,15 @@
 use graph::*;
 
-pub use view::View;
 pub use gate::{Gate, TextGate};
 pub use list::{List, TextList};
+pub use view::View;
 
 #[cfg(test)]
 mod tests;
 
-mod view;
 mod gate;
 mod list;
+mod view;
 
 pub type Role = graph::Role<Load, Exact>;
 

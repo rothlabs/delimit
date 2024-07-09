@@ -10,29 +10,29 @@ use crate::*;
 
 pub type Leaf<L> = Node<Reactors, Bare<L>>;
 
-pub type UnitSolver<U, L> = Node<Reactors, Pair<U, L>>;
+pub type Solver<U, L> = Node<Reactors, Pair<U, L>>;
 
 pub struct Node<R, W> {
     root: R,
     work: W,
 }
 
-impl<R, W> FromItem for Node<R, W> 
-where 
+impl<R, W> FromItem for Node<R, W>
+where
     R: Default,
     W: FromItem,
 {
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
-        Self { 
+        Self {
             root: R::default(),
-            work: W::new(item), 
+            work: W::new(item),
         }
     }
 }
 
-impl<R, W> ToLoad for Node<R, W> 
-where 
+impl<R, W> ToLoad for Node<R, W>
+where
     W: ToLoad,
 {
     type Load = W::Load;
@@ -41,8 +41,8 @@ where
     }
 }
 
-impl<R, W> Write for Node<R, W> 
-where 
+impl<R, W> Write for Node<R, W>
+where
     R: Cycle,
     W: Write,
 {
@@ -53,20 +53,20 @@ where
     }
 }
 
-impl<R, W> WriteWithReactor for Node<R, W> 
-where 
+impl<R, W> WriteWithRoot for Node<R, W>
+where
     R: Cycle,
-    W: WriteWithReactor,
+    W: WriteWithRoot,
 {
     type Unit = W::Unit;
-    fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &RootNode) {
-        self.work.write_with_reactor(write, reactor);
+    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &Root) {
+        self.work.write_with_root(write, reactor);
         self.root.cycle();
     }
 }
 
-impl<R, W> Read for Node<R, W> 
-where 
+impl<R, W> Read for Node<R, W>
+where
     W: Read,
 {
     type Unit = W::Unit;
@@ -85,14 +85,15 @@ where
     }
 }
 
-impl<R, W> EventReactMut for Node<R, W> 
-where 
+impl<R, W> EventReactMut for Node<R, W>
+where
     R: Event<Roots = Reactors>,
     W: Clear,
-{}
+{
+}
 
-impl<R, W> EventMut for Node<R, W> 
-where 
+impl<R, W> EventMut for Node<R, W>
+where
     R: Event<Roots = Reactors>,
     W: Clear,
 {
@@ -104,13 +105,11 @@ where
 }
 
 impl<R, W> ReactMut for Node<R, W> {
-    fn react_mut(&mut self) {
-        
-    }
+    fn react_mut(&mut self) {}
 }
 
-impl<R, W> AddRoot for Node<R, W> 
-where 
+impl<R, W> AddRoot for Node<R, W>
+where
     R: AddRoot,
 {
     type Root = R::Root;
