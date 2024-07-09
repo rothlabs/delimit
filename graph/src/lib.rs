@@ -13,8 +13,8 @@ pub mod write;
 pub use link::{Link, Leaf, IntoLeaf, Solver, ToLeaf, UnitSolver};
 pub use meta::Meta;
 pub use react::{
-    AddRoot, React, ReactMut, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
-    WithRoot, Cycle,
+    AddRoot, React, ReactMut, RootEdge, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
+    WithRoot, Cycle, EventReact, EventReactMut, RootNode, Event, EventMut,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
@@ -81,7 +81,7 @@ pub trait Memory {
 pub trait SolveWithReactor {
     //////////////////////////////////////////////////
     type Item;
-    fn solve_with_reactor(&self, reactor: &Reactor) -> Self::Item;
+    fn solve_with_reactor(&self, reactor: &RootNode) -> Self::Item;
 }
 
 pub struct Role<L, E> {
@@ -112,7 +112,7 @@ impl<L, E> WithRoot for Role<L, E>
 where
     E: Clone,
 {
-    type Root = Reactor;
+    type Root = RootNode;
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
             exact: self.exact.clone(),

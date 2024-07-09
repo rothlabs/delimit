@@ -59,7 +59,7 @@ where
     W: WriteWithReactor,
 {
     type Unit = W::Unit;
-    fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &Reactor) {
+    fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &RootNode) {
         self.work.write_with_reactor(write, reactor);
         self.root.cycle();
     }
@@ -85,16 +85,26 @@ where
     }
 }
 
-impl<R, W> ReactMut for Node<R, W> 
+impl<R, W> EventReactMut for Node<R, W> 
 where 
-    R: React,
+    R: Event<Roots = Reactors>,
+    W: Clear,
+{}
+
+impl<R, W> EventMut for Node<R, W> 
+where 
+    R: Event<Roots = Reactors>,
     W: Clear,
 {
-    fn clear(&mut self) -> Reactors {
+    type Roots = R::Roots;
+    fn event_mut(&mut self) -> Self::Roots {
         self.work.clear();
-        self.root.clear()
+        self.root.event()
     }
-    fn react(&mut self) {
+}
+
+impl<R, W> ReactMut for Node<R, W> {
+    fn react_mut(&mut self) {
         
     }
 }

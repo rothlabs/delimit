@@ -78,7 +78,7 @@ impl<U, L> WriteWithReactor for Pair<U, L> {
     fn write_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(
             &mut self,
             write: F,
-            reactor: &Reactor,
+            reactor: &RootNode,
         ) {
         write(&mut Pack {
             unit: &mut self.unit,

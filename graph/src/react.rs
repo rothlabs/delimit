@@ -8,18 +8,28 @@ use std::{
 
 use crate::{Meta, NO_POISON};
 
+pub trait Event {
+    type Roots;
+    fn event(&self) -> Self::Roots;
+}
+
+pub trait EventMut {
+    type Roots;
+    fn event_mut(&mut self) -> Self::Roots;
+}
+
 pub trait React {
-    fn clear(&self) -> Reactors;
+    // fn clear(&self) -> Reactors;
     fn react(&self);
 }
 
 pub trait ReactMut {
-    fn clear(&mut self) -> Reactors;
-    fn react(&mut self);
+    // fn clear(&mut self) -> Reactors;
+    fn react_mut(&mut self);
 }
 
 pub trait ToReactor {
-    fn reactor(&self) -> Reactor;
+    fn reactor(&self) -> RootEdge;
 }
 
 pub trait AddRoot {
@@ -34,7 +44,7 @@ pub trait WithRoot {
 
 pub trait SolverWithReactor {
     type Load;
-    fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
+    fn solver_with_reactor(&self, reactor: RootNode) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
 }
 
 pub trait TaskerWithReactor {
@@ -42,7 +52,7 @@ pub trait TaskerWithReactor {
     type Load;
     fn tasker_with_reactor(
         &self,
-        reactor: Reactor,
+        reactor: RootEdge,
     ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load>>>;
 }
 
@@ -50,46 +60,91 @@ pub trait Cycle {
     fn cycle(&mut self);
 }
 
+pub trait EventReact: Event<Roots = Reactors> + React {}
+
+pub trait EventReactMut: EventMut<Roots = Reactors> + ReactMut {}
+
 #[derive(Clone)]
-pub struct Reactor {
-    pub item: Weak<RwLock<dyn ReactMut>>,
+pub struct RootEdge {
+    pub item: Weak<RwLock<dyn EventReact>>,
     pub meta: Meta,
 }
 
-impl React for Reactor {
-    fn clear(&self) -> Reactors {
+impl Event for RootEdge {
+    type Roots = Reactors;
+    fn event(&self) -> Self::Roots {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
-            let mut item = item.write().expect(NO_POISON);
-            item.clear()
+            let item = item.read().expect(NO_POISON);
+            item.event()
         } else {
             Reactors::new()
         }
     }
+}
+
+impl React for RootEdge {
     fn react(&self) {
         if let Some(item) = self.item.upgrade() {
-            let mut item = item.write().expect(NO_POISON);
+            let item = item.read().expect(NO_POISON);
             item.react();
         }
     }
 }
 
-impl PartialEq for Reactor {
+impl PartialEq for RootEdge {
     fn eq(&self, other: &Self) -> bool {
         Weak::ptr_eq(&self.item, &other.item) && self.meta.id == other.meta.id
     }
 }
 
-impl Eq for Reactor {}
+impl Eq for RootEdge {}
 
-impl Hash for Reactor {
+impl Hash for RootEdge {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.meta.id.hash(state);
     }
 }
 
+
+
+
+///////////////////
+#[derive(Clone)]
+pub struct RootNode { // points to node?
+    pub item: Weak<RwLock<dyn EventReactMut>>,
+    pub meta: Meta,
+}
+
+impl Event for RootNode {
+    type Roots = Reactors;
+    fn event(&self) -> Self::Roots {
+        // println!("strong_count: {}", Weak::strong_count(&self.item));
+        if let Some(item) = self.item.upgrade() {
+            let mut item = item.write().expect(NO_POISON);
+            item.event_mut()
+        } else {
+            Reactors::new()
+        }
+    }
+}
+
+impl React for RootNode {
+    fn react(&self) {
+        if let Some(item) = self.item.upgrade() {
+            let mut item = item.write().expect(NO_POISON);
+            item.react_mut();
+        }
+    }
+}
+///////////////////
+
+
+
+
+
 #[derive(Default)]
-pub struct Reactors(HashSet<Reactor>);
+pub struct Reactors(HashSet<RootEdge>);
 
 impl Reactors {
     pub fn new() -> Self {
@@ -100,7 +155,7 @@ impl Reactors {
 
 impl Cycle for Reactors {
     fn cycle(&mut self) {
-        let reactors = self.clear();
+        let reactors = self.event();
         self.0.clear();
         for root in &reactors.0 {
             root.react();
@@ -108,26 +163,30 @@ impl Cycle for Reactors {
     }
 }
 
-impl React for Reactors {
-    fn clear(&self) -> Reactors {
+impl Event for Reactors {
+    type Roots = Self;
+    fn event(&self) -> Self::Roots {
         let mut reactors = Reactors::new();
-        for reactor in &self.0 {
-            let rcts = reactor.clear();
+        for root_edge in &self.0 {
+            let rcts = root_edge.event();
             if rcts.0.is_empty() {
-                reactors.0.insert(reactor.clone());
+                reactors.0.insert(root_edge.clone());
             } else {
                 reactors.0.extend(rcts.0);
             }
         }
         reactors
     }
-    fn react(&self) {
-        
-    }
 }
 
+// impl React for Reactors {
+//     fn react(&self) {
+        
+//     }
+// }
+
 impl AddRoot for Reactors {
-    type Root = Reactor;
+    type Root = RootEdge;
     fn add_root(&mut self, reactor: Self::Root) {
         self.0.insert(reactor);
     }

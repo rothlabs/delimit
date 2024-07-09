@@ -6,7 +6,7 @@ pub enum View<E> {
 }
 
 impl<E: Clone> View<E> {
-    pub fn reactor(&self, reactor: &Reactor) -> Self {
+    pub fn reactor(&self, reactor: &RootNode) -> Self {
         match self {
             View::Text(text) => View::Text(text.with_root(reactor)),
             View::Role(role) => View::Role(role.with_root(reactor)),
@@ -17,10 +17,10 @@ impl<E: Clone> View<E> {
 
 impl<E> SolveWithReactor for View<E> {
     type Item = Item;
-    fn solve_with_reactor(&self, reactor: &Reactor) -> Self::Item {
+    fn solve_with_reactor(&self, root: &RootNode) -> Self::Item {
         match self {
-            View::Text(item) => item.with_root(reactor),
-            View::Role(role) => Item::Role(role.solve().with_root(reactor)),
+            View::Text(item) => item.with_root(root),
+            View::Role(role) => Item::Role(role.solve().with_root(root)),
         }
     }
 }

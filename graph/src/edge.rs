@@ -1,5 +1,7 @@
 use std::sync::{Arc, RwLock};
 
+use react::{Event, EventMut, EventReactMut};
+
 use crate::*;
 
 // pub use leaf::Leaf;
@@ -10,14 +12,27 @@ use crate::*;
 // mod unit_solver;
 // mod unit_tasker;
 
-pub type Leaf<U> = Edge<Reactor, node::Leaf<U>>;
+pub type Leaf<U> = Edge<RootNode, node::Leaf<U>>;
 
-pub type UnitSolver<U, L> = Edge<Reactor, node::UnitSolver<U, L>>;
+pub type UnitSolver<U, L> = Edge<RootNode, node::UnitSolver<U, L>>;
 
 pub struct Edge<R, S> {
     pub root: Option<R>,
     pub stem: Arc<RwLock<S>>,
     pub meta: Meta,
+}
+
+impl<R, S> Edge<R, S>
+where
+    S: EventReactMut + 'static,
+{
+    fn reactor(&self) -> RootNode {
+        let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut>>;
+        RootNode {
+            item: Arc::downgrade(&stem),
+            meta: self.meta.clone(),
+        }
+    }
 }
 
 impl<U, L> SolveShare<L> for UnitSolver<U, L>
@@ -33,7 +48,7 @@ where
     L: Clone + 'static,
 {
     type Load = L;
-    fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
+    fn solver_with_reactor(&self, reactor: RootNode) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
         Arc::new(RwLock::new(Self {
             root: Some(reactor),
             stem: self.stem.clone(),
@@ -81,18 +96,18 @@ where
     }
 }
 
-impl<R, S> ToReactor for Edge<R, S>
-where
-    S: ReactMut + 'static,
-{
-    fn reactor(&self) -> Reactor {
-        let stem = self.stem.clone() as Arc<RwLock<dyn ReactMut>>;
-        Reactor {
-            item: Arc::downgrade(&stem),
-            meta: self.meta.clone(),
-        }
-    }
-}
+// impl<R, S> ToReactor for Edge<R, S>
+// where
+//     S: EventReactMut + 'static,
+// {
+//     fn reactor(&self) -> Reactor {
+//         let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut>>;
+//         Reactor {
+//             item: Arc::downgrade(&stem),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<R, S> Writer for Edge<R, S> 
 where 
@@ -107,7 +122,7 @@ where
 
 impl<R, S> WriterWithPack for Edge<R, S> 
 where 
-    S: WriteWithReactor + ReactMut + 'static,
+    S: WriteWithReactor + EventReactMut + 'static,
 {
     type Unit = S::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -149,19 +164,31 @@ where
     }
 }
 
-impl<R, S> ReactMut for Edge<R, S> 
+impl<R, S> EventReact for Edge<R, S> 
 where 
-    R: React,
+    R: Event<Roots = Reactors> + React,
+{}
+
+impl<R, S> Event for Edge<R, S> 
+where 
+    R: Event<Roots = Reactors>,
 {
-    fn clear(&mut self) -> Reactors {
-        if let Some(root) = &mut self.root {
-            root.clear()
+    type Roots = R::Roots;
+    fn event(&self) -> Self::Roots {
+        if let Some(root) = &self.root {
+            root.event()
         } else {
             Reactors::new()
         }
-    }
-    fn react(&mut self) {
-        if let Some(root) = &mut self.root {
+    }    
+}
+
+impl<R, S> React for Edge<R, S> 
+where 
+    R: React,
+{
+    fn react(&self) {
+        if let Some(root) = &self.root {
             root.react();
         }
     }
@@ -169,12 +196,12 @@ where
 
 impl<R, S> AddRoot for Edge<R, S>  
 where 
-    S: AddRoot<Root = R>,
+    S: AddRoot,
 {
-    type Root = R;
-    fn add_root(&mut self, reactor: Self::Root) {
+    type Root = S::Root;
+    fn add_root(&mut self, root: Self::Root) {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_root(reactor);
+        stem.add_root(root);
     }
 }
 

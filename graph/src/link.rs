@@ -28,7 +28,7 @@ pub struct Link<E: ?Sized> {
 }
 
 impl<L> Link<dyn SolveShare<L>> {
-    pub fn with_reactor(&self, reactor: &Reactor) -> Self {
+    pub fn with_reactor(&self, reactor: &RootNode) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.solver_with_reactor(reactor.clone()),
@@ -36,6 +36,19 @@ impl<L> Link<dyn SolveShare<L>> {
         }
     }
 }
+
+// impl<E> Link<E>
+// where
+//     E: EventReact + 'static,
+// {
+//     fn reactor(&self) -> ReactorMut {
+//         let edge = self.edge.clone() as Arc<RwLock<dyn EventReact>>;
+//         ReactorMut {
+//             item: Arc::downgrade(&edge),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<E> ToLoad for Link<E> 
 where 
@@ -92,11 +105,11 @@ where
 
 impl<E> ToReactor for Link<E>
 where
-    E: ReactMut + 'static,
+    E: EventReact + 'static,
 {
-    fn reactor(&self) -> Reactor {
-        let edge = self.edge.clone() as Arc<RwLock<dyn ReactMut>>;
-        Reactor {
+    fn reactor(&self) -> RootEdge {
+        let edge = self.edge.clone() as Arc<RwLock<dyn EventReact>>;
+        RootEdge {
             item: Arc::downgrade(&edge),
             meta: self.meta.clone(),
         }
@@ -117,7 +130,7 @@ where
 // TODO: use generics on Reader<T> to make multiple implmentations with different bounds
 impl<E> Reader for Link<E>
 where
-    E: Reader + ReactMut + ToReactor + AddRoot<Root = Reactor> + 'static,
+    E: Reader + EventReact + AddRoot<Root = RootEdge> + 'static,
 {
     type Unit = E::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
