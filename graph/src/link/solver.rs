@@ -2,6 +2,8 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
+
+
 pub struct Solver<L> {
     pub edge: Arc<RwLock<dyn SolveShare<L>>>,
     pub meta: Meta,

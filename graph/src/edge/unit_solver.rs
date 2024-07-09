@@ -17,10 +17,10 @@ impl<U, L> UnitSolver<U, L> {
 
 impl<U, L> FromUnit for UnitSolver<U, L> {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(node::UnitSolver::new(unit))),
+            stem: Arc::new(RwLock::new(node::UnitSolver::from_unit(unit))),
             meta: Meta::new(),
         }
     }

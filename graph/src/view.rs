@@ -45,16 +45,17 @@ where
     }
 }
 
-impl<L, E> WithReactor for LeafView<L, E>
+impl<L, E> WithRoot for LeafView<L, E>
 where
     L: Clone,
     E: Clone,
 {
-    fn with_reactor(&self, reactor: &Reactor) -> Self {
+    type Root = Reactor;
+    fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             LeafView::Bare(bare) => LeafView::Bare(bare.clone()),
-            LeafView::Leaf(leaf) => LeafView::Leaf(leaf.with_reactor(reactor)),
-            LeafView::Role(role) => LeafView::Role(role.with_reactor(reactor)),
+            LeafView::Leaf(leaf) => LeafView::Leaf(leaf.with_root(root)),
+            LeafView::Role(role) => LeafView::Role(role.with_root(root)),
         }
     }
 }
@@ -88,10 +89,10 @@ where
         self
     }
     fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Reactor) {
-        self.push(LeafView::Leaf(leaf.with_reactor(reactor)));
+        self.push(LeafView::Leaf(leaf.with_root(reactor)));
     }
     fn add_role(&mut self, role: &Role<Leaf<L>, E>, reactor: &Reactor) -> &mut Self {
-        self.push(LeafView::Role(role.with_reactor(reactor)));
+        self.push(LeafView::Role(role.with_root(reactor)));
         self
     }
 }
@@ -163,7 +164,7 @@ pub enum LeafEye<L> {
 
 impl<L> LeafEye<L> {
     pub fn new(load: L) -> Self {
-        Self::Leaf(Leaf::new(load))
+        Self::Leaf(Leaf::from_load(load))
     }
 }
 

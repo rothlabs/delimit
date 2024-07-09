@@ -30,9 +30,9 @@ where
     W: Default,
 {
     type Unit = U;
-    fn new(unit: U) -> Self {
+    fn from_unit(unit: U) -> Self {
         Self {
-            edge: Arc::new(RwLock::new(edge::UnitTasker::new(unit))),
+            edge: Arc::new(RwLock::new(edge::UnitTasker::from_unit(unit))),
             meta: Meta::new(),
         }
     }

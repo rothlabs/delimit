@@ -8,8 +8,8 @@ pub enum View<E> {
 impl<E: Clone> View<E> {
     pub fn reactor(&self, reactor: &Reactor) -> Self {
         match self {
-            View::Text(text) => View::Text(text.with_reactor(reactor)),
-            View::Role(role) => View::Role(role.with_reactor(reactor)),
+            View::Text(text) => View::Text(text.with_root(reactor)),
+            View::Role(role) => View::Role(role.with_root(reactor)),
         }
     }
     // pub fn add_role(&self)
@@ -19,8 +19,8 @@ impl<E> SolveWithReactor for View<E> {
     type Item = Item;
     fn solve_with_reactor(&self, reactor: &Reactor) -> Self::Item {
         match self {
-            View::Text(item) => item.with_reactor(reactor),
-            View::Role(role) => Item::Role(role.solve().with_reactor(reactor)),
+            View::Text(item) => item.with_root(reactor),
+            View::Role(role) => Item::Role(role.solve().with_root(reactor)),
         }
     }
 }

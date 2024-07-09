@@ -13,7 +13,7 @@ where
 {
     type Load = T::Load;
     fn solve(&self) -> T::Load {
-        if self.on.solve().load() {
+        if self.on.solve().work() {
             self.active.solve()
         } else {
             self.default.solve()

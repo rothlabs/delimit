@@ -19,9 +19,14 @@ pub trait WriteWithReactor {
     );
 }
 
+pub trait WriterWithReactor {
+    type Unit;
+    fn writer_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F, reactor: &Reactor);
+}
+
 pub trait WriterWithPack {
     type Unit;
-    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
+    fn writer_pack<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
 }
 
 pub trait SolveMut {

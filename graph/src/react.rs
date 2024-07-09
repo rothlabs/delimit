@@ -9,6 +9,11 @@ use std::{
 use crate::{Meta, NO_POISON};
 
 pub trait React {
+    fn clear(&self) -> Reactors;
+    fn react(&self);
+}
+
+pub trait ReactMut {
     fn clear(&mut self) -> Reactors;
     fn react(&mut self);
 }
@@ -17,18 +22,26 @@ pub trait ToReactor {
     fn reactor(&self) -> Reactor;
 }
 
-pub trait AddReactor {
-    fn add_reactor(&mut self, reactor: Reactor);
+pub trait AddRoot {
+    type Item;
+    fn add_root(&mut self, reactor: Self::Item);
 }
 
-pub trait WithReactor {
-    fn with_reactor(&self, reactor: &Reactor) -> Self;
+pub trait WithRoot {
+    type Root;
+    fn with_root(&self, root: &Self::Root) -> Self;
 }
 
 pub trait SolverWithReactor {
+    //type Root;
     type Load;
     fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
 }
+// pub trait SolverWithReactor {
+//     type Item;
+//     type Load;
+//     fn solver_with_reactor(&self, reactor: Reactor) -> Arc<RwLock<Self::Item>>;
+// }
 
 pub trait TaskerWithReactor {
     type Task;
@@ -39,14 +52,18 @@ pub trait TaskerWithReactor {
     ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load>>>;
 }
 
+pub trait Cycle {
+    fn cycle(&mut self);
+}
+
 #[derive(Clone)]
 pub struct Reactor {
-    pub item: Weak<RwLock<dyn React>>,
+    pub item: Weak<RwLock<dyn ReactMut>>,
     pub meta: Meta,
 }
 
-impl Reactor {
-    pub fn clear(&self) -> Reactors {
+impl React for Reactor {
+    fn clear(&self) -> Reactors {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
@@ -55,13 +72,39 @@ impl Reactor {
             Reactors::new()
         }
     }
-    pub fn react(&self) {
+    fn react(&self) {
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
             item.react();
         }
     }
 }
+
+// impl Default for Reactor {
+//     fn default() -> Self {
+//         Self {
+//             item
+//         }
+//     }
+// }
+
+// impl Reactor {
+//     pub fn clear(&self) -> Reactors {
+//         // println!("strong_count: {}", Weak::strong_count(&self.item));
+//         if let Some(item) = self.item.upgrade() {
+//             let mut item = item.write().expect(NO_POISON);
+//             item.clear()
+//         } else {
+//             Reactors::new()
+//         }
+//     }
+//     pub fn react(&self) {
+//         if let Some(item) = self.item.upgrade() {
+//             let mut item = item.write().expect(NO_POISON);
+//             item.react();
+//         }
+//     }
+// }
 
 impl PartialEq for Reactor {
     fn eq(&self, other: &Self) -> bool {
@@ -85,14 +128,20 @@ impl Reactors {
         Self::default()
     }
     // TODO: make method to remove reactors with dropped edges
-    pub fn cycle(&mut self) {
+}
+
+impl Cycle for Reactors {
+    fn cycle(&mut self) {
         let reactors = self.clear();
         self.0.clear();
         for root in &reactors.0 {
             root.react();
         }
     }
-    pub fn clear(&self) -> Reactors {
+}
+
+impl React for Reactors {
+    fn clear(&self) -> Reactors {
         let mut reactors = Reactors::new();
         for reactor in &self.0 {
             let rcts = reactor.clear();
@@ -104,10 +153,49 @@ impl Reactors {
         }
         reactors
     }
-    pub fn add(&mut self, reactor: Reactor) {
+    fn react(&self) {
+        
+    }
+}
+
+impl AddRoot for Reactors {
+    type Item = Reactor;
+    fn add_root(&mut self, reactor: Self::Item) {
         self.0.insert(reactor);
     }
 }
+
+
+// impl Reactors {
+//     pub fn new() -> Self {
+//         Self::default()
+//     }
+//     // TODO: make method to remove reactors with dropped edges
+//     pub fn cycle(&mut self) {
+//         let reactors = self.clear();
+//         self.0.clear();
+//         for root in &reactors.0 {
+//             root.react();
+//         }
+//     }
+//     // pub fn clear(&self) -> Reactors {
+//     //     let mut reactors = Reactors::new();
+//     //     for reactor in &self.0 {
+//     //         let rcts = reactor.clear();
+//     //         if rcts.0.is_empty() {
+//     //             reactors.0.insert(reactor.clone());
+//     //         } else {
+//     //             reactors.0.extend(rcts.0);
+//     //         }
+//     //     }
+//     //     reactors
+//     // }
+//     // pub fn add(&mut self, reactor: Reactor) {
+//     //     self.0.insert(reactor);
+//     // }
+// }
+
+
 
 // impl Default for Reactors {
 //     fn default() -> Self {

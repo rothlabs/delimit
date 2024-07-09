@@ -27,9 +27,9 @@ impl<U, W> PartialEq for UnitSolver<U, W> {
 
 impl<U, L> FromUnit for UnitSolver<U, L> {
     type Unit = U;
-    fn new(unit: U) -> Self {
+    fn from_unit(unit: U) -> Self {
         Self {
-            edge: Arc::new(RwLock::new(edge::UnitSolver::new(unit))),
+            edge: Arc::new(RwLock::new(edge::UnitSolver::from_unit(unit))),
             meta: Meta::new(),
         }
     }

@@ -10,22 +10,29 @@ pub mod view;
 pub mod work;
 pub mod write;
 
-pub use link::{IntoLeaf, Leaf, Solver, Stemmer, ToLeaf, UnitSolver, UnitTasker};
+pub use link::{Link, Leaf, IntoLeaf, Solver, ToLeaf, UnitSolver};
 pub use meta::Meta;
 pub use react::{
-    AddReactor, React, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
-    WithReactor,
+    AddRoot, React, ReactMut, Reactor, Reactors, SolverWithReactor, TaskerWithReactor, ToReactor,
+    WithRoot, Cycle,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
 pub use view::{AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
-pub use work::Work;
+pub use work::{Work, UnitLoad};
 pub use write::{
-    SolveMut, SolveTaskMut, Write, WriteWithReactor, Writer, Pack, WriterWithPack,
+    SolveMut, SolveTaskMut, Write, WriteWithReactor, WriterWithReactor, Writer, Pack, WriterWithPack,
 };
+pub use node::Node;
+pub use edge::Edge;
 
 const NO_POISON: &str = "the lock should not be poisoned";
+
+pub trait ToWork {
+    type Work;
+    fn work(&self) -> Self::Work;
+}
 
 pub trait SolveShare<L>: Solve<Load = L> + SolverWithReactor<Load = L> {}
 
@@ -36,14 +43,14 @@ pub trait SolveTaskShare<T, L>:
 
 pub trait ToSolver {
     type Load;
-    fn solver(&self) -> link::Solver<Self::Load>;
+    fn solver(&self) -> Solver<Self::Load>;
 }
 
-pub trait ToTasker {
-    type Task;
-    type Load;
-    fn tasker(&self) -> link::Tasker<Self::Task, Self::Load>;
-}
+// pub trait ToTasker {
+//     type Task;
+//     type Load;
+//     fn tasker(&self) -> link::Tasker<Self::Task, Self::Load>;
+// }
 
 pub trait AddStem {
     type Unit;
@@ -56,7 +63,12 @@ pub trait Clear {
 
 pub trait FromUnit {
     type Unit;
-    fn new(unit: Self::Unit) -> Self;
+    fn from_unit(unit: Self::Unit) -> Self;
+}
+
+pub trait FromLoad {
+    type Load;
+    fn from_load(unit: Self::Load) -> Self;
 }
 
 pub trait Memory {
@@ -72,10 +84,21 @@ pub trait SolveWithReactor {
     fn solve_with_reactor(&self, reactor: &Reactor) -> Self::Item;
 }
 
-#[derive(Clone)]
 pub struct Role<L, E> {
     pub exact: E,
     pub solver: Solver<L>,
+}
+
+impl<L, E> Clone for Role<L, E> 
+where 
+    E: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            exact: self.exact.clone(),
+            solver: self.solver.clone(),
+        }
+    }
 }
 
 impl<L, E> Solve for Role<L, E> {
@@ -85,17 +108,23 @@ impl<L, E> Solve for Role<L, E> {
     }
 }
 
-impl<L, E> WithReactor for Role<L, E>
+impl<L, E> WithRoot for Role<L, E>
 where
     E: Clone,
 {
-    fn with_reactor(&self, reactor: &Reactor) -> Self {
+    type Root = Reactor;
+    fn with_root(&self, root: &Self::Root) -> Self {
         Self {
             exact: self.exact.clone(),
-            solver: self.solver.with_reactor(reactor),
+            solver: self.solver.with_reactor(root),
         }
     }
 }
+
+// pub trait Stemmer {
+//     type Unit;
+//     fn stemmer<T: WithReactor, F: FnOnce(&mut Self::Unit, T)>(&self, stem: &T, add_stem: F);
+// }
 
 // impl<L: 'static> SolveLay<L> {
 //     pub fn read<F: FnOnce(&L)>(&self, read: F) {

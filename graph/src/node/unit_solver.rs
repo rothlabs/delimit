@@ -8,7 +8,7 @@ pub struct UnitSolver<U, L> {
 
 impl<U, L> FromUnit for UnitSolver<U, L> {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             unit,
             load: None,

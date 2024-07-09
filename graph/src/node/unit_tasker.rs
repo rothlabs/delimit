@@ -11,7 +11,7 @@ where
     W: Default,
 {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             unit,
             work: W::default(),

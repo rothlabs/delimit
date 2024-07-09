@@ -23,10 +23,10 @@ where
     W: Default,
 {
     type Unit = U;
-    fn new(unit: Self::Unit) -> Self {
+    fn from_unit(unit: Self::Unit) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(node::UnitTasker::new(unit))),
+            stem: Arc::new(RwLock::new(node::UnitTasker::from_unit(unit))),
             meta: Meta::new(),
         }
     }

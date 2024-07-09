@@ -49,7 +49,7 @@ pub trait TextList {
 
 impl TextList for &str {
     fn list(self) -> (Role, Text<List>) {
-        let text = Text::new(List {
+        let text = Text::from_unit(List {
             separator: self.into(),
             items: vec![],
         });
