@@ -21,7 +21,9 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
-pub use view::{View, AddToViews, ToViewsBuilder, AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
+pub use view::{
+    AddStr, AddToLeafViews, AddToViews, LeafEye, LeafView, ToLeafViewsBuilder, ToViewsBuilder, View,
+};
 pub use work::{Bare, Pair, Work};
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
 

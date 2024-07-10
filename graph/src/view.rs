@@ -6,8 +6,8 @@ pub enum View<I, R, E> {
     Role(Role<R, E>),
 }
 
-impl<I, R, E> Solve for View<I, R, E> 
-where 
+impl<I, R, E> Solve for View<I, R, E>
+where
     I: Clone + IntoRole<Load = R>,
 {
     type Load = I;
@@ -19,8 +19,8 @@ where
     }
 }
 
-impl<I, R, E> WithRoot for View<I, R, E> 
-where 
+impl<I, R, E> WithRoot for View<I, R, E>
+where
     I: WithRoot<Root = Root>,
     E: Clone,
 {
@@ -39,8 +39,8 @@ pub trait AddToViews {
     fn add_view(&mut self, view: &Self::View);
 }
 
-impl<I, R, E> AddToViews for Vec<View<I, R, E>> 
-where 
+impl<I, R, E> AddToViews for Vec<View<I, R, E>>
+where
     I: Clone,
     R: Clone,
     E: Clone,
@@ -82,8 +82,6 @@ where
 }
 
 /////////////////////////////////////////////////
-
-
 
 #[derive(Clone)]
 pub enum LeafView<L, E> {
@@ -219,8 +217,11 @@ where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Solve<Load = LeafView<L, E>> + WithRoot<Root = Root>>(&mut self, item: &T) -> &mut Self {
-        self.views.add_item(&item.with_root(self.root)); 
+    pub fn add_item<T: Solve<Load = LeafView<L, E>> + WithRoot<Root = Root>>(
+        &mut self,
+        item: &T,
+    ) -> &mut Self {
+        self.views.add_item(&item.with_root(self.root));
         self
     }
     // pub fn add_view(&mut self, view: &LeafView<L, E>) -> &mut Self {
@@ -273,8 +274,8 @@ where
     }
 }
 
-// impl<I, R, E> SolveWithRoot for View<I, R, E> 
-// where 
+// impl<I, R, E> SolveWithRoot for View<I, R, E>
+// where
 //     I: WithRoot<Root = Root> + IntoRole<Load = R>,
 //     R: WithRoot<Root = Root>,
 // {

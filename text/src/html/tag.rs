@@ -22,14 +22,18 @@ impl Tag {
 impl Solve for Tag {
     type Load = Load;
     fn solve(&self) -> Self::Load {
-        let Hold{link, view} = " ".list();
+        let Hold { link, view } = "".list();
         link.writer(|pack| {
             let mut tag = pack.unit.items.root(pack.root);
-            tag.add_str("<").add_item(&self.name);
-            for att in &self.attributes {
-                tag.add_item(att);
-            }
-            tag.add_str(r#">"#);
+            let Hold { link, view } = " ".list();
+            link.writer(|pack| {
+                let mut inner = pack.unit.items.root(pack.root);
+                inner.add_item(&self.name);
+                for att in &self.attributes {
+                    inner.add_item(att);
+                }
+            });
+            tag.add_str("<").add_role(&view).add_str(">");
         });
         view
     }
@@ -44,16 +48,7 @@ pub const BODY: &str = "body";
 pub const DIV: &str = "div";
 pub const H1: &str = "h1";
 
-pub const TAGS: [&str; 8] = [
-    DOCTYPE, 
-    HTML, 
-    HEAD,
-    TITLE,
-    META,
-    BODY,
-    DIV,
-    H1,
-];
+pub const TAGS: [&str; 8] = [DOCTYPE, HTML, HEAD, TITLE, META, BODY, DIV, H1];
 
 // #[derive(Default, Clone, Serialize)]
 // pub struct TagName {

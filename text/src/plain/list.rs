@@ -57,7 +57,7 @@ impl TextList for &str {
             exact: Exact::List(link.clone()),
             solver: link.solver(),
         };
-        Hold{link, view}
+        Hold { link, view }
     }
 }
 

@@ -22,7 +22,7 @@ impl Attribute {
 impl Solve for Attribute {
     type Load = Load;
     fn solve(&self) -> Load {
-        let Hold{link, view} = "".list();
+        let Hold { link, view } = "".list();
         link.writer(|pack| {
             pack.unit
                 .items
@@ -41,18 +41,7 @@ pub const CHARSET: &str = "charset";
 pub const NAME: &str = "name";
 pub const CONTENT: &str = "content";
 
-pub const ATTRIBUTES: [&str; 4] = [
-    LANG, 
-    CHARSET, 
-    NAME,
-    CONTENT,
-];
-
-
-
-
-
-
+pub const ATTRIBUTES: [&str; 4] = [LANG, CHARSET, NAME, CONTENT];
 
 // pub fn attribute() -> (Item, Html<Attribute>) {
 //     let exact = Html::new(Attribute {

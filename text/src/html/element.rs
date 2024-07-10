@@ -7,11 +7,11 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn new(tag: &Item) -> Hold<Html<Self>, Item> {
+    pub fn new(tag: &Item, close: Option<&Item>) -> Hold<Html<Self>, Item> {
         let link = Html::new(Self {
-            tag: tag.clone(),//plain::string("html"),
+            tag: tag.clone(),
             items: vec![],
-            close: None, //plain::string("html"),
+            close: close.cloned(),
         });
         let view = Item::Role(Role {
             exact: Exact::Element(link.clone()),
@@ -19,25 +19,12 @@ impl Element {
         });
         Hold { link, view }
     }
-    // pub fn new() -> Self {
-    //     Element::default()
-    // }
 }
-
-// impl Default for Element {
-//     fn default() -> Self {
-//         Self {
-//             tag: plain::string("html"),
-//             items: vec![],
-//             close: plain::string("html"),
-//         }
-//     }
-// }
 
 impl Solve for Element {
     type Load = Load;
     fn solve(&self) -> Load {
-        let Hold{link, view} = "\n".list();
+        let Hold { link, view } = "\n".list();
         link.writer(|pack| {
             let mut element = pack.unit.items.root(pack.root);
             element.add_item(&self.tag);
@@ -45,26 +32,18 @@ impl Solve for Element {
                 element.add_item(item);
             }
             if let Some(close) = &self.close {
-                element.add_str("</").add_item(close).add_str(">");
+                let Hold { link, view } = "".list();
+                link.writer(|pack| {
+                    pack.unit
+                        .items
+                        .root(pack.root)
+                        .add_str("</")
+                        .add_item(close)
+                        .add_str(">");
+                });
+                element.add_role(&view);
             }
         });
         view
     }
 }
-
-// fn tag(&self, pack: &mut Pack<List>) {
-//     let mut tag = pack.unit.items.root(pack.root);
-//     tag.add_str(&self.tag.open);
-//     for att in &self.attributes {
-//         tag.add_view(att);
-//     }
-//     tag.add_str(">");
-// }
-// fn full(&self, pack: &mut Pack<List>, tag: &Load) {
-//     let mut full = pack.unit.items.root(pack.root);
-//     full.add_role(tag);
-//     for item in &self.items {
-//         full.add_view(item);
-//     }
-//     full.add_str(&self.tag.close);
-// }

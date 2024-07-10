@@ -18,8 +18,6 @@ pub type View<E> = graph::View<Item, Role, E>;
 //     }
 // }
 
-
-
 // impl<E> View<E>
 // where
 //     E: Clone,
@@ -31,17 +29,6 @@ pub type View<E> = graph::View<Item, Role, E>;
 //         }
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
 
 // pub trait ToPlain {
 //     fn plain(&self, reactor: &Reactor) -> ;
