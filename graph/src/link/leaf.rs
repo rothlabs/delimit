@@ -1,6 +1,5 @@
 use crate::*;
 
-
 pub trait ToLeaf<L> {
     fn leaf(&self) -> Sole<L>;
 }

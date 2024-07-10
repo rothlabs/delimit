@@ -53,11 +53,11 @@ impl TextList for &str {
 }
 
 // pub fn new() -> Self {
-    //     List::default()
-    // }
-    // pub fn from_separator(sep: &str) -> Self {
-    //     Self {
-    //         items: vec![],
-    //         separator: sep.to_owned(),
-    //     }
-    // }
+//     List::default()
+// }
+// pub fn from_separator(sep: &str) -> Self {
+//     Self {
+//         items: vec![],
+//         separator: sep.to_owned(),
+//     }
+// }
