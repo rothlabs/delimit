@@ -7,17 +7,9 @@ use crate::{BOOT, INIT};
 #[cfg(test)]
 mod tests;
 
-#[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct Importmap {
     imports: Imports,
-}
-
-impl Default for Importmap {
-    fn default() -> Self {
-        Self {
-            imports: Imports::default(),
-        }
-    }
 }
 
 #[derive(Serialize)]

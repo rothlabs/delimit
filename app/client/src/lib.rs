@@ -7,7 +7,7 @@ pub fn initialize() {
     console_error_panic_hook::set_once();
     let window = window().expect("no window");
     let _ = window.alert_with_message("Delimit!");
-} 
+}
 
 // alert("Hello, delimit!");
 

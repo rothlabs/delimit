@@ -1,9 +1,10 @@
 use std::net::SocketAddr;
+use std::path::Path;
 
 use bytes::Bytes;
 use futures_util::TryStreamExt;
 use http_body_util::{combinators::BoxBody, BodyExt, Full, StreamBody};
-use hyper::body::Frame;
+use hyper::body::{Frame, Incoming};
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Method, StatusCode};
@@ -13,7 +14,7 @@ use tokio::fs::File;
 use tokio::net::TcpListener;
 use tokio_util::io::ReaderStream;
 
-use config::{STATIC, CLIENT};
+use config::{CLIENT, STATIC};
 use index::index;
 
 mod config;
@@ -62,7 +63,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             if let Err(err) = http1::Builder::new()
                 .timer(TokioTimer::new())
                 .serve_connection(io, service_fn(|req| handle(req, test_data)))
-                //.serve_connection(io, service_fn(index))
                 .await
             {
                 println!("Error serving connection: {:?}", err);
@@ -71,68 +71,65 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 }
 
-async fn handle(
-    req: Request<hyper::body::Incoming>,
-    count: i32,
-) -> hyper::Result<Response<BoxBody<Bytes, std::io::Error>>> {
+type RequestResult = hyper::Result<Response<BoxBody<Bytes, std::io::Error>>>;
+
+async fn handle(req: Request<Incoming>, count: i32) -> RequestResult {
     println!("count!!! {count}");
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => Ok(Response::new(full(index()))),
-        (&Method::GET, BOOT) => send_static(BOOT, "text/javascript").await,
-        (&Method::GET, INIT) => send_client(INIT, "text/javascript").await,
-        (&Method::GET, MAIN) => send_client(MAIN, "application/wasm").await,
-        _ => Ok(not_found()),
+        (&Method::GET, "/") => text(index()),
+        (&Method::GET, BOOT) => static_file(BOOT).await,
+        (&Method::GET, INIT) => client_file(INIT).await,
+        (&Method::GET, MAIN) => client_file(MAIN).await,
+        _ => not_found(),
     }
 }
 
-async fn send_static(path: &str, c_type: &str) -> hyper::Result<Response<BoxBody<Bytes, std::io::Error>>> {
-    send_file(STATIC.to_owned() + path, c_type).await
+fn text<T: Into<Bytes>>(chunk: T) -> RequestResult {
+    Ok(Response::new(
+        Full::new(chunk.into())
+            .map_err(|e| match e {})
+            .boxed(),
+    ))
 }
 
-async fn send_client(path: &str, c_type: &str) -> hyper::Result<Response<BoxBody<Bytes, std::io::Error>>> {
-    send_file(CLIENT.to_owned() + path, c_type).await
+fn not_found() -> RequestResult {
+    Ok(Response::builder()
+        .status(StatusCode::NOT_FOUND)
+        .body(Full::new(NOTFOUND.into()).map_err(|e| match e {}).boxed())
+        .unwrap())
 }
 
-async fn send_file(path: String, c_type: &str) -> hyper::Result<Response<BoxBody<Bytes, std::io::Error>>> {
-    // Open file for reading
-    let file = File::open(path).await;
+async fn static_file(path: &str) -> RequestResult {
+    send_file(STATIC.to_owned() + path).await
+}
+
+async fn client_file(path: &str) -> RequestResult {
+    send_file(CLIENT.to_owned() + path).await
+}
+
+async fn send_file(path: String) -> RequestResult {
+    let file = File::open(&path).await;
     if file.is_err() {
         eprintln!("ERROR: Unable to open file.");
-        return Ok(not_found());
+        return not_found();
     }
-
     let file: File = file.unwrap();
-
-    // Wrap to a tokio_util::io::ReaderStream
     let reader_stream = ReaderStream::new(file);
-
-    // Convert to http_body_util::BoxBody
     let stream_body = StreamBody::new(reader_stream.map_ok(Frame::data));
     let boxed_body = stream_body.boxed();
-
-    // Send response
+    let content_type = match Path::new(&path).extension().unwrap().to_str().unwrap() {
+        "js" => "text/javascript",
+        "wasm" => "application/wasm",
+        _ => "text/plain"
+    };
     let response = Response::builder()
-        .header("Content-Type", c_type)
+        .header("Content-Type", content_type)
         .status(StatusCode::OK)
         .body(boxed_body)
         .unwrap();
-
     Ok(response)
 }
 
-/// HTTP status code 404
-fn not_found() -> Response<BoxBody<Bytes, std::io::Error>> {
-    Response::builder()
-        .status(StatusCode::NOT_FOUND)
-        .body(Full::new(NOTFOUND.into()).map_err(|e| match e {}).boxed())
-        .unwrap()
-}
-
-fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, std::io::Error> {
-    Full::new(chunk.into())
-        .map_err(|never| match never {})
-        .boxed()
-}
 
 
 // struct Paths<'a> {
@@ -140,7 +137,7 @@ fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, std::io::Error> {
 // }
 
 // const PATH: Paths<'static> = Paths {
-//     app: "app.js", 
+//     app: "app.js",
 // };
 
 // // We create some utility functions to make Empty and Full bodies
