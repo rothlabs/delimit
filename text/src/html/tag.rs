@@ -44,11 +44,12 @@ pub const HTML: &str = "html";
 pub const HEAD: &str = "head";
 pub const TITLE: &str = "title";
 pub const META: &str = "meta";
+pub const SCRIPT: &str = "script";
 pub const BODY: &str = "body";
 pub const DIV: &str = "div";
 pub const H1: &str = "h1";
 
-pub const TAGS: [&str; 8] = [DOCTYPE, HTML, HEAD, TITLE, META, BODY, DIV, H1];
+pub const TAGS: [&str; 9] = [DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, H1];
 
 // #[derive(Default, Clone, Serialize)]
 // pub struct TagName {

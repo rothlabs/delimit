@@ -83,6 +83,9 @@ impl Doc {
     pub fn meta(self) -> Self {
         self.stem(META)
     }
+    pub fn script(self) -> Self {
+        self.stem(SCRIPT)
+    }
     pub fn body(self) -> Self {
         self.stem(BODY)
     }
@@ -109,6 +112,12 @@ impl Doc {
     }
     pub fn content(&mut self, val: &str) -> &mut Self {
         self.add_attribute(CONTENT, val)
+    }
+    pub fn r#type(&mut self, val: &str) -> &mut Self {
+        self.add_attribute(TYPE, val)
+    }
+    pub fn src(&mut self, val: &str) -> &mut Self {
+        self.add_attribute(SRC, val)
     }
 }
 

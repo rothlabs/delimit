@@ -22,4 +22,19 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
 
-
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  'Document', 
+  'Window', 
+  'HtmlCanvasElement' ,
+  'WebGlRenderingContext', 
+  'WebGl2RenderingContext', 
+  'WebGlProgram', 
+  'WebGlShader', 
+  'WebGlBuffer', 
+  'WebGlFramebuffer', 
+  'WebGlVertexArrayObject',
+  'WebGlUniformLocation',
+  'WebGlTexture'
+]

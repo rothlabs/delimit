@@ -40,8 +40,10 @@ pub const LANG: &str = "lang";
 pub const CHARSET: &str = "charset";
 pub const NAME: &str = "name";
 pub const CONTENT: &str = "content";
+pub const TYPE: &str = "type";
+pub const SRC: &str = "src";
 
-pub const ATTRIBUTES: [&str; 4] = [LANG, CHARSET, NAME, CONTENT];
+pub const ATTRIBUTES: [&str; 6] = [LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
 
 // pub fn attribute() -> (Item, Html<Attribute>) {
 //     let exact = Html::new(Attribute {
