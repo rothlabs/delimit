@@ -21,7 +21,7 @@ impl Solve for List {
     fn solve(&self) -> Load {
         let mut string = String::new();
         if self.items.is_empty() {
-            return string.into_leaf();
+            return string.into_sole();
         }
         for i in 0..self.items.len() - 1 {
             self.items[i].reader(|s| string += s);
@@ -30,7 +30,7 @@ impl Solve for List {
         if let Some(item) = self.items.last() {
             item.reader(|s| string += s);
         }
-        string.into_leaf()
+        string.into_sole()
     }
 }
 

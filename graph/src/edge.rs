@@ -2,14 +2,6 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-// pub use leaf::Leaf;
-// pub use unit_solver::UnitSolver;
-// pub use unit_tasker::UnitTasker;
-
-// mod leaf;
-// mod unit_solver;
-// mod unit_tasker;
-
 pub type Sole<L> = Edge<Root, node::Sole<L>>;
 pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
 
@@ -137,18 +129,18 @@ where
     }
 }
 
-impl<R, S> EventReact for Edge<R, S> where R: Event<Roots = Roots> + React {}
+impl<R, S> EventReact for Edge<R, S> where R: Event<Root = RootEdges> + React {}
 
 impl<R, S> Event for Edge<R, S>
 where
-    R: Event<Roots = Roots>,
+    R: Event<Root = RootEdges>,
 {
-    type Roots = R::Roots;
-    fn event(&self) -> Self::Roots {
+    type Root = R::Root;
+    fn event(&self) -> Self::Root {
         if let Some(root) = &self.root {
             root.event()
         } else {
-            Roots::new()
+            RootEdges::new()
         }
     }
 }
@@ -174,54 +166,3 @@ where
         stem.add_root(root);
     }
 }
-
-// impl<R, S> WriterWithReactor for Edge<R, S>
-// where
-//     S: WriteWithReactor
-// {
-//     type Unit = S::Unit;
-//     fn writer_with_reactor<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F, reactor: &Reactor) {
-//         let mut stem = self.stem.write().expect(NO_POISON);
-//         stem.write_with_reactor(write, reactor);
-//     }
-// }
-
-// impl<R, S> ToReactor for Edge<R, S>
-// where
-//     S: EventReactMut + 'static,
-// {
-//     fn reactor(&self) -> Reactor {
-//         let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut>>;
-//         Reactor {
-//             item: Arc::downgrade(&stem),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<R, S> FromLoad for Edge<R, S>
-// where
-//     S: FromLoad,
-// {
-//     type Load = S::Load;
-//     fn from_load(unit: Self::Load) -> Self {
-//         Self {
-//             root: None,
-//             stem: Arc::new(RwLock::new(S::from_load(unit))),
-//             meta: Meta::new(),
-//         }
-//     }
-// }
-
-// impl<R, S> Clone for Edge<R, S>
-// where
-//     R: Clone,
-// {
-//     fn clone(&self) -> Self {
-//         Self {
-//             root: self.root.clone(),
-//             stem: self.stem.clone(),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }

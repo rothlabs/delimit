@@ -1,21 +1,21 @@
 use crate::*;
 
-pub trait ToSole<L> {
+pub trait ToLeaf<L> {
     fn leaf(&self) -> Sole<L>;
 }
 
-impl ToSole<String> for str {
+impl ToLeaf<String> for str {
     fn leaf(&self) -> Sole<String> {
         Sole::new(self.to_owned())
     }
 }
 
-pub trait IntoSole<L> {
-    fn into_sole(self) -> Sole<L>;
+pub trait IntoLeaf<L> {
+    fn into_leaf(self) -> Sole<L>;
 }
 
-impl<L> IntoSole<L> for L {
-    fn into_sole(self) -> Sole<L> {
+impl<L> IntoLeaf<L> for L {
+    fn into_leaf(self) -> Sole<L> {
         Sole::new(self)
     }
 }

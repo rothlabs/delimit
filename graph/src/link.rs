@@ -2,20 +2,12 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub use leaf::{IntoLeaf, ToLeaf};
-// pub use solver::Solver;
-// pub use tasker::Tasker;
-// pub use unit_solver::UnitSolver;
-// pub use unit_tasker::UnitTasker;
+pub use leaf::{IntoSole, ToSole};
 
 #[cfg(test)]
 mod tests;
 
 mod leaf;
-// mod solver;
-// mod tasker;
-// mod unit_solver;
-// mod unit_tasker;
 
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
@@ -35,19 +27,6 @@ impl<L> Link<dyn SolveShare<L>> {
         }
     }
 }
-
-// impl<E> Link<E>
-// where
-//     E: EventReact + 'static,
-// {
-//     fn reactor(&self) -> ReactorMut {
-//         let edge = self.edge.clone() as Arc<RwLock<dyn EventReact>>;
-//         ReactorMut {
-//             item: Arc::downgrade(&edge),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
 
 impl<E> ToLoad for Link<E>
 where
@@ -102,7 +81,7 @@ where
     }
 }
 
-impl<E> ToReactor for Link<E>
+impl<E> ToRootEdge for Link<E>
 where
     E: EventReact + 'static,
 {
@@ -126,7 +105,6 @@ where
     }
 }
 
-// TODO: use generics on Reader<T> to make multiple implmentations with different bounds
 impl<E> Reader for Link<E>
 where
     E: Reader + EventReact + AddRoot<Root = RootEdge> + 'static,
@@ -180,57 +158,3 @@ where
         }
     }
 }
-
-// impl<U, L> ToSolver for UnitSolver<U, L>
-// where
-//     U: Solve<Load = L> + 'static,
-//     L: Clone + 'static,
-// {
-//     type Load = L;
-//     fn solver(&self) -> link::Solver<L> {
-//         let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
-//         link::Solver {
-//             edge,
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<E> FromLoad for Link<E>
-// where
-//     E: FromLoad,
-// {
-//     type Load = E::Load;
-//     fn from_load(unit: Self::Load) -> Self {
-//         Self {
-//             edge: Arc::new(RwLock::new(E::from_load(unit))),
-//             meta: Meta::new(),
-//         }
-//     }
-// }
-
-// impl<L> WithReactor for Leaf<L>
-// where
-
-// {
-//     fn with_reactor(&self, reactor: &Reactor) -> Self {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Self {
-//             edge: Arc::new(RwLock::new(edge.with_reactor(reactor))),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<E> ToReactor for Link<E>
-// where
-//     E: Clone + React + 'static,
-// {
-//     fn reactor(&self) -> Reactor {
-//         let edge = self.edge.clone() as Arc<RwLock<dyn React>>;
-//         Reactor {
-//             item: Arc::downgrade(&edge),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }

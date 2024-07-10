@@ -1,15 +1,7 @@
 use crate::*;
 
-//pub use leaf::Leaf;
-//pub use unit_solver::UnitSolver;
-//pub use unit_tasker::UnitTasker;
-
-//mod leaf;
-//mod unit_solver;
-//mod unit_tasker;
-
-pub type Sole<L> = Node<Roots, work::Sole<L>>;
-pub type Pair<U, L> = Node<Roots, work::Pair<U, L>>;
+pub type Sole<L> = Node<RootEdges, work::Sole<L>>;
+pub type Pair<U, L> = Node<RootEdges, work::Pair<U, L>>;
 
 pub struct Node<R, W> {
     root: R,
@@ -86,17 +78,17 @@ where
 
 impl<R, W> EventReactMut for Node<R, W>
 where
-    R: Event<Roots = Roots>,
+    R: Event<Root = RootEdges>,
     W: Clear,
 {
 }
 
 impl<R, W> EventMut for Node<R, W>
 where
-    R: Event<Roots = Roots>,
+    R: Event<Root = RootEdges>,
     W: Clear,
 {
-    type Roots = R::Roots;
+    type Roots = R::Root;
     fn event_mut(&mut self) -> Self::Roots {
         self.work.clear();
         self.root.event()
@@ -116,14 +108,3 @@ where
         self.root.add_root(root);
     }
 }
-
-// impl<U, L> SolveMut for UnitSolver<U, L>
-// where
-//     U: Solve<Load = L>,
-//     L: Clone,
-// {
-//     type Load = L;
-//     fn solve_mut(&mut self) -> Self::Load {
-//         //self.work.solve()
-//     }
-// }

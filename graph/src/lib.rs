@@ -11,18 +11,18 @@ pub mod work;
 pub mod write;
 
 pub use edge::Edge;
-pub use link::{IntoLeaf, Link, Pair, Sole, Solver, ToLeaf};
+pub use link::{IntoSole, Link, Pair, Sole, Solver, ToSole};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
     AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Root, RootEdge,
-    Roots, SolverWithRoot, TaskerWithReactor, ToReactor, WithRoot,
+    RootEdges, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
 pub use view::{
-    AddStr, AddToLeafViews, AddToViews, BaseView, SoleView, ToLeafViewsBuilder, ToViewsBuilder,
+    AddStr, AddToBaseViews, AddToViews, BaseView, SoleView, ToBaseViewsBuilder, ToViewsBuilder,
     View,
 };
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
@@ -42,7 +42,7 @@ pub trait ToLoad {
 pub trait SolveShare<L>: Solve<Load = L> + SolverWithRoot<Load = L> {}
 
 pub trait SolveTaskShare<T, L>:
-    SolveTask<Task = T, Load = L> + TaskerWithReactor<Task = T, Load = L>
+    SolveTask<Task = T, Load = L> + TaskerWithRoot<Task = T, Load = L>
 {
 }
 
