@@ -10,9 +10,8 @@ use crate::*;
 // mod unit_solver;
 // mod unit_tasker;
 
-pub type Leaf<U> = Edge<Root, node::Leaf<U>>;
-
-pub type UnitSolver<U, L> = Edge<Root, node::Solver<U, L>>;
+pub type Leaf<L> = Edge<Root, node::Leaf<L>>;
+pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
 
 pub struct Edge<R, S> {
     pub root: Option<R>,
@@ -33,14 +32,14 @@ where
     }
 }
 
-impl<U, L> SolveShare<L> for UnitSolver<U, L>
+impl<U, L> SolveShare<L> for Pair<U, L>
 where
     U: Solve<Load = L> + 'static,
     L: Clone + 'static,
 {
 }
 
-impl<U, L> SolverWithRoot for UnitSolver<U, L>
+impl<U, L> SolverWithRoot for Pair<U, L>
 where
     U: Solve<Load = L> + 'static,
     L: Clone + 'static,

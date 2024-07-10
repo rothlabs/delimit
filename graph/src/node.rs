@@ -8,9 +8,8 @@ use crate::*;
 //mod unit_solver;
 //mod unit_tasker;
 
-pub type Leaf<L> = Node<Reactors, Bare<L>>;
-
-pub type Solver<U, L> = Node<Reactors, Pair<U, L>>;
+pub type Leaf<L> = Node<Reactors, work::Bare<L>>;
+pub type Pair<U, L> = Node<Reactors, work::Pair<U, L>>;
 
 pub struct Node<R, W> {
     root: R,

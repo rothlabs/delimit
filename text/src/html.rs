@@ -16,11 +16,9 @@ mod tag;
 
 pub type Role = graph::Role<Load, Exact>;
 
-type Item = plain::View<Exact>;
-
 type Load = plain::Role;
-
-type Html<U> = UnitSolver<U, Load>;
+type Item = plain::View<Exact>;
+type Html<U> = Pair<U, Load>;
 
 #[derive(Clone)]
 pub enum Exact {

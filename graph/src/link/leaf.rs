@@ -1,6 +1,5 @@
 use crate::*;
 
-pub type Leaf<L> = Link<edge::Leaf<L>>;
 
 pub trait ToLeaf<L> {
     fn leaf(&self) -> Leaf<L>;

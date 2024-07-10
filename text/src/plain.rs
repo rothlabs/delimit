@@ -2,22 +2,19 @@ use graph::*;
 
 pub use gate::{Gate, TextGate};
 pub use list::{List, TextList};
-pub use view::View;
 
 #[cfg(test)]
 mod tests;
 
 mod gate;
 mod list;
-mod view;
 
+pub type View<E> = graph::View<Item, Role, E>;
 pub type Role = graph::Role<Load, Exact>;
 
-type Item = LeafView<String, Exact>;
-
 type Load = Leaf<String>;
-
-type Text<U> = UnitSolver<U, Load>;
+type Item = LeafView<String, Exact>;
+type Text<U> = Pair<U, Load>;
 
 #[derive(Clone)]
 pub enum Exact {

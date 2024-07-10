@@ -7,15 +7,6 @@ pub struct List {
 }
 
 impl List {
-    // pub fn new() -> Self {
-    //     List::default()
-    // }
-    // pub fn from_separator(sep: &str) -> Self {
-    //     Self {
-    //         items: vec![],
-    //         separator: sep.to_owned(),
-    //     }
-    // }
     pub fn separator(&mut self, sep: &str) -> &mut Self {
         sep.clone_into(&mut self.separator);
         self
@@ -61,34 +52,12 @@ impl TextList for &str {
     }
 }
 
-// pub trait TextList {
-//     fn list(self) -> Text<List>;
-// }
-
-// impl TextList for &str {
-//     fn list(self) -> Text<List> {
-//         List::from_separator(self).text()
-//     }
-// }
-
-// pub fn text(self) -> Text<Self> {
-//     Text::new(self)
-// }
-
-// pub fn add_str(&mut self, item: &str) {
-//     self.items.push(View::Bare(item.to_owned()));
-// }
-// pub fn add_leaf(&mut self, item: Leaf<String>) {
-//     self.items.push(View::Leaf(item));
-// }
-// pub fn add_role(&mut self, role: &Role, reactor: &Reactor) {
-//     self.items.push(View::Role(role.with_reactor(reactor)));
-// }
-
-// // TODO: remove need for reactor for Unit that does not need to react
-// impl React for List {
-//     fn clear(&mut self) -> Reactors {
-//         Reactors::new()
-//     }
-//     fn react(&mut self) {}
-// }
+// pub fn new() -> Self {
+    //     List::default()
+    // }
+    // pub fn from_separator(sep: &str) -> Self {
+    //     Self {
+    //         items: vec![],
+    //         separator: sep.to_owned(),
+    //     }
+    // }

@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub use leaf::{IntoLeaf, Leaf, ToLeaf};
+pub use leaf::{IntoLeaf, ToLeaf};
 // pub use solver::Solver;
 // pub use tasker::Tasker;
 // pub use unit_solver::UnitSolver;
@@ -17,10 +17,9 @@ mod leaf;
 // mod unit_solver;
 // mod unit_tasker;
 
-// pub type Solver<L> = Link<Edge<Reactor, dyn SolveShare<L> + 'static>>;
+pub type Leaf<L> = Link<edge::Leaf<L>>;
 pub type Solver<L> = Link<dyn SolveShare<L>>;
-
-pub type UnitSolver<U, L> = Link<edge::UnitSolver<U, L>>;
+pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 
 pub struct Link<E: ?Sized> {
     meta: Meta,
@@ -164,13 +163,13 @@ where
     }
 }
 
-impl<ER, NR, U, L> ToSolver for Link<Edge<ER, Node<NR, Pair<U, L>>>>
+impl<ER, NR, U, L> ToSolver for Link<Edge<ER, Node<NR, work::Pair<U, L>>>>
 where
     ER: 'static,
     NR: 'static,
     U: 'static,
     L: 'static,
-    Edge<ER, Node<NR, Pair<U, L>>>: SolveShare<L>,
+    Edge<ER, Node<NR, work::Pair<U, L>>>: SolveShare<L>,
 {
     type Load = L;
     fn solver(&self) -> Solver<L> {
