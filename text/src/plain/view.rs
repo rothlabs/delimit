@@ -1,34 +1,36 @@
 use crate::plain::*;
 
-#[derive(Clone)]
-pub enum View<E> {
-    Text(Item),
-    Role(graph::Role<Role, E>),
-}
+pub type View<E> = graph::View<Item, Role, E>;
 
-impl<E> View<E>
-where
-    E: Clone,
-{
-    pub fn root(&self, root: &Root) -> Self {
-        match self {
-            View::Text(text) => View::Text(text.with_root(root)),
-            View::Role(role) => View::Role(role.with_root(root)),
-        }
-    }
-}
+// #[derive(Clone)]
+// pub enum View<E> {
+//     Text(Item),
+//     Role(graph::Role<Role, E>),
+// }
 
-impl<E> SolveWithRoot for View<E> {
-    type Item = Item;
-    fn solve_with_root(&self, root: &Root) -> Self::Item {
-        match self {
-            View::Text(item) => item.with_root(root),
-            View::Role(role) => Item::Role(role.solve().with_root(root)),
-        }
-    }
-}
+// impl<E> SolveWithRoot for View<E> {
+//     type Item = Item;
+//     fn solve_with_root(&self, root: &Root) -> Self::Item {
+//         match self {
+//             View::Text(item) => item.with_root(root),
+//             View::Role(role) => Item::Role(role.solve().with_root(root)),
+//         }
+//     }
+// }
 
 
+
+// impl<E> View<E>
+// where
+//     E: Clone,
+// {
+//     pub fn root(&self, root: &Root) -> Self {
+//         match self {
+//             View::Text(text) => View::Text(text.with_root(root)),
+//             View::Role(role) => View::Role(role.with_root(root)),
+//         }
+//     }
+// }
 
 
 

@@ -53,6 +53,13 @@ impl<U, L> FromItem for Pair<U, L> {
     }
 }
 
+impl<U, L> Read for Pair<U, L> {
+    type Unit = U;
+    fn read(&self) -> &Self::Unit {
+        &self.unit
+    }
+}
+
 impl<U, L> Clear for Pair<U, L> {
     fn clear(&mut self) {
         self.load = None;

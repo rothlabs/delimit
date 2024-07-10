@@ -21,7 +21,7 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
-pub use view::{AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
+pub use view::{View, AddToViews, ToViewsBuilder, AddStr, AddToLeafViews, LeafEye, LeafView, ToLeafViewsBuilder};
 pub use work::{Bare, Pair, Work};
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
 
@@ -69,11 +69,6 @@ pub trait FromItem {
     fn new(unit: Self::Item) -> Self;
 }
 
-// pub trait FromLoad {
-//     type Load;
-//     fn from_load(unit: Self::Load) -> Self;
-// }
-
 pub trait Memory {
     type Task: Clone;
     type Load: Clone;
@@ -81,9 +76,9 @@ pub trait Memory {
     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
 }
 
-pub trait SolveWithRoot {
-    type Item;
-    fn solve_with_root(&self, root: &Root) -> Self::Item;
+pub trait IntoRole {
+    type Load;
+    fn into_role(load: Self::Load) -> Self;
 }
 
 pub struct Role<L, E> {
@@ -122,6 +117,16 @@ where
         }
     }
 }
+
+// pub trait FromLoad {
+//     type Load;
+//     fn from_load(unit: Self::Load) -> Self;
+// }
+
+// pub trait SolveWithRoot {
+//     type Load;
+//     fn solve_with_root(&self, root: &Root) -> Self::Load;
+// }
 
 // pub trait Stemmer {
 //     type Unit;

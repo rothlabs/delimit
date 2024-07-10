@@ -1,7 +1,3 @@
-use std::borrow::Cow;
-
-use serde::Serialize;
-
 use crate::html::*;
 
 pub struct Tag {
@@ -10,9 +6,9 @@ pub struct Tag {
 }
 
 impl Tag {
-    pub fn new() -> Hold<Html<Self>, Item> {
+    pub fn new(name: &Item) -> Hold<Html<Self>, Item> {
         let link = Html::new(Self {
-            name: plain::string("untitled"),
+            name: name.clone(),
             attributes: vec![],
         });
         let view = Item::Role(Role {
@@ -29,9 +25,9 @@ impl Solve for Tag {
         let Hold{link, view} = " ".list();
         link.writer(|pack| {
             let mut tag = pack.unit.items.root(pack.root);
-            tag.add_str("<").add_view(&self.name);
+            tag.add_str("<").add_item(&self.name);
             for att in &self.attributes {
-                tag.add_view(att);
+                tag.add_item(att);
             }
             tag.add_str(r#">"#);
         });
@@ -39,53 +35,73 @@ impl Solve for Tag {
     }
 }
 
-#[derive(Default, Clone, Serialize)]
-pub struct TagName {
-    pub open: Cow<'static, str>,
-    pub close: Cow<'static, str>,
-}
+pub const DOCTYPE: &str = "!DOCTYPE html";
+pub const HTML: &str = "html";
+pub const HEAD: &str = "head";
+pub const TITLE: &str = "title";
+pub const META: &str = "meta";
+pub const BODY: &str = "body";
+pub const DIV: &str = "div";
+pub const H1: &str = "h1";
 
-pub const DOCTYPE: TagName = TagName {
-    open: Cow::Borrowed("<!DOCTYPE html"),
-    close: Cow::Borrowed(""),
-};
+pub const TAGS: [&str; 8] = [
+    DOCTYPE, 
+    HTML, 
+    HEAD,
+    TITLE,
+    META,
+    BODY,
+    DIV,
+    H1,
+];
 
-pub const HTML: TagName = TagName {
-    open: Cow::Borrowed("<html"),
-    close: Cow::Borrowed("</html"),
-};
+// #[derive(Default, Clone, Serialize)]
+// pub struct TagName {
+//     pub open: Cow<'static, str>,
+//     pub close: Cow<'static, str>,
+// }
 
-pub const HEAD: TagName = TagName {
-    open: Cow::Borrowed("<head"),
-    close: Cow::Borrowed("</head>"),
-};
-
-pub const TITLE: TagName = TagName {
-    open: Cow::Borrowed("<title"),
-    close: Cow::Borrowed("</title>"),
-};
-
-pub const META: TagName = TagName {
-    open: Cow::Borrowed("<meta"),
-    close: Cow::Borrowed(""),
-};
-
-// pub const SCRIPT: Tag = Tag {
-//     open:   Cow::Borrowed("<script"),
-//     close: Cow::Borrowed("</script>"),
+// pub const DOCTYPE: TagName = TagName {
+//     open: Cow::Borrowed("<!DOCTYPE html"),
+//     close: Cow::Borrowed(""),
 // };
 
-pub const BODY: TagName = TagName {
-    open: Cow::Borrowed("<body"),
-    close: Cow::Borrowed("</body>"),
-};
+// pub const HTML: TagName = TagName {
+//     open: Cow::Borrowed("<html"),
+//     close: Cow::Borrowed("</html"),
+// };
 
-pub const DIV: TagName = TagName {
-    open: Cow::Borrowed("<div"),
-    close: Cow::Borrowed("</div>"),
-};
+// pub const HEAD: TagName = TagName {
+//     open: Cow::Borrowed("<head"),
+//     close: Cow::Borrowed("</head>"),
+// };
 
-pub const H1: TagName = TagName {
-    open: Cow::Borrowed("<h1"),
-    close: Cow::Borrowed("</h1>"),
-};
+// pub const TITLE: TagName = TagName {
+//     open: Cow::Borrowed("<title"),
+//     close: Cow::Borrowed("</title>"),
+// };
+
+// pub const META: TagName = TagName {
+//     open: Cow::Borrowed("<meta"),
+//     close: Cow::Borrowed(""),
+// };
+
+// // pub const SCRIPT: Tag = Tag {
+// //     open:   Cow::Borrowed("<script"),
+// //     close: Cow::Borrowed("</script>"),
+// // };
+
+// pub const BODY: TagName = TagName {
+//     open: Cow::Borrowed("<body"),
+//     close: Cow::Borrowed("</body>"),
+// };
+
+// pub const DIV: TagName = TagName {
+//     open: Cow::Borrowed("<div"),
+//     close: Cow::Borrowed("</div>"),
+// };
+
+// pub const H1: TagName = TagName {
+//     open: Cow::Borrowed("<h1"),
+//     close: Cow::Borrowed("</h1>"),
+// };

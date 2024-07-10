@@ -27,9 +27,9 @@ impl Solve for Attribute {
             pack.unit
                 .items
                 .root(pack.root)
-                .add_view(&self.name)
+                .add_item(&self.name)
                 .add_str(r#"=""#)
-                .add_view(&self.value)
+                .add_item(&self.value)
                 .add_str(r#"""#);
         });
         view
@@ -40,6 +40,13 @@ pub const LANG: &str = "lang";
 pub const CHARSET: &str = "charset";
 pub const NAME: &str = "name";
 pub const CONTENT: &str = "content";
+
+pub const ATTRIBUTES: [&str; 4] = [
+    LANG, 
+    CHARSET, 
+    NAME,
+    CONTENT,
+];
 
 
 

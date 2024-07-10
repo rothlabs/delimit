@@ -1,10 +1,102 @@
 use crate::*;
 
 #[derive(Clone)]
+pub enum View<I, R, E> {
+    Item(I),
+    Role(Role<R, E>),
+}
+
+impl<I, R, E> Solve for View<I, R, E> 
+where 
+    I: Clone + IntoRole<Load = R>,
+{
+    type Load = I;
+    fn solve(&self) -> Self::Load {
+        match self {
+            View::Item(item) => item.clone(),
+            View::Role(role) => I::into_role(role.solve()),
+        }
+    }
+}
+
+impl<I, R, E> WithRoot for View<I, R, E> 
+where 
+    I: WithRoot<Root = Root>,
+    E: Clone,
+{
+    type Root = Root;
+    fn with_root(&self, root: &Self::Root) -> Self {
+        match self {
+            View::Item(item) => View::Item(item.with_root(root)),
+            View::Role(role) => View::Role(role.with_root(root)),
+        }
+    }
+}
+
+pub trait AddToViews {
+    type View;
+    // fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T);
+    fn add_view(&mut self, view: &Self::View);
+}
+
+impl<I, R, E> AddToViews for Vec<View<I, R, E>> 
+where 
+    I: Clone,
+    R: Clone,
+    E: Clone,
+{
+    type View = View<I, R, E>;
+    // fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
+    //     self.push(item.solve());
+    // }
+    fn add_view(&mut self, view: &Self::View) {
+        self.push(view.clone());
+    }
+}
+
+pub trait ToViewsBuilder<'a, I, R, E> {
+    fn root(&'a mut self, reactor: &'a Root) -> ViewsBuilder<I, R, E>;
+}
+
+impl<'a, I, R, E> ToViewsBuilder<'a, I, R, E> for Vec<View<I, R, E>> {
+    fn root(&'a mut self, root: &'a Root) -> ViewsBuilder<I, R, E> {
+        ViewsBuilder { views: self, root }
+    }
+}
+
+pub struct ViewsBuilder<'a, I, R, E> {
+    views: &'a mut Vec<View<I, R, E>>,
+    root: &'a Root,
+}
+
+impl<'a, I, R, E> ViewsBuilder<'a, I, R, E>
+where
+    I: Clone + WithRoot<Root = Root>,
+    R: Clone,
+    E: Clone,
+{
+    pub fn add_view(&mut self, view: &View<I, R, E>) -> &mut Self {
+        self.views.push(view.with_root(self.root));
+        self
+    }
+}
+
+/////////////////////////////////////////////////
+
+
+
+#[derive(Clone)]
 pub enum LeafView<L, E> {
     Bare(L),
     Leaf(Leaf<L>),
     Role(Role<Leaf<L>, E>),
+}
+
+impl<L, E> IntoRole for LeafView<L, E> {
+    type Load = Role<Leaf<L>, E>;
+    fn into_role(load: Self::Load) -> Self {
+        Self::Role(load)
+    }
 }
 
 impl<L, E> Default for LeafView<L, E>
@@ -60,37 +152,39 @@ where
     }
 }
 
-pub trait AddToLeafViews<L, E> {
+pub trait AddToLeafViews {
+    type View;
     type Load;
     type Exact;
-    fn add_view(&mut self, item: &LeafView<L, E>) -> &mut Self;
-    fn add_bare(&mut self, bare: &Self::Load) -> &mut Self;
-    fn add_leaf(&mut self, leaf: &Leaf<Self::Load>, reactor: &Root);
-    fn add_role(&mut self, role: &Role<Leaf<Self::Load>, Self::Exact>, reactor: &Root)
-        -> &mut Self;
+    fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T);
+    // fn add_view(&mut self, view: Self::View);
+    fn add_bare(&mut self, bare: &Self::Load);
+    fn add_leaf(&mut self, leaf: Leaf<Self::Load>);
+    fn add_role(&mut self, role: Role<Leaf<Self::Load>, Self::Exact>);
 }
 
-impl<L, E> AddToLeafViews<L, E> for Vec<LeafView<L, E>>
+impl<L, E> AddToLeafViews for Vec<LeafView<L, E>>
 where
-    L: Clone,
+    L: Clone + 'static,
     E: Clone,
 {
+    type View = LeafView<L, E>;
     type Load = L;
     type Exact = E;
-    fn add_view(&mut self, item: &LeafView<L, E>) -> &mut Self {
-        self.push(item.clone());
-        self
+    fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
+        self.push(item.solve());
     }
-    fn add_bare(&mut self, bare: &L) -> &mut Self {
+    // fn add_view(&mut self, item: Self::View) {
+    //     self.push(item);
+    // }
+    fn add_bare(&mut self, bare: &L) {
         self.push(LeafView::Bare(bare.clone()));
-        self
     }
-    fn add_leaf(&mut self, leaf: &Leaf<L>, reactor: &Root) {
-        self.push(LeafView::Leaf(leaf.with_root(reactor)));
+    fn add_leaf(&mut self, leaf: Leaf<L>) {
+        self.push(LeafView::Leaf(leaf));
     }
-    fn add_role(&mut self, role: &Role<Leaf<L>, E>, root: &Root) -> &mut Self {
-        self.push(LeafView::Role(role.with_root(root)));
-        self
+    fn add_role(&mut self, role: Role<Leaf<L>, E>) {
+        self.push(LeafView::Role(role));
     }
 }
 
@@ -122,23 +216,27 @@ pub struct LeafViewsBuilder<'a, L, E> {
 
 impl<'a, L, E> LeafViewsBuilder<'a, L, E>
 where
-    L: Clone,
+    L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_view<T: SolveWithRoot<Item = LeafView<L, E>>>(&mut self, item: &T) -> &mut Self {
-        self.views.push(item.solve_with_root(self.root));
+    pub fn add_item<T: Solve<Load = LeafView<L, E>> + WithRoot<Root = Root>>(&mut self, item: &T) -> &mut Self {
+        self.views.add_item(&item.with_root(self.root)); 
         self
     }
+    // pub fn add_view(&mut self, view: &LeafView<L, E>) -> &mut Self {
+    //     self.views.add_view(view.with_root(self.root));
+    //     self
+    // }
     pub fn add_bare(&mut self, bare: &L) -> &mut Self {
         self.views.add_bare(bare);
         self
     }
     pub fn add_leaf(&mut self, leaf: &Leaf<L>) -> &mut Self {
-        self.views.add_leaf(leaf, self.root);
+        self.views.add_leaf(leaf.with_root(self.root));
         self
     }
     pub fn add_role(&mut self, role: &Role<Leaf<L>, E>) -> &mut Self {
-        self.views.add_role(role, self.root);
+        self.views.add_role(role.with_root(self.root));
         self
     }
 }
@@ -174,3 +272,17 @@ where
         }
     }
 }
+
+// impl<I, R, E> SolveWithRoot for View<I, R, E> 
+// where 
+//     I: WithRoot<Root = Root> + IntoRole<Load = R>,
+//     R: WithRoot<Root = Root>,
+// {
+//     type Load = I;
+//     fn solve_with_root(&self, root: &Root) -> Self::Load {
+//         match self {
+//             View::Item(item) => item.with_root(root),
+//             View::Role(role) => I::into_role(role.solve().with_root(root)),
+//         }
+//     }
+// }

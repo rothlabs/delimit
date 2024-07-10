@@ -3,15 +3,15 @@ use crate::html::*;
 pub struct Element {
     pub tag: Item,
     pub items: Vec<Item>,
-    pub close: Item,
+    pub close: Option<Item>,
 }
 
 impl Element {
-    pub fn new() -> Hold<Html<Self>, Item> {
+    pub fn new(tag: &Item) -> Hold<Html<Self>, Item> {
         let link = Html::new(Self {
-            tag: plain::string("html"),
+            tag: tag.clone(),//plain::string("html"),
             items: vec![],
-            close: plain::string("html"),
+            close: None, //plain::string("html"),
         });
         let view = Item::Role(Role {
             exact: Exact::Element(link.clone()),
@@ -40,11 +40,13 @@ impl Solve for Element {
         let Hold{link, view} = "\n".list();
         link.writer(|pack| {
             let mut element = pack.unit.items.root(pack.root);
-            element.add_view(&self.tag);
+            element.add_item(&self.tag);
             for item in &self.items {
-                element.add_view(item);
+                element.add_item(item);
             }
-            element.add_str("</").add_view(&self.close).add_str(">");
+            if let Some(close) = &self.close {
+                element.add_str("</").add_item(close).add_str(">");
+            }
         });
         view
     }

@@ -27,5 +27,9 @@ pub enum Exact {
 }
 
 pub fn string<E>(string: &str) -> View<E> {
-    View::Text(LeafView::Bare(string.into()))
+    View::Item(LeafView::Bare(string.into()))
+}
+
+pub fn leaf<E>(string: &str) -> View<E> {
+    View::Item(LeafView::Leaf(string.leaf()))
 }

@@ -1,6 +1,9 @@
-// use super::*;
+use super::*;
 
 #[test]
 fn index_page() {
-    // let doc = Html::default();
+    let mut doc = Doc::new();
+    doc.lang("en");
+    let mut title = doc.head().title();
+    //title.add_str("Delimit");
 }

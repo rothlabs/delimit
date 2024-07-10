@@ -2,38 +2,38 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use crate::html::*;
-use crate::plain::List;
 
-pub struct ElementPart {
-    root: Option<Box<RefCell<ElementPart>>>,
-    tag_name: &'static TagName,
+pub struct Doc {
+    root: Option<Box<RefCell<Doc>>>,
+    tag_name: &'static str,
     tag: Hold<Html<Tag>, Item>,
     element: Hold<Html<Element>, Item>,
-    attributes: HashMap<String, Item>, 
-    // element_view: Item,
-    // element: Html<Element>,
-    // items: Vec<Item>,
-    // attributes: Vec<Attribute>,
+    tags: HashMap<&'static str, Item>, 
+    atts: HashMap<&'static str, Item>, 
 }
 
-impl ElementPart {
+impl Doc {
     pub fn new() -> Self {
-        ElementPart::default()
+        Doc::default()
     }
     pub fn root(self) -> Self {
-        let mut root = self
+        let root = self
             .root
             .as_ref()
             .expect("element should have a root")
-            .replace(ElementPart::new());
-        //root.items.push(Item::Role(Html::new(self)));
-        //root.items.add_role();
+            .replace(Doc::new());
+        root.element.link.writer(|pack| {
+            pack.unit.items.root(pack.root).add_view(&self.element.view);
+            self.tag.link.reader(|unit| {
+                pack.unit.close = Some(unit.name.clone());
+            });
+        });
         root
     }
-    fn up(self, tag: &TagName) -> Self {
+    fn up(self, tag: &str) -> Self {
         let mut root = self.root();
         for _ in 0..100 {
-            if root.tag_name.open == tag.open {
+            if root.tag_name == tag {
                 return root;
             }
             root = root.root();
@@ -41,23 +41,23 @@ impl ElementPart {
         panic!("element should have a root with given tag");
     }
     pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
-        // self.attributes
-        //     .push(Attribute::String(format!(r#"{name}="{value}""#)));
-        if let Some(item) = self.attributes.get(name) {
-            let Hold{link, view} = Attribute::new(item, &plain::string(value));
+        if let Some(item) = self.atts.get(name) {
+            let hold = Attribute::new(item, &plain::string(value));
+            self.tag.link.writer(|pack| {
+                pack.unit.attributes.root(pack.root).add_view(&hold.view);
+            });
         }
-        self.tag.link.writer(|pack| {
-            //pack.unit.attributes.
-        });
         self
     }
-    pub fn stem(self, tag_name: &'static TagName) -> Self {
-        ElementPart {
+    pub fn stem(self, tag_name: &'static str) -> Self {
+        let tag = Tag::new(self.tags.get(tag_name).unwrap());
+        Doc {
             tag_name,
-            attributes: self.attributes.clone(),
+            tags: self.tags.clone(),
+            atts: self.atts.clone(),
             root: Some(Box::new(RefCell::new(self))),
-            tag: Tag::new(),
-            element: Element::new(),
+            element: Element::new(&tag.view),
+            tag,
         }
     }
     pub fn html(self) -> Self {
@@ -101,14 +101,25 @@ impl ElementPart {
     }
 }
 
-impl Default for ElementPart {
+impl Default for Doc {
     fn default() -> Self {
+        let mut tags = HashMap::new();
+        for tag in TAGS {
+            tags.insert(tag, plain::leaf(tag));
+        }
+        let mut atts = HashMap::new();
+        for att in ATTRIBUTES {
+            atts.insert(att, plain::leaf(att));
+        }
+        let doctype = tags.get(DOCTYPE).unwrap();
+        let tag = Tag::new(doctype);
         Self {
             tag_name: &DOCTYPE,
             root: None,
-            tag: Tag::new(),
-            element: Element::new(),
-            attributes: HashMap::new(),
+            element: Element::new(&tag.view),
+            tag,
+            tags,
+            atts,
         }
     }
 }
