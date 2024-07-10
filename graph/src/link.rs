@@ -2,12 +2,12 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub use leaf::{IntoSole, ToSole};
+pub use sole::{IntoSole, ToSole};
 
 #[cfg(test)]
 mod tests;
 
-mod leaf;
+mod sole;
 
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
