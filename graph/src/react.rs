@@ -58,9 +58,9 @@ pub trait Cycle {
     fn cycle(&mut self);
 }
 
-pub trait EventReact: Event<Roots = Reactors> + React {}
+pub trait EventReact: Event<Roots = Roots> + React {}
 
-pub trait EventReactMut: EventMut<Roots = Reactors> + ReactMut {}
+pub trait EventReactMut: EventMut<Roots = Roots> + ReactMut {}
 
 #[derive(Clone)]
 pub struct RootEdge {
@@ -69,14 +69,14 @@ pub struct RootEdge {
 }
 
 impl Event for RootEdge {
-    type Roots = Reactors;
+    type Roots = Roots;
     fn event(&self) -> Self::Roots {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let item = item.read().expect(NO_POISON);
             item.event()
         } else {
-            Reactors::new()
+            Roots::new()
         }
     }
 }
@@ -113,14 +113,14 @@ pub struct Root {
 }
 
 impl Event for Root {
-    type Roots = Reactors;
+    type Roots = Roots;
     fn event(&self) -> Self::Roots {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
             item.event_mut()
         } else {
-            Reactors::new()
+            Roots::new()
         }
     }
 }
@@ -136,16 +136,16 @@ impl React for Root {
 ///////////////////
 
 #[derive(Default)]
-pub struct Reactors(HashSet<RootEdge>);
+pub struct Roots(HashSet<RootEdge>);
 
-impl Reactors {
+impl Roots {
     pub fn new() -> Self {
         Self::default()
     }
     // TODO: make method to remove reactors with dropped edges
 }
 
-impl Cycle for Reactors {
+impl Cycle for Roots {
     fn cycle(&mut self) {
         let reactors = self.event();
         self.0.clear();
@@ -155,10 +155,10 @@ impl Cycle for Reactors {
     }
 }
 
-impl Event for Reactors {
+impl Event for Roots {
     type Roots = Self;
     fn event(&self) -> Self::Roots {
-        let mut reactors = Reactors::new();
+        let mut reactors = Roots::new();
         for root_edge in &self.0 {
             let rcts = root_edge.event();
             if rcts.0.is_empty() {
@@ -171,7 +171,7 @@ impl Event for Reactors {
     }
 }
 
-impl AddRoot for Reactors {
+impl AddRoot for Roots {
     type Root = RootEdge;
     fn add_root(&mut self, reactor: Self::Root) {
         self.0.insert(reactor);

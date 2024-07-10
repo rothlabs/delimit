@@ -11,18 +11,18 @@ pub mod work;
 pub mod write;
 
 pub use edge::Edge;
-pub use link::{IntoLeaf, Leaf, Link, Solver, ToLeaf, Pair};
+pub use link::{IntoLeaf, Sole, Link, Solver, ToLeaf, Pair};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Reactors, Root,
+    AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Roots, Root,
     RootEdge, SolverWithRoot, TaskerWithReactor, ToReactor, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;
 pub use unit::Gate;
 pub use view::{
-    AddStr, AddToLeafViews, AddToViews, LeafEye, LeafView, ToLeafViewsBuilder, ToViewsBuilder, View,
+    AddStr, AddToLeafViews, AddToViews, SoleView, BaseView, ToLeafViewsBuilder, ToViewsBuilder, View,
 };
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
 

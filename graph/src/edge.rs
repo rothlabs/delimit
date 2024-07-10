@@ -10,7 +10,7 @@ use crate::*;
 // mod unit_solver;
 // mod unit_tasker;
 
-pub type Leaf<L> = Edge<Root, node::Leaf<L>>;
+pub type Sole<L> = Edge<Root, node::Sole<L>>;
 pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
 
 pub struct Edge<R, S> {
@@ -137,18 +137,18 @@ where
     }
 }
 
-impl<R, S> EventReact for Edge<R, S> where R: Event<Roots = Reactors> + React {}
+impl<R, S> EventReact for Edge<R, S> where R: Event<Roots = Roots> + React {}
 
 impl<R, S> Event for Edge<R, S>
 where
-    R: Event<Roots = Reactors>,
+    R: Event<Roots = Roots>,
 {
     type Roots = R::Roots;
     fn event(&self) -> Self::Roots {
         if let Some(root) = &self.root {
             root.event()
         } else {
-            Reactors::new()
+            Roots::new()
         }
     }
 }

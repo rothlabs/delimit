@@ -2,18 +2,18 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::*;
 
-pub struct Bare<L> {
+pub struct Sole<L> {
     load: L,
 }
 
-impl<L> FromItem for Bare<L> {
+impl<L> FromItem for Sole<L> {
     type Item = L;
     fn new(load: Self::Item) -> Self {
         Self { load }
     }
 }
 
-impl<L> ToLoad for Bare<L>
+impl<L> ToLoad for Sole<L>
 where
     L: Clone,
 {
@@ -23,23 +23,19 @@ where
     }
 }
 
-impl<L> Read for Bare<L> {
+impl<L> Read for Sole<L> {
     type Unit = L;
     fn read(&self) -> &Self::Unit {
         &self.load
     }
 }
 
-impl<L> Write for Bare<L> {
+impl<L> Write for Sole<L> {
     type Unit = L;
     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
         write(&mut self.load);
     }
 }
-
-// impl<L> Clear for Bare<L> {
-//     fn clear(&mut self) {}
-// }
 
 pub struct Pair<U, L> {
     unit: U,

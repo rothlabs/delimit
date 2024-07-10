@@ -8,8 +8,8 @@ use crate::*;
 //mod unit_solver;
 //mod unit_tasker;
 
-pub type Leaf<L> = Node<Reactors, work::Bare<L>>;
-pub type Pair<U, L> = Node<Reactors, work::Pair<U, L>>;
+pub type Sole<L> = Node<Roots, work::Sole<L>>;
+pub type Pair<U, L> = Node<Roots, work::Pair<U, L>>;
 
 pub struct Node<R, W> {
     root: R,
@@ -86,14 +86,14 @@ where
 
 impl<R, W> EventReactMut for Node<R, W>
 where
-    R: Event<Roots = Reactors>,
+    R: Event<Roots = Roots>,
     W: Clear,
 {
 }
 
 impl<R, W> EventMut for Node<R, W>
 where
-    R: Event<Roots = Reactors>,
+    R: Event<Roots = Roots>,
     W: Clear,
 {
     type Roots = R::Roots;

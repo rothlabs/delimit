@@ -1,6 +1,6 @@
 use super::*;
 
-fn new_list(leaf: &Leaf<String>) -> Text<List> {
+fn new_list(leaf: &Sole<String>) -> Text<List> {
     let list = ", ".list();
     list.link.writer(|pack| {
         pack.unit

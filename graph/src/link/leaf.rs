@@ -2,22 +2,22 @@ use crate::*;
 
 
 pub trait ToLeaf<L> {
-    fn leaf(&self) -> Leaf<L>;
+    fn leaf(&self) -> Sole<L>;
 }
 
 impl ToLeaf<String> for str {
-    fn leaf(&self) -> Leaf<String> {
-        Leaf::new(self.to_owned())
+    fn leaf(&self) -> Sole<String> {
+        Sole::new(self.to_owned())
     }
 }
 
 pub trait IntoLeaf<L> {
-    fn into_leaf(self) -> Leaf<L>;
+    fn into_leaf(self) -> Sole<L>;
 }
 
 impl<L> IntoLeaf<L> for L {
-    fn into_leaf(self) -> Leaf<L> {
-        Leaf::new(self)
+    fn into_leaf(self) -> Sole<L> {
+        Sole::new(self)
     }
 }
 

@@ -9,7 +9,7 @@ pub struct Gate<T, O> {
 impl<T, O> Solve for Gate<T, O>
 where
     T: Solve,
-    O: Solve<Load = Leaf<bool>>,
+    O: Solve<Load = Sole<bool>>,
 {
     type Load = T::Load;
     fn solve(&self) -> T::Load {

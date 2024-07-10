@@ -17,9 +17,9 @@ mod leaf;
 // mod unit_solver;
 // mod unit_tasker;
 
-pub type Leaf<L> = Link<edge::Leaf<L>>;
-pub type Solver<L> = Link<dyn SolveShare<L>>;
+pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
+pub type Solver<L> = Link<dyn SolveShare<L>>;
 
 pub struct Link<E: ?Sized> {
     meta: Meta,
