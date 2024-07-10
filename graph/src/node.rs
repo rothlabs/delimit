@@ -50,8 +50,8 @@ where
     W: WriteWithRoot,
 {
     type Unit = W::Unit;
-    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &Root) {
-        self.work.write_with_root(write, reactor);
+    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Root) {
+        self.work.write_with_root(write, root);
         self.root.cycle();
     }
 }

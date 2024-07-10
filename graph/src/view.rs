@@ -89,7 +89,6 @@ where
 
 /////////////////////////////////////////////////
 
-
 // impl<I, R, E> SolveWithRoot for View<I, R, E>
 // where
 //     I: WithRoot<Root = Root> + IntoRole<Load = R>,

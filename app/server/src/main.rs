@@ -86,9 +86,7 @@ async fn handle(req: Request<Incoming>, count: i32) -> RequestResult {
 
 fn text<T: Into<Bytes>>(chunk: T) -> RequestResult {
     Ok(Response::new(
-        Full::new(chunk.into())
-            .map_err(|e| match e {})
-            .boxed(),
+        Full::new(chunk.into()).map_err(|e| match e {}).boxed(),
     ))
 }
 
@@ -120,7 +118,7 @@ async fn send_file(path: String) -> RequestResult {
     let content_type = match Path::new(&path).extension().unwrap().to_str().unwrap() {
         "js" => "text/javascript",
         "wasm" => "application/wasm",
-        _ => "text/plain"
+        _ => "text/plain",
     };
     let response = Response::builder()
         .header("Content-Type", content_type)
@@ -129,8 +127,6 @@ async fn send_file(path: String) -> RequestResult {
         .unwrap();
     Ok(response)
 }
-
-
 
 // struct Paths<'a> {
 //     pub app: &'a str,
