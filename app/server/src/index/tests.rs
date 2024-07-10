@@ -9,9 +9,14 @@ Delimit
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
 </head>
 <body>
 Delimit
+<script src="/boot.js" type="module">
+</script>
 </body>
 </html>"#;
 
