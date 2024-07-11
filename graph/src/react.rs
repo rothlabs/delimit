@@ -62,7 +62,8 @@ pub trait EventReact: Event<Root = Ring> + React {} // + Send + Sync {}
 
 pub trait EventReactMut: EventMut<Roots = Ring> + ReactMut {} //  + Send + Sync {}
 
-// TODO: remove meta for root edge? It is just a reverse link
+/// Weakly point to a root edge, the inverse of Link.
+/// Should meta be removed?
 #[derive(Clone)]
 pub struct RootEdge {
     pub item: Weak<RwLock<dyn EventReact + Send + Sync + 'static>>,
@@ -105,10 +106,9 @@ impl Hash for RootEdge {
     }
 }
 
-///////////////////
+/// Weakly point to a root node as event handler and reactor.
 #[derive(Clone)]
 pub struct Root {
-    // points to node?
     pub item: Weak<RwLock<dyn EventReactMut + Send + Sync + 'static>>,
     // pub meta: Meta,
 }

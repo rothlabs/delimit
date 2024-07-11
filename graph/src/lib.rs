@@ -9,14 +9,12 @@ pub use react::{
     Ring, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
-pub use repo::Repo;
-pub use unit::Gate;
+pub use unit::{Repo, Gate, Serial, ToSerial};
 pub use view::{
     AddStr, AddToBaseViews, AddToViews, BaseView, SoleView, ToBaseViewsBuilder, ToViewsBuilder,
     View,
 };
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
-pub use serial::{Serial, ToSerial};
 
 pub mod edge;
 pub mod link;
@@ -24,12 +22,10 @@ pub mod meta;
 pub mod node;
 pub mod react;
 pub mod read;
-pub mod repo;
 pub mod unit;
 pub mod view;
 pub mod work;
 pub mod write;
-pub mod serial;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
