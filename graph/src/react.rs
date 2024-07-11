@@ -42,7 +42,7 @@ pub trait WithRoot {
 
 pub trait SolverWithRoot {
     type Load;
-    fn solver_with_root(&self, reactor: Root) -> Arc<RwLock<dyn SolveShare<Self::Load>>>;
+    fn solver_with_root(&self, reactor: Root) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>>;
 }
 
 pub trait TaskerWithRoot {
@@ -51,33 +51,33 @@ pub trait TaskerWithRoot {
     fn tasker_with_root(
         &self,
         reactor: RootEdge,
-    ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load>>>;
+    ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load> + Send + Sync>>;
 }
 
 pub trait Cycle {
     fn cycle(&mut self);
 }
 
-pub trait EventReact: Event<Root = RootEdges> + React {} // + Send + Sync {}
+pub trait EventReact: Event<Root = Ring> + React {} // + Send + Sync {}
 
-pub trait EventReactMut: EventMut<Roots = RootEdges> + ReactMut {} //  + Send + Sync {}
+pub trait EventReactMut: EventMut<Roots = Ring> + ReactMut {} //  + Send + Sync {}
 
 // TODO: remove meta for root edge? It is just a reverse link
 #[derive(Clone)]
-pub struct RootEdge { // rename to Ring? (for Link and Ring or Hook and Ring)
+pub struct RootEdge {
     pub item: Weak<RwLock<dyn EventReact + Send + Sync + 'static>>,
     pub meta: Meta,
 }
 
 impl Event for RootEdge {
-    type Root = RootEdges;
+    type Root = Ring;
     fn event(&self) -> Self::Root {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let item = item.read().expect(NO_POISON);
             item.event()
         } else {
-            RootEdges::new()
+            Ring::new()
         }
     }
 }
@@ -114,14 +114,14 @@ pub struct Root {
 }
 
 impl Event for Root {
-    type Root = RootEdges;
+    type Root = Ring;
     fn event(&self) -> Self::Root {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
             item.event_mut()
         } else {
-            RootEdges::new()
+            Ring::new()
         }
     }
 }
@@ -134,19 +134,19 @@ impl React for Root {
         }
     }
 }
-///////////////////
 
+/// Points to many root edges, each pointing to a root node.
 #[derive(Default)]
-pub struct RootEdges(HashSet<RootEdge>);
+pub struct Ring(HashSet<RootEdge>);
 
-impl RootEdges {
+impl Ring {
     pub fn new() -> Self {
         Self::default()
     }
     // TODO: make method to remove reactors with dropped edges
 }
 
-impl Cycle for RootEdges {
+impl Cycle for Ring {
     fn cycle(&mut self) {
         let reactors = self.event();
         self.0.clear();
@@ -156,10 +156,10 @@ impl Cycle for RootEdges {
     }
 }
 
-impl Event for RootEdges {
+impl Event for Ring {
     type Root = Self;
     fn event(&self) -> Self::Root {
-        let mut reactors = RootEdges::new();
+        let mut reactors = Ring::new();
         for root_edge in &self.0 {
             let rcts = root_edge.event();
             if rcts.0.is_empty() {
@@ -172,7 +172,7 @@ impl Event for RootEdges {
     }
 }
 
-impl AddRoot for RootEdges {
+impl AddRoot for Ring {
     type Root = RootEdge;
     fn add_root(&mut self, reactor: Self::Root) {
         self.0.insert(reactor);

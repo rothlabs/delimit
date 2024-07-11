@@ -43,18 +43,18 @@ where
 
 impl<U, L> SolveShare<L> for Pair<U, L>
 where
-    U: Solve<Load = L> + 'static,
-    L: Clone + 'static,
+    U: Solve<Load = L> + 'static + Send + Sync,
+    L: Clone + 'static + Send + Sync,
 {
 }
 
 impl<U, L> SolverWithRoot for Pair<U, L>
 where
-    U: Solve<Load = L> + 'static,
-    L: Clone + 'static,
+    U: Solve<Load = L> + 'static + Send + Sync,
+    L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn solver_with_root(&self, root: Root) -> Arc<RwLock<dyn SolveShare<Self::Load>>> {
+    fn solver_with_root(&self, root: Root) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -145,20 +145,20 @@ where
 
 impl<R, S> EventReact for Edge<R, S> 
 where 
-    R: Event<Root = RootEdges> + React, //  + Send + Sync
+    R: Event<Root = Ring> + React, //  + Send + Sync
     //S: Send + Sync
 {}
 
 impl<R, S> Event for Edge<R, S>
 where
-    R: Event<Root = RootEdges>,
+    R: Event<Root = Ring>,
 {
     type Root = R::Root;
     fn event(&self) -> Self::Root {
         if let Some(root) = &self.root {
             root.event()
         } else {
-            RootEdges::new()
+            Ring::new()
         }
     }
 }

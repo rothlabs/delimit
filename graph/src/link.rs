@@ -12,16 +12,16 @@ mod sole;
 
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
-pub type Solver<L> = Link<dyn SolveShare<L>>;
+pub type Solver<L> = Link<dyn SolveShare<L> + Send + Sync>;
 
-/// The main way to reference a graph edge.
-/// Units contain links which provide loads for producing an output load.
+/// Points to one edge which in turn points to one node.
+/// Units hold links as source of input used to compute output.
 pub struct Link<E: ?Sized> {
     edge: Arc<RwLock<E>>,
     meta: Meta,
 }
 
-impl<L> Link<dyn SolveShare<L>> {
+impl<L> Link<dyn SolveShare<L> + Send + Sync> {
     pub fn with_reactor(&self, reactor: &Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -146,15 +146,15 @@ where
 
 impl<ER, NR, U, L> ToSolver for Link<Edge<ER, Node<NR, work::Pair<U, L>>>>
 where
-    ER: 'static,
-    NR: 'static,
-    U: 'static,
-    L: 'static,
+    ER: 'static + Send + Sync,
+    NR: 'static + Send + Sync,
+    U: 'static + Send + Sync,
+    L: 'static + Send + Sync,
     Edge<ER, Node<NR, work::Pair<U, L>>>: SolveShare<L>,
 {
     type Load = L;
     fn solver(&self) -> Solver<L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L>>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L> + Send + Sync>>;
         Solver {
             edge,
             meta: self.meta.clone(),

@@ -25,7 +25,7 @@ where
 
 impl<L, E> Reader for BaseView<L, E>
 where
-    L: 'static,
+    L: 'static + Send + Sync,
 {
     type Unit = L;
     fn reader<F: FnOnce(&L)>(&self, read: F) {

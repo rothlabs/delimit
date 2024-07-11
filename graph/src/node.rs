@@ -2,8 +2,8 @@ use serde::Serialize;
 
 use crate::*;
 
-pub type Sole<L> = Node<RootEdges, work::Sole<L>>;
-pub type Pair<U, L> = Node<RootEdges, work::Pair<U, L>>;
+pub type Sole<L> = Node<Ring, work::Sole<L>>;
+pub type Pair<U, L> = Node<Ring, work::Pair<U, L>>;
 
 /// A node creates an interactive bridge between root edges and work.
 #[derive(Serialize)]
@@ -102,14 +102,14 @@ where
 
 impl<R, W> EventReactMut for Node<R, W>
 where
-    R: Event<Root = RootEdges>, // + Send + Sync,
+    R: Event<Root = Ring>, // + Send + Sync,
     W: Clear, // + Send + Sync,
 {
 }
 
 impl<R, W> EventMut for Node<R, W>
 where
-    R: Event<Root = RootEdges>,
+    R: Event<Root = Ring>,
     W: Clear,
 {
     type Roots = R::Root;

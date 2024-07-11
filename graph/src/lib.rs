@@ -6,7 +6,7 @@ pub use meta::Meta;
 pub use node::Node;
 pub use react::{
     AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Root, RootEdge,
-    RootEdges, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
+    Ring, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use repo::Repo;

@@ -21,7 +21,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
     let sole = Sole::new(0);
-    //repo.0.packs.insert("wow".to_string(), Pack::new());
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
@@ -39,12 +38,10 @@ async fn future(io: Io, sole: Sole<i32>) {
     }
 }
 
-async fn service(_: Request<impl Body>, _: Sole<i32>) -> Result<Response<Full<Bytes>>, Infallible> {
-    // if let Ok(mut count) = repo.0.count.lock() {
-    //     *count += 1;
-    //     println!("count: {count}");
-    // } else {
-    //     println!("did not lock");
-    // }
+async fn service(_: Request<impl Body>, sole: Sole<i32>) -> Result<Response<Full<Bytes>>, Infallible> {
+    sole.writer(|load| {
+        println!("load: {load}");
+        *load += 1;
+    });
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
 }
