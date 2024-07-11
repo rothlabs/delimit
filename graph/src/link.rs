@@ -2,6 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
+use serde::Serialize;
 pub use sole::{IntoSole, ToSole};
 
 #[cfg(test)]
@@ -13,9 +14,11 @@ pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 pub type Solver<L> = Link<dyn SolveShare<L>>;
 
+/// The main way to reference a graph edge.
+/// Units contain links which provide loads for producing an output load.
 pub struct Link<E: ?Sized> {
-    meta: Meta,
     edge: Arc<RwLock<E>>,
+    meta: Meta,
 }
 
 impl<L> Link<dyn SolveShare<L>> {
@@ -83,10 +86,10 @@ where
 
 impl<E> ToRootEdge for Link<E>
 where
-    E: EventReact + 'static,
+    E: 'static + EventReact + Send + Sync,
 {
     fn reactor(&self) -> RootEdge {
-        let edge = self.edge.clone() as Arc<RwLock<dyn EventReact>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn EventReact + Send + Sync>>;
         RootEdge {
             item: Arc::downgrade(&edge),
             meta: self.meta.clone(),
@@ -107,7 +110,7 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: Reader + EventReact + AddRoot<Root = RootEdge> + 'static,
+    E: 'static + Reader + EventReact + AddRoot<Root = RootEdge> + Send + Sync,
 {
     type Unit = E::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -156,5 +159,14 @@ where
             edge,
             meta: self.meta.clone(),
         }
+    }
+}
+
+impl<E: ?Sized> Serialize for Link<E> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
     }
 }

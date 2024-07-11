@@ -6,15 +6,15 @@ pub use sole::*;
 mod base;
 mod sole;
 
-#[derive(Clone)]
-pub enum View<I, R, E> {
+#[derive(Clone, Serialize)]
+pub enum View<I, L, E> {
     Item(I),
-    Role(Role<R, E>),
+    Role(Role<L, E>),
 }
 
-impl<I, R, E> Solve for View<I, R, E>
+impl<I, L, E> Solve for View<I, L, E>
 where
-    I: Clone + IntoRole<Load = R>,
+    I: Clone + IntoRole<Load = L>,
 {
     type Load = I;
     fn solve(&self) -> Self::Load {
@@ -25,7 +25,7 @@ where
     }
 }
 
-impl<I, R, E> WithRoot for View<I, R, E>
+impl<I, L, E> WithRoot for View<I, L, E>
 where
     I: WithRoot<Root = Root>,
     E: Clone,
@@ -45,13 +45,13 @@ pub trait AddToViews {
     fn add_view(&mut self, view: &Self::View);
 }
 
-impl<I, R, E> AddToViews for Vec<View<I, R, E>>
+impl<I, L, E> AddToViews for Vec<View<I, L, E>>
 where
     I: Clone,
-    R: Clone,
+    L: Clone,
     E: Clone,
 {
-    type View = View<I, R, E>;
+    type View = View<I, L, E>;
     // fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
     //     self.push(item.solve());
     // }
@@ -60,8 +60,8 @@ where
     }
 }
 
-pub trait ToViewsBuilder<'a, I, R, E> {
-    fn root(&'a mut self, reactor: &'a Root) -> ViewsBuilder<I, R, E>;
+pub trait ToViewsBuilder<'a, I, L, E> {
+    fn root(&'a mut self, reactor: &'a Root) -> ViewsBuilder<I, L, E>;
 }
 
 impl<'a, I, R, E> ToViewsBuilder<'a, I, R, E> for Vec<View<I, R, E>> {
@@ -70,18 +70,18 @@ impl<'a, I, R, E> ToViewsBuilder<'a, I, R, E> for Vec<View<I, R, E>> {
     }
 }
 
-pub struct ViewsBuilder<'a, I, R, E> {
-    views: &'a mut Vec<View<I, R, E>>,
+pub struct ViewsBuilder<'a, I, L, E> {
+    views: &'a mut Vec<View<I, L, E>>,
     root: &'a Root,
 }
 
-impl<'a, I, R, E> ViewsBuilder<'a, I, R, E>
+impl<'a, I, L, E> ViewsBuilder<'a, I, L, E>
 where
     I: Clone + WithRoot<Root = Root>,
-    R: Clone,
+    L: Clone,
     E: Clone,
 {
-    pub fn add_view(&mut self, view: &View<I, R, E>) -> &mut Self {
+    pub fn add_view(&mut self, view: &View<I, L, E>) -> &mut Self {
         self.views.push(view.with_root(self.root));
         self
     }

@@ -1,8 +1,12 @@
+use serde::Serialize;
+
 use crate::*;
 
 pub type Sole<L> = Node<RootEdges, work::Sole<L>>;
 pub type Pair<U, L> = Node<RootEdges, work::Pair<U, L>>;
 
+/// A node creates an interactive bridge between root edges and work.
+#[derive(Serialize)]
 pub struct Node<R, W> {
     root: R,
     work: W,
@@ -19,6 +23,16 @@ where
             root: R::default(),
             work: W::new(item),
         }
+    }
+}
+
+impl<R, W> ToSerial for Node<R, W> 
+where 
+    W: Serialize
+{
+    fn serial(&self, serial: &'static mut Serial) -> &mut Serial {
+        // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
+        serial.add(&self.work)
     }
 }
 
@@ -76,10 +90,20 @@ where
     }
 }
 
+impl<R, W> AddRoot for Node<R, W>
+where
+    R: AddRoot,
+{
+    type Root = R::Root;
+    fn add_root(&mut self, root: Self::Root) {
+        self.root.add_root(root);
+    }
+}
+
 impl<R, W> EventReactMut for Node<R, W>
 where
-    R: Event<Root = RootEdges>,
-    W: Clear,
+    R: Event<Root = RootEdges>, // + Send + Sync,
+    W: Clear, // + Send + Sync,
 {
 }
 
@@ -97,14 +121,4 @@ where
 
 impl<R, W> ReactMut for Node<R, W> {
     fn react_mut(&mut self) {}
-}
-
-impl<R, W> AddRoot for Node<R, W>
-where
-    R: AddRoot,
-{
-    type Root = R::Root;
-    fn add_root(&mut self, root: Self::Root) {
-        self.root.add_root(root);
-    }
 }

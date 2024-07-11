@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use crate::plain::*;
 
-#[derive(Default)]
+#[derive(Default, Serialize)]
 pub struct List {
     pub items: Vec<Item>,
     separator: String,

@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum SoleView<L> {
     Leaf(Sole<L>),
     Solver(Solver<Sole<L>>),

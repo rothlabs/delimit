@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use graph::*;
 
 pub use gate::{Gate, TextGate};
@@ -9,14 +11,17 @@ mod tests;
 mod gate;
 mod list;
 
-pub type View<E> = graph::View<Item, Role, E>;
-pub type Role = graph::Role<Load, Exact>;
+/// to use as Load for higher graph
+pub type Role = graph::Role<Load, Exact>; 
+
+/// to use as a Stem (item) for higher graph
+pub type View<E> = graph::View<Item, Role, E>; // view::Stem
 
 type Load = Sole<String>;
-type Item = BaseView<String, Exact>;
+type Item = BaseView<String, Exact>; // view::Bare
 type Text<U> = Pair<U, Load>;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum Exact {
     List(Text<List>),
     Gate(Text<Gate>),

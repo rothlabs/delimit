@@ -1,25 +1,42 @@
 use std::sync::{Arc, RwLock};
 
+// use serde::Serialize;
+
 use crate::*;
 
 pub type Sole<L> = Edge<Root, node::Sole<L>>;
 pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
 
+/// The bridge between root and stem node.
 pub struct Edge<R, S> {
     pub root: Option<R>,
     pub stem: Arc<RwLock<S>>,
-    pub meta: Meta,
+    // pub meta: Meta,
+}
+
+impl<R, S> FromItem for Edge<R, S>
+where
+    S: FromItem,
+{
+    type Item = S::Item;
+    fn new(unit: Self::Item) -> Self {
+        Self {
+            root: None,
+            stem: Arc::new(RwLock::new(S::new(unit))),
+            // meta: Meta::new(),
+        }
+    }
 }
 
 impl<R, S> Edge<R, S>
 where
-    S: EventReactMut + 'static,
+    S: 'static + EventReactMut + Send + Sync,
 {
     fn as_root(&self) -> Root {
-        let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut>>;
+        let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut + Send + Sync>>;
         Root {
             item: Arc::downgrade(&stem),
-            meta: self.meta.clone(),
+            // meta: self.meta.clone(),
         }
     }
 }
@@ -41,7 +58,7 @@ where
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
-            meta: self.meta.clone(),
+            // meta: self.meta.clone(),
         }))
     }
 }
@@ -57,20 +74,6 @@ where
     }
 }
 
-impl<R, S> FromItem for Edge<R, S>
-where
-    S: FromItem,
-{
-    type Item = S::Item;
-    fn new(unit: Self::Item) -> Self {
-        Self {
-            root: None,
-            stem: Arc::new(RwLock::new(S::new(unit))),
-            meta: Meta::new(),
-        }
-    }
-}
-
 impl<R, S> WithRoot for Edge<R, S>
 where
     R: Clone,
@@ -80,7 +83,7 @@ where
         Self {
             root: Some(root.clone()),
             stem: self.stem.clone(),
-            meta: self.meta.clone(),
+            // meta: self.meta.clone(),
         }
     }
 }
@@ -98,7 +101,7 @@ where
 
 impl<R, S> WriterWithPack for Edge<R, S>
 where
-    S: WriteWithRoot + EventReactMut + 'static,
+    S: 'static + WriteWithRoot + EventReactMut + Send + Sync,
 {
     type Unit = S::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -129,7 +132,22 @@ where
     }
 }
 
-impl<R, S> EventReact for Edge<R, S> where R: Event<Root = RootEdges> + React {}
+impl<R, S> AddRoot for Edge<R, S>
+where
+    S: AddRoot,
+{
+    type Root = S::Root;
+    fn add_root(&mut self, root: Self::Root) {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.add_root(root);
+    }
+}
+
+impl<R, S> EventReact for Edge<R, S> 
+where 
+    R: Event<Root = RootEdges> + React, //  + Send + Sync
+    //S: Send + Sync
+{}
 
 impl<R, S> Event for Edge<R, S>
 where
@@ -156,13 +174,11 @@ where
     }
 }
 
-impl<R, S> AddRoot for Edge<R, S>
-where
-    S: AddRoot,
-{
-    type Root = S::Root;
-    fn add_root(&mut self, root: Self::Root) {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.add_root(root);
-    }
-}
+// impl<R, St> Serialize for Edge<R, St> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.meta.serialize(serializer)
+//     }
+// }

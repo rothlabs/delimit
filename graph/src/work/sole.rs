@@ -1,5 +1,9 @@
+use serde::Serialize;
+
 use crate::*;
 
+/// Wrapper around a single Load as opposed to Work that must solve for a Load
+#[derive(Serialize)]
 pub struct Sole<L> {
     load: L,
 }

@@ -1,5 +1,9 @@
+use serde::Serialize;
+
 use crate::*;
 
+/// Contains a unit that must impl Solve to produce a Load which is saved here.
+#[derive(Serialize)]
 pub struct Pair<U, L> {
     unit: U,
     load: Option<L>,

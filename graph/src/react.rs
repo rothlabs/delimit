@@ -58,13 +58,14 @@ pub trait Cycle {
     fn cycle(&mut self);
 }
 
-pub trait EventReact: Event<Root = RootEdges> + React {}
+pub trait EventReact: Event<Root = RootEdges> + React {} // + Send + Sync {}
 
-pub trait EventReactMut: EventMut<Roots = RootEdges> + ReactMut {}
+pub trait EventReactMut: EventMut<Roots = RootEdges> + ReactMut {} //  + Send + Sync {}
 
+// TODO: remove meta for root edge? It is just a reverse link
 #[derive(Clone)]
-pub struct RootEdge {
-    pub item: Weak<RwLock<dyn EventReact>>,
+pub struct RootEdge { // rename to Ring? (for Link and Ring or Hook and Ring)
+    pub item: Weak<RwLock<dyn EventReact + Send + Sync + 'static>>,
     pub meta: Meta,
 }
 
@@ -108,8 +109,8 @@ impl Hash for RootEdge {
 #[derive(Clone)]
 pub struct Root {
     // points to node?
-    pub item: Weak<RwLock<dyn EventReactMut>>,
-    pub meta: Meta,
+    pub item: Weak<RwLock<dyn EventReactMut + Send + Sync + 'static>>,
+    // pub meta: Meta,
 }
 
 impl Event for Root {

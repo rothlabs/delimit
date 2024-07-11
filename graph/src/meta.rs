@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
-#[derive(Clone, Hash, PartialEq, Serialize)]
+#[derive(Clone, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Id(String);
 
 impl Id {

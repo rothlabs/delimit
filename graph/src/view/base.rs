@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum BaseView<L, E> {
     Bare(L),
     Sole(Sole<L>),
@@ -31,7 +31,7 @@ where
     fn reader<F: FnOnce(&L)>(&self, read: F) {
         match self {
             BaseView::Bare(bare) => read(bare),
-            BaseView::Sole(leaf) => leaf.reader(read),
+            BaseView::Sole(sole) => sole.reader(read),
             BaseView::Role(role) => role.solve().reader(read),
         };
     }

@@ -1,14 +1,4 @@
-pub mod edge;
-pub mod link;
-pub mod meta;
-pub mod node;
-pub mod react;
-pub mod read;
-pub mod repo;
-pub mod unit;
-pub mod view;
-pub mod work;
-pub mod write;
+use serde::Serialize;
 
 pub use edge::Edge;
 pub use link::{IntoSole, Link, Pair, Sole, Solver, ToSole};
@@ -26,6 +16,20 @@ pub use view::{
     View,
 };
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
+pub use serial::{Serial, ToSerial};
+
+pub mod edge;
+pub mod link;
+pub mod meta;
+pub mod node;
+pub mod react;
+pub mod read;
+pub mod repo;
+pub mod unit;
+pub mod view;
+pub mod work;
+pub mod write;
+pub mod serial;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
@@ -117,6 +121,18 @@ where
             exact: self.exact.clone(),
             solver: self.solver.with_reactor(root),
         }
+    }
+}
+
+impl<L, E> Serialize for Role<L, E>
+where
+    E: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.exact.serialize(serializer)
     }
 }
 
