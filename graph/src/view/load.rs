@@ -1,20 +1,20 @@
 use crate::*;
 
 #[derive(Clone, Serialize)]
-pub enum LoadView<L, E> {
+pub enum PloyView<L, E> {
     Bare(L),
     Sole(Sole<L>),
-    Role(PloyRole<Sole<L>, E>),
+    Role(Role<Sole<L>, E>),
 }
 
-impl<L, E> IntoRole for LoadView<L, E> {
-    type Load = PloyRole<Sole<L>, E>;
+impl<L, E> IntoRole for PloyView<L, E> {
+    type Load = Role<Sole<L>, E>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
 }
 
-impl<L, E> Default for LoadView<L, E>
+impl<L, E> Default for PloyView<L, E>
 where
     L: Default,
 {
@@ -23,36 +23,36 @@ where
     }
 }
 
-impl<L, E> Reader for LoadView<L, E>
+impl<L, E> Reader for PloyView<L, E>
 where
     L: 'static + Send + Sync,
 {
     type Unit = L;
     fn reader<F: FnOnce(&L)>(&self, read: F) {
         match self {
-            LoadView::Bare(bare) => read(bare),
-            LoadView::Sole(sole) => sole.reader(read),
-            LoadView::Role(role) => role.grant().reader(read),
+            PloyView::Bare(bare) => read(bare),
+            PloyView::Sole(sole) => sole.reader(read),
+            PloyView::Role(role) => role.grant().reader(read),
         };
     }
 }
 
 // it is creating a new Sole on each grant if bare. Is this bad?
-impl<L, E> Grant for LoadView<L, E>
+impl<L, E> Grant for PloyView<L, E>
 where
     L: Clone + 'static,
 {
     type Load = Sole<L>;
     fn grant(&self) -> Sole<L> {
         match self {
-            LoadView::Bare(bare) => bare.clone().into_sole(),
-            LoadView::Sole(leaf) => leaf.clone(),
-            LoadView::Role(role) => role.grant(),
+            PloyView::Bare(bare) => bare.clone().into_sole(),
+            PloyView::Sole(leaf) => leaf.clone(),
+            PloyView::Role(role) => role.grant(),
         }
     }
 }
 
-impl<L, E> WithRoot for LoadView<L, E>
+impl<L, E> WithRoot for PloyView<L, E>
 where
     L: Clone,
     E: Clone,
@@ -60,9 +60,9 @@ where
     type Root = Back;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
-            LoadView::Bare(bare) => LoadView::Bare(bare.clone()),
-            LoadView::Sole(leaf) => LoadView::Sole(leaf.with_root(root)),
-            LoadView::Role(role) => LoadView::Role(role.with_root(root)),
+            PloyView::Bare(bare) => PloyView::Bare(bare.clone()),
+            PloyView::Sole(leaf) => PloyView::Sole(leaf.with_root(root)),
+            PloyView::Role(role) => PloyView::Role(role.with_root(root)),
         }
     }
 }
@@ -75,15 +75,15 @@ pub trait AddToLoadViews {
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
-    fn add_role(&mut self, role: PloyRole<Sole<Self::Load>, Self::Exact>);
+    fn add_role(&mut self, role: Role<Sole<Self::Load>, Self::Exact>);
 }
 
-impl<L, E> AddToLoadViews for Vec<LoadView<L, E>>
+impl<L, E> AddToLoadViews for Vec<PloyView<L, E>>
 where
     L: Clone + 'static,
     E: Clone,
 {
-    type View = LoadView<L, E>;
+    type View = PloyView<L, E>;
     type Load = L;
     type Exact = E;
     fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T) {
@@ -93,13 +93,13 @@ where
     //     self.push(item);
     // }
     fn add_bare(&mut self, bare: &L) {
-        self.push(LoadView::Bare(bare.clone()));
+        self.push(PloyView::Bare(bare.clone()));
     }
     fn add_leaf(&mut self, leaf: Sole<L>) {
-        self.push(LoadView::Sole(leaf));
+        self.push(PloyView::Sole(leaf));
     }
-    fn add_role(&mut self, role: PloyRole<Sole<L>, E>) {
-        self.push(LoadView::Role(role));
+    fn add_role(&mut self, role: Role<Sole<L>, E>) {
+        self.push(PloyView::Role(role));
     }
 }
 
@@ -107,9 +107,9 @@ pub trait AddStr {
     fn add_str(&mut self, load: &str) -> &mut Self;
 }
 
-impl<E> AddStr for Vec<LoadView<String, E>> {
+impl<E> AddStr for Vec<PloyView<String, E>> {
     fn add_str(&mut self, load: &str) -> &mut Self {
-        self.push(LoadView::Bare(load.into()));
+        self.push(PloyView::Bare(load.into()));
         self
     }
 }
@@ -118,14 +118,14 @@ pub trait ToLoadViewsBuilder<'a, L, E> {
     fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E>;
 }
 
-impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<LoadView<L, E>> {
+impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<PloyView<L, E>> {
     fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E> {
         LoadViewsBuilder { views: self, root }
     }
 }
 
 pub struct LoadViewsBuilder<'a, L, E> {
-    views: &'a mut Vec<LoadView<L, E>>,
+    views: &'a mut Vec<PloyView<L, E>>,
     root: &'a Back,
 }
 
@@ -134,7 +134,7 @@ where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Grant<Load = LoadView<L, E>> + WithRoot<Root = Back>>(
+    pub fn add_item<T: Grant<Load = PloyView<L, E>> + WithRoot<Root = Back>>(
         &mut self,
         item: &T,
     ) -> &mut Self {
@@ -153,7 +153,7 @@ where
         self.views.add_leaf(leaf.with_root(self.root));
         self
     }
-    pub fn add_role(&mut self, role: &PloyRole<Sole<L>, E>) -> &mut Self {
+    pub fn add_role(&mut self, role: &Role<Sole<L>, E>) -> &mut Self {
         self.views.add_role(role.with_root(self.root));
         self
     }
@@ -161,7 +161,7 @@ where
 
 impl<'a, E> AddStr for LoadViewsBuilder<'a, String, E> {
     fn add_str(&mut self, load: &str) -> &mut Self {
-        self.views.push(LoadView::Bare(load.into()));
+        self.views.push(PloyView::Bare(load.into()));
         self
     }
 }

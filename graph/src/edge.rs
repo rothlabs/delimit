@@ -10,29 +10,29 @@ pub type Pair<U, L> = Edge<Back, node::Pair<U, L>>;
 pub type Trey<U, T, L> = Edge<Back, node::Trey<U, T, L>>;
 
 /// The bridge between root and stem node.
-pub struct Edge<R, S> {
-    pub root: Option<R>,
-    pub stem: Arc<RwLock<S>>,
+pub struct Edge<B, N> {
+    pub root: Option<B>,
+    pub stem: Arc<RwLock<N>>,
     // pub meta: Meta,
 }
 
-impl<R, S> FromItem for Edge<R, S>
+impl<B, N> FromItem for Edge<B, N>
 where
-    S: FromItem,
+    N: FromItem,
 {
-    type Item = S::Item;
+    type Item = N::Item;
     fn new(unit: Self::Item) -> Self {
         Self {
             root: None,
-            stem: Arc::new(RwLock::new(S::new(unit))),
+            stem: Arc::new(RwLock::new(N::new(unit))),
             // meta: Meta::new(),
         }
     }
 }
 
-impl<R, S> Edge<R, S>
+impl<B, N> Edge<B, N>
 where
-    S: 'static + Updater + Send + Sync,
+    N: 'static + Updater + Send + Sync,
 {
     fn as_root(&self) -> Back {
         let stem = self.stem.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
@@ -50,11 +50,11 @@ where
 {
 }
 
-impl<R, S> Grant for Edge<R, S>
+impl<B, N> Grant for Edge<B, N>
 where
-    S: Grantor,
+    N: Grantor,
 {
-    type Load = S::Load;
+    type Load = N::Load;
     fn grant(&self) -> Self::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.grantor()
@@ -87,12 +87,12 @@ where
 {
 }
 
-impl<R, S> Solve for Edge<R, S>
+impl<B, N> Solve for Edge<B, N>
 where
-    S: Solver,
+    N: Solver,
 {
-    type Task = S::Task;
-    type Load = S::Load;
+    type Task = N::Task;
+    type Load = N::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.solver(task)
@@ -119,23 +119,23 @@ where
     }
 }
 
-impl<R, S> ToLoad for Edge<R, S>
+impl<B, N> ToLoad for Edge<B, N>
 where
-    S: ToLoad,
+    N: ToLoad,
 {
-    type Load = S::Load;
+    type Load = N::Load;
     fn load(&self) -> Self::Load {
         let stem = self.stem.read().expect(NO_POISON);
         stem.load()
     }
 }
 
-impl<R, S> WithRoot for Edge<R, S>
+impl<B, N> WithRoot for Edge<B, N>
 where
-    R: Clone,
+    B: Clone,
 {
-    type Root = R;
-    fn with_root(&self, root: &R) -> Self {
+    type Root = B;
+    fn with_root(&self, root: &B) -> Self {
         Self {
             root: Some(root.clone()),
             stem: self.stem.clone(),
@@ -144,61 +144,61 @@ where
     }
 }
 
-impl<R, S> Writer for Edge<R, S>
+impl<B, N> Writer for Edge<B, N>
 where
-    S: Write,
+    N: Write,
 {
-    type Unit = S::Unit;
+    type Unit = N::Unit;
     fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
     }
 }
 
-impl<R, S> WriterWithPack for Edge<R, S>
+impl<B, N> WriterWithPack for Edge<B, N>
 where
-    S: 'static + WriteWithRoot + Updater + Send + Sync,
+    N: 'static + WriteWithRoot + Updater + Send + Sync,
 {
-    type Unit = S::Unit;
+    type Unit = N::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write_with_root(write, &self.as_root());
     }
 }
 
-impl<R, S> Reader for Edge<R, S>
+impl<B, N> Reader for Edge<B, N>
 where
-    S: Read,
+    N: Read,
 {
-    type Unit = S::Unit;
+    type Unit = N::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(stem.read());
     }
 }
 
-impl<R, S> AddRoot for Edge<R, S>
+impl<B, N> AddRoot for Edge<B, N>
 where
-    S: AddRoot,
+    N: AddRoot,
 {
-    type Root = S::Root;
+    type Root = N::Root;
     fn add_root(&mut self, root: Self::Root) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.add_root(root);
     }
 }
 
-impl<R, S> Update for Edge<R, S> where
-    R: Rebut<Ring = Ring> + React //  + Send + Sync
+impl<B, N> Update for Edge<B, N> where
+    B: Rebut<Ring = Ring> + React //  + Send + Sync
                                   //S: Send + Sync
 {
 }
 
-impl<R, S> Rebut for Edge<R, S>
+impl<B, N> Rebut for Edge<B, N>
 where
-    R: Rebut<Ring = Ring>,
+    B: Rebut<Ring = Ring>,
 {
-    type Ring = R::Ring;
+    type Ring = B::Ring;
     fn rebut(&self) -> Self::Ring {
         if let Some(root) = &self.root {
             root.rebut()
@@ -208,9 +208,9 @@ where
     }
 }
 
-impl<R, S> React for Edge<R, S>
+impl<B, N> React for Edge<B, N>
 where
-    R: React,
+    B: React,
 {
     fn react(&self) {
         if let Some(root) = &self.root {

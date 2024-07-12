@@ -11,11 +11,11 @@ pub use react::{
 pub use read::{Read, Reader, Grant, Solve};
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
-    AddStr, AddToLoadViews, AddToViews, LoadView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
+    AddStr, AddToLoadViews, AddToViews, PloyView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
     View,
 };
 pub use write::{Pack, Grantor, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
-pub use role::{PloyRole, PlanRole, IntoRole};
+pub use role::{Role, IntoRole};
 
 pub mod edge;
 pub mod link;
@@ -56,7 +56,7 @@ pub trait FromItem {
     fn new(unit: Self::Item) -> Self;
 }
 
-impl<L, E> Serialize for PloyRole<L, E>
+impl<L, E> Serialize for Role<L, E>
 where
     E: Serialize,
 {
