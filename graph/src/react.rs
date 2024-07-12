@@ -8,31 +8,27 @@ use std::{
 
 use crate::{Meta, NO_POISON};
 
-pub trait Event {
-    type Root;
-    fn event(&self) -> Self::Root;
+pub trait Rebut {
+    type Ring;
+    fn rebut(&self) -> Self::Ring;
 }
 
-pub trait EventMut {
-    type Roots;
-    fn event_mut(&mut self) -> Self::Roots;
+pub trait Rebuter {
+    type Ring;
+    fn rebuter(&mut self) -> Self::Ring;
 }
 
 pub trait React {
     fn react(&self);
 }
 
-pub trait ReactMut {
-    fn react_mut(&mut self);
-}
-
-pub trait ToRootEdge {
-    fn reactor(&self) -> RootEdge;
+pub trait Reactor {
+    fn reactor(&mut self);
 }
 
 pub trait AddRoot {
     type Root;
-    fn add_root(&mut self, reactor: Self::Root);
+    fn add_root(&mut self, root: Self::Root);
 }
 
 pub trait WithRoot {
@@ -61,32 +57,32 @@ pub trait Cycle {
     fn cycle(&mut self);
 }
 
-pub trait EventReact: Event<Root = Ring> + React {} // + Send + Sync {}
+pub trait Update: Rebut<Ring = Ring> + React {} 
 
-pub trait EventReactMut: EventMut<Roots = Ring> + ReactMut {} //  + Send + Sync {}
+pub trait Updater: Rebuter<Ring = Ring> + Reactor {} 
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
-pub struct RootEdge {
-    pub item: Weak<RwLock<dyn EventReact + Send + Sync + 'static>>,
+pub struct Back {
+    pub item: Weak<RwLock<dyn Update + Send + Sync>>,
     pub meta: Meta,
 }
 
-impl Event for RootEdge {
-    type Root = Ring;
-    fn event(&self) -> Self::Root {
+impl Rebut for Back {
+    type Ring = Ring;
+    fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let item = item.read().expect(NO_POISON);
-            item.event()
+            item.rebut()
         } else {
             Ring::new()
         }
     }
 }
 
-impl React for RootEdge {
+impl React for Back {
     fn react(&self) {
         if let Some(item) = self.item.upgrade() {
             let item = item.read().expect(NO_POISON);
@@ -95,15 +91,15 @@ impl React for RootEdge {
     }
 }
 
-impl PartialEq for RootEdge {
+impl PartialEq for Back {
     fn eq(&self, other: &Self) -> bool {
         Weak::ptr_eq(&self.item, &other.item) && self.meta.id == other.meta.id
     }
 }
 
-impl Eq for RootEdge {}
+impl Eq for Back {}
 
-impl Hash for RootEdge {
+impl Hash for Back {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.meta.id.hash(state);
     }
@@ -112,17 +108,17 @@ impl Hash for RootEdge {
 /// Weakly point to a root node as event handler and reactor.
 #[derive(Clone)]
 pub struct Root {
-    pub item: Weak<RwLock<dyn EventReactMut + Send + Sync + 'static>>,
+    pub item: Weak<RwLock<dyn Updater + Send + Sync + 'static>>,
     // pub meta: Meta,
 }
 
-impl Event for Root {
-    type Root = Ring;
-    fn event(&self) -> Self::Root {
+impl Rebut for Root {
+    type Ring = Ring;
+    fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
-            item.event_mut()
+            item.rebuter()
         } else {
             Ring::new()
         }
@@ -133,14 +129,16 @@ impl React for Root {
     fn react(&self) {
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
-            item.react_mut();
+            item.reactor();
         }
     }
 }
 
 /// Points to many root edges, each pointing to a root node.
 #[derive(Default)]
-pub struct Ring(HashSet<RootEdge>);
+pub struct Ring {
+    backs: HashSet<Back>,
+}
 
 impl Ring {
     pub fn new() -> Self {
@@ -151,145 +149,33 @@ impl Ring {
 
 impl Cycle for Ring {
     fn cycle(&mut self) {
-        let reactors = self.event();
-        self.0.clear();
-        for root in &reactors.0 {
-            root.react();
+        let ring = self.rebut();
+        self.backs.clear();
+        for back in &ring.backs {
+            back.react();
         }
     }
 }
 
-impl Event for Ring {
-    type Root = Self;
-    fn event(&self) -> Self::Root {
-        let mut reactors = Ring::new();
-        for root_edge in &self.0 {
-            let rcts = root_edge.event();
-            if rcts.0.is_empty() {
-                reactors.0.insert(root_edge.clone());
+impl Rebut for Ring {
+    type Ring = Self;
+    fn rebut(&self) -> Self::Ring {
+        let mut ring = Ring::new();
+        for back in &self.backs {
+            let root_ring = back.rebut();
+            if root_ring.backs.is_empty() {
+                ring.backs.insert(back.clone());
             } else {
-                reactors.0.extend(rcts.0);
+                ring.backs.extend(root_ring.backs);
             }
         }
-        reactors
+        ring
     }
 }
 
 impl AddRoot for Ring {
-    type Root = RootEdge;
-    fn add_root(&mut self, reactor: Self::Root) {
-        self.0.insert(reactor);
+    type Root = Back;
+    fn add_root(&mut self, root: Self::Root) {
+        self.backs.insert(root);
     }
 }
-
-// impl React for Reactors {
-//     fn react(&self) {
-
-//     }
-// }
-
-// impl Default for Reactor {
-//     fn default() -> Self {
-//         Self {
-//             item
-//         }
-//     }
-// }
-
-// impl Reactor {
-//     pub fn clear(&self) -> Reactors {
-//         // println!("strong_count: {}", Weak::strong_count(&self.item));
-//         if let Some(item) = self.item.upgrade() {
-//             let mut item = item.write().expect(NO_POISON);
-//             item.clear()
-//         } else {
-//             Reactors::new()
-//         }
-//     }
-//     pub fn react(&self) {
-//         if let Some(item) = self.item.upgrade() {
-//             let mut item = item.write().expect(NO_POISON);
-//             item.react();
-//         }
-//     }
-// }
-
-// impl Reactors {
-//     pub fn new() -> Self {
-//         Self::default()
-//     }
-//     // TODO: make method to remove reactors with dropped edges
-//     pub fn cycle(&mut self) {
-//         let reactors = self.clear();
-//         self.0.clear();
-//         for root in &reactors.0 {
-//             root.react();
-//         }
-//     }
-//     // pub fn clear(&self) -> Reactors {
-//     //     let mut reactors = Reactors::new();
-//     //     for reactor in &self.0 {
-//     //         let rcts = reactor.clear();
-//     //         if rcts.0.is_empty() {
-//     //             reactors.0.insert(reactor.clone());
-//     //         } else {
-//     //             reactors.0.extend(rcts.0);
-//     //         }
-//     //     }
-//     //     reactors
-//     // }
-//     // pub fn add(&mut self, reactor: Reactor) {
-//     //     self.0.insert(reactor);
-//     // }
-// }
-
-// impl Default for Reactors {
-//     fn default() -> Self {
-//         Self(HashSet::new())
-//     }
-// }
-
-// pub fn add<T: ToReactor>(&mut self, link: &T) {
-//     self.0.insert(link.reactor());
-// }
-
-// pub trait AddReactor {
-//     fn add_reactor<T: ToReactor>(&mut self, link: &T);
-// }
-
-// impl AsReactor for Reactor {
-//     fn as_reactor(&self) -> Reactor {
-//         self
-//     }
-// }
-
-// pub fn new<E: ToReactor>(link: &E) -> Self { //  + 'static
-//     Self {
-//         edge: Arc::downgrade(link.edge()),
-//         meta: link.meta().clone(),
-//     }
-// }
-
-// pub fn root(&self) -> bool {
-//     if let Some(edge) = self.edge.upgrade() {
-//         let mut edge = edge.write().expect(NO_POISON);
-//         edge.clear();
-//         edge.root()
-//     } else {
-//         false
-//     }
-// }
-
-//let mut roots = Vec::from_iter(reactors.0);
-
-// pub fn extend(&mut self, reactors: Reactors) {
-//     self.0.extend(reactors.0);
-// }
-
-// pub fn new<R: React + 'static>(link: &Arc<RwLock<R>>) -> Self {
-//     let link = Arc::downgrade(&link);
-//     Self{
-//         link,
-
-//     }
-// }

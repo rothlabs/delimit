@@ -104,7 +104,7 @@ where
 }
 
 pub trait ToTaskViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, reactor: &'a Root) -> TaskViewsBuilder<L, E>;
+    fn root(&'a mut self, root: &'a Root) -> TaskViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToTaskViewsBuilder<'a, L, E> for Vec<TaskView<L, E>> {

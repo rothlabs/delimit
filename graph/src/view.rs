@@ -63,7 +63,7 @@ where
 }
 
 pub trait ToViewsBuilder<'a, I, L, E> {
-    fn root(&'a mut self, reactor: &'a Root) -> ViewsBuilder<I, L, E>;
+    fn root(&'a mut self, root: &'a Root) -> ViewsBuilder<I, L, E>;
 }
 
 impl<'a, I, R, E> ToViewsBuilder<'a, I, R, E> for Vec<View<I, R, E>> {

@@ -115,7 +115,7 @@ impl<E> AddStr for Vec<LoadView<String, E>> {
 }
 
 pub trait ToLoadViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, reactor: &'a Root) -> LoadViewsBuilder<L, E>;
+    fn root(&'a mut self, root: &'a Root) -> LoadViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<LoadView<L, E>> {

@@ -77,13 +77,13 @@ where
     }
 }
 
-impl<E> ToRootEdge for Link<E>
+impl<E> Link<E>
 where
-    E: 'static + EventReact + Send + Sync,
+    E: 'static + Update + Send + Sync,
 {
-    fn reactor(&self) -> RootEdge {
-        let edge = self.edge.clone() as Arc<RwLock<dyn EventReact + Send + Sync>>;
-        RootEdge {
+    pub fn back(&self) -> Back {
+        let edge = self.edge.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        Back {
             item: Arc::downgrade(&edge),
             meta: self.meta.clone(),
         }
@@ -92,15 +92,14 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: 'static + Reader + EventReact + AddRoot<Root = RootEdge> + Send + Sync,
+    E: 'static + Reader + Update + AddRoot<Root = Back> + Send + Sync,
 {
     type Unit = E::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
-        // TODO: first read and check if it is not added as reactor and then write to do so
+        // TODO: first read and check if it is not added as Back and then write to do so
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
-        let reactor = self.reactor();
-        edge.add_root(reactor);
+        edge.add_root(self.back());
     }
 }
 

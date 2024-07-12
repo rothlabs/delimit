@@ -31,10 +31,10 @@ impl<U, L> Clear for Pair<U, L> {
 
 impl<U, L> WriteWithRoot for Pair<U, L> {
     type Unit = U;
-    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, reactor: &Root) {
+    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Root) {
         write(&mut Pack {
             unit: &mut self.unit,
-            root: reactor,
+            root,
         });
         self.load = None;
     }

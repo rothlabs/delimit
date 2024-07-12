@@ -1,5 +1,3 @@
-use core::task;
-
 use serde::Serialize;
 
 use crate::*;
@@ -11,7 +9,7 @@ pub type Trey<U, T, L> = Node<Ring, work::Trey<U, T, L>>;
 /// A node creates an interactive bridge between root edges and work.
 #[derive(Serialize)]
 pub struct Node<R, W> {
-    root: R,
+    ring: R,
     work: W,
 }
 
@@ -23,7 +21,7 @@ where
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
-            root: R::default(),
+            ring: R::default(),
             work: W::new(item),
         }
     }
@@ -57,7 +55,7 @@ where
     type Unit = W::Unit;
     fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
         self.work.write(write);
-        self.root.cycle();
+        self.ring.cycle();
     }
 }
 
@@ -69,7 +67,7 @@ where
     type Unit = W::Unit;
     fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Root) {
         self.work.write_with_root(write, root);
-        self.root.cycle();
+        self.ring.cycle();
     }
 }
 
@@ -110,29 +108,29 @@ where
 {
     type Root = R::Root;
     fn add_root(&mut self, root: Self::Root) {
-        self.root.add_root(root);
+        self.ring.add_root(root);
     }
 }
 
-impl<R, W> EventReactMut for Node<R, W>
+impl<R, W> Updater for Node<R, W>
 where
-    R: Event<Root = Ring>, // + Send + Sync,
-    W: Clear,              // + Send + Sync,
-{
-}
-
-impl<R, W> EventMut for Node<R, W>
-where
-    R: Event<Root = Ring>,
+    R: Rebut<Ring = Ring>, 
     W: Clear,
 {
-    type Roots = R::Root;
-    fn event_mut(&mut self) -> Self::Roots {
+}
+
+impl<R, W> Rebuter for Node<R, W>
+where
+    R: Rebut<Ring = Ring>,
+    W: Clear,
+{
+    type Ring = R::Ring;
+    fn rebuter(&mut self) -> Self::Ring {
         self.work.clear();
-        self.root.event()
+        self.ring.rebut()
     }
 }
 
-impl<R, W> ReactMut for Node<R, W> {
-    fn react_mut(&mut self) {}
+impl<R, W> Reactor for Node<R, W> {
+    fn reactor(&mut self) {}
 }

@@ -32,10 +32,10 @@ where
 
 impl<R, S> Edge<R, S>
 where
-    S: 'static + EventReactMut + Send + Sync,
+    S: 'static + Updater + Send + Sync,
 {
     fn as_root(&self) -> Root {
-        let stem = self.stem.clone() as Arc<RwLock<dyn EventReactMut + Send + Sync>>;
+        let stem = self.stem.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
         Root {
             item: Arc::downgrade(&stem),
             // meta: self.meta.clone(),
@@ -157,7 +157,7 @@ where
 
 impl<R, S> WriterWithPack for Edge<R, S>
 where
-    S: 'static + WriteWithRoot + EventReactMut + Send + Sync,
+    S: 'static + WriteWithRoot + Updater + Send + Sync,
 {
     type Unit = S::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -188,20 +188,20 @@ where
     }
 }
 
-impl<R, S> EventReact for Edge<R, S> where
-    R: Event<Root = Ring> + React //  + Send + Sync
+impl<R, S> Update for Edge<R, S> where
+    R: Rebut<Ring = Ring> + React //  + Send + Sync
                                   //S: Send + Sync
 {
 }
 
-impl<R, S> Event for Edge<R, S>
+impl<R, S> Rebut for Edge<R, S>
 where
-    R: Event<Root = Ring>,
+    R: Rebut<Ring = Ring>,
 {
-    type Root = R::Root;
-    fn event(&self) -> Self::Root {
+    type Ring = R::Ring;
+    fn rebut(&self) -> Self::Ring {
         if let Some(root) = &self.root {
-            root.event()
+            root.rebut()
         } else {
             Ring::new()
         }
