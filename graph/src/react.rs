@@ -40,21 +40,21 @@ pub trait WithRoot {
     fn with_root(&self, root: &Self::Root) -> Self;
 }
 
-pub trait SolverWithRoot {
+pub trait FormulaWithRoot {
     type Load;
-    fn solver_with_root(
+    fn formula_with_root(
         &self,
         root: Root,
     ) -> Arc<RwLock<dyn Formula<Self::Load> + Send + Sync>>;
 }
 
-pub trait TaskerWithRoot {
+pub trait ProblemWithRoot {
     type Task;
     type Load;
-    fn tasker_with_root(
+    fn problem_with_root(
         &self,
         root: Root,
-    ) -> Arc<RwLock<dyn TaskShare<Self::Task, Self::Load> + Send + Sync>>;
+    ) -> Arc<RwLock<dyn Problem<Self::Task, Self::Load> + Send + Sync>>;
 }
 
 pub trait Cycle {

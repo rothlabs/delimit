@@ -93,14 +93,14 @@ where
     }
 }
 
-impl<R, W> SolveTaskMut for Node<R, W>
+impl<R, W> Solver for Node<R, W>
 where
-    W: SolveTaskMut,
+    W: Solver,
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn solve_task_mut(&mut self, task: Self::Task) -> Self::Load {
-        self.work.solve_task_mut(task)
+    fn solver(&mut self, task: Self::Task) -> Self::Load {
+        self.work.solver(task)
     }
 }
 

@@ -4,11 +4,11 @@ use crate::*;
 pub enum TaskView<L, E> {
     Bare(L),
     Sole(Sole<L>),
-    Role(SolveRole<Sole<L>, E>),
+    Role(PloyRole<Sole<L>, E>),
 }
 
 impl<L, E> IntoRole for TaskView<L, E> {
-    type Load = SolveRole<Sole<L>, E>;
+    type Load = PloyRole<Sole<L>, E>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
@@ -37,7 +37,7 @@ where
     }
 }
 
-// it is creating a new leaf on each solve if bare. Is this bad?
+// it is creating a new Sole on each Grant if bare. Is this bad?
 impl<L, E> Grant for TaskView<L, E>
 where
     L: Clone + 'static,
@@ -46,7 +46,7 @@ where
     fn grant(&self) -> Sole<L> {
         match self {
             TaskView::Bare(bare) => bare.clone().into_sole(),
-            TaskView::Sole(leaf) => leaf.clone(),
+            TaskView::Sole(sole) => sole.clone(),
             TaskView::Role(role) => role.grant(),
         }
     }
@@ -75,7 +75,7 @@ pub trait AddToTaskViews {
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
-    fn add_role(&mut self, role: SolveRole<Sole<Self::Load>, Self::Exact>);
+    fn add_role(&mut self, role: PloyRole<Sole<Self::Load>, Self::Exact>);
 }
 
 impl<L, E> AddToTaskViews for Vec<TaskView<L, E>>
@@ -98,7 +98,7 @@ where
     fn add_leaf(&mut self, leaf: Sole<L>) {
         self.push(TaskView::Sole(leaf));
     }
-    fn add_role(&mut self, role: SolveRole<Sole<L>, E>) {
+    fn add_role(&mut self, role: PloyRole<Sole<L>, E>) {
         self.push(TaskView::Role(role));
     }
 }
@@ -142,7 +142,7 @@ where
         self.views.add_leaf(leaf.with_root(self.root));
         self
     }
-    pub fn add_role(&mut self, role: &SolveRole<Sole<L>, E>) -> &mut Self {
+    pub fn add_role(&mut self, role: &PloyRole<Sole<L>, E>) -> &mut Self {
         self.views.add_role(role.with_root(self.root));
         self
     }

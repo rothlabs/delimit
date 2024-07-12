@@ -14,7 +14,7 @@ impl TextGate for &str {
             on: on.clone(),
         });
         Role {
-            solver: text.solver(),
+            ploy: text.ploy(),
             exact: Exact::Gate(text),
         }
     }

@@ -48,7 +48,7 @@ impl TextList for &str {
         });
         let view = Role {
             exact: Exact::List(link.clone()),
-            solver: link.solver(),
+            ploy: link.ploy(),
         };
         Hold { link, view }
     }

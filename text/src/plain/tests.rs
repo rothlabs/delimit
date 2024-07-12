@@ -13,7 +13,7 @@ fn new_list(leaf: &Sole<String>) -> Text<List> {
 }
 
 #[test]
-fn solve_list_as_string() {
+fn grant_and_read_sole_from_list() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
     text.grant().reader(|string| {
@@ -22,16 +22,7 @@ fn solve_list_as_string() {
 }
 
 #[test]
-fn solve_list_as_leaf() {
-    let leaf = "leaf".leaf();
-    let text = new_list(&leaf);
-    text.grant().reader(|string| {
-        assert_eq!(string, "str, leaf");
-    });
-}
-
-#[test]
-fn solve_twice_for_same_link() {
+fn grant_same_link_twice() {
     let leaf = "leaf".leaf();
     let text = new_list(&leaf);
     assert!(text.grant() == text.grant());

@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::*;
 
-/// Wrapper around a single Load as opposed to Work that must Solve for Load
+/// Wrapper around a single Load as opposed to Work that must Grant for Load
 #[derive(Serialize)]
 pub struct Sole<L> {
     load: L,

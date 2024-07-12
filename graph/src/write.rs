@@ -25,10 +25,10 @@ pub trait Grantor {
     fn grantor(&mut self) -> Self::Load;
 }
 
-pub trait SolveTaskMut {
+pub trait Solver {
     type Task;
     type Load;
-    fn solve_task_mut(&mut self, task: Self::Task) -> Self::Load;
+    fn solver(&mut self, task: Self::Task) -> Self::Load;
 }
 
 pub struct Pack<'a, U: 'a> {

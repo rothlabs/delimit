@@ -11,7 +11,7 @@ mod sole;
 #[derive(Clone, Serialize)]
 pub enum View<I, L, E> {
     Item(I),
-    Role(SolveRole<L, E>),
+    Role(PloyRole<L, E>),
 }
 
 impl<I, L, E> Grant for View<I, L, E>
@@ -43,7 +43,7 @@ where
 
 pub trait AddToViews {
     type View;
-    // fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T);
+    // fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T);
     fn add_view(&mut self, view: &Self::View);
 }
 
@@ -54,8 +54,8 @@ where
     E: Clone,
 {
     type View = View<I, L, E>;
-    // fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
-    //     self.push(item.solve());
+    // fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T) {
+    //     self.push(item.grant());
     // }
     fn add_view(&mut self, view: &Self::View) {
         self.push(view.clone());
@@ -89,18 +89,3 @@ where
     }
 }
 
-/////////////////////////////////////////////////
-
-// impl<I, R, E> SolveWithRoot for View<I, R, E>
-// where
-//     I: WithRoot<Root = Root> + IntoRole<Load = R>,
-//     R: WithRoot<Root = Root>,
-// {
-//     type Load = I;
-//     fn solve_with_root(&self, root: &Root) -> Self::Load {
-//         match self {
-//             View::Item(item) => item.with_root(root),
-//             View::Role(role) => I::into_role(role.solve().with_root(root)),
-//         }
-//     }
-// }

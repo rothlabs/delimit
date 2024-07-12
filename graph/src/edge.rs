@@ -61,13 +61,13 @@ where
     }
 }
 
-impl<U, L> SolverWithRoot for Pair<U, L>
+impl<U, L> FormulaWithRoot for Pair<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn solver_with_root(
+    fn formula_with_root(
         &self,
         root: Root,
     ) -> Arc<RwLock<dyn Formula<L> + Send + Sync>> {
@@ -79,38 +79,38 @@ where
     }
 }
 
-impl<U, T, L> TaskShare<T, L> for Trey<U, T, L>
+impl<U, T, L> Problem<T, L> for Trey<U, T, L>
 where
-    U: SolveTask<Task = T, Load = L> + Send + Sync + 'static,
+    U: Solve<Task = T, Load = L> + Send + Sync + 'static,
     T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
     L: Clone + Send + Sync + 'static,
 {
 }
 
-impl<R, S> SolveTask for Edge<R, S>
+impl<R, S> Solve for Edge<R, S>
 where
-    S: SolveTaskMut,
+    S: Solver,
 {
     type Task = S::Task;
     type Load = S::Load;
-    fn solve_task(&self, task: Self::Task) -> Self::Load {
+    fn solve(&self, task: Self::Task) -> Self::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve_task_mut(task)
+        stem.solver(task)
     }
 }
 
-impl<U, T, L> TaskerWithRoot for Trey<U, T, L>
+impl<U, T, L> ProblemWithRoot for Trey<U, T, L>
 where
-    U: SolveTask<Task = T, Load = L> + Send + Sync + 'static,
+    U: Solve<Task = T, Load = L> + Send + Sync + 'static,
     T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
     L: Clone + Send + Sync + 'static,
 {
     type Task = T;
     type Load = L;
-    fn tasker_with_root(
+    fn problem_with_root(
         &self,
         root: Root,
-    ) -> Arc<RwLock<dyn TaskShare<T, L> + Send + Sync>> {
+    ) -> Arc<RwLock<dyn Problem<T, L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),

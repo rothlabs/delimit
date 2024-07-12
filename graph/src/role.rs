@@ -5,31 +5,31 @@ pub trait IntoRole {
     fn into_role(load: Self::Load) -> Self;
 }
 
-pub struct SolveRole<L, E> {
+pub struct PloyRole<L, E> {
+    pub ploy: Ploy<L>,
     pub exact: E,
-    pub solver: Solver<L>,
 }
 
-impl<L, E> Clone for SolveRole<L, E>
+impl<L, E> Clone for PloyRole<L, E>
 where
     E: Clone,
 {
     fn clone(&self) -> Self {
         Self {
             exact: self.exact.clone(),
-            solver: self.solver.clone(),
+            ploy: self.ploy.clone(),
         }
     }
 }
 
-impl<L, E> Grant for SolveRole<L, E> {
+impl<L, E> Grant for PloyRole<L, E> {
     type Load = L;
     fn grant(&self) -> Self::Load {
-        self.solver.grant()
+        self.ploy.grant()
     }
 }
 
-impl<L, E> WithRoot for SolveRole<L, E>
+impl<L, E> WithRoot for PloyRole<L, E>
 where
     E: Clone,
 {
@@ -37,37 +37,37 @@ where
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
             exact: self.exact.clone(),
-            solver: self.solver.with_root(root),
+            ploy: self.ploy.with_root(root),
         }
     }
 }
 
-pub struct TaskRole<T, L, E> {
+pub struct PlanRole<T, L, E> {
     pub exact: E,
-    pub tasker: Tasker<T, L>,
+    pub plan: Plan<T, L>,
 }
 
-impl<T, L, E> Clone for TaskRole<T, L, E>
+impl<T, L, E> Clone for PlanRole<T, L, E>
 where
     E: Clone,
 {
     fn clone(&self) -> Self {
         Self {
             exact: self.exact.clone(),
-            tasker: self.tasker.clone(),
+            plan: self.plan.clone(),
         }
     }
 }
 
-impl<T, L, E> SolveTask for TaskRole<T, L, E> {
+impl<T, L, E> Solve for PlanRole<T, L, E> {
     type Task = T;
     type Load = L;
-    fn solve_task(&self, task: T) -> L {
-        self.tasker.solve_task(task)
+    fn solve(&self, task: T) -> L {
+        self.plan.solve(task)
     }
 }
 
-impl<T, L, E> WithRoot for TaskRole<T, L, E>
+impl<T, L, E> WithRoot for PlanRole<T, L, E>
 where
     E: Clone,
 {
@@ -75,7 +75,7 @@ where
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
             exact: self.exact.clone(),
-            tasker: self.tasker.with_root(root),
+            plan: self.plan.with_root(root),
         }
     }
 }

@@ -13,7 +13,7 @@ impl Attribute {
         });
         let view = Item::Role(Role {
             exact: Exact::Attribute(link.clone()),
-            solver: link.solver(),
+            ploy: link.ploy(),
         });
         Hold { link, view }
     }
@@ -45,15 +45,3 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
-
-// pub fn attribute() -> (Item, Html<Attribute>) {
-//     let exact = Html::new(Attribute {
-//         name: plain::string("untitled"),
-//         value: plain::string("empty"),
-//     });
-//     let role = Item::Role(Role {
-//         exact: Exact::Attribute(exact.clone()),
-//         solver: exact.solver(),
-//     });
-//     (role, exact)
-// }

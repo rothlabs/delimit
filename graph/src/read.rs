@@ -13,10 +13,10 @@ pub trait Grant {
     fn grant(&self) -> Self::Load;
 }
 
-pub trait SolveTask {
+pub trait Solve {
     type Task;
     type Load;
-    fn solve_task(&self, task: Self::Task) -> Self::Load;
+    fn solve(&self, task: Self::Task) -> Self::Load;
 }
 
 // pub trait CloneUnit {

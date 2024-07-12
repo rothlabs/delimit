@@ -14,8 +14,8 @@ mod sole;
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
-pub type Solver<L> = Link<dyn Formula<L> + Send + Sync>;
-pub type Tasker<T, L> = Link<dyn TaskShare<T, L> + Send + Sync>;
+pub type Ploy<L> = Link<dyn Formula<L> + Send + Sync>;
+pub type Plan<T, L> = Link<dyn Problem<T, L> + Send + Sync>;
 
 /// Points to one edge which in turn points to one node.
 /// Units hold links as source of input used to compute output.
@@ -137,7 +137,7 @@ where
     }
 }
 
-impl<ER, NR, U, L> ToSolver for Link<Edge<ER, Node<NR, work::Pair<U, L>>>>
+impl<ER, NR, U, L> Link<Edge<ER, Node<NR, work::Pair<U, L>>>>
 where
     ER: 'static + Send + Sync,
     NR: 'static + Send + Sync,
@@ -145,10 +145,9 @@ where
     L: 'static + Send + Sync,
     Edge<ER, Node<NR, work::Pair<U, L>>>: Formula<L>,
 {
-    type Load = L;
-    fn solver(&self) -> Solver<L> {
+    pub fn ploy(&self) -> Ploy<L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn Formula<L> + Send + Sync>>;
-        Solver {
+        Ploy {
             edge,
             meta: self.meta.clone(),
         }
@@ -159,49 +158,47 @@ impl<L> Link<dyn Formula<L> + Send + Sync> {
     pub fn with_root(&self, root: &Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.solver_with_root(root.clone()),
+            edge: edge.formula_with_root(root.clone()), 
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<E: ?Sized> SolveTask for Link<E>
+impl<E: ?Sized> Solve for Link<E>
 where
-    E: SolveTask,
+    E: Solve,
 {
     type Task = E::Task;
     type Load = E::Load;
-    fn solve_task(&self, task: Self::Task) -> Self::Load {
+    fn solve(&self, task: Self::Task) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.solve_task(task)
+        edge.solve(task)
     }
 }
 
-impl<ER, NR, U, T, L> ToTasker for Link<Edge<ER, Node<NR, work::Trey<U, T, L>>>>
+impl<ER, NR, U, T, L> Link<Edge<ER, Node<NR, work::Trey<U, T, L>>>>
 where
     ER: 'static + Send + Sync,
     NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     T: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Trey<U, T, L>>>: TaskShare<T, L>,
+    Edge<ER, Node<NR, work::Trey<U, T, L>>>: Problem<T, L>,
 {
-    type Task = T;
-    type Load = L;
-    fn tasker(&self) -> Tasker<T, L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn TaskShare<T, L> + Send + Sync>>;
-        Tasker {
+    pub fn plan(&self) -> Plan<T, L> {
+        let edge = self.edge.clone() as Arc<RwLock<dyn Problem<T, L> + Send + Sync>>;
+        Plan {
             edge,
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<T, L> Link<dyn TaskShare<T, L> + Send + Sync> {
+impl<T, L> Link<dyn Problem<T, L> + Send + Sync> {
     pub fn with_root(&self, root: &Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.tasker_with_root(root.clone()),
+            edge: edge.problem_with_root(root.clone()),
             meta: self.meta.clone(),
         }
     }

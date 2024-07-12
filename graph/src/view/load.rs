@@ -4,11 +4,11 @@ use crate::*;
 pub enum LoadView<L, E> {
     Bare(L),
     Sole(Sole<L>),
-    Role(SolveRole<Sole<L>, E>),
+    Role(PloyRole<Sole<L>, E>),
 }
 
 impl<L, E> IntoRole for LoadView<L, E> {
-    type Load = SolveRole<Sole<L>, E>;
+    type Load = PloyRole<Sole<L>, E>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
@@ -37,7 +37,7 @@ where
     }
 }
 
-// it is creating a new leaf on each solve if bare. Is this bad?
+// it is creating a new Sole on each grant if bare. Is this bad?
 impl<L, E> Grant for LoadView<L, E>
 where
     L: Clone + 'static,
@@ -75,7 +75,7 @@ pub trait AddToLoadViews {
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
-    fn add_role(&mut self, role: SolveRole<Sole<Self::Load>, Self::Exact>);
+    fn add_role(&mut self, role: PloyRole<Sole<Self::Load>, Self::Exact>);
 }
 
 impl<L, E> AddToLoadViews for Vec<LoadView<L, E>>
@@ -98,7 +98,7 @@ where
     fn add_leaf(&mut self, leaf: Sole<L>) {
         self.push(LoadView::Sole(leaf));
     }
-    fn add_role(&mut self, role: SolveRole<Sole<L>, E>) {
+    fn add_role(&mut self, role: PloyRole<Sole<L>, E>) {
         self.push(LoadView::Role(role));
     }
 }
@@ -153,7 +153,7 @@ where
         self.views.add_leaf(leaf.with_root(self.root));
         self
     }
-    pub fn add_role(&mut self, role: &SolveRole<Sole<L>, E>) -> &mut Self {
+    pub fn add_role(&mut self, role: &PloyRole<Sole<L>, E>) -> &mut Self {
         self.views.add_role(role.with_root(self.root));
         self
     }

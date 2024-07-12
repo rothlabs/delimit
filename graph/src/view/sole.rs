@@ -3,7 +3,7 @@ use crate::*;
 #[derive(Clone, Serialize)]
 pub enum SoleView<L> {
     Sole(Sole<L>),
-    Solver(Solver<Sole<L>>),
+    Ploy(Ploy<Sole<L>>),
 }
 
 impl<L> SoleView<L> {
@@ -19,8 +19,8 @@ where
     type Load = Sole<L>;
     fn grant(&self) -> Sole<L> {
         match self {
-            SoleView::Sole(leaf) => leaf.clone(),
-            SoleView::Solver(solver) => solver.grant(),
+            SoleView::Sole(sole) => sole.clone(),
+            SoleView::Ploy(ploy) => ploy.grant(),
         }
     }
 }

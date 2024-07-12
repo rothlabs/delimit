@@ -13,7 +13,7 @@ impl Tag {
         });
         let view = Item::Role(Role {
             exact: Exact::Tag(link.clone()),
-            solver: link.solver(),
+            ploy: link.ploy(),
         });
         Hold { link, view }
     }

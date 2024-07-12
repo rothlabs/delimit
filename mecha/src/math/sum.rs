@@ -9,18 +9,18 @@ impl Sum {
         let link = Math::new(Self {
             items: items.clone(),
         });
-        let wow = link.tasker();
+        let wow = link.plan();
         let view = Item::Role(Role {
             exact: Exact::Sum(link.clone()),
-            tasker: link.tasker(),
+            plan: link.plan(),
         });
         Hold { link, view }
     }
 }
 
-impl Solve for Sum {
+impl Grant for Sum {
     type Load = Load;
-    fn solve(&self) -> Load {
+    fn grant(&self) -> Load {
         let mut value = 0.;
         for item in &self.items {
             item.reader(|v| value += v);
