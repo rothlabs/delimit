@@ -57,7 +57,7 @@ where
     L: Clone,
     E: Clone,
 {
-    type Root = Root;
+    type Root = Back;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             LoadView::Bare(bare) => LoadView::Bare(bare.clone()),
@@ -115,18 +115,18 @@ impl<E> AddStr for Vec<LoadView<String, E>> {
 }
 
 pub trait ToLoadViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, root: &'a Root) -> LoadViewsBuilder<L, E>;
+    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<LoadView<L, E>> {
-    fn root(&'a mut self, root: &'a Root) -> LoadViewsBuilder<L, E> {
+    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E> {
         LoadViewsBuilder { views: self, root }
     }
 }
 
 pub struct LoadViewsBuilder<'a, L, E> {
     views: &'a mut Vec<LoadView<L, E>>,
-    root: &'a Root,
+    root: &'a Back,
 }
 
 impl<'a, L, E> LoadViewsBuilder<'a, L, E>
@@ -134,7 +134,7 @@ where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Grant<Load = LoadView<L, E>> + WithRoot<Root = Root>>(
+    pub fn add_item<T: Grant<Load = LoadView<L, E>> + WithRoot<Root = Back>>(
         &mut self,
         item: &T,
     ) -> &mut Self {

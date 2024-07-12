@@ -57,7 +57,7 @@ where
     L: Clone,
     E: Clone,
 {
-    type Root = Root;
+    type Root = Back;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             TaskView::Bare(bare) => TaskView::Bare(bare.clone()),
@@ -104,18 +104,18 @@ where
 }
 
 pub trait ToTaskViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, root: &'a Root) -> TaskViewsBuilder<L, E>;
+    fn root(&'a mut self, root: &'a Back) -> TaskViewsBuilder<L, E>;
 }
 
 impl<'a, L, E> ToTaskViewsBuilder<'a, L, E> for Vec<TaskView<L, E>> {
-    fn root(&'a mut self, root: &'a Root) -> TaskViewsBuilder<L, E> {
+    fn root(&'a mut self, root: &'a Back) -> TaskViewsBuilder<L, E> {
         TaskViewsBuilder { views: self, root }
     }
 }
 
 pub struct TaskViewsBuilder<'a, L, E> {
     views: &'a mut Vec<TaskView<L, E>>,
-    root: &'a Root,
+    root: &'a Back,
 }
 
 impl<'a, L, E> TaskViewsBuilder<'a, L, E>
@@ -123,7 +123,7 @@ where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Grant<Load = TaskView<L, E>> + WithRoot<Root = Root>>(
+    pub fn add_item<T: Grant<Load = TaskView<L, E>> + WithRoot<Root = Back>>(
         &mut self,
         item: &T,
     ) -> &mut Self {

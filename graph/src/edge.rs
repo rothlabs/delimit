@@ -5,9 +5,9 @@ use std::hash::Hash;
 
 use crate::*;
 
-pub type Sole<L> = Edge<Root, node::Sole<L>>;
-pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
-pub type Trey<U, T, L> = Edge<Root, node::Trey<U, T, L>>;
+pub type Sole<L> = Edge<Back, node::Sole<L>>;
+pub type Pair<U, L> = Edge<Back, node::Pair<U, L>>;
+pub type Trey<U, T, L> = Edge<Back, node::Trey<U, T, L>>;
 
 /// The bridge between root and stem node.
 pub struct Edge<R, S> {
@@ -34,9 +34,9 @@ impl<R, S> Edge<R, S>
 where
     S: 'static + Updater + Send + Sync,
 {
-    fn as_root(&self) -> Root {
+    fn as_root(&self) -> Back {
         let stem = self.stem.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
-        Root {
+        Back {
             item: Arc::downgrade(&stem),
             // meta: self.meta.clone(),
         }
@@ -69,7 +69,7 @@ where
     type Load = L;
     fn formula_with_root(
         &self,
-        root: Root,
+        root: Back,
     ) -> Arc<RwLock<dyn Formula<L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
@@ -109,7 +109,7 @@ where
     type Load = L;
     fn problem_with_root(
         &self,
-        root: Root,
+        root: Back,
     ) -> Arc<RwLock<dyn Problem<T, L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),

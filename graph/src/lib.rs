@@ -5,8 +5,8 @@ pub use link::{IntoSole, Link, Trey, Pair, Sole, Ploy, Plan, ToSole};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Cycle, Rebut, Rebuter, Update, Updater, React, Reactor, Ring, Root,
-    Back, FormulaWithRoot, ProblemWithRoot, WithRoot,
+    AddRoot, Cycle, Rebut, Rebuter, Update, Updater, React, Reactor, Ring, Back,
+    Root, FormulaWithRoot, ProblemWithRoot, WithRoot,
 };
 pub use read::{Read, Reader, Grant, Solve};
 pub use unit::{Gate, Repo, Serial, ToSerial};

@@ -81,10 +81,10 @@ impl<E> Link<E>
 where
     E: 'static + Update + Send + Sync,
 {
-    pub fn back(&self) -> Back {
+    pub fn back(&self) -> Root {
         let edge = self.edge.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
-        Back {
-            item: Arc::downgrade(&edge),
+        Root {
+            edge: Arc::downgrade(&edge),
             meta: self.meta.clone(),
         }
     }
@@ -92,7 +92,7 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: 'static + Reader + Update + AddRoot<Root = Back> + Send + Sync,
+    E: 'static + Reader + Update + AddRoot<Root = Root> + Send + Sync,
 {
     type Unit = E::Unit;
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
@@ -154,7 +154,7 @@ where
 }
 
 impl<L> Link<dyn Formula<L> + Send + Sync> {
-    pub fn with_root(&self, root: &Root) -> Self {
+    pub fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.formula_with_root(root.clone()), 
@@ -194,7 +194,7 @@ where
 }
 
 impl<T, L> Link<dyn Problem<T, L> + Send + Sync> {
-    pub fn with_root(&self, root: &Root) -> Self {
+    pub fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.problem_with_root(root.clone()),

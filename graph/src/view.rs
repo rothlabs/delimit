@@ -29,10 +29,10 @@ where
 
 impl<I, L, E> WithRoot for View<I, L, E>
 where
-    I: WithRoot<Root = Root>,
+    I: WithRoot<Root = Back>,
     E: Clone,
 {
-    type Root = Root;
+    type Root = Back;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             View::Item(item) => View::Item(item.with_root(root)),
@@ -63,23 +63,23 @@ where
 }
 
 pub trait ToViewsBuilder<'a, I, L, E> {
-    fn root(&'a mut self, root: &'a Root) -> ViewsBuilder<I, L, E>;
+    fn root(&'a mut self, root: &'a Back) -> ViewsBuilder<I, L, E>;
 }
 
 impl<'a, I, R, E> ToViewsBuilder<'a, I, R, E> for Vec<View<I, R, E>> {
-    fn root(&'a mut self, root: &'a Root) -> ViewsBuilder<I, R, E> {
+    fn root(&'a mut self, root: &'a Back) -> ViewsBuilder<I, R, E> {
         ViewsBuilder { views: self, root }
     }
 }
 
 pub struct ViewsBuilder<'a, I, L, E> {
     views: &'a mut Vec<View<I, L, E>>,
-    root: &'a Root,
+    root: &'a Back,
 }
 
 impl<'a, I, L, E> ViewsBuilder<'a, I, L, E>
 where
-    I: Clone + WithRoot<Root = Root>,
+    I: Clone + WithRoot<Root = Back>,
     L: Clone,
     E: Clone,
 {

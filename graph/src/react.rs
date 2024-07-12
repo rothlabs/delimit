@@ -40,7 +40,7 @@ pub trait FormulaWithRoot {
     type Load;
     fn formula_with_root(
         &self,
-        root: Root,
+        root: Back,
     ) -> Arc<RwLock<dyn Formula<Self::Load> + Send + Sync>>;
 }
 
@@ -49,7 +49,7 @@ pub trait ProblemWithRoot {
     type Load;
     fn problem_with_root(
         &self,
-        root: Root,
+        root: Back,
     ) -> Arc<RwLock<dyn Problem<Self::Task, Self::Load> + Send + Sync>>;
 }
 
@@ -64,16 +64,16 @@ pub trait Updater: Rebuter<Ring = Ring> + Reactor {}
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
-pub struct Back {
-    pub item: Weak<RwLock<dyn Update + Send + Sync>>,
+pub struct Root {
+    pub edge: Weak<RwLock<dyn Update + Send + Sync>>,
     pub meta: Meta,
 }
 
-impl Rebut for Back {
+impl Rebut for Root {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
-        if let Some(item) = self.item.upgrade() {
+        if let Some(item) = self.edge.upgrade() {
             let item = item.read().expect(NO_POISON);
             item.rebut()
         } else {
@@ -82,37 +82,37 @@ impl Rebut for Back {
     }
 }
 
-impl React for Back {
+impl React for Root {
     fn react(&self) {
-        if let Some(item) = self.item.upgrade() {
+        if let Some(item) = self.edge.upgrade() {
             let item = item.read().expect(NO_POISON);
             item.react();
         }
     }
 }
 
-impl PartialEq for Back {
+impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
-        Weak::ptr_eq(&self.item, &other.item) && self.meta.id == other.meta.id
+        Weak::ptr_eq(&self.edge, &other.edge) && self.meta.id == other.meta.id
     }
 }
 
-impl Eq for Back {}
+impl Eq for Root {}
 
-impl Hash for Back {
+impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.meta.id.hash(state);
     }
 }
 
-/// Weakly point to a root node as event handler and reactor.
+/// Weakly point to a root node as Updater.
 #[derive(Clone)]
-pub struct Root {
+pub struct Back {
     pub item: Weak<RwLock<dyn Updater + Send + Sync + 'static>>,
     // pub meta: Meta,
 }
 
-impl Rebut for Root {
+impl Rebut for Back {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
@@ -125,7 +125,7 @@ impl Rebut for Root {
     }
 }
 
-impl React for Root {
+impl React for Back {
     fn react(&self) {
         if let Some(item) = self.item.upgrade() {
             let mut item = item.write().expect(NO_POISON);
@@ -137,7 +137,7 @@ impl React for Root {
 /// Points to many root edges, each pointing to a root node.
 #[derive(Default)]
 pub struct Ring {
-    backs: HashSet<Back>,
+    backs: HashSet<Root>,
 }
 
 impl Ring {
@@ -174,7 +174,7 @@ impl Rebut for Ring {
 }
 
 impl AddRoot for Ring {
-    type Root = Back;
+    type Root = Root;
     fn add_root(&mut self, root: Self::Root) {
         self.backs.insert(root);
     }

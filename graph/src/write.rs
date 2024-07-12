@@ -12,7 +12,7 @@ pub trait Writer {
 
 pub trait WriteWithRoot {
     type Unit;
-    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Root);
+    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Back);
 }
 
 pub trait WriterWithPack {
@@ -33,5 +33,5 @@ pub trait Solver {
 
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
-    pub root: &'a Root,
+    pub root: &'a Back,
 }
