@@ -8,13 +8,13 @@ pub use react::{
     AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Ring, Root,
     RootEdge, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
 };
-pub use read::{Read, Reader, Solve, SolveTask};
+pub use read::{Read, Reader, Grant, SolveTask};
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
     AddStr, AddToLoadViews, AddToViews, LoadView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
     View,
 };
-pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
+pub use write::{Pack, Grantor, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};
 pub use role::{SolveRole, TaskRole, IntoRole};
 
 pub mod edge;
@@ -41,7 +41,7 @@ pub trait ToLoad {
     fn load(&self) -> Self::Load;
 }
 
-pub trait SolveShare<L>: Solve<Load = L> + SolverWithRoot<Load = L> {}
+pub trait Formula<L>: Grant<Load = L> + SolverWithRoot<Load = L> {}
 
 pub trait TaskShare<T, L>:
     SolveTask<Task = T, Load = L> + TaskerWithRoot<Task = T, Load = L>

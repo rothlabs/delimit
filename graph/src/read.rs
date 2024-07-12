@@ -8,9 +8,9 @@ pub trait Reader {
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F);
 }
 
-pub trait Solve {
+pub trait Grant {
     type Load;
-    fn solve(&self) -> Self::Load;
+    fn grant(&self) -> Self::Load;
 }
 
 pub trait SolveTask {

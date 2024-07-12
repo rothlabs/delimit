@@ -83,13 +83,13 @@ where
     }
 }
 
-impl<R, W> SolveMut for Node<R, W>
+impl<R, W> Grantor for Node<R, W>
 where
-    W: SolveMut,
+    W: Grantor,
 {
     type Load = W::Load;
-    fn solve_mut(&mut self) -> Self::Load {
-        self.work.solve_mut()
+    fn grantor(&mut self) -> Self::Load {
+        self.work.grantor()
     }
 }
 

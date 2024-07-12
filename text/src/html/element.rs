@@ -21,9 +21,9 @@ impl Element {
     }
 }
 
-impl Solve for Element {
+impl Grant for Element {
     type Load = Load;
-    fn solve(&self) -> Load {
+    fn grant(&self) -> Load {
         let Hold { link, view } = "\n".list();
         link.writer(|pack| {
             let mut element = pack.unit.items.root(pack.root);

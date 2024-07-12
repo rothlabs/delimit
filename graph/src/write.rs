@@ -20,9 +20,9 @@ pub trait WriterWithPack {
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
 }
 
-pub trait SolveMut {
+pub trait Grantor {
     type Load;
-    fn solve_mut(&mut self) -> Self::Load;
+    fn grantor(&mut self) -> Self::Load;
 }
 
 pub trait SolveTaskMut {

@@ -22,10 +22,10 @@ where
     }
 }
 
-impl<L, E> Solve for SolveRole<L, E> {
+impl<L, E> Grant for SolveRole<L, E> {
     type Load = L;
-    fn solve(&self) -> Self::Load {
-        self.solver.solve()
+    fn grant(&self) -> Self::Load {
+        self.solver.grant()
     }
 }
 

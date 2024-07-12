@@ -40,17 +40,17 @@ impl<U, L> WriteWithRoot for Pair<U, L> {
     }
 }
 
-impl<U, L> SolveMut for Pair<U, L>
+impl<U, L> Grantor for Pair<U, L>
 where
-    U: Solve<Load = L>,
+    U: Grant<Load = L>,
     L: Clone,
 {
     type Load = L;
-    fn solve_mut(&mut self) -> Self::Load {
+    fn grantor(&mut self) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {
-            let load = self.unit.solve();
+            let load = self.unit.grant();
             self.load = Some(load.clone());
             load
         }

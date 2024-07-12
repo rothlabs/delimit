@@ -43,34 +43,34 @@ where
     }
 }
 
-impl<U, L> SolveShare<L> for Pair<U, L>
+impl<U, L> Formula<L> for Pair<U, L>
 where
-    U: Solve<Load = L> + 'static + Send + Sync,
+    U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
 }
 
-impl<R, S> Solve for Edge<R, S>
+impl<R, S> Grant for Edge<R, S>
 where
-    S: SolveMut,
+    S: Grantor,
 {
     type Load = S::Load;
-    fn solve(&self) -> Self::Load {
+    fn grant(&self) -> Self::Load {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve_mut()
+        stem.grantor()
     }
 }
 
 impl<U, L> SolverWithRoot for Pair<U, L>
 where
-    U: Solve<Load = L> + 'static + Send + Sync,
+    U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
     fn solver_with_root(
         &self,
         root: Root,
-    ) -> Arc<RwLock<dyn SolveShare<L> + Send + Sync>> {
+    ) -> Arc<RwLock<dyn Formula<L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),

@@ -19,9 +19,9 @@ impl Tag {
     }
 }
 
-impl Solve for Tag {
+impl Grant for Tag {
     type Load = Load;
-    fn solve(&self) -> Self::Load {
+    fn grant(&self) -> Self::Load {
         let Hold { link, view } = "".list();
         link.writer(|pack| {
             let mut tag = pack.unit.items.root(pack.root);

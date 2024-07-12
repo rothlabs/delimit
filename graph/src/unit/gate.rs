@@ -6,17 +6,17 @@ pub struct Gate<T, O> {
     pub on: O,
 }
 
-impl<T, O> Solve for Gate<T, O>
+impl<T, O> Grant for Gate<T, O>
 where
-    T: Solve,
-    O: Solve<Load = Sole<bool>>,
+    T: Grant,
+    O: Grant<Load = Sole<bool>>,
 {
     type Load = T::Load;
-    fn solve(&self) -> T::Load {
-        if self.on.solve().load() {
-            self.active.solve()
+    fn grant(&self) -> T::Load {
+        if self.on.grant().load() {
+            self.active.grant()
         } else {
-            self.default.solve()
+            self.default.grant()
         }
     }
 }

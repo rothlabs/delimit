@@ -14,7 +14,7 @@ mod sole;
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
-pub type Solver<L> = Link<dyn SolveShare<L> + Send + Sync>;
+pub type Solver<L> = Link<dyn Formula<L> + Send + Sync>;
 pub type Tasker<T, L> = Link<dyn TaskShare<T, L> + Send + Sync>;
 
 /// Points to one edge which in turn points to one node.
@@ -126,14 +126,14 @@ where
     }
 }
 
-impl<E: ?Sized> Solve for Link<E>
+impl<E: ?Sized> Grant for Link<E>
 where
-    E: Solve,
+    E: Grant,
 {
     type Load = E::Load;
-    fn solve(&self) -> Self::Load {
+    fn grant(&self) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.solve()
+        edge.grant()
     }
 }
 
@@ -143,11 +143,11 @@ where
     NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Pair<U, L>>>: SolveShare<L>,
+    Edge<ER, Node<NR, work::Pair<U, L>>>: Formula<L>,
 {
     type Load = L;
     fn solver(&self) -> Solver<L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn SolveShare<L> + Send + Sync>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn Formula<L> + Send + Sync>>;
         Solver {
             edge,
             meta: self.meta.clone(),
@@ -155,7 +155,7 @@ where
     }
 }
 
-impl<L> Link<dyn SolveShare<L> + Send + Sync> {
+impl<L> Link<dyn Formula<L> + Send + Sync> {
     pub fn with_root(&self, root: &Root) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {

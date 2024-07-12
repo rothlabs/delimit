@@ -17,7 +17,7 @@ impl Doc {
         Doc::default()
     }
     pub fn string(&self) -> String {
-        self.element.link.solve().solve().load()
+        self.element.link.grant().grant().load()
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.element.link.writer(|pack| {

@@ -19,9 +19,9 @@ impl Attribute {
     }
 }
 
-impl Solve for Attribute {
+impl Grant for Attribute {
     type Load = Load;
-    fn solve(&self) -> Load {
+    fn grant(&self) -> Load {
         let Hold { link, view } = "".list();
         link.writer(|pack| {
             pack.unit

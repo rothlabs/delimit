@@ -14,15 +14,15 @@ pub enum View<I, L, E> {
     Role(SolveRole<L, E>),
 }
 
-impl<I, L, E> Solve for View<I, L, E>
+impl<I, L, E> Grant for View<I, L, E>
 where
     I: Clone + IntoRole<Load = L>,
 {
     type Load = I;
-    fn solve(&self) -> Self::Load {
+    fn grant(&self) -> Self::Load {
         match self {
             View::Item(item) => item.clone(),
-            View::Role(role) => I::into_role(role.solve()),
+            View::Role(role) => I::into_role(role.grant()),
         }
     }
 }

@@ -12,15 +12,15 @@ impl<L> SoleView<L> {
     }
 }
 
-impl<L> Solve for SoleView<L>
+impl<L> Grant for SoleView<L>
 where
     L: Clone,
 {
     type Load = Sole<L>;
-    fn solve(&self) -> Sole<L> {
+    fn grant(&self) -> Sole<L> {
         match self {
             SoleView::Sole(leaf) => leaf.clone(),
-            SoleView::Solver(solver) => solver.solve(),
+            SoleView::Solver(solver) => solver.grant(),
         }
     }
 }

@@ -18,9 +18,9 @@ impl List {
     }
 }
 
-impl Solve for List {
+impl Grant for List {
     type Load = Load;
-    fn solve(&self) -> Load {
+    fn grant(&self) -> Load {
         let mut string = String::new();
         if self.items.is_empty() {
             return string.into_sole();

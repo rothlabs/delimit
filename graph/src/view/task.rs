@@ -32,22 +32,22 @@ where
         match self {
             TaskView::Bare(bare) => read(bare),
             TaskView::Sole(sole) => sole.reader(read),
-            TaskView::Role(role) => role.solve().reader(read),
+            TaskView::Role(role) => role.grant().reader(read),
         };
     }
 }
 
 // it is creating a new leaf on each solve if bare. Is this bad?
-impl<L, E> Solve for TaskView<L, E>
+impl<L, E> Grant for TaskView<L, E>
 where
     L: Clone + 'static,
 {
     type Load = Sole<L>;
-    fn solve(&self) -> Sole<L> {
+    fn grant(&self) -> Sole<L> {
         match self {
             TaskView::Bare(bare) => bare.clone().into_sole(),
             TaskView::Sole(leaf) => leaf.clone(),
-            TaskView::Role(role) => role.solve(),
+            TaskView::Role(role) => role.grant(),
         }
     }
 }
@@ -71,7 +71,7 @@ pub trait AddToTaskViews {
     type View;
     type Load;
     type Exact;
-    fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T);
+    fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T);
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
@@ -86,8 +86,8 @@ where
     type View = TaskView<L, E>;
     type Load = L;
     type Exact = E;
-    fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
-        self.push(item.solve());
+    fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T) {
+        self.push(item.grant());
     }
     // fn add_view(&mut self, item: Self::View) {
     //     self.push(item);
@@ -123,7 +123,7 @@ where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Solve<Load = TaskView<L, E>> + WithRoot<Root = Root>>(
+    pub fn add_item<T: Grant<Load = TaskView<L, E>> + WithRoot<Root = Root>>(
         &mut self,
         item: &T,
     ) -> &mut Self {
