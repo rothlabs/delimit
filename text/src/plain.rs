@@ -18,7 +18,7 @@ pub type Role = graph::SolveRole<Load, Exact>;
 pub type View<E> = graph::View<Item, Role, E>; // view::Stem
 
 type Load = Sole<String>;
-type Item = BaseView<String, Exact>; // view::Bare
+type Item = LoadView<String, Exact>; // view::Bare
 type Text<U> = Pair<U, Load>;
 
 #[derive(Clone, Serialize)]
@@ -29,9 +29,9 @@ pub enum Exact {
 }
 
 pub fn string<E>(string: &str) -> View<E> {
-    View::Item(BaseView::Bare(string.into()))
+    View::Item(LoadView::Bare(string.into()))
 }
 
 pub fn leaf<E>(string: &str) -> View<E> {
-    View::Item(BaseView::Sole(string.leaf()))
+    View::Item(LoadView::Sole(string.leaf()))
 }

@@ -4,7 +4,7 @@ pub use matrix::Matrix;
 mod vector;
 mod matrix;
 mod shape;
-mod math;
+// mod math;
 
 pub struct Translation {
     // vector: Vector,

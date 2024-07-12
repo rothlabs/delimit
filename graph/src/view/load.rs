@@ -1,20 +1,20 @@
 use crate::*;
 
 #[derive(Clone, Serialize)]
-pub enum BaseView<L, E> {
+pub enum LoadView<L, E> {
     Bare(L),
     Sole(Sole<L>),
     Role(SolveRole<Sole<L>, E>),
 }
 
-impl<L, E> IntoRole for BaseView<L, E> {
+impl<L, E> IntoRole for LoadView<L, E> {
     type Load = SolveRole<Sole<L>, E>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
 }
 
-impl<L, E> Default for BaseView<L, E>
+impl<L, E> Default for LoadView<L, E>
 where
     L: Default,
 {
@@ -23,36 +23,36 @@ where
     }
 }
 
-impl<L, E> Reader for BaseView<L, E>
+impl<L, E> Reader for LoadView<L, E>
 where
     L: 'static + Send + Sync,
 {
     type Unit = L;
     fn reader<F: FnOnce(&L)>(&self, read: F) {
         match self {
-            BaseView::Bare(bare) => read(bare),
-            BaseView::Sole(sole) => sole.reader(read),
-            BaseView::Role(role) => role.solve().reader(read),
+            LoadView::Bare(bare) => read(bare),
+            LoadView::Sole(sole) => sole.reader(read),
+            LoadView::Role(role) => role.solve().reader(read),
         };
     }
 }
 
 // it is creating a new leaf on each solve if bare. Is this bad?
-impl<L, E> Solve for BaseView<L, E>
+impl<L, E> Solve for LoadView<L, E>
 where
     L: Clone + 'static,
 {
     type Load = Sole<L>;
     fn solve(&self) -> Sole<L> {
         match self {
-            BaseView::Bare(bare) => bare.clone().into_sole(),
-            BaseView::Sole(leaf) => leaf.clone(),
-            BaseView::Role(role) => role.solve(),
+            LoadView::Bare(bare) => bare.clone().into_sole(),
+            LoadView::Sole(leaf) => leaf.clone(),
+            LoadView::Role(role) => role.solve(),
         }
     }
 }
 
-impl<L, E> WithRoot for BaseView<L, E>
+impl<L, E> WithRoot for LoadView<L, E>
 where
     L: Clone,
     E: Clone,
@@ -60,14 +60,14 @@ where
     type Root = Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
-            BaseView::Bare(bare) => BaseView::Bare(bare.clone()),
-            BaseView::Sole(leaf) => BaseView::Sole(leaf.with_root(root)),
-            BaseView::Role(role) => BaseView::Role(role.with_root(root)),
+            LoadView::Bare(bare) => LoadView::Bare(bare.clone()),
+            LoadView::Sole(leaf) => LoadView::Sole(leaf.with_root(root)),
+            LoadView::Role(role) => LoadView::Role(role.with_root(root)),
         }
     }
 }
 
-pub trait AddToBaseViews {
+pub trait AddToLoadViews {
     type View;
     type Load;
     type Exact;
@@ -78,12 +78,12 @@ pub trait AddToBaseViews {
     fn add_role(&mut self, role: SolveRole<Sole<Self::Load>, Self::Exact>);
 }
 
-impl<L, E> AddToBaseViews for Vec<BaseView<L, E>>
+impl<L, E> AddToLoadViews for Vec<LoadView<L, E>>
 where
     L: Clone + 'static,
     E: Clone,
 {
-    type View = BaseView<L, E>;
+    type View = LoadView<L, E>;
     type Load = L;
     type Exact = E;
     fn add_item<T: Solve<Load = Self::View>>(&mut self, item: &T) {
@@ -93,13 +93,13 @@ where
     //     self.push(item);
     // }
     fn add_bare(&mut self, bare: &L) {
-        self.push(BaseView::Bare(bare.clone()));
+        self.push(LoadView::Bare(bare.clone()));
     }
     fn add_leaf(&mut self, leaf: Sole<L>) {
-        self.push(BaseView::Sole(leaf));
+        self.push(LoadView::Sole(leaf));
     }
     fn add_role(&mut self, role: SolveRole<Sole<L>, E>) {
-        self.push(BaseView::Role(role));
+        self.push(LoadView::Role(role));
     }
 }
 
@@ -107,34 +107,34 @@ pub trait AddStr {
     fn add_str(&mut self, load: &str) -> &mut Self;
 }
 
-impl<E> AddStr for Vec<BaseView<String, E>> {
+impl<E> AddStr for Vec<LoadView<String, E>> {
     fn add_str(&mut self, load: &str) -> &mut Self {
-        self.push(BaseView::Bare(load.into()));
+        self.push(LoadView::Bare(load.into()));
         self
     }
 }
 
-pub trait ToBaseViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, reactor: &'a Root) -> BaseViewsBuilder<L, E>;
+pub trait ToLoadViewsBuilder<'a, L, E> {
+    fn root(&'a mut self, reactor: &'a Root) -> LoadViewsBuilder<L, E>;
 }
 
-impl<'a, L, E> ToBaseViewsBuilder<'a, L, E> for Vec<BaseView<L, E>> {
-    fn root(&'a mut self, root: &'a Root) -> BaseViewsBuilder<L, E> {
-        BaseViewsBuilder { views: self, root }
+impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<LoadView<L, E>> {
+    fn root(&'a mut self, root: &'a Root) -> LoadViewsBuilder<L, E> {
+        LoadViewsBuilder { views: self, root }
     }
 }
 
-pub struct BaseViewsBuilder<'a, L, E> {
-    views: &'a mut Vec<BaseView<L, E>>,
+pub struct LoadViewsBuilder<'a, L, E> {
+    views: &'a mut Vec<LoadView<L, E>>,
     root: &'a Root,
 }
 
-impl<'a, L, E> BaseViewsBuilder<'a, L, E>
+impl<'a, L, E> LoadViewsBuilder<'a, L, E>
 where
     L: Clone + 'static,
     E: Clone,
 {
-    pub fn add_item<T: Solve<Load = BaseView<L, E>> + WithRoot<Root = Root>>(
+    pub fn add_item<T: Solve<Load = LoadView<L, E>> + WithRoot<Root = Root>>(
         &mut self,
         item: &T,
     ) -> &mut Self {
@@ -159,9 +159,9 @@ where
     }
 }
 
-impl<'a, E> AddStr for BaseViewsBuilder<'a, String, E> {
+impl<'a, E> AddStr for LoadViewsBuilder<'a, String, E> {
     fn add_str(&mut self, load: &str) -> &mut Self {
-        self.views.push(BaseView::Bare(load.into()));
+        self.views.push(LoadView::Bare(load.into()));
         self
     }
 }

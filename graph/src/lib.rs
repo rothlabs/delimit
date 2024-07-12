@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 pub use edge::Edge;
-pub use link::{IntoSole, Link, Pair, Sole, Solver, Tasker, ToSole};
+pub use link::{IntoSole, Link, Trey, Pair, Sole, Solver, Tasker, ToSole};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
@@ -11,7 +11,7 @@ pub use react::{
 pub use read::{Read, Reader, Solve, SolveTask};
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
-    AddStr, AddToBaseViews, AddToViews, BaseView, SoleView, ToBaseViewsBuilder, ToViewsBuilder,
+    AddStr, AddToLoadViews, AddToViews, LoadView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
     View,
 };
 pub use write::{Pack, SolveMut, SolveTaskMut, Write, WriteWithRoot, Writer, WriterWithPack};

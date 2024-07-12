@@ -9,9 +9,10 @@ impl Sum {
         let link = Math::new(Self {
             items: items.clone(),
         });
+        let wow = link.tasker();
         let view = Item::Role(Role {
             exact: Exact::Sum(link.clone()),
-            solver: link.solver(),
+            tasker: link.tasker(),
         });
         Hold { link, view }
     }

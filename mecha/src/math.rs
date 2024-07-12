@@ -1,15 +1,19 @@
 use graph::*;
 
-pub use add::Sum;
+pub use sum::Sum;
 
-mod add;
+mod sum;
 
-pub type Role = graph::SolveRole<Load, Exact>;
+pub type Role = TaskRole<Task, Load, Exact>;
 pub type View<E> = graph::View<Item, Role, E>; 
 
+enum Task {
+    Number,
+    Texels,
+}
 type Load = Sole<f64>;
-type Item = BaseView<f64, Exact>; 
-type Math<U> = Pair<U, Load>;
+type Item = LoadView<f64, Exact>; 
+type Math<U> = Trey<U, Task, Load>;
 
 #[derive(Clone)]
 pub enum Exact {
