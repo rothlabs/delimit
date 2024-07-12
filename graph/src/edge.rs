@@ -37,13 +37,13 @@ where
     fn as_root(&self) -> Back {
         let stem = self.stem.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
         Back {
-            item: Arc::downgrade(&stem),
+            node: Arc::downgrade(&stem),
             // meta: self.meta.clone(),
         }
     }
 }
 
-impl<U, L> Formula<L> for Pair<U, L>
+impl<U, L> Produce<L> for Pair<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
@@ -61,16 +61,16 @@ where
     }
 }
 
-impl<U, L> FormulaWithRoot for Pair<U, L>
+impl<U, L> ProduceWithBack for Pair<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn formula_with_root(
+    fn produce_with_back(
         &self,
         root: Back,
-    ) -> Arc<RwLock<dyn Formula<L> + Send + Sync>> {
+    ) -> Arc<RwLock<dyn Produce<L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -79,7 +79,7 @@ where
     }
 }
 
-impl<U, T, L> Problem<T, L> for Trey<U, T, L>
+impl<U, T, L> Convert<T, L> for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L> + Send + Sync + 'static,
     T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
@@ -99,7 +99,7 @@ where
     }
 }
 
-impl<U, T, L> ProblemWithRoot for Trey<U, T, L>
+impl<U, T, L> ConvertWithBack for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L> + Send + Sync + 'static,
     T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
@@ -107,10 +107,10 @@ where
 {
     type Task = T;
     type Load = L;
-    fn problem_with_root(
+    fn convert_with_back(
         &self,
         root: Back,
-    ) -> Arc<RwLock<dyn Problem<T, L> + Send + Sync>> {
+    ) -> Arc<RwLock<dyn Convert<T, L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),

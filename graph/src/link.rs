@@ -14,8 +14,8 @@ mod sole;
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
-pub type Ploy<L> = Link<dyn Formula<L> + Send + Sync>;
-pub type Plan<T, L> = Link<dyn Problem<T, L> + Send + Sync>;
+pub type Ploy<L> = Link<dyn Produce<L> + Send + Sync>;
+pub type Plan<T, L> = Link<dyn Convert<T, L> + Send + Sync>;
 
 /// Points to one edge which in turn points to one node.
 /// Units hold links as source of input used to compute output.
@@ -142,10 +142,10 @@ where
     NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Pair<U, L>>>: Formula<L>,
+    Edge<ER, Node<NR, work::Pair<U, L>>>: Produce<L>,
 {
     pub fn ploy(&self) -> Ploy<L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Formula<L> + Send + Sync>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn Produce<L> + Send + Sync>>;
         Ploy {
             edge,
             meta: self.meta.clone(),
@@ -153,11 +153,11 @@ where
     }
 }
 
-impl<L> Link<dyn Formula<L> + Send + Sync> {
+impl<L> Link<dyn Produce<L> + Send + Sync> {
     pub fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.formula_with_root(root.clone()), 
+            edge: edge.produce_with_back(root.clone()), 
             meta: self.meta.clone(),
         }
     }
@@ -182,10 +182,10 @@ where
     U: 'static + Send + Sync,
     T: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Trey<U, T, L>>>: Problem<T, L>,
+    Edge<ER, Node<NR, work::Trey<U, T, L>>>: Convert<T, L>,
 {
     pub fn plan(&self) -> Plan<T, L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Problem<T, L> + Send + Sync>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn Convert<T, L> + Send + Sync>>;
         Plan {
             edge,
             meta: self.meta.clone(),
@@ -193,11 +193,11 @@ where
     }
 }
 
-impl<T, L> Link<dyn Problem<T, L> + Send + Sync> {
+impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
     pub fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.problem_with_root(root.clone()),
+            edge: edge.convert_with_back(root.clone()),
             meta: self.meta.clone(),
         }
     }

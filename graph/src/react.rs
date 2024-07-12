@@ -36,29 +36,31 @@ pub trait WithRoot {
     fn with_root(&self, root: &Self::Root) -> Self;
 }
 
-pub trait FormulaWithRoot {
+pub trait ProduceWithBack {
     type Load;
-    fn formula_with_root(
+    fn produce_with_back(
         &self,
-        root: Back,
-    ) -> Arc<RwLock<dyn Formula<Self::Load> + Send + Sync>>;
+        back: Back,
+    ) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
 }
 
-pub trait ProblemWithRoot {
+pub trait ConvertWithBack {
     type Task;
     type Load;
-    fn problem_with_root(
+    fn convert_with_back(
         &self,
-        root: Back,
-    ) -> Arc<RwLock<dyn Problem<Self::Task, Self::Load> + Send + Sync>>;
+        back: Back,
+    ) -> Arc<RwLock<dyn Convert<Self::Task, Self::Load> + Send + Sync>>;
 }
 
 pub trait Cycle {
     fn cycle(&mut self);
 }
 
+/// Edge that Rebuts a Ring and reacts.
 pub trait Update: Rebut<Ring = Ring> + React {} 
 
+/// Node that Rebuts a Ring and mutability reacts.
 pub trait Updater: Rebuter<Ring = Ring> + Reactor {} 
 
 /// Weakly point to a root edge, the inverse of Link.
@@ -73,9 +75,9 @@ impl Rebut for Root {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
-        if let Some(item) = self.edge.upgrade() {
-            let item = item.read().expect(NO_POISON);
-            item.rebut()
+        if let Some(edge) = self.edge.upgrade() {
+            let edge = edge.read().expect(NO_POISON);
+            edge.rebut()
         } else {
             Ring::new()
         }
@@ -84,9 +86,9 @@ impl Rebut for Root {
 
 impl React for Root {
     fn react(&self) {
-        if let Some(item) = self.edge.upgrade() {
-            let item = item.read().expect(NO_POISON);
-            item.react();
+        if let Some(edge) = self.edge.upgrade() {
+            let edge = edge.read().expect(NO_POISON);
+            edge.react();
         }
     }
 }
@@ -105,10 +107,10 @@ impl Hash for Root {
     }
 }
 
-/// Weakly point to a root node as Updater.
+/// Weakly point to the back of a node as Updater.
 #[derive(Clone)]
 pub struct Back {
-    pub item: Weak<RwLock<dyn Updater + Send + Sync + 'static>>,
+    pub node: Weak<RwLock<dyn Updater + Send + Sync + 'static>>,
     // pub meta: Meta,
 }
 
@@ -116,9 +118,9 @@ impl Rebut for Back {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
-        if let Some(item) = self.item.upgrade() {
-            let mut item = item.write().expect(NO_POISON);
-            item.rebuter()
+        if let Some(node) = self.node.upgrade() {
+            let mut node = node.write().expect(NO_POISON);
+            node.rebuter()
         } else {
             Ring::new()
         }
@@ -127,17 +129,17 @@ impl Rebut for Back {
 
 impl React for Back {
     fn react(&self) {
-        if let Some(item) = self.item.upgrade() {
-            let mut item = item.write().expect(NO_POISON);
-            item.reactor();
+        if let Some(node) = self.node.upgrade() {
+            let mut node = node.write().expect(NO_POISON);
+            node.reactor();
         }
     }
 }
 
-/// Points to many root edges, each pointing to a root node.
+/// Points to many root edges, each pointing to a node back.
 #[derive(Default)]
 pub struct Ring {
-    backs: HashSet<Root>,
+    roots: HashSet<Root>,
 }
 
 impl Ring {
@@ -150,9 +152,9 @@ impl Ring {
 impl Cycle for Ring {
     fn cycle(&mut self) {
         let ring = self.rebut();
-        self.backs.clear();
-        for back in &ring.backs {
-            back.react();
+        self.roots.clear();
+        for root in &ring.roots {
+            root.react();
         }
     }
 }
@@ -160,22 +162,22 @@ impl Cycle for Ring {
 impl Rebut for Ring {
     type Ring = Self;
     fn rebut(&self) -> Self::Ring {
-        let mut ring = Ring::new();
-        for back in &self.backs {
-            let root_ring = back.rebut();
-            if root_ring.backs.is_empty() {
-                ring.backs.insert(back.clone());
+        let mut result = Ring::new();
+        for root in &self.roots {
+            let ring = root.rebut();
+            if ring.roots.is_empty() {
+                result.roots.insert(root.clone());
             } else {
-                ring.backs.extend(root_ring.backs);
+                result.roots.extend(ring.roots);
             }
         }
-        ring
+        result
     }
 }
 
 impl AddRoot for Ring {
     type Root = Root;
     fn add_root(&mut self, root: Self::Root) {
-        self.backs.insert(root);
+        self.roots.insert(root);
     }
 }

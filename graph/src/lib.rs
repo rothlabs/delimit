@@ -6,7 +6,7 @@ pub use meta::Meta;
 pub use node::Node;
 pub use react::{
     AddRoot, Cycle, Rebut, Rebuter, Update, Updater, React, Reactor, Ring, Back,
-    Root, FormulaWithRoot, ProblemWithRoot, WithRoot,
+    Root, ProduceWithBack, ConvertWithBack, WithRoot,
 };
 pub use read::{Read, Reader, Grant, Solve};
 pub use unit::{Gate, Repo, Serial, ToSerial};
@@ -41,9 +41,11 @@ pub trait ToLoad {
     fn load(&self) -> Self::Load;
 }
 
-pub trait Formula<L>: Grant<Load = L> + FormulaWithRoot<Load = L> {}
+/// Edge that grants a load. In addition, clone the edge with a new back,
+pub trait Produce<L>: Grant<Load = L> + ProduceWithBack<Load = L> {}
 
-pub trait Problem<T, L>: Solve<Task = T, Load = L> + ProblemWithRoot<Task = T, Load = L> {}
+/// Edge that solves a task. In addition, clone the edge with a new Back.
+pub trait Convert<T, L>: Solve<Task = T, Load = L> + ConvertWithBack<Task = T, Load = L> {}
 
 pub trait Clear {
     fn clear(&mut self);
