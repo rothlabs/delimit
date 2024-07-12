@@ -5,42 +5,60 @@ pub trait IntoRole {
     fn into_role(load: Self::Load) -> Self;
 }
 
-pub struct Role<L, E> {
-    pub ploy: Ploy<L>,
-    pub exact: E,
+pub struct Role<A, M> {
+    pub actual: A,
+    pub method: M,
 }
 
-impl<L, E> Clone for Role<L, E>
+impl<A, M> Clone for Role<A, M>
 where
-    E: Clone,
+    A: Clone,
+    M: Clone,
 {
     fn clone(&self) -> Self {
         Self {
-            exact: self.exact.clone(),
-            ploy: self.ploy.clone(),
+            actual: self.actual.clone(),
+            method: self.method.clone(),
         }
     }
 }
 
-impl<L, E> Grant for Role<L, E> {
-    type Load = L;
+impl<A, M> Grant for Role<A, M> 
+where 
+    M: Grant
+{
+    type Load = M::Load;
     fn grant(&self) -> Self::Load {
-        self.ploy.grant()
+        self.method.grant()
     }
 }
 
-impl<L, E> WithRoot for Role<L, E>
+impl<A, M> WithRoot for Role<A, M>
 where
-    E: Clone,
+    A: WithRoot,
+    M: Clone,
 {
-    type Root = Back;
+    type Root = A::Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
-            exact: self.exact.clone(),
-            ploy: self.ploy.with_root(root),
+            actual: self.actual.with_root(root),
+            method: self.method.clone(),
         }
     }
 }
+
+// impl<L, E> WithRoot for Role<L, E>
+// where
+//     E: Clone,
+// {
+//     type Root = Back;
+//     fn with_root(&self, root: &Self::Root) -> Self {
+//         Self {
+//             actual: self.actual.clone(),
+//             method: self.method.with_root(root),
+//         }
+//     }
+// }
 
 // pub struct PlanRole<T, L, E> {
 //     pub exact: E,

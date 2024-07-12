@@ -64,7 +64,7 @@ where
     where
         S: serde::Serializer,
     {
-        self.exact.serialize(serializer)
+        self.actual.serialize(serializer)
     }
 }
 

@@ -14,8 +14,8 @@ impl TextGate for &str {
             on: on.clone(),
         });
         Role {
-            ploy: text.ploy(),
-            exact: Exact::Gate(text),
+            method: text.ploy(),
+            actual: Exact::Gate(text),
         }
     }
 }

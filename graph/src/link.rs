@@ -153,8 +153,9 @@ where
     }
 }
 
-impl<L> Link<dyn Produce<L> + Send + Sync> {
-    pub fn with_root(&self, root: &Back) -> Self {
+impl<L> WithRoot for Link<dyn Produce<L> + Send + Sync> {
+    type Root = Back;
+    fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.produce_with_back(root.clone()), 
@@ -162,6 +163,16 @@ impl<L> Link<dyn Produce<L> + Send + Sync> {
         }
     }
 }
+
+// impl<L> Link<dyn Produce<L> + Send + Sync> {
+//     pub fn with_root(&self, root: &Back) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: edge.produce_with_back(root.clone()), 
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<E: ?Sized> Solve for Link<E>
 where
@@ -193,8 +204,9 @@ where
     }
 }
 
-impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
-    pub fn with_root(&self, root: &Back) -> Self {
+impl<T, L> WithRoot for Link<dyn Convert<T, L> + Send + Sync> {
+    type Root = Back;
+    fn with_root(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.convert_with_back(root.clone()),
@@ -202,6 +214,16 @@ impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
         }
     }
 }
+
+// impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
+//     pub fn with_root(&self, root: &Back) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: edge.convert_with_back(root.clone()),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 impl<E: ?Sized> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

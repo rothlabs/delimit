@@ -12,8 +12,8 @@ impl Tag {
             attributes: vec![],
         });
         let view = Item::Role(Role {
-            exact: Exact::Tag(link.clone()),
-            ploy: link.ploy(),
+            actual: Exact::Tag(link.clone()),
+            method: link.ploy(),
         });
         Hold { link, view }
     }

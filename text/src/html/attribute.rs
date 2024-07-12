@@ -12,8 +12,8 @@ impl Attribute {
             value: value.clone(),
         });
         let view = Item::Role(Role {
-            exact: Exact::Attribute(link.clone()),
-            ploy: link.ploy(),
+            actual: Exact::Attribute(link.clone()),
+            method: link.ploy(),
         });
         Hold { link, view }
     }

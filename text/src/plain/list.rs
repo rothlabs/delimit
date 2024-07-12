@@ -47,8 +47,8 @@ impl TextList for &str {
             items: vec![],
         });
         let view = Role {
-            exact: Exact::List(link.clone()),
-            ploy: link.ploy(),
+            actual: Exact::List(link.clone()),
+            method: link.ploy(),
         };
         Hold { link, view }
     }
