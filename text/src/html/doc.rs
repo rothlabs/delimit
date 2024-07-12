@@ -92,6 +92,9 @@ impl Doc {
     pub fn div(self) -> Self {
         self.stem(DIV)
     }
+    pub fn canvas(self) -> Self {
+        self.stem(CANVAS)
+    }
     pub fn h1(self) -> Self {
         self.stem(H1)
     }
@@ -100,6 +103,9 @@ impl Doc {
     }
     pub fn up_to_doc(self) -> Self {
         self.up(DOCTYPE)
+    }
+    pub fn id(&mut self, val: &str) -> &mut Self {
+        self.add_attribute(ID, val)
     }
     pub fn lang(&mut self, val: &str) -> &mut Self {
         self.add_attribute(LANG, val)

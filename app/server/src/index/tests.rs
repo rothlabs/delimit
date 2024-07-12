@@ -15,6 +15,8 @@ Delimit
 </head>
 <body>
 Delimit
+<canvas id="canvas">
+</canvas>
 <script src="/boot.js" type="module">
 </script>
 </body>

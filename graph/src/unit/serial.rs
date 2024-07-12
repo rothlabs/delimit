@@ -19,10 +19,10 @@ impl Serial {
         } else {
             eprintln!("failed to serialize node");
         }
-        self 
+        self
     }
 }
 
 pub trait ToSerial {
-    fn serial(&self, serial: &'static mut Serial) -> &mut Serial;
+    fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial;
 }

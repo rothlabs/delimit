@@ -1,7 +1,7 @@
+pub use gate::Gate;
 pub use repo::Repo;
 pub use serial::{Serial, ToSerial};
-pub use gate::Gate;
 
+mod gate;
 mod repo;
 mod serial;
-mod gate;

@@ -1,3 +1,1 @@
-pub struct Repo {
-
-}
+pub struct Repo {}

@@ -5,11 +5,11 @@ pub use link::{IntoSole, Link, Pair, Sole, Solver, ToSole};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Root, RootEdge,
-    Ring, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
+    AddRoot, Cycle, Event, EventMut, EventReact, EventReactMut, React, ReactMut, Ring, Root,
+    RootEdge, SolverWithRoot, TaskerWithRoot, ToRootEdge, WithRoot,
 };
 pub use read::{Read, Reader, Solve, SolveTask};
-pub use unit::{Repo, Gate, Serial, ToSerial};
+pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
     AddStr, AddToBaseViews, AddToViews, BaseView, SoleView, ToBaseViewsBuilder, ToViewsBuilder,
     View,

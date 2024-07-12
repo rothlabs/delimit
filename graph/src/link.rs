@@ -10,6 +10,7 @@ mod tests;
 
 mod sole;
 
+/// Link to a load.
 pub type Sole<L> = Link<edge::Sole<L>>;
 pub type Pair<U, L> = Link<edge::Pair<U, L>>;
 pub type Solver<L> = Link<dyn SolveShare<L> + Send + Sync>;

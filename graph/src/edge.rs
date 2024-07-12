@@ -54,7 +54,10 @@ where
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn solver_with_root(&self, root: Root) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>> {
+    fn solver_with_root(
+        &self,
+        root: Root,
+    ) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -143,11 +146,11 @@ where
     }
 }
 
-impl<R, S> EventReact for Edge<R, S> 
-where 
-    R: Event<Root = Ring> + React, //  + Send + Sync
-    //S: Send + Sync
-{}
+impl<R, S> EventReact for Edge<R, S> where
+    R: Event<Root = Ring> + React //  + Send + Sync
+                                  //S: Send + Sync
+{
+}
 
 impl<R, S> Event for Edge<R, S>
 where

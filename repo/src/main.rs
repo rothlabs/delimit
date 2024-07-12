@@ -38,7 +38,10 @@ async fn future(io: Io, sole: Sole<i32>) {
     }
 }
 
-async fn service(_: Request<impl Body>, sole: Sole<i32>) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn service(
+    _: Request<impl Body>,
+    sole: Sole<i32>,
+) -> Result<Response<Full<Bytes>>, Infallible> {
     sole.writer(|load| {
         println!("load: {load}");
         *load += 1;

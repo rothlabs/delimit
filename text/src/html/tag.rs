@@ -47,9 +47,12 @@ pub const META: &str = "meta";
 pub const SCRIPT: &str = "script";
 pub const BODY: &str = "body";
 pub const DIV: &str = "div";
+pub const CANVAS: &str = "canvas";
 pub const H1: &str = "h1";
 
-pub const TAGS: [&str; 9] = [DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, H1];
+pub const TAGS: [&str; 10] = [
+    DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
+];
 
 // #[derive(Default, Clone, Serialize)]
 // pub struct TagName {

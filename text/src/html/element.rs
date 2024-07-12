@@ -1,4 +1,4 @@
-use crate::html::*;
+use super::*;
 
 pub struct Element {
     pub tag: Item,

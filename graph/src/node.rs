@@ -26,11 +26,11 @@ where
     }
 }
 
-impl<R, W> ToSerial for Node<R, W> 
-where 
-    W: Serialize
+impl<R, W> ToSerial for Node<R, W>
+where
+    W: Serialize,
 {
-    fn serial(&self, serial: &'static mut Serial) -> &mut Serial {
+    fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
         // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
         serial.add(&self.work)
     }
@@ -103,7 +103,7 @@ where
 impl<R, W> EventReactMut for Node<R, W>
 where
     R: Event<Root = Ring>, // + Send + Sync,
-    W: Clear, // + Send + Sync,
+    W: Clear,              // + Send + Sync,
 {
 }
 

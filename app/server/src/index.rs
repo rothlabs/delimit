@@ -42,7 +42,9 @@ pub fn index() -> String {
     script.add_str(&serde_json::to_string(&Importmap::default()).unwrap());
     let mut body = script.up_to_html().body();
     body.add_str("Delimit");
-    let mut script = body.script();
+    let mut canvas = body.canvas();
+    canvas.id("canvas");
+    let mut script = canvas.root().script();
     script.src(BOOT).r#type("module");
     script.up_to_doc().string()
 }
