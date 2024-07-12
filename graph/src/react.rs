@@ -44,7 +44,7 @@ pub trait SolverWithRoot {
     type Load;
     fn solver_with_root(
         &self,
-        reactor: Root,
+        root: Root,
     ) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>>;
 }
 
@@ -53,8 +53,8 @@ pub trait TaskerWithRoot {
     type Load;
     fn tasker_with_root(
         &self,
-        reactor: RootEdge,
-    ) -> Arc<RwLock<dyn SolveTaskShare<Self::Task, Self::Load> + Send + Sync>>;
+        root: Root,
+    ) -> Arc<RwLock<dyn TaskShare<Self::Task, Self::Load> + Send + Sync>>;
 }
 
 pub trait Cycle {

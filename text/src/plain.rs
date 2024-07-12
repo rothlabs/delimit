@@ -12,7 +12,7 @@ mod gate;
 mod list;
 
 /// to use as Load for higher graph
-pub type Role = graph::Role<Load, Exact>;
+pub type Role = graph::SolveRole<Load, Exact>;
 
 /// to use as a Stem (item) for higher graph
 pub type View<E> = graph::View<Item, Role, E>; // view::Stem

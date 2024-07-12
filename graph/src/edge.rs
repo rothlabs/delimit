@@ -1,4 +1,5 @@
 use std::sync::{Arc, RwLock};
+use std::hash::Hash;
 
 // use serde::Serialize;
 
@@ -6,6 +7,7 @@ use crate::*;
 
 pub type Sole<L> = Edge<Root, node::Sole<L>>;
 pub type Pair<U, L> = Edge<Root, node::Pair<U, L>>;
+pub type Trey<U, T, L> = Edge<Root, node::Trey<U, T, L>>;
 
 /// The bridge between root and stem node.
 pub struct Edge<R, S> {
@@ -48,6 +50,17 @@ where
 {
 }
 
+impl<R, S> Solve for Edge<R, S>
+where
+    S: SolveMut,
+{
+    type Load = S::Load;
+    fn solve(&self) -> Self::Load {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.solve_mut()
+    }
+}
+
 impl<U, L> SolverWithRoot for Pair<U, L>
 where
     U: Solve<Load = L> + 'static + Send + Sync,
@@ -57,7 +70,47 @@ where
     fn solver_with_root(
         &self,
         root: Root,
-    ) -> Arc<RwLock<dyn SolveShare<Self::Load> + Send + Sync>> {
+    ) -> Arc<RwLock<dyn SolveShare<L> + Send + Sync>> {
+        Arc::new(RwLock::new(Self {
+            root: Some(root),
+            stem: self.stem.clone(),
+            // meta: self.meta.clone(),
+        }))
+    }
+}
+
+impl<U, T, L> TaskShare<T, L> for Trey<U, T, L>
+where
+    U: SolveTask<Task = T, Load = L> + Send + Sync + 'static,
+    T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
+    L: Clone + Send + Sync + 'static,
+{
+}
+
+impl<R, S> SolveTask for Edge<R, S>
+where
+    S: SolveTaskMut,
+{
+    type Task = S::Task;
+    type Load = S::Load;
+    fn solve_task(&self, task: Self::Task) -> Self::Load {
+        let mut stem = self.stem.write().expect(NO_POISON);
+        stem.solve_task_mut(task)
+    }
+}
+
+impl<U, T, L> TaskerWithRoot for Trey<U, T, L>
+where
+    U: SolveTask<Task = T, Load = L> + Send + Sync + 'static,
+    T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
+    L: Clone + Send + Sync + 'static,
+{
+    type Task = T;
+    type Load = L;
+    fn tasker_with_root(
+        &self,
+        root: Root,
+    ) -> Arc<RwLock<dyn TaskShare<T, L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -121,17 +174,6 @@ where
     fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(stem.read());
-    }
-}
-
-impl<R, S> Solve for Edge<R, S>
-where
-    S: SolveMut,
-{
-    type Load = S::Load;
-    fn solve(&self) -> Self::Load {
-        let mut stem = self.stem.write().expect(NO_POISON);
-        stem.solve_mut()
     }
 }
 

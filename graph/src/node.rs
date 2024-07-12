@@ -1,9 +1,12 @@
+use core::task;
+
 use serde::Serialize;
 
 use crate::*;
 
 pub type Sole<L> = Node<Ring, work::Sole<L>>;
 pub type Pair<U, L> = Node<Ring, work::Pair<U, L>>;
+pub type Trey<U, T, L> = Node<Ring, work::Trey<U, T, L>>;
 
 /// A node creates an interactive bridge between root edges and work.
 #[derive(Serialize)]
@@ -87,6 +90,17 @@ where
     type Load = W::Load;
     fn solve_mut(&mut self) -> Self::Load {
         self.work.solve_mut()
+    }
+}
+
+impl<R, W> SolveTaskMut for Node<R, W>
+where
+    W: SolveTaskMut,
+{
+    type Task = W::Task;
+    type Load = W::Load;
+    fn solve_task_mut(&mut self, task: Self::Task) -> Self::Load {
+        self.work.solve_task_mut(task)
     }
 }
 

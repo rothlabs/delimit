@@ -4,11 +4,11 @@ use crate::*;
 pub enum BaseView<L, E> {
     Bare(L),
     Sole(Sole<L>),
-    Role(Role<Sole<L>, E>),
+    Role(SolveRole<Sole<L>, E>),
 }
 
 impl<L, E> IntoRole for BaseView<L, E> {
-    type Load = Role<Sole<L>, E>;
+    type Load = SolveRole<Sole<L>, E>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
@@ -75,7 +75,7 @@ pub trait AddToBaseViews {
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
-    fn add_role(&mut self, role: Role<Sole<Self::Load>, Self::Exact>);
+    fn add_role(&mut self, role: SolveRole<Sole<Self::Load>, Self::Exact>);
 }
 
 impl<L, E> AddToBaseViews for Vec<BaseView<L, E>>
@@ -98,7 +98,7 @@ where
     fn add_leaf(&mut self, leaf: Sole<L>) {
         self.push(BaseView::Sole(leaf));
     }
-    fn add_role(&mut self, role: Role<Sole<L>, E>) {
+    fn add_role(&mut self, role: SolveRole<Sole<L>, E>) {
         self.push(BaseView::Role(role));
     }
 }
@@ -153,7 +153,7 @@ where
         self.views.add_leaf(leaf.with_root(self.root));
         self
     }
-    pub fn add_role(&mut self, role: &Role<Sole<L>, E>) -> &mut Self {
+    pub fn add_role(&mut self, role: &SolveRole<Sole<L>, E>) -> &mut Self {
         self.views.add_role(role.with_root(self.root));
         self
     }

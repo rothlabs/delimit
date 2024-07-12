@@ -4,7 +4,7 @@ pub use add::Sum;
 
 mod add;
 
-pub type Role = graph::Role<Load, Exact>;
+pub type Role = graph::SolveRole<Load, Exact>;
 pub type View<E> = graph::View<Item, Role, E>; 
 
 type Load = Sole<f64>;

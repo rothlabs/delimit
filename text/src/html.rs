@@ -14,7 +14,7 @@ mod doc;
 mod element;
 mod tag;
 
-pub type Role = graph::Role<Load, Exact>;
+pub type Role = graph::SolveRole<Load, Exact>;
 
 type Load = plain::Role;
 type Item = plain::View<Exact>;

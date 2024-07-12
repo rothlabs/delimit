@@ -9,7 +9,7 @@ mod sole;
 #[derive(Clone, Serialize)]
 pub enum View<I, L, E> {
     Item(I),
-    Role(Role<L, E>),
+    Role(SolveRole<L, E>),
 }
 
 impl<I, L, E> Solve for View<I, L, E>
