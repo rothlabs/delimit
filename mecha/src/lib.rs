@@ -1,9 +1,9 @@
-pub use vector::Vector;
 pub use matrix::Matrix;
+pub use vector::Vector;
 
-mod vector;
 mod matrix;
 mod shape;
+mod vector;
 // mod math;
 
 pub struct Translation {

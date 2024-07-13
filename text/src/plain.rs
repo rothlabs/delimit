@@ -14,10 +14,9 @@ mod list;
 /// to use as Load for higher graph
 pub type Role = role::Ploy<Actual, Load>;
 
-type Wow<A> = role::Ploy<A, Role>;
-
+type PlainPloy<A> = role::Ploy<A, Role>;
 /// to use as a Stem (item) for higher graph
-pub type View<A> = graph::View<Wow<A>, Item>; // view::Stem
+pub type View<A> = graph::View<PlainPloy<A>, Item>; // view::Stem
 
 type Load = Sole<String>;
 type Item = PloyView<Actual, String>; // view::Bare

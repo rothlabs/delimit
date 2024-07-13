@@ -10,7 +10,10 @@ impl GPU {
         Self::default()
     }
     pub fn shader(&self, r#type: u32, source: &str) -> Result<WebGlShader, String> {
-        let shader = self.gl.create_shader(r#type).ok_or("cannot create shader")?;
+        let shader = self
+            .gl
+            .create_shader(r#type)
+            .ok_or("cannot create shader")?;
         self.gl.shader_source(&shader, source);
         self.gl.compile_shader(&shader);
         if self
@@ -27,7 +30,11 @@ impl GPU {
                 .ok_or("cannot get shader info log")?)
         }
     }
-    pub fn program(&self, vertex: &WebGlShader, fragment: &WebGlShader) -> Result<WebGlProgram, String> {
+    pub fn program(
+        &self,
+        vertex: &WebGlShader,
+        fragment: &WebGlShader,
+    ) -> Result<WebGlProgram, String> {
         let program = self.gl.create_program().ok_or("cannot create program")?;
         self.gl.attach_shader(&program, vertex);
         self.gl.attach_shader(&program, fragment);

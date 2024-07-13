@@ -1,21 +1,21 @@
 use serde::Serialize;
 
 pub use edge::Edge;
-pub use link::{IntoSole, Link, Trey, Pair, Sole, Ploy, Plan, ToSole};
+pub use link::{IntoSole, Link, Pair, Plan, Ploy, Sole, ToSole, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Cycle, Rebut, Rebuter, Update, Updater, React, Reactor, Ring, Back,
-    Root, ProduceWithBack, ConvertWithBack, WithRoot,
+    AddRoot, Back, Backed, ConvertWithBack, Cycle, ProduceWithBack, React, Reactor, Rebut, Rebuter,
+    Ring, Root, Update, Updater,
 };
-pub use read::{Read, Reader, Grant, Solve};
+pub use read::{Grant, Read, Reader, Solve};
+pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
     AddStr, AddToLoadViews, AddToViews, PloyView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
     View,
 };
-pub use write::{Pack, Grantor, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
-pub use role::Role;
+pub use write::{Grantor, Pack, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
 
 pub mod edge;
 pub mod link;
@@ -23,11 +23,11 @@ pub mod meta;
 pub mod node;
 pub mod react;
 pub mod read;
+pub mod role;
 pub mod unit;
 pub mod view;
 pub mod work;
 pub mod write;
-pub mod role;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
@@ -56,9 +56,9 @@ pub trait FromItem {
     fn new(unit: Self::Item) -> Self;
 }
 
-pub trait IntoRole {
-    type Load;
-    fn into_role(load: Self::Load) -> Self;
+pub trait IntoView {
+    type Item;
+    fn into_view(load: Self::Item) -> Self;
 }
 
 impl<A, L> Serialize for Role<A, L>
@@ -72,9 +72,6 @@ where
         self.actual.serialize(serializer)
     }
 }
-
-
-
 
 // pub trait AddStem {
 //     type Unit;

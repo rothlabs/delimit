@@ -1,3 +1,1 @@
-pub struct Matrix {
-
-}
+pub struct Matrix {}

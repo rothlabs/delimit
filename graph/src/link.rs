@@ -63,15 +63,15 @@ where
     }
 }
 
-impl<E> WithRoot for Link<E>
+impl<E> Backed for Link<E>
 where
-    E: WithRoot,
+    E: Backed,
 {
-    type Root = E::Root;
-    fn with_root(&self, root: &Self::Root) -> Self {
+    type Back = E::Back;
+    fn backed(&self, root: &Self::Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: Arc::new(RwLock::new(edge.with_root(root))),
+            edge: Arc::new(RwLock::new(edge.backed(root))),
             meta: self.meta.clone(),
         }
     }
@@ -153,12 +153,12 @@ where
     }
 }
 
-impl<L> WithRoot for Link<dyn Produce<L> + Send + Sync> {
-    type Root = Back;
-    fn with_root(&self, root: &Back) -> Self {
+impl<L> Backed for Link<dyn Produce<L> + Send + Sync> {
+    type Back = Back;
+    fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.produce_with_back(root.clone()), 
+            edge: edge.produce_with_back(root.clone()),
             meta: self.meta.clone(),
         }
     }
@@ -168,7 +168,7 @@ impl<L> WithRoot for Link<dyn Produce<L> + Send + Sync> {
 //     pub fn with_root(&self, root: &Back) -> Self {
 //         let edge = self.edge.read().expect(NO_POISON);
 //         Self {
-//             edge: edge.produce_with_back(root.clone()), 
+//             edge: edge.produce_with_back(root.clone()),
 //             meta: self.meta.clone(),
 //         }
 //     }
@@ -204,9 +204,9 @@ where
     }
 }
 
-impl<T, L> WithRoot for Link<dyn Convert<T, L> + Send + Sync> {
-    type Root = Back;
-    fn with_root(&self, root: &Back) -> Self {
+impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
+    type Back = Back;
+    fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: edge.convert_with_back(root.clone()),

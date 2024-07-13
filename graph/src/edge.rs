@@ -1,5 +1,5 @@
-use std::sync::{Arc, RwLock};
 use std::hash::Hash;
+use std::sync::{Arc, RwLock};
 
 // use serde::Serialize;
 
@@ -67,10 +67,7 @@ where
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn produce_with_back(
-        &self,
-        root: Back,
-    ) -> Arc<RwLock<dyn Produce<L> + Send + Sync>> {
+    fn produce_with_back(&self, root: Back) -> Arc<RwLock<dyn Produce<L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -107,10 +104,7 @@ where
 {
     type Task = T;
     type Load = L;
-    fn convert_with_back(
-        &self,
-        root: Back,
-    ) -> Arc<RwLock<dyn Convert<T, L> + Send + Sync>> {
+    fn convert_with_back(&self, root: Back) -> Arc<RwLock<dyn Convert<T, L> + Send + Sync>> {
         Arc::new(RwLock::new(Self {
             root: Some(root),
             stem: self.stem.clone(),
@@ -130,12 +124,12 @@ where
     }
 }
 
-impl<B, N> WithRoot for Edge<B, N>
+impl<B, N> Backed for Edge<B, N>
 where
     B: Clone,
 {
-    type Root = B;
-    fn with_root(&self, root: &B) -> Self {
+    type Back = B;
+    fn backed(&self, root: &B) -> Self {
         Self {
             root: Some(root.clone()),
             stem: self.stem.clone(),

@@ -31,17 +31,14 @@ pub trait AddRoot {
     fn add_root(&mut self, root: Self::Root);
 }
 
-pub trait WithRoot {
-    type Root;
-    fn with_root(&self, root: &Self::Root) -> Self;
+pub trait Backed {
+    type Back;
+    fn backed(&self, back: &Self::Back) -> Self;
 }
 
 pub trait ProduceWithBack {
     type Load;
-    fn produce_with_back(
-        &self,
-        back: Back,
-    ) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
+    fn produce_with_back(&self, back: Back) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
 }
 
 pub trait ConvertWithBack {
@@ -58,10 +55,10 @@ pub trait Cycle {
 }
 
 /// Edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut<Ring = Ring> + React {} 
+pub trait Update: Rebut<Ring = Ring> + React {}
 
 /// Node that Rebuts a Ring and mutability reacts.
-pub trait Updater: Rebuter<Ring = Ring> + Reactor {} 
+pub trait Updater: Rebuter<Ring = Ring> + Reactor {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?

@@ -16,28 +16,28 @@ pub enum View<R, L> {
 
 impl<R, L> Grant for View<R, L>
 where
-    R: Grant<Load = L>,
-    L: Clone,
+    R: Grant,
+    L: Clone + IntoView<Item = R::Load>,
 {
     type Load = L;
     fn grant(&self) -> Self::Load {
         match self {
-            Self::Role(role) => role.grant(),
+            Self::Role(role) => L::into_view(role.grant()),
             Self::Bare(load) => load.clone(),
         }
     }
 }
 
-impl<R, L> WithRoot for View<R, L>
+impl<R, L> Backed for View<R, L>
 where
-    R: WithRoot<Root = Back>,
-    L: WithRoot<Root = Back>,
+    R: Backed<Back = Back>,
+    L: Backed<Back = Back>,
 {
-    type Root = Back;
-    fn with_root(&self, root: &Self::Root) -> Self {
+    type Back = Back;
+    fn backed(&self, root: &Self::Back) -> Self {
         match self {
-            Self::Role(role) => View::Role(role.with_root(root)),
-            Self::Bare(item) => View::Bare(item.with_root(root)),
+            Self::Role(role) => View::Role(role.backed(root)),
+            Self::Bare(item) => View::Bare(item.backed(root)),
         }
     }
 }
@@ -79,12 +79,11 @@ pub struct ViewsBuilder<'a, R, L> {
 
 impl<'a, R, L> ViewsBuilder<'a, R, L>
 where
-    R: WithRoot<Root = Back>,
-    L: WithRoot<Root = Back>,
+    R: Backed<Back = Back>,
+    L: Backed<Back = Back>,
 {
     pub fn add_view(&mut self, view: &View<R, L>) -> &mut Self {
-        self.views.push(view.with_root(self.root));
+        self.views.push(view.backed(self.root));
         self
     }
 }
-

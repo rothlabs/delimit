@@ -114,7 +114,7 @@ where
 
 impl<R, W> Updater for Node<R, W>
 where
-    R: Rebut<Ring = Ring>, 
+    R: Rebut<Ring = Ring>,
     W: Clear,
 {
 }

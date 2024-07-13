@@ -7,9 +7,9 @@ pub enum PloyView<A, L> {
     Role(Role<A, Ploy<Sole<L>>>),
 }
 
-impl<A, L> IntoRole for PloyView<A, L> {
-    type Load = Role<A, Ploy<Sole<L>>>;
-    fn into_role(load: Self::Load) -> Self {
+impl<A, L> IntoView for PloyView<A, L> {
+    type Item = Role<A, Ploy<Sole<L>>>;
+    fn into_view(load: Self::Item) -> Self {
         Self::Role(load)
     }
 }
@@ -52,27 +52,28 @@ where
     }
 }
 
-impl<A, L> WithRoot for PloyView<A, L>
+impl<A, L> Backed for PloyView<A, L>
 where
     A: Clone,
     L: Clone,
 {
-    type Root = Back;
-    fn with_root(&self, root: &Self::Root) -> Self {
+    type Back = Back;
+    fn backed(&self, root: &Self::Back) -> Self {
         match self {
             PloyView::Bare(bare) => PloyView::Bare(bare.clone()),
-            PloyView::Sole(sole) => PloyView::Sole(sole.with_root(root)),
-            PloyView::Role(role) => PloyView::Role(role.with_root(root)),
+            PloyView::Sole(sole) => PloyView::Sole(sole.backed(root)),
+            PloyView::Role(role) => PloyView::Role(role.backed(root)),
         }
     }
 }
 
 pub trait AddToLoadViews {
-    type View;
-    type Load;
+    // type View;
     type Actual;
-    fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T);
+    type Load;
+    type ItemLoad;
     // fn add_view(&mut self, view: Self::View);
+    fn add_item<T: Grant<Load = Self::ItemLoad>>(&mut self, item: &T);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
     fn add_role(&mut self, role: Role<Self::Actual, Ploy<Sole<Self::Load>>>);
@@ -83,15 +84,16 @@ where
     A: Clone,
     L: Clone + 'static,
 {
-    type View = PloyView<A, L>;
+    // type View = PloyView<A, L>;
     type Actual = A;
     type Load = L;
-    fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T) {
+    type ItemLoad = PloyView<A, L>; // Role<A, Ploy<Sole<L>>>; //
+                                    // fn add_view(&mut self, view: Self::View) {
+                                    //     self.push(view.clone());
+                                    // }
+    fn add_item<T: Grant<Load = Self::ItemLoad>>(&mut self, item: &T) {
         self.push(item.grant());
     }
-    // fn add_view(&mut self, item: Self::View) {
-    //     self.push(item);
-    // }
     fn add_bare(&mut self, bare: &L) {
         self.push(PloyView::Bare(bare.clone()));
     }
@@ -119,14 +121,14 @@ pub trait ToLoadViewsBuilder<'a, A, L> {
 }
 
 impl<'a, A, L> ToLoadViewsBuilder<'a, A, L> for Vec<PloyView<A, L>> {
-    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<A, L> {
-        LoadViewsBuilder { views: self, root }
+    fn root(&'a mut self, back: &'a Back) -> LoadViewsBuilder<A, L> {
+        LoadViewsBuilder { views: self, back }
     }
 }
 
 pub struct LoadViewsBuilder<'a, A, L> {
     views: &'a mut Vec<PloyView<A, L>>,
-    root: &'a Back,
+    back: &'a Back,
 }
 
 impl<'a, A, L> LoadViewsBuilder<'a, A, L>
@@ -134,27 +136,27 @@ where
     A: Clone,
     L: Clone + 'static,
 {
-    pub fn add_item<T: Grant<Load = PloyView<A, L>> + WithRoot<Root = Back>>(
-        &mut self,
-        item: &T,
-    ) -> &mut Self {
-        self.views.add_item(&item.with_root(self.root));
-        self
-    }
     // pub fn add_view(&mut self, view: &LeafView<L, E>) -> &mut Self {
     //     self.views.add_view(view.with_root(self.root));
     //     self
     // }
+    pub fn add_item<T: Grant<Load = PloyView<A, L>> + Backed<Back = Back>>(
+        &mut self,
+        item: &T,
+    ) -> &mut Self {
+        self.views.add_item(&item.backed(self.back));
+        self
+    }
     pub fn add_bare(&mut self, bare: &L) -> &mut Self {
         self.views.add_bare(bare);
         self
     }
     pub fn add_leaf(&mut self, leaf: &Sole<L>) -> &mut Self {
-        self.views.add_leaf(leaf.with_root(self.root));
+        self.views.add_leaf(leaf.backed(self.back));
         self
     }
     pub fn add_role(&mut self, role: &Role<A, Ploy<Sole<L>>>) -> &mut Self {
-        self.views.add_role(role.with_root(self.root));
+        self.views.add_role(role.backed(self.back));
         self
     }
 }

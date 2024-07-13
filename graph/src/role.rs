@@ -20,9 +20,9 @@ where
     }
 }
 
-impl<A, M> Grant for Role<A, M> 
-where 
-    M: Grant
+impl<A, M> Grant for Role<A, M>
+where
+    M: Grant,
 {
     type Load = M::Load;
     fn grant(&self) -> Self::Load {
@@ -30,16 +30,16 @@ where
     }
 }
 
-impl<A, M> WithRoot for Role<A, M>
+impl<A, M> Backed for Role<A, M>
 where
     A: Clone,
-    M: WithRoot,
+    M: Backed,
 {
-    type Root = M::Root;
-    fn with_root(&self, root: &Self::Root) -> Self {
+    type Back = M::Back;
+    fn backed(&self, root: &Self::Back) -> Self {
         Self {
             actual: self.actual.clone(),
-            method: self.method.with_root(root),
+            method: self.method.backed(root),
         }
     }
 }
