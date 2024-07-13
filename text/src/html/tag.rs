@@ -1,4 +1,4 @@
-use crate::html::*;
+use super::*;
 
 pub struct Tag {
     pub name: Item,
@@ -12,7 +12,7 @@ impl Tag {
             attributes: vec![],
         });
         let view = Item::Role(Role {
-            actual: Exact::Tag(link.clone()),
+            actual: Actual::Tag(link.clone()),
             method: link.ploy(),
         });
         Hold { link, view }

@@ -1,6 +1,6 @@
 use super::*;
 
-// pub type Ploy<A, L> = Role<A, link::Ploy<L>>;
+pub type Ploy<A, L> = Role<A, link::Ploy<L>>;
 
 pub struct Role<A, M> {
     pub actual: A,
@@ -32,14 +32,14 @@ where
 
 impl<A, M> WithRoot for Role<A, M>
 where
-    A: WithRoot,
-    M: Clone,
+    A: Clone,
+    M: WithRoot,
 {
-    type Root = A::Root;
+    type Root = M::Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         Self {
-            actual: self.actual.with_root(root),
-            method: self.method.clone(),
+            actual: self.actual.clone(),
+            method: self.method.with_root(root),
         }
     }
 }

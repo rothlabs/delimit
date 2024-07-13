@@ -14,7 +14,7 @@ impl Element {
             close: close.cloned(),
         });
         let view = Item::Role(Role {
-            actual: Exact::Element(link.clone()),
+            actual: Actual::Element(link.clone()),
             method: link.ploy(),
         });
         Hold { link, view }

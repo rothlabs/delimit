@@ -54,7 +54,7 @@ where
 
 impl<A, L> WithRoot for PloyView<A, L>
 where
-    A: WithRoot<Root = Back>,
+    A: Clone,
     L: Clone,
 {
     type Root = Back;
@@ -131,7 +131,7 @@ pub struct LoadViewsBuilder<'a, A, L> {
 
 impl<'a, A, L> LoadViewsBuilder<'a, A, L>
 where
-    A: Clone + WithRoot<Root = Back>,
+    A: Clone,
     L: Clone + 'static,
 {
     pub fn add_item<T: Grant<Load = PloyView<A, L>> + WithRoot<Root = Back>>(

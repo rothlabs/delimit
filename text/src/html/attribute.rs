@@ -12,7 +12,7 @@ impl Attribute {
             value: value.clone(),
         });
         let view = Item::Role(Role {
-            actual: Exact::Attribute(link.clone()),
+            actual: Actual::Attribute(link.clone()),
             method: link.ploy(),
         });
         Hold { link, view }

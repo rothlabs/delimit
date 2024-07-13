@@ -12,15 +12,15 @@ mod gate;
 mod list;
 
 /// to use as Load for higher graph
-pub type Role = graph::Role<Actual, Load>;
+pub type Role = role::Ploy<Actual, Load>;
 
-// type Wow<A> = graph::Role<A, Ploy<Role>>;
+type Wow<A> = role::Ploy<A, Role>;
 
 /// to use as a Stem (item) for higher graph
-pub type View<A> = graph::View<A, Role, Item>; // view::Stem
+pub type View<A> = graph::View<Wow<A>, Item>; // view::Stem
 
 type Load = Sole<String>;
-type Item = PloyView<String, Actual>; // view::Bare
+type Item = PloyView<Actual, String>; // view::Bare
 type Text<U> = Pair<U, Load>;
 
 #[derive(Clone, Serialize)]
@@ -30,10 +30,10 @@ pub enum Actual {
     Unknown,
 }
 
-pub fn string<E>(string: &str) -> View<E> {
+pub fn string<A>(string: &str) -> View<A> {
     View::Bare(PloyView::Bare(string.into()))
 }
 
-pub fn leaf<E>(string: &str) -> View<E> {
+pub fn leaf<A>(string: &str) -> View<A> {
     View::Bare(PloyView::Sole(string.leaf()))
 }
