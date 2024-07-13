@@ -1,9 +1,6 @@
 use super::*;
 
-pub trait IntoRole {
-    type Load;
-    fn into_role(load: Self::Load) -> Self;
-}
+// pub type Ploy<A, L> = Role<A, link::Ploy<L>>;
 
 pub struct Role<A, M> {
     pub actual: A,

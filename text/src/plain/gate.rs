@@ -15,7 +15,7 @@ impl TextGate for &str {
         });
         Role {
             method: text.ploy(),
-            actual: Exact::Gate(text),
+            actual: Actual::Gate(text),
         }
     }
 }

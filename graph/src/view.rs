@@ -9,21 +9,22 @@ mod task;
 mod sole;
 
 #[derive(Clone, Serialize)]
-pub enum View<I, L, A> {
-    Item(I),
-    Role(Role<A, L>),
+pub enum View<A, M, L> {
+    Bare(L),
+    Role(Role<A, M>), 
 }
 
-impl<I, L, A> Grant for View<I, L, A>
+impl<A, M, L> Grant for View<A, M, L>
 where
-    I: Clone + IntoRole<Load = I>,
-    L: Grant<Load = I>,
+    A: Clone,// + IntoRole<Load = L>,
+    M: Grant<Load = L>,
+    L: Clone + IntoRole<Load = L>,
 {
-    type Load = I;
+    type Load = L;
     fn grant(&self) -> Self::Load {
         match self {
-            View::Item(item) => item.clone(),
-            View::Role(role) => I::into_role(role.grant()),
+            Self::Bare(load) => load.clone(),
+            Self::Role(role) => L::into_role(role.grant()),
         }
     }
 }
@@ -32,11 +33,12 @@ impl<I, L, A> WithRoot for View<I, L, A>
 where
     I: WithRoot<Root = Back>,
     A: WithRoot<Root = Back>,
+    L: Clone,
 {
     type Root = A::Root;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
-            View::Item(item) => View::Item(item.with_root(root)),
+            View::Bare(item) => View::Bare(item.with_root(root)),
             View::Role(role) => View::Role(role.with_root(root)),
         }
     }

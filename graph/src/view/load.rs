@@ -1,20 +1,20 @@
 use crate::*;
 
 #[derive(Clone, Serialize)]
-pub enum PloyView<L, E> {
+pub enum PloyView<A, L> {
     Bare(L),
     Sole(Sole<L>),
-    Role(Role<Sole<L>, E>),
+    Role(Role<A, Ploy<Sole<L>>>),
 }
 
-impl<L, E> IntoRole for PloyView<L, E> {
-    type Load = Role<Sole<L>, E>;
+impl<A, L> IntoRole for PloyView<A, L> {
+    type Load = Role<A, Ploy<Sole<L>>>;
     fn into_role(load: Self::Load) -> Self {
         Self::Role(load)
     }
 }
 
-impl<L, E> Default for PloyView<L, E>
+impl<A, L> Default for PloyView<A, L>
 where
     L: Default,
 {
@@ -23,7 +23,7 @@ where
     }
 }
 
-impl<L, E> Reader for PloyView<L, E>
+impl<A, L> Reader for PloyView<A, L>
 where
     L: 'static + Send + Sync,
 {
@@ -38,7 +38,7 @@ where
 }
 
 // it is creating a new Sole on each grant if bare. Is this bad?
-impl<L, E> Grant for PloyView<L, E>
+impl<A, L> Grant for PloyView<A, L>
 where
     L: Clone + 'static,
 {
@@ -52,16 +52,16 @@ where
     }
 }
 
-impl<L, E> WithRoot for PloyView<L, E>
+impl<A, L> WithRoot for PloyView<A, L>
 where
+    A: WithRoot<Root = Back>,
     L: Clone,
-    E: Clone,
 {
     type Root = Back;
     fn with_root(&self, root: &Self::Root) -> Self {
         match self {
             PloyView::Bare(bare) => PloyView::Bare(bare.clone()),
-            PloyView::Sole(leaf) => PloyView::Sole(leaf.with_root(root)),
+            PloyView::Sole(sole) => PloyView::Sole(sole.with_root(root)),
             PloyView::Role(role) => PloyView::Role(role.with_root(root)),
         }
     }
@@ -70,22 +70,22 @@ where
 pub trait AddToLoadViews {
     type View;
     type Load;
-    type Exact;
+    type Actual;
     fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T);
     // fn add_view(&mut self, view: Self::View);
     fn add_bare(&mut self, bare: &Self::Load);
     fn add_leaf(&mut self, leaf: Sole<Self::Load>);
-    fn add_role(&mut self, role: Role<Sole<Self::Load>, Self::Exact>);
+    fn add_role(&mut self, role: Role<Self::Actual, Ploy<Sole<Self::Load>>>);
 }
 
-impl<L, E> AddToLoadViews for Vec<PloyView<L, E>>
+impl<A, L> AddToLoadViews for Vec<PloyView<A, L>>
 where
+    A: Clone,
     L: Clone + 'static,
-    E: Clone,
 {
-    type View = PloyView<L, E>;
+    type View = PloyView<A, L>;
+    type Actual = A;
     type Load = L;
-    type Exact = E;
     fn add_item<T: Grant<Load = Self::View>>(&mut self, item: &T) {
         self.push(item.grant());
     }
@@ -98,7 +98,7 @@ where
     fn add_leaf(&mut self, leaf: Sole<L>) {
         self.push(PloyView::Sole(leaf));
     }
-    fn add_role(&mut self, role: Role<Sole<L>, E>) {
+    fn add_role(&mut self, role: Role<A, Ploy<Sole<L>>>) {
         self.push(PloyView::Role(role));
     }
 }
@@ -107,34 +107,34 @@ pub trait AddStr {
     fn add_str(&mut self, load: &str) -> &mut Self;
 }
 
-impl<E> AddStr for Vec<PloyView<String, E>> {
+impl<A> AddStr for Vec<PloyView<A, String>> {
     fn add_str(&mut self, load: &str) -> &mut Self {
         self.push(PloyView::Bare(load.into()));
         self
     }
 }
 
-pub trait ToLoadViewsBuilder<'a, L, E> {
-    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E>;
+pub trait ToLoadViewsBuilder<'a, A, L> {
+    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<A, L>;
 }
 
-impl<'a, L, E> ToLoadViewsBuilder<'a, L, E> for Vec<PloyView<L, E>> {
-    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<L, E> {
+impl<'a, A, L> ToLoadViewsBuilder<'a, A, L> for Vec<PloyView<A, L>> {
+    fn root(&'a mut self, root: &'a Back) -> LoadViewsBuilder<A, L> {
         LoadViewsBuilder { views: self, root }
     }
 }
 
-pub struct LoadViewsBuilder<'a, L, E> {
-    views: &'a mut Vec<PloyView<L, E>>,
+pub struct LoadViewsBuilder<'a, A, L> {
+    views: &'a mut Vec<PloyView<A, L>>,
     root: &'a Back,
 }
 
-impl<'a, L, E> LoadViewsBuilder<'a, L, E>
+impl<'a, A, L> LoadViewsBuilder<'a, A, L>
 where
+    A: Clone + WithRoot<Root = Back>,
     L: Clone + 'static,
-    E: Clone,
 {
-    pub fn add_item<T: Grant<Load = PloyView<L, E>> + WithRoot<Root = Back>>(
+    pub fn add_item<T: Grant<Load = PloyView<A, L>> + WithRoot<Root = Back>>(
         &mut self,
         item: &T,
     ) -> &mut Self {
@@ -153,13 +153,13 @@ where
         self.views.add_leaf(leaf.with_root(self.root));
         self
     }
-    pub fn add_role(&mut self, role: &Role<Sole<L>, E>) -> &mut Self {
+    pub fn add_role(&mut self, role: &Role<A, Ploy<Sole<L>>>) -> &mut Self {
         self.views.add_role(role.with_root(self.root));
         self
     }
 }
 
-impl<'a, E> AddStr for LoadViewsBuilder<'a, String, E> {
+impl<'a, A> AddStr for LoadViewsBuilder<'a, A, String> {
     fn add_str(&mut self, load: &str) -> &mut Self {
         self.views.push(PloyView::Bare(load.into()));
         self

@@ -15,7 +15,7 @@ pub use view::{
     View,
 };
 pub use write::{Pack, Grantor, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
-pub use role::{Role, IntoRole};
+pub use role::Role;
 
 pub mod edge;
 pub mod link;
@@ -56,9 +56,14 @@ pub trait FromItem {
     fn new(unit: Self::Item) -> Self;
 }
 
-impl<L, E> Serialize for Role<L, E>
+pub trait IntoRole {
+    type Load;
+    fn into_role(load: Self::Load) -> Self;
+}
+
+impl<A, L> Serialize for Role<A, L>
 where
-    E: Serialize,
+    A: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
