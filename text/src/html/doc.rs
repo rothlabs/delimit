@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use crate::html::*;
+use super::*;
 
 pub struct Doc {
     root: Option<Box<RefCell<Doc>>>,
@@ -21,7 +21,7 @@ impl Doc {
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.element.link.writer(|pack| {
-            pack.unit.items.add_view(plain::string(value));
+            pack.unit.items.push(plain::string(value));
         });
         self
     }
@@ -32,7 +32,7 @@ impl Doc {
             .expect("element should have a root")
             .replace(Doc::new());
         root.element.link.writer(|pack| {
-            pack.unit.items.back(pack.back).add_view(&self.element.view);
+            pack.unit.items.back(pack.back).push(&self.element.role);
         });
         root
     }
@@ -50,7 +50,7 @@ impl Doc {
         if let Some(item) = self.att_names.get(name) {
             let hold = Attribute::new(item, &plain::string(value));
             self.tag.link.writer(|pack| {
-                pack.unit.attributes.back(pack.back).add_view(&hold.view);
+                pack.unit.attributes.back(pack.back).push(&hold.role);
             });
         }
         self
@@ -66,7 +66,7 @@ impl Doc {
             tag_name,
             tag_names: self.tag_names.clone(),
             att_names: self.att_names.clone(),
-            element: Element::new(&tag.view, close),
+            element: Element::new(&tag.role, close),
             tag,
             root: Some(Box::new(RefCell::new(self))),
         }
@@ -142,7 +142,7 @@ impl Default for Doc {
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new(&tag.view, None),
+            element: Element::new(&tag.role, None),
             tag,
             tag_names: tags,
             att_names: atts,

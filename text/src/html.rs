@@ -18,7 +18,7 @@ pub type Role = role::Ploy<Actual, Load>;
 
 type Load = plain::Role;
 type Item = plain::View<Actual>;
-type Html<U> = Pair<U, Load>;
+type Html<U> = Deuce<U, Load>;
 
 #[derive(Clone)]
 pub enum Actual {

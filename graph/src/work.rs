@@ -1,7 +1,7 @@
-pub use pair::Pair;
-pub use sole::Sole;
+pub use ace::Ace;
+pub use deuce::Deuce;
 pub use trey::Trey;
 
-mod pair;
-mod sole;
+mod ace;
+mod deuce;
 mod trey;

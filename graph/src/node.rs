@@ -2,8 +2,8 @@ use serde::Serialize;
 
 use crate::*;
 
-pub type Sole<L> = Node<Ring, work::Sole<L>>;
-pub type Pair<U, L> = Node<Ring, work::Pair<U, L>>;
+pub type Ace<L> = Node<Ring, work::Ace<L>>;
+pub type Deuce<U, L> = Node<Ring, work::Deuce<U, L>>;
 pub type Trey<U, T, L> = Node<Ring, work::Trey<U, T, L>>;
 
 /// A node creates an interactive bridge between root edges and work.
@@ -52,21 +52,21 @@ where
     R: Cycle,
     W: Write,
 {
-    type Unit = W::Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F) {
+    type Item = W::Item;
+    fn write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
         self.work.write(write);
         self.ring.cycle();
     }
 }
 
-impl<R, W> WriteWithRoot for Node<R, W>
+impl<R, W> WriteWithBack for Node<R, W>
 where
     R: Cycle,
-    W: WriteWithRoot,
+    W: WriteWithBack,
 {
     type Unit = W::Unit;
-    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Back) {
-        self.work.write_with_root(write, root);
+    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
+        self.work.write_with_back(write, back);
         self.ring.cycle();
     }
 }
@@ -75,8 +75,8 @@ impl<R, W> Read for Node<R, W>
 where
     W: Read,
 {
-    type Unit = W::Unit;
-    fn read(&self) -> &Self::Unit {
+    type Item = W::Item;
+    fn read(&self) -> &Self::Item {
         self.work.read()
     }
 }

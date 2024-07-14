@@ -11,31 +11,31 @@ impl Tag {
             name: name.clone(),
             attributes: vec![],
         });
-        let view = Item::Role(Role {
+        let role = Item::Role(Role {
             actual: Actual::Tag(link.clone()),
             method: link.ploy(),
         });
-        Hold { link, view }
+        Hold { link, role }
     }
 }
 
 impl Grant for Tag {
     type Load = Load;
     fn grant(&self) -> Self::Load {
-        let Hold { link, view } = "".list();
+        let Hold { link, role } = "".list();
         link.writer(|pack| {
             let mut tag = pack.unit.items.back(pack.back);
-            let Hold { link, view } = " ".list();
-            link.writer(|pack| {
-                let mut inner = pack.unit.items.back(pack.back);
-                inner.add_item(&self.name);
+            let Hold { link, role } = " ".list();
+            link.writer(|Pack{unit, back}| {
+                let mut inner = unit.items.back(back);
+                inner.use_ploy(&self.name);
                 for att in &self.attributes {
-                    inner.add_item(att);
+                    inner.use_ploy(att);
                 }
             });
-            tag.add_str("<").add_role(&view).add_str(">");
+            tag.add_str("<").add_role(&role).add_str(">");
         });
-        view
+        role
     }
 }
 

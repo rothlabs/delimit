@@ -20,18 +20,18 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let sole = Sole::new(0);
+    let ace = Ace::new(0);
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
         println!("tokio spawn");
-        tokio::spawn(future(io, sole.clone()));
+        tokio::spawn(future(io, ace.clone()));
     }
 }
 
-async fn future(io: Io, sole: Sole<i32>) {
+async fn future(io: Io, ace: Ace<i32>) {
     let result = http1::Builder::new()
-        .serve_connection(io, service_fn(|req| service(req, sole.clone())))
+        .serve_connection(io, service_fn(|req| service(req, ace.clone())))
         .await;
     if let Err(err) = result {
         println!("Error serving connection: {:?}", err);
@@ -40,9 +40,9 @@ async fn future(io: Io, sole: Sole<i32>) {
 
 async fn service(
     _: Request<impl Body>,
-    sole: Sole<i32>,
+    ace: Ace<i32>,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
-    sole.writer(|load| {
+    ace.writer(|load| {
         println!("load: {load}");
         *load += 1;
     });

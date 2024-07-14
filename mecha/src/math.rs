@@ -11,7 +11,7 @@ enum Task {
     Number,
     Texels,
 }
-type Load = Sole<f64>;
+type Load = Ace<f64>;
 type Item = LoadView<f64, Exact>; 
 type Math<U> = Trey<U, Task, Load>;
 

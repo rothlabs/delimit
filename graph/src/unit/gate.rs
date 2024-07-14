@@ -9,7 +9,7 @@ pub struct Gate<T, O> {
 impl<T, O> Grant for Gate<T, O>
 where
     T: Grant,
-    O: Grant<Load = Sole<bool>>,
+    O: Grant<Load = Ace<bool>>,
 {
     type Load = T::Load;
     fn grant(&self) -> T::Load {

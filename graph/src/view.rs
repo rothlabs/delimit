@@ -1,7 +1,11 @@
 use crate::*;
 
-// ploy sole bare
-pub type Ploy<A, L> = View<role::Ploy<A, Sole<L>>, BareSole<L>>;
+pub use ace_view::AceView;
+
+mod ace_view;
+
+// ploy ace bare
+pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, AceView<L>>;
 
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
@@ -28,11 +32,11 @@ impl<R, B> IntoView for View<R, B> {
 impl<R, B> Reader for View<R, B>
 where
     R: Grant,
-    R::Load: Reader<Unit = B::Unit>,
+    R::Load: Reader<Item = B::Item>,
     B: Reader + Send + Sync + 'static,
 {
-    type Unit = B::Unit;
-    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+    type Item = B::Item;
+    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
         match self {
             Self::Role(role) => role.grant().reader(read),
             Self::Base(bare) => bare.reader(read),
@@ -68,68 +72,41 @@ where
     }
 }
 
-pub trait AddView {
-    type View;
-    fn add_view(&mut self, view: Self::View);
-}
-
-impl<R, B> AddView for Vec<View<R, B>> {
-    type View = View<R, B>;
-    fn add_view(&mut self, view: Self::View) {
-        self.push(view);
-    }
-}
-
 pub trait AddRole {
-    type Item;
-    fn add_role(&mut self, role: Self::Item);
+    type Role;
+    fn add_role(&mut self, role: Self::Role);
 }
 
 impl<R, B> AddRole for Vec<View<R, B>> {
-    type Item = R;
-    fn add_role(&mut self, role: Self::Item) {
+    type Role = R;
+    fn add_role(&mut self, role: Self::Role) {
         self.push(View::Role(role));
     }
 }
 
-pub trait AddSole {
-    type Load;
-    fn add_sole(&mut self, sole: Sole<Self::Load>);
-}
-
-impl<R, B> AddSole for Vec<View<R, B>>
+impl<R, B> AddAce for Vec<View<R, B>>
 where
-    B: FromSole,
+    B: FromAce
 {
     type Load = B::Load;
-    fn add_sole(&mut self, sole: Sole<B::Load>) {
-        self.push(View::Base(B::from_sole(sole)))
+    fn add_ace(&mut self, ace: Ace<B::Load>) {
+        self.push(View::Base(B::from_ace(ace)))
     }
 }
 
-pub trait AddItem {
-    type Item;
-    fn add_item<T: Grant<Load = Self::Item>>(&mut self, item: &T);
-}
-
-impl<R, B> AddItem for Vec<View<R, B>> {
-    type Item = View<R, B>;
-    fn add_item<T: Grant<Load = Self::Item>>(&mut self, item: &T) {
+impl<R, B> UsePloy for Vec<View<R, B>> {
+    type Load = View<R, B>;
+    fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T) {
         self.push(item.grant());
     }
 }
 
-pub trait AddStr {
-    fn add_str(&mut self, load: &'static str) -> &mut Self;
-}
-
 impl<R, B> AddStr for Vec<View<R, B>>
 where
-    B: FromString, // From<&'static str>
+    B: From<&'static str>, 
 {
-    fn add_str(&mut self, load: &'static str) -> &mut Self {
-        self.push(View::Base(B::from_string(load)));
-        self
+    fn add_str(&mut self, str: &'static str) {
+        self.push(View::Base(B::from(str)));
     }
 }
 
@@ -153,8 +130,8 @@ where
     R: Backed<Back = Back>,
     B: Backed<Back = Back>,
 {
-    pub fn add_view(&mut self, view: &View<R, B>) -> &mut Self {
-        self.views.add_view(view.backed(self.back));
+    pub fn push(&mut self, view: &View<R, B>) -> &mut Self {
+        self.views.push(view.backed(self.back));
         self
     }
 }
@@ -171,54 +148,30 @@ where
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: Backed<Back = Back> + FromSole,
+    B: Backed<Back = Back> + FromAce,
 {
-    pub fn add_sole(&mut self, sole: &Sole<B::Load>) -> &mut Self {
-        self.views.add_sole(sole.backed(self.back));
+    pub fn add_ace(&mut self, ace: &Ace<B::Load>) -> &mut Self {
+        self.views.add_ace(ace.backed(self.back));
         self
     }
 }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B> {
-    pub fn add_item<T: Grant<Load = View<R, B>> + Backed<Back = Back>>(
+    pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed<Back = Back>>(
         &mut self,
         item: &T,
     ) -> &mut Self {
-        self.views.add_item(&item.backed(self.back));
+        self.views.use_ploy(&item.backed(self.back));
         self
     }
 }
 
-impl<'a, R, B> AddStr for ViewsBuilder<'a, R, B>
+impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: FromString, //From<&'static str>
+    B: From<&'static str> 
 {
-    fn add_str(&mut self, load: &'static str) -> &mut Self {
-        self.views.add_str(load);
+    pub fn add_str(&mut self, str: &'static str) -> &mut Self {
+        self.views.add_str(str);
         self
     }
 }
-
-// impl<'a, R, B> AddItem for ViewsBuilder<'a, R, B> {
-//     type Item = View<R, B>;
-//     fn add_item<T: Grant<Load = Self::Item>>(&mut self, item: &T) {
-
-//     }
-// }
-
-// pub trait AddRole {
-//     type Actual;
-//     type Method;
-//     fn add_role(&mut self, role: Role<Self::Actual, Self::Method>);
-// }
-
-// impl<R, L> AddRole for Vec<View<R, L>>
-// where
-//     R:
-// {
-//     type Actual = A;
-//     type Method = Ploy<L>;
-//     fn add_role(&mut self, role: Role<Self::Actual, Self::Method>) {
-//         self.push(View::Role(role));
-//     }
-// }

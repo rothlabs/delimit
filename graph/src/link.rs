@@ -2,17 +2,17 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
+pub use ace::{IntoAce, ToAce};
 use serde::Serialize;
-pub use sole::{IntoSole, ToSole};
 
 #[cfg(test)]
 mod tests;
 
-mod sole;
+mod ace;
 
 /// Link to a load.
-pub type Sole<L> = Link<edge::Sole<L>>;
-pub type Pair<U, L> = Link<edge::Pair<U, L>>;
+pub type Ace<L> = Link<edge::Ace<L>>;
+pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
 pub type Ploy<L> = Link<dyn Produce<L> + Send + Sync>;
 pub type Plan<T, L> = Link<dyn Convert<T, L> + Send + Sync>;
@@ -94,8 +94,8 @@ impl<E> Reader for Link<E>
 where
     E: 'static + Reader + Update + AddRoot<Root = Root> + Send + Sync,
 {
-    type Unit = E::Unit;
-    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+    type Item = E::Item;
+    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
         // TODO: first read and check if it is not added as Back and then write to do so
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
@@ -107,8 +107,8 @@ impl<E> Writer for Link<E>
 where
     E: Writer,
 {
-    type Unit = E::Unit;
-    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+    type Item = E::Item;
+    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
         edge.writer(write);
     }
@@ -136,13 +136,13 @@ where
     }
 }
 
-impl<ER, NR, U, L> Link<Edge<ER, Node<NR, work::Pair<U, L>>>>
+impl<ER, NR, U, L> Link<Edge<ER, Node<NR, work::Deuce<U, L>>>>
 where
     ER: 'static + Send + Sync,
     NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Pair<U, L>>>: Produce<L>,
+    Edge<ER, Node<NR, work::Deuce<U, L>>>: Produce<L>,
 {
     pub fn ploy(&self) -> Ploy<L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn Produce<L> + Send + Sync>>;

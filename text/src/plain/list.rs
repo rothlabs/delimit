@@ -23,7 +23,7 @@ impl Grant for List {
     fn grant(&self) -> Load {
         let mut string = String::new();
         if self.items.is_empty() {
-            return string.into_sole();
+            return string.into_ace();
         }
         for i in 0..self.items.len() - 1 {
             self.items[i].reader(|s| string += s);
@@ -32,25 +32,25 @@ impl Grant for List {
         if let Some(item) = self.items.last() {
             item.reader(|s| string += s);
         }
-        string.into_sole()
+        string.into_ace()
     }
 }
 
-pub trait TextList {
+pub trait ToList {
     fn list(self) -> Hold<Text<List>, Role>;
 }
 
-impl TextList for &str {
+impl ToList for &str {
     fn list(self) -> Hold<Text<List>, Role> {
         let link = Text::new(List {
             separator: self.into(),
             items: vec![],
         });
-        let view = Role {
+        let role = Role {
             actual: Actual::List(link.clone()),
             method: link.ploy(),
         };
-        Hold { link, view }
+        Hold { link, role }
     }
 }
 

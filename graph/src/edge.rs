@@ -5,8 +5,8 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub type Sole<L> = Edge<Back, node::Sole<L>>;
-pub type Pair<U, L> = Edge<Back, node::Pair<U, L>>;
+pub type Ace<L> = Edge<Back, node::Ace<L>>;
+pub type Deuce<U, L> = Edge<Back, node::Deuce<U, L>>;
 pub type Trey<U, T, L> = Edge<Back, node::Trey<U, T, L>>;
 
 /// The bridge between root and stem node.
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<U, L> Produce<L> for Pair<U, L>
+impl<U, L> Produce<L> for Deuce<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<U, L> ProduceWithBack for Pair<U, L>
+impl<U, L> ProduceWithBack for Deuce<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
@@ -142,8 +142,8 @@ impl<B, N> Writer for Edge<B, N>
 where
     N: Write,
 {
-    type Unit = N::Unit;
-    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F) {
+    type Item = N::Item;
+    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
         stem.write(write);
     }
@@ -151,12 +151,12 @@ where
 
 impl<B, N> WriterWithPack for Edge<B, N>
 where
-    N: 'static + WriteWithRoot + Updater + Send + Sync,
+    N: 'static + WriteWithBack + Updater + Send + Sync,
 {
     type Unit = N::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let mut stem = self.stem.write().expect(NO_POISON);
-        stem.write_with_root(write, &self.as_root());
+        stem.write_with_back(write, &self.as_root());
     }
 }
 
@@ -164,8 +164,8 @@ impl<B, N> Reader for Edge<B, N>
 where
     N: Read,
 {
-    type Unit = N::Unit;
-    fn reader<F: FnOnce(&Self::Unit)>(&self, read: F) {
+    type Item = N::Item;
+    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
         let stem = self.stem.read().expect(NO_POISON);
         read(stem.read());
     }

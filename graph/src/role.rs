@@ -36,61 +36,22 @@ where
     M: Backed,
 {
     type Back = M::Back;
-    fn backed(&self, root: &Self::Back) -> Self {
+    fn backed(&self, back: &Self::Back) -> Self {
         Self {
             actual: self.actual.clone(),
-            method: self.method.backed(root),
+            method: self.method.backed(back),
         }
     }
 }
 
-// impl<L, E> WithRoot for Role<L, E>
-// where
-//     E: Clone,
-// {
-//     type Root = Back;
-//     fn with_root(&self, root: &Self::Root) -> Self {
-//         Self {
-//             actual: self.actual.clone(),
-//             method: self.method.with_root(root),
-//         }
-//     }
-// }
-
-// pub struct PlanRole<T, L, E> {
-//     pub exact: E,
-//     pub plan: Plan<T, L>,
-// }
-
-// impl<T, L, E> Clone for PlanRole<T, L, E>
-// where
-//     E: Clone,
-// {
-//     fn clone(&self) -> Self {
-//         Self {
-//             exact: self.exact.clone(),
-//             plan: self.plan.clone(),
-//         }
-//     }
-// }
-
-// impl<T, L, E> Solve for PlanRole<T, L, E> {
-//     type Task = T;
-//     type Load = L;
-//     fn solve(&self, task: T) -> L {
-//         self.plan.solve(task)
-//     }
-// }
-
-// impl<T, L, E> WithRoot for PlanRole<T, L, E>
-// where
-//     E: Clone,
-// {
-//     type Root = Back;
-//     fn with_root(&self, root: &Self::Root) -> Self {
-//         Self {
-//             exact: self.exact.clone(),
-//             plan: self.plan.with_root(root),
-//         }
-//     }
-// }
+impl<A, L> Serialize for Role<A, L>
+where
+    A: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.actual.serialize(serializer)
+    }
+}

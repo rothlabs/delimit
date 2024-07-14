@@ -1,18 +1,23 @@
 use crate::*;
 
+pub struct Pack<'a, U: 'a> {
+    pub unit: &'a mut U,
+    pub back: &'a Back,
+}
+
 pub trait Write {
-    type Unit;
-    fn write<F: FnOnce(&mut Self::Unit)>(&mut self, write: F);
+    type Item;
+    fn write<F: FnOnce(&mut Self::Item)>(&mut self, write: F);
 }
 
 pub trait Writer {
-    type Unit;
-    fn writer<F: FnOnce(&mut Self::Unit)>(&self, write: F);
+    type Item;
+    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F);
 }
 
-pub trait WriteWithRoot {
+pub trait WriteWithBack {
     type Unit;
-    fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Back);
+    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Back);
 }
 
 pub trait WriterWithPack {
@@ -29,9 +34,4 @@ pub trait Solver {
     type Task;
     type Load;
     fn solver(&mut self, task: Self::Task) -> Self::Load;
-}
-
-pub struct Pack<'a, U: 'a> {
-    pub unit: &'a mut U,
-    pub back: &'a Back,
 }

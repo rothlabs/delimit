@@ -11,28 +11,27 @@ impl Attribute {
             name: name.clone(),
             value: value.clone(),
         });
-        let view = Item::Role(Role {
+        let role = Item::Role(Role {
             actual: Actual::Attribute(link.clone()),
             method: link.ploy(),
         });
-        Hold { link, view }
+        Hold { link, role }
     }
 }
 
 impl Grant for Attribute {
     type Load = Load;
     fn grant(&self) -> Load {
-        let Hold { link, view } = "".list();
-        link.writer(|pack| {
-            pack.unit
-                .items
-                .back(pack.back)
-                .add_item(&self.name)
+        let Hold { link, role } = "".list();
+        link.writer(|Pack {unit, back}| {
+            unit.items
+                .back(back)
+                .use_ploy(&self.name)
                 .add_str(r#"=""#)
-                .add_item(&self.value)
+                .use_ploy(&self.value)
                 .add_str(r#"""#);
         });
-        view
+        role
     }
 }
 

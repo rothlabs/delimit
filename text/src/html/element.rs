@@ -13,37 +13,37 @@ impl Element {
             items: vec![],
             close: close.cloned(),
         });
-        let view = Item::Role(Role {
+        let role = Item::Role(Role {
             actual: Actual::Element(link.clone()),
             method: link.ploy(),
         });
-        Hold { link, view }
+        Hold { link, role }
     }
 }
 
 impl Grant for Element {
     type Load = Load;
     fn grant(&self) -> Load {
-        let Hold { link, view } = "\n".list();
+        let Hold { link, role} = "\n".list();
         link.writer(|pack| {
             let mut element = pack.unit.items.back(pack.back);
-            element.add_item(&self.tag);
+            element.use_ploy(&self.tag);
             for item in &self.items {
-                element.add_item(item);
+                element.use_ploy(item);
             }
             if let Some(close) = &self.close {
-                let Hold { link, view } = "".list();
+                let Hold { link, role } = "".list();
                 link.writer(|pack| {
                     pack.unit
                         .items
                         .back(pack.back)
                         .add_str("</")
-                        .add_item(close)
+                        .use_ploy(close)
                         .add_str(">");
                 });
-                element.add_role(&view);
+                element.add_role(&role);
             }
         });
-        view
+        role
     }
 }
