@@ -24,10 +24,10 @@ impl Grant for Tag {
     fn grant(&self) -> Self::Load {
         let Hold { link, view } = "".list();
         link.writer(|pack| {
-            let mut tag = pack.unit.items.root(pack.root);
+            let mut tag = pack.unit.items.back(pack.back);
             let Hold { link, view } = " ".list();
             link.writer(|pack| {
-                let mut inner = pack.unit.items.root(pack.root);
+                let mut inner = pack.unit.items.back(pack.back);
                 inner.add_item(&self.name);
                 for att in &self.attributes {
                     inner.add_item(att);

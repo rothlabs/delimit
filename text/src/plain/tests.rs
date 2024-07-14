@@ -5,7 +5,7 @@ fn new_list(leaf: &Sole<String>) -> Text<List> {
     list.link.writer(|pack| {
         pack.unit
             .items
-            .root(pack.root)
+            .back(pack.back)
             .add_str("str")
             .add_sole(leaf);
     });
@@ -14,7 +14,7 @@ fn new_list(leaf: &Sole<String>) -> Text<List> {
 
 #[test]
 fn grant_and_read_sole_from_list() {
-    let leaf = "leaf".leaf();
+    let leaf = "leaf".sole();
     let text = new_list(&leaf);
     text.grant().reader(|string| {
         assert_eq!(string, "str, leaf");
@@ -23,14 +23,14 @@ fn grant_and_read_sole_from_list() {
 
 #[test]
 fn grant_same_link_twice() {
-    let leaf = "leaf".leaf();
+    let leaf = "leaf".sole();
     let text = new_list(&leaf);
     assert!(text.grant() == text.grant());
 }
 
 #[test]
 fn react_from_self() {
-    let leaf = "leaf".leaf();
+    let leaf = "leaf".sole();
     let text = new_list(&leaf);
     let a = text.grant();
     text.writer(|pack| {
@@ -42,7 +42,7 @@ fn react_from_self() {
 
 #[test]
 fn react_from_stem() {
-    let leaf = "leaf".leaf();
+    let leaf = "leaf".sole();
     let text = new_list(&leaf);
     let a = text.grant();
     leaf.writer(|string| string.push_str("_mutated"));
@@ -52,7 +52,7 @@ fn react_from_stem() {
 
 #[test]
 fn no_reactions_after_dropping_stem() {
-    let leaf = "leaf".leaf();
+    let leaf = "leaf".sole();
     let text = new_list(&leaf);
     let _r = text.grant();
     text.writer(|pack| pack.unit.remove(1));

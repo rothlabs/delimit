@@ -2,13 +2,13 @@ use serde::Serialize;
 
 use graph::*;
 
-pub use gate::{Gate, TextGate};
+// pub use gate::{Gate, TextGate};
 pub use list::{List, TextList};
 
 #[cfg(test)]
 mod tests;
 
-mod gate;
+// mod gate;
 mod list;
 
 /// to use as Load for higher graph
@@ -19,22 +19,21 @@ type PlainPloy<A> = role::Ploy<A, Role>;
 pub type View<A> = graph::View<PlainPloy<A>, Item>; // view::Stem
 
 type Load = Sole<String>;
-type Item = PloyView<Actual, String>; // view::Bare
+type Item = view::Ploy<Actual, String>;
 type Text<U> = Pair<U, Load>;
-
 
 // TODO: rename to Unit?
 #[derive(Clone, Serialize)]
 pub enum Actual {
     List(Text<List>),
-    Gate(Text<Gate>),
+    // Gate(Text<Gate>),
     Unknown,
 }
 
 pub fn string<A>(string: &str) -> View<A> {
-    View::Base(PloyView::Bare(string.into()))
+    View::Base(Item::Base(BareSole::Bare(string.into())))
 }
 
 pub fn leaf<A>(string: &str) -> View<A> {
-    View::Base(PloyView::Sole(string.leaf()))
+    View::Base(Item::Base(BareSole::Sole(string.sole())))
 }

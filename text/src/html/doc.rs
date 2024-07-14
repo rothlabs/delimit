@@ -32,7 +32,7 @@ impl Doc {
             .expect("element should have a root")
             .replace(Doc::new());
         root.element.link.writer(|pack| {
-            pack.unit.items.back(pack.root).add_view(&self.element.view);
+            pack.unit.items.back(pack.back).add_view(&self.element.view);
         });
         root
     }
@@ -50,7 +50,7 @@ impl Doc {
         if let Some(item) = self.att_names.get(name) {
             let hold = Attribute::new(item, &plain::string(value));
             self.tag.link.writer(|pack| {
-                pack.unit.attributes.back(pack.root).add_view(&hold.view);
+                pack.unit.attributes.back(pack.back).add_view(&hold.view);
             });
         }
         self

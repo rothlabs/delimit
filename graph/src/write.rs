@@ -33,5 +33,5 @@ pub trait Solver {
 
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
-    pub root: &'a Back,
+    pub back: &'a Back,
 }

@@ -34,7 +34,7 @@ impl<U, L> WriteWithRoot for Pair<U, L> {
     fn write_with_root<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, root: &Back) {
         write(&mut Pack {
             unit: &mut self.unit,
-            root,
+            back: root,
         });
         self.load = None;
     }

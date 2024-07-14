@@ -1,12 +1,7 @@
 use crate::*;
 
-pub use load::*;
-//pub use task::*;
-pub use sole::*;
-
-mod load;
-//mod task;
-mod sole;
+// ploy sole bare
+pub type Ploy<A, L> = View<role::Ploy<A, Sole<L>>, BareSole<L>>;
 
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
@@ -54,7 +49,7 @@ where
     fn grant(&self) -> Self::Load {
         match self {
             Self::Role(role) => B::into_view(role.grant()),
-            Self::Base(load) => load.clone(),
+            Self::Base(base) => base.clone(),
         }
     }
 }
@@ -104,10 +99,10 @@ pub trait AddSole {
 
 impl<R, B> AddSole for Vec<View<R, B>>
 where
-    B: FromSole<B>,
+    B: FromSole,
 {
-    type Load = B;
-    fn add_sole(&mut self, sole: Sole<B>) {
+    type Load = B::Load;
+    fn add_sole(&mut self, sole: Sole<B::Load>) {
         self.push(View::Base(B::from_sole(sole)))
     }
 }
@@ -121,6 +116,20 @@ impl<R, B> AddItem for Vec<View<R, B>> {
     type Item = View<R, B>;
     fn add_item<T: Grant<Load = Self::Item>>(&mut self, item: &T) {
         self.push(item.grant());
+    }
+}
+
+pub trait AddStr {
+    fn add_str(&mut self, load: &'static str) -> &mut Self;
+}
+
+impl<R, B> AddStr for Vec<View<R, B>>
+where
+    B: FromString, // From<&'static str>
+{
+    fn add_str(&mut self, load: &'static str) -> &mut Self {
+        self.push(View::Base(B::from_string(load)));
+        self
     }
 }
 
@@ -162,23 +171,40 @@ where
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: Backed<Back = Back> + FromSole<B>,
+    B: Backed<Back = Back> + FromSole,
 {
-    pub fn add_sole(&mut self, sole: &Sole<B>) -> &mut Self {
+    pub fn add_sole(&mut self, sole: &Sole<B::Load>) -> &mut Self {
         self.views.add_sole(sole.backed(self.back));
         self
     }
 }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B> {
-    fn add_item<T: Grant<Load = View<R, B>> + Backed<Back = Back>>(&mut self, item: &T) -> &mut Self  {
+    pub fn add_item<T: Grant<Load = View<R, B>> + Backed<Back = Back>>(
+        &mut self,
+        item: &T,
+    ) -> &mut Self {
         self.views.add_item(&item.backed(self.back));
         self
     }
 }
 
+impl<'a, R, B> AddStr for ViewsBuilder<'a, R, B>
+where
+    B: FromString, //From<&'static str>
+{
+    fn add_str(&mut self, load: &'static str) -> &mut Self {
+        self.views.add_str(load);
+        self
+    }
+}
 
+// impl<'a, R, B> AddItem for ViewsBuilder<'a, R, B> {
+//     type Item = View<R, B>;
+//     fn add_item<T: Grant<Load = Self::Item>>(&mut self, item: &T) {
 
+//     }
+// }
 
 // pub trait AddRole {
 //     type Actual;
@@ -186,9 +212,9 @@ impl<'a, R, B> ViewsBuilder<'a, R, B> {
 //     fn add_role(&mut self, role: Role<Self::Actual, Self::Method>);
 // }
 
-// impl<R, L> AddRole for Vec<View<R, L>> 
-// where 
-//     R: 
+// impl<R, L> AddRole for Vec<View<R, L>>
+// where
+//     R:
 // {
 //     type Actual = A;
 //     type Method = Ploy<L>;

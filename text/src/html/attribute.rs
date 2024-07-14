@@ -26,7 +26,7 @@ impl Grant for Attribute {
         link.writer(|pack| {
             pack.unit
                 .items
-                .root(pack.root)
+                .back(pack.back)
                 .add_item(&self.name)
                 .add_str(r#"=""#)
                 .add_item(&self.value)

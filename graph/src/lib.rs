@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+pub use bare::BareSole;
 pub use edge::Edge;
 pub use link::{IntoSole, Link, Pair, Plan, Ploy, Sole, ToSole, Trey};
 pub use meta::Meta;
@@ -11,12 +12,10 @@ pub use react::{
 pub use read::{Grant, Read, Reader, Solve};
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{
-    AddStr, AddToLoadViews, AddView, PloyView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
-    View,
-};
+pub use view::{AddStr, AddView, ToViewsBuilder, View};
 pub use write::{Grantor, Pack, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
 
+pub mod bare;
 pub mod edge;
 pub mod link;
 pub mod meta;
@@ -56,8 +55,13 @@ pub trait FromItem {
     fn new(unit: Self::Item) -> Self;
 }
 
-pub trait FromSole<L> {
-    fn from_sole(sole: Sole<L>) -> Self;
+pub trait FromSole {
+    type Load;
+    fn from_sole(sole: Sole<Self::Load>) -> Self;
+}
+
+pub trait FromString {
+    fn from_string(string: &str) -> Self;
 }
 
 pub trait IntoView {

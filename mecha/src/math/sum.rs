@@ -9,7 +9,7 @@ impl Sum {
         let link = Math::new(Self {
             items: items.clone(),
         });
-        let wow = link.plan();
+        // let wow = link.plan();
         let view = Item::Role(Role {
             exact: Exact::Sum(link.clone()),
             plan: link.plan(),
