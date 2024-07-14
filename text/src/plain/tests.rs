@@ -7,7 +7,7 @@ fn new_list(leaf: &Sole<String>) -> Text<List> {
             .items
             .root(pack.root)
             .add_str("str")
-            .add_leaf(leaf);
+            .add_sole(leaf);
     });
     list.link
 }

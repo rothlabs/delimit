@@ -12,7 +12,7 @@ pub use read::{Grant, Read, Reader, Solve};
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{
-    AddStr, AddToLoadViews, AddToViews, PloyView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
+    AddStr, AddToLoadViews, AddView, PloyView, SoleView, ToLoadViewsBuilder, ToViewsBuilder,
     View,
 };
 pub use write::{Grantor, Pack, Solver, Write, WriteWithRoot, Writer, WriterWithPack};
@@ -54,6 +54,10 @@ pub trait Clear {
 pub trait FromItem {
     type Item;
     fn new(unit: Self::Item) -> Self;
+}
+
+pub trait FromSole<L> {
+    fn from_sole(sole: Sole<L>) -> Self;
 }
 
 pub trait IntoView {

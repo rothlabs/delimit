@@ -22,6 +22,8 @@ type Load = Sole<String>;
 type Item = PloyView<Actual, String>; // view::Bare
 type Text<U> = Pair<U, Load>;
 
+
+// TODO: rename to Unit?
 #[derive(Clone, Serialize)]
 pub enum Actual {
     List(Text<List>),
@@ -30,9 +32,9 @@ pub enum Actual {
 }
 
 pub fn string<A>(string: &str) -> View<A> {
-    View::Bare(PloyView::Bare(string.into()))
+    View::Base(PloyView::Bare(string.into()))
 }
 
 pub fn leaf<A>(string: &str) -> View<A> {
-    View::Bare(PloyView::Sole(string.leaf()))
+    View::Base(PloyView::Sole(string.leaf()))
 }

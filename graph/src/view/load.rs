@@ -7,19 +7,25 @@ pub enum PloyView<A, L> {
     Role(Role<A, Ploy<Sole<L>>>),
 }
 
-impl<A, L> IntoView for PloyView<A, L> {
-    type Item = Role<A, Ploy<Sole<L>>>;
-    fn into_view(load: Self::Item) -> Self {
-        Self::Role(load)
-    }
-}
-
 impl<A, L> Default for PloyView<A, L>
 where
     L: Default,
 {
     fn default() -> Self {
         Self::Bare(L::default())
+    }
+}
+
+impl<A, L> IntoView for PloyView<A, L> {
+    type Item = Role<A, Ploy<Sole<L>>>;
+    fn into_view(item: Self::Item) -> Self {
+        Self::Role(item)
+    }
+}
+
+impl<A, L> FromSole<L> for PloyView<A, L> {
+    fn from_sole(sole: Sole<L>) -> Self {
+        Self::Sole(sole)
     }
 }
 
@@ -37,7 +43,6 @@ where
     }
 }
 
-// it is creating a new Sole on each grant if bare. Is this bad?
 impl<A, L> Grant for PloyView<A, L>
 where
     L: Clone + 'static,
@@ -74,8 +79,8 @@ pub trait AddToLoadViews {
     type ItemLoad;
     // fn add_view(&mut self, view: Self::View);
     fn add_item<T: Grant<Load = Self::ItemLoad>>(&mut self, item: &T);
-    fn add_bare(&mut self, bare: &Self::Load);
-    fn add_leaf(&mut self, leaf: Sole<Self::Load>);
+    // fn add_bare(&mut self, bare: &Self::Load);
+    fn add_sole(&mut self, leaf: Sole<Self::Load>);
     fn add_role(&mut self, role: Role<Self::Actual, Ploy<Sole<Self::Load>>>);
 }
 
@@ -94,10 +99,10 @@ where
     fn add_item<T: Grant<Load = Self::ItemLoad>>(&mut self, item: &T) {
         self.push(item.grant());
     }
-    fn add_bare(&mut self, bare: &L) {
-        self.push(PloyView::Bare(bare.clone()));
-    }
-    fn add_leaf(&mut self, leaf: Sole<L>) {
+    // fn add_bare(&mut self, bare: &L) {
+    //     self.push(PloyView::Bare(bare.clone()));
+    // }
+    fn add_sole(&mut self, leaf: Sole<L>) {
         self.push(PloyView::Sole(leaf));
     }
     fn add_role(&mut self, role: Role<A, Ploy<Sole<L>>>) {
@@ -147,12 +152,12 @@ where
         self.views.add_item(&item.backed(self.back));
         self
     }
-    pub fn add_bare(&mut self, bare: &L) -> &mut Self {
-        self.views.add_bare(bare);
-        self
-    }
-    pub fn add_leaf(&mut self, leaf: &Sole<L>) -> &mut Self {
-        self.views.add_leaf(leaf.backed(self.back));
+    // pub fn add_bare(&mut self, bare: &L) -> &mut Self {
+    //     self.views.add_bare(bare);
+    //     self
+    // }
+    pub fn add_sole(&mut self, leaf: &Sole<L>) -> &mut Self {
+        self.views.add_sole(leaf.backed(self.back));
         self
     }
     pub fn add_role(&mut self, role: &Role<A, Ploy<Sole<L>>>) -> &mut Self {
