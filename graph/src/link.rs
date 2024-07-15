@@ -136,6 +136,20 @@ where
     }
 }
 
+impl<E> Solve for Link<E>
+where
+    E: 'static + Solve + RootAdder + Updater + Send + Sync,
+{
+    type Task = E::Task;
+    type Load = E::Load;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        let edge = self.edge.read().expect(NO_POISON);
+        let result = edge.solve(task);
+        edge.add_root(self.as_root());
+        result
+    }
+}
+
 impl<E> Link<E>
 where
     E: Grant + ToPloy<Load = <E as Grant>::Load>,
@@ -153,21 +167,9 @@ impl<L> Backed for Link<Box<dyn Produce<L> + Send + Sync>> {
     fn backed(&self, back: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.ploy_with_back(back.clone()),
+            edge: edge.backed_ploy(back),
             meta: self.meta.clone(),
         }
-    }
-}
-
-impl<E> Solve for Link<E>
-where
-    E: Solve,
-{
-    type Task = E::Task;
-    type Load = E::Load;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.solve(task)
     }
 }
 
@@ -188,7 +190,7 @@ impl<T, L> Backed for Link<Box<dyn Convert<T, L> + Send + Sync>> {
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.plan_with_back(root.clone()),
+            edge: edge.backed_plan(root.clone()),
             meta: self.meta.clone(),
         }
     }

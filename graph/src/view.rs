@@ -1,12 +1,14 @@
 use crate::*;
 
-pub use ace_view::AceView;
+pub use ace::AceView;
 
-mod ace_view;
+mod ace;
 
-// ploy ace bare
-pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, AceView<L>>;
+/// A view of a PloyView
+pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, AceView<L>>;
 
+/// A base or a role that must grant or solve a base.
+/// The base could be another view, allowing for a recursive structure.
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
     Role(R),
@@ -88,7 +90,7 @@ where
     B: FromAce,
 {
     type Load = B::Load;
-    fn add_ace(&mut self, ace: Ace<B::Load>) {
+    fn add_ace(&mut self, ace: link::Ace<B::Load>) {
         self.push(View::Base(B::from_ace(ace)))
     }
 }
@@ -149,7 +151,7 @@ impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
     B: Backed + FromAce,
 {
-    pub fn add_ace(&mut self, ace: &Ace<B::Load>) -> &mut Self {
+    pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
         self.views.add_ace(ace.backed(self.back));
         self
     }

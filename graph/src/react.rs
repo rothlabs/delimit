@@ -36,15 +36,16 @@ pub trait Backed {
     fn backed(&self, back: &Back) -> Self;
 }
 
+type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>>;
+
 pub trait ToPloy {
     type Load;
-    fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>>;
+    fn ploy(&self) -> PloyEdge<Self::Load>;
 }
 
-pub trait PloyWithBack {
+pub trait BackedPloy {
     type Load;
-    fn ploy_with_back(&self, back: Back)
-        -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>>;
+    fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
 }
 
 type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>>;
@@ -55,20 +56,16 @@ pub trait ToPlan {
     fn plan(&self) -> PlanEdge<Self::Task, Self::Load>;
 }
 
-pub trait PlanWithBack {
+pub trait BackedPlan {
     type Task;
     type Load;
-    fn plan_with_back(&self, back: Back) -> PlanEdge<Self::Task, Self::Load>;
+    fn backed_plan(&self, back: Back) -> PlanEdge<Self::Task, Self::Load>;
 }
 
-pub trait ToUpdater {
-    fn updater(&self) -> Weak<RwLock<dyn Updater + Send + Sync>>;
-}
-
-/// Edge that Rebuts a Ring and reacts.
+/// For edge that Rebuts a Ring and reacts.
 pub trait Updater: Rebuter + Reactor {}
 
-/// Node that Rebuts a Ring and mutably reacts.
+/// For node that mutably Rebuts a Ring and reacts.
 pub trait Update: Rebut + React {}
 
 /// Weakly point to a root edge, the inverse of Link.
@@ -111,7 +108,7 @@ impl Hash for Root {
     }
 }
 
-/// Weakly point to the back of a node as Updater.
+/// Weakly point to the back of a node as Update.
 #[derive(Clone)]
 pub struct Back {
     pub node: Weak<RwLock<dyn Update + Send + Sync + 'static>>,
@@ -136,7 +133,7 @@ impl Back {
     }
 }
 
-/// Points to many root edges, each pointing to a node back.
+/// Points to many root edges, each pointing to back of a node.
 #[derive(Default)]
 pub struct Ring {
     roots: HashSet<Root>,

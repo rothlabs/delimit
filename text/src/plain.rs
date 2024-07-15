@@ -25,9 +25,9 @@ pub enum Actual {
 }
 
 pub fn string<A>(string: &str) -> View<A> {
-    View::Base(Item::Base(AceView::Bare(string.into())))
+    View::Base(Item::Base(view::AceView::Bare(string.into())))
 }
 
 pub fn leaf<A>(string: &str) -> View<A> {
-    View::Base(Item::Base(AceView::Ace(string.ace())))
+    View::Base(Item::Base(view::AceView::Ace(string.ace())))
 }

@@ -9,7 +9,7 @@ pub type Ace<L> = Edge<node::Ace<L>>;
 pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
-/// The bridge between root and node node.
+/// The forward bridge between nodes.
 pub struct Edge<N> {
     pub back: Option<Back>,
     pub node: Arc<RwLock<N>>,
@@ -29,16 +29,6 @@ where
         }
     }
 }
-
-// impl<N: 'static + Send + Sync> ToUpdater for Edge<N> {
-//     fn updater(&self) -> Weak<RwLock<dyn Updater + Send + Sync>> {
-//         Arc::new(RwLock::new(Self {
-//             back: self.back.clone(),
-//             node: self.node.clone(),
-//             // meta: self.meta.clone(),
-//         }))
-//     }
-// }
 
 impl<N> Edge<N>
 where
@@ -79,22 +69,22 @@ where
     type Load = L;
     fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
-            back: None,
+            back: self.back.clone(),
             node: self.node.clone(),
             // meta: self.meta.clone(),
         })))
     }
 }
 
-impl<U, L> PloyWithBack for Deuce<U, L>
+impl<U, L> BackedPloy for Deuce<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn ploy_with_back(&self, back: Back) -> Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>> {
+    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
-            back: Some(back),
+            back: Some(back.clone()),
             node: self.node.clone(),
             // meta: self.meta.clone(),
         })))
@@ -131,14 +121,14 @@ where
     type Load = L;
     fn plan(&self) -> Arc<RwLock<Box<dyn Convert<Self::Task, Self::Load> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
-            back: None,
+            back: self.back.clone(),
             node: self.node.clone(),
             // meta: self.meta.clone(),
         })))
     }
 }
 
-impl<U, T, L> PlanWithBack for Trey<U, T, L>
+impl<U, T, L> BackedPlan for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L> + Send + Sync + 'static,
     T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
@@ -146,7 +136,7 @@ where
 {
     type Task = T;
     type Load = L;
-    fn plan_with_back(&self, root: Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
+    fn backed_plan(&self, root: Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(root),
             node: self.node.clone(),
