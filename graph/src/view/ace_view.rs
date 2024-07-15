@@ -59,8 +59,7 @@ impl<L> Backed for AceView<L>
 where
     L: Clone,
 {
-    type Back = Back;
-    fn backed(&self, root: &Self::Back) -> Self {
+    fn backed(&self, root: &Back) -> Self {
         match self {
             AceView::Bare(bare) => AceView::Bare(bare.clone()),
             AceView::Ace(ace) => AceView::Ace(ace.backed(root)),

@@ -33,9 +33,7 @@ impl<U, T, L> Clear for Trey<U, T, L> {
 }
 
 impl<U, T, L> React for Trey<U, T, L> {
-    fn react(&mut self, _: &Meta) {
-        
-    }
+    fn react(&mut self, _: &Meta) {}
 }
 
 // if let Some(load) = &self.load {

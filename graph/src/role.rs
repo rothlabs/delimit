@@ -35,8 +35,7 @@ where
     A: Clone,
     M: Backed,
 {
-    type Back = M::Back;
-    fn backed(&self, back: &Self::Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         Self {
             actual: self.actual.clone(),
             method: self.method.backed(back),

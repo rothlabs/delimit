@@ -67,8 +67,7 @@ impl<E> Backed for Link<E>
 where
     E: Backed,
 {
-    type Back = E::Back;
-    fn backed(&self, root: &Self::Back) -> Self {
+    fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: Arc::new(RwLock::new(edge.backed(root))),
@@ -92,7 +91,7 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: 'static + Reader + Updater + AddRoot<Root = Root> + Send + Sync,
+    E: 'static + Reader + Updater + AddRoot + Send + Sync,
 {
     type Item = E::Item;
     fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
@@ -136,13 +135,11 @@ where
     }
 }
 
-impl<ER, NR, U, L> Link<Edge<ER, Node<NR, work::Deuce<U, L>>>>
+impl<U, L> Link<Edge<Node<work::Deuce<U, L>>>>
 where
-    ER: 'static + Send + Sync,
-    NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Deuce<U, L>>>: Produce<L>,
+    Edge<Node<work::Deuce<U, L>>>: Produce<L>,
 {
     pub fn ploy(&self) -> Ploy<L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn Produce<L> + Send + Sync>>;
@@ -154,7 +151,6 @@ where
 }
 
 impl<L> Backed for Link<dyn Produce<L> + Send + Sync> {
-    type Back = Back;
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -176,14 +172,12 @@ where
     }
 }
 
-impl<ER, NR, U, T, L> Link<Edge<ER, Node<NR, work::Trey<U, T, L>>>>
+impl<U, T, L> Link<Edge<Node<work::Trey<U, T, L>>>>
 where
-    ER: 'static + Send + Sync,
-    NR: 'static + Send + Sync,
     U: 'static + Send + Sync,
     T: 'static + Send + Sync,
     L: 'static + Send + Sync,
-    Edge<ER, Node<NR, work::Trey<U, T, L>>>: Convert<T, L>,
+    Edge<Node<work::Trey<U, T, L>>>: Convert<T, L>,
 {
     pub fn plan(&self) -> Plan<T, L> {
         let edge = self.edge.clone() as Arc<RwLock<dyn Convert<T, L> + Send + Sync>>;
@@ -195,7 +189,6 @@ where
 }
 
 impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
-    type Back = Back;
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {

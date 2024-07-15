@@ -60,11 +60,10 @@ where
 
 impl<R, B> Backed for View<R, B>
 where
-    R: Backed<Back = Back>,
-    B: Backed<Back = Back>,
+    R: Backed,
+    B: Backed,
 {
-    type Back = Back;
-    fn backed(&self, root: &Self::Back) -> Self {
+    fn backed(&self, root: &Back) -> Self {
         match self {
             Self::Role(role) => View::Role(role.backed(root)),
             Self::Base(item) => View::Base(item.backed(root)),
@@ -127,8 +126,8 @@ pub struct ViewsBuilder<'a, R, B> {
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    R: Backed<Back = Back>,
-    B: Backed<Back = Back>,
+    R: Backed,
+    B: Backed,
 {
     pub fn push(&mut self, view: &View<R, B>) -> &mut Self {
         self.views.push(view.backed(self.back));
@@ -138,7 +137,7 @@ where
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    R: Backed<Back = Back>,
+    R: Backed,
 {
     pub fn add_role(&mut self, role: &R) -> &mut Self {
         self.views.add_role(role.backed(self.back));
@@ -148,7 +147,7 @@ where
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: Backed<Back = Back> + FromAce,
+    B: Backed + FromAce,
 {
     pub fn add_ace(&mut self, ace: &Ace<B::Load>) -> &mut Self {
         self.views.add_ace(ace.backed(self.back));
@@ -157,10 +156,7 @@ where
 }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B> {
-    pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed<Back = Back>>(
-        &mut self,
-        item: &T,
-    ) -> &mut Self {
+    pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
         self.views.use_ploy(&item.backed(self.back));
         self
     }

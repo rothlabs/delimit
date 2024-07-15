@@ -2,34 +2,32 @@ use serde::Serialize;
 
 use crate::*;
 
-pub type Ace<L> = Node<Ring, work::Ace<L>>;
-pub type Deuce<U, L> = Node<Ring, work::Deuce<U, L>>;
-pub type Trey<U, T, L> = Node<Ring, work::Trey<U, T, L>>;
+pub type Ace<L> = Node<work::Ace<L>>;
+pub type Deuce<U, L> = Node<work::Deuce<U, L>>;
+pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
 
 /// A node creates an interactive bridge between root edges and work.
-#[derive(Serialize)]
-pub struct Node<R, W> {
+pub struct Node<W> {
     meta: Meta,
-    ring: R,
+    ring: Ring,
     work: W,
 }
 
-impl<R, W> FromItem for Node<R, W>
+impl<W> FromItem for Node<W>
 where
-    R: Default,
     W: FromItem,
 {
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
             meta: Meta::new(),
-            ring: R::default(),
+            ring: Ring::new(),
             work: W::new(item),
         }
     }
 }
 
-impl<R, W> ToSerial for Node<R, W>
+impl<W> ToSerial for Node<W>
 where
     W: Serialize,
 {
@@ -39,7 +37,7 @@ where
     }
 }
 
-impl<R, W> ToLoad for Node<R, W>
+impl<W> ToLoad for Node<W>
 where
     W: ToLoad,
 {
@@ -49,9 +47,8 @@ where
     }
 }
 
-impl<R, W> Write for Node<R, W>
+impl<W> Write for Node<W>
 where
-    R: Cycle,
     W: Write,
 {
     type Item = W::Item;
@@ -61,9 +58,8 @@ where
     }
 }
 
-impl<R, W> WriteWithBack for Node<R, W>
+impl<W> WriteWithBack for Node<W>
 where
-    R: Cycle,
     W: WriteWithBack,
 {
     type Unit = W::Unit;
@@ -73,7 +69,7 @@ where
     }
 }
 
-impl<R, W> Read for Node<R, W>
+impl<W> Read for Node<W>
 where
     W: Read,
 {
@@ -83,7 +79,7 @@ where
     }
 }
 
-impl<R, W> Grantor for Node<R, W>
+impl<W> Grantor for Node<W>
 where
     W: Grantor,
 {
@@ -93,7 +89,7 @@ where
     }
 }
 
-impl<R, W> Solver for Node<R, W>
+impl<W> Solver for Node<W>
 where
     W: Solver,
 {
@@ -104,38 +100,27 @@ where
     }
 }
 
-impl<R, W> AddRoot for Node<R, W>
-where
-    R: AddRoot,
-{
-    type Root = R::Root;
-    fn add_root(&mut self, root: Self::Root) {
+impl<W> AddRoot for Node<W> {
+    fn add_root(&mut self, root: Root) {
         self.ring.add_root(root);
     }
 }
 
-impl<R, W> Update for Node<R, W>
-where
-    R: Rebuter<Ring = Ring>,
-    W: Clear + React,
-{
-}
+impl<W> Update for Node<W> where W: Clear + React {}
 
-impl<R, W> Rebut for Node<R, W>
+impl<W> Rebut for Node<W>
 where
-    R: Rebuter<Ring = Ring>,
     W: Clear,
 {
-    type Ring = R::Ring;
-    fn rebuter(&mut self) -> Self::Ring {
+    fn rebut(&mut self) -> Ring {
         self.work.clear();
-        self.ring.rebut()
+        self.ring.rebuter()
     }
 }
 
-impl<R, W> React for Node<R, W>
+impl<W> React for Node<W>
 where
-    W: React
+    W: React,
 {
     fn react(&mut self, meta: &Meta) {
         self.work.react(meta);

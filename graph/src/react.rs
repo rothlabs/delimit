@@ -9,13 +9,11 @@ use std::{
 use crate::{Meta, NO_POISON};
 
 pub trait Rebuter {
-    type Ring;
-    fn rebut(&self) -> Self::Ring;
+    fn rebuter(&self) -> Ring;
 }
 
 pub trait Rebut {
-    type Ring;
-    fn rebuter(&mut self) -> Self::Ring;
+    fn rebut(&mut self) -> Ring;
 }
 
 pub trait Reactor {
@@ -27,13 +25,11 @@ pub trait React {
 }
 
 pub trait AddRoot {
-    type Root;
-    fn add_root(&mut self, root: Self::Root);
+    fn add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
-    type Back;
-    fn backed(&self, back: &Self::Back) -> Self;
+    fn backed(&self, back: &Back) -> Self;
 }
 
 pub trait PloyWithBack {
@@ -50,15 +46,11 @@ pub trait PlanWithBack {
     ) -> Arc<RwLock<dyn Convert<Self::Task, Self::Load> + Send + Sync>>;
 }
 
-pub trait Cycle {
-    fn cycle(&mut self, meta: &Meta);
-}
-
 /// Edge that Rebuts a Ring and reacts.
-pub trait Updater: Rebuter<Ring = Ring> + Reactor {}
+pub trait Updater: Rebuter + Reactor {}
 
 /// Node that Rebuts a Ring and mutably reacts.
-pub trait Update: Rebut<Ring = Ring> + React {}
+pub trait Update: Rebut + React {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
@@ -68,21 +60,17 @@ pub struct Root {
     pub meta: Meta,
 }
 
-impl Rebuter for Root {
-    type Ring = Ring;
-    fn rebut(&self) -> Self::Ring {
+impl Root {
+    pub fn rebuter(&self) -> Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
-            edge.rebut()
+            edge.rebuter()
         } else {
             Ring::new()
         }
     }
-}
-
-impl Reactor for Root {
-    fn reactor(&self, meta: &Meta) {
+    pub fn reactor(&self, meta: &Meta) {
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
             edge.reactor(meta);
@@ -90,13 +78,13 @@ impl Reactor for Root {
     }
 }
 
+impl Eq for Root {}
+
 impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
         Weak::ptr_eq(&self.edge, &other.edge) && self.meta.id == other.meta.id
     }
 }
-
-impl Eq for Root {}
 
 impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
@@ -111,21 +99,17 @@ pub struct Back {
     // pub meta: Meta,
 }
 
-impl Rebuter for Back {
-    type Ring = Ring;
-    fn rebut(&self) -> Self::Ring {
+impl Back {
+    pub fn rebuter(&self) -> Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
-            node.rebuter()
+            node.rebut()
         } else {
             Ring::new()
         }
     }
-}
-
-impl Reactor for Back {
-    fn reactor(&self, meta: &Meta) {
+    pub fn reactor(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
             node.react(meta);
@@ -143,25 +127,13 @@ impl Ring {
     pub fn new() -> Self {
         Self::default()
     }
-    // TODO: make method to remove reactors with dropped edges
-}
-
-impl Cycle for Ring {
-    fn cycle(&mut self, meta: &Meta) {
-        let ring = self.rebut();
-        self.roots.clear();
-        for root in &ring.roots {
-            root.reactor(meta);
-        }
+    pub fn add_root(&mut self, root: Root) {
+        self.roots.insert(root);
     }
-}
-
-impl Rebuter for Ring {
-    type Ring = Self;
-    fn rebut(&self) -> Self::Ring {
+    pub fn rebuter(&self) -> Ring {
         let mut result = Ring::new();
         for root in &self.roots {
-            let ring = root.rebut();
+            let ring = root.rebuter();
             if ring.roots.is_empty() {
                 result.roots.insert(root.clone());
             } else {
@@ -170,11 +142,12 @@ impl Rebuter for Ring {
         }
         result
     }
-}
-
-impl AddRoot for Ring {
-    type Root = Root;
-    fn add_root(&mut self, root: Self::Root) {
-        self.roots.insert(root);
+    pub fn cycle(&mut self, meta: &Meta) {
+        let ring = self.rebuter();
+        self.roots.clear();
+        for root in &ring.roots {
+            root.reactor(meta);
+        }
     }
+    // TODO: make method to remove reactors with dropped edges
 }

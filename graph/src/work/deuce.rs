@@ -58,7 +58,5 @@ where
 }
 
 impl<U, L> React for Deuce<U, L> {
-    fn react(&mut self, _: &Meta) {
-        
-    }
+    fn react(&mut self, _: &Meta) {}
 }

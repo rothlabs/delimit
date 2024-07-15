@@ -5,8 +5,8 @@ pub use link::{Ace, Deuce, IntoAce, Link, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Back, Backed, Cycle, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring,
-    Root, Update, Updater,
+    AddRoot, Back, Backed, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring, Root,
+    Update, Updater,
 };
 pub use read::{Grant, Read, Reader, Solve};
 pub use role::Role;

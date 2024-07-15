@@ -5,18 +5,18 @@ use std::sync::{Arc, RwLock};
 
 use crate::*;
 
-pub type Ace<L> = Edge<Back, node::Ace<L>>;
-pub type Deuce<U, L> = Edge<Back, node::Deuce<U, L>>;
-pub type Trey<U, T, L> = Edge<Back, node::Trey<U, T, L>>;
+pub type Ace<L> = Edge<node::Ace<L>>;
+pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
+pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
 /// The bridge between root and stem node.
-pub struct Edge<B, N> {
-    pub back: Option<B>,
+pub struct Edge<N> {
+    pub back: Option<Back>,
     pub node: Arc<RwLock<N>>,
     // pub meta: Meta,
 }
 
-impl<B, N> FromItem for Edge<B, N>
+impl<N> FromItem for Edge<N>
 where
     N: FromItem,
 {
@@ -30,7 +30,7 @@ where
     }
 }
 
-impl<B, N> Edge<B, N>
+impl<N> Edge<N>
 where
     N: 'static + Update + Send + Sync,
 {
@@ -50,7 +50,7 @@ where
 {
 }
 
-impl<B, N> Grant for Edge<B, N>
+impl<N> Grant for Edge<N>
 where
     N: Grantor,
 {
@@ -84,7 +84,7 @@ where
 {
 }
 
-impl<B, N> Solve for Edge<B, N>
+impl<N> Solve for Edge<N>
 where
     N: Solver,
 {
@@ -113,7 +113,7 @@ where
     }
 }
 
-impl<B, N> ToLoad for Edge<B, N>
+impl<N> ToLoad for Edge<N>
 where
     N: ToLoad,
 {
@@ -124,12 +124,8 @@ where
     }
 }
 
-impl<B, N> Backed for Edge<B, N>
-where
-    B: Clone,
-{
-    type Back = B;
-    fn backed(&self, root: &B) -> Self {
+impl<N> Backed for Edge<N> {
+    fn backed(&self, root: &Back) -> Self {
         Self {
             back: Some(root.clone()),
             node: self.node.clone(),
@@ -138,7 +134,7 @@ where
     }
 }
 
-impl<B, N> Writer for Edge<B, N>
+impl<N> Writer for Edge<N>
 where
     N: Write,
 {
@@ -149,7 +145,7 @@ where
     }
 }
 
-impl<B, N> WriterWithPack for Edge<B, N>
+impl<N> WriterWithPack for Edge<N>
 where
     N: 'static + WriteWithBack + Update + Send + Sync,
 {
@@ -160,7 +156,7 @@ where
     }
 }
 
-impl<B, N> Reader for Edge<B, N>
+impl<N> Reader for Edge<N>
 where
     N: Read,
 {
@@ -171,37 +167,29 @@ where
     }
 }
 
-impl<B, N> AddRoot for Edge<B, N>
+impl<N> AddRoot for Edge<N>
 where
     N: AddRoot,
 {
-    type Root = N::Root;
-    fn add_root(&mut self, root: Self::Root) {
+    fn add_root(&mut self, root: Root) {
         let mut stem = self.node.write().expect(NO_POISON);
         stem.add_root(root);
     }
 }
 
-impl<B, N> Updater for Edge<B, N> where B: Rebuter<Ring = Ring> + Reactor {}
+impl<N> Updater for Edge<N> {}
 
-impl<B, N> Rebuter for Edge<B, N>
-where
-    B: Rebuter<Ring = Ring>,
-{
-    type Ring = B::Ring;
-    fn rebut(&self) -> Self::Ring {
+impl<N> Rebuter for Edge<N> {
+    fn rebuter(&self) -> Ring {
         if let Some(root) = &self.back {
-            root.rebut()
+            root.rebuter()
         } else {
             Ring::new()
         }
     }
 }
 
-impl<B, N> Reactor for Edge<B, N>
-where
-    B: Reactor,
-{
+impl<N> Reactor for Edge<N> {
     fn reactor(&self, meta: &Meta) {
         if let Some(back) = &self.back {
             back.reactor(meta);
