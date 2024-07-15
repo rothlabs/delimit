@@ -27,9 +27,11 @@ impl Grant for Element {
         let Hold { link, role } = "\n".list();
         link.write(|pack| {
             let mut element = pack.unit.items.back(pack.back);
-            element.use_ploy(&self.tag);
+            element.push(&self.tag.grant());
+            // element.use_ploy(&self.tag);
             for item in &self.items {
-                element.use_ploy(item);
+                element.push(&item.grant());
+                // element.use_ploy(item);
             }
             if let Some(close) = &self.close {
                 let Hold { link, role } = "".list();
@@ -38,7 +40,8 @@ impl Grant for Element {
                         .items
                         .back(pack.back)
                         .add_str("</")
-                        .use_ploy(close)
+                        .push(&close.grant())
+                        //.use_ploy(close)
                         .add_str(">");
                 });
                 element.add_role(&role);

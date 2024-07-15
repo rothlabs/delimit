@@ -26,9 +26,11 @@ impl Grant for Attribute {
         link.write(|Pack { unit, back }| {
             unit.items
                 .back(back)
-                .use_ploy(&self.name)
+                .push(&self.name.grant())
+                // .use_ploy(&self.name)
                 .add_str(r#"=""#)
-                .use_ploy(&self.value)
+                .push(&self.value.grant())
+                // .use_ploy(&self.value)
                 .add_str(r#"""#);
         });
         role

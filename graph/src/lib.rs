@@ -5,8 +5,8 @@ pub use link::{Ace, Deuce, IntoAce, Link, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, RootAdder, Back, Backed, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring, Root,
-    Update, Updater,
+    AddRoot, Back, Backed, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring, Root,
+    RootAdder, ToPlan, ToPloy, ToUpdater, Update, Updater,
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
@@ -64,7 +64,7 @@ pub trait Solver {
 }
 
 /// Edge that grants a load. In addition, clone the edge with a new back,
-pub trait Produce<L>: Grant<Load = L> + PloyWithBack<Load = L> {}
+pub trait Produce<L>: Grant<Load = L> + PloyWithBack<Load = L> + RootAdder + Updater {}
 
 /// Edge that solves a task. In addition, clone the edge with a new Back.
 pub trait Convert<T, L>: Solve<Task = T, Load = L> + PlanWithBack<Task = T, Load = L> {}
@@ -74,10 +74,10 @@ pub trait ToLoad {
     fn load(&self) -> Self::Load;
 }
 
-pub trait UsePloy {
-    type Load;
-    fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T);
-}
+// pub trait UsePloy {
+//     type Load;
+//     fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T);
+// }
 
 pub trait FromItem {
     type Item;

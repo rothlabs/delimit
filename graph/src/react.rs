@@ -36,18 +36,33 @@ pub trait Backed {
     fn backed(&self, back: &Back) -> Self;
 }
 
+pub trait ToPloy {
+    type Load;
+    fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>>;
+}
+
 pub trait PloyWithBack {
     type Load;
-    fn ploy_with_back(&self, back: Back) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
+    fn ploy_with_back(&self, back: Back)
+        -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>>;
+}
+
+type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>>;
+
+pub trait ToPlan {
+    type Task;
+    type Load;
+    fn plan(&self) -> PlanEdge<Self::Task, Self::Load>;
 }
 
 pub trait PlanWithBack {
     type Task;
     type Load;
-    fn plan_with_back(
-        &self,
-        back: Back,
-    ) -> Arc<RwLock<dyn Convert<Self::Task, Self::Load> + Send + Sync>>;
+    fn plan_with_back(&self, back: Back) -> PlanEdge<Self::Task, Self::Load>;
+}
+
+pub trait ToUpdater {
+    fn updater(&self) -> Weak<RwLock<dyn Updater + Send + Sync>>;
 }
 
 /// Edge that Rebuts a Ring and reacts.

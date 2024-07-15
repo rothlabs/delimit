@@ -30,6 +30,16 @@ where
     }
 }
 
+// impl<N: 'static + Send + Sync> ToUpdater for Edge<N> {
+//     fn updater(&self) -> Weak<RwLock<dyn Updater + Send + Sync>> {
+//         Arc::new(RwLock::new(Self {
+//             back: self.back.clone(),
+//             node: self.node.clone(),
+//             // meta: self.meta.clone(),
+//         }))
+//     }
+// }
+
 impl<N> Edge<N>
 where
     N: 'static + Update + Send + Sync,
@@ -61,18 +71,33 @@ where
     }
 }
 
+impl<U, L> ToPloy for Deuce<U, L>
+where
+    U: Grant<Load = L> + 'static + Send + Sync,
+    L: Clone + 'static + Send + Sync,
+{
+    type Load = L;
+    fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>> {
+        Arc::new(RwLock::new(Box::new(Self {
+            back: None,
+            node: self.node.clone(),
+            // meta: self.meta.clone(),
+        })))
+    }
+}
+
 impl<U, L> PloyWithBack for Deuce<U, L>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn ploy_with_back(&self, root: Back) -> Arc<RwLock<dyn Produce<L> + Send + Sync>> {
-        Arc::new(RwLock::new(Self {
-            back: Some(root),
+    fn ploy_with_back(&self, back: Back) -> Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>> {
+        Arc::new(RwLock::new(Box::new(Self {
+            back: Some(back),
             node: self.node.clone(),
             // meta: self.meta.clone(),
-        }))
+        })))
     }
 }
 
@@ -96,6 +121,23 @@ where
     }
 }
 
+impl<U, T, L> ToPlan for Trey<U, T, L>
+where
+    U: Solve<Task = T, Load = L> + Send + Sync + 'static,
+    T: Clone + Eq + PartialEq + Hash + Send + Sync + 'static,
+    L: Clone + Send + Sync + 'static,
+{
+    type Task = T;
+    type Load = L;
+    fn plan(&self) -> Arc<RwLock<Box<dyn Convert<Self::Task, Self::Load> + Send + Sync>>> {
+        Arc::new(RwLock::new(Box::new(Self {
+            back: None,
+            node: self.node.clone(),
+            // meta: self.meta.clone(),
+        })))
+    }
+}
+
 impl<U, T, L> PlanWithBack for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L> + Send + Sync + 'static,
@@ -104,12 +146,12 @@ where
 {
     type Task = T;
     type Load = L;
-    fn plan_with_back(&self, root: Back) -> Arc<RwLock<dyn Convert<T, L> + Send + Sync>> {
-        Arc::new(RwLock::new(Self {
+    fn plan_with_back(&self, root: Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
+        Arc::new(RwLock::new(Box::new(Self {
             back: Some(root),
             node: self.node.clone(),
             // meta: self.meta.clone(),
-        }))
+        })))
     }
 }
 
@@ -194,6 +236,33 @@ impl<N> Reactor for Edge<N> {
         if let Some(back) = &self.back {
             back.react(meta);
         }
+    }
+}
+
+impl<L> Grant for Box<dyn Produce<L> + Send + Sync> {
+    type Load = L;
+    fn grant(&self) -> Self::Load {
+        self.as_ref().grant()
+    }
+}
+
+impl<L> RootAdder for Box<dyn Produce<L> + Send + Sync> {
+    fn add_root(&self, root: Root) {
+        self.as_ref().add_root(root)
+    }
+}
+
+impl<L> Updater for Box<dyn Produce<L> + Send + Sync> {}
+
+impl<L> Rebuter for Box<dyn Produce<L> + Send + Sync> {
+    fn rebut(&self) -> Ring {
+        self.as_ref().rebut()
+    }
+}
+
+impl<L> Reactor for Box<dyn Produce<L> + Send + Sync> {
+    fn react(&self, meta: &Meta) {
+        self.as_ref().react(meta)
     }
 }
 

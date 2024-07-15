@@ -93,12 +93,12 @@ where
     }
 }
 
-impl<R, B> UsePloy for Vec<View<R, B>> {
-    type Load = View<R, B>;
-    fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
-        self.push(item.grant());
-    }
-}
+// impl<R, B> UsePloy for Vec<View<R, B>> {
+//     type Load = View<R, B>;
+//     fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
+//         self.push(item.grant());
+//     }
+// }
 
 impl<R, B> AddStr for Vec<View<R, B>>
 where
@@ -155,12 +155,12 @@ where
     }
 }
 
-impl<'a, R, B> ViewsBuilder<'a, R, B> {
-    pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
-        self.views.use_ploy(&item.backed(self.back));
-        self
-    }
-}
+// impl<'a, R, B> ViewsBuilder<'a, R, B> {
+//     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
+//         self.views.use_ploy(&item.backed(self.back));
+//         self
+//     }
+// }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where

@@ -14,12 +14,12 @@ mod ace;
 pub type Ace<L> = Link<edge::Ace<L>>;
 pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
-pub type Ploy<L> = Link<dyn Produce<L> + Send + Sync>;
-pub type Plan<T, L> = Link<dyn Convert<T, L> + Send + Sync>;
+pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
+pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
 
 /// Points to one edge which in turn points to one node.
 /// Units hold links as source of input used to compute output.
-pub struct Link<E: ?Sized> {
+pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     meta: Meta,
 }
@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<E: ?Sized> Clone for Link<E> {
+impl<E> Clone for Link<E> {
     fn clone(&self) -> Self {
         Self {
             edge: self.edge.clone(),
@@ -66,7 +66,7 @@ where
 impl<E> Backed for Link<E>
 where
     E: Backed,
-{ 
+{
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -123,35 +123,34 @@ where
     }
 }
 
-impl<E: ?Sized> Grant for Link<E>
+impl<E> Grant for Link<E>
+// E: ?Sized
 where
-    E: Grant //  + Updater + RootAdder + Send + Sync,
+    E: 'static + Grant + RootAdder + Updater + Send + Sync,
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
-        // edge.add_root(self.as_root());
-        edge.grant()
+        let result = edge.grant();
+        edge.add_root(self.as_root());
+        result
     }
 }
 
 impl<U, L> Link<Edge<Node<work::Deuce<U, L>>>>
 where
-    U: 'static + Send + Sync,
-    L: 'static + Send + Sync,
-    Edge<Node<work::Deuce<U, L>>>: Produce<L>,
+    Edge<Node<work::Deuce<U, L>>>: ToPloy<Load = L>, //Produce<L>,
 {
     pub fn ploy(&self) -> Ploy<L> {
-        //let wow = x)
-        let edge = self.edge.clone() as Arc<RwLock<dyn Produce<L> + Send + Sync>>;
+        let edge = self.edge.read().expect(NO_POISON);
         Ploy {
-            edge,
+            edge: edge.ploy(),
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<L> Backed for Link<dyn Produce<L> + Send + Sync> {
+impl<L> Backed for Link<Box<dyn Produce<L> + Send + Sync>> {
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -161,7 +160,7 @@ impl<L> Backed for Link<dyn Produce<L> + Send + Sync> {
     }
 }
 
-impl<E: ?Sized> Solve for Link<E>
+impl<E> Solve for Link<E>
 where
     E: Solve,
 {
@@ -175,21 +174,18 @@ where
 
 impl<U, T, L> Link<Edge<Node<work::Trey<U, T, L>>>>
 where
-    U: 'static + Send + Sync,
-    T: 'static + Send + Sync,
-    L: 'static + Send + Sync,
-    Edge<Node<work::Trey<U, T, L>>>: Convert<T, L>,
+    Edge<Node<work::Trey<U, T, L>>>: ToPlan<Task = T, Load = L>, //Convert<T, L>,
 {
     pub fn plan(&self) -> Plan<T, L> {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Convert<T, L> + Send + Sync>>;
+        let edge = self.edge.read().expect(NO_POISON);
         Plan {
-            edge,
+            edge: edge.plan(),
             meta: self.meta.clone(),
         }
     }
 }
 
-impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
+impl<T, L> Backed for Link<Box<dyn Convert<T, L> + Send + Sync>> {
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -199,7 +195,7 @@ impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
     }
 }
 
-impl<E: ?Sized> Serialize for Link<E> {
+impl<E> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
