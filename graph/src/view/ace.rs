@@ -1,6 +1,6 @@
 use crate::*;
 
-/// A bare Load or Ace<Load>
+/// A bare load or `link::Ace<Load>`
 #[derive(Clone, Serialize)]
 pub enum Ace<L> {
     Bare(L),
@@ -59,10 +59,10 @@ impl<L> Backed for Ace<L>
 where
     L: Clone,
 {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         match self {
             Ace::Bare(bare) => Ace::Bare(bare.clone()),
-            Ace::Link(ace) => Ace::Link(ace.backed(root)),
+            Ace::Link(ace) => Ace::Link(ace.backed(back)),
         }
     }
 }

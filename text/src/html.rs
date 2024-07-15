@@ -14,6 +14,7 @@ mod doc;
 mod element;
 mod tag;
 
+/// HTML to use as Load of super graphs
 pub type Role = role::Ploy<Part, Load>;
 
 type Load = plain::Role;

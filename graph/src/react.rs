@@ -59,7 +59,7 @@ pub trait ToPlan {
 pub trait BackedPlan {
     type Task;
     type Load;
-    fn backed_plan(&self, back: Back) -> PlanEdge<Self::Task, Self::Load>;
+    fn backed_plan(&self, back: &Back) -> PlanEdge<Self::Task, Self::Load>;
 }
 
 /// For edge that Rebuts a Ring and reacts.

@@ -21,7 +21,7 @@ impl Doc {
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.element.link.write(|pack| {
-            pack.unit.items.push(plain::string(value));
+            pack.unit.items.push(plain::str(value));
         });
         self
     }
@@ -48,7 +48,7 @@ impl Doc {
     }
     pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
         if let Some(item) = self.att_names.get(name) {
-            let hold = Attribute::new(item, &plain::string(value));
+            let hold = Attribute::new(item, &plain::str(value));
             self.tag.link.write(|pack| {
                 pack.unit.attributes.back(pack.back).push(&hold.role);
             });
@@ -131,11 +131,11 @@ impl Default for Doc {
     fn default() -> Self {
         let mut tags = HashMap::new();
         for tag in TAGS {
-            tags.insert(tag, plain::leaf(tag));
+            tags.insert(tag, plain::ace(tag));
         }
         let mut atts = HashMap::new();
         for att in ATTRIBUTES {
-            atts.insert(att, plain::leaf(att));
+            atts.insert(att, plain::ace(att));
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::new(doctype);

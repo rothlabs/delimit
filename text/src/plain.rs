@@ -25,10 +25,10 @@ pub enum Part {
     Unknown,
 }
 
-pub fn string<A>(string: &str) -> View<A> {
-    View::Base(Item::Base(view::Ace::Bare(string.into())))
+pub fn str<A>(str: &str) -> View<A> {
+    View::Base(Item::Base(view::Ace::Bare(str.into())))
 }
 
-pub fn leaf<A>(string: &str) -> View<A> {
-    View::Base(Item::Base(view::Ace::Link(string.ace())))
+pub fn ace<A>(str: &str) -> View<A> {
+    View::Base(Item::Base(view::Ace::Link(str.ace())))
 }

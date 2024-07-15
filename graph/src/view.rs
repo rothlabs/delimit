@@ -66,10 +66,10 @@ where
     R: Backed,
     B: Backed,
 {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         match self {
-            Self::Role(role) => View::Role(role.backed(root)),
-            Self::Base(item) => View::Base(item.backed(root)),
+            Self::Role(role) => View::Role(role.backed(back)),
+            Self::Base(item) => View::Base(item.backed(back)),
         }
     }
 }
@@ -113,7 +113,7 @@ where
 }
 
 pub trait ToViewsBuilder<'a, R, B> {
-    fn back(&'a mut self, root: &'a Back) -> ViewsBuilder<R, B>;
+    fn back(&'a mut self, back: &'a Back) -> ViewsBuilder<R, B>;
 }
 
 impl<'a, R, B> ToViewsBuilder<'a, R, B> for Vec<View<R, B>> {

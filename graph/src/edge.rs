@@ -1,12 +1,15 @@
 use std::hash::Hash;
 use std::sync::{Arc, RwLock};
 
-// use serde::Serialize;
-
 use crate::*;
 
+/// Edge to a load.
 pub type Ace<L> = Edge<node::Ace<L>>;
+
+/// Edge to a unit that grants a load.
 pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
+
+/// Edge to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
 /// The forward bridge between nodes.
@@ -136,9 +139,9 @@ where
 {
     type Task = T;
     type Load = L;
-    fn backed_plan(&self, root: Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
+    fn backed_plan(&self, back: &Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
-            back: Some(root),
+            back: Some(back.clone()),
             node: self.node.clone(),
             // meta: self.meta.clone(),
         })))
@@ -157,9 +160,9 @@ where
 }
 
 impl<N> Backed for Edge<N> {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         Self {
-            back: Some(root.clone()),
+            back: Some(back.clone()),
             node: self.node.clone(),
             // meta: self.meta.clone(),
         }

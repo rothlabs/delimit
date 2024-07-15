@@ -13,15 +13,19 @@ mod ace;
 /// Link to a load.
 pub type Ace<L> = Link<edge::Ace<L>>;
 
+/// Link to a unit that grants a load. 
 pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
 
+/// Link to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
 
+/// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
 
+/// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
 
-/// Points to one edge which in turn points to one node.
+/// Points to one edge, which in turn points to one node.
 /// Units hold links as source of input used to compute output.
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
@@ -71,10 +75,10 @@ impl<E> Backed for Link<E>
 where
     E: Backed,
 {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: Arc::new(RwLock::new(edge.backed(root))),
+            edge: Arc::new(RwLock::new(edge.backed(back))),
             meta: self.meta.clone(),
         }
     }
@@ -191,10 +195,10 @@ where
 }
 
 impl<T, L> Backed for Link<Box<dyn Convert<T, L> + Send + Sync>> {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.backed_plan(root.clone()),
+            edge: edge.backed_plan(back),
             meta: self.meta.clone(),
         }
     }
