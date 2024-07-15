@@ -2,12 +2,12 @@ use crate::*;
 
 /// A bare Load or Ace<Load>
 #[derive(Clone, Serialize)]
-pub enum AceView<L> {
+pub enum Ace<L> {
     Bare(L),
-    Ace(Ace<L>),
+    Link(link::Ace<L>),
 }
 
-impl<L> Default for AceView<L>
+impl<L> Default for Ace<L>
 where
     L: Default,
 {
@@ -16,53 +16,53 @@ where
     }
 }
 
-impl From<&str> for AceView<String> {
+impl From<&str> for Ace<String> {
     fn from(value: &str) -> Self {
         Self::Bare(value.into())
     }
 }
 
-impl<L> FromAce for AceView<L> {
+impl<L> FromAce for Ace<L> {
     type Load = L;
-    fn from_ace(ace: Ace<L>) -> Self {
-        Self::Ace(ace)
+    fn from_ace(ace: link::Ace<L>) -> Self {
+        Self::Link(ace)
     }
 }
 
-impl<L> Reader for AceView<L>
+impl<L> Reader for Ace<L>
 where
     L: 'static + Send + Sync,
 {
     type Item = L;
     fn read<F: FnOnce(&L)>(&self, read: F) {
         match self {
-            AceView::Bare(bare) => read(bare),
-            AceView::Ace(ace) => ace.read(read),
+            Ace::Bare(bare) => read(bare),
+            Ace::Link(ace) => ace.read(read),
         };
     }
 }
 
-impl<L> Grant for AceView<L>
+impl<L> Grant for Ace<L>
 where
     L: Clone,
 {
-    type Load = Ace<L>;
-    fn grant(&self) -> Ace<L> {
+    type Load = link::Ace<L>;
+    fn grant(&self) -> link::Ace<L> {
         match self {
-            AceView::Bare(bare) => bare.ace(),
-            AceView::Ace(ace) => ace.clone(),
+            Ace::Bare(bare) => bare.ace(),
+            Ace::Link(ace) => ace.clone(),
         }
     }
 }
 
-impl<L> Backed for AceView<L>
+impl<L> Backed for Ace<L>
 where
     L: Clone,
 {
     fn backed(&self, root: &Back) -> Self {
         match self {
-            AceView::Bare(bare) => AceView::Bare(bare.clone()),
-            AceView::Ace(ace) => AceView::Ace(ace.backed(root)),
+            Ace::Bare(bare) => Ace::Bare(bare.clone()),
+            Ace::Link(ace) => Ace::Link(ace.backed(root)),
         }
     }
 }

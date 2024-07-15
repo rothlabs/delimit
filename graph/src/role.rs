@@ -2,6 +2,8 @@ use super::*;
 
 pub type Ploy<A, L> = Role<A, link::Ploy<L>>;
 
+/// form
+/// part
 pub struct Role<A, M> {
     pub actual: A,
     pub method: M,

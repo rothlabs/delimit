@@ -1,13 +1,14 @@
 use crate::*;
 
-pub use ace::AceView;
+pub use ace::Ace;
 
 mod ace;
 
-/// A view of a PloyView
-pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, AceView<L>>;
+/// Ace view with ploy role.  
+pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, Ace<L>>;
 
 /// A base or a role that must grant or solve a base.
+/// In the phrase "view of NAME" or "NAME view", NAME refers to the base. 
 /// The base could be another view, allowing for a recursive structure.
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {

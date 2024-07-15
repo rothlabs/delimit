@@ -10,7 +10,7 @@ pub use react::{
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{AceView, ToViewsBuilder, View};
+pub use view::{ToViewsBuilder, View};
 pub use write::{Pack, Write, WriteWithBack, Writer, WriterWithPack};
 
 pub mod edge;
