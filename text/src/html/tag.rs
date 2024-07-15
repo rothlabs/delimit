@@ -35,7 +35,7 @@ impl Grant for Tag {
                     // inner.use_ploy(att);
                 }
             });
-            tag.add_str("<").add_role(&role).add_str(">");
+            tag.str("<").add_role(&role).str(">");
         });
         role
     }

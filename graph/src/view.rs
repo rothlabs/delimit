@@ -166,7 +166,7 @@ impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
     B: From<&'static str>,
 {
-    pub fn add_str(&mut self, str: &'static str) -> &mut Self {
+    pub fn str(&mut self, str: &'static str) -> &mut Self {
         self.views.add_str(str);
         self
     }

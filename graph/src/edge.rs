@@ -223,8 +223,8 @@ impl<N> Updater for Edge<N> {}
 
 impl<N> Rebuter for Edge<N> {
     fn rebut(&self) -> Ring {
-        if let Some(root) = &self.back {
-            root.rebut()
+        if let Some(back) = &self.back {
+            back.rebut()
         } else {
             Ring::new()
         }

@@ -39,10 +39,10 @@ impl Grant for Element {
                     pack.unit
                         .items
                         .back(pack.back)
-                        .add_str("</")
+                        .str("</")
                         .push(&close.grant())
                         //.use_ploy(close)
-                        .add_str(">");
+                        .str(">");
                 });
                 element.add_role(&role);
             }

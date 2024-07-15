@@ -28,10 +28,10 @@ impl Grant for Attribute {
                 .back(back)
                 .push(&self.name.grant())
                 // .use_ploy(&self.name)
-                .add_str(r#"=""#)
+                .str(r#"=""#)
                 .push(&self.value.grant())
                 // .use_ploy(&self.value)
-                .add_str(r#"""#);
+                .str(r#"""#);
         });
         role
     }

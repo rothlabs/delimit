@@ -3,7 +3,7 @@ use super::*;
 fn new_list(ace: &Ace<String>) -> Text<List> {
     let list = ", ".list();
     list.link.write(|pack| {
-        pack.unit.items.back(pack.back).add_str("str").add_ace(ace);
+        pack.unit.items.back(pack.back).str("str").add_ace(ace);
     });
     list.link
 }

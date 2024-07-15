@@ -124,7 +124,6 @@ where
 }
 
 impl<E> Grant for Link<E>
-// E: ?Sized
 where
     E: 'static + Grant + RootAdder + Updater + Send + Sync,
 {
@@ -137,11 +136,11 @@ where
     }
 }
 
-impl<U, L> Link<Edge<Node<work::Deuce<U, L>>>>
+impl<E> Link<E>
 where
-    Edge<Node<work::Deuce<U, L>>>: ToPloy<Load = L>, //Produce<L>,
+    E: Grant + ToPloy<Load = <E as Grant>::Load>,
 {
-    pub fn ploy(&self) -> Ploy<L> {
+    pub fn ploy(&self) -> Ploy<<E as Grant>::Load> {
         let edge = self.edge.read().expect(NO_POISON);
         Ploy {
             edge: edge.ploy(),
@@ -151,10 +150,10 @@ where
 }
 
 impl<L> Backed for Link<Box<dyn Produce<L> + Send + Sync>> {
-    fn backed(&self, root: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.ploy_with_back(root.clone()),
+            edge: edge.ploy_with_back(back.clone()),
             meta: self.meta.clone(),
         }
     }
@@ -172,11 +171,11 @@ where
     }
 }
 
-impl<U, T, L> Link<Edge<Node<work::Trey<U, T, L>>>>
+impl<E> Link<E>
 where
-    Edge<Node<work::Trey<U, T, L>>>: ToPlan<Task = T, Load = L>, //Convert<T, L>,
+    E: Solve + ToPlan<Task = <E as Solve>::Task, Load = <E as Solve>::Load>,
 {
-    pub fn plan(&self) -> Plan<T, L> {
+    pub fn plan(&self) -> Plan<<E as Solve>::Task, <E as Solve>::Load> {
         let edge = self.edge.read().expect(NO_POISON);
         Plan {
             edge: edge.plan(),
@@ -219,6 +218,32 @@ impl<E> Serialize for Link<E> {
 //         let edge = self.edge.read().expect(NO_POISON);
 //         Self {
 //             edge: edge.convert_with_back(root.clone()),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
+
+// impl<U, L> Link<Edge<Node<work::Deuce<U, L>>>>
+// where
+//     Edge<Node<work::Deuce<U, L>>>: ToPloy<Load = L>,
+// {
+//     pub fn ploy(&self) -> Ploy<L> {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Ploy {
+//             edge: edge.ploy(),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
+
+// impl<U, T, L> Link<Edge<Node<work::Trey<U, T, L>>>>
+// where
+//     Edge<Node<work::Trey<U, T, L>>>: ToPlan<Task = T, Load = L>, //Convert<T, L>,
+// {
+//     pub fn plan(&self) -> Plan<T, L> {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Plan {
+//             edge: edge.plan(),
 //             meta: self.meta.clone(),
 //         }
 //     }
