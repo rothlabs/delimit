@@ -8,22 +8,22 @@ use std::{
 
 use crate::{Meta, NO_POISON};
 
-pub trait Rebut {
+pub trait Rebuter {
     type Ring;
     fn rebut(&self) -> Self::Ring;
 }
 
-pub trait Rebuter {
+pub trait Rebut {
     type Ring;
     fn rebuter(&mut self) -> Self::Ring;
 }
 
-pub trait React {
-    fn react(&self);
+pub trait Reactor {
+    fn reactor(&self);
 }
 
-pub trait Reactor {
-    fn reactor(&mut self);
+pub trait React {
+    fn react(&mut self);
 }
 
 pub trait AddRoot {
@@ -36,15 +36,15 @@ pub trait Backed {
     fn backed(&self, back: &Self::Back) -> Self;
 }
 
-pub trait ProduceWithBack {
+pub trait PloyWithBack {
     type Load;
-    fn produce_with_back(&self, back: Back) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
+    fn ploy_with_back(&self, back: Back) -> Arc<RwLock<dyn Produce<Self::Load> + Send + Sync>>;
 }
 
-pub trait ConvertWithBack {
+pub trait PlanWithBack {
     type Task;
     type Load;
-    fn convert_with_back(
+    fn plan_with_back(
         &self,
         back: Back,
     ) -> Arc<RwLock<dyn Convert<Self::Task, Self::Load> + Send + Sync>>;
@@ -55,20 +55,20 @@ pub trait Cycle {
 }
 
 /// Edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut<Ring = Ring> + React {}
-
-/// Node that Rebuts a Ring and mutability reacts.
 pub trait Updater: Rebuter<Ring = Ring> + Reactor {}
+
+/// Node that Rebuts a Ring and mutably reacts.
+pub trait Update: Rebut<Ring = Ring> + React {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
 pub struct Root {
-    pub edge: Weak<RwLock<dyn Update + Send + Sync>>,
+    pub edge: Weak<RwLock<dyn Updater + Send + Sync>>,
     pub meta: Meta,
 }
 
-impl Rebut for Root {
+impl Rebuter for Root {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
@@ -81,11 +81,11 @@ impl Rebut for Root {
     }
 }
 
-impl React for Root {
-    fn react(&self) {
+impl Reactor for Root {
+    fn reactor(&self) {
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
-            edge.react();
+            edge.reactor();
         }
     }
 }
@@ -107,11 +107,11 @@ impl Hash for Root {
 /// Weakly point to the back of a node as Updater.
 #[derive(Clone)]
 pub struct Back {
-    pub node: Weak<RwLock<dyn Updater + Send + Sync + 'static>>,
+    pub node: Weak<RwLock<dyn Update + Send + Sync + 'static>>,
     // pub meta: Meta,
 }
 
-impl Rebut for Back {
+impl Rebuter for Back {
     type Ring = Ring;
     fn rebut(&self) -> Self::Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
@@ -124,11 +124,11 @@ impl Rebut for Back {
     }
 }
 
-impl React for Back {
-    fn react(&self) {
+impl Reactor for Back {
+    fn reactor(&self) {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
-            node.reactor();
+            node.react();
         }
     }
 }
@@ -151,12 +151,12 @@ impl Cycle for Ring {
         let ring = self.rebut();
         self.roots.clear();
         for root in &ring.roots {
-            root.react();
+            root.reactor();
         }
     }
 }
 
-impl Rebut for Ring {
+impl Rebuter for Ring {
     type Ring = Self;
     fn rebut(&self) -> Self::Ring {
         let mut result = Ring::new();

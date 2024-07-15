@@ -112,16 +112,16 @@ where
     }
 }
 
-impl<R, W> Updater for Node<R, W>
+impl<R, W> Update for Node<R, W>
 where
-    R: Rebut<Ring = Ring>,
+    R: Rebuter<Ring = Ring>,
     W: Clear,
 {
 }
 
-impl<R, W> Rebuter for Node<R, W>
+impl<R, W> Rebut for Node<R, W>
 where
-    R: Rebut<Ring = Ring>,
+    R: Rebuter<Ring = Ring>,
     W: Clear,
 {
     type Ring = R::Ring;
@@ -131,6 +131,11 @@ where
     }
 }
 
-impl<R, W> Reactor for Node<R, W> {
-    fn reactor(&mut self) {}
+impl<R, W> React for Node<R, W>
+// where
+//     W: React
+{
+    fn react(&mut self) {
+        // self.work.react();
+    }
 }

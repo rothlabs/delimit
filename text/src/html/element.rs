@@ -24,7 +24,7 @@ impl Element {
 impl Grant for Element {
     type Load = Load;
     fn grant(&self) -> Load {
-        let Hold { link, role} = "\n".list();
+        let Hold { link, role } = "\n".list();
         link.writer(|pack| {
             let mut element = pack.unit.items.back(pack.back);
             element.use_ploy(&self.tag);

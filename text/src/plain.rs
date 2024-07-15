@@ -12,7 +12,7 @@ mod list;
 /// to use as Load for higher graph
 pub type Role = role::Ploy<Actual, Load>;
 /// to use as a Stem (item) for higher graph
-pub type View<A> = graph::View<role::Ploy<A, Role>, Item>; 
+pub type View<A> = graph::View<role::Ploy<A, Role>, Item>;
 
 type Load = Ace<String>;
 type Item = view::Ploy<Actual, String>;

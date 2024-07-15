@@ -26,7 +26,7 @@ impl Grant for Tag {
         link.writer(|pack| {
             let mut tag = pack.unit.items.back(pack.back);
             let Hold { link, role } = " ".list();
-            link.writer(|Pack{unit, back}| {
+            link.writer(|Pack { unit, back }| {
                 let mut inner = unit.items.back(back);
                 inner.use_ploy(&self.name);
                 for att in &self.attributes {

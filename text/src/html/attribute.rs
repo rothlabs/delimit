@@ -23,7 +23,7 @@ impl Grant for Attribute {
     type Load = Load;
     fn grant(&self) -> Load {
         let Hold { link, role } = "".list();
-        link.writer(|Pack {unit, back}| {
+        link.writer(|Pack { unit, back }| {
             unit.items
                 .back(back)
                 .use_ploy(&self.name)

@@ -79,10 +79,10 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Update + Send + Sync,
+    E: 'static + Updater + Send + Sync,
 {
-    pub fn back(&self) -> Root {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+    pub fn as_root(&self) -> Root {
+        let edge = self.edge.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
         Root {
             edge: Arc::downgrade(&edge),
             meta: self.meta.clone(),
@@ -92,14 +92,14 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: 'static + Reader + Update + AddRoot<Root = Root> + Send + Sync,
+    E: 'static + Reader + Updater + AddRoot<Root = Root> + Send + Sync,
 {
     type Item = E::Item;
     fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
         // TODO: first read and check if it is not added as Back and then write to do so
         let mut edge = self.edge.write().expect(NO_POISON);
         edge.reader(read);
-        edge.add_root(self.back());
+        edge.add_root(self.as_root());
     }
 }
 
@@ -158,21 +158,11 @@ impl<L> Backed for Link<dyn Produce<L> + Send + Sync> {
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.produce_with_back(root.clone()),
+            edge: edge.ploy_with_back(root.clone()),
             meta: self.meta.clone(),
         }
     }
 }
-
-// impl<L> Link<dyn Produce<L> + Send + Sync> {
-//     pub fn with_root(&self, root: &Back) -> Self {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Self {
-//             edge: edge.produce_with_back(root.clone()),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
 
 impl<E: ?Sized> Solve for Link<E>
 where
@@ -209,11 +199,30 @@ impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
-            edge: edge.convert_with_back(root.clone()),
+            edge: edge.plan_with_back(root.clone()),
             meta: self.meta.clone(),
         }
     }
 }
+
+impl<E: ?Sized> Serialize for Link<E> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.meta.serialize(serializer)
+    }
+}
+
+// impl<L> Link<dyn Produce<L> + Send + Sync> {
+//     pub fn with_root(&self, root: &Back) -> Self {
+//         let edge = self.edge.read().expect(NO_POISON);
+//         Self {
+//             edge: edge.produce_with_back(root.clone()),
+//             meta: self.meta.clone(),
+//         }
+//     }
+// }
 
 // impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
 //     pub fn with_root(&self, root: &Back) -> Self {
@@ -224,12 +233,3 @@ impl<T, L> Backed for Link<dyn Convert<T, L> + Send + Sync> {
 //         }
 //     }
 // }
-
-impl<E: ?Sized> Serialize for Link<E> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}

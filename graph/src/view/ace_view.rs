@@ -19,7 +19,7 @@ where
 impl From<&str> for AceView<String> {
     fn from(value: &str) -> Self {
         Self::Bare(value.into())
-    } 
+    }
 }
 
 impl<L> FromAce for AceView<L> {

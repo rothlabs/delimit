@@ -5,8 +5,8 @@ pub use link::{Ace, Deuce, IntoAce, Link, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Back, Backed, ConvertWithBack, Cycle, ProduceWithBack, React, Reactor, Rebut, Rebuter,
-    Ring, Root, Update, Updater,
+    AddRoot, Back, Backed, Cycle, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring,
+    Root, Update, Updater,
 };
 pub use read::{Grant, Read, Reader, Solve};
 pub use role::Role;
@@ -34,10 +34,10 @@ pub struct Hold<L, R> {
 }
 
 /// Edge that grants a load. In addition, clone the edge with a new back,
-pub trait Produce<L>: Grant<Load = L> + ProduceWithBack<Load = L> {}
+pub trait Produce<L>: Grant<Load = L> + PloyWithBack<Load = L> {}
 
 /// Edge that solves a task. In addition, clone the edge with a new Back.
-pub trait Convert<T, L>: Solve<Task = T, Load = L> + ConvertWithBack<Task = T, Load = L> {}
+pub trait Convert<T, L>: Solve<Task = T, Load = L> + PlanWithBack<Task = T, Load = L> {}
 
 pub trait ToLoad {
     type Load;

@@ -86,7 +86,7 @@ impl<R, B> AddRole for Vec<View<R, B>> {
 
 impl<R, B> AddAce for Vec<View<R, B>>
 where
-    B: FromAce
+    B: FromAce,
 {
     type Load = B::Load;
     fn add_ace(&mut self, ace: Ace<B::Load>) {
@@ -103,7 +103,7 @@ impl<R, B> UsePloy for Vec<View<R, B>> {
 
 impl<R, B> AddStr for Vec<View<R, B>>
 where
-    B: From<&'static str>, 
+    B: From<&'static str>,
 {
     fn add_str(&mut self, str: &'static str) {
         self.push(View::Base(B::from(str)));
@@ -168,7 +168,7 @@ impl<'a, R, B> ViewsBuilder<'a, R, B> {
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: From<&'static str> 
+    B: From<&'static str>,
 {
     pub fn add_str(&mut self, str: &'static str) -> &mut Self {
         self.views.add_str(str);
