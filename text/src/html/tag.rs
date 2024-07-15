@@ -12,8 +12,8 @@ impl Tag {
             attributes: vec![],
         });
         let role = Item::Role(Role {
-            actual: Actual::Tag(link.clone()),
-            method: link.ploy(),
+            part: Part::Tag(link.clone()),
+            form: link.ploy(),
         });
         Hold { link, role }
     }

@@ -14,14 +14,14 @@ mod doc;
 mod element;
 mod tag;
 
-pub type Role = role::Ploy<Actual, Load>;
+pub type Role = role::Ploy<Part, Load>;
 
 type Load = plain::Role;
-type Item = plain::View<Actual>;
+type Item = plain::View<Part>;
 type Html<U> = Deuce<U, Load>;
 
 #[derive(Clone)]
-pub enum Actual {
+pub enum Part {
     Element(Html<Element>),
     Tag(Html<Tag>),
     Attribute(Html<Attribute>),

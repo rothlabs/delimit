@@ -12,9 +12,13 @@ mod ace;
 
 /// Link to a load.
 pub type Ace<L> = Link<edge::Ace<L>>;
+
 pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
+
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
+
 pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
+
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
 
 /// Points to one edge which in turn points to one node.

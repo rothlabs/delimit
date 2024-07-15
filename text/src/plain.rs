@@ -9,17 +9,18 @@ mod tests;
 
 mod list;
 
-/// to use as Load for higher graph
-pub type Role = role::Ploy<Actual, Load>;
-/// to use as a Stem (item) for higher graph
+/// Plain text to use as Load of super graphs
+pub type Role = role::Ploy<Part, Load>;
+
+/// Plain text to use inside units of super graphs
 pub type View<A> = graph::View<role::Ploy<A, Role>, Item>;
 
 type Load = Ace<String>;
-type Item = view::Ploy<Actual, String>;
+type Item = view::Ploy<Part, String>;
 type Text<U> = Deuce<U, Load>;
 
 #[derive(Clone, Serialize)]
-pub enum Actual {
+pub enum Part {
     List(Text<List>),
     Unknown,
 }

@@ -1,58 +1,59 @@
 use super::*;
 
-pub type Ploy<A, L> = Role<A, link::Ploy<L>>;
+pub type Ploy<P, L> = Role<P, link::Ploy<L>>;
 
-/// form
-/// part
-pub struct Role<A, M> {
-    pub actual: A,
-    pub method: M,
+/// Two copies of the same link.
+/// For Unit access, the part field should be an enumeration of Links.
+/// The form field should be link::Ploy or link::Plan to be used without Unit knowledge.
+pub struct Role<P, F> {
+    pub part: P,
+    pub form: F,
 }
 
-impl<A, M> Clone for Role<A, M>
+impl<P, F> Clone for Role<P, F>
 where
-    A: Clone,
-    M: Clone,
+    P: Clone,
+    F: Clone,
 {
     fn clone(&self) -> Self {
         Self {
-            actual: self.actual.clone(),
-            method: self.method.clone(),
+            part: self.part.clone(),
+            form: self.form.clone(),
         }
     }
 }
 
-impl<A, M> Grant for Role<A, M>
+impl<P, F> Grant for Role<P, F>
 where
-    M: Grant,
+    F: Grant,
 {
-    type Load = M::Load;
+    type Load = F::Load;
     fn grant(&self) -> Self::Load {
-        self.method.grant()
+        self.form.grant()
     }
 }
 
-impl<A, M> Backed for Role<A, M>
+impl<P, F> Backed for Role<P, F>
 where
-    A: Clone,
-    M: Backed,
+    P: Clone,
+    F: Backed,
 {
     fn backed(&self, back: &Back) -> Self {
         Self {
-            actual: self.actual.clone(),
-            method: self.method.backed(back),
+            part: self.part.clone(),
+            form: self.form.backed(back),
         }
     }
 }
 
-impl<A, L> Serialize for Role<A, L>
+impl<P, L> Serialize for Role<P, L>
 where
-    A: Serialize,
+    P: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        self.actual.serialize(serializer)
+        self.part.serialize(serializer)
     }
 }

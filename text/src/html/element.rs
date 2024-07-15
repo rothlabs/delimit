@@ -14,8 +14,8 @@ impl Element {
             close: close.cloned(),
         });
         let role = Item::Role(Role {
-            actual: Actual::Element(link.clone()),
-            method: link.ploy(),
+            part: Part::Element(link.clone()),
+            form: link.ploy(),
         });
         Hold { link, role }
     }

@@ -47,8 +47,8 @@ impl ToList for &str {
             items: vec![],
         });
         let role = Role {
-            actual: Actual::List(link.clone()),
-            method: link.ploy(),
+            part: Part::List(link.clone()),
+            form: link.ploy(),
         };
         Hold { link, role }
     }
