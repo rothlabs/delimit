@@ -91,12 +91,11 @@ where
 
 impl<E> Reader for Link<E>
 where
-    E: 'static + Reader + Updater + AddRoot + Send + Sync,
+    E: 'static + Reader + Updater + RootAdder + Send + Sync,
 {
     type Item = E::Item;
     fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
-        // TODO: first read and check if it is not added as Back and then write to do so
-        let mut edge = self.edge.write().expect(NO_POISON);
+        let edge = self.edge.read().expect(NO_POISON);
         edge.reader(read);
         edge.add_root(self.as_root());
     }

@@ -9,7 +9,7 @@ use std::{
 use crate::{Meta, NO_POISON};
 
 pub trait Rebuter {
-    fn rebuter(&self) -> Ring;
+    fn rebut(&self) -> Ring;
 }
 
 pub trait Rebut {
@@ -17,7 +17,7 @@ pub trait Rebut {
 }
 
 pub trait Reactor {
-    fn reactor(&self, meta: &Meta);
+    fn react(&self, meta: &Meta);
 }
 
 pub trait React {
@@ -26,6 +26,10 @@ pub trait React {
 
 pub trait AddRoot {
     fn add_root(&mut self, root: Root);
+}
+
+pub trait RootAdder {
+    fn add_root(&self, root: Root);
 }
 
 pub trait Backed {
@@ -61,19 +65,19 @@ pub struct Root {
 }
 
 impl Root {
-    pub fn rebuter(&self) -> Ring {
+    pub fn rebut(&self) -> Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
-            edge.rebuter()
+            edge.rebut()
         } else {
             Ring::new()
         }
     }
-    pub fn reactor(&self, meta: &Meta) {
+    pub fn react(&self, meta: &Meta) {
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
-            edge.reactor(meta);
+            edge.react(meta);
         }
     }
 }
@@ -100,7 +104,7 @@ pub struct Back {
 }
 
 impl Back {
-    pub fn rebuter(&self) -> Ring {
+    pub fn rebut(&self) -> Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
@@ -109,7 +113,7 @@ impl Back {
             Ring::new()
         }
     }
-    pub fn reactor(&self, meta: &Meta) {
+    pub fn react(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
             node.react(meta);
@@ -130,10 +134,10 @@ impl Ring {
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
-    pub fn rebuter(&self) -> Ring {
+    pub fn rebut(&self) -> Ring {
         let mut result = Ring::new();
         for root in &self.roots {
-            let ring = root.rebuter();
+            let ring = root.rebut();
             if ring.roots.is_empty() {
                 result.roots.insert(root.clone());
             } else {
@@ -143,10 +147,10 @@ impl Ring {
         result
     }
     pub fn cycle(&mut self, meta: &Meta) {
-        let ring = self.rebuter();
+        let ring = self.rebut();
         self.roots.clear();
         for root in &ring.roots {
-            root.reactor(meta);
+            root.react(meta);
         }
     }
     // TODO: make method to remove reactors with dropped edges

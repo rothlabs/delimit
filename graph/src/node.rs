@@ -114,7 +114,7 @@ where
 {
     fn rebut(&mut self) -> Ring {
         self.work.clear();
-        self.ring.rebuter()
+        self.ring.rebut()
     }
 }
 

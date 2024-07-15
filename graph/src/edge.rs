@@ -9,7 +9,7 @@ pub type Ace<L> = Edge<node::Ace<L>>;
 pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
-/// The bridge between root and stem node.
+/// The bridge between root and node node.
 pub struct Edge<N> {
     pub back: Option<Back>,
     pub node: Arc<RwLock<N>>,
@@ -35,9 +35,9 @@ where
     N: 'static + Update + Send + Sync,
 {
     fn node_as_back(&self) -> Back {
-        let stem = self.node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        let node = self.node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
         Back {
-            node: Arc::downgrade(&stem),
+            node: Arc::downgrade(&node),
             // meta: self.meta.clone(),
         }
     }
@@ -56,8 +56,8 @@ where
 {
     type Load = N::Load;
     fn grant(&self) -> Self::Load {
-        let mut stem = self.node.write().expect(NO_POISON);
-        stem.grantor()
+        let mut node = self.node.write().expect(NO_POISON);
+        node.grantor()
     }
 }
 
@@ -91,8 +91,8 @@ where
     type Task = N::Task;
     type Load = N::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
-        let mut stem = self.node.write().expect(NO_POISON);
-        stem.solver(task)
+        let mut node = self.node.write().expect(NO_POISON);
+        node.solver(task)
     }
 }
 
@@ -119,8 +119,8 @@ where
 {
     type Load = N::Load;
     fn load(&self) -> Self::Load {
-        let stem = self.node.read().expect(NO_POISON);
-        stem.load()
+        let node = self.node.read().expect(NO_POISON);
+        node.load()
     }
 }
 
@@ -140,8 +140,8 @@ where
 {
     type Item = N::Item;
     fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F) {
-        let mut stem = self.node.write().expect(NO_POISON);
-        stem.write(write);
+        let mut node = self.node.write().expect(NO_POISON);
+        node.write(write);
     }
 }
 
@@ -151,8 +151,8 @@ where
 {
     type Unit = N::Unit;
     fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
-        let mut stem = self.node.write().expect(NO_POISON);
-        stem.write_with_back(write, &self.node_as_back());
+        let mut node = self.node.write().expect(NO_POISON);
+        node.write_with_back(write, &self.node_as_back());
     }
 }
 
@@ -162,27 +162,27 @@ where
 {
     type Item = N::Item;
     fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
-        let stem = self.node.read().expect(NO_POISON);
-        read(stem.read());
+        let node = self.node.read().expect(NO_POISON);
+        read(node.read());
     }
 }
 
-impl<N> AddRoot for Edge<N>
+impl<N> RootAdder for Edge<N>
 where
     N: AddRoot,
 {
-    fn add_root(&mut self, root: Root) {
-        let mut stem = self.node.write().expect(NO_POISON);
-        stem.add_root(root);
+    fn add_root(&self, root: Root) {
+        let mut node = self.node.write().expect(NO_POISON);
+        node.add_root(root);
     }
 }
 
 impl<N> Updater for Edge<N> {}
 
 impl<N> Rebuter for Edge<N> {
-    fn rebuter(&self) -> Ring {
+    fn rebut(&self) -> Ring {
         if let Some(root) = &self.back {
-            root.rebuter()
+            root.rebut()
         } else {
             Ring::new()
         }
@@ -190,9 +190,9 @@ impl<N> Rebuter for Edge<N> {
 }
 
 impl<N> Reactor for Edge<N> {
-    fn reactor(&self, meta: &Meta) {
+    fn react(&self, meta: &Meta) {
         if let Some(back) = &self.back {
-            back.reactor(meta);
+            back.react(meta);
         }
     }
 }
