@@ -94,9 +94,9 @@ where
     E: 'static + Reader + Updater + RootAdder + Send + Sync,
 {
     type Item = E::Item;
-    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.reader(read);
+        edge.read(read);
         edge.add_root(self.as_root());
     }
 }
@@ -106,9 +106,9 @@ where
     E: Writer,
 {
     type Item = E::Item;
-    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F) {
+    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.writer(write);
+        edge.write(write);
     }
 }
 
@@ -117,19 +117,20 @@ where
     E: WriterWithPack,
 {
     type Unit = E::Unit;
-    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
+    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.writer(write);
+        edge.write(write);
     }
 }
 
 impl<E: ?Sized> Grant for Link<E>
 where
-    E: Grant,
+    E: Grant //  + Updater + RootAdder + Send + Sync,
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
         let edge = self.edge.read().expect(NO_POISON);
+        // edge.add_root(self.as_root());
         edge.grant()
     }
 }

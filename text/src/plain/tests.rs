@@ -1,35 +1,35 @@
 use super::*;
 
-fn new_list(leaf: &Ace<String>) -> Text<List> {
+fn new_list(ace: &Ace<String>) -> Text<List> {
     let list = ", ".list();
-    list.link.writer(|pack| {
-        pack.unit.items.back(pack.back).add_str("str").add_ace(leaf);
+    list.link.write(|pack| {
+        pack.unit.items.back(pack.back).add_str("str").add_ace(ace);
     });
     list.link
 }
 
 #[test]
 fn grant_and_read_ace_from_list() {
-    let leaf = "leaf".ace();
-    let text = new_list(&leaf);
-    text.grant().reader(|string| {
-        assert_eq!(string, "str, leaf");
+    let ace = "ace".ace();
+    let text = new_list(&ace);
+    text.grant().read(|string| {
+        assert_eq!(string, "str, ace");
     });
 }
 
 #[test]
 fn grant_same_link_twice() {
-    let leaf = "leaf".ace();
-    let text = new_list(&leaf);
+    let ace = "ace".ace();
+    let text = new_list(&ace);
     assert!(text.grant() == text.grant());
 }
 
 #[test]
 fn react_from_self() {
-    let leaf = "leaf".ace();
-    let text = new_list(&leaf);
+    let ace = "ace".ace();
+    let text = new_list(&ace);
     let a = text.grant();
-    text.writer(|pack| {
+    text.write(|pack| {
         pack.unit.separator(" > ");
     });
     let b = text.grant();
@@ -38,22 +38,22 @@ fn react_from_self() {
 
 #[test]
 fn react_from_stem() {
-    let leaf = "leaf".ace();
-    let text = new_list(&leaf);
+    let ace = "ace".ace();
+    let text = new_list(&ace);
     let a = text.grant();
-    leaf.writer(|string| string.push_str("_mutated"));
+    ace.write(|string| string.push_str("_mutated"));
     let b = text.grant();
     assert!(a != b);
 }
 
 #[test]
 fn no_reactions_after_dropping_stem() {
-    let leaf = "leaf".ace();
-    let text = new_list(&leaf);
+    let ace = "ace".ace();
+    let text = new_list(&ace);
     let _r = text.grant();
-    text.writer(|pack| pack.unit.remove(1));
+    text.write(|pack| pack.unit.remove(1));
     let a = text.grant();
-    leaf.writer(|string| string.push_str("_mutated"));
+    ace.write(|string| string.push_str("_mutated"));
     let b = text.grant();
     assert!(a == b);
 }

@@ -34,10 +34,10 @@ where
     L: 'static + Send + Sync,
 {
     type Item = L;
-    fn reader<F: FnOnce(&L)>(&self, read: F) {
+    fn read<F: FnOnce(&L)>(&self, read: F) {
         match self {
             AceView::Bare(bare) => read(bare),
-            AceView::Ace(ace) => ace.reader(read),
+            AceView::Ace(ace) => ace.read(read),
         };
     }
 }

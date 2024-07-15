@@ -139,7 +139,7 @@ where
     N: Write,
 {
     type Item = N::Item;
-    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F) {
+    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         let mut node = self.node.write().expect(NO_POISON);
         node.write(write);
     }
@@ -150,7 +150,7 @@ where
     N: 'static + WriteWithBack + Update + Send + Sync,
 {
     type Unit = N::Unit;
-    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
+    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         let mut node = self.node.write().expect(NO_POISON);
         node.write_with_back(write, &self.node_as_back());
     }
@@ -161,7 +161,7 @@ where
     N: Read,
 {
     type Item = N::Item;
-    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
         let node = self.node.read().expect(NO_POISON);
         read(node.read());
     }

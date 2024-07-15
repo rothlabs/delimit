@@ -23,10 +23,10 @@ impl Grant for Tag {
     type Load = Load;
     fn grant(&self) -> Self::Load {
         let Hold { link, role } = "".list();
-        link.writer(|pack| {
+        link.write(|pack| {
             let mut tag = pack.unit.items.back(pack.back);
             let Hold { link, role } = " ".list();
-            link.writer(|Pack { unit, back }| {
+            link.write(|Pack { unit, back }| {
                 let mut inner = unit.items.back(back);
                 inner.use_ploy(&self.name);
                 for att in &self.attributes {

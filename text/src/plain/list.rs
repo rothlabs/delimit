@@ -26,11 +26,11 @@ impl Grant for List {
             return string.into_ace();
         }
         for i in 0..self.items.len() - 1 {
-            self.items[i].reader(|s| string += s);
+            self.items[i].read(|s| string += s);
             string += &self.separator;
         }
         if let Some(item) = self.items.last() {
-            item.reader(|s| string += s);
+            item.read(|s| string += s);
         }
         string.into_ace()
     }

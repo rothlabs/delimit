@@ -20,7 +20,7 @@ impl Doc {
         self.element.link.grant().grant().load()
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
-        self.element.link.writer(|pack| {
+        self.element.link.write(|pack| {
             pack.unit.items.push(plain::string(value));
         });
         self
@@ -31,7 +31,7 @@ impl Doc {
             .as_ref()
             .expect("element should have a root")
             .replace(Doc::new());
-        root.element.link.writer(|pack| {
+        root.element.link.write(|pack| {
             pack.unit.items.back(pack.back).push(&self.element.role);
         });
         root
@@ -49,7 +49,7 @@ impl Doc {
     pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
         if let Some(item) = self.att_names.get(name) {
             let hold = Attribute::new(item, &plain::string(value));
-            self.tag.link.writer(|pack| {
+            self.tag.link.write(|pack| {
                 pack.unit.attributes.back(pack.back).push(&hold.role);
             });
         }

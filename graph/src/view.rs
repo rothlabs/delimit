@@ -36,10 +36,10 @@ where
     B: Reader + Send + Sync + 'static,
 {
     type Item = B::Item;
-    fn reader<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
         match self {
-            Self::Role(role) => role.grant().reader(read),
-            Self::Base(bare) => bare.reader(read),
+            Self::Role(role) => role.grant().read(read),
+            Self::Base(bare) => bare.read(read),
         };
     }
 }

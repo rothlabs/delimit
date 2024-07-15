@@ -8,18 +8,16 @@ pub use react::{
     AddRoot, RootAdder, Back, Backed, PlanWithBack, PloyWithBack, React, Reactor, Rebut, Rebuter, Ring, Root,
     Update, Updater,
 };
-pub use read::{Grant, Read, Reader, Solve};
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{AceView, ToViewsBuilder, View};
-pub use write::{Grantor, Pack, Solver, Write, WriteWithBack, Writer, WriterWithPack};
+pub use write::{Pack, Write, WriteWithBack, Writer, WriterWithPack};
 
 pub mod edge;
 pub mod link;
 pub mod meta;
 pub mod node;
 pub mod react;
-pub mod read;
 pub mod role;
 pub mod unit;
 pub mod view;
@@ -31,6 +29,38 @@ const NO_POISON: &str = "the lock should not be poisoned";
 pub struct Hold<L, R> {
     pub link: L,
     pub role: R,
+}
+
+pub trait Read {
+    type Item;
+    fn read(&self) -> &Self::Item;
+}
+
+pub trait Reader {
+    type Item;
+    fn read<F: FnOnce(&Self::Item)>(&self, read: F);
+}
+
+pub trait Grant {
+    type Load;
+    fn grant(&self) -> Self::Load;
+}
+
+pub trait Grantor {
+    type Load;
+    fn grantor(&mut self) -> Self::Load;
+}
+
+pub trait Solve {
+    type Task;
+    type Load;
+    fn solve(&self, task: Self::Task) -> Self::Load;
+}
+
+pub trait Solver {
+    type Task;
+    type Load;
+    fn solver(&mut self, task: Self::Task) -> Self::Load;
 }
 
 /// Edge that grants a load. In addition, clone the edge with a new back,

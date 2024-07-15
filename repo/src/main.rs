@@ -42,7 +42,7 @@ async fn service(
     _: Request<impl Body>,
     ace: Ace<i32>,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.writer(|load| {
+    ace.write(|load| {
         println!("load: {load}");
         *load += 1;
     });

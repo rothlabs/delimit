@@ -23,7 +23,7 @@ impl Grant for Sum {
     fn grant(&self) -> Load {
         let mut value = 0.;
         for item in &self.items {
-            item.reader(|v| value += v);
+            item.read(|v| value += v);
         }
         value.into_sole()
     }

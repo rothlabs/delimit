@@ -12,7 +12,7 @@ pub trait Write {
 
 pub trait Writer {
     type Item;
-    fn writer<F: FnOnce(&mut Self::Item)>(&self, write: F);
+    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F);
 }
 
 pub trait WriteWithBack {
@@ -22,16 +22,5 @@ pub trait WriteWithBack {
 
 pub trait WriterWithPack {
     type Unit;
-    fn writer<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
-}
-
-pub trait Grantor {
-    type Load;
-    fn grantor(&mut self) -> Self::Load;
-}
-
-pub trait Solver {
-    type Task;
-    type Load;
-    fn solver(&mut self, task: Self::Task) -> Self::Load;
+    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
 }
