@@ -19,11 +19,11 @@ pub trait Rebut {
 }
 
 pub trait Reactor {
-    fn reactor(&self);
+    fn reactor(&self, meta: &Meta);
 }
 
 pub trait React {
-    fn react(&mut self);
+    fn react(&mut self, meta: &Meta);
 }
 
 pub trait AddRoot {
@@ -51,7 +51,7 @@ pub trait PlanWithBack {
 }
 
 pub trait Cycle {
-    fn cycle(&mut self);
+    fn cycle(&mut self, meta: &Meta);
 }
 
 /// Edge that Rebuts a Ring and reacts.
@@ -82,10 +82,10 @@ impl Rebuter for Root {
 }
 
 impl Reactor for Root {
-    fn reactor(&self) {
+    fn reactor(&self, meta: &Meta) {
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
-            edge.reactor();
+            edge.reactor(meta);
         }
     }
 }
@@ -125,10 +125,10 @@ impl Rebuter for Back {
 }
 
 impl Reactor for Back {
-    fn reactor(&self) {
+    fn reactor(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
-            node.react();
+            node.react(meta);
         }
     }
 }
@@ -147,11 +147,11 @@ impl Ring {
 }
 
 impl Cycle for Ring {
-    fn cycle(&mut self) {
+    fn cycle(&mut self, meta: &Meta) {
         let ring = self.rebut();
         self.roots.clear();
         for root in &ring.roots {
-            root.reactor();
+            root.reactor(meta);
         }
     }
 }

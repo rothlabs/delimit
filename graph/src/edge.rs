@@ -202,9 +202,9 @@ impl<B, N> Reactor for Edge<B, N>
 where
     B: Reactor,
 {
-    fn reactor(&self) {
+    fn reactor(&self, meta: &Meta) {
         if let Some(back) = &self.back {
-            back.reactor();
+            back.reactor(meta);
         }
     }
 }

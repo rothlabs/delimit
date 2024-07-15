@@ -9,6 +9,7 @@ pub type Trey<U, T, L> = Node<Ring, work::Trey<U, T, L>>;
 /// A node creates an interactive bridge between root edges and work.
 #[derive(Serialize)]
 pub struct Node<R, W> {
+    meta: Meta,
     ring: R,
     work: W,
 }
@@ -21,6 +22,7 @@ where
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
+            meta: Meta::new(),
             ring: R::default(),
             work: W::new(item),
         }
@@ -55,7 +57,7 @@ where
     type Item = W::Item;
     fn write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
         self.work.write(write);
-        self.ring.cycle();
+        self.ring.cycle(&self.meta);
     }
 }
 
@@ -67,7 +69,7 @@ where
     type Unit = W::Unit;
     fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
         self.work.write_with_back(write, back);
-        self.ring.cycle();
+        self.ring.cycle(&self.meta);
     }
 }
 
@@ -115,7 +117,7 @@ where
 impl<R, W> Update for Node<R, W>
 where
     R: Rebuter<Ring = Ring>,
-    W: Clear,
+    W: Clear + React,
 {
 }
 
@@ -132,10 +134,10 @@ where
 }
 
 impl<R, W> React for Node<R, W>
-// where
-//     W: React
+where
+    W: React
 {
-    fn react(&mut self) {
-        // self.work.react();
+    fn react(&mut self, meta: &Meta) {
+        self.work.react(meta);
     }
 }
