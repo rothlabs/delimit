@@ -66,7 +66,7 @@ where
 impl<E> Backed for Link<E>
 where
     E: Backed,
-{
+{ 
     fn backed(&self, root: &Back) -> Self {
         let edge = self.edge.read().expect(NO_POISON);
         Self {
@@ -142,6 +142,7 @@ where
     Edge<Node<work::Deuce<U, L>>>: Produce<L>,
 {
     pub fn ploy(&self) -> Ploy<L> {
+        //let wow = x)
         let edge = self.edge.clone() as Arc<RwLock<dyn Produce<L> + Send + Sync>>;
         Ploy {
             edge,

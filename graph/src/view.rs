@@ -95,7 +95,7 @@ where
 
 impl<R, B> UsePloy for Vec<View<R, B>> {
     type Load = View<R, B>;
-    fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T) {
+    fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
         self.push(item.grant());
     }
 }
