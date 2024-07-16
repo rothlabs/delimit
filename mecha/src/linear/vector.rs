@@ -2,6 +2,7 @@ use std::ops::*;
 
 use super::*;
 
+#[derive(Clone)]
 pub struct Vector<T, const R: usize>(pub [T; R]);
 
 impl<T, const R: usize> Default for Vector<T, R>

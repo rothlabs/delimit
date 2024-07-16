@@ -2,62 +2,80 @@ use std::ops::*;
 
 use super::*;
 
-pub struct Matrix<V, const C: usize>(pub [V; C]);
+pub struct Matrix<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
-impl<V, const C: usize> Default for Matrix<V, C>
+impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
 where
-    V: Copy + Default,
+    T: Copy + Default,
+    
 {
     fn default() -> Self {
-        Self([V::default(); C])
+        Self([[T::default(); R]; C])
     } 
 }
 
-impl<V, const C: usize> Matrix<V, C>
+impl<T, const R: usize, const C: usize> Matrix<T, R, C>
 where
-    V: Copy + Default,
+    T: Copy + Default,
 {
-    fn zip<F: Fn(V, V) -> V>(&self, rhs: &Self, op: F) -> Self {
+    fn transpose(&self) -> Matrix::<T, C, R> {
         let mut matrix = Matrix::default();
-        for c in 0..matrix.0.len() {
-            matrix.0[c] = op(self.0[c], rhs.0[c]);
+        for r in 0..matrix.0.len() {
+            for c in 0..matrix.0[r].len() {
+                matrix.0[r][c] = self.0[c][r];
+            }
         }
         matrix
     }
 }
 
+
+
 // impl<V, const C: usize> Matrix<V, C>
 // where
-//     V: Copy + Default + Zip,
+//     V: Copy + Default,
 // {
-//     fn transpose(&self) -> Matrix::<Vector<V::Item, C>, { <Vector<V::Item, V::ROWS> as Zip>::ROWS }> {
+//     fn zip<F: Fn(V, V) -> V>(&self, rhs: &Self, op: F) -> Self {
 //         let mut matrix = Matrix::default();
-//         // for c in 0..matrix.0.len() {
-//         //     matrix.0[c] = op(self.0[c], rhs.0[c]);
-//         // }
+//         for c in 0..matrix.0.len() {
+//             matrix.0[c] = op(self.0[c], rhs.0[c]);
+//         }
 //         matrix
 //     }
 // }
 
-impl<V, const C: usize> Add<&Matrix<V, C>> for &Matrix<V, C>
-where
-    V: Copy + Default + Add<V, Output = V>,
-{
-    type Output = Matrix<V, C>;
-    fn add(self, rhs: &Matrix<V, C>) -> Matrix<V, C> {
-        self.zip(rhs, |l, r| l + r)
-    }
-}
+// // impl<V, const C: usize> Matrix<V, C>
+// // where
+// //     V: Copy + Default + Zip,
+// // {
+// //     fn transpose(&self) -> Matrix::<Vector<V::Item, C>, { <Vector<V::Item, V::ROWS> as Zip>::ROWS }> {
+// //         let mut matrix = Matrix::default();
+// //         // for c in 0..matrix.0.len() {
+// //         //     matrix.0[c] = op(self.0[c], rhs.0[c]);
+// //         // }
+// //         matrix
+// //     }
+// // }
 
-impl<V, const C: usize> Sub<&Matrix<V, C>> for &Matrix<V, C>
-where
-    V: Copy + Default + Sub<V, Output = V>,
-{
-    type Output = Matrix<V, C>;
-    fn sub(self, rhs: &Matrix<V, C>) -> Matrix<V, C> {
-        self.zip(rhs, |l, r| l - r)
-    }
-}
+// impl<V, const C: usize> Add<&Matrix<V, C>> for &Matrix<V, C>
+// where
+//     V: Copy + Default + Add<V, Output = V>,
+// {
+//     type Output = Matrix<V, C>;
+//     fn add(self, rhs: &Matrix<V, C>) -> Matrix<V, C> {
+//         self.zip(rhs, |l, r| l + r)
+//     }
+// }
+
+// impl<V, const C: usize> Sub<&Matrix<V, C>> for &Matrix<V, C>
+// where
+//     V: Copy + Default + Sub<V, Output = V>,
+// {
+//     type Output = Matrix<V, C>;
+//     fn sub(self, rhs: &Matrix<V, C>) -> Matrix<V, C> {
+//         self.zip(rhs, |l, r| l - r)
+//     }
+// }
 
 // impl<V, const C: usize> Mul<&Matrix<V, C>> for &Matrix<V, C>
 // where
