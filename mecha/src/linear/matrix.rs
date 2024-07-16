@@ -1,98 +1,86 @@
-use std::ops::*;
+use std::{ops::*, slice::SliceIndex};
+
+use itertools::Itertools;
 
 use super::*;
 
-// struct One;
+pub struct Matrix<T>(Vec<Vector<T>>);
 
-#[derive(Default)]
-struct Matrix<V, N> {
-    here: V,
-    next: N,
+impl<T> Matrix<T> 
+where 
+    T: Copy + Default
+{
+    pub fn new(rows: usize, cols: usize) -> Self {
+        Self (vec![Vector::new(rows); cols])
+    }
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+    pub fn transpose(&self) -> Self {
+        let mut matrix = Matrix::new(self.len(), self[0].len());
+        for c in 0..self.len() {
+            for r in 0..self[c].len() {
+                matrix[r][c] = self[c][r];
+            }
+        }
+        matrix
+    }
+    pub fn vec(&self) -> Vec<&Vec<T>> {
+        self.0.iter().map(|v| v.vec()).collect_vec()
+    }
 }
 
+impl<T> From<Vec<Vec<T>>> for Matrix<T> 
+where 
+    T: Copy + Default
+{
+    fn from(data: Vec<Vec<T>>) -> Self {
+        let mut matrix = Matrix::new(data[0].len(), data.len());
+        for c in 0..matrix.len() {
+            matrix[c] = Vector::from(&data[c]);
+        }
+        matrix
+    }
+}
 
+impl<T> Mul<&Matrix<T>> for &Matrix<T>
+where
+    T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>,
+{
+    type Output = Matrix<T>;
+    fn mul(self, rhs: &Matrix<T>) -> Matrix<T> {
+        //let mut matrix = Matrix::new(self[0].len(), rhs.len());
+        let mut matrix = Matrix::new(0, 0);
+        let transpose = self.transpose();
+        for rv in &rhs.0 {
+            let vector = Vector::from(transpose.0.iter().map(|lv| lv.dot(rv)).collect::<Vec<T>>());
+            matrix.0.push(vector);
+        // for c in 0..transpose.len() {
+        //     matrix[c] = &transpose[c] * &rhs[c];
+        // }
+        }
+        matrix
+    }
+}
 
-// impl<T, N> Default for Vector<T, N> 
-// where 
-//     T: Default,
-//     N: Default
-// {
-//     fn default() -> Self {
-//         Self {
-//             here: T::default(),
-//             next: N::default()
-//         }
-//     }
-// }
+impl<T, Idx> Index<Idx> for Matrix<T> 
+where
+    Idx: SliceIndex<[Vector<T>], Output = Vector<T>>,
+{
+    type Output = Vector<T>;
+    fn index(&self, index: Idx) -> &Self::Output {
+        self.0.index(index)
+    }
+}
 
-// struct Rows<T, const R: usize>([T; R]);
-
-// impl<T, const R: usize> Default for Rows<T, R> 
-// where 
-//     T: Copy + Default
-// {
-//     fn default() -> Self {
-//         Self([T::default(); R])
-//     }
-// }
-
-
-
-// struct RowMul<T, const R: usize>([T; R]);
-
-// impl<T, const R: usize> Default for RowMul<T, R> 
-// where 
-//     T: Default
-// {
-//     fn default() -> Self {
-//         Self(core::array::from_fn(|_| T::default()))
-//     }
-// }
-
-// struct RowAdd<T: Zip, const R: usize>(T, [T::Item; R]);
-
-// struct Cols<T, const C: usize>([T; C]);
-
-// impl<T, const C: usize> Default for Cols<T, C> 
-// where 
-//     T: Default
-// {
-//     fn default() -> Self {
-//         Self(core::array::from_fn(|_| T::default()))
-//     }
-// }
-
-// struct ColMul<T, const C: usize>([T; C]);
-
-// struct ColAdd<T: Zip, const C: usize>(T, [T::Item; C]);
-
-
-//pub struct Matrix<T, const R: usize, const C: usize>(pub [[T; R]; C]);
-
-// impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
-// where
-//     T: Copy + Default,
-    
-// {
-//     fn default() -> Self {
-//         Self([[T::default(); R]; C])
-//     } 
-// }
-
-// impl<T, const R: usize, const C: usize> Matrix<T, R, C>
-// where
-//     T: Copy + Default,
-// {
-//     fn transpose(&self) -> Matrix::<T, C, R> {
-//         let mut matrix = Matrix::default();
-//         for r in 0..matrix.0.len() {
-//             for c in 0..matrix.0[r].len() {
-//                 matrix.0[r][c] = self.0[c][r];
-//             }
-//         }
-//         matrix
-//     }
-// }
+impl<T, Idx> IndexMut<Idx> for Matrix<T> 
+where
+    Idx: SliceIndex<[Vector<T>], Output = Vector<T>>,
+{
+    fn index_mut(&mut self, index: Idx) -> &mut Self::Output {
+        self.0.index_mut(index)
+    }
+}
 
 
 
@@ -209,4 +197,19 @@ struct Matrix<V, N> {
 // trait Zip {
 //     type Num;
 //     fn zip<F: Fn(Self::Num, Self::Num) -> Self::Num>(&self, rhs: &Self, op: F) -> Self;
+// }
+
+
+
+// impl<T> From<(usize, Vec<T>)> for Matrix<T> 
+// where 
+//     T: Copy + Default
+// {
+//     fn from(data: (usize, Vec<T>)) -> Self {
+//         let mut matrix = Matrix::new(data.0, data.1.len() / data.0);
+//         for c in 0..matrix.len() {
+//             matrix[c] = 
+//         }
+//         matrix
+//     }
 // }
