@@ -2,10 +2,57 @@ use std::ops::*;
 
 use super::*;
 
-#[derive(Clone)]
-pub struct Vector<T, const R: usize>(pub [T; R]);
+#[derive(Default)]
+struct End;
 
-impl<T, const R: usize> Default for Vector<T, R>
+impl Next for End {
+    type Next = ();
+    fn next(&self) -> Option<&Self::Next> {
+        None
+    }
+}
+
+#[derive(Default)]
+struct Vector<T, N> {
+    here: T,
+    next: N,
+}
+
+impl<T, N> Next for Vector<T, N> {
+    type Next = N;
+    fn next(&self) -> Option<&Self::Next> {
+        Some(&self.next)
+    }
+}
+
+impl<T, N> Vector<T, N> where 
+    N: Next,
+    <N as Next>::Next: Next,
+{
+    fn walk(&self) {
+        let wow = self.next();
+        let wow2 = wow.unwrap().next();
+        let wow3 = wow2.unwrap().next();
+    }
+}
+
+// impl<T, N> Zip for Vector<T, N> 
+// where 
+//     N: Zip<Item = T>
+// {
+//     type Item = T;
+//     type Next = N;
+//     fn zip<F: Fn(Self::Item, Self::Item, usize)>(&self, rhs: &Self::Next, index: usize, op: F) {
+//         op(self.here, rhs.);
+//     }
+// }
+
+
+
+#[derive(Clone)]
+pub struct VectorX<T, const R: usize>(pub [T; R]);
+
+impl<T, const R: usize> Default for VectorX<T, R>
 where
     T: Copy + Default,
 {
@@ -14,7 +61,7 @@ where
     }
 }
 
-impl<T, const R: usize> Vector<T, R>
+impl<T, const R: usize> VectorX<T, R>
 where
     T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>,
 {
@@ -23,14 +70,14 @@ where
     } 
 }
 
-impl<T, const R: usize> Zip for Vector<T, R>
+impl<T, const R: usize> ZipX for VectorX<T, R>
 where
     T: Copy + Default,
 {
     type Item = T;
-    const ROWS: usize = R;
+    //const ROWS: usize = R;
     fn zip<F: Fn(T, T) -> T>(&self, rhs: &Self, op: F) -> Self {
-        let mut vector = Vector::default();
+        let mut vector = VectorX::default();
         for r in 0..vector.0.len() {
             vector.0[r] = op(self.0[r], rhs.0[r]);
         }
@@ -38,32 +85,32 @@ where
     }
 }
 
-impl<T, const R: usize> Add<&Vector<T, R>> for &Vector<T, R>
+impl<T, const R: usize> Add<&VectorX<T, R>> for &VectorX<T, R>
 where
     T: Copy + Default + Add<T, Output = T>,
 {
-    type Output = Vector<T, R>;
-    fn add(self, rhs: &Vector<T, R>) -> Vector<T, R> {
+    type Output = VectorX<T, R>;
+    fn add(self, rhs: &VectorX<T, R>) -> VectorX<T, R> {
         self.zip(rhs, |l, r| l + r)
     }
 }
 
-impl<T, const R: usize> Sub<&Vector<T, R>> for &Vector<T, R>
+impl<T, const R: usize> Sub<&VectorX<T, R>> for &VectorX<T, R>
 where
     T: Copy + Default + Sub<T, Output = T>,
 {
-    type Output = Vector<T, R>;
-    fn sub(self, rhs: &Vector<T, R>) -> Vector<T, R> {
+    type Output = VectorX<T, R>;
+    fn sub(self, rhs: &VectorX<T, R>) -> VectorX<T, R> {
         self.zip(rhs, |l, r| l - r)
     }
 }
 
-impl<T, const R: usize> Mul<&Vector<T, R>> for &Vector<T, R>
+impl<T, const R: usize> Mul<&VectorX<T, R>> for &VectorX<T, R>
 where
     T: Copy + Default + Mul<T, Output = T>,
 {
-    type Output = Vector<T, R>;
-    fn mul(self, rhs: &Vector<T, R>) -> Vector<T, R> {
+    type Output = VectorX<T, R>;
+    fn mul(self, rhs: &VectorX<T, R>) -> VectorX<T, R> {
         self.zip(rhs, |l, r| l * r)
     }
 }

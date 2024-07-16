@@ -2,32 +2,97 @@ use std::ops::*;
 
 use super::*;
 
-pub struct Matrix<T, const R: usize, const C: usize>(pub [[T; R]; C]);
+// struct One;
 
-impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
-where
-    T: Copy + Default,
+#[derive(Default)]
+struct Matrix<V, N> {
+    here: V,
+    next: N,
+}
+
+
+
+// impl<T, N> Default for Vector<T, N> 
+// where 
+//     T: Default,
+//     N: Default
+// {
+//     fn default() -> Self {
+//         Self {
+//             here: T::default(),
+//             next: N::default()
+//         }
+//     }
+// }
+
+// struct Rows<T, const R: usize>([T; R]);
+
+// impl<T, const R: usize> Default for Rows<T, R> 
+// where 
+//     T: Copy + Default
+// {
+//     fn default() -> Self {
+//         Self([T::default(); R])
+//     }
+// }
+
+
+
+// struct RowMul<T, const R: usize>([T; R]);
+
+// impl<T, const R: usize> Default for RowMul<T, R> 
+// where 
+//     T: Default
+// {
+//     fn default() -> Self {
+//         Self(core::array::from_fn(|_| T::default()))
+//     }
+// }
+
+// struct RowAdd<T: Zip, const R: usize>(T, [T::Item; R]);
+
+// struct Cols<T, const C: usize>([T; C]);
+
+// impl<T, const C: usize> Default for Cols<T, C> 
+// where 
+//     T: Default
+// {
+//     fn default() -> Self {
+//         Self(core::array::from_fn(|_| T::default()))
+//     }
+// }
+
+// struct ColMul<T, const C: usize>([T; C]);
+
+// struct ColAdd<T: Zip, const C: usize>(T, [T::Item; C]);
+
+
+//pub struct Matrix<T, const R: usize, const C: usize>(pub [[T; R]; C]);
+
+// impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
+// where
+//     T: Copy + Default,
     
-{
-    fn default() -> Self {
-        Self([[T::default(); R]; C])
-    } 
-}
+// {
+//     fn default() -> Self {
+//         Self([[T::default(); R]; C])
+//     } 
+// }
 
-impl<T, const R: usize, const C: usize> Matrix<T, R, C>
-where
-    T: Copy + Default,
-{
-    fn transpose(&self) -> Matrix::<T, C, R> {
-        let mut matrix = Matrix::default();
-        for r in 0..matrix.0.len() {
-            for c in 0..matrix.0[r].len() {
-                matrix.0[r][c] = self.0[c][r];
-            }
-        }
-        matrix
-    }
-}
+// impl<T, const R: usize, const C: usize> Matrix<T, R, C>
+// where
+//     T: Copy + Default,
+// {
+//     fn transpose(&self) -> Matrix::<T, C, R> {
+//         let mut matrix = Matrix::default();
+//         for r in 0..matrix.0.len() {
+//             for c in 0..matrix.0[r].len() {
+//                 matrix.0[r][c] = self.0[c][r];
+//             }
+//         }
+//         matrix
+//     }
+// }
 
 
 
