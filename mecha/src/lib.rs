@@ -4,7 +4,7 @@
 mod buffer;
 mod matrix;
 mod shape;
-// mod math;
+mod linear;
 
 pub struct Translation {
     // vector: Vector,
