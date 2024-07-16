@@ -67,7 +67,10 @@ pub trait Solver {
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + RootAdder + Updater {}
 
 /// Edge that solves a task. In addition, clone the edge with a new Back.
-pub trait Convert<T, L>: Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + RootAdder + Updater {}
+pub trait Convert<T, L>:
+    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + RootAdder + Updater
+{
+}
 
 pub trait ToLoad {
     type Load;

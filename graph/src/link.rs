@@ -13,7 +13,7 @@ mod ace;
 /// Link to a load.
 pub type Ace<L> = Link<edge::Ace<L>>;
 
-/// Link to a unit that grants a load. 
+/// Link to a unit that grants a load.
 pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
 
 /// Link to a unit that solves a task with resulting load.

@@ -1,9 +1,9 @@
-pub use matrix::Matrix;
-pub use vector::Vector;
+// pub use buffer::Buffer;
+//pub use matrix::Matrix;
 
+mod buffer;
 mod matrix;
 mod shape;
-mod vector;
 // mod math;
 
 pub struct Translation {
