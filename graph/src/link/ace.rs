@@ -1,6 +1,6 @@
 use crate::*;
 
-/// Clone to Ace link. 
+/// Clone to Ace link.
 pub trait ToAce<L> {
     fn ace(&self) -> Ace<L>;
 }
@@ -20,7 +20,7 @@ impl ToAce<String> for str {
     }
 }
 
-/// Move into Ace link. 
+/// Move into Ace link.
 pub trait IntoAce<L> {
     fn into_ace(self) -> Ace<L>;
 }

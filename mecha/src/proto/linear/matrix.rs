@@ -1,25 +1,37 @@
 use std::ops::*;
 
+use super::*;
+
 #[derive(Clone)]
-pub struct Matrix<T>{
+pub struct Matrix<T> {
     rows: usize,
     cols: usize,
     data: Vec<T>,
 }
- 
-impl<T> Matrix<T> 
-where 
-    T: Copy + Default
+
+impl<T> Matrix<T>
+where
+    T: Copy + Default,
 {
     pub fn new(rows: usize, cols: usize) -> Self {
-        Self {rows, cols, data: vec![T::default(); rows * cols]}
+        Self {
+            rows,
+            cols,
+            data: vec![T::default(); rows * cols],
+        }
     }
-    pub fn rows_data(rows: usize, data: Vec<T>) -> Self {
+    pub fn from_data(rows: usize, data: Vec<T>) -> Self {
         Self {
             rows,
             cols: data.len() / rows,
             data,
         }
+    }
+    pub fn rows(&self) -> usize {
+        self.rows
+    }
+    pub fn cols(&self) -> usize {
+        self.cols
     }
     pub fn get(&self, row: usize, col: usize) -> &T {
         &self.data[self.rows * col + row]
@@ -27,17 +39,32 @@ where
     pub fn get_mut(&mut self, row: usize, col: usize) -> &mut T {
         &mut self.data[self.rows * col + row]
     }
-    pub fn transpose(&self) -> Self {
-        let mut out = Self::new(self.cols, self.rows);
-        for r in 0..self.rows {
-            for c in 0..self.cols {
-                *out.get_mut(c, r) = self.get(r, c).clone();
-            }
-        }
-        out
-    }
     pub fn vec(&self) -> &Vec<T> {
         &self.data
+    }
+    fn each<F: FnMut(usize, usize)>(&self, op: &mut F) {
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                op(r, c);
+            }
+        }
+    }
+    pub fn transpose(&self) -> Self {
+        let mut out = Self::new(self.cols, self.rows);
+        self.each(&mut |r, c| {
+            *out.get_mut(c, r) = *self.get(r, c);
+        });
+        out
+    }
+    /// Join two matrices side-by-side
+    pub fn join_cols(&self, rhs: &Matrix<T>) -> Self {
+        let mut data = self.data.clone();
+        data.extend(&rhs.data);
+        Self {
+            rows: self.rows,
+            cols: self.cols + rhs.cols,
+            data,
+        }
     }
 }
 
@@ -46,21 +73,57 @@ where
     T: Copy + Default + AddAssign<T> + Mul<T, Output = T>,
 {
     type Output = Matrix<T>;
+    /// Standard matrix multiplication
     fn mul(self, rhs: &Matrix<T>) -> Matrix<T> {
         let mut out = Matrix::new(self.rows, rhs.cols);
-        for lr in 0..self.rows {
-            for lc in 0..self.cols {
-                for rc in 0..rhs.cols {
-                    *out.get_mut(lr, rc) += *self.get(lr, lc) * *rhs.get(lc, rc);
-                }
+        self.each(&mut |r, c| {
+            for rc in 0..rhs.cols {
+                *out.get_mut(r, rc) += *self.get(r, c) * *rhs.get(c, rc);
             }
-        }
+        });
         out
     }
 }
 
-// impl<T> From<(usize, Vec<T>)> for Matrix<T> 
-// where 
+impl<T> Add<&Vector<T>> for &Matrix<T>
+where
+    T: Copy + Default + Add<T, Output = T>,
+{
+    type Output = Matrix<T>;
+    /// Add vector to each column of matrix.
+    fn add(self, vector: &Vector<T>) -> Matrix<T> {
+        let mut out = Matrix::new(self.rows, self.cols);
+        self.each(&mut |r, c| {
+            *out.get_mut(r, c) = *self.get(r, c) + vector[r];
+        });
+        out
+    }
+}
+
+// pub fn add_vector(&mut self, vector: &Vector<T>) {
+//     for r in 0..self.rows {
+//         for c in 0..self.cols {
+//             *self.get_mut(r, c) += vector[r];
+//         }
+//     }
+// }
+
+// pub fn push_cols(&self, rhs: &Matrix<T>) -> Self {
+//     let data = self.data.extend(rhs.data);
+//     Self {
+//         rows: self.rows,
+//         cols: self.cols + rhs.cols,
+//         data
+//     }
+// }
+// for r in 0..self.rows {
+//     for c in 0..self.cols {
+//         *out.get_mut(c, r) = self.get(r, c).clone();
+//     }
+// }
+
+// impl<T> From<(usize, Vec<T>)> for Matrix<T>
+// where
 //     T: Copy + Default
 // {
 //     fn from(data: (usize, Vec<T>)) -> Self {
@@ -92,7 +155,7 @@ where
 //     }
 // }
 
-// impl<T, Idx> Index<Idx> for Matrix<T> 
+// impl<T, Idx> Index<Idx> for Matrix<T>
 // where
 //     Idx: SliceIndex<[T], Output = T>,
 // {
@@ -103,7 +166,7 @@ where
 //     }
 // }
 
-// impl<T, Idx> IndexMut<Idx> for Matrix<T> 
+// impl<T, Idx> IndexMut<Idx> for Matrix<T>
 // where
 //     Idx: SliceIndex<[T], Output = T>,
 // {
@@ -111,8 +174,6 @@ where
 //         self.data.index_mut(index)
 //     }
 // }
-
-
 
 // impl<V, const C: usize> Matrix<V, C>
 // where
@@ -172,12 +233,6 @@ where
 
 // pub type Matrix<V, const C: usize> = Vector<V, C>;
 
-
-
-
-
-
-
 // impl<V, const C: usize> Zip for Matrix<V, C>
 // where
 //     V: Copy + Default + Zip,
@@ -203,10 +258,6 @@ where
 //     }
 // }
 
-
-
-
-
 // use itertools::izip;
 
 // impl<V, const C: usize> Matrix<V, C>
@@ -229,16 +280,14 @@ where
 //     fn zip<F: Fn(Self::Num, Self::Num) -> Self::Num>(&self, rhs: &Self, op: F) -> Self;
 // }
 
-
-
-// impl<T> From<(usize, Vec<T>)> for Matrix<T> 
-// where 
+// impl<T> From<(usize, Vec<T>)> for Matrix<T>
+// where
 //     T: Copy + Default
 // {
 //     fn from(data: (usize, Vec<T>)) -> Self {
 //         let mut matrix = Matrix::new(data.0, data.1.len() / data.0);
 //         for c in 0..matrix.len() {
-//             matrix[c] = 
+//             matrix[c] =
 //         }
 //         matrix
 //     }

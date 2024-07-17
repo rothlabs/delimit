@@ -102,10 +102,11 @@ where
     E: 'static + Reader + Updater + RootAdder + Send + Sync,
 {
     type Item = E::Item;
-    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         let edge = self.edge.read().expect(NO_POISON);
-        edge.read(read);
+        let out = edge.read(read);
         edge.add_root(self.as_root());
+        out
     }
 }
 

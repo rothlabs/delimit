@@ -10,7 +10,7 @@ mod tests;
 mod list;
 pub mod view {
     use super::*;
-    /// Plain text Stem to use inside units of super graphs
+    /// Plain text Link to use inside units of super graphs
     pub type Ploy<P> = graph::View<role::Ploy<P, Role>, Stem>;
 }
 

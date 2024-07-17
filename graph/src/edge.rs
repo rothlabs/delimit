@@ -196,9 +196,9 @@ where
     N: Read,
 {
     type Item = N::Item;
-    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         let node = self.node.read().expect(NO_POISON);
-        read(node.read());
+        read(node.read())
     }
 }
 
@@ -290,9 +290,6 @@ impl<T, L> Reactor for BoxConvert<T, L> {
         self.as_ref().react(meta)
     }
 }
-
-
-
 
 // impl<R, St> Serialize for Edge<R, St> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

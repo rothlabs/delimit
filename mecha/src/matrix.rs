@@ -8,12 +8,12 @@ mod extrude;
 
 pub mod view {
     use super::*;
-    /// Point-frame input plan for super graphs 
+    /// Matrix Link for super graphs
     pub type Plan<P, T> = graph::View<role::Plan<P, T, Role>, Stem>;
 }
 
-/// Point-frame output for super graphs
-pub type Role = role::Plan<Part, Task, Load>; 
+/// Matrix Load for super graphs
+pub type Role = role::Plan<Part, Task, Load>;
 
 type Link<U> = Trey<U, Task, Load>;
 type Stem = graph::view::ace::Plan<Part, Task, Load>;
@@ -24,16 +24,26 @@ type Matrix = proto::Matrix<f64>;
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub enum Task {
     Matrix,
-    GpuMap,    
+    GpuRun,
 }
 
 #[derive(Clone)]
 pub enum Load {
     Matrix(Matrix),
-    GpuMap,
-} 
+    GpuRun,
+}
+
+impl Load {
+    fn matrix(&self) -> &Matrix {
+        if let Self::Matrix(mat) = self {
+            mat
+        } else {
+            panic!("not a matrix")
+        }
+    }
+}
 
 #[derive(Clone)]
 pub enum Part {
-    Extrude(Link<Extrude>)
+    Extrude(Link<Extrude>),
 }

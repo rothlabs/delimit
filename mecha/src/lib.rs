@@ -1,4 +1,2 @@
-
-
-mod proto;
 mod matrix;
+mod proto;

@@ -1,3 +1,3 @@
-pub use linear::{Vector, Matrix};
+pub use linear::{Matrix, Vector};
 
 mod linear;

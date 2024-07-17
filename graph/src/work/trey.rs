@@ -12,7 +12,7 @@ impl<U, T, L> FromItem for Trey<U, T, L> {
     fn new(item: Self::Item) -> Self {
         Self {
             unit: item,
-            map: HashMap::new()
+            map: HashMap::new(),
         }
     }
 }

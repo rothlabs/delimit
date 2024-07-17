@@ -42,11 +42,11 @@ where
     L: 'static + Send + Sync,
 {
     type Item = L;
-    fn read<F: FnOnce(&L)>(&self, read: F) {
+    fn read<T, F: FnOnce(&L) -> T>(&self, read: F) -> T {
         match self {
             Self::Bare(bare) => read(bare),
             Self::Link(ace) => ace.read(read),
-        };
+        }
     }
 }
 
@@ -75,8 +75,7 @@ where
 //     }
 // }
 
-
-// /// View of ace view, by plan.  
+// /// View of ace view, by plan.
 // pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
 
 // impl<L> Solve for Ace<L>

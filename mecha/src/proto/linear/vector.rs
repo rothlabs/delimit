@@ -3,11 +3,11 @@ use std::{ops::*, slice::SliceIndex};
 #[derive(Clone)]
 pub struct Vector<T>(Vec<T>);
 
-impl<T> Vector<T> 
-where 
-    T: Copy + Default
+impl<T> Vector<T>
+where
+    T: Copy + Default,
 {
-    pub fn new(len: usize) -> Self { 
+    pub fn new(len: usize) -> Self {
         Self(vec![T::default(); len])
     }
     pub fn zip<F: Fn(T, T) -> T>(&self, rhs: &Self, op: F) -> Self {
@@ -22,16 +22,16 @@ where
     }
     pub fn vec(&self) -> &Vec<T> {
         &self.0
-    } 
+    }
 }
 
-impl<T> Vector<T> 
-where 
-    T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>
+impl<T> Vector<T>
+where
+    T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>,
 {
     pub fn dot(&self, rhs: &Self) -> T {
         (self * rhs).0.iter().fold(T::default(), |a, u| a + *u)
-    } 
+    }
 }
 
 impl<T> From<Vec<T>> for Vector<T> {
@@ -76,7 +76,7 @@ where
     }
 }
 
-impl<T, Idx> Index<Idx> for Vector<T> 
+impl<T, Idx> Index<Idx> for Vector<T>
 where
     Idx: SliceIndex<[T], Output = T>,
 {
@@ -86,7 +86,7 @@ where
     }
 }
 
-impl<T, Idx> IndexMut<Idx> for Vector<T> 
+impl<T, Idx> IndexMut<Idx> for Vector<T>
 where
     Idx: SliceIndex<[T], Output = T>,
 {

@@ -36,11 +36,11 @@ where
     B: Reader + Send + Sync + 'static,
 {
     type Item = B::Item;
-    fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         match self {
             Self::Role(role) => role.grant().read(read),
             Self::Base(bare) => bare.read(read),
-        };
+        }
     }
 }
 
@@ -52,11 +52,11 @@ where
 {
     type Task = R::Task;
     type Item = B::Item;
-    fn read<F: FnOnce(&Self::Item)>(&self, task: Self::Task, read: F) {
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T {
         match self {
             Self::Role(role) => role.solve(task).read(read),
             Self::Base(bare) => bare.read(read),
-        };
+        }
     }
 }
 

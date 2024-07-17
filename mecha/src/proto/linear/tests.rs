@@ -1,21 +1,34 @@
 use super::*;
 
 fn new_vectors() -> (Vector<f64>, Vector<f64>) {
-    (Vector::from(vec![0., 1., 2.]), Vector::from(vec![7., 14., 20.]))
+    (
+        Vector::from(vec![0., 1., 2.]),
+        Vector::from(vec![7., 14., 20.]),
+    )
 }
 
+#[rustfmt::skip]
 fn new_matrices() -> (Matrix<f64>, Matrix<f64>) {
-    (Matrix::rows_data(4, vec![
-        0., 1., 2., 3., 
-        4., 5., 6., 7.,
-        8., 9., 0., 1., 
-        2., 3., 4., 5.,
-    ]), Matrix::rows_data(4, vec![
-        1., 0., 0., 0.,
-        0., 1., 0., 0.,
-        0., 0., 1., 0.,
-        0., 0., 0., 1.,
-    ]))
+    (
+        Matrix::from_data(
+            4,
+            vec![
+                0., 1., 2., 3., 
+                4., 5., 6., 7., 
+                8., 9., 0., 1., 
+                2., 3., 4., 5.,
+            ],
+        ),
+        Matrix::from_data(
+            4,
+            vec![
+                1., 0., 0., 0., 
+                0., 1., 0., 0., 
+                0., 0., 1., 0., 
+                0., 0., 0., 1.,
+            ],
+        ),
+    )
 }
 
 #[test]
@@ -39,27 +52,35 @@ fn vector_multiply() {
 #[test]
 fn vector_dot_product() {
     let (v1, v2) = &new_vectors();
-    assert_eq!(v1.dot(v2), 54.); 
+    assert_eq!(v1.dot(v2), 54.);
 }
 
 #[test]
 fn matrix_transpose() {
     let (m1, _) = &new_matrices();
-    assert_eq!(m1.transpose().vec(), &vec![
-        0., 4., 8., 2., 
-        1., 5., 9., 3.,
-        2., 6., 0., 4., 
-        3., 7., 1., 5.,
-    ]);
+    #[rustfmt::skip]
+    assert_eq!(
+        m1.transpose().vec(),
+        &vec![
+            0., 4., 8., 2., 
+            1., 5., 9., 3., 
+            2., 6., 0., 4., 
+            3., 7., 1., 5.,
+        ]
+    );
 }
 
 #[test]
 fn matrix_multiply() {
     let (m1, m2) = &new_matrices();
-    assert_eq!((m1 * m2).vec(), &vec![
-        0., 1., 2., 3., 
-        4., 5., 6., 7.,
-        8., 9., 0., 1., 
-        2., 3., 4., 5.,
-    ]);
+    #[rustfmt::skip]
+    assert_eq!(
+        (m1 * m2).vec(),
+        &vec![
+            0., 1., 2., 3., 
+            4., 5., 6., 7., 
+            8., 9., 0., 1., 
+            2., 3., 4., 5.,
+        ]
+    );
 }
