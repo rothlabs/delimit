@@ -7,7 +7,8 @@ pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, Ace<L>>;
 pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
 
 /// Ace view. A bare load or `link::Ace<Load>`
-/// This is a terminal view that may be at the end of a deep structure of views.
+/// This is a terminal view that may be at the end of a chain of views.
+/// By design, it does not follow the Role-Base structure of the regular View type.
 #[derive(Clone, Serialize)]
 pub enum Ace<L> {
     Bare(L),
@@ -49,19 +50,6 @@ where
     }
 }
 
-impl<L> Grant for Ace<L>
-where
-    L: Clone,
-{
-    type Load = link::Ace<L>;
-    fn grant(&self) -> link::Ace<L> {
-        match self {
-            Self::Bare(bare) => bare.ace(),
-            Self::Link(ace) => ace.clone(),
-        }
-    }
-}
-
 impl<L> Backed for Ace<L>
 where
     L: Clone,
@@ -74,8 +62,33 @@ where
     }
 }
 
-// impl<L> From<Ace<L>> for AceView<L> {
-//     fn from(ace: Ace<L>) -> Self {
-//         Self::Ace(ace)
+// impl<L> Grant for Ace<L>
+// where
+//     L: Clone,
+// {
+//     type Load = link::Ace<L>;
+//     fn grant(&self) -> link::Ace<L> {
+//         match self {
+//             Self::Bare(bare) => bare.ace(),
+//             Self::Link(ace) => ace.clone(),
+//         }
+//     }
+// }
+
+
+// /// View of ace view, by plan.  
+// pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
+
+// impl<L> Solve for Ace<L>
+// where
+//     L: Clone,
+// {
+//     type Task = ();
+//     type Load = link::Ace<L>;
+//     fn solve(&self, task: Self::Task) -> Self::Load {
+//         match self {
+//             Self::Bare(bare) => bare.ace(),
+//             Self::Link(ace) => ace.clone(),
+//         }
 //     }
 // }

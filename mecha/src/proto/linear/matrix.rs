@@ -6,7 +6,7 @@ pub struct Matrix<T>{
     cols: usize,
     data: Vec<T>,
 }
-
+ 
 impl<T> Matrix<T> 
 where 
     T: Copy + Default

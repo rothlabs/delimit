@@ -1,12 +1,13 @@
 use std::{ops::*, slice::SliceIndex};
 
+#[derive(Clone)]
 pub struct Vector<T>(Vec<T>);
 
 impl<T> Vector<T> 
 where 
     T: Copy + Default
 {
-    pub fn new(len: usize) -> Self {
+    pub fn new(len: usize) -> Self { 
         Self(vec![T::default(); len])
     }
     pub fn zip<F: Fn(T, T) -> T>(&self, rhs: &Self, op: F) -> Self {

@@ -7,6 +7,16 @@ pub struct Trey<U, T, L> {
     map: HashMap<T, L>,
 }
 
+impl<U, T, L> FromItem for Trey<U, T, L> {
+    type Item = U;
+    fn new(item: Self::Item) -> Self {
+        Self {
+            unit: item,
+            map: HashMap::new()
+        }
+    }
+}
+
 impl<U, T, L> Solver for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L>,

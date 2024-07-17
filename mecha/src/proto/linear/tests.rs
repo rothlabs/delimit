@@ -39,7 +39,7 @@ fn vector_multiply() {
 #[test]
 fn vector_dot_product() {
     let (v1, v2) = &new_vectors();
-    assert_eq!(v1.dot(v2), 54.);
+    assert_eq!(v1.dot(v2), 54.); 
 }
 
 #[test]

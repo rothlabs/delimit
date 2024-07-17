@@ -1,5 +1,3 @@
-use core::task;
-
 use crate::*;
 
 pub use ace::Ace;
@@ -8,7 +6,7 @@ pub mod ace;
 
 /// A base or a role that must provide a base via granting or solving.
 /// Views are phrased as "view of BASE by ROLE" or "BASE view by ROLE".
-/// The base could be another view, allowing for a recursive structure.
+/// The base could be another view, allowing for a chain of views.
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
     Role(R),
@@ -41,6 +39,22 @@ where
     fn read<F: FnOnce(&Self::Item)>(&self, read: F) {
         match self {
             Self::Role(role) => role.grant().read(read),
+            Self::Base(bare) => bare.read(read),
+        };
+    }
+}
+
+impl<R, B> ReaderByTask for View<R, B>
+where
+    R: Solve,
+    R::Load: Reader<Item = B::Item>,
+    B: Reader + Send + Sync + 'static,
+{
+    type Task = R::Task;
+    type Item = B::Item;
+    fn read<F: FnOnce(&Self::Item)>(&self, task: Self::Task, read: F) {
+        match self {
+            Self::Role(role) => role.solve(task).read(read),
             Self::Base(bare) => bare.read(read),
         };
     }

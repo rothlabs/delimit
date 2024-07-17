@@ -5,4 +5,4 @@ pub use matrix::Matrix;
 mod tests;
 
 mod vector;
-mod matrix;
+mod matrix; 

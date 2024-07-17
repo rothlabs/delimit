@@ -1,16 +1,15 @@
-use crate::linear;
+use crate::proto;
 
 use graph::*;
 
 pub use extrude::Extrude;
-use serde::Serialize;
 
 mod extrude;
 
 pub mod view {
     use super::*;
     /// Point-frame input plan for super graphs 
-    pub type Plan<P> = graph::View<role::Ploy<P, Role>, Stem>;
+    pub type Plan<P, T> = graph::View<role::Plan<P, T, Role>, Stem>;
 }
 
 /// Point-frame output for super graphs
@@ -19,27 +18,22 @@ pub type Role = role::Plan<Part, Task, Load>;
 type Link<U> = Trey<U, Task, Load>;
 type Stem = graph::view::ace::Plan<Part, Task, Load>;
 
-type Vector = linear::Vector<f64>;
-type Matrix = linear::Matrix<f64>;
+type Vector = proto::Vector<f64>;
+type Matrix = proto::Matrix<f64>;
 
-#[derive(Clone)]
+#[derive(Clone, Eq, Hash, PartialEq)]
 pub enum Task {
     Matrix,
     GpuMap,    
 }
 
 #[derive(Clone)]
-enum Load {
+pub enum Load {
     Matrix(Matrix),
     GpuMap,
 } 
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub enum Part {
-
+    Extrude(Link<Extrude>)
 }
-
-// enum Load<T, const R: usize, const C: usize> {
-//     Scalar(T),
-//     Matrix(Matrix<T, R, C>),
-// }
