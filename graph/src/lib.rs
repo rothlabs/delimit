@@ -41,6 +41,11 @@ pub trait Reader {
     fn read<F: FnOnce(&Self::Item)>(&self, read: F);
 }
 
+// pub trait ReaderByTask {
+//     type Item;
+//     fn read<F: FnOnce(&Self::Item)>(&self, task: , read: F);
+// }
+
 pub trait Grant {
     type Load;
     fn grant(&self) -> Self::Load;

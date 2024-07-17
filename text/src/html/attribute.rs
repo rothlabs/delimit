@@ -1,17 +1,17 @@
 use crate::html::*;
 
 pub struct Attribute {
-    name: Item,
-    value: Item,
+    name: Stem,
+    value: Stem,
 }
 
 impl Attribute {
-    pub fn new(name: &Item, value: &Item) -> Hold<Html<Self>, Item> {
-        let link = Html::new(Self {
+    pub fn new(name: &Stem, value: &Stem) -> Hold<Link<Self>, Stem> {
+        let link = Link::new(Self {
             name: name.clone(),
             value: value.clone(),
         });
-        let role = Item::Role(Role {
+        let role = Stem::Role(Role {
             part: Part::Attribute(link.clone()),
             form: link.ploy(),
         });

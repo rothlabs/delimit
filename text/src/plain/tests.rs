@@ -1,6 +1,6 @@
 use super::*;
 
-fn new_list(ace: &Ace<String>) -> Text<List> {
+fn new_list(ace: &Ace<String>) -> Link<List> {
     let list = ", ".list();
     list.link.write(|pack| {
         pack.unit.items.back(pack.back).str("str").add_ace(ace);

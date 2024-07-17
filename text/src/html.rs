@@ -18,12 +18,12 @@ mod tag;
 pub type Role = role::Ploy<Part, Load>;
 
 type Load = plain::Role;
-type Item = plain::View<Part>;
-type Html<U> = Deuce<U, Load>;
+type Stem = plain::view::Ploy<Part>;
+type Link<U> = Deuce<U, Load>;
 
 #[derive(Clone)]
 pub enum Part {
-    Element(Html<Element>),
-    Tag(Html<Tag>),
-    Attribute(Html<Attribute>),
+    Element(Link<Element>),
+    Tag(Link<Tag>),
+    Attribute(Link<Attribute>),
 }

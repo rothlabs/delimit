@@ -2,7 +2,7 @@
 //pub use matrix::Matrix;
 
 mod buffer;
-mod matrix;
+mod frame;
 mod shape;
 mod linear;
 

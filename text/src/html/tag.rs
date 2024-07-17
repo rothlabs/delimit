@@ -1,17 +1,17 @@
 use super::*;
 
 pub struct Tag {
-    pub name: Item,
-    pub attributes: Vec<Item>,
+    pub name: Stem,
+    pub attributes: Vec<Stem>,
 }
 
 impl Tag {
-    pub fn new(name: &Item) -> Hold<Html<Self>, Item> {
-        let link = Html::new(Self {
+    pub fn new(name: &Stem) -> Hold<Link<Self>, Stem> {
+        let link = Link::new(Self {
             name: name.clone(),
             attributes: vec![],
         });
-        let role = Item::Role(Role {
+        let role = Stem::Role(Role {
             part: Part::Tag(link.clone()),
             form: link.ploy(),
         });

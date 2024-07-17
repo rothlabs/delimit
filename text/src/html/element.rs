@@ -1,19 +1,19 @@
 use super::*;
 
 pub struct Element {
-    pub tag: Item,
-    pub items: Vec<Item>,
-    pub close: Option<Item>,
+    pub tag: Stem,
+    pub items: Vec<Stem>,
+    pub close: Option<Stem>,
 }
 
 impl Element {
-    pub fn new(tag: &Item, close: Option<&Item>) -> Hold<Html<Self>, Item> {
-        let link = Html::new(Self {
+    pub fn new(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Stem> {
+        let link = Link::new(Self {
             tag: tag.clone(),
             items: vec![],
             close: close.cloned(),
         });
-        let role = Item::Role(Role {
+        let role = Stem::Role(Role {
             part: Part::Element(link.clone()),
             form: link.ploy(),
         });

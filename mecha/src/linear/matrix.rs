@@ -1,86 +1,116 @@
-use std::{ops::*, slice::SliceIndex};
+use std::ops::*;
 
-use itertools::Itertools;
-
-use super::*;
-
-pub struct Matrix<T>(Vec<Vector<T>>);
+#[derive(Clone)]
+pub struct Matrix<T>{
+    rows: usize,
+    cols: usize,
+    data: Vec<T>,
+}
 
 impl<T> Matrix<T> 
 where 
     T: Copy + Default
 {
     pub fn new(rows: usize, cols: usize) -> Self {
-        Self (vec![Vector::new(rows); cols])
+        Self {rows, cols, data: vec![T::default(); rows * cols]}
     }
-    pub fn len(&self) -> usize {
-        self.0.len()
+    pub fn rows_data(rows: usize, data: Vec<T>) -> Self {
+        Self {
+            rows,
+            cols: data.len() / rows,
+            data,
+        }
+    }
+    pub fn get(&self, row: usize, col: usize) -> &T {
+        &self.data[self.rows * col + row]
+    }
+    pub fn get_mut(&mut self, row: usize, col: usize) -> &mut T {
+        &mut self.data[self.rows * col + row]
     }
     pub fn transpose(&self) -> Self {
-        let mut matrix = Matrix::new(self.len(), self[0].len());
-        for c in 0..self.len() {
-            for r in 0..self[c].len() {
-                matrix[r][c] = self[c][r];
+        let mut out = Self::new(self.cols, self.rows);
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                *out.get_mut(c, r) = self.get(r, c).clone();
             }
         }
-        matrix
+        out
     }
-    pub fn vec(&self) -> Vec<&Vec<T>> {
-        self.0.iter().map(|v| v.vec()).collect_vec()
-    }
-}
-
-impl<T> From<Vec<Vec<T>>> for Matrix<T> 
-where 
-    T: Copy + Default
-{
-    fn from(data: Vec<Vec<T>>) -> Self {
-        let mut matrix = Matrix::new(data[0].len(), data.len());
-        for c in 0..matrix.len() {
-            matrix[c] = Vector::from(&data[c]);
-        }
-        matrix
+    pub fn vec(&self) -> &Vec<T> {
+        &self.data
     }
 }
 
 impl<T> Mul<&Matrix<T>> for &Matrix<T>
 where
-    T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>,
+    T: Copy + Default + AddAssign<T> + Mul<T, Output = T>,
 {
     type Output = Matrix<T>;
     fn mul(self, rhs: &Matrix<T>) -> Matrix<T> {
-        //let mut matrix = Matrix::new(self[0].len(), rhs.len());
-        let mut matrix = Matrix::new(0, 0);
-        let transpose = self.transpose();
-        for rv in &rhs.0 {
-            let vector = Vector::from(transpose.0.iter().map(|lv| lv.dot(rv)).collect::<Vec<T>>());
-            matrix.0.push(vector);
-        // for c in 0..transpose.len() {
-        //     matrix[c] = &transpose[c] * &rhs[c];
-        // }
+        let mut out = Matrix::new(self.rows, rhs.cols);
+        for lr in 0..self.rows {
+            for lc in 0..self.cols {
+                for rc in 0..rhs.cols {
+                    *out.get_mut(lr, rc) += *self.get(lr, lc) * *rhs.get(lc, rc);
+                }
+            }
         }
-        matrix
+        out
     }
 }
 
-impl<T, Idx> Index<Idx> for Matrix<T> 
-where
-    Idx: SliceIndex<[Vector<T>], Output = Vector<T>>,
-{
-    type Output = Vector<T>;
-    fn index(&self, index: Idx) -> &Self::Output {
-        self.0.index(index)
-    }
-}
+// impl<T> From<(usize, Vec<T>)> for Matrix<T> 
+// where 
+//     T: Copy + Default
+// {
+//     fn from(data: (usize, Vec<T>)) -> Self {
+//         Self {
+//             rows: data.0,
+//             cols: data.1.len() / data.0,
+//             data: data.1
+//         }
+//     }
+// }
 
-impl<T, Idx> IndexMut<Idx> for Matrix<T> 
-where
-    Idx: SliceIndex<[Vector<T>], Output = Vector<T>>,
-{
-    fn index_mut(&mut self, index: Idx) -> &mut Self::Output {
-        self.0.index_mut(index)
-    }
-}
+// impl<T> Mul<&Matrix<T>> for &Matrix<T>
+// where
+//     T: Copy + Default + Mul<T, Output = T> + Add<T, Output = T>,
+// {
+//     type Output = Matrix<T>;
+//     fn mul(self, rhs: &Matrix<T>) -> Matrix<T> {
+//         //let mut matrix = Matrix::new(self[0].len(), rhs.len());
+//         let mut matrix = Matrix::new(0, 0);
+//         let transpose = self.transpose();
+//         for rv in &rhs.0 {
+//             let vector = Vector::from(transpose.0.iter().map(|lv| lv.dot(rv)).collect::<Vec<T>>());
+//             matrix.0.push(vector);
+//         // for c in 0..transpose.len() {
+//         //     matrix[c] = &transpose[c] * &rhs[c];
+//         // }
+//         }
+//         matrix
+//     }
+// }
+
+// impl<T, Idx> Index<Idx> for Matrix<T> 
+// where
+//     Idx: SliceIndex<[T], Output = T>,
+// {
+//     type Output = [T];
+//     fn index(&self, index: Idx) -> &Self::Output {
+//         //self.data.index(index)
+//         &self.data[index..2]
+//     }
+// }
+
+// impl<T, Idx> IndexMut<Idx> for Matrix<T> 
+// where
+//     Idx: SliceIndex<[T], Output = T>,
+// {
+//     fn index_mut(&mut self, index: Idx) -> &mut Self::Output {
+//         self.data.index_mut(index)
+//     }
+// }
 
 
 

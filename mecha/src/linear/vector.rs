@@ -1,6 +1,5 @@
 use std::{ops::*, slice::SliceIndex};
 
-#[derive(Clone)]
 pub struct Vector<T>(Vec<T>);
 
 impl<T> Vector<T> 
@@ -11,11 +10,11 @@ where
         Self(vec![T::default(); len])
     }
     pub fn zip<F: Fn(T, T) -> T>(&self, rhs: &Self, op: F) -> Self {
-        let mut vector = self.clone();
-        for r in 0..vector.len() {
-            vector[r] = op(self[r], rhs[r]);
+        let mut out = Self::new(self.len());
+        for r in 0..out.len() {
+            out[r] = op(self[r], rhs[r]);
         }
-        vector
+        out
     }
     pub fn len(&self) -> usize {
         self.0.len()

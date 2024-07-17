@@ -1,10 +1,10 @@
 use serde::Serialize;
 
-use crate::plain::*;
+use super::*;
 
 #[derive(Default, Serialize)]
 pub struct List {
-    pub items: Vec<Item>,
+    pub items: Vec<Stem>,
     separator: String,
 }
 
@@ -37,12 +37,12 @@ impl Grant for List {
 }
 
 pub trait ToList {
-    fn list(self) -> Hold<Text<List>, Role>;
+    fn list(self) -> Hold<Link<List>, Role>;
 }
 
 impl ToList for &str {
-    fn list(self) -> Hold<Text<List>, Role> {
-        let link = Text::new(List {
+    fn list(self) -> Hold<Link<List>, Role> {
+        let link = Link::new(List {
             separator: self.into(),
             items: vec![],
         });

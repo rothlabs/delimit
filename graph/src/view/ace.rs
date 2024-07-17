@@ -1,6 +1,13 @@
 use crate::*;
 
-/// A bare load or `link::Ace<Load>`
+/// View of ace view, by ploy.  
+pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, Ace<L>>;
+
+/// View of ace view, by plan.  
+pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
+
+/// Ace view. A bare load or `link::Ace<Load>`
+/// This is a terminal view that may be at the end of a deep structure of views.
 #[derive(Clone, Serialize)]
 pub enum Ace<L> {
     Bare(L),
@@ -36,8 +43,8 @@ where
     type Item = L;
     fn read<F: FnOnce(&L)>(&self, read: F) {
         match self {
-            Ace::Bare(bare) => read(bare),
-            Ace::Link(ace) => ace.read(read),
+            Self::Bare(bare) => read(bare),
+            Self::Link(ace) => ace.read(read),
         };
     }
 }
@@ -49,8 +56,8 @@ where
     type Load = link::Ace<L>;
     fn grant(&self) -> link::Ace<L> {
         match self {
-            Ace::Bare(bare) => bare.ace(),
-            Ace::Link(ace) => ace.clone(),
+            Self::Bare(bare) => bare.ace(),
+            Self::Link(ace) => ace.clone(),
         }
     }
 }
@@ -61,8 +68,8 @@ where
 {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            Ace::Bare(bare) => Ace::Bare(bare.clone()),
-            Ace::Link(ace) => Ace::Link(ace.backed(back)),
+            Self::Bare(bare) => Self::Bare(bare.clone()),
+            Self::Link(ace) => Self::Link(ace.backed(back)),
         }
     }
 }

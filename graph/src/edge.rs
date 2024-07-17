@@ -85,7 +85,7 @@ where
     L: Clone + 'static + Send + Sync,
 {
     type Load = L;
-    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>> {
+    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<L>>> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             node: self.node.clone(),
@@ -139,7 +139,7 @@ where
 {
     type Task = T;
     type Load = L;
-    fn backed_plan(&self, back: &Back) -> Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>> {
+    fn backed_plan(&self, back: &Back) -> Arc<RwLock<BoxConvert<T, L>>> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             node: self.node.clone(),
@@ -232,32 +232,67 @@ impl<N> Reactor for Edge<N> {
     }
 }
 
-impl<L> Grant for Box<dyn Produce<L> + Send + Sync> {
+type BoxProduce<L> = Box<dyn Produce<L> + Send + Sync>;
+
+impl<L> Grant for BoxProduce<L> {
     type Load = L;
     fn grant(&self) -> Self::Load {
         self.as_ref().grant()
     }
 }
 
-impl<L> RootAdder for Box<dyn Produce<L> + Send + Sync> {
+impl<L> RootAdder for BoxProduce<L> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
     }
 }
 
-impl<L> Updater for Box<dyn Produce<L> + Send + Sync> {}
+impl<L> Updater for BoxProduce<L> {}
 
-impl<L> Rebuter for Box<dyn Produce<L> + Send + Sync> {
+impl<L> Rebuter for BoxProduce<L> {
     fn rebut(&self) -> Ring {
         self.as_ref().rebut()
     }
 }
 
-impl<L> Reactor for Box<dyn Produce<L> + Send + Sync> {
+impl<L> Reactor for BoxProduce<L> {
     fn react(&self, meta: &Meta) {
         self.as_ref().react(meta)
     }
 }
+
+type BoxConvert<T, L> = Box<dyn Convert<T, L> + Send + Sync>;
+
+impl<T, L> Solve for BoxConvert<T, L> {
+    type Task = T;
+    type Load = L;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        self.as_ref().solve(task)
+    }
+}
+
+impl<T, L> RootAdder for BoxConvert<T, L> {
+    fn add_root(&self, root: Root) {
+        self.as_ref().add_root(root)
+    }
+}
+
+impl<T, L> Updater for BoxConvert<T, L> {}
+
+impl<T, L> Rebuter for BoxConvert<T, L> {
+    fn rebut(&self) -> Ring {
+        self.as_ref().rebut()
+    }
+}
+
+impl<T, L> Reactor for BoxConvert<T, L> {
+    fn react(&self, meta: &Meta) {
+        self.as_ref().react(meta)
+    }
+}
+
+
+
 
 // impl<R, St> Serialize for Edge<R, St> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

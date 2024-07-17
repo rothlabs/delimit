@@ -6,10 +6,10 @@ use super::*;
 pub struct Doc {
     root: Option<Box<RefCell<Doc>>>,
     tag_name: &'static str,
-    tag: Hold<Html<Tag>, Item>,
-    element: Hold<Html<Element>, Item>,
-    tag_names: HashMap<&'static str, Item>,
-    att_names: HashMap<&'static str, Item>,
+    tag: Hold<Link<Tag>, Stem>,
+    element: Hold<Link<Element>, Stem>,
+    tag_names: HashMap<&'static str, Stem>,
+    att_names: HashMap<&'static str, Stem>,
 }
 
 impl Doc {

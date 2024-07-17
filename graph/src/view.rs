@@ -1,14 +1,13 @@
+use core::task;
+
 use crate::*;
 
 pub use ace::Ace;
 
-mod ace;
+pub mod ace;
 
-/// Ace view with ploy role.  
-pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, Ace<L>>;
-
-/// A base or a role that must grant or solve a base.
-/// In the phrase "view of NAME" or "NAME view", NAME refers to the base.
+/// A base or a role that must provide a base via granting or solving.
+/// Views are phrased as "view of BASE by ROLE" or "BASE view by ROLE".
 /// The base could be another view, allowing for a recursive structure.
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
@@ -56,6 +55,21 @@ where
     fn grant(&self) -> Self::Load {
         match self {
             Self::Role(role) => B::into_view(role.grant()),
+            Self::Base(base) => base.clone(),
+        }
+    }
+}
+
+impl<R, B> Solve for View<R, B>
+where
+    R: Solve,
+    B: Clone + IntoView<Item = R::Load>,
+{
+    type Task = R::Task;
+    type Load = B;
+    fn solve(&self, task: Self::Task) -> Self::Load {
+        match self {
+            Self::Role(role) => B::into_view(role.solve(task)),
             Self::Base(base) => base.clone(),
         }
     }
