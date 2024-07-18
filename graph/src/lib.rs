@@ -1,3 +1,5 @@
+use core::task;
+
 use serde::Serialize;
 
 pub use edge::Edge;
@@ -81,6 +83,12 @@ pub trait Convert<T, L>:
 pub trait ToLoad {
     type Load;
     fn load(&self) -> Self::Load;
+}
+
+pub trait ToLoadByTask {
+    type Task;
+    type Load;
+    fn load(&self, task: Self::Task) -> Self::Load;
 }
 
 // pub trait UsePloy {

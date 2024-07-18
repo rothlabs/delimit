@@ -1,21 +1,20 @@
 use crate::*;
 
-/// View of ace view, by ploy.  
-pub type Ploy<A, L> = View<role::Ploy<A, link::Ace<L>>, Ace<L>>;
+/// End-view with ploy.  
+pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, End<L>>;
 
-/// View of ace view, by plan.  
-pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
+/// End-view with plan.  
+pub type Plan<P, T, L> = View<role::Plan<P, T, Ace<L>>, End<L>>;
 
-/// Ace view. A bare load or `link::Ace<Load>`
-/// This is a terminal view that may be at the end of a chain of views.
-/// By design, it does not follow the Role-Base structure of the regular View type.
+/// A bare item or ace link.
+/// This should be used at the end of a chain of views.
 #[derive(Clone, Serialize)]
-pub enum Ace<L> {
+pub enum End<L> {
     Bare(L),
-    Link(link::Ace<L>),
+    Link(Ace<L>),
 }
 
-impl<L> Default for Ace<L>
+impl<L> Default for End<L>
 where
     L: Default,
 {
@@ -24,20 +23,40 @@ where
     }
 }
 
-impl From<&str> for Ace<String> {
+impl From<&str> for End<String> {
     fn from(value: &str) -> Self {
         Self::Bare(value.into())
     }
 }
 
-impl<L> FromAce for Ace<L> {
+impl<L> FromAce for End<L> {
     type Load = L;
-    fn from_ace(ace: link::Ace<L>) -> Self {
+    fn from_ace(ace: Ace<L>) -> Self {
         Self::Link(ace)
     }
 }
 
-impl<L> Reader for Ace<L>
+impl<L> FromItem for End<L> {
+    type Item = L;
+    fn new(item: Self::Item) -> Self {
+        Self::Bare(item)
+    }
+}
+
+impl<L> ToLoad for End<L>
+where
+    L: Clone,
+{
+    type Load = L;
+    fn load(&self) -> Self::Load {
+        match self {
+            Self::Bare(bare) => bare.clone(),
+            Self::Link(ace) => ace.load(),
+        }
+    }
+}
+
+impl<L> Reader for End<L>
 where
     L: 'static + Send + Sync,
 {
@@ -50,7 +69,7 @@ where
     }
 }
 
-impl<L> Backed for Ace<L>
+impl<L> Backed for End<L>
 where
     L: Clone,
 {
@@ -66,8 +85,8 @@ where
 // where
 //     L: Clone,
 // {
-//     type Load = link::Ace<L>;
-//     fn grant(&self) -> link::Ace<L> {
+//     type Load = Ace<L>;
+//     fn grant(&self) -> Ace<L> {
 //         match self {
 //             Self::Bare(bare) => bare.ace(),
 //             Self::Link(ace) => ace.clone(),
@@ -76,14 +95,14 @@ where
 // }
 
 // /// View of ace view, by plan.
-// pub type Plan<P, T, L> = View<role::Plan<P, T, link::Ace<L>>, Ace<L>>;
+// pub type Plan<P, T, L> = View<role::Plan<P, T, Ace<L>>, Ace<L>>;
 
 // impl<L> Solve for Ace<L>
 // where
 //     L: Clone,
 // {
 //     type Task = ();
-//     type Load = link::Ace<L>;
+//     type Load = Ace<L>;
 //     fn solve(&self, task: Self::Task) -> Self::Load {
 //         match self {
 //             Self::Bare(bare) => bare.ace(),

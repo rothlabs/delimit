@@ -1,12 +1,14 @@
 use super::*;
 
+/// Role of `link::Ploy` form.
 pub type Ploy<P, L> = Role<P, link::Ploy<L>>;
 
+/// Role of `link::Plan` form.
 pub type Plan<P, T, L> = Role<P, link::Plan<T, L>>;
 
 /// Two copies of the same link.
-/// For Unit access, the part field should be an enumeration of Link.
-/// The form field should be link::Ploy or link::Plan to be used without Unit knowledge.
+/// For unit access, the part field should be an enumeration of Link.
+/// The form field should be link::Ploy or link::Plan to be used without unit knowledge.
 pub struct Role<P, F> {
     pub part: P,
     pub form: F,

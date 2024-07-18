@@ -1,11 +1,11 @@
 use crate::*;
 
-pub use ace::Ace;
+pub use end::End;
 
-pub mod ace;
+pub mod end;
 
 /// A base or a role that must provide a base via granting or solving.
-/// Views are phrased as "view of BASE by ROLE" or "BASE view by ROLE".
+/// Views are phrased as "view of BASE with ROLE" or "BASE view with ROLE".
 /// The base could be another view, allowing for a chain of views.
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
@@ -22,10 +22,36 @@ where
     }
 }
 
+impl<R, B> FromItem for View<R, B>
+where
+    B: FromItem,
+{
+    type Item = B::Item;
+    fn new(item: Self::Item) -> Self {
+        Self::Base(B::new(item))
+    }
+}
+
 impl<R, B> IntoView for View<R, B> {
     type Item = R;
     fn into_view(role: Self::Item) -> Self {
         Self::Role(role)
+    }
+}
+
+impl<R, B> ToLoadByTask for View<R, B>
+where
+    R: Solve,
+    R::Load: ToLoad<Load = B::Load>,
+    B: ToLoad,
+{
+    type Task = R::Task;
+    type Load = B::Load;
+    fn load(&self, task: Self::Task) -> Self::Load {
+        match self {
+            Self::Role(role) => role.solve(task).load(),
+            Self::Base(bare) => bare.load(),
+        }
     }
 }
 

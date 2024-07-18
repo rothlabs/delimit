@@ -18,7 +18,7 @@ pub mod view {
 pub type Role = role::Ploy<Part, Load>;
 
 type Link<U> = Deuce<U, Load>;
-type Stem = graph::view::ace::Ploy<Part, String>;
+type Stem = graph::view::end::Ploy<Part, String>;
 type Load = Ace<String>;
 
 #[derive(Clone, Serialize)]
@@ -28,9 +28,9 @@ pub enum Part {
 }
 
 pub fn str<A>(str: &str) -> view::Ploy<A> {
-    View::Base(Stem::Base(graph::view::Ace::Bare(str.into())))
+    View::Base(Stem::Base(graph::view::End::Bare(str.into())))
 }
 
 pub fn ace<A>(str: &str) -> view::Ploy<A> {
-    View::Base(Stem::Base(graph::view::Ace::Link(str.ace())))
+    View::Base(Stem::Base(graph::view::End::Link(str.ace())))
 }

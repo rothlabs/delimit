@@ -25,7 +25,7 @@ pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
 /// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
 
-/// Points to one edge, which in turn points to one node.
+/// Link to an edge that leads to a node that contains a unit.
 /// Units hold links as source of input used to compute output.
 pub struct Link<E> {
     edge: Arc<RwLock<E>>,
