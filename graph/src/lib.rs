@@ -1,7 +1,3 @@
-use core::task;
-
-use serde::Serialize;
-
 pub use edge::Edge;
 pub use link::{Ace, Deuce, IntoAce, Link, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
@@ -15,16 +11,19 @@ pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{ToViewsBuilder, View};
 pub use write::{Pack, Write, WriteWithBack, Writer, WriterWithPack};
 
-pub mod edge;
-pub mod link;
-pub mod meta;
-pub mod node;
-pub mod react;
+use serde::Serialize;
+
 pub mod role;
-pub mod unit;
 pub mod view;
-pub mod work;
-pub mod write;
+
+mod edge;
+mod link;
+mod meta;
+mod node;
+mod react;
+mod unit;
+mod work;
+mod write;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
@@ -91,11 +90,6 @@ pub trait ToLoadByTask {
     fn load(&self, task: Self::Task) -> Self::Load;
 }
 
-// pub trait UsePloy {
-//     type Load;
-//     fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T);
-// }
-
 pub trait FromItem {
     type Item;
     fn new(item: Self::Item) -> Self;
@@ -123,6 +117,11 @@ pub trait AddStr {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+// pub trait UsePloy {
+//     type Load;
+//     fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T);
+// }
 
 // pub trait Memory {
 //     type Task;

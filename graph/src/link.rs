@@ -1,14 +1,12 @@
+pub use ace::{IntoAce, ToAce};
+
+use super::*;
+use serde::Serialize;
 use std::sync::{Arc, RwLock};
 
-use crate::*;
-
-pub use ace::{IntoAce, ToAce};
-use serde::Serialize;
-
+mod ace;
 #[cfg(test)]
 mod tests;
-
-mod ace;
 
 /// Link to a load.
 pub type Ace<L> = Link<edge::Ace<L>>;

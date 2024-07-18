@@ -1,29 +1,19 @@
-use crate::proto;
-
+use super::*;
+use add::*;
 use graph::*;
-
-pub use add::Add;
-
-#[cfg(test)]
-mod tests;
-
-mod add;
 
 pub mod view {
     use super::*;
     /// Matrix Link for super graphs
-    pub type Plan<P, T> = graph::View<role::Plan<P, T, Role>, Stem>;
+    pub type Plan<P, T, N> = graph::View<role::Plan<P, T, Role<N>>, Stem<N>>;
 }
 
+mod add;
+#[cfg(test)]
+mod tests;
+
 /// Matrix Load for super graphs
-pub type Role = role::Plan<Part, Task, Load>;
-
-type Link<U> = Trey<U, Task, Load>;
-type Stem = graph::view::end::Plan<Part, Task, Bare>;
-type Load = Ace<Bare>;
-
-type Vector = proto::Array<f64, 1>;
-type Array = proto::Array<f64, 3>;
+pub type Role<N> = role::Plan<Part<N>, Task, Load<N>>;
 
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub enum Task {
@@ -31,30 +21,52 @@ pub enum Task {
     GpuRun,
 }
 
-#[derive(Clone)]
-pub enum Bare {
-    Array(Array),
+pub enum Bare<N> {
+    Array(Array3<N>),
     GpuRun,
 }
 
-impl Bare {
-    fn array(self) -> Array {
-        if let Self::Array(mat) = self {
-            mat
+impl<N> Clone for Bare<N>
+where
+    N: Copy,
+{
+    fn clone(&self) -> Self {
+        match self {
+            Self::Array(array) => Self::Array(array.clone()),
+            Self::GpuRun => Self::GpuRun,
+        }
+    }
+}
+
+impl<N> Bare<N> {
+    pub fn array(self) -> Array3<N> {
+        if let Self::Array(array) = self {
+            array
         } else {
             panic!("not array")
         }
     }
-    fn array_ref(&self) -> &Array {
-        if let Self::Array(mat) = self {
-            mat
+    pub fn array_ref(&self) -> &Array3<N> {
+        if let Self::Array(array) = self {
+            array
         } else {
             panic!("not array")
         }
     }
 }
 
-#[derive(Clone)]
-pub enum Part {
-    Add(Link<Add>),
+pub enum Part<N> {
+    Add(Link<Add<N>, N>),
 }
+
+impl<N> Clone for Part<N> {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Add(link) => Self::Add(link.clone()),
+        }
+    }
+}
+
+type Load<N> = Ace<Bare<N>>;
+type Link<U, N> = Trey<U, Task, Load<N>>;
+type Stem<N> = graph::view::end::Plan<Part<N>, Task, Bare<N>>;

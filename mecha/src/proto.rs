@@ -1,5 +1,3 @@
-pub use array::Array;
-pub use linear::{Matrix, Vector};
+pub use array::*;
 
 mod array;
-mod linear;
