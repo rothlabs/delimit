@@ -12,34 +12,26 @@ where
     N: Copy + Default + ops::Add<N, Output = N> + Send + Sync + 'static,
 {
     pub fn new(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self, N>, Role<N>> {
-        let link = Link::new(Self {
-            base: base.clone(),
+        let link = Link::make(|back| Self {
+            base: base.backed(back),
             vector: vector.clone(),
         });
         let role = Role {
             part: Part::Add(link.clone()),
-            form: link.plan(),
+            form: link.ploy(),
         };
         Hold { link, role }
     }
-    pub fn array(&self) -> Array3<N> {
-        let mut array = self.base.load(Task::Array).array();
-        array.each(|i, b| self.vector.get([i[0]]) + b);
-        array
-    }
 }
 
-impl<N> Solve for Add<N>
+impl<N> Grant for Add<N>
 where
     N: Copy + Default + ops::Add<N, Output = N> + Send + Sync + 'static,
 {
     type Load = Load<N>;
-    type Task = Task;
-    fn solve(&self, task: Task) -> Load<N> {
-        match task {
-            Task::Array => Bare::Array(self.array()),
-            Task::GpuRun => Bare::GpuRun,
-        }
-        .ace()
+    fn grant(&self) -> Self::Load {
+        let mut array = self.base.load().array();
+        array.each(|i, b| self.vector.get([i[0]]) + b);
+        Bare::Array(array).ace()
     }
 }

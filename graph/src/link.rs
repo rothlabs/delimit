@@ -69,6 +69,19 @@ where
     }
 }
 
+impl<E> Maker for Link<E>
+where
+    E: Maker,
+{
+    type Unit = E::Unit;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+        Self {
+            edge: Arc::new(RwLock::new(E::make(make))),
+            meta: Meta::new(),
+        }
+    }
+}
+
 impl<E> Backed for Link<E>
 where
     E: Backed,

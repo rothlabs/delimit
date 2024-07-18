@@ -8,8 +8,8 @@ pub struct Element {
 
 impl Element {
     pub fn new(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Stem> {
-        let link = Link::new(Self {
-            tag: tag.clone(),
+        let link = Link::make(|back| Self {
+            tag: tag.backed(back),
             items: vec![],
             close: close.cloned(),
         });

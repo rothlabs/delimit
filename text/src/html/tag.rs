@@ -7,8 +7,8 @@ pub struct Tag {
 
 impl Tag {
     pub fn new(name: &Stem) -> Hold<Link<Self>, Stem> {
-        let link = Link::new(Self {
-            name: name.clone(),
+        let link = Link::make(|back| Self {
+            name: name.backed(back),
             attributes: vec![],
         });
         let role = Stem::Role(Role {

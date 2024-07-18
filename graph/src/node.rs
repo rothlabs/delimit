@@ -13,6 +13,29 @@ pub struct Node<W> {
     work: W,
 }
 
+impl<W> Default for Node<W>
+where
+    W: Default,
+{
+    fn default() -> Self {
+        Self {
+            meta: Meta::new(),
+            ring: Ring::new(),
+            work: W::default(),
+        }
+    }
+}
+
+impl<W> Make for Node<W>
+where
+    W: Make,
+{
+    type Unit = W::Unit;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+        self.work.make(make, back);
+    }
+}
+
 impl<W> FromItem for Node<W>
 where
     W: FromItem,
@@ -26,6 +49,20 @@ where
         }
     }
 }
+
+// impl<W> Make for Node<W>
+// where
+//     W: Dummy,
+// {
+//     type Item = W::Unit;
+//     fn new<F: FnOnce(&Back) -> Self::Item>(new: F, back: &Back) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: W::set_unit(new, back),
+//         }
+//     }
+// }
 
 impl<W> ToSerial for Node<W>
 where

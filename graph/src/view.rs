@@ -39,6 +39,21 @@ impl<R, B> IntoView for View<R, B> {
     }
 }
 
+impl<R, B> ToLoad for View<R, B>
+where
+    R: Grant,
+    R::Load: ToLoad<Load = B::Load>,
+    B: ToLoad,
+{
+    type Load = B::Load;
+    fn load(&self) -> Self::Load {
+        match self {
+            Self::Base(base) => base.load(),
+            Self::Role(role) => role.grant().load(),
+        }
+    }
+}
+
 impl<R, B> ToLoadByTask for View<R, B>
 where
     R: Solve,
@@ -49,8 +64,8 @@ where
     type Load = B::Load;
     fn load(&self, task: Self::Task) -> Self::Load {
         match self {
-            Self::Role(role) => role.solve(task).load(),
             Self::Base(bare) => bare.load(),
+            Self::Role(role) => role.solve(task).load(),
         }
     }
 }

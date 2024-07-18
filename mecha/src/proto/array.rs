@@ -1,26 +1,13 @@
 pub type Array1<T> = Array<T, 1>;
-// pub type Array2<T> = Array<T, 2>;
+pub type Array2<T> = Array<T, 2>;
 pub type Array3<T> = Array<T, 3>;
 
 /// N-dimensional array
-//#[derive(Clone)]
+#[derive(Clone)]
 pub struct Array<T, const N: usize> {
     pub dims: [usize; N],
     jump: [usize; N],
     data: Vec<T>,
-}
-
-impl<T, const N: usize> Clone for Array<T, N>
-where
-    T: Copy,
-{
-    fn clone(&self) -> Self {
-        Self {
-            dims: self.dims.clone(),
-            jump: self.jump.clone(),
-            data: self.data.clone(),
-        }
-    }
 }
 
 impl<T, const N: usize> Array<T, N>
@@ -88,3 +75,16 @@ where
 // }
 
 // self.jump.iter().enumerate().rev().fold(0, |a, x| a + idx[x.0] * x.1)
+
+// impl<T, const N: usize> Clone for Array<T, N>
+// where
+//     T: Copy,
+// {
+//     fn clone(&self) -> Self {
+//         Self {
+//             dims: self.dims.clone(),
+//             jump: self.jump.clone(),
+//             data: self.data.clone(),
+//         }
+//     }
+// }

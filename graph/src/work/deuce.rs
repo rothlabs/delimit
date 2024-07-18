@@ -5,21 +5,40 @@ use crate::*;
 /// Contains a unit that must impl Grant to produce a Load which is saved here.
 #[derive(Serialize)]
 pub struct Deuce<U, L> {
-    unit: U,
+    unit: Option<U>,
     load: Option<L>,
+}
+
+impl<U, L> Default for Deuce<U, L> {
+    fn default() -> Self {
+        Self {
+            unit: None,
+            load: None,
+        }
+    }
+}
+
+impl<U, L> Make for Deuce<U, L> {
+    type Unit = U;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+        self.unit = Some(make(back));
+    }
 }
 
 impl<U, L> FromItem for Deuce<U, L> {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
-        Self { unit, load: None }
+        Self {
+            unit: Some(unit),
+            load: None,
+        }
     }
 }
 
 impl<U, L> Read for Deuce<U, L> {
     type Item = U;
     fn read(&self) -> &Self::Item {
-        &self.unit
+        self.unit.as_ref().unwrap()
     }
 }
 
@@ -33,7 +52,7 @@ impl<U, L> WriteWithBack for Deuce<U, L> {
     type Unit = U;
     fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
         write(&mut Pack {
-            unit: &mut self.unit,
+            unit: self.unit.as_mut().unwrap(),
             back,
         });
         self.load = None;
@@ -50,7 +69,7 @@ where
         if let Some(load) = &self.load {
             load.clone()
         } else {
-            let load = self.unit.grant();
+            let load = self.unit.as_ref().unwrap().grant();
             self.load = Some(load.clone());
             load
         }

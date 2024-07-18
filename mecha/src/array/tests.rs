@@ -11,7 +11,7 @@ fn add() {
     ])));
     let vector = Array1::new([4], vec![1., 2., 3., 4.]);
     let add = Add::new(&base, &vector);
-    add.link.solve(Task::Array).read(|bare| {
+    add.link.grant().read(|bare| {
         #[rustfmt::skip]
         assert_eq!(bare.array_ref().vec(), &vec![
             2., 2., 3., 4.,

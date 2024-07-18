@@ -7,9 +7,9 @@ pub struct Attribute {
 
 impl Attribute {
     pub fn new(name: &Stem, value: &Stem) -> Hold<Link<Self>, Stem> {
-        let link = Link::new(Self {
-            name: name.clone(),
-            value: value.clone(),
+        let link = Link::make(|back| Self {
+            name: name.backed(back),
+            value: value.backed(back),
         });
         let role = Stem::Role(Role {
             part: Part::Attribute(link.clone()),

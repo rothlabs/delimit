@@ -33,16 +33,34 @@ where
     }
 }
 
+impl<N> Maker for Edge<N>
+where
+    N: 'static + Default + Make + Update + Send + Sync,
+{
+    type Unit = N::Unit;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+        let node = Arc::new(RwLock::new(N::default()));
+        let update = node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        let back = Back::new(Arc::downgrade(&update));
+        {
+            let mut node = node.write().expect(NO_POISON);
+            node.make(make, &back);
+        }
+        Self {
+            back: None,
+            node,
+            // meta: Meta::new(),
+        }
+    }
+}
+
 impl<N> Edge<N>
 where
     N: 'static + Update + Send + Sync,
 {
     fn node_as_back(&self) -> Back {
-        let node = self.node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
-        Back {
-            node: Arc::downgrade(&node),
-            // meta: self.meta.clone(),
-        }
+        let update = self.node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        Back::new(Arc::downgrade(&update))
     }
 }
 

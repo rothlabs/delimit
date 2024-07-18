@@ -95,6 +95,16 @@ pub trait FromItem {
     fn new(item: Self::Item) -> Self;
 }
 
+pub trait Maker {
+    type Unit;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
+}
+
+pub trait Make {
+    type Unit;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
+}
+
 pub trait FromAce {
     type Load;
     fn from_ace(ace: Ace<Self::Load>) -> Self;
