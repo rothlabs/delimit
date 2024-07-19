@@ -1,41 +1,64 @@
 use super::*;
 
-fn make_doc() -> Role {
-    let mut html = Doc::new().html();
-    html.lang("en");
-    let mut title = html.head().title();
+fn make_doc() -> (Role, Link<Element>, AttributeSet) {
+    let atts = attribute_set();
+    let mut html = Doc::new(&atts).html();
+    html.attribute("lang", "en");
+    let head = html.head();
+    let head_link = head.hold().link;
+    let mut title = head.title();
     title.add_str("Delimit");
     let mut meta = title.root().meta();
-    meta.charset("utf-8");
+    meta.attribute("charset", "utf-8");
     meta = meta.root().meta();
-    meta.name("viewport")
-        .content("width=device-width, initial-scale=1");
+    meta.attribute("name", "viewport")
+        .attribute("content", "width=device-width, initial-scale=1");
     meta = meta.root().meta();
-    meta.name("author").content("Roth Labs LLC");
+    meta.attribute("name", "author").attribute("content", "Roth Labs LLC");
     let mut script = meta.root().script();
-    script.r#type("importmap");
+    script.attribute("type", "importmap");
     script.add_str(&r#"{"imports":{"init":"/client.js"}}"#);
     let mut body = script.up_to_html().body();
     body.add_str("Delimit");
     let mut canvas = body.canvas();
-    canvas.id("canvas");
+    canvas.attribute("id", "canvas");
     let mut script = canvas.root().script();
-    script.src("/app.js").r#type("module");
-    script.up_to_doc().role()
+    script.attribute("src", "/app.js").attribute("type", "module");
+    (script.up_to_doc().hold().role, head_link, atts)
 }
 
 #[test]
 fn basic_doc() {
-    let string = make_doc().grant().grant().load();
+    let (doc, _, _) = make_doc();
+    let string = doc.grant().grant().load();
     assert_eq!(DOC, string);
 }
 
+/// The goal is to get the sub plain graph to react
 #[test]
-fn mutate_script_tag() {
-    let role = make_doc();
-    let plain = role.grant();
-    let string = role.grant().grant().load();
-    assert_eq!(DOC_MUTATED_TAG, string);
+fn mutate_plain() {
+    let (doc, _, atts) = make_doc();
+    let att = atts.get("type").unwrap();
+    let plain = doc.grant();
+    att.write(|unit| *unit += "_mutated");
+    let ace = plain.grant();
+    let string = ace.load();
+    assert_eq!(MUTATED_ATTRIB, string);
+}
+
+/// The goal to to mutate the super graph and 
+/// get a reaction for something that cares 
+/// about the contents of the sub graph.
+#[test]
+fn mutate_html() {
+    let (doc, head, _) = make_doc();
+    let plain = doc.grant();
+    head.write(|pack| {
+        pack.unit.items.remove(0);
+    });
+    let ace = plain.grant();
+    let string = ace.load();
+    assert_eq!(REMOVED_TITLE, string);
 }
 
 const DOC: &str = r#"<!DOCTYPE html>
@@ -60,7 +83,7 @@ Delimit
 </body>
 </html>"#;
 
-const DOC_MUTATED_TAG: &str = r#"<!DOCTYPE html>
+const MUTATED_ATTRIB: &str = r#"<!DOCTYPE html>
 <html lang="en">
 <head>
 <title>
@@ -69,7 +92,7 @@ Delimit
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Roth Labs LLC">
-<script_mutated type="importmap">
+<script type_mutated="importmap">
 {"imports":{"init":"/client.js"}}
 </script>
 </head>
@@ -77,11 +100,96 @@ Delimit
 Delimit
 <canvas id="canvas">
 </canvas>
-<script_mutated src="/app.js" type="module">
+<script src="/app.js" type_mutated="module">
 </script>
 </body>
 </html>"#;
 
+const REMOVED_TITLE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
+
+
+// let atts = attribute_set();
+//     let mut html = Doc::new(&atts).html();
+//     html.attribute("lang", "en");
+//     let mut title = html.head().title();
+//     title.add_str("Delimit");
+//     let mut meta = title.root().meta();
+//     meta.attribute("charset", "utf-8");
+//     meta = meta.root().meta();
+//     meta.attribute("name", "viewport")
+//         .attribute("content", "width=device-width, initial-scale=1");
+//     meta = meta.root().meta();
+//     meta.attribute("name", "author").attribute("content", "Roth Labs LLC");
+//     let mut script = meta.root().script();
+//     script.attribute("type", "importmap");
+//     script.add_str(&r#"{"imports":{"init":"/client.js"}}"#);
+//     let mut body = script.up_to_html().body();
+//     body.add_str("Delimit");
+//     let mut canvas = body.canvas();
+//     canvas.attribute("id", "canvas");
+//     let mut script = canvas.root().script();
+//     script.attribute("src", "/app.js").attribute("type", "module");
+//     (script.up_to_doc().role(), atts)
+
+
+
+
+// if let Part::Element(doc) = &doc.part {
+//     doc.read(|unit|{
+//         if let View::Role(html) = &unit.items[0] {
+//             if let Part::Element(html) = &html.part {
+//                 html.read(|unit|{
+//                     if let View::Role(tag) = &unit.tag {
+//                         let string = tag.grant().grant().load();
+//                         println!("html element: {string}");     
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
+
+
+// let atts = attribute_set();
+// let mut html = Doc::new(&atts).html();
+// html.lang("en");
+// let mut title = html.head().title();
+// title.add_str("Delimit");
+// let mut meta = title.root().meta();
+// meta.charset("utf-8");
+// meta = meta.root().meta();
+// meta.name("viewport")
+//     .content("width=device-width, initial-scale=1");
+// meta = meta.root().meta();
+// meta.name("author").content("Roth Labs LLC");
+// let mut script = meta.root().script();
+// script.r#type("importmap");
+// script.add_str(&r#"{"imports":{"init":"/client.js"}}"#);
+// let mut body = script.up_to_html().body();
+// body.add_str("Delimit");
+// let mut canvas = body.canvas();
+// canvas.id("canvas");
+// let mut script = canvas.root().script();
+// script.src("/app.js").r#type("module");
+// (script.up_to_doc().role(), atts)
 
 
 // #[test]

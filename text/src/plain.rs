@@ -26,8 +26,8 @@ pub fn str<A>(str: &str) -> view::Ploy<A> {
     View::Base(Stem::Base(graph::view::End::Bare(str.into())))
 }
 
-pub fn ace<A>(str: &str) -> view::Ploy<A> {
-    View::Base(Stem::Base(graph::view::End::Link(str.ace())))
+pub fn ace<A>(ace: &Ace<String>) -> view::Ploy<A> {
+    View::Base(Stem::Base(graph::view::End::Link(ace.clone())))
 }
 
 type Link<U> = Deuce<U, Load>;

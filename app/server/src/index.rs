@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use text::html::Doc;
+use text::html::{attribute_set, Doc};
 
 use crate::{BOOT, INIT};
 
@@ -26,25 +26,26 @@ impl Default for Imports {
 }
 
 pub fn index() -> String {
-    let mut html = Doc::new().html();
-    html.lang("en");
+    let atts = attribute_set();
+    let mut html = Doc::new(&atts).html();
+    html.attribute("lang", "en");
     let mut title = html.head().title();
     title.add_str("Delimit");
     let mut meta = title.root().meta();
-    meta.charset("utf-8");
+    meta.attribute("charset", "utf-8");
     meta = meta.root().meta();
-    meta.name("viewport")
-        .content("width=device-width, initial-scale=1");
+    meta.attribute("name", "viewport")
+        .attribute("content", "width=device-width, initial-scale=1");
     meta = meta.root().meta();
-    meta.name("author").content("Roth Labs LLC");
+    meta.attribute("name", "author").attribute("content", "Roth Labs LLC");
     let mut script = meta.root().script();
-    script.r#type("importmap");
+    script.attribute("type", "importmap");
     script.add_str(&serde_json::to_string(&Importmap::default()).unwrap());
     let mut body = script.up_to_html().body();
     body.add_str("Delimit");
     let mut canvas = body.canvas();
-    canvas.id("canvas");
+    canvas.attribute("id", "canvas");
     let mut script = canvas.root().script();
-    script.src(BOOT).r#type("module");
+    script.attribute("src", BOOT).attribute("type", "module");
     script.up_to_doc().string()
 }

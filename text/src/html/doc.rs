@@ -3,21 +3,48 @@ use std::collections::HashMap;
 
 use super::*;
 
+pub type AttributeSet = HashMap<&'static str, Ace<String>>;
+
 pub struct Doc {
-    root: Option<Box<RefCell<Doc>>>,
+    root: Option<Box<RefCell<Option<Doc>>>>,
     tag_name: &'static str,
     tag: Hold<Link<Tag>, Role>,
     element: Hold<Link<Element>, Role>,
     tag_names: HashMap<&'static str, Stem>,
-    att_names: HashMap<&'static str, Stem>,
+    attributes: AttributeSet,
+}
+
+pub fn attribute_set() -> AttributeSet {
+    let mut atts = HashMap::new();
+    for att in ATTRIBUTES {
+        atts.insert(att, att.to_owned().ace());
+    }
+    atts
 }
 
 impl Doc {
-    pub fn new() -> Self {
-        Doc::default()
+    pub fn new(atts: &AttributeSet) -> Self {
+        let mut tags = HashMap::new();
+        for tag in TAGS {
+            tags.insert(tag, plain::str(tag));
+        }
+        // let mut atts = HashMap::new();
+        // for att in ATTRIBUTES {
+        //     atts.insert(att, plain::ace(att));
+        // }
+        let doctype = tags.get(DOCTYPE).unwrap();
+        let tag = Tag::new(doctype);
+        Self {
+            tag_name: DOCTYPE,
+            root: None,
+            tag: tag.clone(),
+            element: Element::new(&Stem::Role(tag.role), None),
+            tag_names: tags,
+            attributes: atts.clone(),
+        }
     }
-    pub fn role(&self) -> Role {
-        self.element.role.clone()
+    pub fn hold(&self) -> Hold<Link<Element>, Role> {
+        self.element.clone()
     }
     pub fn string(&self) -> String {
         let plain = self.element.link.grant();
@@ -35,7 +62,7 @@ impl Doc {
             .root
             .as_ref()
             .expect("element should have a root")
-            .replace(Doc::new());
+            .replace(None).unwrap();
         root.element.link.write(|pack| {
             pack.unit.items.back(pack.back).add_role(&self.element.role);
         });
@@ -51,9 +78,9 @@ impl Doc {
         }
         panic!("element should have a root with given tag");
     }
-    pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
-        if let Some(item) = self.att_names.get(name) {
-            let hold = Attribute::new(item, &plain::str(value));
+    pub fn attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
+        if let Some(name_ace) = self.attributes.get(name) {
+            let hold = Attribute::new(&plain::ace(name_ace), &plain::str(value));
             self.tag.link.write(|Pack { unit, back }| {
                 unit.attributes.back(back).add_role(&hold.role);
             });
@@ -70,10 +97,10 @@ impl Doc {
         Doc {
             tag_name,
             tag_names: self.tag_names.clone(),
-            att_names: self.att_names.clone(),
+            attributes: self.attributes.clone(),
             tag: tag.clone(),
             element: Element::new(&Stem::Role(tag.role), close),
-            root: Some(Box::new(RefCell::new(self))),
+            root: Some(Box::new(RefCell::new(Some(self)))),
         }
     }
     pub fn html(self) -> Self {
@@ -109,48 +136,48 @@ impl Doc {
     pub fn up_to_doc(self) -> Self {
         self.up(DOCTYPE)
     }
-    pub fn id(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(ID, val)
-    }
-    pub fn lang(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(LANG, val)
-    }
-    pub fn charset(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(CHARSET, val)
-    }
-    pub fn name(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(NAME, val)
-    }
-    pub fn content(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(CONTENT, val)
-    }
-    pub fn r#type(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(TYPE, val)
-    }
-    pub fn src(&mut self, val: &str) -> &mut Self {
-        self.add_attribute(SRC, val)
-    }
+    // pub fn id(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(ID, val)
+    // }
+    // pub fn lang(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(LANG, val)
+    // }
+    // pub fn charset(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(CHARSET, val)
+    // }
+    // pub fn name(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(NAME, val)
+    // }
+    // pub fn content(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(CONTENT, val)
+    // }
+    // pub fn r#type(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(TYPE, val)
+    // }
+    // pub fn src(&mut self, val: &str) -> &mut Self {
+    //     self.add_attribute(SRC, val)
+    // }
 }
 
-impl Default for Doc {
-    fn default() -> Self {
-        let mut tags = HashMap::new();
-        for tag in TAGS {
-            tags.insert(tag, plain::ace(tag));
-        }
-        let mut atts = HashMap::new();
-        for att in ATTRIBUTES {
-            atts.insert(att, plain::ace(att));
-        }
-        let doctype = tags.get(DOCTYPE).unwrap();
-        let tag = Tag::new(doctype);
-        Self {
-            tag_name: DOCTYPE,
-            root: None,
-            tag: tag.clone(),
-            element: Element::new(&Stem::Role(tag.role), None),
-            tag_names: tags,
-            att_names: atts,
-        }
-    }
-}
+// impl Default for Doc {
+//     fn default() -> Self {
+//         let mut tags = HashMap::new();
+//         for tag in TAGS {
+//             tags.insert(tag, plain::str(tag));
+//         }
+//         // let mut atts = HashMap::new();
+//         // for att in ATTRIBUTES {
+//         //     atts.insert(att, plain::ace(att));
+//         // }
+//         let doctype = tags.get(DOCTYPE).unwrap();
+//         let tag = Tag::new(doctype);
+//         Self {
+//             tag_name: DOCTYPE,
+//             root: None,
+//             tag: tag.clone(),
+//             element: Element::new(&Stem::Role(tag.role), None),
+//             tag_names: tags,
+//             att_names: atts,
+//         }
+//     }
+// }
