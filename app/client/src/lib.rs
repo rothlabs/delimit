@@ -1,6 +1,10 @@
 use wasm_bindgen::prelude::*;
 use web_sys::window;
 
+// pub use draw::*;
+
+pub mod draw;
+
 #[wasm_bindgen(start)]
 pub fn initialize() {
     #[cfg(feature = "console_error_panic_hook")]

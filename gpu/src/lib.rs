@@ -1,6 +1,10 @@
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGl2RenderingContext as GL, WebGlProgram, WebGlShader};
 
+pub mod shader;
+
+mod init;
+
 pub struct GPU {
     gl: GL,
 }
@@ -9,35 +13,17 @@ impl GPU {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn shader(&self, r#type: u32, source: &str) -> Result<WebGlShader, String> {
-        let shader = self
-            .gl
-            .create_shader(r#type)
-            .ok_or("cannot create shader")?;
-        self.gl.shader_source(&shader, source);
-        self.gl.compile_shader(&shader);
-        if self
-            .gl
-            .get_shader_parameter(&shader, GL::COMPILE_STATUS)
-            .as_bool()
-            .unwrap_or(false)
-        {
-            Ok(shader)
-        } else {
-            Err(self
-                .gl
-                .get_shader_info_log(&shader)
-                .ok_or("cannot get shader info log")?)
-        }
+    pub fn shader(&self) -> init::Shader {
+        init::Shader::new(&self.gl)
     }
     pub fn program(
         &self,
-        vertex: &WebGlShader,
-        fragment: &WebGlShader,
+        vertex_shader: &WebGlShader,
+        fragment_shader: &WebGlShader,
     ) -> Result<WebGlProgram, String> {
         let program = self.gl.create_program().ok_or("cannot create program")?;
-        self.gl.attach_shader(&program, vertex);
-        self.gl.attach_shader(&program, fragment);
+        self.gl.attach_shader(&program, vertex_shader);
+        self.gl.attach_shader(&program, fragment_shader);
         self.gl.link_program(&program);
         if self
             .gl
@@ -58,7 +44,9 @@ impl GPU {
 impl Default for GPU {
     fn default() -> Self {
         let document = web_sys::window().unwrap().document().unwrap();
-        let canvas = document.get_element_by_id("canvas").unwrap();
+        // let canvas = document.get_element_by_id("canvas").unwrap();
+        let canvas = document.create_element("canvas").unwrap();
+        // let canvas = 
         let canvas: web_sys::HtmlCanvasElement =
             canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
         let gl = canvas

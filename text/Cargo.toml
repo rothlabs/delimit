@@ -5,7 +5,7 @@
     edition = "2021"
 
 [dependencies]
-    # graph
+    # delimit
         graph = { path = "../graph" }
     # third party
         # serde

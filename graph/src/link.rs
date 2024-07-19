@@ -82,6 +82,7 @@ where
     }
 }
 
+/// TODO: make method to make new link with cloned edge without Back! 
 impl<E> Backed for Link<E>
 where
     E: Backed,
@@ -108,6 +109,8 @@ where
     }
 }
 
+/// TODO: make reader that does not add a root to the node. 
+/// This will allow readers to inspect without rebuting in the future.
 impl<E> Reader for Link<E>
 where
     E: 'static + Reader + Updater + RootAdder + Send + Sync,

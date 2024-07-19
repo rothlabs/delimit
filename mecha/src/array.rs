@@ -4,7 +4,7 @@ use graph::*;
 
 pub mod view {
     use super::*;
-    /// Matrix Link for super graphs
+    /// Array Link for super graphs
     pub type Plan<P, T, N> = graph::View<role::Plan<P, T, Role<N>>, Stem<N>>;
 }
 
