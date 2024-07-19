@@ -13,7 +13,7 @@ mod doc;
 mod element;
 mod tag;
 
-/// HTML to use as Load of super graphs
+/// HTML role
 pub type Role = role::Ploy<Part, Load>;
 
 #[derive(Clone)]
@@ -23,6 +23,12 @@ pub enum Part {
     Attribute(Link<Attribute>),
 }
 
-type Load = plain::Role;
-type Stem = plain::view::Ploy<Part>;
+/// HTML link
 type Link<U> = Deuce<U, Load>;
+
+// HTML load
+type Load = plain::Role;
+
+/// HTML stem view
+type Stem = plain::view::Ploy<Part>;
+

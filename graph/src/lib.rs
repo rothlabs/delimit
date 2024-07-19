@@ -27,6 +27,7 @@ mod write;
 
 const NO_POISON: &str = "the lock should not be poisoned";
 
+#[derive(Clone)]
 pub struct Hold<L, R> {
     pub link: L,
     pub role: R,

@@ -6,8 +6,8 @@ use super::*;
 pub struct Doc {
     root: Option<Box<RefCell<Doc>>>,
     tag_name: &'static str,
-    tag: Hold<Link<Tag>, Stem>,
-    element: Hold<Link<Element>, Stem>,
+    tag: Hold<Link<Tag>, Role>,
+    element: Hold<Link<Element>, Role>,
     tag_names: HashMap<&'static str, Stem>,
     att_names: HashMap<&'static str, Stem>,
 }
@@ -16,7 +16,7 @@ impl Doc {
     pub fn new() -> Self {
         Doc::default()
     }
-    pub fn element(&self) -> Stem {
+    pub fn role(&self) -> Role {
         self.element.role.clone()
     }
     pub fn string(&self) -> String {
@@ -37,7 +37,7 @@ impl Doc {
             .expect("element should have a root")
             .replace(Doc::new());
         root.element.link.write(|pack| {
-            pack.unit.items.back(pack.back).push(&self.element.role);
+            pack.unit.items.back(pack.back).add_role(&self.element.role);
         });
         root
     }
@@ -55,7 +55,7 @@ impl Doc {
         if let Some(item) = self.att_names.get(name) {
             let hold = Attribute::new(item, &plain::str(value));
             self.tag.link.write(|Pack { unit, back }| {
-                unit.attributes.back(back).push(&hold.role);
+                unit.attributes.back(back).add_role(&hold.role);
             });
         }
         self
@@ -71,8 +71,8 @@ impl Doc {
             tag_name,
             tag_names: self.tag_names.clone(),
             att_names: self.att_names.clone(),
-            element: Element::new(&tag.role, close),
-            tag,
+            tag: tag.clone(),
+            element: Element::new(&Stem::Role(tag.role), close),
             root: Some(Box::new(RefCell::new(self))),
         }
     }
@@ -147,8 +147,8 @@ impl Default for Doc {
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new(&tag.role, None),
-            tag,
+            tag: tag.clone(),
+            element: Element::new(&Stem::Role(tag.role), None),
             tag_names: tags,
             att_names: atts,
         }

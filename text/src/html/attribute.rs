@@ -6,15 +6,15 @@ pub struct Attribute {
 }
 
 impl Attribute {
-    pub fn new(name: &Stem, value: &Stem) -> Hold<Link<Self>, Stem> {
+    pub fn new(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             name: name.backed(back),
             value: value.backed(back),
         });
-        let role = Stem::Role(Role {
+        let role = Role {
             part: Part::Attribute(link.clone()),
             form: link.ploy(),
-        });
+        };
         Hold { link, role }
     }
 }

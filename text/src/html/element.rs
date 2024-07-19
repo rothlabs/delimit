@@ -7,16 +7,16 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn new(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Stem> {
+    pub fn new(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             tag: tag.backed(back),
             items: vec![],
             close: close.cloned(),
         });
-        let role = Stem::Role(Role {
+        let role = Role { 
             part: Part::Element(link.clone()),
             form: link.ploy(),
-        });
+        }; 
         Hold { link, role }
     }
 }

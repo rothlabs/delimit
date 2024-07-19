@@ -6,15 +6,15 @@ pub struct Tag {
 }
 
 impl Tag {
-    pub fn new(name: &Stem) -> Hold<Link<Self>, Stem> {
+    pub fn new(name: &Stem) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             name: name.backed(back),
             attributes: vec![],
         });
-        let role = Stem::Role(Role {
+        let role = Role {
             part: Part::Tag(link.clone()),
             form: link.ploy(),
-        });
+        };
         Hold { link, role }
     }
 }
