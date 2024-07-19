@@ -12,6 +12,7 @@ edition = "2021"
         'Window', 
         'Document', 
         'HtmlCanvasElement' ,
+        'OffscreenCanvas',
         'WebGlRenderingContext', 
         'WebGl2RenderingContext', 
         'WebGlProgram', 

@@ -1,7 +1,6 @@
 pub use doc::*;
 
 use graph::*;
-
 use super::*;
 use attribute::*;
 use element::*;
@@ -9,7 +8,6 @@ use tag::*;
 
 #[cfg(test)]
 mod tests;
-
 mod attribute;
 mod doc;
 mod element;

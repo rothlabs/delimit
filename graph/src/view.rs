@@ -7,6 +7,8 @@ pub mod end;
 /// A base or a role that must provide a base via granting or solving.
 /// Views are phrased as "view of BASE with ROLE" or "BASE view with ROLE".
 /// The base could be another view, allowing for a chain of views.
+/// Common use-case: Some unit field could link to same logic level or it could 
+/// link to logic of a sub-graph load. 
 #[derive(Clone, Serialize)]
 pub enum View<R, B> {
     Role(R),

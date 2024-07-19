@@ -5,7 +5,7 @@
 extern crate wasm_bindgen_test;
 use wasm_bindgen_test::*;
 
-mod draw;
+mod gpu;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
@@ -15,11 +15,21 @@ fn pass() {
 }
 
 #[wasm_bindgen_test]
-fn create_vertex_shader() {
-    draw::create_vertex_shader();
+fn make_vertex_shader() {
+    gpu::make_vertex_shader();
+}
+
+#[wasm_bindgen_test]
+fn make_fragment_shader() {
+    gpu::make_fragment_shader();
+}
+
+#[wasm_bindgen_test]
+fn make_program() {
+    gpu::make_program();
 }
 
 #[wasm_bindgen_test]
 fn draw_rect() {
-    draw::rect();
+    gpu::rect();
 }

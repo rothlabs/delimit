@@ -13,9 +13,3 @@ type Link<U> = Deuce<U, ()>;
 pub enum Part {
     Facets(Link<Facets>),
 }
-
-
-
-
-
-

@@ -7,8 +7,9 @@ pub type Ploy<P, L> = Role<P, link::Ploy<L>>;
 pub type Plan<P, T, L> = Role<P, link::Plan<T, L>>;
 
 /// Two copies of the same link.
-/// For unit access, the part field should be an enumeration of Link.
+/// For unit access, the part field should be an enumeration of concrete links.
 /// The form field should be link::Ploy or link::Plan to be used without unit knowledge.
+/// Common use-case: Traverse and edit units or evaluate the load by way of anonymous units.  
 pub struct Role<P, F> {
     pub part: P,
     pub form: F,

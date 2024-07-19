@@ -117,9 +117,7 @@ pub struct Back {
 
 impl Back {
     pub fn new(node: Weak<RwLock<dyn Update + Send + Sync + 'static>>) -> Self {
-        Self {
-            node
-        }
+        Self { node }
     }
     pub fn rebut(&self) -> Ring {
         // println!("strong_count: {}", Weak::strong_count(&self.item));

@@ -19,9 +19,7 @@ impl Facets {
 
 impl Grant for Facets {
     type Load = ();
-    fn grant(&self) -> Self::Load {
-
-    }
+    fn grant(&self) -> Self::Load {}
 }
 
 // type Array = array::Role<f32>;

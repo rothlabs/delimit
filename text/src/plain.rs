@@ -6,7 +6,7 @@ use serde::Serialize;
 pub mod view {
     use super::*;
     /// Plain text Link to use inside units of super graphs
-    pub type Ploy<P> = graph::View<role::Ploy<P, Role>, Stem>;
+    pub type Ploy<P> = View<role::Ploy<P, Role>, Stem>;
 }
 
 mod list;

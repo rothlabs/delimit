@@ -16,8 +16,13 @@ impl Doc {
     pub fn new() -> Self {
         Doc::default()
     }
+    pub fn element(&self) -> Stem {
+        self.element.role.clone()
+    }
     pub fn string(&self) -> String {
-        self.element.link.grant().grant().load()
+        let plain = self.element.link.grant();
+        let ace = plain.grant();
+        ace.load()
     }
     pub fn add_str(&mut self, value: &str) -> &mut Self {
         self.element.link.write(|pack| {
@@ -49,8 +54,8 @@ impl Doc {
     pub fn add_attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
         if let Some(item) = self.att_names.get(name) {
             let hold = Attribute::new(item, &plain::str(value));
-            self.tag.link.write(|pack| {
-                pack.unit.attributes.back(pack.back).push(&hold.role);
+            self.tag.link.write(|Pack { unit, back }| {
+                unit.attributes.back(back).push(&hold.role);
             });
         }
         self
