@@ -7,7 +7,7 @@ mod facet;
 
 pub type Role = role::Ploy<Part, ()>;
 
-type Link<U> = Deuce<U, ()>;
+type Link<U> = Deuce<U>;
 
 #[derive(Clone)]
 pub enum Part {

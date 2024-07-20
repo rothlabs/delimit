@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::*;
 
 pub type Ace<L> = Node<work::Ace<L>>;
-pub type Deuce<U, L> = Node<work::Deuce<U, L>>;
+pub type Deuce<U> = Node<work::Deuce<U>>;
 pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
 pub type Pipe<U> = Node<work::Pipe<U>>;
 

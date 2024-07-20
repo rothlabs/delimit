@@ -27,7 +27,7 @@ pub enum Part {
 }
 
 /// HTML link
-type Link<U> = Deuce<U, Load>;
+type Link<U> = Deuce<U>;
 
 // HTML load
 type Load = plain::Role;

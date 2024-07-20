@@ -1,3 +1,5 @@
+use std::ops;
+
 use super::*;
 use add::*;
 use graph::*;
@@ -15,22 +17,24 @@ mod tests;
 /// Matrix Load for super graphs
 pub type Role<N> = role::Ploy<Part<N>, Load<N>>;
 
+/// Units may grant in-memory arrays (Mem) or 
+/// they may grant gpu buffer ref (Gpu) 
 #[derive(Clone)]
 pub enum Bare<N> {
-    Array(Array3<N>),
-    Buffer,
+    Mem(Array3<N>),
+    Gpu,
 }
 
 impl<N> Bare<N> {
     pub fn array(self) -> Array3<N> {
-        if let Self::Array(array) = self {
+        if let Self::Mem(array) = self {
             array
         } else {
             panic!("not array")
         }
     }
     pub fn array_ref(&self) -> &Array3<N> {
-        if let Self::Array(array) = self {
+        if let Self::Mem(array) = self {
             array
         } else {
             panic!("not array")
@@ -39,13 +43,17 @@ impl<N> Bare<N> {
 }
 
 #[derive(Clone)]
-pub enum Part<N> {
-    Add(Link<Add<N>, N>),
+pub enum Part<N: Number> {
+    Add(Link<Add<N>>),
 }
 
 type Load<N> = Ace<Bare<N>>;
-type Link<U, N> = Deuce<U, Load<N>>;
+type Link<U> = Deuce<U>;
 type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
+
+pub trait Number: Copy + Default + ops::Add<Self, Output = Self> + Send + Sync + 'static {}
+
+impl<T> Number for T where T: Copy + Default + ops::Add<Self, Output = Self> + Send + Sync + 'static {}
 
 // impl<N> Clone for Bare<N>
 // where

@@ -1,15 +1,18 @@
-use serde::Serialize;
-
 use crate::*;
 
 /// Contains a unit that must impl Grant to produce a Load which is saved here.
-#[derive(Serialize)]
-pub struct Deuce<U, L> {
+pub struct Deuce<U>
+where
+    U: Grant,
+{
     unit: Option<U>,
-    load: Option<L>,
+    load: Option<U::Load>,
 }
 
-impl<U, L> Default for Deuce<U, L> {
+impl<U> Default for Deuce<U>
+where
+    U: Grant,
+{
     fn default() -> Self {
         Self {
             unit: None,
@@ -18,14 +21,20 @@ impl<U, L> Default for Deuce<U, L> {
     }
 }
 
-impl<U, L> Make for Deuce<U, L> {
+impl<U> Make for Deuce<U>
+where
+    U: Grant,
+{
     type Unit = U;
     fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
         self.unit = Some(make(back));
     }
 }
 
-impl<U, L> FromItem for Deuce<U, L> {
+impl<U> FromItem for Deuce<U>
+where
+    U: Grant,
+{
     type Item = U;
     fn new(unit: Self::Item) -> Self {
         Self {
@@ -35,20 +44,29 @@ impl<U, L> FromItem for Deuce<U, L> {
     }
 }
 
-impl<U, L> Read for Deuce<U, L> {
+impl<U> Read for Deuce<U>
+where
+    U: Grant,
+{
     type Item = U;
     fn read(&self) -> &Self::Item {
         self.unit.as_ref().unwrap()
     }
 }
 
-impl<U, L> Clear for Deuce<U, L> {
+impl<U> Clear for Deuce<U>
+where
+    U: Grant,
+{
     fn clear(&mut self) {
         self.load = None;
     }
 }
 
-impl<U, L> WriteWithBack for Deuce<U, L> {
+impl<U> WriteWithBack for Deuce<U>
+where
+    U: Grant,
+{
     type Unit = U;
     fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
         write(&mut Pack {
@@ -59,12 +77,12 @@ impl<U, L> WriteWithBack for Deuce<U, L> {
     }
 }
 
-impl<U, L> Grantor for Deuce<U, L>
+impl<U> Grantor for Deuce<U>
 where
-    U: Grant<Load = L>,
-    L: Clone,
+    U: Grant,
+    U::Load: Clone,
 {
-    type Load = L;
+    type Load = U::Load;
     fn grantor(&mut self, _: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
@@ -76,6 +94,9 @@ where
     }
 }
 
-impl<U, L> React for Deuce<U, L> {
+impl<U> React for Deuce<U>
+where
+    U: Grant,
+{
     fn react(&mut self, _: &Meta) {}
 }

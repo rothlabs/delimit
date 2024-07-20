@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn add() {
     #[rustfmt::skip]
-    let base = Stem::new(Bare::Array(Array::new([4, 4, 1], vec![
+    let base = Stem::new(Bare::Mem(Array::new([4, 4, 1], vec![
         1., 0., 0., 0.,
         0., 1., 0., 0.,
         0., 0., 1., 0.,

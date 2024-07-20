@@ -7,7 +7,7 @@ use crate::*;
 pub type Ace<L> = Edge<node::Ace<L>>;
 
 /// Edge to a unit that grants a load.
-pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
+pub type Deuce<U> = Edge<node::Deuce<U>>;
 
 /// Edge to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
@@ -67,7 +67,7 @@ where
     }
 }
 
-impl<U, L> Produce<L> for Deuce<U, L>
+impl<U, L> Produce<L> for Deuce<U>
 where
     U: Grant<Load = L> + 'static + Send + Sync,
     L: Clone + 'static + Send + Sync,
@@ -85,12 +85,12 @@ where
     }
 }
 
-impl<U, L> ToPloy for Deuce<U, L>
+impl<U> ToPloy for Deuce<U>
 where
-    U: Grant<Load = L> + 'static + Send + Sync,
-    L: Clone + 'static + Send + Sync,
+    U: Grant + 'static + Send + Sync,
+    U::Load: Clone + 'static + Send + Sync,
 {
-    type Load = L;
+    type Load = U::Load;
     fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load> + Send + Sync>>> {
         Arc::new(RwLock::new(Box::new(Self {
             back: self.back.clone(),
@@ -100,13 +100,13 @@ where
     }
 }
 
-impl<U, L> BackedPloy for Deuce<U, L>
+impl<U> BackedPloy for Deuce<U>
 where
-    U: Grant<Load = L> + 'static + Send + Sync,
-    L: Clone + 'static + Send + Sync,
+    U: Grant + 'static + Send + Sync,
+    U::Load: Clone + 'static + Send + Sync,
 {
-    type Load = L;
-    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<L>>> {
+    type Load = U::Load;
+    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<U::Load>>> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             node: self.node.clone(),

@@ -30,6 +30,6 @@ pub fn ace<A>(ace: &Ace<String>) -> view::Ploy<A> {
     View::Base(Stem::Base(graph::view::End::Link(ace.clone())))
 }
 
-type Link<U> = Deuce<U, Load>;
+type Link<U> = Deuce<U>;
 type Stem = graph::view::end::Ploy<Part, String>;
 type Load = Ace<String>;

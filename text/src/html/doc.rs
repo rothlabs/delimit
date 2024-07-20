@@ -138,33 +138,32 @@ impl Doc {
     }
 }
 
-    // pub fn id(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(ID, val)
-    // }
-    // pub fn lang(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(LANG, val)
-    // }
-    // pub fn charset(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(CHARSET, val)
-    // }
-    // pub fn name(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(NAME, val)
-    // }
-    // pub fn content(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(CONTENT, val)
-    // }
-    // pub fn r#type(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(TYPE, val)
-    // }
-    // pub fn src(&mut self, val: &str) -> &mut Self {
-    //     self.add_attribute(SRC, val)
-    // }
+// pub fn id(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(ID, val)
+// }
+// pub fn lang(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(LANG, val)
+// }
+// pub fn charset(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(CHARSET, val)
+// }
+// pub fn name(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(NAME, val)
+// }
+// pub fn content(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(CONTENT, val)
+// }
+// pub fn r#type(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(TYPE, val)
+// }
+// pub fn src(&mut self, val: &str) -> &mut Self {
+//     self.add_attribute(SRC, val)
+// }
 
-
-        // let mut atts = HashMap::new();
-        // for att in ATTRIBUTES {
-        //     atts.insert(att, plain::ace(att));
-        // }
+// let mut atts = HashMap::new();
+// for att in ATTRIBUTES {
+//     atts.insert(att, plain::ace(att));
+// }
 
 // impl Default for Doc {
 //     fn default() -> Self {

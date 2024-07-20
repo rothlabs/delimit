@@ -12,7 +12,7 @@ mod tests;
 pub type Ace<L> = Link<edge::Ace<L>>;
 
 /// Link to a unit that grants a load.
-pub type Deuce<U, L> = Link<edge::Deuce<U, L>>;
+pub type Deuce<U> = Link<edge::Deuce<U>>;
 
 /// Link to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;

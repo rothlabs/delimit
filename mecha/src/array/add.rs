@@ -1,17 +1,13 @@
 use super::*;
-use std::ops;
 
 /// Add vector to each vector in base.
-pub struct Add<N> {
+pub struct Add<N: Number> {
     base: Stem<N>,
     vector: Array1<N>,
 }
 
-impl<N> Add<N>
-where
-    N: Copy + Default + ops::Add<N, Output = N> + Send + Sync + 'static,
-{
-    pub fn new(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self, N>, Role<N>> {
+impl<N: Number> Add<N> {
+    pub fn new(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self>, Role<N>> {
         let link = Link::make(|back| Self {
             base: base.backed(back),
             vector: vector.clone(),
@@ -24,14 +20,11 @@ where
     }
 }
 
-impl<N> Grant for Add<N>
-where
-    N: Copy + Default + ops::Add<N, Output = N> + Send + Sync + 'static,
-{
+impl<N: Number> Grant for Add<N> {
     type Load = Load<N>;
     fn grant(&self) -> Self::Load {
         let mut array = self.base.load().array();
         array.each(|i, b| self.vector.get([i[0]]) + b);
-        Bare::Array(array).ace()
+        Bare::Mem(array).ace()
     }
 }
