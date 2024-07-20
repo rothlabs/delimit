@@ -1,17 +1,17 @@
 use crate::*;
 
-/// Contains a unit that must impl Grant to produce a Load which is saved here.
-pub struct Deuce<U>
+/// Contains a unit that must impl Act to produce a Load which is saved here.
+pub struct Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     unit: Option<U>,
     load: Option<U::Load>,
 }
 
-impl<U> Default for Deuce<U>
+impl<U> Default for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     fn default() -> Self {
         Self {
@@ -21,9 +21,9 @@ where
     }
 }
 
-impl<U> DoMake for Deuce<U>
+impl<U> DoMake for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     type Unit = U;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
@@ -31,9 +31,9 @@ where
     }
 }
 
-impl<U> FromItem for Deuce<U>
+impl<U> FromItem for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -44,9 +44,9 @@ where
     }
 }
 
-impl<U> DoRead for Deuce<U>
+impl<U> DoRead for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     type Item = U;
     fn do_read(&self) -> &Self::Item {
@@ -54,18 +54,18 @@ where
     }
 }
 
-impl<U> Clear for Deuce<U>
+impl<U> Clear for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     fn clear(&mut self) {
         self.load = None;
     }
 }
 
-impl<U> WriteWithBack for Deuce<U>
+impl<U> WriteWithBack for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     type Unit = U;
     fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
@@ -77,26 +77,26 @@ where
     }
 }
 
-impl<U> DoGrant for Deuce<U>
+impl<U> DoAct for Agent<U>
 where
-    U: Grant,
+    U: Act,
     U::Load: Clone,
 {
     type Load = U::Load;
-    fn do_grant(&mut self, _: &Back) -> Self::Load {
+    fn do_act(&mut self, _: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {
-            let load = self.unit.as_ref().unwrap().grant();
+            let load = self.unit.as_ref().unwrap().act();
             self.load = Some(load.clone());
             load
         }
     }
 }
 
-impl<U> DoReact for Deuce<U>
+impl<U> DoReact for Agent<U>
 where
-    U: Grant,
+    U: Act,
 {
     fn do_react(&mut self, _: &Meta) {}
 }

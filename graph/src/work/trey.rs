@@ -18,7 +18,7 @@ impl<U, T, L> FromItem for Trey<U, T, L> {
     }
 }
 
-impl<U, T, L> Solver for Trey<U, T, L>
+impl<U, T, L> DoSolve for Trey<U, T, L>
 where
     U: Solve<Task = T, Load = L>,
     T: Clone + Eq + PartialEq + Hash,
@@ -26,7 +26,7 @@ where
 {
     type Task = T;
     type Load = L;
-    fn solver(&mut self, task: T) -> L {
+    fn do_solve(&mut self, task: T) -> L {
         if let Some(load) = self.map.get(&task) {
             load.clone()
         } else {
@@ -43,8 +43,8 @@ impl<U, T, L> Clear for Trey<U, T, L> {
     }
 }
 
-impl<U, T, L> React for Trey<U, T, L> {
-    fn react(&mut self, _: &Meta) {}
+impl<U, T, L> DoReact for Trey<U, T, L> {
+    fn do_react(&mut self, _: &Meta) {}
 }
 
 // if let Some(load) = &self.load {

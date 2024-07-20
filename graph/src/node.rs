@@ -5,6 +5,7 @@ use crate::*;
 pub type Ace<L> = Node<work::Ace<L>>;
 pub type Deuce<U> = Node<work::Deuce<U>>;
 pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
+pub type Agent<U> = Node<work::Agent<U>>;
 pub type Pipe<U> = Node<work::Pipe<U>>;
 
 /// A node creates an interactive bridge between root edges and work.
@@ -27,13 +28,13 @@ where
     }
 }
 
-impl<W> Make for Node<W>
+impl<W> DoMake for Node<W>
 where
-    W: Make,
+    W: DoMake,
 {
     type Unit = W::Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
-        self.work.make(make, back);
+    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+        self.work.do_make(make, back);
     }
 }
 
@@ -85,13 +86,13 @@ where
     }
 }
 
-impl<W> Write for Node<W>
+impl<W> DoWrite for Node<W>
 where
-    W: Write,
+    W: DoWrite,
 {
     type Item = W::Item;
-    fn write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
-        self.work.write(write);
+    fn do_write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
+        self.work.do_write(write);
         self.ring.cycle(&self.meta);
     }
 }
@@ -107,60 +108,70 @@ where
     }
 }
 
-impl<W> Read for Node<W>
+impl<W> DoRead for Node<W>
 where
-    W: Read,
+    W: DoRead,
 {
     type Item = W::Item;
-    fn read(&self) -> &Self::Item {
-        self.work.read()
+    fn do_read(&self) -> &Self::Item {
+        self.work.do_read()
     }
 }
 
-impl<W> Grantor for Node<W>
+impl<W> DoGrant for Node<W>
 where
-    W: Grantor,
+    W: DoGrant,
 {
     type Load = W::Load;
-    fn grantor(&mut self, back: &Back) -> Self::Load {
-        self.work.grantor(back)
+    fn do_grant(&mut self, back: &Back) -> Self::Load {
+        self.work.do_grant(back)
     }
 }
 
-impl<W> Solver for Node<W>
+impl<W> DoAct for Node<W>
 where
-    W: Solver,
+    W: DoAct,
+{
+    type Load = W::Load;
+    fn do_act(&mut self, back: &Back) -> Self::Load {
+        self.work.do_act(back)
+    }
+}
+
+impl<W> DoSolve for Node<W>
+where
+    W: DoSolve,
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn solver(&mut self, task: Self::Task) -> Self::Load {
-        self.work.solver(task)
+    fn do_solve(&mut self, task: Self::Task) -> Self::Load {
+        self.work.do_solve(task)
     }
 }
 
-impl<W> AddRoot for Node<W> {
-    fn add_root(&mut self, root: Root) {
+impl<W> DoAddRoot for Node<W> {
+    fn do_add_root(&mut self, root: Root) {
         self.ring.add_root(root);
     }
 }
 
-impl<W> Update for Node<W> where W: Clear + React {}
+impl<W> DoUpdate for Node<W> where W: Clear + DoReact {}
 
-impl<W> Rebut for Node<W>
+impl<W> DoRebut for Node<W>
 where
     W: Clear,
 {
-    fn rebut(&mut self) -> Ring {
+    fn do_rebut(&mut self) -> Ring {
         self.work.clear();
         self.ring.rebut()
     }
 }
 
-impl<W> React for Node<W>
+impl<W> DoReact for Node<W>
 where
-    W: React,
+    W: DoReact,
 {
-    fn react(&mut self, meta: &Meta) {
-        self.work.react(meta);
+    fn do_react(&mut self, meta: &Meta) {
+        self.work.do_react(meta);
     }
 }

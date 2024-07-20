@@ -8,28 +8,28 @@ use std::{
 
 use crate::{Meta, NO_POISON};
 
-pub trait Rebuter {
+pub trait Rebut {
     fn rebut(&self) -> Ring;
 }
 
-pub trait Rebut {
-    fn rebut(&mut self) -> Ring;
-}
-
-pub trait Reactor {
-    fn react(&self, meta: &Meta);
+pub trait DoRebut {
+    fn do_rebut(&mut self) -> Ring;
 }
 
 pub trait React {
-    fn react(&mut self, meta: &Meta);
+    fn react(&self, meta: &Meta);
+}
+
+pub trait DoReact {
+    fn do_react(&mut self, meta: &Meta);
 }
 
 pub trait AddRoot {
-    fn add_root(&mut self, root: Root);
+    fn add_root(&self, root: Root);
 }
 
-pub trait RootAdder {
-    fn add_root(&self, root: Root);
+pub trait DoAddRoot {
+    fn do_add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
@@ -63,22 +63,21 @@ pub trait BackedPlan {
 }
 
 /// For edge that Rebuts a Ring and reacts.
-pub trait Updater: Rebuter + Reactor {}
+pub trait Update: Rebut + React {}
 
 /// For node that mutably Rebuts a Ring and reacts.
-pub trait Update: Rebut + React {}
+pub trait DoUpdate: DoRebut + DoReact {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
 pub struct Root {
-    pub edge: Weak<RwLock<dyn Updater + Send + Sync>>,
+    pub edge: Weak<RwLock<dyn Update + Send + Sync>>,
     pub meta: Meta,
 }
 
 impl Root {
     pub fn rebut(&self) -> Ring {
-        // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(edge) = self.edge.upgrade() {
             let edge = edge.read().expect(NO_POISON);
             edge.rebut()
@@ -111,18 +110,18 @@ impl Hash for Root {
 /// Weakly point to the back of a node as Update.
 #[derive(Clone)]
 pub struct Back {
-    pub node: Weak<RwLock<dyn Update + Send + Sync + 'static>>,
+    pub node: Weak<RwLock<dyn DoUpdate + Send + Sync + 'static>>,
     // pub meta: Meta,
 }
 
 impl Back {
-    pub fn new(node: Weak<RwLock<dyn Update + Send + Sync + 'static>>) -> Self {
+    pub fn new(node: Weak<RwLock<dyn DoUpdate + Send + Sync + 'static>>) -> Self {
         Self { node }
     }
     pub fn rebut(&self) -> Ring {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
-            node.rebut()
+            node.do_rebut()
         } else {
             Ring::new()
         }
@@ -130,7 +129,7 @@ impl Back {
     pub fn react(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
-            node.react(meta);
+            node.do_react(meta);
         }
     }
 }

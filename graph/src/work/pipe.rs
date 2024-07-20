@@ -28,13 +28,13 @@ where
     }
 }
 
-impl<U> Make for Pipe<U>
+impl<U> DoMake for Pipe<U>
 where
     U: Grant,
     U::Load: Grant,
 {
     type Unit = U;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
         self.unit = Some(make(back));
     }
 }
@@ -54,13 +54,13 @@ where
     }
 }
 
-impl<U> Read for Pipe<U>
+impl<U> DoRead for Pipe<U>
 where
     U: Grant,
     U::Load: Grant,
 {
     type Item = U;
-    fn read(&self) -> &Self::Item {
+    fn do_read(&self) -> &Self::Item {
         self.unit.as_ref().unwrap()
     }
 }
@@ -94,14 +94,14 @@ where
     }
 }
 
-impl<U> Grantor for Pipe<U>
+impl<U> DoGrant for Pipe<U>
 where
     U: Grant,
     U::Load: Grant + Backed,
     <U::Load as Grant>::Load: Clone,
 {
     type Load = <U::Load as Grant>::Load;
-    fn grantor(&mut self, back: &Back) -> Self::Load {
+    fn do_grant(&mut self, back: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {
@@ -114,10 +114,10 @@ where
     }
 }
 
-impl<U> React for Pipe<U>
+impl<U> DoReact for Pipe<U>
 where
     U: Grant,
     U::Load: Grant,
 {
-    fn react(&mut self, _: &Meta) {}
+    fn do_react(&mut self, _: &Meta) {}
 }

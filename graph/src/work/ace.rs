@@ -25,16 +25,16 @@ where
     }
 }
 
-impl<L> Read for Ace<L> {
+impl<L> DoRead for Ace<L> {
     type Item = L;
-    fn read(&self) -> &Self::Item {
+    fn do_read(&self) -> &Self::Item {
         &self.load
     }
 }
 
-impl<L> Write for Ace<L> {
+impl<L> DoWrite for Ace<L> {
     type Item = L;
-    fn write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
+    fn do_write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
         write(&mut self.load);
     }
 }

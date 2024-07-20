@@ -56,7 +56,7 @@ where
     }
 }
 
-impl<L> Reader for End<L>
+impl<L> Read for End<L>
 where
     L: 'static + Send + Sync,
 {

@@ -17,6 +17,10 @@ pub type Deuce<U> = Link<edge::Deuce<U>>;
 /// Link to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
 
+/// Link to a unit that grants a load.
+/// Unlike Deuce, the agent will act upon some external system.
+pub type Agent<U> = Link<edge::Agent<U>>;
+
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
 
@@ -74,9 +78,9 @@ where
     }
 }
 
-impl<E> Maker for Link<E>
+impl<E> Make for Link<E>
 where
-    E: Maker,
+    E: Make,
 {
     type Unit = E::Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
@@ -103,10 +107,10 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Updater + Send + Sync,
+    E: 'static + Update + Send + Sync,
 {
     pub fn as_root(&self) -> Root {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Updater + Send + Sync>>;
+        let edge = self.edge.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
         Root {
             edge: Arc::downgrade(&edge),
             meta: self.meta.clone(),
@@ -116,9 +120,9 @@ where
 
 /// TODO: make reader that does not add a root to the node.
 /// This will allow readers to inspect without rebuting in the future.
-impl<E> Reader for Link<E>
+impl<E> Read for Link<E>
 where
-    E: 'static + Reader + Updater + RootAdder + Send + Sync,
+    E: 'static + Read + Update + AddRoot + Send + Sync,
 {
     type Item = E::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -129,9 +133,9 @@ where
     }
 }
 
-impl<E> Writer for Link<E>
+impl<E> Write for Link<E>
 where
-    E: Writer,
+    E: Write,
 {
     type Item = E::Item;
     fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
@@ -140,9 +144,9 @@ where
     }
 }
 
-impl<E> WriterWithPack for Link<E>
+impl<E> WriteWithPack for Link<E>
 where
-    E: WriterWithPack,
+    E: WriteWithPack,
 {
     type Unit = E::Unit;
     fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -153,7 +157,7 @@ where
 
 impl<E> Grant for Link<E>
 where
-    E: 'static + Grant + RootAdder + Updater + Send + Sync,
+    E: 'static + Grant + AddRoot + Update + Send + Sync,
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
@@ -164,9 +168,22 @@ where
     }
 }
 
+impl<E> Act for Link<E>
+where
+    E: 'static + Act + AddRoot + Update + Send + Sync,
+{
+    type Load = E::Load;
+    fn act(&self) -> Self::Load {
+        let edge = self.edge.read().expect(NO_POISON);
+        let result = edge.act();
+        edge.add_root(self.as_root());
+        result
+    }
+}
+
 impl<E> Solve for Link<E>
 where
-    E: 'static + Solve + RootAdder + Updater + Send + Sync,
+    E: 'static + Solve + AddRoot + Update + Send + Sync,
 {
     type Task = E::Task;
     type Load = E::Load;

@@ -1,15 +1,15 @@
 pub use edge::Edge;
-pub use link::{Ace, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey, Agent};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    AddRoot, Back, Backed, BackedPlan, BackedPloy, React, Reactor, Rebut, Rebuter, Ring, Root,
-    RootAdder, ToPlan, ToPloy, Update, Updater,
+    DoAddRoot, Back, Backed, BackedPlan, BackedPloy, DoReact, React, DoRebut, Rebut, Ring, Root,
+    AddRoot, ToPlan, ToPloy, DoUpdate, Update,
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
 pub use view::{ToViewsBuilder, View};
-pub use write::{Pack, Write, WriteWithBack, Writer, WriterWithPack};
+pub use write::{Pack, DoWrite, WriteWithBack, Write, WriteWithPack};
 
 use serde::Serialize;
 
@@ -34,12 +34,12 @@ pub struct Hold<L, R> {
     pub role: R,
 }
 
-pub trait Read {
+pub trait DoRead {
     type Item;
-    fn read(&self) -> &Self::Item;
+    fn do_read(&self) -> &Self::Item;
 }
 
-pub trait Reader {
+pub trait Read {
     type Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
 }
@@ -55,9 +55,19 @@ pub trait Grant {
     fn grant(&self) -> Self::Load;
 }
 
-pub trait Grantor {
+pub trait DoGrant {
     type Load;
-    fn grantor(&mut self, back: &Back) -> Self::Load;
+    fn do_grant(&mut self, back: &Back) -> Self::Load;
+}
+
+pub trait Act {
+    type Load;
+    fn act(&self) -> Self::Load;
+}
+
+pub trait DoAct {
+    type Load;
+    fn do_act(&mut self, back: &Back) -> Self::Load;
 }
 
 pub trait Solve {
@@ -66,18 +76,18 @@ pub trait Solve {
     fn solve(&self, task: Self::Task) -> Self::Load;
 }
 
-pub trait Solver {
+pub trait DoSolve {
     type Task;
     type Load;
-    fn solver(&mut self, task: Self::Task) -> Self::Load;
+    fn do_solve(&mut self, task: Self::Task) -> Self::Load;
 }
 
 /// Edge that grants a load. In addition, clone the edge with a new back,
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + RootAdder + Updater {}
+pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
 /// Edge that solves a task. In addition, clone the edge with a new Back.
 pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + RootAdder + Updater
+    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
 {
 }
 
@@ -97,14 +107,14 @@ pub trait FromItem {
     fn new(item: Self::Item) -> Self;
 }
 
-pub trait Maker {
+pub trait Make {
     type Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
 
-pub trait Make {
+pub trait DoMake {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
+    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
 }
 
 pub trait FromAce {

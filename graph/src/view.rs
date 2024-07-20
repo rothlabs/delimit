@@ -72,11 +72,11 @@ where
     }
 }
 
-impl<R, B> Reader for View<R, B>
+impl<R, B> Read for View<R, B>
 where
     R: Grant,
-    R::Load: Reader<Item = B::Item>,
-    B: Reader + Send + Sync + 'static,
+    R::Load: Read<Item = B::Item>,
+    B: Read + Send + Sync + 'static,
 {
     type Item = B::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -90,8 +90,8 @@ where
 impl<R, B> ReaderByTask for View<R, B>
 where
     R: Solve,
-    R::Load: Reader<Item = B::Item>,
-    B: Reader + Send + Sync + 'static,
+    R::Load: Read<Item = B::Item>,
+    B: Read + Send + Sync + 'static,
 {
     type Task = R::Task;
     type Item = B::Item;

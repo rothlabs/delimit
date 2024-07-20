@@ -12,6 +12,10 @@ pub type Deuce<U> = Edge<node::Deuce<U>>;
 /// Edge to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
+/// Edge to a unit that grants a load.
+/// Unlike Deuce, the agent will act upon some external system.
+pub type Agent<U> = Edge<node::Agent<U>>;
+
 /// Edge to a link that grants a link that grants a load.
 pub type Pipe<U> = Edge<node::Pipe<U>>;
 
@@ -36,18 +40,18 @@ where
     }
 }
 
-impl<N> Maker for Edge<N>
+impl<N> Make for Edge<N>
 where
-    N: 'static + Default + Make + Update + Send + Sync,
+    N: 'static + Default + DoMake + DoUpdate + Send + Sync,
 {
     type Unit = N::Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let node = Arc::new(RwLock::new(N::default()));
-        let update = node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        let update = node.clone() as Arc<RwLock<dyn DoUpdate + Send + Sync>>;
         let back = Back::new(Arc::downgrade(&update));
         {
             let mut node = node.write().expect(NO_POISON);
-            node.make(make, &back);
+            node.do_make(make, &back);
         }
         Self {
             back: None,
@@ -59,10 +63,10 @@ where
 
 impl<N> Edge<N>
 where
-    N: 'static + Update + Send + Sync,
+    N: 'static + DoUpdate + Send + Sync,
 {
     fn node_as_back(&self) -> Back {
-        let update = self.node.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        let update = self.node.clone() as Arc<RwLock<dyn DoUpdate + Send + Sync>>;
         Back::new(Arc::downgrade(&update))
     }
 }
@@ -76,12 +80,23 @@ where
 
 impl<N> Grant for Edge<N>
 where
-    N: 'static + Grantor + Update + Send + Sync,
+    N: 'static + DoGrant + DoUpdate + Send + Sync,
 {
     type Load = N::Load;
     fn grant(&self) -> Self::Load {
         let mut node = self.node.write().expect(NO_POISON);
-        node.grantor(&self.node_as_back())
+        node.do_grant(&self.node_as_back())
+    }
+}
+
+impl<N> Act for Edge<N>
+where
+    N: 'static + DoAct + DoUpdate + Send + Sync,
+{
+    type Load = N::Load;
+    fn act(&self) -> Self::Load {
+        let mut node = self.node.write().expect(NO_POISON);
+        node.do_act(&self.node_as_back())
     }
 }
 
@@ -125,13 +140,13 @@ where
 
 impl<N> Solve for Edge<N>
 where
-    N: Solver,
+    N: DoSolve,
 {
     type Task = N::Task;
     type Load = N::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
         let mut node = self.node.write().expect(NO_POISON);
-        node.solver(task)
+        node.do_solve(task)
     }
 }
 
@@ -190,20 +205,20 @@ impl<N> Backed for Edge<N> {
     }
 }
 
-impl<N> Writer for Edge<N>
+impl<N> Write for Edge<N>
 where
-    N: Write,
+    N: DoWrite,
 {
     type Item = N::Item;
     fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         let mut node = self.node.write().expect(NO_POISON);
-        node.write(write);
+        node.do_write(write);
     }
 }
 
-impl<N> WriterWithPack for Edge<N>
+impl<N> WriteWithPack for Edge<N>
 where
-    N: 'static + WriteWithBack + Update + Send + Sync,
+    N: 'static + WriteWithBack + DoUpdate + Send + Sync,
 {
     type Unit = N::Unit;
     fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -212,30 +227,30 @@ where
     }
 }
 
-impl<N> Reader for Edge<N>
+impl<N> Read for Edge<N>
 where
-    N: Read,
+    N: DoRead,
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         let node = self.node.read().expect(NO_POISON);
-        read(node.read())
+        read(node.do_read())
     }
 }
 
-impl<N> RootAdder for Edge<N>
+impl<N> AddRoot for Edge<N>
 where
-    N: AddRoot,
+    N: DoAddRoot,
 {
     fn add_root(&self, root: Root) {
         let mut node = self.node.write().expect(NO_POISON);
-        node.add_root(root);
+        node.do_add_root(root);
     }
 }
 
-impl<N> Updater for Edge<N> {}
+impl<N> Update for Edge<N> {}
 
-impl<N> Rebuter for Edge<N> {
+impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {
         if let Some(back) = &self.back {
             back.rebut()
@@ -245,7 +260,7 @@ impl<N> Rebuter for Edge<N> {
     }
 }
 
-impl<N> Reactor for Edge<N> {
+impl<N> React for Edge<N> {
     fn react(&self, meta: &Meta) {
         if let Some(back) = &self.back {
             back.react(meta);
@@ -262,21 +277,21 @@ impl<L> Grant for BoxProduce<L> {
     }
 }
 
-impl<L> RootAdder for BoxProduce<L> {
+impl<L> AddRoot for BoxProduce<L> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
     }
 }
 
-impl<L> Updater for BoxProduce<L> {}
+impl<L> Update for BoxProduce<L> {}
 
-impl<L> Rebuter for BoxProduce<L> {
+impl<L> Rebut for BoxProduce<L> {
     fn rebut(&self) -> Ring {
         self.as_ref().rebut()
     }
 }
 
-impl<L> Reactor for BoxProduce<L> {
+impl<L> React for BoxProduce<L> {
     fn react(&self, meta: &Meta) {
         self.as_ref().react(meta)
     }
@@ -292,21 +307,21 @@ impl<T, L> Solve for BoxConvert<T, L> {
     }
 }
 
-impl<T, L> RootAdder for BoxConvert<T, L> {
+impl<T, L> AddRoot for BoxConvert<T, L> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
     }
 }
 
-impl<T, L> Updater for BoxConvert<T, L> {}
+impl<T, L> Update for BoxConvert<T, L> {}
 
-impl<T, L> Rebuter for BoxConvert<T, L> {
+impl<T, L> Rebut for BoxConvert<T, L> {
     fn rebut(&self) -> Ring {
         self.as_ref().rebut()
     }
 }
 
-impl<T, L> Reactor for BoxConvert<T, L> {
+impl<T, L> React for BoxConvert<T, L> {
     fn react(&self, meta: &Meta) {
         self.as_ref().react(meta)
     }
