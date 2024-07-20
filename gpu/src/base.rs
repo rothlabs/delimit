@@ -1,14 +1,14 @@
 use super::*;
 
-pub struct Base<'a>(&'a WGLRC);
+pub struct Base(WGLRC);
 
-impl<'a> Base<'a> {
-    pub fn new(wglrc: &'a WGLRC) -> Self {
-        Self(wglrc)
+impl Base {
+    pub fn new(wglrc: &WGLRC) -> Self {
+        Self(wglrc.clone())
     }
-    pub fn shader(&self) -> Shader {
-        Shader::new(self.0)
-    }
+    // pub fn shader(&self) -> Shader {
+    //     Shader::new(&self.0)
+    // }
     pub fn program(
         &self,
         vertex_shader: &WebGlShader,
