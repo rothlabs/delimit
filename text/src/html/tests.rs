@@ -1,11 +1,11 @@
 use super::*;
 
-fn make_doc() -> (Role, Link<Element>, AttributeSet) {
+fn make_doc() -> (Pipe, Link<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
     let head = html.head();
-    let head_link = head.hold().link;
+    let head_link = head.link();
     let mut title = head.title();
     title.add_str("Delimit");
     let mut meta = title.root().meta();
@@ -14,7 +14,8 @@ fn make_doc() -> (Role, Link<Element>, AttributeSet) {
     meta.attribute("name", "viewport")
         .attribute("content", "width=device-width, initial-scale=1");
     meta = meta.root().meta();
-    meta.attribute("name", "author").attribute("content", "Roth Labs LLC");
+    meta.attribute("name", "author")
+        .attribute("content", "Roth Labs LLC");
     let mut script = meta.root().script();
     script.attribute("type", "importmap");
     script.add_str(&r#"{"imports":{"init":"/client.js"}}"#);
@@ -23,41 +24,40 @@ fn make_doc() -> (Role, Link<Element>, AttributeSet) {
     let mut canvas = body.canvas();
     canvas.attribute("id", "canvas");
     let mut script = canvas.root().script();
-    script.attribute("src", "/app.js").attribute("type", "module");
-    (script.up_to_doc().hold().role, head_link, atts)
+    script
+        .attribute("src", "/app.js")
+        .attribute("type", "module");
+    let doc = script.up_to_doc().pipe();
+    // ensure memorization
+    doc.grant();
+    (doc, head_link, atts)
 }
 
 #[test]
 fn basic_doc() {
     let (doc, _, _) = make_doc();
-    let string = doc.grant().grant().load();
+    let string = doc.grant().load();
     assert_eq!(DOC, string);
 }
 
-/// The goal is to get the sub plain graph to react
+/// The lower graph (plain) should rebute up to the doc (pipe)
 #[test]
-fn mutate_plain() {
+fn mutate_lower_graph_plain() {
     let (doc, _, atts) = make_doc();
     let att = atts.get("type").unwrap();
-    let plain = doc.grant();
     att.write(|unit| *unit += "_mutated");
-    let ace = plain.grant();
-    let string = ace.load();
+    let string = doc.grant().load();
     assert_eq!(MUTATED_ATTRIB, string);
 }
 
-/// The goal to to mutate the super graph and 
-/// get a reaction for something that cares 
-/// about the contents of the sub graph.
+/// The upper graph (html) should rebute up to the doc (pipe)
 #[test]
-fn mutate_html() {
+fn mutate_upper_graph_html() {
     let (doc, head, _) = make_doc();
-    let plain = doc.grant();
     head.write(|pack| {
         pack.unit.items.remove(0);
     });
-    let ace = plain.grant();
-    let string = ace.load();
+    let string = doc.grant().load();
     assert_eq!(REMOVED_TITLE, string);
 }
 
@@ -124,7 +124,17 @@ Delimit
 </body>
 </html>"#;
 
-
+// /// The goal is to get the sub plain graph to react
+// #[test]
+// fn mutate_plain() {
+//     let (doc, _, atts) = make_doc();
+//     let att = atts.get("type").unwrap();
+//     let plain = doc.grant();
+//     att.write(|unit| *unit += "_mutated");
+//     let ace = plain.grant();
+//     let string = ace.load();
+//     assert_eq!(MUTATED_ATTRIB, string);
+// }
 
 // let atts = attribute_set();
 //     let mut html = Doc::new(&atts).html();
@@ -149,9 +159,6 @@ Delimit
 //     script.attribute("src", "/app.js").attribute("type", "module");
 //     (script.up_to_doc().role(), atts)
 
-
-
-
 // if let Part::Element(doc) = &doc.part {
 //     doc.read(|unit|{
 //         if let View::Role(html) = &unit.items[0] {
@@ -159,14 +166,13 @@ Delimit
 //                 html.read(|unit|{
 //                     if let View::Role(tag) = &unit.tag {
 //                         let string = tag.grant().grant().load();
-//                         println!("html element: {string}");     
+//                         println!("html element: {string}");
 //                     }
 //                 });
 //             }
 //         }
 //     });
 // }
-
 
 // let atts = attribute_set();
 // let mut html = Doc::new(&atts).html();
@@ -191,7 +197,6 @@ Delimit
 // script.src("/app.js").r#type("module");
 // (script.up_to_doc().role(), atts)
 
-
 // #[test]
 // fn mutate_script_tag() {
 //     let role = make_doc();
@@ -204,7 +209,7 @@ Delimit
 //                     html.read(|unit|{
 //                         if let View::Role(tag) = &unit.tag {
 //                             let string = tag.grant().grant().load();
-//                             println!("html element: {string}");     
+//                             println!("html element: {string}");
 //                         }
 //                     });
 //                 }

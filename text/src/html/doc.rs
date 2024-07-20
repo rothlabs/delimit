@@ -28,10 +28,6 @@ impl Doc {
         for tag in TAGS {
             tags.insert(tag, plain::str(tag));
         }
-        // let mut atts = HashMap::new();
-        // for att in ATTRIBUTES {
-        //     atts.insert(att, plain::ace(att));
-        // }
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::new(doctype);
         Self {
@@ -43,8 +39,11 @@ impl Doc {
             attributes: atts.clone(),
         }
     }
-    pub fn hold(&self) -> Hold<Link<Element>, Role> {
-        self.element.clone()
+    pub fn pipe(&self) -> Pipe {
+        Pipe::make(|back| self.element.role.backed(back))
+    }
+    pub fn link(&self) -> Link<Element> {
+        self.element.link.clone()
     }
     pub fn string(&self) -> String {
         let plain = self.element.link.grant();
@@ -62,7 +61,8 @@ impl Doc {
             .root
             .as_ref()
             .expect("element should have a root")
-            .replace(None).unwrap();
+            .replace(None)
+            .unwrap();
         root.element.link.write(|pack| {
             pack.unit.items.back(pack.back).add_role(&self.element.role);
         });
@@ -136,6 +136,8 @@ impl Doc {
     pub fn up_to_doc(self) -> Self {
         self.up(DOCTYPE)
     }
+}
+
     // pub fn id(&mut self, val: &str) -> &mut Self {
     //     self.add_attribute(ID, val)
     // }
@@ -157,7 +159,12 @@ impl Doc {
     // pub fn src(&mut self, val: &str) -> &mut Self {
     //     self.add_attribute(SRC, val)
     // }
-}
+
+
+        // let mut atts = HashMap::new();
+        // for att in ATTRIBUTES {
+        //     atts.insert(att, plain::ace(att));
+        // }
 
 // impl Default for Doc {
 //     fn default() -> Self {

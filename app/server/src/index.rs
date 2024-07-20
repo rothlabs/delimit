@@ -37,7 +37,8 @@ pub fn index() -> String {
     meta.attribute("name", "viewport")
         .attribute("content", "width=device-width, initial-scale=1");
     meta = meta.root().meta();
-    meta.attribute("name", "author").attribute("content", "Roth Labs LLC");
+    meta.attribute("name", "author")
+        .attribute("content", "Roth Labs LLC");
     let mut script = meta.root().script();
     script.attribute("type", "importmap");
     script.add_str(&serde_json::to_string(&Importmap::default()).unwrap());

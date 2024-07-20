@@ -13,10 +13,10 @@ impl Element {
             items: vec![],
             close: close.cloned(),
         });
-        let role = Role { 
+        let role = Role {
             part: Part::Element(link.clone()),
             form: link.ploy(),
-        }; 
+        };
         Hold { link, role }
     }
 }

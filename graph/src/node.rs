@@ -5,6 +5,7 @@ use crate::*;
 pub type Ace<L> = Node<work::Ace<L>>;
 pub type Deuce<U, L> = Node<work::Deuce<U, L>>;
 pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
+pub type Pipe<U> = Node<work::Pipe<U>>;
 
 /// A node creates an interactive bridge between root edges and work.
 pub struct Node<W> {
@@ -121,8 +122,8 @@ where
     W: Grantor,
 {
     type Load = W::Load;
-    fn grantor(&mut self) -> Self::Load {
-        self.work.grantor()
+    fn grantor(&mut self, back: &Back) -> Self::Load {
+        self.work.grantor(back)
     }
 }
 

@@ -65,7 +65,7 @@ where
     L: Clone,
 {
     type Load = L;
-    fn grantor(&mut self) -> Self::Load {
+    fn grantor(&mut self, _: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {

@@ -23,6 +23,11 @@ pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
 /// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
 
+/// Link that grants a load of a intermediate. The unit should
+/// be a link. The pipe will react to both the unit and intermediate.
+/// The intermediate is a sub graph of the super graph unit.
+pub type Pipe<U> = Link<edge::Pipe<U>>;
+
 /// Link to an edge that leads to a node that contains a unit.
 /// Units hold links as source of input used to compute output.
 pub struct Link<E> {

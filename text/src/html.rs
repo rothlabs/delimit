@@ -1,19 +1,22 @@
 pub use doc::*;
 
-use graph::*;
 use super::*;
 use attribute::*;
 use element::*;
+use graph::*;
 use tag::*;
 
-#[cfg(test)]
-mod tests;
 mod attribute;
 mod doc;
 mod element;
 mod tag;
+#[cfg(test)]
+mod tests;
 
-/// HTML role
+/// HTML Pipe
+pub type Pipe = graph::Pipe<Role>;
+
+/// HTML Role
 pub type Role = role::Ploy<Part, Load>;
 
 #[derive(Clone)]
@@ -31,4 +34,3 @@ type Load = plain::Role;
 
 /// HTML stem view
 type Stem = plain::view::Ploy<Part>;
-

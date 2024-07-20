@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Deuce, IntoAce, Link, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
@@ -15,6 +15,7 @@ use serde::Serialize;
 
 pub mod role;
 pub mod view;
+// pub mod pipe;
 
 mod edge;
 mod link;
@@ -56,7 +57,7 @@ pub trait Grant {
 
 pub trait Grantor {
     type Load;
-    fn grantor(&mut self) -> Self::Load;
+    fn grantor(&mut self, back: &Back) -> Self::Load;
 }
 
 pub trait Solve {

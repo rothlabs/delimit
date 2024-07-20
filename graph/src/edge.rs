@@ -12,6 +12,9 @@ pub type Deuce<U, L> = Edge<node::Deuce<U, L>>;
 /// Edge to a unit that solves a task with resulting load.
 pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 
+/// Edge to a link that grants a link that grants a load.
+pub type Pipe<U> = Edge<node::Pipe<U>>;
+
 /// The forward bridge between nodes.
 pub struct Edge<N> {
     pub back: Option<Back>,
@@ -73,12 +76,12 @@ where
 
 impl<N> Grant for Edge<N>
 where
-    N: Grantor,
+    N: 'static + Grantor + Update + Send + Sync,
 {
     type Load = N::Load;
     fn grant(&self) -> Self::Load {
         let mut node = self.node.write().expect(NO_POISON);
-        node.grantor()
+        node.grantor(&self.node_as_back())
     }
 }
 

@@ -13,6 +13,7 @@
 [dependencies]
     wasm-bindgen = "0.2.92"
     console_error_panic_hook = { version = "0.1.7", optional = true }
+    getrandom = {version = "0.2", features = ["js"]}
     # delimit
         graph = { path = "../../graph" }
         mecha = { path = "../../mecha" }
@@ -34,9 +35,6 @@
         'WebGlUniformLocation',
         'WebGlTexture'
     ]
-
-[dependencies.getrandom]
-    features = ["js"]
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.42"
