@@ -50,6 +50,7 @@ pub trait ReaderByTask {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T;
 }
 
+/// impl for units that do not act upon external systems
 pub trait Grant {
     type Load;
     fn grant(&self) -> Self::Load;
@@ -60,6 +61,7 @@ pub trait DoGrant {
     fn do_grant(&mut self, back: &Back) -> Self::Load;
 }
 
+/// impl for units that act upon external systems
 pub trait Act {
     type Load;
     fn act(&self) -> Self::Load;

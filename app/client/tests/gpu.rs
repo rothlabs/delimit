@@ -1,6 +1,14 @@
-// use client::*;
-// use gpu::*;
-// use graph::*;
+use client::*;
+use gpu::*;
+use graph::*;
+
+// pub fn make_vertex_shader() {
+//     let canvas = Canvas::new();
+//     match canvas.gl().shader().vertex(shader::basic::VERTEX) {
+//         Result::Err(memo) => panic!("gpu error: {memo}"),
+//         _ => (),
+//     };
+// }
 
 // pub fn make_vertex_shader() {
 //     let canvas = Canvas::new();

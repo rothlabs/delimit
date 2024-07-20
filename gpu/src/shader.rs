@@ -1,27 +1,23 @@
 use super::*;
+use derive_builder::Builder;
 use graph::*;
 use text::*;
 
 pub mod basic;
 
+#[cfg(test)]
+mod tests;
+
+#[derive(Builder)]
 pub struct Shader {
-    wglrc: WGLRC,
     shader: WebGlShader,
     source: plain::Role,
-    // kind: u32,
+    wglrc: WGLRC,
 }
 
-// impl Shader {
-//     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {
-//         Self { 
-//             wglrc: wglrc.clone(),
-//             kind,
-//         }shader
-// }
-
-impl Grant for Shader {
-    type Load = Result;
-    fn grant(&self) -> Self::Load {
+impl Act for Shader {
+    type Load = Result<(), String>;
+    fn act(&self) -> Self::Load {
         // let shader = self.wglrc.create_shader(self.kind).ok_or("cannot create shader")?;
         let source = self.source.grant();
         source.read(|src| self.wglrc.shader_source(&self.shader, src));
@@ -42,7 +38,7 @@ impl Grant for Shader {
     }
 }
 
-type Result = std::result::Result<(), String>;
+
 
 
 // impl Shader {
@@ -76,4 +72,13 @@ type Result = std::result::Result<(), String>;
 //                 .ok_or("cannot get shader info log")?)
 //         }
 //     }
+// }
+
+
+// impl Shader {
+//     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {
+//         Self { 
+//             wglrc: wglrc.clone(),
+//             kind,
+//         }shader
 // }
