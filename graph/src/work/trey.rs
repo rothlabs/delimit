@@ -2,6 +2,7 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::*;
 
+/// TODO: Remove T and L generics by requiring Solve on U.
 pub struct Trey<U, T, L> {
     unit: U,
     map: HashMap<T, L>,

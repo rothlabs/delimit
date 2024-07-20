@@ -120,7 +120,6 @@ impl Back {
         Self { node }
     }
     pub fn rebut(&self) -> Ring {
-        // println!("strong_count: {}", Weak::strong_count(&self.item));
         if let Some(node) = self.node.upgrade() {
             let mut node = node.write().expect(NO_POISON);
             node.rebut()
