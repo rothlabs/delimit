@@ -2,7 +2,10 @@ pub use ace::{IntoAce, ToAce};
 
 use super::*;
 use serde::Serialize;
+#[cfg(not(feature="oneThread"))]
 use std::sync::{Arc, RwLock};
+#[cfg(feature="oneThread")]
+use std::{cell::RefCell, rc::Rc};
 
 mod ace;
 #[cfg(test)]
@@ -22,10 +25,10 @@ pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
 pub type Agent<U> = Link<edge::Agent<U>>;
 
 /// Link that grants a load.
-pub type Ploy<L> = Link<Box<dyn Produce<L> + Send + Sync>>;
+pub type Ploy<L> = Link<Box<dyn Produce<L>>>; //  + Send + Sync
 
 /// Link that solves a task with resulting load.
-pub type Plan<T, L> = Link<Box<dyn Convert<T, L> + Send + Sync>>;
+pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>; //  + Send + Sync
 
 /// Link that grants a load of a intermediate. The unit should
 /// be a link. The pipe will react to both the unit and intermediate.
@@ -35,7 +38,10 @@ pub type Pipe<U> = Link<edge::Pipe<U>>;
 /// Link to an edge that leads to a node that contains a unit.
 /// Units hold links as source of input used to compute output.
 pub struct Link<E> {
+    #[cfg(not(feature="oneThread"))]
     edge: Arc<RwLock<E>>,
+    #[cfg(feature="oneThread")] 
+    edge: Rc<RefCell<E>>,
     meta: Meta,
 }
 
@@ -45,8 +51,12 @@ where
 {
     type Load = E::Load;
     fn load(&self) -> Self::Load {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.load()
+        // #[cfg(not(feature="oneThread"))]
+        // let edge = self.edge.read().expect(NO_POISON);
+        // #[cfg(feature="oneThread")] 
+        // let edge = self.edge.borrow();
+        //edge.load()
+        read_part(&self.edge, |edge| edge.load())
     }
 }
 
@@ -61,7 +71,11 @@ impl<E> Clone for Link<E> {
 
 impl<E> PartialEq for Link<E> {
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+        #[cfg(not(feature="oneThread"))]
+        let out = Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta;
+        #[cfg(feature="oneThread")] 
+        let out = Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta;
+        out
     }
 }
 
@@ -72,7 +86,10 @@ where
     type Item = E::Item;
     fn new(unit: Self::Item) -> Self {
         Self {
+            #[cfg(not(feature="oneThread"))]
             edge: Arc::new(RwLock::new(E::new(unit))),
+            #[cfg(feature="oneThread")] 
+            edge: Rc::new(RefCell::new(E::new(unit))),
             meta: Meta::new(),
         }
     }
@@ -85,7 +102,10 @@ where
     type Unit = E::Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         Self {
+            #[cfg(not(feature="oneThread"))]
             edge: Arc::new(RwLock::new(E::make(make))),
+            #[cfg(feature="oneThread")] 
+            edge: Rc::new(RefCell::new(E::make(make))),
             meta: Meta::new(),
         }
     }
@@ -97,9 +117,15 @@ where
     E: Backed,
 {
     fn backed(&self, back: &Back) -> Self {
+        #[cfg(not(feature="oneThread"))]
         let edge = self.edge.read().expect(NO_POISON);
+        #[cfg(feature="oneThread")] 
+        let edge = self.edge.borrow();
         Self {
+            #[cfg(not(feature="oneThread"))]
             edge: Arc::new(RwLock::new(edge.backed(back))),
+            #[cfg(feature="oneThread")] 
+            edge: Rc::new(RefCell::new(edge.backed(back))),
             meta: self.meta.clone(),
         }
     }
@@ -107,12 +133,18 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Update + Send + Sync,
+    E: 'static + Update,
 {
     pub fn as_root(&self) -> Root {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Update + Send + Sync>>;
+        #[cfg(not(feature="oneThread"))]
+        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>; //  + Send + Sync
+        #[cfg(feature="oneThread")] 
+        let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
         Root {
+            #[cfg(not(feature="oneThread"))]
             edge: Arc::downgrade(&edge),
+            #[cfg(feature="oneThread")] 
+            edge: Rc::downgrade(&edge),
             meta: self.meta.clone(),
         }
     }
@@ -122,14 +154,19 @@ where
 /// This will allow readers to inspect without rebuting in the future.
 impl<E> Read for Link<E>
 where
-    E: 'static + Read + Update + AddRoot + Send + Sync,
+    E: 'static + Read + Update + AddRoot, // + Send + Sync,
 {
     type Item = E::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        let edge = self.edge.read().expect(NO_POISON);
-        let out = edge.read(read);
-        edge.add_root(self.as_root());
-        out
+        read_part(&self.edge, |edge| {
+            let out = edge.read(read);
+            edge.add_root(self.as_root());
+            out
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // let out = edge.read(read);
+        // edge.add_root(self.as_root());
+        // out
     }
 }
 
@@ -139,8 +176,9 @@ where
 {
     type Item = E::Item;
     fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.write(write);
+        read_part(&self.edge, |edge| edge.write(write));
+        // let edge = self.edge.read().expect(NO_POISON);
+        // edge.write(write);
     }
 }
 
@@ -150,48 +188,64 @@ where
 {
     type Unit = E::Unit;
     fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
-        let edge = self.edge.read().expect(NO_POISON);
-        edge.write(write);
+        read_part(&self.edge, |edge| edge.write(write));
+        // let edge = self.edge.read().expect(NO_POISON);
+        // edge.write(write);
     }
 }
 
 impl<E> Grant for Link<E>
 where
-    E: 'static + Grant + AddRoot + Update + Send + Sync,
+    E: 'static + Grant + AddRoot + Update, // + Send + Sync,
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
-        let edge = self.edge.read().expect(NO_POISON);
-        let result = edge.grant();
-        edge.add_root(self.as_root());
-        result
+        read_part(&self.edge, |edge| {
+            let result = edge.grant();
+            edge.add_root(self.as_root());
+            result
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // let result = edge.grant();
+        // edge.add_root(self.as_root());
+        // result
     }
 }
 
 impl<E> Act for Link<E>
 where
-    E: 'static + Act + AddRoot + Update + Send + Sync,
+    E: 'static + Act + AddRoot + Update, // + Send + Sync,
 {
     type Load = E::Load;
     fn act(&self) -> Self::Load {
-        let edge = self.edge.read().expect(NO_POISON);
-        let result = edge.act();
-        edge.add_root(self.as_root());
-        result
+        read_part(&self.edge, |edge|{
+            let result = edge.act();
+            edge.add_root(self.as_root());
+            result
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // let result = edge.act();
+        // edge.add_root(self.as_root());
+        // result
     }
 }
 
 impl<E> Solve for Link<E>
 where
-    E: 'static + Solve + AddRoot + Update + Send + Sync,
+    E: 'static + Solve + AddRoot + Update, // + Send + Sync,
 {
     type Task = E::Task;
     type Load = E::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
-        let edge = self.edge.read().expect(NO_POISON);
-        let result = edge.solve(task);
-        edge.add_root(self.as_root());
-        result
+        read_part(&self.edge, |edge| {
+            let result = edge.solve(task);
+            edge.add_root(self.as_root());
+            result
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // let result = edge.solve(task);
+        // edge.add_root(self.as_root());
+        // result
     }
 }
 
@@ -200,21 +254,33 @@ where
     E: Grant + ToPloy<Load = <E as Grant>::Load>,
 {
     pub fn ploy(&self) -> Ploy<<E as Grant>::Load> {
-        let edge = self.edge.read().expect(NO_POISON);
-        Ploy {
-            edge: edge.ploy(),
-            meta: self.meta.clone(),
-        }
+        read_part(&self.edge, |edge| {
+            Ploy {
+                edge: edge.ploy(),
+                meta: self.meta.clone(),
+            }
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // Ploy {
+        //     edge: edge.ploy(),
+        //     meta: self.meta.clone(),
+        // }
     }
 }
 
-impl<L> Backed for Link<Box<dyn Produce<L> + Send + Sync>> {
+impl<L> Backed for Link<Box<dyn Produce<L>>> { //  + Send + Sync
     fn backed(&self, back: &Back) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
-            edge: edge.backed_ploy(back),
-            meta: self.meta.clone(),
-        }
+        read_part(&self.edge, |edge| {
+            Self {
+                edge: edge.backed_ploy(back),
+                meta: self.meta.clone(),
+            }
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // Self {
+        //     edge: edge.backed_ploy(back),
+        //     meta: self.meta.clone(),
+        // }
     }
 }
 
@@ -223,21 +289,33 @@ where
     E: Solve + ToPlan<Task = <E as Solve>::Task, Load = <E as Solve>::Load>,
 {
     pub fn plan(&self) -> Plan<<E as Solve>::Task, <E as Solve>::Load> {
-        let edge = self.edge.read().expect(NO_POISON);
-        Plan {
-            edge: edge.plan(),
-            meta: self.meta.clone(),
-        }
+        read_part(&self.edge, |edge| {
+            Plan {
+                edge: edge.plan(),
+                meta: self.meta.clone(),
+            }
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // Plan {
+        //     edge: edge.plan(),
+        //     meta: self.meta.clone(),
+        // }
     }
 }
 
-impl<T, L> Backed for Link<Box<dyn Convert<T, L> + Send + Sync>> {
+impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> { //  + Send + Sync
     fn backed(&self, back: &Back) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
-            edge: edge.backed_plan(back),
-            meta: self.meta.clone(),
-        }
+        read_part(&self.edge, |edge| {
+            Self {
+                edge: edge.backed_plan(back),
+                meta: self.meta.clone(),
+            }
+        })
+        // let edge = self.edge.read().expect(NO_POISON);
+        // Self {
+        //     edge: edge.backed_plan(back),
+        //     meta: self.meta.clone(),
+        // }
     }
 }
 
@@ -249,6 +327,17 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
+
+// struct EdgeGuard<'a, E> {
+    //     edge: RwLockReadGuard<'a, E>,
+    // }
+    
+    // fn read_edge<'a, E>(edge: Arc<RwLock<E>>) -> &'a EdgeGuard<'a, E> {
+    //     let wow = edge.read(); //.expect(NO_POISON);
+    //     &EdgeGuard {
+    //         edge: wow.expect(NO_POISON)
+    //     }
+    // }
 
 // impl<L> Link<dyn Produce<L> + Send + Sync> {
 //     pub fn with_root(&self, root: &Back) -> Self {

@@ -18,5 +18,3 @@
     # delimit
         # graph
             graph = { path = "../graph" }
-        # # text
-        #     text = { path = "../text" }

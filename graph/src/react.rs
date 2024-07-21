@@ -1,10 +1,11 @@
 use crate::*;
 
-use std::{
-    collections::HashSet,
-    hash::Hash,
-    sync::{Arc, RwLock, Weak},
-};
+use std::{collections::HashSet, hash::Hash};
+
+#[cfg(not(feature="oneThread"))]
+use std::sync::{Arc, RwLock, Weak};
+#[cfg(feature="oneThread")] 
+use std::{rc::{Rc, Weak}, cell::RefCell};
 
 use crate::{Meta, NO_POISON};
 
@@ -33,10 +34,13 @@ pub trait DoAddRoot {
 }
 
 pub trait Backed {
-    fn backed(&self, back: &Back) -> Self;
+    fn backed(&self, back: &Back) -> Self; 
 }
 
-type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L> + Send + Sync>>>;
+#[cfg(not(feature="oneThread"))]
+type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L>>>>; //  + Send + Sync
+#[cfg(feature="oneThread")] 
+type PloyEdge<L> = Rc<RefCell<Box<dyn Produce<L>>>>;
 
 pub trait ToPloy {
     type Load;
@@ -48,7 +52,10 @@ pub trait BackedPloy {
     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
 }
 
-type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L> + Send + Sync>>>;
+#[cfg(not(feature="oneThread"))]
+type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>; //  + Send + Sync
+#[cfg(feature="oneThread")] 
+type PlanEdge<T, L> = Rc<RefCell<Box<dyn Convert<T, L>>>>;
 
 pub trait ToPlan {
     type Task;
@@ -63,32 +70,44 @@ pub trait BackedPlan {
 }
 
 /// For edge that Rebuts a Ring and reacts.
+#[cfg(not(feature="oneThread"))]
+pub trait Update: Rebut + React + Send + Sync {}
+#[cfg(feature="oneThread")] 
 pub trait Update: Rebut + React {}
 
 /// For node that mutably Rebuts a Ring and reacts.
+#[cfg(not(feature="oneThread"))]
+pub trait DoUpdate: DoRebut + DoReact + Send + Sync {}
+#[cfg(feature="oneThread")] 
 pub trait DoUpdate: DoRebut + DoReact {}
+
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
 pub struct Root {
-    pub edge: Weak<RwLock<dyn Update + Send + Sync>>,
+    #[cfg(not(feature="oneThread"))]
+    pub edge: Weak<RwLock<dyn Update>>, //  + Send + Sync
+    #[cfg(feature="oneThread")] 
+    pub edge: Weak<RefCell<dyn Update>>,
     pub meta: Meta,
 }
 
 impl Root {
     pub fn rebut(&self) -> Ring {
         if let Some(edge) = self.edge.upgrade() {
-            let edge = edge.read().expect(NO_POISON);
-            edge.rebut()
+            read_part(&edge, |edge| edge.rebut())
+            // let edge = edge.read().expect(NO_POISON);
+            // edge.rebut()
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, meta: &Meta) {
         if let Some(edge) = self.edge.upgrade() {
-            let edge = edge.read().expect(NO_POISON);
-            edge.react(meta);
+            read_part(&edge, |edge| edge.react(meta));
+            // let edge = edge.read().expect(NO_POISON);
+            // edge.react(meta);
         }
     }
 }
@@ -110,26 +129,36 @@ impl Hash for Root {
 /// Weakly point to the back of a node as Update.
 #[derive(Clone)]
 pub struct Back {
-    pub node: Weak<RwLock<dyn DoUpdate + Send + Sync + 'static>>,
+    #[cfg(not(feature="oneThread"))]
+    pub node: Weak<RwLock<dyn DoUpdate>>, //  + Send + Sync + 'static
+    #[cfg(feature="oneThread")] 
+    pub node: Weak<RefCell<dyn DoUpdate + 'static>>,
     // pub meta: Meta,
 }
 
 impl Back {
-    pub fn new(node: Weak<RwLock<dyn DoUpdate + Send + Sync + 'static>>) -> Self {
+    #[cfg(not(feature="oneThread"))]
+    pub fn new(node: Weak<RwLock<dyn DoUpdate + 'static>>) -> Self { // + Send + Sync +
+        Self { node }
+    }
+    #[cfg(feature="oneThread")] 
+    pub fn new(node: Weak<RefCell<dyn DoUpdate + 'static>>) -> Self {
         Self { node }
     }
     pub fn rebut(&self) -> Ring {
         if let Some(node) = self.node.upgrade() {
-            let mut node = node.write().expect(NO_POISON);
-            node.do_rebut()
+            write_part(&node, |mut node| node.do_rebut())
+            // let mut node = node.write().expect(NO_POISON);
+            // node.do_rebut()
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
-            let mut node = node.write().expect(NO_POISON);
-            node.do_react(meta);
+            write_part(&node, |mut node| node.do_react(meta));
+            // let mut node = node.write().expect(NO_POISON);
+            // node.do_react(meta);
         }
     }
 }

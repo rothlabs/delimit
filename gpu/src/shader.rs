@@ -12,30 +12,30 @@ mod tests;
 pub struct Shader {
     target: WebGlShader,
     source: plain::Role,
-    // wglrc: WGLRC,
+    wglrc: WGLRC,
 }
 
 impl Act for Shader {
     type Load = Result<(), String>;
     fn act(&self) -> Self::Load {
-        Ok(())
-        // // let shader = self.wglrc.create_shader(self.kind).ok_or("cannot create shader")?;
-        // let source = self.source.grant();
-        // source.read(|src| self.wglrc.shader_source(&self.target, src));
-        // self.wglrc.compile_shader(&self.target);
-        // if self
-        //     .wglrc
-        //     .get_shader_parameter(&self.target, WGLRC::COMPILE_STATUS)
-        //     .as_bool()
-        //     .unwrap_or(false)
-        // {
-        //     Ok(()) // self.target.clone()
-        // } else {
-        //     Err(self
-        //         .wglrc
-        //         .get_shader_info_log(&self.target)
-        //         .ok_or("cannot get shader info log")?)
-        // }
+        // Ok(())
+        // let shader = self.wglrc.create_shader(self.kind).ok_or("cannot create shader")?;
+        let source = self.source.grant();
+        source.read(|src| self.wglrc.shader_source(&self.target, src));
+        self.wglrc.compile_shader(&self.target);
+        if self
+            .wglrc
+            .get_shader_parameter(&self.target, WGLRC::COMPILE_STATUS)
+            .as_bool()
+            .unwrap_or(false)
+        {
+            Ok(()) // self.target.clone()
+        } else {
+            Err(self
+                .wglrc
+                .get_shader_info_log(&self.target)
+                .ok_or("cannot get shader info log")?)
+        }
     }
 }
 
