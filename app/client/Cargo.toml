@@ -5,7 +5,7 @@
     edition = "2021"
 
 [lib]
-    crate-type = ["cdylib", "rlib"]
+    crate-type = ["cdylib", "rlib"] 
 
 [features]
     default = ["console_error_panic_hook"]
@@ -17,14 +17,15 @@
     # delimit 
         graph = { path = "../../graph", features = ["oneThread"]  }
         mecha = { path = "../../mecha" }
-        gpu = { path = "../../gpu" }
+        text = { path = "../../text" }
 
 [dependencies.web-sys] 
     version = "0.3.69"
     features = [
         'Window', 
         'Document', 
-        'HtmlCanvasElement' ,
+        'HtmlCanvasElement',
+        'OffscreenCanvas',
         'WebGlRenderingContext', 
         'WebGl2RenderingContext', 
         'WebGlProgram', 

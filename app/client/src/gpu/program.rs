@@ -2,19 +2,19 @@ use super::*;
 use graph::*;
 
 pub struct Program {
-    target: WebGlProgram,
+    pub target: WebGlProgram,
     vertex: Agent<Shader>,
-    fragment: Agent<Shader>,
-    wglrc: WGLRC,
+    pub fragment: Agent<Shader>,
+    pub wglrc: WGLRC,
 }
 
-impl Act for Program 
+impl Act for Program  
 // where 
 //  Link<Shader>: Act
 {
     type Load = Result<(), String>; 
     fn act(&self) -> Self::Load {
-        self.vertex.act();
+        let _ = self.vertex.act();
         // let program = self.0.create_program().ok_or("cannot create program")?;
         //self.wglrc.attach_shader(&self.target, self.vertex.act()); 
         Ok(())

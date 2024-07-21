@@ -2,12 +2,15 @@ use crate::*;
 
 use std::{collections::HashSet, hash::Hash};
 
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, Weak};
-#[cfg(feature="oneThread")] 
-use std::{rc::{Rc, Weak}, cell::RefCell};
+#[cfg(feature = "oneThread")]
+use std::{
+    cell::RefCell,
+    rc::{Rc, Weak},
+};
 
-use crate::{Meta, NO_POISON};
+use crate::Meta;
 
 pub trait Rebut {
     fn rebut(&self) -> Ring;
@@ -34,12 +37,12 @@ pub trait DoAddRoot {
 }
 
 pub trait Backed {
-    fn backed(&self, back: &Back) -> Self; 
+    fn backed(&self, back: &Back) -> Self;
 }
 
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L>>>>; //  + Send + Sync
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 type PloyEdge<L> = Rc<RefCell<Box<dyn Produce<L>>>>;
 
 pub trait ToPloy {
@@ -52,9 +55,9 @@ pub trait BackedPloy {
     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
 }
 
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>; //  + Send + Sync
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 type PlanEdge<T, L> = Rc<RefCell<Box<dyn Convert<T, L>>>>;
 
 pub trait ToPlan {
@@ -75,15 +78,13 @@ pub trait Update: Rebut + React + Threading {}
 /// For node that mutably Rebuts a Ring and reacts.
 pub trait DoUpdate: DoRebut + DoReact + Threading {}
 
-
-
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?
 #[derive(Clone)]
 pub struct Root {
-    #[cfg(not(feature="oneThread"))]
+    #[cfg(not(feature = "oneThread"))]
     pub edge: Weak<RwLock<dyn Update>>, //  + Send + Sync
-    #[cfg(feature="oneThread")] 
+    #[cfg(feature = "oneThread")]
     pub edge: Weak<RefCell<dyn Update>>,
     pub meta: Meta,
 }
@@ -124,19 +125,20 @@ impl Hash for Root {
 /// Weakly point to the back of a node as Update.
 #[derive(Clone)]
 pub struct Back {
-    #[cfg(not(feature="oneThread"))]
+    #[cfg(not(feature = "oneThread"))]
     pub node: Weak<RwLock<dyn DoUpdate>>, //  + Send + Sync + 'static
-    #[cfg(feature="oneThread")] 
+    #[cfg(feature = "oneThread")]
     pub node: Weak<RefCell<dyn DoUpdate + 'static>>,
     // pub meta: Meta,
 }
 
 impl Back {
-    #[cfg(not(feature="oneThread"))]
-    pub fn new(node: Weak<RwLock<dyn DoUpdate + 'static>>) -> Self { // + Send + Sync +
+    #[cfg(not(feature = "oneThread"))]
+    pub fn new(node: Weak<RwLock<dyn DoUpdate + 'static>>) -> Self {
+        // + Send + Sync +
         Self { node }
     }
-    #[cfg(feature="oneThread")] 
+    #[cfg(feature = "oneThread")]
     pub fn new(node: Weak<RefCell<dyn DoUpdate + 'static>>) -> Self {
         Self { node }
     }
@@ -193,14 +195,12 @@ impl Ring {
     // TODO: make method to remove reactors with dropped edges
 }
 
-
-
 // #[cfg(not(feature="oneThread"))]
 // pub trait Update: Rebut + React + Send + Sync {}
-// #[cfg(feature="oneThread")] 
+// #[cfg(feature="oneThread")]
 // pub trait Update: Rebut + React {}
 
 // #[cfg(not(feature="oneThread"))]
 // pub trait DoUpdate: DoRebut + DoReact + Send + Sync {}
-// #[cfg(feature="oneThread")] 
+// #[cfg(feature="oneThread")]
 // pub trait DoUpdate: DoRebut + DoReact {}

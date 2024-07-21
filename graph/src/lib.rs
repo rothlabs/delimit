@@ -12,10 +12,13 @@ pub use view::{ToViewsMutator, View, ViewsBuilder};
 pub use write::{DoWrite, Pack, Write, WriteWithBack, WriteWithPack};
 
 use serde::Serialize;
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
-#[cfg(feature="oneThread")]
-use std::{cell::{RefCell, Ref, RefMut}, rc::Rc};
+#[cfg(feature = "oneThread")]
+use std::{
+    cell::{Ref, RefCell, RefMut},
+    rc::Rc,
+};
 
 pub mod role;
 pub mod view;
@@ -30,36 +33,41 @@ mod unit;
 mod work;
 mod write;
 
+#[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
 
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 pub trait Threading: Send + Sync {}
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 impl<T: Send + Sync> Threading for T {}
 
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 pub trait Threading {}
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 impl<T> Threading for T {}
 
-
-
-#[cfg(not(feature="oneThread"))]
-fn read_part<E: ?Sized, O, F: FnOnce(RwLockReadGuard<E>) -> O>(edge: &Arc<RwLock<E>>, read: F) -> O {
+#[cfg(not(feature = "oneThread"))]
+fn read_part<E: ?Sized, O, F: FnOnce(RwLockReadGuard<E>) -> O>(
+    edge: &Arc<RwLock<E>>,
+    read: F,
+) -> O {
     read(edge.read().expect(NO_POISON))
 }
 
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 fn read_part<E: ?Sized, O, F: FnOnce(Ref<E>) -> O>(edge: &Rc<RefCell<E>>, read: F) -> O {
     read(edge.borrow())
 }
 
-#[cfg(not(feature="oneThread"))]
-fn write_part<E: ?Sized, O, F: FnOnce(RwLockWriteGuard<E>) -> O>(edge: &Arc<RwLock<E>>, write: F) -> O {
+#[cfg(not(feature = "oneThread"))]
+fn write_part<E: ?Sized, O, F: FnOnce(RwLockWriteGuard<E>) -> O>(
+    edge: &Arc<RwLock<E>>,
+    write: F,
+) -> O {
     write(edge.write().expect(NO_POISON))
 }
 
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 fn write_part<E: ?Sized, O, F: FnOnce(RefMut<E>) -> O>(edge: &Rc<RefCell<E>>, write: F) -> O {
     write(edge.borrow_mut())
 }
@@ -121,18 +129,21 @@ pub trait DoSolve {
 }
 
 /// Edge that grants a load. In addition, clone the edge with a new back,
-#[cfg(not(feature="oneThread"))]
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update + Send + Sync {}
-#[cfg(feature="oneThread")] 
+#[cfg(not(feature = "oneThread"))]
+pub trait Produce<L>:
+    Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update + Send + Sync
+{
+}
+#[cfg(feature = "oneThread")]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
 /// Edge that solves a task. In addition, clone the edge with a new Back.
-#[cfg(not(feature="oneThread"))]
+#[cfg(not(feature = "oneThread"))]
 pub trait Convert<T, L>:
     Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update + Send + Sync
 {
 }
-#[cfg(feature="oneThread")] 
+#[cfg(feature = "oneThread")]
 pub trait Convert<T, L>:
     Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
 {
