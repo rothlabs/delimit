@@ -1,3 +1,6 @@
+// use plain::ListBuilder;
+// use view::ViewsBuilder;
+
 use crate::html::*;
 
 pub struct Attribute {
@@ -6,7 +9,7 @@ pub struct Attribute {
 }
 
 impl Attribute {
-    pub fn new(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
+    pub fn hold(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             name: name.backed(back),
             value: value.backed(back),
@@ -22,18 +25,18 @@ impl Attribute {
 impl Grant for Attribute {
     type Load = Load;
     fn grant(&self) -> Load {
-        let Hold { link, role } = "".list();
-        link.write(|Pack { unit, back }| {
-            unit.items
-                .back(back)
+        List::role(|back| {
+            let items = ViewsBuilder::new(back)
                 .push(&self.name.grant())
-                // .use_ploy(&self.name)
                 .str(r#"=""#)
                 .push(&self.value.grant())
-                // .use_ploy(&self.value)
-                .str(r#"""#);
-        });
-        role
+                .str(r#"""#)
+                .build();
+            List {
+                items,
+                separator: None,
+            }
+        })
     }
 }
 
@@ -46,3 +49,21 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
+
+// impl Grant for Attribute {
+//     type Load = Load;
+//     fn grant(&self) -> Load {
+//         let Hold { link, role } = "".list();
+//         link.write(|Pack { unit, back }| {
+//             unit.items
+//                 .back(back)
+//                 .push(&self.name.grant())
+//                 // .use_ploy(&self.name)
+//                 .str(r#"=""#)
+//                 .push(&self.value.grant())
+//                 // .use_ploy(&self.value)
+//                 .str(r#"""#);
+//         });
+//         role
+//     }
+// }

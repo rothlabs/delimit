@@ -31,5 +31,5 @@ pub fn ace<A>(ace: &Ace<String>) -> view::Ploy<A> {
 }
 
 type Link<U> = Deuce<U>;
-type Stem = graph::view::end::Ploy<Part, String>;
+pub type Stem = graph::view::end::Ploy<Part, String>;
 type Load = Ace<String>;

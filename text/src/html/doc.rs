@@ -29,12 +29,12 @@ impl Doc {
             tags.insert(tag, plain::str(tag));
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        let tag = Tag::new(doctype);
+        let tag = Tag::hold(doctype);
         Self {
             tag_name: DOCTYPE,
             root: None,
             tag: tag.clone(),
-            element: Element::new(&Stem::Role(tag.role), None),
+            element: Element::hold(&Stem::Role(tag.role), None),
             tag_names: tags,
             attributes: atts.clone(),
         }
@@ -80,7 +80,7 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
         if let Some(name_ace) = self.attributes.get(name) {
-            let hold = Attribute::new(&plain::ace(name_ace), &plain::str(value));
+            let hold = Attribute::hold(&plain::ace(name_ace), &plain::str(value));
             self.tag.link.write(|Pack { unit, back }| {
                 unit.attributes.back(back).add_role(&hold.role);
             });
@@ -89,7 +89,7 @@ impl Doc {
     }
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
-        let tag = Tag::new(tag_leaf);
+        let tag = Tag::hold(tag_leaf);
         let close = match tag_name {
             "meta" => None,
             _ => Some(tag_leaf),
@@ -99,7 +99,7 @@ impl Doc {
             tag_names: self.tag_names.clone(),
             attributes: self.attributes.clone(),
             tag: tag.clone(),
-            element: Element::new(&Stem::Role(tag.role), close),
+            element: Element::hold(&Stem::Role(tag.role), close),
             root: Some(Box::new(RefCell::new(Some(self)))),
         }
     }

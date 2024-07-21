@@ -1,17 +1,24 @@
-use serde::Serialize;
+// use derive_builder::Builder;
 
 use super::*;
 
-#[derive(Default, Serialize)]
+#[derive(Clone)]
 pub struct List {
     pub items: Vec<Stem>,
-    separator: String,
+    pub separator: Option<String>,
 }
 
 impl List {
-    pub fn separator(&mut self, sep: &str) -> &mut Self {
-        sep.clone_into(&mut self.separator);
-        self
+    pub fn role<F: FnOnce(&Back) -> Self>(make: F) -> Role {
+        let link = Link::make(make);
+        Role {
+            part: Part::List(link.clone()),
+            form: link.ploy(),
+        }
+    }
+    pub fn separator(&mut self, sep: &str) {
+        self.separator = Some(sep.to_owned());
+        //sep.clone_into(&mut self.separator);
     }
     pub fn remove(&mut self, index: usize) {
         self.items.remove(index);
@@ -25,9 +32,15 @@ impl Grant for List {
         if self.items.is_empty() {
             return string.into_ace();
         }
-        for i in 0..self.items.len() - 1 {
-            self.items[i].read(|s| string += s);
-            string += &self.separator;
+        if let Some(sep) = &self.separator {
+            for i in 0..self.items.len() - 1 {
+                self.items[i].read(|s| string += s);
+                string += sep;
+            }
+        } else {
+            for i in 0..self.items.len() - 1 {
+                self.items[i].read(|s| string += s);
+            }
         }
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
@@ -43,7 +56,7 @@ pub trait ToList {
 impl ToList for &str {
     fn list(self) -> Hold<Link<List>, Role> {
         let link = Link::new(List {
-            separator: self.into(),
+            separator: Some(self.into()),
             items: vec![],
         });
         let role = Role {

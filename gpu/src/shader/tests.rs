@@ -1,4 +1,2 @@
 #[test]
-fn make_shader() {
-    
-}
+fn make_shader() {}

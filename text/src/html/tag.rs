@@ -6,7 +6,7 @@ pub struct Tag {
 }
 
 impl Tag {
-    pub fn new(name: &Stem) -> Hold<Link<Self>, Role> {
+    pub fn hold(name: &Stem) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             name: name.backed(back),
             attributes: vec![],

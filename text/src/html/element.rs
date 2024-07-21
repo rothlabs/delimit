@@ -7,7 +7,7 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn new(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Role> {
+    pub fn hold(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
             tag: tag.backed(back),
             items: vec![],
@@ -50,3 +50,33 @@ impl Grant for Element {
         role
     }
 }
+
+// impl Grant for Element {
+//     type Load = Load;
+//     fn grant(&self) -> Load {
+//         let Hold { link, role } = "\n".list();
+//         link.write(|pack| {
+//             let mut element = pack.unit.items.back(pack.back);
+//             element.push(&self.tag.grant());
+//             // element.use_ploy(&self.tag);
+//             for item in &self.items {
+//                 element.push(&item.grant());
+//                 // element.use_ploy(item);
+//             }
+//             if let Some(close) = &self.close {
+//                 let Hold { link, role } = "".list();
+//                 link.write(|pack| {
+//                     pack.unit
+//                         .items
+//                         .back(pack.back)
+//                         .str("</")
+//                         .push(&close.grant())
+//                         //.use_ploy(close)
+//                         .str(">");
+//                 });
+//                 element.add_role(&role);
+//             }
+//         });
+//         role
+//     }
+// }

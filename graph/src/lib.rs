@@ -1,15 +1,15 @@
 pub use edge::Edge;
-pub use link::{Ace, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey, Agent};
+pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
-    DoAddRoot, Back, Backed, BackedPlan, BackedPloy, DoReact, React, DoRebut, Rebut, Ring, Root,
-    AddRoot, ToPlan, ToPloy, DoUpdate, Update,
+    AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
+    Rebut, Ring, Root, ToPlan, ToPloy, Update,
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{ToViewsBuilder, View};
-pub use write::{Pack, DoWrite, WriteWithBack, Write, WriteWithPack};
+pub use view::{ToViewsMutator, View, ViewsBuilder};
+pub use write::{DoWrite, Pack, Write, WriteWithBack, WriteWithPack};
 
 use serde::Serialize;
 

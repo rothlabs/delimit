@@ -17,8 +17,8 @@ mod tests;
 /// Matrix Load for super graphs
 pub type Role<N> = role::Ploy<Part<N>, Load<N>>;
 
-/// Units may grant in-memory arrays (Mem) or 
-/// they may grant gpu buffer ref (Gpu) 
+/// Units may grant in-memory arrays (Mem) or
+/// they may grant gpu buffer ref (Gpu)
 #[derive(Clone)]
 pub enum Bare<N> {
     Mem(Array3<N>),

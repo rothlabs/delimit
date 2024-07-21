@@ -1,5 +1,5 @@
 use super::*;
-use derive_builder::Builder;
+// use derive_builder::Builder;
 use graph::*;
 use text::*;
 
@@ -8,7 +8,7 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-#[derive(Builder)]
+// #[derive(Builder)]
 pub struct Shader {
     shader: WebGlShader,
     source: plain::Role,
@@ -38,12 +38,9 @@ impl Act for Shader {
     }
 }
 
-
-
-
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {
-//         Self { 
+//         Self {
 //             wglrc: wglrc.clone(),
 //             kind,
 //         }
@@ -74,10 +71,9 @@ impl Act for Shader {
 //     }
 // }
 
-
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {
-//         Self { 
+//         Self {
 //             wglrc: wglrc.clone(),
 //             kind,
 //         }shader

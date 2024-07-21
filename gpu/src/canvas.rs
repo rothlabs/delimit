@@ -1,6 +1,6 @@
 use super::*;
-use wasm_bindgen::prelude::*;
 use graph::*;
+use wasm_bindgen::prelude::*;
 
 pub struct Canvas {
     element: HtmlCanvasElement,

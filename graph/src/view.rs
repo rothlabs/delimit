@@ -183,19 +183,90 @@ where
     }
 }
 
-pub trait ToViewsBuilder<'a, R, B> {
-    fn back(&'a mut self, back: &'a Back) -> ViewsBuilder<R, B>;
+pub trait ToViewsMutator<'a, R, B> {
+    fn back(&'a mut self, back: &'a Back) -> ViewsMutator<R, B>;
 }
 
-impl<'a, R, B> ToViewsBuilder<'a, R, B> for Vec<View<R, B>> {
-    fn back(&'a mut self, back: &'a Back) -> ViewsBuilder<R, B> {
-        ViewsBuilder { views: self, back }
+impl<'a, R, B> ToViewsMutator<'a, R, B> for Vec<View<R, B>> {
+    fn back(&'a mut self, back: &'a Back) -> ViewsMutator<R, B> {
+        ViewsMutator { views: self, back }
     }
 }
 
-pub struct ViewsBuilder<'a, R, B> {
+pub struct ViewsMutator<'a, R, B> {
     views: &'a mut Vec<View<R, B>>,
     back: &'a Back,
+}
+
+impl<'a, R, B> ViewsMutator<'a, R, B>
+where
+    R: Backed,
+    B: Backed,
+{
+    pub fn push(&mut self, view: &View<R, B>) -> &mut Self {
+        self.views.push(view.backed(self.back));
+        self
+    }
+}
+
+impl<'a, R, B> ViewsMutator<'a, R, B>
+where
+    R: Backed,
+{
+    pub fn add_role(&mut self, role: &R) -> &mut Self {
+        self.views.add_role(role.backed(self.back));
+        self
+    }
+}
+
+impl<'a, R, B> ViewsMutator<'a, R, B>
+where
+    B: Backed + FromAce,
+{
+    pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
+        self.views.add_ace(ace.backed(self.back));
+        self
+    }
+}
+
+// impl<'a, R, B> ViewsBuilder<'a, R, B> {
+//     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
+//         self.views.use_ploy(&item.backed(self.back));
+//         self
+//     }
+// }
+
+impl<'a, R, B> ViewsMutator<'a, R, B>
+where
+    B: From<&'static str>,
+{
+    pub fn str(&mut self, str: &'static str) -> &mut Self {
+        self.views.add_str(str);
+        self
+    }
+}
+
+///////////////////////////////////////////////
+
+pub struct ViewsBuilder<'a, R, B> {
+    views: Vec<View<R, B>>,
+    back: &'a Back,
+}
+
+impl<'a, R, B> ViewsBuilder<'a, R, B>
+where
+    R: Clone,
+    B: Clone,
+{
+    pub fn new(back: &'a Back) -> Self {
+        Self {
+            views: vec![],
+            back,
+        }
+    }
+    pub fn build(&self) -> Vec<View<R, B>> {
+        self.views.clone()
+    }
 }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
