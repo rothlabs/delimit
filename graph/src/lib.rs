@@ -34,10 +34,15 @@ const NO_POISON: &str = "the lock should not be poisoned";
 
 #[cfg(not(feature="oneThread"))]
 pub trait Threading: Send + Sync {}
+#[cfg(not(feature="oneThread"))]
+impl<T: Send + Sync> Threading for T {}
+
 #[cfg(feature="oneThread")] 
 pub trait Threading {}
+#[cfg(feature="oneThread")] 
+impl<T> Threading for T {}
 
-impl<T: Send + Sync> Threading for T {}
+
 
 #[cfg(not(feature="oneThread"))]
 fn read_part<E: ?Sized, O, F: FnOnce(RwLockReadGuard<E>) -> O>(edge: &Arc<RwLock<E>>, read: F) -> O {

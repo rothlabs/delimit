@@ -13,15 +13,14 @@ mod canvas;
 pub type WGLRC = WebGl2RenderingContext;
 
 pub struct Base {
-    canvas: HtmlCanvasElement,
-    wglrc: WGLRC
+    pub canvas: HtmlCanvasElement,
+    pub wglrc: WGLRC
 }
 
 impl Base {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self::default()
     }
-    
 }
 
 impl Default for Base {

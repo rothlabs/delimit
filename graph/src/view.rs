@@ -76,7 +76,7 @@ impl<R, B> Read for View<R, B>
 where
     R: Grant,
     R::Load: Read<Item = B::Item>,
-    B: Read + Send + Sync + 'static,
+    B: Read, // 'static + Threading,
 {
     type Item = B::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -91,7 +91,7 @@ impl<R, B> ReaderByTask for View<R, B>
 where
     R: Solve,
     R::Load: Read<Item = B::Item>,
-    B: Read + Send + Sync + 'static,
+    B: Read, // 'static + Threading,
 {
     type Task = R::Task;
     type Item = B::Item;

@@ -14,7 +14,7 @@ impl Act for Program
 {
     type Load = Result<(), String>; 
     fn act(&self) -> Self::Load {
-        // self.vertex.act();
+        self.vertex.act();
         // let program = self.0.create_program().ok_or("cannot create program")?;
         //self.wglrc.attach_shader(&self.target, self.vertex.act()); 
         Ok(())

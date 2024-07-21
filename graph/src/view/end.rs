@@ -58,7 +58,7 @@ where
 
 impl<L> Read for End<L>
 where
-    L: 'static + Send + Sync,
+    L: 'static + Threading, // + Send + Sync,
 {
     type Item = L;
     fn read<T, F: FnOnce(&L) -> T>(&self, read: F) -> T {

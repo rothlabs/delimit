@@ -70,16 +70,11 @@ pub trait BackedPlan {
 }
 
 /// For edge that Rebuts a Ring and reacts.
-#[cfg(not(feature="oneThread"))]
-pub trait Update: Rebut + React + Send + Sync {}
-#[cfg(feature="oneThread")] 
-pub trait Update: Rebut + React {}
+pub trait Update: Rebut + React + Threading {}
 
 /// For node that mutably Rebuts a Ring and reacts.
-#[cfg(not(feature="oneThread"))]
-pub trait DoUpdate: DoRebut + DoReact + Send + Sync {}
-#[cfg(feature="oneThread")] 
-pub trait DoUpdate: DoRebut + DoReact {}
+pub trait DoUpdate: DoRebut + DoReact + Threading {}
+
 
 
 /// Weakly point to a root edge, the inverse of Link.
@@ -197,3 +192,15 @@ impl Ring {
     }
     // TODO: make method to remove reactors with dropped edges
 }
+
+
+
+// #[cfg(not(feature="oneThread"))]
+// pub trait Update: Rebut + React + Send + Sync {}
+// #[cfg(feature="oneThread")] 
+// pub trait Update: Rebut + React {}
+
+// #[cfg(not(feature="oneThread"))]
+// pub trait DoUpdate: DoRebut + DoReact + Send + Sync {}
+// #[cfg(feature="oneThread")] 
+// pub trait DoUpdate: DoRebut + DoReact {}

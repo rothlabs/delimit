@@ -170,6 +170,8 @@ where
     }
 }
 
+// target_family = "wasm"
+
 impl<E> Write for Link<E>
 where
     E: Write,

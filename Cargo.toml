@@ -1,6 +1,14 @@
 [workspace]
-    members = ["app/server", "app/client", "text", "graph", "repo", "gpu", "mecha"]
+    exclude = ["app/client"]
+    members = ["app/server", "text", "repo", "gpu", "mecha"]
     resolver = "2"
+
+# [workspace.dependencies]
+#     # graph2 = {path = "graph", features = ["oneThread"]}
+#     graph = {path = "graph", features = []}
+
+# [features]
+#     default = []
 
 # [profile.release]
 #     # Tell `rustc` to optimize for small code size.
