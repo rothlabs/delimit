@@ -51,11 +51,6 @@ where
 {
     type Load = E::Load;
     fn load(&self) -> Self::Load {
-        // #[cfg(not(feature="oneThread"))]
-        // let edge = self.edge.read().expect(NO_POISON);
-        // #[cfg(feature="oneThread")]
-        // let edge = self.edge.borrow();
-        //edge.load()
         read_part(&self.edge, |edge| edge.load())
     }
 }
@@ -70,12 +65,13 @@ impl<E> Clone for Link<E> {
 }
 
 impl<E> PartialEq for Link<E> {
+    #[cfg(not(feature = "oneThread"))]
     fn eq(&self, other: &Self) -> bool {
-        #[cfg(not(feature = "oneThread"))]
-        let out = Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta;
-        #[cfg(feature = "oneThread")]
-        let out = Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta;
-        out
+        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+    }
+    #[cfg(feature = "oneThread")]
+    fn eq(&self, other: &Self) -> bool {
+        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
     }
 }
 
@@ -138,15 +134,18 @@ impl<E> Link<E>
 where
     E: 'static + Update,
 {
+    #[cfg(not(feature = "oneThread"))]
     pub fn as_root(&self) -> Root {
-        #[cfg(not(feature = "oneThread"))]
-        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>; //  + Send + Sync
-        #[cfg(feature = "oneThread")]
+        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
+        Root {
+            edge: Arc::downgrade(&edge),
+            meta: self.meta.clone(),
+        }
+    }
+    #[cfg(feature = "oneThread")]
+    pub fn as_root(&self) -> Root {
         let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
         Root {
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::downgrade(&edge),
-            #[cfg(feature = "oneThread")]
             edge: Rc::downgrade(&edge),
             meta: self.meta.clone(),
         }
@@ -157,7 +156,7 @@ where
 /// This will allow readers to inspect without rebuting in the future.
 impl<E> Read for Link<E>
 where
-    E: 'static + Read + Update + AddRoot, // + Send + Sync,
+    E: 'static + Read + Update + AddRoot,
 {
     type Item = E::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -166,14 +165,8 @@ where
             edge.add_root(self.as_root());
             out
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // let out = edge.read(read);
-        // edge.add_root(self.as_root());
-        // out
     }
 }
-
-// target_family = "wasm"
 
 impl<E> Write for Link<E>
 where
@@ -182,8 +175,6 @@ where
     type Item = E::Item;
     fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
         read_part(&self.edge, |edge| edge.write(write));
-        // let edge = self.edge.read().expect(NO_POISON);
-        // edge.write(write);
     }
 }
 
@@ -194,14 +185,12 @@ where
     type Unit = E::Unit;
     fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
         read_part(&self.edge, |edge| edge.write(write));
-        // let edge = self.edge.read().expect(NO_POISON);
-        // edge.write(write);
     }
 }
 
 impl<E> Grant for Link<E>
 where
-    E: 'static + Grant + AddRoot + Update, // + Send + Sync,
+    E: 'static + Grant + AddRoot + Update, 
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
@@ -210,16 +199,12 @@ where
             edge.add_root(self.as_root());
             result
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // let result = edge.grant();
-        // edge.add_root(self.as_root());
-        // result
     }
 }
 
 impl<E> Act for Link<E>
 where
-    E: 'static + Act + AddRoot + Update, // + Send + Sync,
+    E: 'static + Act + AddRoot + Update, 
 {
     type Load = E::Load;
     fn act(&self) -> Self::Load {
@@ -228,16 +213,12 @@ where
             edge.add_root(self.as_root());
             result
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // let result = edge.act();
-        // edge.add_root(self.as_root());
-        // result
     }
 }
 
 impl<E> Solve for Link<E>
 where
-    E: 'static + Solve + AddRoot + Update, // + Send + Sync,
+    E: 'static + Solve + AddRoot + Update,
 {
     type Task = E::Task;
     type Load = E::Load;
@@ -247,10 +228,6 @@ where
             edge.add_root(self.as_root());
             result
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // let result = edge.solve(task);
-        // edge.add_root(self.as_root());
-        // result
     }
 }
 
@@ -263,26 +240,15 @@ where
             edge: edge.ploy(),
             meta: self.meta.clone(),
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // Ploy {
-        //     edge: edge.ploy(),
-        //     meta: self.meta.clone(),
-        // }
     }
 }
 
 impl<L> Backed for Link<Box<dyn Produce<L>>> {
-    //  + Send + Sync
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
             meta: self.meta.clone(),
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // Self {
-        //     edge: edge.backed_ploy(back),
-        //     meta: self.meta.clone(),
-        // }
     }
 }
 
@@ -295,11 +261,6 @@ where
             edge: edge.plan(),
             meta: self.meta.clone(),
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // Plan {
-        //     edge: edge.plan(),
-        //     meta: self.meta.clone(),
-        // }
     }
 }
 
@@ -310,11 +271,6 @@ impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> {
             edge: edge.backed_plan(back),
             meta: self.meta.clone(),
         })
-        // let edge = self.edge.read().expect(NO_POISON);
-        // Self {
-        //     edge: edge.backed_plan(back),
-        //     meta: self.meta.clone(),
-        // }
     }
 }
 
@@ -326,6 +282,8 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
+
+
 
 // fn backed(&self, back: &Back) -> Self {
 //     #[cfg(not(feature="oneThread"))]

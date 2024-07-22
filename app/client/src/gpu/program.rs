@@ -11,7 +11,7 @@ pub struct Program {
 impl Act for Program  
 // where 
 //  Link<Shader>: Act
-{
+{ 
     type Load = Result<(), String>; 
     fn act(&self) -> Self::Load {
         let _ = self.vertex.act();

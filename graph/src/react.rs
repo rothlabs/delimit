@@ -41,7 +41,7 @@ pub trait Backed {
 }
 
 #[cfg(not(feature = "oneThread"))]
-type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L>>>>; //  + Send + Sync
+type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L>>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge<L> = Rc<RefCell<Box<dyn Produce<L>>>>;
 
@@ -56,7 +56,7 @@ pub trait BackedPloy {
 }
 
 #[cfg(not(feature = "oneThread"))]
-type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>; //  + Send + Sync
+type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>;
 #[cfg(feature = "oneThread")]
 type PlanEdge<T, L> = Rc<RefCell<Box<dyn Convert<T, L>>>>;
 
@@ -93,8 +93,6 @@ impl Root {
     pub fn rebut(&self) -> Ring {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.rebut())
-            // let edge = edge.read().expect(NO_POISON);
-            // edge.rebut()
         } else {
             Ring::new()
         }
@@ -102,8 +100,6 @@ impl Root {
     pub fn react(&self, meta: &Meta) {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.react(meta));
-            // let edge = edge.read().expect(NO_POISON);
-            // edge.react(meta);
         }
     }
 }
@@ -129,13 +125,11 @@ pub struct Back {
     pub node: Weak<RwLock<dyn DoUpdate>>, //  + Send + Sync + 'static
     #[cfg(feature = "oneThread")]
     pub node: Weak<RefCell<dyn DoUpdate + 'static>>,
-    // pub meta: Meta,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
     pub fn new(node: Weak<RwLock<dyn DoUpdate + 'static>>) -> Self {
-        // + Send + Sync +
         Self { node }
     }
     #[cfg(feature = "oneThread")]
@@ -145,8 +139,6 @@ impl Back {
     pub fn rebut(&self) -> Ring {
         if let Some(node) = self.node.upgrade() {
             write_part(&node, |mut node| node.do_rebut())
-            // let mut node = node.write().expect(NO_POISON);
-            // node.do_rebut()
         } else {
             Ring::new()
         }
@@ -154,8 +146,6 @@ impl Back {
     pub fn react(&self, meta: &Meta) {
         if let Some(node) = self.node.upgrade() {
             write_part(&node, |mut node| node.do_react(meta));
-            // let mut node = node.write().expect(NO_POISON);
-            // node.do_react(meta);
         }
     }
 }
@@ -167,6 +157,7 @@ pub struct Ring {
 }
 
 impl Ring {
+    // TODO: make method to remove reactors with dropped edges
     pub fn new() -> Self {
         Self::default()
     }
@@ -192,7 +183,6 @@ impl Ring {
             root.react(meta);
         }
     }
-    // TODO: make method to remove reactors with dropped edges
 }
 
 // #[cfg(not(feature="oneThread"))]
