@@ -61,16 +61,6 @@ where
     }
 }
 
-// impl<R, B> FromAce for View<R, B>
-// where
-//     B: FromAce,
-// {
-//     type Load = B::Load;
-//     fn from_ace(ace: &Ace<Self::Load>) -> Self {
-//         Self::Base(B::from_ace(ace))
-//     }
-// }
-
 impl<R, B> IntoView for View<R, B> {
     type Item = R;
     fn into_view(role: Self::Item) -> Self {
@@ -220,23 +210,6 @@ where
     }
 }
 
-// impl<R, B> AddAce for Vec<View<R, B>>
-// where
-//     B: FromAce,
-// {
-//     type Load = B::Load;
-//     fn add_ace(&mut self, ace: link::Ace<B::Load>) {
-//         self.push(View::Base(B::from_ace(&ace)))
-//     }
-// }
-
-// impl<R, B> UsePloy for Vec<View<R, B>> {
-//     type Load = View<R, B>;
-//     fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
-//         self.push(item.grant());
-//     }
-// }
-
 impl<R, B> AddStr for Vec<View<R, B>>
 where
     B: From<&'static str>,
@@ -293,23 +266,6 @@ where
     }
 }
 
-// impl<'a, R, B> ViewsMutator<'a, R, B>
-// where
-//     B: Backed + FromAce,
-// {
-//     pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
-//         self.views.add_ace(ace.backed(self.back));
-//         self
-//     }
-// }
-
-// impl<'a, R, B> ViewsBuilder<'a, R, B> {
-//     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
-//         self.views.use_ploy(&item.backed(self.back));
-//         self
-//     }
-// }
-
 impl<'a, R, B> ViewsMutator<'a, R, B>
 where
     B: From<&'static str>,
@@ -319,8 +275,6 @@ where
         self
     }
 }
-
-///////////////////////////////////////////////
 
 pub struct ViewsBuilder<'a, R, B> {
     views: Vec<View<R, B>>,
@@ -375,6 +329,45 @@ where
     }
 }
 
+impl<'a, R, B> ViewsBuilder<'a, R, B>
+where
+    B: From<&'static str>,
+{
+    pub fn str(&mut self, str: &'static str) -> &mut Self {
+        self.views.add_str(str);
+        self
+    }
+}
+
+
+// impl<R, B> FromAce for View<R, B>
+// where
+//     B: FromAce,
+// {
+//     type Load = B::Load;
+//     fn from_ace(ace: &Ace<Self::Load>) -> Self {
+//         Self::Base(B::from_ace(ace))
+//     }
+// }
+
+
+// impl<'a, R, B> ViewsMutator<'a, R, B>
+// where
+//     B: Backed + FromAce,
+// {
+//     pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
+//         self.views.add_ace(ace.backed(self.back));
+//         self
+//     }
+// }
+
+// impl<'a, R, B> ViewsBuilder<'a, R, B> {
+//     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
+//         self.views.use_ploy(&item.backed(self.back));
+//         self
+//     }
+// }
+
 // impl<'a, R, B> ViewsBuilder<'a, R, B>
 // where
 //     B: Backed + FromAce,
@@ -392,12 +385,19 @@ where
 //     }
 // }
 
-impl<'a, R, B> ViewsBuilder<'a, R, B>
-where
-    B: From<&'static str>,
-{
-    pub fn str(&mut self, str: &'static str) -> &mut Self {
-        self.views.add_str(str);
-        self
-    }
-}
+// impl<R, B> AddAce for Vec<View<R, B>>
+// where
+//     B: FromAce,
+// {
+//     type Load = B::Load;
+//     fn add_ace(&mut self, ace: link::Ace<B::Load>) {
+//         self.push(View::Base(B::from_ace(&ace)))
+//     }
+// }
+
+// impl<R, B> UsePloy for Vec<View<R, B>> {
+//     type Load = View<R, B>;
+//     fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
+//         self.push(item.grant());
+//     }
+// }
