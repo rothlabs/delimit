@@ -34,6 +34,34 @@ where
     }
 }
 
+impl<R, B> From<&'static str> for View<R, B> 
+where 
+    B: From<&'static str>,
+{
+    fn from(value: &'static str) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B> 
+where 
+    B: From<&'a Ace<L>>,
+{
+    fn from(value: &'a Ace<L>) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+// impl<R, B> FromAce for View<R, B>
+// where
+//     B: FromAce,
+// {
+//     type Load = B::Load;
+//     fn from_ace(ace: &Ace<Self::Load>) -> Self {
+//         Self::Base(B::from_ace(ace))
+//     }
+// }
+
 impl<R, B> IntoView for View<R, B> {
     type Item = R;
     fn into_view(role: Self::Item) -> Self {
@@ -132,6 +160,21 @@ where
     }
 }
 
+impl<R, B> Serve for View<R, B>
+where
+    R: Serve,
+    B: Clone + IntoView<Item = R::Load>,
+{
+    type Task = R::Task;
+    type Load = B;
+    fn serve(&self, task: Self::Task) -> Self::Load {
+        match self {
+            Self::Role(role) => B::into_view(role.serve(task)),
+            Self::Base(base) => base.clone(),
+        }
+    }
+}
+
 impl<R, B> Backed for View<R, B>
 where
     R: Backed,
@@ -163,7 +206,7 @@ where
 {
     type Load = B::Load;
     fn add_ace(&mut self, ace: link::Ace<B::Load>) {
-        self.push(View::Base(B::from_ace(ace)))
+        self.push(View::Base(B::from_ace(&ace)))
     }
 }
 

@@ -19,6 +19,9 @@ pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
 /// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Edge<node::Agent<U>>;
 
+/// Edge to a unit that solves a task and could act upon externals.
+pub type Envoy<U> = Edge<node::Envoy<U>>;
+
 /// Edge to a link that grants a link that grants a load.
 pub type Pipe<U> = Edge<node::Pipe<U>>;
 
@@ -174,6 +177,17 @@ where
     type Load = N::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
         write_part(&self.node, |mut node| node.do_solve(task))
+    }
+}
+
+impl<N> Serve for Edge<N>
+where
+    N: DoServe,
+{
+    type Task = N::Task;
+    type Load = N::Load;
+    fn serve(&self, task: Self::Task) -> Self::Load {
+        write_part(&self.node, |mut node| node.do_serve(task))
     }
 }
 

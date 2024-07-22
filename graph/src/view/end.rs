@@ -29,12 +29,18 @@ impl From<&str> for End<String> {
     }
 }
 
-impl<L> FromAce for End<L> {
-    type Load = L;
-    fn from_ace(ace: Ace<L>) -> Self {
-        Self::Link(ace)
+impl<L> From<&Ace<L>> for End<L> {
+    fn from(value: &Ace<L>) -> Self {
+        Self::Link(value.clone())
     }
 }
+
+// impl<L> FromAce for End<L> {
+//     type Load = L;
+//     fn from_ace(ace: &Ace<L>) -> Self {
+//         Self::Link(ace.clone())
+//     }
+// }
 
 impl<L> FromItem for End<L> {
     type Item = L;

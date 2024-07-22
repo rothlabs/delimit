@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey, Envoy};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
@@ -41,7 +41,7 @@ pub trait SendSync: Send + Sync {}
 impl<T: Send + Sync> SendSync for T {}
 
 #[cfg(feature = "oneThread")]
-pub trait Threading {}
+pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
 
@@ -131,6 +131,20 @@ pub trait DoAct {
     fn do_act(&mut self, back: &Back) -> Self::Load;
 }
 
+/// For units to act upon externals and provide a load by task
+pub trait Serve {
+    type Task;
+    type Load;
+    fn serve(&self, task: Self::Task) -> Self::Load;
+}
+
+/// For graph internals to handle serve calls
+pub trait DoServe {
+    type Task;
+    type Load;
+    fn do_serve(&mut self, task: Self::Task) -> Self::Load;
+}
+
 /// Edge that grants a load. It can also clone the edge with a new back,
 #[cfg(not(feature = "oneThread"))]
 pub trait Produce<L>:
@@ -180,7 +194,7 @@ pub trait DoMake {
 
 pub trait FromAce {
     type Load;
-    fn from_ace(ace: Ace<Self::Load>) -> Self;
+    fn from_ace(ace: &Ace<Self::Load>) -> Self;
 }
 
 pub trait IntoView {

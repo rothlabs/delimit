@@ -5,6 +5,7 @@ pub type Ace<L> = Node<work::Ace<L>>;
 pub type Deuce<U> = Node<work::Deuce<U>>;
 pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
 pub type Agent<U> = Node<work::Agent<U>>;
+pub type Envoy<U> = Node<work::Envoy<U>>;
 pub type Pipe<U> = Node<work::Pipe<U>>;
 
 /// A node creates an interactive bridge between root edges and work.
@@ -50,20 +51,6 @@ where
         }
     }
 }
-
-// impl<W> Make for Node<W>
-// where
-//     W: Dummy,
-// {
-//     type Item = W::Unit;
-//     fn new<F: FnOnce(&Back) -> Self::Item>(new: F, back: &Back) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: W::set_unit(new, back),
-//         }
-//     }
-// }
 
 impl<W> ToSerial for Node<W>
 where
@@ -127,6 +114,17 @@ where
     }
 }
 
+impl<W> DoSolve for Node<W>
+where
+    W: DoSolve,
+{
+    type Task = W::Task;
+    type Load = W::Load;
+    fn do_solve(&mut self, task: Self::Task) -> Self::Load {
+        self.work.do_solve(task)
+    }
+}
+
 impl<W> DoAct for Node<W>
 where
     W: DoAct,
@@ -137,14 +135,14 @@ where
     }
 }
 
-impl<W> DoSolve for Node<W>
+impl<W> DoServe for Node<W>
 where
-    W: DoSolve,
+    W: DoServe,
 {
     type Task = W::Task;
     type Load = W::Load;
-    fn do_solve(&mut self, task: Self::Task) -> Self::Load {
-        self.work.do_solve(task)
+    fn do_serve(&mut self, task: Self::Task) -> Self::Load {
+        self.work.do_serve(task)
     }
 }
 
@@ -174,3 +172,17 @@ where
         self.work.do_react(meta);
     }
 }
+
+// impl<W> Make for Node<W>
+// where
+//     W: Dummy,
+// {
+//     type Item = W::Unit;
+//     fn new<F: FnOnce(&Back) -> Self::Item>(new: F, back: &Back) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: W::set_unit(new, back),
+//         }
+//     }
+// }

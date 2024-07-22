@@ -24,6 +24,9 @@ pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
 /// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Link<edge::Agent<U>>;
 
+/// Link to a unit that solves a task and could act upon externals.
+pub type Envoy<U> = Link<edge::Envoy<U>>;
+
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>; //  + Send + Sync
 
@@ -225,6 +228,21 @@ where
     fn solve(&self, task: Self::Task) -> Self::Load {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
+            edge.add_root(self.as_root());
+            result
+        })
+    }
+}
+
+impl<E> Serve for Link<E>
+where
+    E: 'static + Serve + AddRoot + Update,
+{
+    type Task = E::Task;
+    type Load = E::Load;
+    fn serve(&self, task: Self::Task) -> Self::Load {
+        read_part(&self.edge, |edge| {
+            let result = edge.serve(task);
             edge.add_root(self.as_root());
             result
         })

@@ -26,7 +26,7 @@ impl Doc {
     pub fn new(atts: &AttributeSet) -> Self {
         let mut tags = HashMap::new();
         for tag in TAGS {
-            tags.insert(tag, plain::str(tag));
+            tags.insert(tag, Stem::new(tag.into()));
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::hold(doctype);
@@ -50,9 +50,9 @@ impl Doc {
         let ace = plain.grant();
         ace.load()
     }
-    pub fn add_str(&mut self, value: &str) -> &mut Self {
+    pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element.link.write(|pack| {
-            pack.unit.items.push(plain::str(value));
+            pack.unit.items.push(Stem::new(str.into()));
         });
         self
     }
@@ -78,9 +78,12 @@ impl Doc {
         }
         panic!("element should have a root with given tag");
     }
-    pub fn attribute(&mut self, name: &'static str, value: &str) -> &mut Self {
+    pub fn attribute(&mut self, name: &str, value: &'static str) -> &mut Self {
         if let Some(name_ace) = self.attributes.get(name) {
-            let hold = Attribute::hold(&plain::ace(name_ace), &plain::str(value));
+            //let new_name = name_ace.clone();
+            // &plain::str(value)
+            // &Stem::new(value.into())
+            let hold = Attribute::hold(&Stem::from(name_ace), &Stem::from(value));
             self.tag.link.write(|Pack { unit, back }| {
                 unit.attributes.back(back).add_role(&hold.role);
             });

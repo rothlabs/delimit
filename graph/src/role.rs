@@ -49,6 +49,17 @@ where
     }
 }
 
+impl<P, F> Serve for Role<P, F>
+where
+    F: Serve,
+{
+    type Task = F::Task;
+    type Load = F::Load;
+    fn serve(&self, task: Self::Task) -> Self::Load {
+        self.form.serve(task)
+    }
+}
+
 impl<P, F> Backed for Role<P, F>
 where
     P: Clone,

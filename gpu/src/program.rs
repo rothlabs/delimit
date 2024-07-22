@@ -1,7 +1,7 @@
 // use super::*;
 use graph::*;
 
-pub struct Program { 
+pub struct Program {
     // target: WebGlProgram,
     // vertex: Agent<Shader>,
     // fragment: Agent<Shader>,

@@ -8,11 +8,11 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-// #[derive(Builder)]
+// #[derive(Builder)] 
 pub struct Shader {
-    target: WebGlShader,
-    source: plain::Role,
-    wglrc: WGLRC,
+    pub target: WebGlShader,
+    pub source: plain::Role,
+    pub wglrc: WGLRC,
 }
 
 impl Act for Shader {
