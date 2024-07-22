@@ -28,14 +28,14 @@ impl Grant for Tag {
             let Hold { link, role } = " ".list();
             link.write(|Pack { unit, back }| {
                 let mut inner = unit.items.back(back);
-                inner.push(&self.name.grant());
+                inner.view(&self.name.grant());
                 // inner.use_ploy(&self.name);
                 for att in &self.attributes {
-                    inner.push(&att.grant());
+                    inner.view(&att.grant());
                     // inner.use_ploy(att);
                 }
             });
-            tag.str("<").add_role(&role).str(">");
+            tag.str("<").role(&role).str(">");
         });
         role
     }

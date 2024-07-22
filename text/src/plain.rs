@@ -29,11 +29,3 @@ pub enum Part {
 
 type Link<U> = Deuce<U>;
 type Load = Ace<String>;
-
-// pub fn ace<A>(ace: &Ace<String>) -> view::Ploy<A> {
-//     View::Base(Stem::Base(graph::view::End::Link(ace.clone())))
-// }
-
-// pub fn str<A>(str: &str) -> view::Ploy<A> {
-//     View::Base(Stem::Base(graph::view::End::Bare(str.into())))
-// }

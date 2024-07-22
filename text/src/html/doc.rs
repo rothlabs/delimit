@@ -65,7 +65,7 @@ impl Doc {
             .replace(None)
             .unwrap();
         root.element.link.write(|pack| {
-            pack.unit.items.back(pack.back).add_role(&self.element.role);
+            pack.unit.items.back(pack.back).role(&self.element.role);
         });
         root
     }
@@ -81,9 +81,9 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let hold = Attribute::hold(name, value);
+            let attribute = Attribute::hold(name, value).role;
             self.tag.link.write(|Pack { unit, back }| {
-                unit.attributes.back(back).add_role(&hold.role);
+                unit.attributes.back(back).role(&attribute);
             });
         }
         self

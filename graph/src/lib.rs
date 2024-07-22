@@ -8,7 +8,7 @@ pub use react::{
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{ToViewsMutator, View, ViewsBuilder};
+pub use view::{ToViewsMutator, View, ViewsBuilder, AddBase};
 pub use write::{DoWrite, Pack, Write, WriteWithBack, WriteWithPack};
 
 use serde::Serialize;
@@ -202,10 +202,6 @@ pub trait IntoView {
 pub trait AddAce {
     type Load;
     fn add_ace(&mut self, ace: Ace<Self::Load>);
-}
-
-pub trait AddBase<T> {
-    fn add_base(&mut self, item: T) -> &mut Self;
 }
 
 // pub trait AddBacked<T> {

@@ -24,20 +24,20 @@ where
     }
 }
 
+impl<'a, R, B, L> From<&'a L> for View<R, B>
+where
+    &'a L: Into<B>
+{
+    fn from(value: &'a L) -> Self {
+        Self::Base(value.into())
+    }
+}
+
 impl<R, B, L> From<Ace<L>> for View<R, B>
 where
     Ace<L>: Into<B>,
 {
     fn from(value: Ace<L>) -> Self {
-        Self::Base(value.into())
-    }
-}
-
-impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B>
-where
-    &'a Ace<L>: Into<B>,
-{
-    fn from(value: &'a Ace<L>) -> Self {
         Self::Base(value.into())
     }
 }
@@ -189,12 +189,16 @@ where
 
 pub trait AddRole {
     type Role;
-    fn add_role(&mut self, role: Self::Role) -> &mut Self;
+    fn role(&mut self, role: Self::Role) -> &mut Self;
+}
+
+pub trait AddBase<T> {
+    fn base(&mut self, item: T) -> &mut Self;
 }
 
 impl<R, B> AddRole for Vec<View<R, B>> {
     type Role = R;
-    fn add_role(&mut self, role: Self::Role) -> &mut Self {
+    fn role(&mut self, role: Self::Role) -> &mut Self {
         self.push(View::Role(role));
         self
     }
@@ -204,7 +208,7 @@ impl<R, B, L> AddBase<L> for Vec<View<R, B>>
 where
     L: Into<View<R, B>>,
 {
-    fn add_base(&mut self, item: L) -> &mut Self {
+    fn base(&mut self, item: L) -> &mut Self {
         self.push(item.into());
         self
     }
@@ -230,7 +234,7 @@ where
     R: Backed,
     B: Backed,
 {
-    pub fn push(&mut self, view: &View<R, B>) -> &mut Self {
+    pub fn view(&mut self, view: &View<R, B>) -> &mut Self {
         self.views.push(view.backed(self.back));
         self
     }
@@ -240,8 +244,8 @@ impl<'a, R, B> ViewsMutator<'a, R, B>
 where
     R: Backed,
 {
-    pub fn add_role(&mut self, role: &R) -> &mut Self {
-        self.views.add_role(role.backed(self.back));
+    pub fn role(&mut self, role: &R) -> &mut Self {
+        self.views.role(role.backed(self.back));
         self
     }
 }
@@ -250,8 +254,8 @@ impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsMutator<'a, R, B>
 where
     L: Backed + Into<View<R, B>>,
 {
-    fn add_base(&mut self, item: &'a L) -> &mut Self {
-        self.views.add_base(item.backed(self.back));
+    fn base(&mut self, item: &'a L) -> &mut Self {
+        self.views.base(item.backed(self.back));
         self
     }
 }
@@ -261,7 +265,7 @@ where
     &'a str: Into<B>,
 {
     pub fn str(&mut self, str: &'a str) -> &mut Self {
-        self.views.add_base(str);
+        self.views.base(str);
         self
     }
 }
@@ -292,7 +296,7 @@ where
     R: Backed,
     B: Backed,
 {
-    pub fn push(&mut self, view: &View<R, B>) -> &mut Self {
+    pub fn view(&mut self, view: &View<R, B>) -> &mut Self {
         self.views.push(view.backed(self.back));
         self
     }
@@ -302,8 +306,8 @@ impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
     R: Backed,
 {
-    pub fn add_role(&mut self, role: &R) -> &mut Self {
-        self.views.add_role(role.backed(self.back));
+    pub fn role(&mut self, role: &R) -> &mut Self {
+        self.views.role(role.backed(self.back));
         self
     }
 }
@@ -312,8 +316,8 @@ impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsBuilder<'a, R, B>
 where
     L: Backed + Into<View<R, B>>,
 {
-    fn add_base(&mut self, item: &'a L) -> &mut Self {
-        self.views.add_base(item.backed(self.back));
+    fn base(&mut self, item: &'a L) -> &mut Self {
+        self.views.base(item.backed(self.back));
         self
     }
 }
@@ -323,10 +327,35 @@ where
     &'a str: Into<B>,
 {
     pub fn str(&mut self, str: &'a str) -> &mut Self {
-        self.views.add_base(str);
+        self.views.base(str);
         self
     }
 }
+
+
+
+
+
+
+
+
+
+// pub trait AddBase<T> {
+//     fn add(&mut self, item: T) -> &mut Self;
+// }
+
+
+// impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsMutator<'a, R, B>
+// where
+//     L: Clone + Into<View<R, B>>,
+// {
+//     fn add(&mut self, item: &'a L) -> &mut Self {
+//         self.views.base(item.clone());
+//         self
+//     }
+// }
+
+
 
 // impl<'a, R, B, L> AddItem<&'a L> for ViewsBuilder<'a, R, B>
 // where

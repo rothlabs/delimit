@@ -24,9 +24,9 @@ impl Grant for Attribute {
     fn grant(&self) -> Load {
         List::role(|back| {
             let items = ViewsBuilder::new(back)
-                .push(&self.name.grant())
+                .view(&self.name.grant())
                 .str(r#"=""#)
-                .push(&self.value.grant())
+                .view(&self.value.grant())
                 .str(r#"""#)
                 .build();
             List {

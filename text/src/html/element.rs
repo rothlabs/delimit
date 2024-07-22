@@ -27,10 +27,10 @@ impl Grant for Element {
         let Hold { link, role } = "\n".list();
         link.write(|pack| {
             let mut element = pack.unit.items.back(pack.back);
-            element.push(&self.tag.grant());
+            element.view(&self.tag.grant());
             // element.use_ploy(&self.tag);
             for item in &self.items {
-                element.push(&item.grant());
+                element.view(&item.grant());
                 // element.use_ploy(item);
             }
             if let Some(close) = &self.close {
@@ -40,11 +40,11 @@ impl Grant for Element {
                         .items
                         .back(pack.back)
                         .str("</")
-                        .push(&close.grant())
+                        .view(&close.grant())
                         //.use_ploy(close)
                         .str(">");
                 });
-                element.add_role(&role);
+                element.role(&role);
             }
         });
         role
