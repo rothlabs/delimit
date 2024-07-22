@@ -24,6 +24,33 @@ where
     }
 }
 
+impl<R, B, L> From<Ace<L>> for View<R, B> 
+where 
+    Ace<L>: Into<B>,
+{
+    fn from(value: Ace<L>) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B> 
+where 
+    &'a Ace<L>: Into<B>
+{
+    fn from(value: &'a Ace<L>) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<'a, R, B> From<&'a str> for View<R, B> 
+where 
+    &'a str: Into<B> 
+{
+    fn from(value: &'a str) -> Self {
+        Self::Base(value.into())
+    }
+}
+
 impl<R, B> FromItem for View<R, B>
 where
     B: FromItem,
@@ -31,33 +58,6 @@ where
     type Item = B::Item;
     fn new(item: Self::Item) -> Self {
         Self::Base(B::new(item))
-    }
-}
-
-impl<'a, R, B> From<&'a str> for View<R, B> 
-where 
-    B: From<&'a str>,
-{
-    fn from(value: &'a str) -> Self {
-        Self::Base(value.into())
-    }
-}
-
-impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B> 
-where 
-    B: From<&'a Ace<L>>,
-{
-    fn from(value: &'a Ace<L>) -> Self {
-        Self::Base(value.into())
-    }
-}
-
-impl<'a, R, B, L> From<Ace<L>> for View<R, B> 
-where 
-    B: From<Ace<L>>,
-{
-    fn from(value: Ace<L>) -> Self {
-        Self::Base(value.into())
     }
 }
 
@@ -103,7 +103,7 @@ impl<R, B> Read for View<R, B>
 where
     R: Grant,
     R::Load: Read<Item = B::Item>,
-    B: Read, // 'static + Threading,
+    B: Read,
 {
     type Item = B::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -118,7 +118,7 @@ impl<R, B> ReadByTask for View<R, B>
 where
     R: Solve,
     R::Load: Read<Item = B::Item>,
-    B: Read, // 'static + Threading,
+    B: Read,
 {
     type Task = R::Task;
     type Item = B::Item;
@@ -189,33 +189,24 @@ where
 
 pub trait AddRole {
     type Role;
-    fn add_role(&mut self, role: Self::Role);
+    fn add_role(&mut self, role: Self::Role) -> &mut Self;
 }
 
 impl<R, B> AddRole for Vec<View<R, B>> {
     type Role = R;
-    fn add_role(&mut self, role: Self::Role) {
+    fn add_role(&mut self, role: Self::Role) -> &mut Self {
         self.push(View::Role(role));
+        self
     }
 }
 
-impl<R, B, L> AddItem<L> for Vec<View<R, B>>
+impl<R, B, L> AddBase<L> for Vec<View<R, B>>
 where
-    View<R, B>: From<L>,
+    L: Into<View<R, B>>
 {
-    fn add_item(&mut self, item: L) -> &mut Self {
+    fn add_base(&mut self, item: L) -> &mut Self {
         self.push(item.into());
         self
-        //self.push(View::Base(B::from(item)))
-    }
-}
-
-impl<R, B> AddStr for Vec<View<R, B>>
-where
-    B: From<&'static str>,
-{
-    fn add_str(&mut self, str: &'static str) {
-        self.push(View::Base(B::from(str)));
     }
 }
 
@@ -255,23 +246,22 @@ where
     }
 }
 
-impl<'a, R, B, L: 'a> AddItem<&'a L> for ViewsMutator<'a, R, B>
+impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsMutator<'a, R, B>
 where
-    L: Backed,
-    View<R, B>: From<L>,
+    L: Backed + Into<View<R, B>>,
 {
-    fn add_item(&mut self, item: &'a L) -> &mut Self {
-        self.views.add_item(item.backed(self.back));
+    fn add_base(&mut self, item: &'a L) -> &mut Self {
+        self.views.add_base(item.backed(self.back));
         self
     }
 }
 
 impl<'a, R, B> ViewsMutator<'a, R, B>
 where
-    B: From<&'static str>,
+    &'a str: Into<B>,
 {
-    pub fn str(&mut self, str: &'static str) -> &mut Self {
-        self.views.add_str(str);
+    pub fn str(&mut self, str: &'a str) -> &mut Self {
+        self.views.add_base(str);
         self
     }
 }
@@ -318,27 +308,36 @@ where
     }
 }
 
-impl<'a, R, B, L: 'a> AddItem<&'a L> for ViewsBuilder<'a, R, B>
+impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsBuilder<'a, R, B>
 where
-    L: Backed,
-    View<R, B>: From<L>,
+    L: Backed + Into<View<R, B>>,
 {
-    fn add_item(&mut self, item: &'a L) -> &mut Self {
-        self.views.add_item(item.backed(self.back));
+    fn add_base(&mut self, item: &'a L) -> &mut Self {
+        self.views.add_base(item.backed(self.back));
         self
     }
 }
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    B: From<&'static str>,
+    &'a str: Into<B>
 {
-    pub fn str(&mut self, str: &'static str) -> &mut Self {
-        self.views.add_str(str);
+    pub fn str(&mut self, str: &'a str) -> &mut Self {
+        self.views.add_base(str);
         self
     }
 }
 
+// impl<'a, R, B, L> AddItem<&'a L> for ViewsBuilder<'a, R, B>
+// where
+//     L: 'a,// + Clone,
+//     View<R, B>: From<&'a L>,
+// {
+//     fn add_item(&mut self, item: &'a L) -> &mut Self {
+//         self.views.add_item(item);
+//         self
+//     }
+// }
 
 // impl<R, B> FromAce for View<R, B>
 // where
@@ -399,5 +398,14 @@ where
 //     type Load = View<R, B>;
 //     fn use_ploy<T: Grant<Load = Self::Load> + ?Sized>(&mut self, item: &T) {
 //         self.push(item.grant());
+//     }
+// }
+
+// impl<R, B> AddStr for Vec<View<R, B>>
+// where
+//     B: From<&'static str>,
+// {
+//     fn add_str(&mut self, str: &'static str) {
+//         self.push(View::Base(B::from(str)));
 //     }
 // }

@@ -207,9 +207,13 @@ pub trait AddAce {
     fn add_ace(&mut self, ace: Ace<Self::Load>);
 }
 
-pub trait AddItem<T> {
-    fn add_item(&mut self, item: T) -> &mut Self;
+pub trait AddBase<T> {
+    fn add_base(&mut self, item: T) -> &mut Self;
 }
+
+// pub trait AddBacked<T> {
+//     fn add_backed(&mut self, item: T) -> &mut Self;
+// }
 
 pub trait AddStr {
     fn add_str(&mut self, str: &'static str);

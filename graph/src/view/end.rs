@@ -23,9 +23,15 @@ where
     }
 }
 
-impl From<&str> for End<String> {
-    fn from(value: &str) -> Self {
-        Self::Bare(value.into())
+// impl<L> From<L> for End<L> {
+//     fn from(value: L) -> Self {
+//         Self::Bare(value)
+//     }
+// }
+
+impl<L> From<Ace<L>> for End<L> {
+    fn from(value: Ace<L>) -> Self {
+        Self::Link(value)
     }
 }
 
@@ -35,18 +41,11 @@ impl<L> From<&Ace<L>> for End<L> {
     }
 }
 
-impl<L> From<Ace<L>> for End<L> {
-    fn from(value: Ace<L>) -> Self {
-        Self::Link(value)
+impl From<&str> for End<String> {
+    fn from(value: &str) -> Self {
+        Self::Bare(value.into())
     }
 }
-
-// impl<L> FromAce for End<L> {
-//     type Load = L;
-//     fn from_ace(ace: &Ace<L>) -> Self {
-//         Self::Link(ace.clone())
-//     }
-// }
 
 impl<L> FromItem for End<L> {
     type Item = L;
@@ -92,6 +91,13 @@ where
         }
     }
 }
+
+// impl<L> FromAce for End<L> {
+//     type Load = L;
+//     fn from_ace(ace: &Ace<L>) -> Self {
+//         Self::Link(ace.clone())
+//     }
+// }
 
 // impl<L> Grant for Ace<L>
 // where

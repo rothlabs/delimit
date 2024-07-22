@@ -8,6 +8,13 @@ pub struct Ace<L> {
     load: L,
 }
 
+///////// TODO: replacing FromItem?!?!
+            impl<L> From<L> for Ace<L> {
+                fn from(load: L) -> Self {
+                    Self { load }
+                }
+            }
+
 impl<L> FromItem for Ace<L> {
     type Item = L;
     fn new(load: Self::Item) -> Self {

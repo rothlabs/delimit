@@ -6,7 +6,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new() -> Self {
+    pub fn new() -> Self { 
         Self::default()
     }
     pub fn wglrc(&self) -> WGLRC {

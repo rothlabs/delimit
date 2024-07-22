@@ -26,7 +26,8 @@ impl Doc {
     pub fn new(atts: &AttributeSet) -> Self {
         let mut tags = HashMap::new();
         for tag in TAGS {
-            tags.insert(tag, Stem::new(tag.into()));
+            //tags.insert(tag, Stem::new(tag.into()));
+            tags.insert(tag, tag.into());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::hold(doctype);
@@ -52,7 +53,7 @@ impl Doc {
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element.link.write(|pack| {
-            pack.unit.items.push(Stem::new(str.into()));
+            pack.unit.items.push(str.into());
         });
         self
     }
