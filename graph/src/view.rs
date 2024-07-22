@@ -87,7 +87,7 @@ where
     }
 }
 
-impl<R, B> ReaderByTask for View<R, B>
+impl<R, B> ReadByTask for View<R, B>
 where
     R: Solve,
     R::Load: Read<Item = B::Item>,

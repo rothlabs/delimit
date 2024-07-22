@@ -22,7 +22,6 @@ use std::{
 
 pub mod role;
 pub mod view;
-// pub mod pipe;
 
 mod edge;
 mod link;
@@ -37,39 +36,39 @@ mod write;
 const NO_POISON: &str = "the lock should not be poisoned";
 
 #[cfg(not(feature = "oneThread"))]
-pub trait Threading: Send + Sync {}
+pub trait SendSync: Send + Sync {}
 #[cfg(not(feature = "oneThread"))]
-impl<T: Send + Sync> Threading for T {}
+impl<T: Send + Sync> SendSync for T {}
 
 #[cfg(feature = "oneThread")]
 pub trait Threading {}
 #[cfg(feature = "oneThread")]
-impl<T> Threading for T {}
+impl<T> SendSync for T {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<E: ?Sized, O, F: FnOnce(RwLockReadGuard<E>) -> O>(
-    edge: &Arc<RwLock<E>>,
+fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+    part: &Arc<RwLock<P>>,
     read: F,
 ) -> O {
-    read(edge.read().expect(NO_POISON))
+    read(part.read().expect(NO_POISON))
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<E: ?Sized, O, F: FnOnce(Ref<E>) -> O>(edge: &Rc<RefCell<E>>, read: F) -> O {
-    read(edge.borrow())
+fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: F) -> O {
+    read(part.borrow())
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<E: ?Sized, O, F: FnOnce(RwLockWriteGuard<E>) -> O>(
-    edge: &Arc<RwLock<E>>,
+fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
+    part: &Arc<RwLock<P>>,
     write: F,
 ) -> O {
-    write(edge.write().expect(NO_POISON))
+    write(part.write().expect(NO_POISON))
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<E: ?Sized, O, F: FnOnce(RefMut<E>) -> O>(edge: &Rc<RefCell<E>>, write: F) -> O {
-    write(edge.borrow_mut())
+fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, write: F) -> O {
+    write(part.borrow_mut())
 }
 
 #[derive(Clone)]
@@ -88,59 +87,63 @@ pub trait Read {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
 }
 
-pub trait ReaderByTask {
+pub trait ReadByTask {
     type Task;
     type Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T;
 }
 
-/// impl for units that do not act upon external systems
+/// For units to grant a load and NOT act upon external systems
 pub trait Grant {
     type Load;
     fn grant(&self) -> Self::Load;
 }
 
+/// For graph internals to handle grant calls 
 pub trait DoGrant {
     type Load;
     fn do_grant(&mut self, back: &Back) -> Self::Load;
 }
 
-/// impl for units that act upon external systems
-pub trait Act {
-    type Load;
-    fn act(&self) -> Self::Load;
-}
-
-pub trait DoAct {
-    type Load;
-    fn do_act(&mut self, back: &Back) -> Self::Load;
-}
-
+/// For units to provide a load by task and NOT act upon externals
 pub trait Solve {
     type Task;
     type Load;
     fn solve(&self, task: Self::Task) -> Self::Load;
 }
 
+/// For graph internals to handle solve calls
 pub trait DoSolve {
     type Task;
     type Load;
     fn do_solve(&mut self, task: Self::Task) -> Self::Load;
 }
 
-/// Edge that grants a load. In addition, clone the edge with a new back,
+/// For units to act upon external systems and provide a load
+pub trait Act {
+    type Load;
+    fn act(&self) -> Self::Load;
+}
+
+/// For graph internals to handle act calls 
+pub trait DoAct {
+    type Load;
+    fn do_act(&mut self, back: &Back) -> Self::Load;
+}
+
+/// Edge that grants a load. It can also clone the edge with a new back,
 #[cfg(not(feature = "oneThread"))]
 pub trait Produce<L>:
-    Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update + Send + Sync
+    Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update 
 {
 }
 #[cfg(feature = "oneThread")]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
-/// Edge that solves a task. In addition, clone the edge with a new Back.
+/// Edge that solves a task. It can also clone the edge with a new Back.
 #[cfg(not(feature = "oneThread"))]
 pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update + Send + Sync
+    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
 {
 }
 #[cfg(feature = "oneThread")]

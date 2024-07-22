@@ -154,7 +154,7 @@ impl<W> DoAddRoot for Node<W> {
     }
 }
 
-impl<W> DoUpdate for Node<W> where W: Clear + DoReact + Threading {}
+impl<W> DoUpdate for Node<W> where W: Clear + DoReact + SendSync {}
 
 impl<W> DoRebut for Node<W>
 where

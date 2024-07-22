@@ -73,10 +73,10 @@ pub trait BackedPlan {
 }
 
 /// For edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut + React + Threading {}
+pub trait Update: Rebut + React + SendSync {}
 
 /// For node that mutably Rebuts a Ring and reacts.
-pub trait DoUpdate: DoRebut + DoReact + Threading {}
+pub trait DoUpdate: DoRebut + DoReact + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// Should meta be removed?

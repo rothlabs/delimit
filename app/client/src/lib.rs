@@ -3,8 +3,7 @@ use web_sys::window;
 
 // pub use draw::*;
 
-pub mod draw;
-pub mod gpu; 
+pub mod draw; 
 
 #[wasm_bindgen(start)]
 pub fn initialize() {

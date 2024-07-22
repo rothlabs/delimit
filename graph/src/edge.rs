@@ -88,8 +88,8 @@ where
 
 impl<U, L> Produce<L> for Deuce<U>
 where
-    U: 'static + Grant<Load = L> + Threading,
-    L: 'static + Clone + Threading,           
+    U: 'static + Grant<Load = L> + SendSync,
+    L: 'static + Clone + SendSync,           
 {
 }
 
@@ -115,8 +115,8 @@ where
 
 impl<U> ToPloy for Deuce<U>
 where
-    U: 'static + Grant + Threading,       
-    U::Load: 'static + Clone + Threading, 
+    U: 'static + Grant + SendSync,       
+    U::Load: 'static + Clone + SendSync, 
 {
     type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
@@ -138,8 +138,8 @@ where
 
 impl<U> BackedPloy for Deuce<U>
 where
-    U: 'static + Grant + Threading,       
-    U::Load: 'static + Clone + Threading, 
+    U: 'static + Grant + SendSync,       
+    U::Load: 'static + Clone + SendSync, 
 {
     type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
@@ -160,9 +160,9 @@ where
 
 impl<U, T, L> Convert<T, L> for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + Threading, 
-    T: 'static + Clone + Eq + PartialEq + Hash + Threading, 
-    L: 'static + Clone + Threading,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync, 
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
+    L: 'static + Clone + SendSync,                     
 {
 }
 
@@ -179,9 +179,9 @@ where
 
 impl<U, T, L> ToPlan for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + Threading, 
-    T: 'static + Clone + Eq + PartialEq + Hash + Threading, 
-    L: 'static + Clone + Threading,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync, 
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
+    L: 'static + Clone + SendSync,                     
 {
     type Task = T;
     type Load = L;
@@ -203,9 +203,9 @@ where
 
 impl<U, T, L> BackedPlan for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + Threading, 
-    T: 'static + Clone + Eq + PartialEq + Hash + Threading, 
-    L: 'static + Clone + Threading,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync, 
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
+    L: 'static + Clone + SendSync,                     
 {
     type Task = T;
     type Load = L;
@@ -285,7 +285,7 @@ where
     }
 }
 
-impl<N> Update for Edge<N> where N: Threading {}
+impl<N> Update for Edge<N> where N: SendSync {}
 
 impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {

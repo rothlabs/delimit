@@ -265,7 +265,6 @@ where
 }
 
 impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> {
-    //  + Send + Sync
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_plan(back),
