@@ -35,6 +35,12 @@ impl<L> From<&Ace<L>> for End<L> {
     }
 }
 
+impl<L> From<Ace<L>> for End<L> {
+    fn from(value: Ace<L>) -> Self {
+        Self::Link(value)
+    }
+}
+
 // impl<L> FromAce for End<L> {
 //     type Load = L;
 //     fn from_ace(ace: &Ace<L>) -> Self {

@@ -34,11 +34,11 @@ where
     }
 }
 
-impl<R, B> From<&'static str> for View<R, B> 
+impl<'a, R, B> From<&'a str> for View<R, B> 
 where 
-    B: From<&'static str>,
+    B: From<&'a str>,
 {
-    fn from(value: &'static str) -> Self {
+    fn from(value: &'a str) -> Self {
         Self::Base(value.into())
     }
 }
@@ -48,6 +48,15 @@ where
     B: From<&'a Ace<L>>,
 {
     fn from(value: &'a Ace<L>) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<'a, R, B, L> From<Ace<L>> for View<R, B> 
+where 
+    B: From<Ace<L>>,
+{
+    fn from(value: Ace<L>) -> Self {
         Self::Base(value.into())
     }
 }
@@ -200,15 +209,26 @@ impl<R, B> AddRole for Vec<View<R, B>> {
     }
 }
 
-impl<R, B> AddAce for Vec<View<R, B>>
+impl<R, B, L> AddItem<L> for Vec<View<R, B>>
 where
-    B: FromAce,
+    View<R, B>: From<L>,
 {
-    type Load = B::Load;
-    fn add_ace(&mut self, ace: link::Ace<B::Load>) {
-        self.push(View::Base(B::from_ace(&ace)))
+    fn add_item(&mut self, item: L) -> &mut Self {
+        self.push(item.into());
+        self
+        //self.push(View::Base(B::from(item)))
     }
 }
+
+// impl<R, B> AddAce for Vec<View<R, B>>
+// where
+//     B: FromAce,
+// {
+//     type Load = B::Load;
+//     fn add_ace(&mut self, ace: link::Ace<B::Load>) {
+//         self.push(View::Base(B::from_ace(&ace)))
+//     }
+// }
 
 // impl<R, B> UsePloy for Vec<View<R, B>> {
 //     type Load = View<R, B>;
@@ -262,15 +282,26 @@ where
     }
 }
 
-impl<'a, R, B> ViewsMutator<'a, R, B>
+impl<'a, R, B, L: 'a> AddItem<&'a L> for ViewsMutator<'a, R, B>
 where
-    B: Backed + FromAce,
+    L: Backed,
+    View<R, B>: From<L>,
 {
-    pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
-        self.views.add_ace(ace.backed(self.back));
+    fn add_item(&mut self, item: &'a L) -> &mut Self {
+        self.views.add_item(item.backed(self.back));
         self
     }
 }
+
+// impl<'a, R, B> ViewsMutator<'a, R, B>
+// where
+//     B: Backed + FromAce,
+// {
+//     pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
+//         self.views.add_ace(ace.backed(self.back));
+//         self
+//     }
+// }
 
 // impl<'a, R, B> ViewsBuilder<'a, R, B> {
 //     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {
@@ -333,15 +364,26 @@ where
     }
 }
 
-impl<'a, R, B> ViewsBuilder<'a, R, B>
+impl<'a, R, B, L: 'a> AddItem<&'a L> for ViewsBuilder<'a, R, B>
 where
-    B: Backed + FromAce,
+    L: Backed,
+    View<R, B>: From<L>,
 {
-    pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
-        self.views.add_ace(ace.backed(self.back));
+    fn add_item(&mut self, item: &'a L) -> &mut Self {
+        self.views.add_item(item.backed(self.back));
         self
     }
 }
+
+// impl<'a, R, B> ViewsBuilder<'a, R, B>
+// where
+//     B: Backed + FromAce,
+// {
+//     pub fn add_ace(&mut self, ace: &link::Ace<B::Load>) -> &mut Self {
+//         self.views.add_ace(ace.backed(self.back));
+//         self
+//     }
+// }
 
 // impl<'a, R, B> ViewsBuilder<'a, R, B> {
 //     pub fn use_ploy<T: Grant<Load = View<R, B>> + Backed>(&mut self, item: &T) -> &mut Self {

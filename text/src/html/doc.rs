@@ -78,12 +78,9 @@ impl Doc {
         }
         panic!("element should have a root with given tag");
     }
-    pub fn attribute(&mut self, name: &str, value: &'static str) -> &mut Self {
+    pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name_ace) = self.attributes.get(name) {
-            //let new_name = name_ace.clone();
-            // &plain::str(value)
-            // &Stem::new(value.into())
-            let hold = Attribute::hold(&Stem::from(name_ace), &Stem::from(value));
+            let hold = Attribute::hold(&name_ace.into(), &value.into());
             self.tag.link.write(|Pack { unit, back }| {
                 unit.attributes.back(back).add_role(&hold.role);
             });
