@@ -1,7 +1,7 @@
-use super::*;
+// use super::*;
 
 pub struct Doc {
-    list: Hold<Link<List>, Role>
+    // list: Hold<Link<List>, Role>
 }
 
 // impl Doc {

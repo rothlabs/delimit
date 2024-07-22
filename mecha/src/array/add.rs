@@ -25,6 +25,6 @@ impl<N: Number> Grant for Add<N> {
     fn grant(&self) -> Self::Load {
         let mut array = self.base.load().array();
         array.each(|i, b| self.vector.get([i[0]]) + b);
-        Bare::Mem(array).ace()
+        Ace::new(Bare::Mem(array))
     }
 }

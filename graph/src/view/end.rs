@@ -41,8 +41,11 @@ impl<L> From<&Ace<L>> for End<L> {
     }
 }
 
-impl From<&str> for End<String> {
-    fn from(value: &str) -> Self {
+impl<'a> From<&'a str> for End<String>
+// where
+//     &'a str: Into<String>
+{
+    fn from(value: &'a str) -> Self {
         Self::Bare(value.into())
     }
 }

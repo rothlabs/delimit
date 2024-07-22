@@ -6,10 +6,10 @@ pub struct Attribute {
 }
 
 impl Attribute {
-    pub fn hold(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
+    pub fn hold(name: impl Into<Stem>, value: impl Into<Stem>) -> Hold<Link<Self>, Role> {
         let link = Link::make(|back| Self {
-            name: name.backed(back),
-            value: value.backed(back),
+            name: name.into().backed(back),
+            value: value.into().backed(back),
         });
         let role = Role {
             part: Part::Attribute(link.clone()),
@@ -62,5 +62,19 @@ pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
 //                 .str(r#"""#);
 //         });
 //         role
+//     }
+// }
+
+// impl Attribute {
+//     pub fn hold(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
+//         let link = Link::make(|back| Self {
+//             name: name.backed(back),
+//             value: value.backed(back),
+//         });
+//         let role = Role {
+//             part: Part::Attribute(link.clone()),
+//             form: link.ploy(),
+//         };
+//         Hold { link, role }
 //     }
 // }

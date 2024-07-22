@@ -1,5 +1,5 @@
-use serde::Serialize;
 use super::*;
+use serde::Serialize;
 
 pub type Ace<L> = Node<work::Ace<L>>;
 pub type Deuce<U> = Node<work::Deuce<U>>;
@@ -28,16 +28,6 @@ where
     }
 }
 
-impl<W> DoMake for Node<W>
-where
-    W: DoMake,
-{
-    type Unit = W::Unit;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
-        self.work.do_make(make, back);
-    }
-}
-
 impl<W> FromItem for Node<W>
 where
     W: FromItem,
@@ -49,6 +39,42 @@ where
             ring: Ring::new(),
             work: W::new(item),
         }
+    }
+}
+
+// impl<'a, W> From<&'a str> for Node<W>
+// where
+//     &'a str: Into<W>
+// {
+//     fn from(value: &'a str) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: value.into(),
+//         }
+//     }
+// }
+
+// impl<W> From<String> for Node<W>
+// where
+//     String: Into<W>
+// {
+//     fn from(value: String) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: value.into(),
+//         }
+//     }
+// }
+
+impl<W> DoMake for Node<W>
+where
+    W: DoMake,
+{
+    type Unit = W::Unit;
+    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+        self.work.do_make(make, back);
     }
 }
 

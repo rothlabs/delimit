@@ -12,18 +12,19 @@ mod canvas;
 
 pub type WGLRC = WebGl2RenderingContext;
 
-pub struct Base {
+/// GPU graph maker
+pub struct Gpu {
     pub canvas: HtmlCanvasElement,
     pub wglrc: WGLRC
 }
 
-impl Base {
+impl Gpu {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl Default for Base {
+impl Default for Gpu {
     fn default() -> Self {
         let document = window().unwrap().document().unwrap();
         let canvas = document

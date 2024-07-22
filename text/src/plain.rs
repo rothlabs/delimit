@@ -1,5 +1,5 @@
-pub use list::{List, ToList};
 pub use doc::Doc;
+pub use list::{List, ToList};
 
 use graph::*;
 use serde::Serialize;
@@ -10,10 +10,10 @@ pub mod view {
     pub type Ploy<P> = View<role::Ploy<P, Role>, Stem>;
 }
 
+mod doc;
 mod list;
 #[cfg(test)]
 mod tests;
-mod doc;
 
 /// Plain text to use as Load of super graphs
 pub type Role = role::Ploy<Part, Load>;
@@ -29,7 +29,6 @@ pub enum Part {
 
 type Link<U> = Deuce<U>;
 type Load = Ace<String>;
-
 
 // pub fn ace<A>(ace: &Ace<String>) -> view::Ploy<A> {
 //     View::Base(Stem::Base(graph::view::End::Link(ace.clone())))

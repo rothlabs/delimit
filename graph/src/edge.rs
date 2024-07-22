@@ -92,13 +92,13 @@ where
 impl<U, L> Produce<L> for Deuce<U>
 where
     U: 'static + Grant<Load = L> + SendSync,
-    L: 'static + Clone + SendSync,           
+    L: 'static + Clone + SendSync,
 {
 }
 
 impl<N> Grant for Edge<N>
 where
-    N: 'static + DoGrant + DoUpdate, 
+    N: 'static + DoGrant + DoUpdate,
 {
     type Load = N::Load;
     fn grant(&self) -> Self::Load {
@@ -108,7 +108,7 @@ where
 
 impl<N> Act for Edge<N>
 where
-    N: 'static + DoAct + DoUpdate, 
+    N: 'static + DoAct + DoUpdate,
 {
     type Load = N::Load;
     fn act(&self) -> Self::Load {
@@ -118,8 +118,8 @@ where
 
 impl<U> ToPloy for Deuce<U>
 where
-    U: 'static + Grant + SendSync,       
-    U::Load: 'static + Clone + SendSync, 
+    U: 'static + Grant + SendSync,
+    U::Load: 'static + Clone + SendSync,
 {
     type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
@@ -141,8 +141,8 @@ where
 
 impl<U> BackedPloy for Deuce<U>
 where
-    U: 'static + Grant + SendSync,       
-    U::Load: 'static + Clone + SendSync, 
+    U: 'static + Grant + SendSync,
+    U::Load: 'static + Clone + SendSync,
 {
     type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
@@ -163,9 +163,9 @@ where
 
 impl<U, T, L> Convert<T, L> for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + SendSync, 
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
-    L: 'static + Clone + SendSync,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync,
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
+    L: 'static + Clone + SendSync,
 {
 }
 
@@ -193,9 +193,9 @@ where
 
 impl<U, T, L> ToPlan for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + SendSync, 
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
-    L: 'static + Clone + SendSync,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync,
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
+    L: 'static + Clone + SendSync,
 {
     type Task = T;
     type Load = L;
@@ -217,9 +217,9 @@ where
 
 impl<U, T, L> BackedPlan for Trey<U, T, L>
 where
-    U: 'static + Solve<Task = T, Load = L> + SendSync, 
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync, 
-    L: 'static + Clone + SendSync,                     
+    U: 'static + Solve<Task = T, Load = L> + SendSync,
+    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
+    L: 'static + Clone + SendSync,
 {
     type Task = T;
     type Load = L;
@@ -270,7 +270,7 @@ where
 
 impl<N> WriteWithPack for Edge<N>
 where
-    N: 'static + WriteWithBack + DoUpdate, 
+    N: 'static + WriteWithBack + DoUpdate,
 {
     type Unit = N::Unit;
     fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
@@ -319,8 +319,7 @@ impl<N> React for Edge<N> {
     }
 }
 
-
-type BoxProduce<L> = Box<dyn Produce<L>>; 
+type BoxProduce<L> = Box<dyn Produce<L>>;
 
 impl<L> Grant for BoxProduce<L> {
     type Load = L;

@@ -24,8 +24,8 @@ where
     }
 }
 
-impl<R, B, L> From<Ace<L>> for View<R, B> 
-where 
+impl<R, B, L> From<Ace<L>> for View<R, B>
+where
     Ace<L>: Into<B>,
 {
     fn from(value: Ace<L>) -> Self {
@@ -33,18 +33,18 @@ where
     }
 }
 
-impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B> 
-where 
-    &'a Ace<L>: Into<B>
+impl<'a, R, B, L: 'a> From<&'a Ace<L>> for View<R, B>
+where
+    &'a Ace<L>: Into<B>,
 {
     fn from(value: &'a Ace<L>) -> Self {
         Self::Base(value.into())
     }
 }
 
-impl<'a, R, B> From<&'a str> for View<R, B> 
-where 
-    &'a str: Into<B> 
+impl<'a, R, B> From<&'a str> for View<R, B>
+where
+    &'a str: Into<B>,
 {
     fn from(value: &'a str) -> Self {
         Self::Base(value.into())
@@ -202,7 +202,7 @@ impl<R, B> AddRole for Vec<View<R, B>> {
 
 impl<R, B, L> AddBase<L> for Vec<View<R, B>>
 where
-    L: Into<View<R, B>>
+    L: Into<View<R, B>>,
 {
     fn add_base(&mut self, item: L) -> &mut Self {
         self.push(item.into());
@@ -320,7 +320,7 @@ where
 
 impl<'a, R, B> ViewsBuilder<'a, R, B>
 where
-    &'a str: Into<B>
+    &'a str: Into<B>,
 {
     pub fn str(&mut self, str: &'a str) -> &mut Self {
         self.views.add_base(str);
@@ -348,7 +348,6 @@ where
 //         Self::Base(B::from_ace(ace))
 //     }
 // }
-
 
 // impl<'a, R, B> ViewsMutator<'a, R, B>
 // where

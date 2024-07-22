@@ -193,7 +193,7 @@ where
 
 impl<E> Grant for Link<E>
 where
-    E: 'static + Grant + AddRoot + Update, 
+    E: 'static + Grant + AddRoot + Update,
 {
     type Load = E::Load;
     fn grant(&self) -> Self::Load {
@@ -207,7 +207,7 @@ where
 
 impl<E> Act for Link<E>
 where
-    E: 'static + Act + AddRoot + Update, 
+    E: 'static + Act + AddRoot + Update,
 {
     type Load = E::Load;
     fn act(&self) -> Self::Load {
@@ -299,8 +299,6 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
-
-
 
 // fn backed(&self, back: &Back) -> Self {
 //     #[cfg(not(feature="oneThread"))]

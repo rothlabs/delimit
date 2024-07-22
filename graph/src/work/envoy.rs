@@ -1,18 +1,18 @@
-use std::{collections::HashMap, hash::Hash};
 use crate::*;
+use std::{collections::HashMap, hash::Hash};
 
 /// For task-resolution units that may act upon externals
 pub struct Envoy<U>
-where 
-    U: Serve
+where
+    U: Serve,
 {
     unit: U,
     map: HashMap<U::Task, U::Load>,
 }
 
-impl<U> FromItem for Envoy<U> 
-where 
-    U: Serve
+impl<U> FromItem for Envoy<U>
+where
+    U: Serve,
 {
     type Item = U;
     fn new(item: Self::Item) -> Self {
@@ -42,18 +42,18 @@ where
     }
 }
 
-impl<U> Clear for Envoy<U> 
-where 
-    U: Serve
+impl<U> Clear for Envoy<U>
+where
+    U: Serve,
 {
     fn clear(&mut self) {
         self.map.clear();
     }
 }
 
-impl<U> DoReact for Envoy<U> 
-where 
-    U: Serve
+impl<U> DoReact for Envoy<U>
+where
+    U: Serve,
 {
     fn do_react(&mut self, _: &Meta) {}
 }

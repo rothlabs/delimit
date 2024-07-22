@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey, Envoy};
+pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
@@ -99,7 +99,7 @@ pub trait Grant {
     fn grant(&self) -> Self::Load;
 }
 
-/// For graph internals to handle grant calls 
+/// For graph internals to handle grant calls
 pub trait DoGrant {
     type Load;
     fn do_grant(&mut self, back: &Back) -> Self::Load;
@@ -125,7 +125,7 @@ pub trait Act {
     fn act(&self) -> Self::Load;
 }
 
-/// For graph internals to handle act calls 
+/// For graph internals to handle act calls
 pub trait DoAct {
     type Load;
     fn do_act(&mut self, back: &Back) -> Self::Load;
@@ -147,10 +147,7 @@ pub trait DoServe {
 
 /// Edge that grants a load. It can also clone the edge with a new back,
 #[cfg(not(feature = "oneThread"))]
-pub trait Produce<L>:
-    Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update 
-{
-}
+pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 #[cfg(feature = "oneThread")]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
