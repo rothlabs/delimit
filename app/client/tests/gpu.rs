@@ -21,11 +21,11 @@ fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
 
 fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
     #[rustfmt::skip]
-    let buffer = gpu.array_buffer(Array1D::new([9], vec![
+    let buffer = gpu.array_buffer(vec![
         0.,  0.,  0.,
         10., 0.,  0., 
         0.,  10., 0.,
-    ]));
+    ].array());
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
@@ -59,9 +59,9 @@ pub fn make_array_buffer() {
 pub fn make_element_buffer() {
     let gpu = make_gpu();
     #[rustfmt::skip]
-    let buffer = gpu.element_buffer(Array1D::new([3], vec![
+    let buffer = gpu.element_buffer(vec![
         0,  1,  3, 
-    ]));
+    ].array());
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
@@ -94,7 +94,7 @@ pub fn draw_elements() {
     let (program, vertex_shader) = make_basic_program(&gpu);
     let buffer = make_basic_array_buffer(&gpu);
     let element_buffer = gpu
-        .element_buffer(Array1D::new([3], vec![0, 1, 3]))
+        .element_buffer(vec![0, 1, 3].array())
         .unwrap();
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {

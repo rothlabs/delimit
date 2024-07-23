@@ -1,6 +1,6 @@
-pub type Array1D<T> = Array<T, 1>;
-pub type Array2D<T> = Array<T, 2>;
-pub type Array3D<T> = Array<T, 3>;
+pub type Array1<T> = Array<T, 1>;
+pub type Array2<T> = Array<T, 2>;
+pub type Array3<T> = Array<T, 3>;
 
 /// N-dimensional array
 #[derive(Clone)]
@@ -60,6 +60,20 @@ where
         indices
     }
 }
+
+pub trait IntoArray1<T> {
+    fn array(self) -> Array1<T>;
+}
+
+impl<T> IntoArray1<T> for Vec<T> 
+where
+    T: Copy + Default,
+{
+    fn array(self) -> Array1<T> {
+        Array1::new([self.len()], self)
+    }
+}
+
 
 // pub fn get_mut<'a>(&'a mut self, indices: [usize; N]) -> &mut T {
 //     let i = self.idx(indices);

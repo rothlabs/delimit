@@ -23,19 +23,19 @@ pub type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
 /// they may grant gpu frame_buffer ref (Gpu)
 #[derive(Clone)]
 pub enum Bare<N> {
-    Mem(Array3D<N>),
+    Mem(Array3<N>),
     Gpu,
 }
 
 impl<N> Bare<N> {
-    pub fn array(self) -> Array3D<N> {
+    pub fn array(self) -> Array3<N> {
         if let Self::Mem(array) = self {
             array
         } else {
             panic!("not array")
         }
     }
-    pub fn array_ref(&self) -> &Array3D<N> {
+    pub fn array_ref(&self) -> &Array3<N> {
         if let Self::Mem(array) = self {
             array
         } else {
