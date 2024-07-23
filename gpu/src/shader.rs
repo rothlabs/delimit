@@ -5,17 +5,17 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-pub type Source = Ploy<Ace<String>>;
+pub type Source = AcePloy<String>;
+pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {
     pub wglrc: WGLRC,
-    // TODO: switch to Ploy<Ace<String>> so pipe can be used?!
-    pub source: plain::Stem,
+    pub source: Source,
     pub target: WebGlShader,
 }
 
 impl Shader {
-    pub fn link(wglrc: &WGLRC, kind: u32, source: plain::Stem) -> ShaderResult {
+    pub fn link(wglrc: &WGLRC, kind: u32, source: &Source) -> Result {
         let target = wglrc.create_shader(kind).ok_or("failed to create shader")?;
         let link = Agent::make(|back| Self {
             wglrc: wglrc.clone(),
@@ -28,9 +28,11 @@ impl Shader {
 }
 
 impl Act for Shader {
-    type Load = Result<(), String>; // Ace<WebGlShader>
+    type Load = std::result::Result<(), String>; // Ace<WebGlShader>
     fn act(&self) -> Self::Load {
-        self.source.read(|src| self.wglrc.shader_source(&self.target, src));
+        self.source
+            .grant()
+            .read(|src| self.wglrc.shader_source(&self.target, src));
         self.wglrc.compile_shader(&self.target);
         if self
             .wglrc
@@ -47,7 +49,6 @@ impl Act for Shader {
         }
     }
 }
-
 
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {

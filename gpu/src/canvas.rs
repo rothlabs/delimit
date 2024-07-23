@@ -5,7 +5,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn link() -> Agent<Self> { 
+    pub fn link() -> Agent<Self> {
         let document = window().unwrap().document().unwrap();
         let element = document
             .create_element("canvas")
@@ -16,12 +16,12 @@ impl Canvas {
     }
     pub fn gpu(&self) -> Gpu {
         self.element
-        .get_context("webgl2")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<WGLRC>()
-        .unwrap()
-        .into()
+            .get_context("webgl2")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<WGLRC>()
+            .unwrap()
+            .into()
     }
     pub fn fit_size(&self) {
         self.element.set_width(self.element.client_width() as u32);

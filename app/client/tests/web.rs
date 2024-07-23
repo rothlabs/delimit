@@ -24,7 +24,17 @@ fn make_program() {
     gpu::make_program();
 }
 
-// #[wasm_bindgen_test]
-// fn draw_rect() {
-//     gpu::rect();
-// }
+#[wasm_bindgen_test]
+fn make_array_buffer() {
+    gpu::make_array_buffer();
+}
+
+#[wasm_bindgen_test]
+fn make_vertex_attribute() {
+    gpu::make_vertex_attribute();
+}
+
+#[wasm_bindgen_test]
+fn make_vertex_array_object() {
+    gpu::make_vertex_array_object();
+}

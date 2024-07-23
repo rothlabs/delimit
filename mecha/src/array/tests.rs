@@ -9,7 +9,7 @@ fn add_arrays() {
         0., 0., 1., 0.,
         0., 0., 0., 1.,
     ])));
-    let vector = Array1::new([4], vec![1., 2., 3., 4.]);
+    let vector = Array1D::new([4], vec![1., 2., 3., 4.]);
     let add = Add::new(&base, &vector);
     add.link.grant().read(|bare| {
         #[rustfmt::skip]

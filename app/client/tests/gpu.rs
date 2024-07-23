@@ -1,27 +1,28 @@
-// use client::*;
 use gpu::*;
 use graph::*;
-// use text::*;
+use mecha::*;
+
+fn make_gpu() -> Gpu {
+    let canvas = Canvas::link();
+    canvas.read(|unit| unit.gpu())
+}
 
 pub fn make_vertex_shader() {
-    let canvas = Canvas::link();
-    let gpu = canvas.read(|unit| unit.gpu());
+    let gpu = make_gpu();
     if let Err(memo) = gpu.vertex_shader(shader::basic::VERTEX) {
         panic!("gpu error: {memo}");
     }
 }
 
 pub fn make_fragment_shader() {
-    let canvas = Canvas::link();
-    let gpu = canvas.read(|unit| unit.gpu());
-    if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT) { 
+    let gpu = make_gpu();
+    if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT) {
         panic!("gpu error: {memo}");
     }
 }
 
 pub fn make_program() {
-    let canvas = Canvas::link();
-    let gpu = canvas.read(|unit| unit.gpu());
+    let gpu = make_gpu();
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT).unwrap();
     if let Err(memo) = gpu.program(&vertex, &fragment) {
@@ -29,22 +30,35 @@ pub fn make_program() {
     }
 }
 
+pub fn make_array_buffer() {
+    let gpu = make_gpu();
+    #[rustfmt::skip]
+    let buffer = gpu.array_buffer(Array1D::new([9], vec![
+        0.,  0.,  0.,
+        10., 0.,  0., 
+        0.,  10., 0.,
+    ]));
+    if let Err(memo) = buffer {
+        panic!("gpu error: {memo}");
+    }
+}
 
-// pub fn make_program() {
-//     let canvas = Canvas::new();
-//     let vertex_shader = canvas.gl().shader().vertex(shader::basic::VERTEX).unwrap();
-//     let fragment_shader = canvas
-//         .gl()
-//         .shader()
-//         .fragment(shader::basic::FRAGMENT)
-//         .unwrap();
-//     match canvas.gl().program(&vertex_shader, &fragment_shader) {
-//         Result::Err(memo) => panic!("gpu error: {memo}"),
-//         _ => (),
-//     }
-// }
+pub fn make_vertex_attribute() {
+    let gpu = make_gpu();
+    let att = gpu.vertex_attribute();
+    att.write(|pack| {
+        pack.unit.index(0).size(3).stride(0).offset(0);
+    });
+}
 
-// pub fn rect() {
-//     let facets = draw::Facets::new();
-//     facets.link.grant();
-// }
+pub fn make_vertex_array_object() {
+    let gpu = make_gpu();
+    let att = gpu.vertex_attribute();
+    att.write(|pack| {
+        pack.unit.size(3);
+    });
+    let voa = gpu.vao(&vec![att]);
+    if let Err(memo) = voa {
+        panic!("gpu error: {memo}");
+    }
+}

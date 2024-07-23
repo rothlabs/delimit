@@ -30,6 +30,9 @@ pub type Envoy<U> = Link<edge::Envoy<U>>;
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
 
+/// Link that grants a load.
+pub type AcePloy<L> = Link<Box<dyn Produce<Ace<L>>>>;
+
 /// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
 
@@ -288,6 +291,30 @@ impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> {
             edge: edge.backed_plan(back),
             meta: self.meta.clone(),
         })
+    }
+}
+
+impl<T> Backed for Vec<T> 
+where 
+    T: Backed
+{
+    fn backed(&self, back: &Back) -> Self {
+        self.iter().map(|link| link.backed(back)).collect()
+    }
+}
+
+impl<'a> From<&'a str> for AcePloy<String> {
+    fn from(load: &'a str) -> Self {
+        Deuce::new(AceUnit { load: load.into() }).ploy()
+    }
+}
+
+impl<T> From<T> for AcePloy<T>
+where
+    T: 'static + Clone + SendSync,
+{
+    fn from(load: T) -> Self {
+        Deuce::new(AceUnit { load }).ploy()
     }
 }
 

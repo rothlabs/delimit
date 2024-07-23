@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, AcePloy, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::Meta;
 pub use node::Node;
 pub use react::{
@@ -7,8 +7,8 @@ pub use react::{
     Rebut, Ring, Root, ToPlan, ToPloy, Update,
 };
 pub use role::Role;
-pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{ToViewsMutator, View, ViewsBuilder, AddBase};
+pub use unit::{AceUnit, Gate, Repo, Serial, ToSerial};
+pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder, AceView};
 pub use write::{DoWrite, Pack, Write, WriteWithBack, WriteWithPack};
 
 use serde::Serialize;
@@ -165,6 +165,8 @@ pub trait Convert<T, L>:
 
 pub trait ToLoad {
     type Load;
+    /// Clone a Load (payload) out of the graph part
+    /// The graph part might perform calculations to generate the load.
     fn load(&self) -> Self::Load;
 }
 

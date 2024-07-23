@@ -1,6 +1,6 @@
-pub type Array1<T> = Array<T, 1>;
-pub type Array2<T> = Array<T, 2>;
-pub type Array3<T> = Array<T, 3>;
+pub type Array1D<T> = Array<T, 1>;
+pub type Array2D<T> = Array<T, 2>;
+pub type Array3D<T> = Array<T, 3>;
 
 /// N-dimensional array
 #[derive(Clone)]
@@ -28,6 +28,9 @@ where
     }
     pub fn get(&self, indices: [usize; N]) -> T {
         self.data[self.idx(indices)]
+    }
+    pub fn as_slice(&self) -> &[T] {
+        self.data.as_slice()
     }
     pub fn vec(&self) -> &Vec<T> {
         &self.data

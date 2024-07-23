@@ -3,11 +3,11 @@ use super::*;
 /// Add vector to each vector in base.
 pub struct Add<N: Number> {
     base: Stem<N>,
-    vector: Array1<N>,
+    vector: Array1D<N>,
 }
 
 impl<N: Number> Add<N> {
-    pub fn new(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self>, Role<N>> {
+    pub fn new(base: &Stem<N>, vector: &Array1D<N>) -> Hold<Link<Self>, Role<N>> {
         let link = Link::make(|back| Self {
             base: base.backed(back),
             vector: vector.clone(),

@@ -4,6 +4,10 @@ pub use end::End;
 
 pub mod end;
 
+/// Link to bare L, Ace<L>, or Ploy<Ace<L>>
+/// Satisfies ToLoad but not Grant
+pub type AceView<L> = View<AcePloy<L>, End<L>>;
+
 /// A base or a role that must provide a base via granting or solving.
 /// Views are phrased as "view of BASE with ROLE" or "BASE view with ROLE".
 /// The base could be another view, allowing for a chain of views.
@@ -26,9 +30,27 @@ where
 
 impl<'a, R, B, L> From<&'a L> for View<R, B>
 where
-    &'a L: Into<B>
+    &'a L: Into<B>,
 {
     fn from(value: &'a L) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<R, B> From<u32> for View<R, B>
+where
+    u32: Into<B>,
+{
+    fn from(value: u32) -> Self {
+        Self::Base(value.into())
+    }
+}
+
+impl<R, B> From<i32> for View<R, B>
+where
+    i32: Into<B>,   
+{
+    fn from(value: i32) -> Self {
         Self::Base(value.into())
     }
 }
@@ -332,18 +354,9 @@ where
     }
 }
 
-
-
-
-
-
-
-
-
 // pub trait AddBase<T> {
 //     fn add(&mut self, item: T) -> &mut Self;
 // }
-
 
 // impl<'a, R, B, L: 'a> AddBase<&'a L> for ViewsMutator<'a, R, B>
 // where
@@ -354,8 +367,6 @@ where
 //         self
 //     }
 // }
-
-
 
 // impl<'a, R, B, L> AddItem<&'a L> for ViewsBuilder<'a, R, B>
 // where

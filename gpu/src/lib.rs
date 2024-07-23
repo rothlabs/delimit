@@ -1,28 +1,32 @@
-pub use program::Program;
-pub use canvas::Canvas;
-pub use shader::Shader;
 pub use buffer::Buffer;
+pub use canvas::Canvas;
+pub use program::Program;
+pub use shader::Shader;
+pub use vao::Vao;
+pub use vertex_attribute::VertexAttribute;
 
+use vao::*;
 use graph::*;
-use text::*;
+use js_sys::*;
 use mecha::*;
-use web_sys::*;
+use shader::*;
+use buffer::Array;
 use wasm_bindgen::prelude::*;
+use web_sys::*;
 
 pub mod shader;
 
 mod buffer;
-mod program;
 mod canvas;
+mod program;
+mod vao;
+mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
-pub type ShaderResult = Result<Agent<Shader>, String>;
-pub type ProgramResult = Result<Agent<Program>, String>;
-pub type BufferResult = Result<Agent<Buffer>, String>;
 
 /// GPU graph maker
 pub struct Gpu {
-    pub wglrc: WGLRC
+    pub wglrc: WGLRC,
 }
 
 impl From<WGLRC> for Gpu {
@@ -32,14 +36,23 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<plain::Stem>) -> ShaderResult {
-        Shader::link(&self.wglrc, WGLRC::VERTEX_SHADER, source.into())
+    pub fn vertex_shader(&self, source: impl Into<Source>) -> shader::Result {
+        Shader::link(&self.wglrc, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<plain::Stem>) -> ShaderResult {
-        Shader::link(&self.wglrc, WGLRC::FRAGMENT_SHADER, source.into())
+    pub fn fragment_shader(&self, source: impl Into<Source>) -> shader::Result {
+        Shader::link(&self.wglrc, WGLRC::FRAGMENT_SHADER, &source.into())
     }
-    pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> ProgramResult {
+    pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
         Program::link(&self.wglrc, vertex, fragment)
+    }
+    pub fn array_buffer(&self, array: impl Into<Array>) -> buffer::Result {
+        Buffer::link(&self.wglrc, WGLRC::ARRAY_BUFFER, &array.into())
+    }
+    pub fn vertex_attribute(&self) -> Agent<VertexAttribute> {
+        VertexAttribute::link(&self.wglrc)
+    }
+    pub fn vao(&self, attributes:  &Attributes) -> vao::Result {
+        Vao::link(&self.wglrc, attributes)
     }
 }
 

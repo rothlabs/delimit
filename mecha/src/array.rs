@@ -20,22 +20,22 @@ pub type Role<N> = role::Ploy<Part<N>, Load<N>>;
 pub type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
 
 /// Units may grant in-memory arrays (Mem) or
-/// they may grant gpu buffer ref (Gpu)
+/// they may grant gpu frame_buffer ref (Gpu)
 #[derive(Clone)]
 pub enum Bare<N> {
-    Mem(Array3<N>),
+    Mem(Array3D<N>),
     Gpu,
 }
 
 impl<N> Bare<N> {
-    pub fn array(self) -> Array3<N> {
+    pub fn array(self) -> Array3D<N> {
         if let Self::Mem(array) = self {
             array
         } else {
             panic!("not array")
         }
     }
-    pub fn array_ref(&self) -> &Array3<N> {
+    pub fn array_ref(&self) -> &Array3D<N> {
         if let Self::Mem(array) = self {
             array
         } else {

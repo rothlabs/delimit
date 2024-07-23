@@ -1,5 +1,7 @@
 use crate::*;
 
+// pub type 
+
 /// End-view with ploy.  
 pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, End<L>>;
 
@@ -23,12 +25,6 @@ where
     }
 }
 
-// impl<L> IntoView for End<L> {
-//     type Item = L;
-//     fn into_view(role: Self::Item) -> Self {
-//         Self::Role(role)
-//     }
-// }
 
 impl<L> From<Ace<L>> for End<L> {
     fn from(value: Ace<L>) -> Self {
@@ -48,6 +44,12 @@ impl<'a> From<&'a str> for End<String>
 {
     fn from(value: &'a str) -> Self {
         Self::Bare(value.into())
+    }
+}
+
+impl<T> From<T> for End<T> {
+    fn from(value: T) -> Self {
+        Self::Bare(value)
     }
 }
 
@@ -130,5 +132,12 @@ where
 //             Self::Bare(bare) => bare.ace(),
 //             Self::Link(ace) => ace.clone(),
 //         }
+//     }
+// }
+
+// impl<L> IntoView for End<L> {
+//     type Item = L;
+//     fn into_view(role: Self::Item) -> Self {
+//         Self::Role(role)
 //     }
 // }

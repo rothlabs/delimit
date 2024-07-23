@@ -1,5 +1,7 @@
 use super::*;
 
+pub type Result = std::result::Result<Agent<Program>, String>;
+
 pub struct Program {
     target: WebGlProgram,
     vertex: Agent<Shader>,
@@ -8,7 +10,7 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn link(wglrc: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> ProgramResult {
+    pub fn link(wglrc: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> Result {
         let target = wglrc.create_program().ok_or("failed to create program")?;
         let link = Agent::make(|back| Self {
             wglrc: wglrc.clone(),
@@ -22,12 +24,14 @@ impl Program {
 }
 
 impl Act for Program {
-    type Load = Result<WebGlProgram, String>;  
+    type Load = std::result::Result<(), String>;
     fn act(&self) -> Self::Load {
         self.vertex.act()?;
         self.fragment.act()?;
-        self.vertex.read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
-        self.fragment.read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
+        self.vertex
+            .read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
+        self.fragment
+            .read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
         self.wglrc.link_program(&self.target);
         if self
             .wglrc
@@ -35,7 +39,7 @@ impl Act for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(self.target.clone())
+            Ok(())
         } else {
             Err(self
                 .wglrc
@@ -45,7 +49,7 @@ impl Act for Program {
     }
 }
 
-// self.wglrc.attach_shader(&self.target, &self.vertex.act()?);  
+// self.wglrc.attach_shader(&self.target, &self.vertex.act()?);
 //         self.wglrc.attach_shader(&self.target, &self.fragment.act()?);
 
 // impl Program {
@@ -79,10 +83,6 @@ impl Act for Program {
 //         }
 //     }
 // }
-
-
-
-
 
 // impl Default for GPU {
 //     fn default() -> Self {
