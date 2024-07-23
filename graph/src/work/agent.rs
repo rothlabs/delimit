@@ -68,12 +68,13 @@ where
     U: Act,
 {
     type Unit = U;
-    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
-        write(&mut Pack {
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T {
+        let out = write(&mut Pack {
             unit: self.unit.as_mut().unwrap(),
             back,
         });
         self.load = None;
+        out
     }
 }
 

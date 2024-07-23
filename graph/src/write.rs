@@ -7,20 +7,20 @@ pub struct Pack<'a, U: 'a> {
 
 pub trait Write {
     type Item;
-    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F);
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T;
 }
 
 pub trait DoWrite {
     type Item;
-    fn do_write<F: FnOnce(&mut Self::Item)>(&mut self, write: F);
+    fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T;
 }
 
 pub trait WriteWithPack {
     type Unit;
-    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F);
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T;
 }
 
 pub trait WriteWithBack {
     type Unit;
-    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back);
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T;
 }

@@ -51,7 +51,7 @@ impl<L> DoRead for Ace<L> {
 
 impl<L> DoWrite for Ace<L> {
     type Item = L;
-    fn do_write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
-        write(&mut self.load);
+    fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
+        write(&mut self.load)
     }
 }

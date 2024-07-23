@@ -103,9 +103,10 @@ where
     W: DoWrite,
 {
     type Item = W::Item;
-    fn do_write<F: FnOnce(&mut Self::Item)>(&mut self, write: F) {
-        self.work.do_write(write);
+    fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
+        let out = self.work.do_write(write);
         self.ring.cycle(&self.meta);
+        out
     }
 }
 
@@ -114,9 +115,10 @@ where
     W: WriteWithBack,
 {
     type Unit = W::Unit;
-    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
-        self.work.write_with_back(write, back);
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T {
+        let out = self.work.write_with_back(write, back);
         self.ring.cycle(&self.meta);
+        out
     }
 }
 

@@ -83,14 +83,15 @@ where
     U::Load: Grant,
 {
     type Unit = U;
-    fn write_with_back<F: FnOnce(&mut Pack<Self::Unit>)>(&mut self, write: F, back: &Back) {
-        write(&mut Pack {
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T {
+        let out = write(&mut Pack {
             unit: self.unit.as_mut().unwrap(),
             back,
         });
         // TODO: Check if midd should be cleared
         self.midd = None;
         self.load = None;
+        out 
     }
 }
 

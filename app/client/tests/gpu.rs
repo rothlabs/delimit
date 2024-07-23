@@ -89,7 +89,7 @@ pub fn draw_elements() {
         pack.unit.size(3);
     });
     let vao = gpu.vao(&vec![att]).unwrap();
-    vao.write(|Pack { unit, back }|{
+    vao.write(|Pack { unit, back }| {
         unit.element_buffer(element_buffer.backed(back));
     });
     let elements = gpu.elements(&buffer, &vao);

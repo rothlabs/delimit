@@ -263,8 +263,8 @@ where
     N: DoWrite,
 {
     type Item = N::Item;
-    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
-        write_part(&self.node, |mut node| node.do_write(write));
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
+        write_part(&self.node, |mut node| node.do_write(write))
     }
 }
 
@@ -273,10 +273,10 @@ where
     N: 'static + WriteWithBack + DoUpdate,
 {
     type Unit = N::Unit;
-    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T {
         write_part(&self.node, |mut node| {
             node.write_with_back(write, &self.node_as_back())
-        });
+        })
     }
 }
 

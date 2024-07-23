@@ -179,8 +179,8 @@ where
     E: Write,
 {
     type Item = E::Item;
-    fn write<F: FnOnce(&mut Self::Item)>(&self, write: F) {
-        read_part(&self.edge, |edge| edge.write(write));
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
+        read_part(&self.edge, |edge| edge.write(write))
     }
 }
 
@@ -189,8 +189,8 @@ where
     E: WriteWithPack,
 {
     type Unit = E::Unit;
-    fn write<F: FnOnce(&mut Pack<Self::Unit>)>(&self, write: F) {
-        read_part(&self.edge, |edge| edge.write(write));
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T {
+        read_part(&self.edge, |edge| edge.write(write))
     }
 }
 
