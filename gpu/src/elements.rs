@@ -10,7 +10,12 @@ pub struct Elements {
 }
 
 impl Elements {
-    pub fn link(wglrc: &WGLRC, program: &Agent<Program>, buffer: &Agent<Buffer<f32>>, vao: &Agent<Vao>) -> Agent<Elements> {
+    pub fn link(
+        wglrc: &WGLRC,
+        program: &Agent<Program>,
+        buffer: &Agent<Buffer<f32>>,
+        vao: &Agent<Vao>,
+    ) -> Agent<Elements> {
         Agent::make(|back| Self {
             gl: wglrc.clone(),
             program: program.backed(back),
@@ -41,9 +46,10 @@ impl Act for Elements {
         self.vao.act();
         self.vao.read(|vao| {
             vao.bind();
-            self.gl.draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);  
+            self.gl
+                .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
             vao.unbind();
         });
-        Ok(()) 
+        Ok(())
     }
 }

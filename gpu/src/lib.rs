@@ -5,13 +5,13 @@ pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
+use buffer::Array;
 use elements::*;
-use vao::*;
 use graph::*;
 use js_sys::*;
 use mecha::*;
 use shader::*;
-use buffer::Array;
+use vao::*;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 
@@ -19,10 +19,10 @@ pub mod shader;
 
 mod buffer;
 mod canvas;
+mod elements;
 mod program;
 mod vao;
 mod vertex_attribute;
-mod elements;
 
 pub type WGLRC = WebGl2RenderingContext;
 
@@ -56,10 +56,15 @@ impl Gpu {
     pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
         VertexAttribute::link(&self.wglrc, buffer)
     }
-    pub fn vao(&self, attributes:  &Attributes) -> vao::Result {
+    pub fn vao(&self, attributes: &Attributes) -> vao::Result {
         Vao::link(&self.wglrc, attributes)
     }
-    pub fn elements(&self, program: &Agent<Program>, buffer: &Agent<Buffer<f32>>, vao: &Agent<Vao>) -> Agent<Elements> {
+    pub fn elements(
+        &self,
+        program: &Agent<Program>,
+        buffer: &Agent<Buffer<f32>>,
+        vao: &Agent<Vao>,
+    ) -> Agent<Elements> {
         Elements::link(&self.wglrc, program, buffer, vao)
     }
 }

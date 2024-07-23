@@ -51,15 +51,13 @@ impl Act for Buffer<f32> {
     type Load = ();
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.grant().read(|unit| 
-            unsafe {
-                self.gl.buffer_data_with_array_buffer_view(
-                    self.kind,
-                    &Float32Array::view(unit.as_slice()),
-                    WGLRC::STATIC_DRAW,
-                )
-            }
-        );
+        self.array.grant().read(|unit| unsafe {
+            self.gl.buffer_data_with_array_buffer_view(
+                self.kind,
+                &Float32Array::view(unit.as_slice()),
+                WGLRC::STATIC_DRAW,
+            )
+        });
         self.unbind();
     }
 }

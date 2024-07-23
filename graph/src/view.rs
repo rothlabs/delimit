@@ -28,11 +28,11 @@ where
     }
 }
 
-impl<'a, R, B, L> From<&'a L> for View<R, B>
+impl<'a, R, B> From<&'a str> for View<R, B>
 where
-    &'a L: Into<B>,
+    &'a str: Into<B>,
 {
-    fn from(value: &'a L) -> Self {
+    fn from(value: &'a str) -> Self {
         Self::Base(value.into())
     }
 }
@@ -55,20 +55,20 @@ where
     }
 }
 
+impl<'a, R, B, L> From<&'a L> for View<R, B>
+where
+    &'a L: Into<B>,
+{
+    fn from(value: &'a L) -> Self {
+        Self::Base(value.into())
+    }
+}
+
 impl<R, B, L> From<Ace<L>> for View<R, B>
 where
     Ace<L>: Into<B>,
 {
     fn from(value: Ace<L>) -> Self {
-        Self::Base(value.into())
-    }
-}
-
-impl<'a, R, B> From<&'a str> for View<R, B>
-where
-    &'a str: Into<B>,
-{
-    fn from(value: &'a str) -> Self {
         Self::Base(value.into())
     }
 }

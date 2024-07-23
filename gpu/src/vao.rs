@@ -4,7 +4,7 @@ pub type Result = std::result::Result<Agent<Vao>, String>;
 pub type Attributes = Vec<Agent<VertexAttribute>>;
 
 /// Vertex Array Object
-/// Stores attribute settings and which element array buffer to use 
+/// Stores attribute settings and which element array buffer to use
 pub struct Vao {
     gl: WGLRC,
     target: WebGlVertexArrayObject,
@@ -15,10 +15,12 @@ pub struct Vao {
 
 impl Vao {
     pub fn link(wglrc: &WGLRC, attributes: &Attributes) -> Result {
-        let target = wglrc.create_vertex_array().ok_or("failed to create vertex array object")?;
-        let link = Agent::make(|back| Self { 
-            gl: wglrc.clone(), 
-            target, 
+        let target = wglrc
+            .create_vertex_array()
+            .ok_or("failed to create vertex array object")?;
+        let link = Agent::make(|back| Self {
+            gl: wglrc.clone(),
+            target,
             attributes: attributes.backed(back),
             element_buffer: None,
         });
@@ -51,4 +53,3 @@ impl Act for Vao {
         self.unbind();
     }
 }
-

@@ -119,15 +119,15 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Self::Task) -> Self::Load;
 }
 
-/// For units to act upon external systems and provide a load
 pub trait Act {
     type Load;
+    /// Unit will act upon externals and provide a load
     fn act(&self) -> Self::Load;
 }
 
-/// For graph internals to handle act calls
 pub trait DoAct {
     type Load;
+    /// For graph internals to handle act calls
     fn do_act(&mut self, back: &Back) -> Self::Load;
 }
 

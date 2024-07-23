@@ -1,20 +1,22 @@
 use gpu::*;
 use graph::*;
 use mecha::*;
+// use wasm_bindgen_test::console_log;
 
 fn make_gpu() -> Gpu {
     let canvas = Canvas::link();
     canvas.read(|unit| unit.gpu())
 }
 
-fn make_basic_program(gpu: &Gpu) -> Agent<Program> {
-    let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
+fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
+    let vertex_shader = shader::basic::VERTEX.ace();
+    let vertex = gpu.vertex_shader(&vertex_shader).unwrap();
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT).unwrap();
     let program = gpu.program(&vertex, &fragment);
     if let Err(memo) = program {
         panic!("gpu error: {memo}");
     }
-    program.unwrap()
+    (program.unwrap(), vertex_shader)
 }
 
 fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
@@ -89,11 +91,11 @@ pub fn make_vertex_array_object() {
 
 pub fn draw_elements() {
     let gpu = make_gpu();
-    let program = make_basic_program(&gpu);
+    let (program, vertex_shader) = make_basic_program(&gpu);
     let buffer = make_basic_array_buffer(&gpu);
-    let element_buffer = gpu.element_buffer(Array1D::new([3], vec![
-        0,  1,  3, 
-    ])).unwrap();
+    let element_buffer = gpu
+        .element_buffer(Array1D::new([3], vec![0, 1, 3]))
+        .unwrap();
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
         pack.unit.size(3);
@@ -110,4 +112,13 @@ pub fn draw_elements() {
     if let Err(memo) = draw_result {
         panic!("gpu error: {memo}");
     }
+    vertex_shader.write(|unit| *unit = "wow not a shader".to_owned());
 }
+
+// console_log!("draw elements");
+// vertex_shader.write(|unit| *unit = "wow not a shader".to_owned());
+// let draw_result = elements.act();
+// if let Err(memo) = draw_result {
+//     panic!("gpu error: {memo}");
+// }
+// console_log!("draw elements again?");

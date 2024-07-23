@@ -49,7 +49,14 @@ impl Act for VertexAttribute {
         self.buffer.act();
         self.buffer.read(|buffer| {
             buffer.bind();
-            self.gl.vertex_attrib_pointer_with_i32(index, size, WGLRC::FLOAT, false, stride, offset);
+            self.gl.vertex_attrib_pointer_with_i32(
+                index,
+                size,
+                WGLRC::FLOAT,
+                false,
+                stride,
+                offset,
+            );
             self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();
         });

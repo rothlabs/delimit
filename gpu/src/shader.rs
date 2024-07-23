@@ -5,7 +5,7 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-pub type Source = AcePloy<String>;
+pub type Source = AceView<String>;
 pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {
@@ -31,7 +31,6 @@ impl Act for Shader {
     type Load = std::result::Result<(), String>; // Ace<WebGlShader>
     fn act(&self) -> Self::Load {
         self.source
-            .grant()
             .read(|src| self.wglrc.shader_source(&self.target, src));
         self.wglrc.compile_shader(&self.target);
         if self
