@@ -9,7 +9,8 @@ pub struct Vao {
     gl: WGLRC,
     target: WebGlVertexArrayObject,
     attributes: Attributes,
-    element_buffer: Option<Agent<Buffer>>,
+    /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
+    element_buffer: Option<Agent<Buffer<u16>>>,
 }
 
 impl Vao {
@@ -24,19 +25,30 @@ impl Vao {
         link.act();
         Ok(link)
     }
+    pub fn element_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
+        self.element_buffer = Some(buffer);
+        self
+    }
+    pub fn bind(&self) {
+        self.gl.bind_vertex_array(Some(&self.target));
+    }
+    pub fn unbind(&self) {
+        self.gl.bind_vertex_array(None);
+    }
 }
 
 impl Act for Vao {
     type Load = ();
     fn act(&self) -> Self::Load {
-        self.gl.bind_vertex_array(Some(&self.target));
+        self.bind();
         for attribute in &self.attributes {
             attribute.act();
         }
         if let Some(buffer) = &self.element_buffer {
             buffer.act();
+            buffer.read(|unit| unit.bind());
         }
-        self.gl.bind_vertex_array(None);
+        self.unbind();
     }
 }
 

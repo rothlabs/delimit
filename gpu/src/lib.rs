@@ -5,6 +5,7 @@ pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
+use elements::*;
 use vao::*;
 use graph::*;
 use js_sys::*;
@@ -21,6 +22,7 @@ mod canvas;
 mod program;
 mod vao;
 mod vertex_attribute;
+mod elements;
 
 pub type WGLRC = WebGl2RenderingContext;
 
@@ -45,8 +47,11 @@ impl Gpu {
     pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
         Program::link(&self.wglrc, vertex, fragment)
     }
-    pub fn array_buffer(&self, array: impl Into<Array>) -> buffer::Result {
-        Buffer::link(&self.wglrc, WGLRC::ARRAY_BUFFER, &array.into())
+    pub fn array_buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
+        Buffer::link_f32(&self.wglrc, WGLRC::ARRAY_BUFFER, &array.into())
+    }
+    pub fn element_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
+        Buffer::link_u16(&self.wglrc, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
     pub fn vertex_attribute(&self) -> Agent<VertexAttribute> {
         VertexAttribute::link(&self.wglrc)
@@ -54,30 +59,7 @@ impl Gpu {
     pub fn vao(&self, attributes:  &Attributes) -> vao::Result {
         Vao::link(&self.wglrc, attributes)
     }
+    pub fn elements(&self, buffer: &Agent<Buffer<f32>>, vao: &Agent<Vao>) -> Agent<Elements> {
+        Elements::link(&self.wglrc, buffer, vao)
+    }
 }
-
-// let wglrc = canvas
-// .get_context("webgl2")
-// .unwrap()
-// .unwrap()
-// .dyn_into::<WGLRC>()
-// .unwrap();
-// Self { wglrc }
-
-// impl Default for Gpu {
-//     fn default() -> Self {
-//         let document = window().unwrap().document().unwrap();
-//         let canvas = document
-//             .create_element("canvas")
-//             .unwrap()
-//             .dyn_into::<HtmlCanvasElement>()
-//             .unwrap();
-//         let wglrc = canvas
-//             .get_context("webgl2")
-//             .unwrap()
-//             .unwrap()
-//             .dyn_into::<WGLRC>()
-//             .unwrap();
-//         Self { canvas, wglrc }
-//     }
-// }

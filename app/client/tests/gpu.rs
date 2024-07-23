@@ -43,6 +43,17 @@ pub fn make_array_buffer() {
     }
 }
 
+pub fn make_element_buffer() {
+    let gpu = make_gpu();
+    #[rustfmt::skip]
+    let buffer = gpu.element_buffer(Array1D::new([3], vec![
+        0,  1,  3, 
+    ]));
+    if let Err(memo) = buffer {
+        panic!("gpu error: {memo}");
+    }
+}
+
 pub fn make_vertex_attribute() {
     let gpu = make_gpu();
     let att = gpu.vertex_attribute();
@@ -61,4 +72,26 @@ pub fn make_vertex_array_object() {
     if let Err(memo) = voa {
         panic!("gpu error: {memo}");
     }
+}
+
+pub fn draw_elements() {
+    let gpu = make_gpu();
+    let buffer = gpu.array_buffer(Array1D::new([9], vec![
+        0.,  0.,  0.,
+        10., 0.,  0., 
+        0.,  10., 0.,
+    ])).unwrap();
+    let element_buffer = gpu.element_buffer(Array1D::new([3], vec![
+        0,  1,  3, 
+    ])).unwrap();
+    let att = gpu.vertex_attribute();
+    att.write(|pack| {
+        pack.unit.size(3);
+    });
+    let vao = gpu.vao(&vec![att]).unwrap();
+    vao.write(|Pack { unit, back }|{
+        unit.element_buffer(element_buffer.backed(back));
+    });
+    let elements = gpu.elements(&buffer, &vao);
+    elements.act();
 }

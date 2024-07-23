@@ -1,6 +1,6 @@
 use super::*;
 
-
+/// Tell the GPU how to read from a buffer
 pub struct VertexAttribute {
     gl: WGLRC,
     index: AceView<u32>,

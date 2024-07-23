@@ -30,6 +30,11 @@ fn make_array_buffer() {
 }
 
 #[wasm_bindgen_test]
+fn make_element_buffer() {
+    gpu::make_element_buffer();
+}
+
+#[wasm_bindgen_test]
 fn make_vertex_attribute() {
     gpu::make_vertex_attribute();
 }
@@ -37,4 +42,9 @@ fn make_vertex_attribute() {
 #[wasm_bindgen_test]
 fn make_vertex_array_object() {
     gpu::make_vertex_array_object();
+}
+
+#[wasm_bindgen_test]
+fn draw_elements() {
+    gpu::draw_elements();
 }
