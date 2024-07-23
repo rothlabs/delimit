@@ -21,6 +21,9 @@ impl Program {
         link.act()?;
         Ok(link)
     }
+    pub fn use_target(&self) {
+        self.wglrc.use_program(Some(&self.target));
+    }
 }
 
 impl Act for Program {

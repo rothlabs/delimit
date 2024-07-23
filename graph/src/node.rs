@@ -115,7 +115,11 @@ where
     W: WriteWithBack,
 {
     type Unit = W::Unit;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T {
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+        &mut self,
+        write: F,
+        back: &Back,
+    ) -> T {
         let out = self.work.write_with_back(write, back);
         self.ring.cycle(&self.meta);
         out

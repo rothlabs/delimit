@@ -22,5 +22,9 @@ pub trait WriteWithPack {
 
 pub trait WriteWithBack {
     type Unit;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&mut self, write: F, back: &Back) -> T;
+    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+        &mut self,
+        write: F,
+        back: &Back,
+    ) -> T;
 }

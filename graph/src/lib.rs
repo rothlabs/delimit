@@ -8,7 +8,7 @@ pub use react::{
 };
 pub use role::Role;
 pub use unit::{AceUnit, Gate, Repo, Serial, ToSerial};
-pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder, AceView};
+pub use view::{AceView, AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{DoWrite, Pack, Write, WriteWithBack, WriteWithPack};
 
 use serde::Serialize;

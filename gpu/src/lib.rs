@@ -53,13 +53,13 @@ impl Gpu {
     pub fn element_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
         Buffer::link_u16(&self.wglrc, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn vertex_attribute(&self) -> Agent<VertexAttribute> {
-        VertexAttribute::link(&self.wglrc)
+    pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
+        VertexAttribute::link(&self.wglrc, buffer)
     }
     pub fn vao(&self, attributes:  &Attributes) -> vao::Result {
         Vao::link(&self.wglrc, attributes)
     }
-    pub fn elements(&self, buffer: &Agent<Buffer<f32>>, vao: &Agent<Vao>) -> Agent<Elements> {
-        Elements::link(&self.wglrc, buffer, vao)
+    pub fn elements(&self, program: &Agent<Program>, buffer: &Agent<Buffer<f32>>, vao: &Agent<Vao>) -> Agent<Elements> {
+        Elements::link(&self.wglrc, program, buffer, vao)
     }
 }

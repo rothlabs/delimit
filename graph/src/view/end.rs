@@ -1,6 +1,6 @@
 use crate::*;
 
-// pub type 
+// pub type
 
 /// End-view with ploy.  
 pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, End<L>>;
@@ -24,7 +24,6 @@ where
         Self::Bare(L::default())
     }
 }
-
 
 impl<L> From<Ace<L>> for End<L> {
     fn from(value: Ace<L>) -> Self {

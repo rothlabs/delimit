@@ -3,6 +3,7 @@ use super::*;
 /// Tell the GPU how to read from a buffer
 pub struct VertexAttribute {
     gl: WGLRC,
+    buffer: Agent<Buffer<f32>>,
     index: AceView<u32>,
     size: AceView<i32>,
     stride: AceView<i32>,
@@ -10,9 +11,10 @@ pub struct VertexAttribute {
 }
 
 impl VertexAttribute {
-    pub fn link(wglrc: &WGLRC) -> Agent<VertexAttribute> {
-        Agent::new(Self {
+    pub fn link(wglrc: &WGLRC, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
+        Agent::make(|back| Self {
             gl: wglrc.clone(),
+            buffer: buffer.backed(back),
             index: AceView::default(),
             size: AceView::default(),
             stride: AceView::default(),
@@ -44,8 +46,13 @@ impl Act for VertexAttribute {
         let size = self.size.load();
         let stride = self.stride.load();
         let offset = self.offset.load();
-        self.gl.vertex_attrib_pointer_with_i32(index, size, WGLRC::FLOAT, false, stride, offset);
-        self.gl.enable_vertex_attrib_array(index);
+        self.buffer.act();
+        self.buffer.read(|buffer| {
+            buffer.bind();
+            self.gl.vertex_attrib_pointer_with_i32(index, size, WGLRC::FLOAT, false, stride, offset);
+            self.gl.enable_vertex_attrib_array(index);
+            buffer.unbind();
+        });
     }
 }
 

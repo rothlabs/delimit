@@ -48,7 +48,7 @@ where
 
 impl<R, B> From<i32> for View<R, B>
 where
-    i32: Into<B>,   
+    i32: Into<B>,
 {
     fn from(value: i32) -> Self {
         Self::Base(value.into())

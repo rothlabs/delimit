@@ -294,9 +294,9 @@ impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> {
     }
 }
 
-impl<T> Backed for Vec<T> 
-where 
-    T: Backed
+impl<T> Backed for Vec<T>
+where
+    T: Backed,
 {
     fn backed(&self, back: &Back) -> Self {
         self.iter().map(|link| link.backed(back)).collect()
