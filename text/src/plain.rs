@@ -7,10 +7,10 @@ use serde::Serialize;
 pub mod view {
     use super::*;
     /// Plain text Link to use inside units of super graphs
-    pub type Ploy<P> = View<role::Ploy<P, Role>, Stem>;
+    pub type Ploy<P> = View<role::Ploy<P, Role>, Stem>; 
 }
 
-mod doc;
+mod doc; 
 mod list;
 #[cfg(test)]
 mod tests;
@@ -18,7 +18,7 @@ mod tests;
 /// Plain text to use as Load of super graphs
 pub type Role = role::Ploy<Part, Load>;
 
-/// Plain test to use as stem
+/// Plain text to use as graph stem
 pub type Stem = graph::view::end::Ploy<Part, String>;
 
 #[derive(Clone, Serialize)]

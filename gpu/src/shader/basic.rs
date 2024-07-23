@@ -1,5 +1,5 @@
 pub const VERTEX: &str = r"#version 300 es
-in vec4 a_position;
+layout(location = 0) in vec4 a_position;
 
 void main() {
     gl_Position = a_position;
@@ -9,7 +9,7 @@ void main() {
 pub const FRAGMENT: &str = r"#version 300 es
 precision highp float;
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 void main() {
     outColor = vec4(1, 0, 0.5, 1);

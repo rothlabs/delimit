@@ -23,9 +23,10 @@ where
     }
 }
 
-// impl<L> From<L> for End<L> {
-//     fn from(value: L) -> Self {
-//         Self::Bare(value)
+// impl<L> IntoView for End<L> {
+//     type Item = L;
+//     fn into_view(role: Self::Item) -> Self {
+//         Self::Role(role)
 //     }
 // }
 

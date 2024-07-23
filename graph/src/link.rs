@@ -28,10 +28,10 @@ pub type Agent<U> = Link<edge::Agent<U>>;
 pub type Envoy<U> = Link<edge::Envoy<U>>;
 
 /// Link that grants a load.
-pub type Ploy<L> = Link<Box<dyn Produce<L>>>; //  + Send + Sync
+pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
 
 /// Link that solves a task with resulting load.
-pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>; //  + Send + Sync
+pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
 
 /// Link that grants a load of a intermediate. The unit should
 /// be a link. The pipe will react to both the unit and intermediate.

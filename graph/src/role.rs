@@ -38,6 +38,16 @@ where
     }
 }
 
+impl<P, F> Act for Role<P, F>
+where
+    F: Act,
+{
+    type Load = F::Load;
+    fn act(&self) -> Self::Load {
+        self.form.act()
+    }
+}
+
 impl<P, F> Solve for Role<P, F>
 where
     F: Solve,

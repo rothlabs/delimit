@@ -17,6 +17,8 @@ mod tests;
 /// Matrix Load for super graphs
 pub type Role<N> = role::Ploy<Part<N>, Load<N>>;
 
+pub type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
+
 /// Units may grant in-memory arrays (Mem) or
 /// they may grant gpu buffer ref (Gpu)
 #[derive(Clone)]
@@ -49,11 +51,10 @@ pub enum Part<N: Number> {
 
 type Load<N> = Ace<Bare<N>>;
 type Link<U> = Deuce<U>;
-type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
 
-pub trait Number: Copy + Default + ops::Add<Self, Output = Self> + Send + Sync + 'static {}
+pub trait Number: Copy + Default + ops::Add<Self, Output = Self> + SendSync + 'static {}
 
-impl<T> Number for T where T: Copy + Default + ops::Add<Self, Output = Self> + Send + Sync + 'static {}
+impl<T> Number for T where T: Copy + Default + ops::Add<Self, Output = Self> + SendSync + 'static {}
 
 // impl<N> Clone for Bare<N>
 // where

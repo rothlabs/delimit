@@ -1,27 +1,36 @@
 use super::*;
-// use derive_builder::Builder;
-use graph::*;
-use text::*;
 
 pub mod basic;
 
 #[cfg(test)]
 mod tests;
 
-// #[derive(Builder)] 
+pub type Source = Ploy<Ace<String>>;
+
 pub struct Shader {
-    pub target: WebGlShader,
-    pub source: plain::Role,
     pub wglrc: WGLRC,
+    // TODO: switch to Ploy<Ace<String>> so pipe can be used?!
+    pub source: plain::Stem,
+    pub target: WebGlShader,
+}
+
+impl Shader {
+    pub fn link(wglrc: &WGLRC, kind: u32, source: plain::Stem) -> ShaderResult {
+        let target = wglrc.create_shader(kind).ok_or("failed to create shader")?;
+        let link = Agent::make(|back| Self {
+            wglrc: wglrc.clone(),
+            source: source.backed(back),
+            target,
+        });
+        link.act()?;
+        Ok(link)
+    }
 }
 
 impl Act for Shader {
-    type Load = Result<(), String>;
+    type Load = Result<(), String>; // Ace<WebGlShader>
     fn act(&self) -> Self::Load {
-        // Ok(())
-        // let shader = self.wglrc.create_shader(self.kind).ok_or("cannot create shader")?;
-        let source = self.source.grant();
-        source.read(|src| self.wglrc.shader_source(&self.target, src));
+        self.source.read(|src| self.wglrc.shader_source(&self.target, src));
         self.wglrc.compile_shader(&self.target);
         if self
             .wglrc
@@ -29,15 +38,16 @@ impl Act for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(()) // self.target.clone()
+            Ok(()) // self.target.ace()
         } else {
             Err(self
                 .wglrc
                 .get_shader_info_log(&self.target)
-                .ok_or("cannot get shader info log")?)
+                .ok_or("failed to get shader info log")?)
         }
     }
 }
+
 
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {

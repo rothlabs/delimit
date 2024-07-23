@@ -1,40 +1,52 @@
-// use super::*;
-use graph::*;
+use super::*;
 
 pub struct Program {
-    // target: WebGlProgram,
-    // vertex: Agent<Shader>,
-    // fragment: Agent<Shader>,
-    // wglrc: WGLRC,
+    target: WebGlProgram,
+    vertex: Agent<Shader>,
+    fragment: Agent<Shader>,
+    wglrc: WGLRC,
 }
 
-impl Act for Program 
-// where 
-//  Link<Shader>: Act
-{
-    type Load = Result<(), String>; 
-    fn act(&self) -> Self::Load {
-        // self.vertex.act();
-        // let program = self.0.create_program().ok_or("cannot create program")?;
-        //self.wglrc.attach_shader(&self.target, self.vertex.act()); 
-        Ok(())
-        // self.0.attach_shader(&program, fragment_shader);
-        // self.0.link_program(&program);
-        // if self
-        //     .0
-        //     .get_program_parameter(&program, WGLRC::LINK_STATUS)
-        //     .as_bool()
-        //     .unwrap_or(false)
-        // {
-        //     Ok(program)
-        // } else {
-        //     Err(self
-        //         .0
-        //         .get_program_info_log(&program)
-        //         .ok_or("cannot get program info log")?)
-        // }
+impl Program {
+    pub fn link(wglrc: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> ProgramResult {
+        let target = wglrc.create_program().ok_or("failed to create program")?;
+        let link = Agent::make(|back| Self {
+            wglrc: wglrc.clone(),
+            vertex: vertex.backed(back),
+            fragment: fragment.backed(back),
+            target,
+        });
+        link.act()?;
+        Ok(link)
     }
 }
+
+impl Act for Program {
+    type Load = Result<WebGlProgram, String>;  
+    fn act(&self) -> Self::Load {
+        self.vertex.act()?;
+        self.fragment.act()?;
+        self.vertex.read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
+        self.fragment.read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
+        self.wglrc.link_program(&self.target);
+        if self
+            .wglrc
+            .get_program_parameter(&self.target, WGLRC::LINK_STATUS)
+            .as_bool()
+            .unwrap_or(false)
+        {
+            Ok(self.target.clone())
+        } else {
+            Err(self
+                .wglrc
+                .get_program_info_log(&self.target)
+                .ok_or("failed to get program info log")?)
+        }
+    }
+}
+
+// self.wglrc.attach_shader(&self.target, &self.vertex.act()?);  
+//         self.wglrc.attach_shader(&self.target, &self.fragment.act()?);
 
 // impl Program {
 //     // pub fn new(wglrc: &WGLRC) -> Self {

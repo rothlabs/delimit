@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn add() {
+fn add_arrays() {
     #[rustfmt::skip]
     let base = Stem::new(Bare::Mem(Array::new([4, 4, 1], vec![
         1., 0., 0., 0.,
