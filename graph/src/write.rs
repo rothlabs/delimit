@@ -17,7 +17,10 @@ pub trait DoWrite {
 
 pub trait WriteWithRoots {
     type Item;
-    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> (Vec<Root>, Meta, T);
+    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(
+        &mut self,
+        write: F,
+    ) -> (Vec<Root>, Meta, T);
 }
 
 pub trait WriteWithPack {

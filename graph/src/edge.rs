@@ -72,7 +72,11 @@ where
         let update = node.clone() as Arc<RwLock<dyn DoUpdate>>;
         let back = Back::new(Arc::downgrade(&update));
         write_part(&node, |mut node| node.do_make(make, &back));
-        Self { meta, back: None, node }
+        Self {
+            meta,
+            back: None,
+            node,
+        }
     }
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
@@ -82,7 +86,11 @@ where
         let update = node.clone() as Rc<RefCell<dyn DoUpdate>>;
         let back = Back::new(Rc::downgrade(&update));
         write_part(&node, |mut node| node.do_make(make, &back));
-        Self { meta, node, back: None }
+        Self {
+            meta,
+            node,
+            back: None,
+        }
     }
 }
 
@@ -306,13 +314,17 @@ where
 
 impl<N> WriteWithPack for Edge<N>
 where
-    N: 'static + WriteWithBack + DoUpdate,
+    N: 'static + WriteWithBackRoots + DoUpdate,
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T {
-        write_part(&self.node, |mut node| {
-            node.write_with_back(write, &self.node_as_back())
-        })
+        let (roots, meta, out) = write_part(&self.node, |mut node| {
+            node.write_with_back_roots(write, &self.node_as_back())
+        });
+        for root in &roots {
+            root.react(&meta);
+        }
+        out
     }
 }
 
@@ -347,13 +359,13 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
-impl<N> React for Edge<N> 
-where 
-    N: DoReact
+impl<N> React for Edge<N>
+where
+    N: DoReact,
 {
     fn react(&self, meta: &Meta) {
         // if self.meta.id != meta.id {
-            write_part(&self.node, |mut node| node.do_react(meta));
+        write_part(&self.node, |mut node| node.do_react(meta));
         // }
         // if let Some(back) = &self.back {
         //     back.react(meta);

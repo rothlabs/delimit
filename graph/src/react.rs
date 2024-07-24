@@ -122,7 +122,7 @@ impl Hash for Root {
 #[derive(Clone)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
-    pub node: Weak<RwLock<dyn DoUpdate>>, 
+    pub node: Weak<RwLock<dyn DoUpdate>>,
     #[cfg(feature = "oneThread")]
     pub node: Weak<RefCell<dyn DoUpdate>>,
 }
@@ -177,7 +177,7 @@ impl Ring {
         self.roots.clear();
         result
     }
-    pub fn cycle(&mut self, meta: &Meta) -> (Vec<Root>, Meta) {
+    pub fn rebut_roots(&mut self, meta: &Meta) -> (Vec<Root>, Meta) {
         let mut ring = Ring::new();
         for root in &self.roots {
             ring.roots.extend(root.rebut().roots);
@@ -187,30 +187,30 @@ impl Ring {
     }
 }
 
-    // pub fn rebut_this(&mut self) -> Ring {
-    //     let mut result = Ring::new();
-    //     for root in &self.roots {
-    //         let ring = root.rebut();
-    //         if ring.roots.is_empty() {
-    //             result.roots.insert(root.clone());
-    //         } else {
-    //             result.roots.extend(ring.roots);
-    //         }
-    //     }
-    //     self.roots.clear();
-    //     result
-    // }
-    // pub fn cycle(&mut self, meta: &Meta) {
-    //     let mut ring = Ring::new();
-    //     for root in &self.roots {
-    //         ring.roots.extend(root.rebut().roots);
-    //     }
-    //     //let ring = self.rebut_this();
-    //     for root in &ring.roots {
-    //         root.react(meta);
-    //     }
-    //     self.roots.clear();
-    // }
+// pub fn rebut_this(&mut self) -> Ring {
+//     let mut result = Ring::new();
+//     for root in &self.roots {
+//         let ring = root.rebut();
+//         if ring.roots.is_empty() {
+//             result.roots.insert(root.clone());
+//         } else {
+//             result.roots.extend(ring.roots);
+//         }
+//     }
+//     self.roots.clear();
+//     result
+// }
+// pub fn cycle(&mut self, meta: &Meta) {
+//     let mut ring = Ring::new();
+//     for root in &self.roots {
+//         ring.roots.extend(root.rebut().roots);
+//     }
+//     //let ring = self.rebut_this();
+//     for root in &ring.roots {
+//         root.react(meta);
+//     }
+//     self.roots.clear();
+// }
 
 // #[cfg(not(feature="oneThread"))]
 // pub trait Update: Rebut + React + Send + Sync {}

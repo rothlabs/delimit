@@ -65,7 +65,7 @@ pub trait IntoArray1<T> {
     fn array(self) -> Array1<T>;
 }
 
-impl<T> IntoArray1<T> for Vec<T> 
+impl<T> IntoArray1<T> for Vec<T>
 where
     T: Copy + Default,
 {
@@ -73,7 +73,6 @@ where
         Array1::new([self.len()], self)
     }
 }
-
 
 // pub fn get_mut<'a>(&'a mut self, indices: [usize; N]) -> &mut T {
 //     let i = self.idx(indices);

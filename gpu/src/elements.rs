@@ -42,10 +42,11 @@ impl Act for Elements {
         let _ = window.alert_with_message("Act for Elements!");
         let count = self.count.load();
         let offset = self.offset.load();
-        let p = self.program.act();
-        if let Err(memo) = p {
-            panic!("gpu program error! {memo}");
-        }
+        self.program.act()?;
+        // let p = self.program.act();
+        // if let Err(memo) = p {
+        //     panic!("gpu program error! {memo}");
+        // }
         self.program.read(|program| program.use_target());
         self.buffer.act();
         self.vao.act();

@@ -83,26 +83,29 @@ where
     W: DoWrite,
 {
     type Item = W::Item;
-    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> (Vec<Root>, Meta, T) {
+    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(
+        &mut self,
+        write: F,
+    ) -> (Vec<Root>, Meta, T) {
         let out = self.work.do_write(write);
-        let (roots, meta) = self.ring.cycle(&self.meta);
+        let (roots, meta) = self.ring.rebut_roots(&self.meta);
         (roots, meta, out)
     }
 }
 
-impl<W> WriteWithBack for Node<W>
+impl<W> WriteWithBackRoots for Node<W>
 where
     W: WriteWithBack,
 {
     type Unit = W::Unit;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    fn write_with_back_roots<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,
-    ) -> T {
+    ) -> (Vec<Root>, Meta, T) {
         let out = self.work.write_with_back(write, back);
-        self.ring.cycle(&self.meta);
-        out
+        let (roots, meta) = self.ring.rebut_roots(&self.meta);
+        (roots, meta, out)
     }
 }
 
@@ -185,7 +188,6 @@ where
     }
 }
 
-
 // impl<W> DoWrite for Node<W>
 // where
 //     W: DoWrite,
@@ -214,7 +216,6 @@ where
 //     }
 // }
 
-
 // impl<W> Make for Node<W>
 // where
 //     W: Dummy,
@@ -228,7 +229,6 @@ where
 //         }
 //     }
 // }
-
 
 // impl<'a, W> From<&'a str> for Node<W>
 // where
