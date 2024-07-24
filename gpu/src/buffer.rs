@@ -76,3 +76,15 @@ impl Act for Buffer<u16> {
         self.unbind();
     }
 }
+
+impl React for Buffer<f32> {
+    fn react(&self, _: &Meta) {
+        self.act();
+    }
+}
+
+impl React for Buffer<u16> {
+    fn react(&self, _: &Meta) {
+        self.act();
+    }
+}

@@ -122,18 +122,18 @@ impl Hash for Root {
 #[derive(Clone)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
-    pub node: Weak<RwLock<dyn DoUpdate>>, //  + Send + Sync + 'static
+    pub node: Weak<RwLock<dyn DoUpdate>>, 
     #[cfg(feature = "oneThread")]
-    pub node: Weak<RefCell<dyn DoUpdate + 'static>>,
+    pub node: Weak<RefCell<dyn DoUpdate>>,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
-    pub fn new(node: Weak<RwLock<dyn DoUpdate + 'static>>) -> Self {
+    pub fn new(node: Weak<RwLock<dyn DoUpdate>>) -> Self {
         Self { node }
     }
     #[cfg(feature = "oneThread")]
-    pub fn new(node: Weak<RefCell<dyn DoUpdate + 'static>>) -> Self {
+    pub fn new(node: Weak<RefCell<dyn DoUpdate>>) -> Self {
         Self { node }
     }
     pub fn rebut(&self) -> Ring {
@@ -164,7 +164,7 @@ impl Ring {
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
-    pub fn rebut(&self) -> Ring {
+    pub fn rebut(&mut self) -> Ring {
         let mut result = Ring::new();
         for root in &self.roots {
             let ring = root.rebut();
@@ -174,14 +174,32 @@ impl Ring {
                 result.roots.extend(ring.roots);
             }
         }
+        self.roots.clear();
         result
     }
+    // pub fn rebut_this(&mut self) -> Ring {
+    //     let mut result = Ring::new();
+    //     for root in &self.roots {
+    //         let ring = root.rebut();
+    //         if ring.roots.is_empty() {
+    //             result.roots.insert(root.clone());
+    //         } else {
+    //             result.roots.extend(ring.roots);
+    //         }
+    //     }
+    //     self.roots.clear();
+    //     result
+    // }
     pub fn cycle(&mut self, meta: &Meta) {
-        let ring = self.rebut();
-        self.roots.clear();
+        let mut ring = Ring::new();
+        for root in &self.roots {
+            ring.roots.extend(root.rebut().roots);
+        }
+        //let ring = self.rebut_this();
         for root in &ring.roots {
             root.react(meta);
         }
+        self.roots.clear();
     }
 }
 

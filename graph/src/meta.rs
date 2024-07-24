@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
-#[derive(Clone, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Id(String);
 
 impl Id {
@@ -22,7 +22,7 @@ impl Default for Id {
 
 impl Eq for Id {}
 
-#[derive(Clone, PartialEq, Eq, Serialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Debug)]
 pub struct Meta {
     pub id: Id,
 }

@@ -29,7 +29,8 @@ impl Shader {
 
 impl Act for Shader {
     type Load = std::result::Result<(), String>; // Ace<WebGlShader>
-    fn act(&self) -> Self::Load {
+    fn act(&self) -> Self::Load {        
+
         self.source
             .read(|src| self.wglrc.shader_source(&self.target, src));
         self.wglrc.compile_shader(&self.target);

@@ -55,3 +55,7 @@ impl<L> DoWrite for Ace<L> {
         write(&mut self.load)
     }
 }
+
+impl<L> DoReact for Ace<L> {
+    fn do_react(&mut self, _: &Meta) {}
+}

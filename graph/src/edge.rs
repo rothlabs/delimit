@@ -299,7 +299,7 @@ where
     }
 }
 
-impl<N> Update for Edge<N> where N: SendSync {}
+impl<N> Update for Edge<N> where N: SendSync + DoReact {}
 
 impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {
@@ -311,11 +311,15 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
-impl<N> React for Edge<N> {
+impl<N> React for Edge<N> 
+where 
+    N: DoReact
+{
     fn react(&self, meta: &Meta) {
-        if let Some(back) = &self.back {
-            back.react(meta);
-        }
+        write_part(&self.node, |mut node| node.do_react(meta));
+        // if let Some(back) = &self.back {
+        //     back.react(meta);
+        // }
     }
 }
 

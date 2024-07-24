@@ -101,7 +101,14 @@ where
 
 impl<U> DoReact for Agent<U>
 where
-    U: Act,
+    U: Act, // + React,
 {
-    fn do_react(&mut self, _: &Meta) {}
+    fn do_react(&mut self, _: &Meta) {
+        // self.clear();
+        self.unit.as_ref().unwrap().act();
+        // println!("react {:?}", meta.id);
+        // self.clear();
+        // self.unit.as_ref().unwrap().act();
+        // self.unit.as_ref().unwrap().react(meta);
+    }
 }

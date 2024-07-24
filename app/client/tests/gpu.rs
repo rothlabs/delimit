@@ -1,7 +1,7 @@
 use gpu::*;
 use graph::*;
 use mecha::*;
-// use wasm_bindgen_test::console_log;
+
 
 fn make_gpu() -> Gpu {
     let canvas = Canvas::link();
@@ -113,6 +113,10 @@ pub fn draw_elements() {
         panic!("gpu error: {memo}");
     }
     vertex_shader.write(|unit| *unit = "wow not a shader".to_owned());
+    // let draw_result = elements.act();
+    // if let Err(memo) = draw_result {
+    //     panic!("gpu error: {memo}");
+    // }
 }
 
 // console_log!("draw elements");
