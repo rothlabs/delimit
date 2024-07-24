@@ -38,15 +38,9 @@ impl Elements {
 impl Act for Elements {
     type Load = ReactResult;
     fn act(&self) -> Self::Load {
-        let window = window().expect("no window");
-        let _ = window.alert_with_message("Act for Elements!");
         let count = self.count.load();
         let offset = self.offset.load();
         self.program.act()?;
-        // let p = self.program.act();
-        // if let Err(memo) = p {
-        //     panic!("gpu program error! {memo}");
-        // }
         self.program.read(|program| program.use_target());
         self.buffer.act();
         self.vao.act();

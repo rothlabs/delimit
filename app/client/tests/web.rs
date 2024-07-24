@@ -3,6 +3,7 @@
 #![cfg(target_arch = "wasm32")]
 
 extern crate wasm_bindgen_test;
+use graph::*;
 use wasm_bindgen_test::*;
 
 mod gpu;
@@ -45,6 +46,13 @@ fn make_vertex_array_object() {
 }
 
 #[wasm_bindgen_test]
-fn draw_elements() {
-    gpu::draw_elements();
+fn draw_elements() -> ReactResult {
+    gpu::draw_elements()?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+fn draw_elements_react_to_shader_source_write() -> ReactResult {
+    gpu::draw_elements_react_to_shader_source_write()?;
+    Ok(())
 }

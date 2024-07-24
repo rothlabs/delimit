@@ -45,6 +45,7 @@ async fn service(
     ace.write(|load| {
         println!("load: {load}");
         *load += 1;
-    });
+    })
+    .ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
 }

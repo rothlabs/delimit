@@ -1,12 +1,12 @@
 pub use buffer::Buffer;
 pub use canvas::Canvas;
+pub use elements::Elements;
 pub use program::Program;
 pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
 use buffer::Array;
-use elements::*;
 use graph::*;
 use js_sys::*;
 use mecha::*;

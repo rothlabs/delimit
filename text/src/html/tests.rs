@@ -45,7 +45,7 @@ fn basic_doc() {
 fn mutate_lower_graph_plain() {
     let (doc, _, atts) = make_doc();
     let att = atts.get("type").unwrap();
-    att.write(|unit| *unit += "_mutated");
+    att.write(|unit| *unit += "_mutated").ok();
     let string = doc.grant().load();
     assert_eq!(MUTATED_ATTRIB, string);
 }
@@ -56,7 +56,8 @@ fn mutate_upper_graph_html() {
     let (doc, head, _) = make_doc();
     head.write(|pack| {
         pack.unit.items.remove(0);
-    });
+    })
+    .ok();
     let string = doc.grant().load();
     assert_eq!(REMOVED_TITLE, string);
 }

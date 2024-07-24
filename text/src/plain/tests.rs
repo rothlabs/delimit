@@ -2,9 +2,11 @@ use super::*;
 
 fn new_list(ace: &Ace<String>) -> Link<List> {
     let list = ", ".list();
-    list.link.write(|pack| {
-        pack.unit.items.back(pack.back).str("str").base(ace);
-    });
+    list.link
+        .write(|pack| {
+            pack.unit.items.back(pack.back).str("str").base(ace);
+        })
+        .ok();
     list.link
 }
 
@@ -25,13 +27,14 @@ fn grant_same_link_twice() {
 }
 
 #[test]
-fn react_from_self() {
+fn rebut_from_self() {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let a = text.grant();
     text.write(|pack| {
         pack.unit.separator(" > ");
-    });
+    })
+    .ok();
     let b = text.grant();
     assert!(a != b);
 }
@@ -41,19 +44,19 @@ fn react_from_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let a = text.grant();
-    ace.write(|string| string.push_str("_mutated"));
+    ace.write(|string| string.push_str("_mutated")).ok();
     let b = text.grant();
     assert!(a != b);
 }
 
 #[test]
-fn no_reactions_after_dropping_stem() {
+fn no_rebut_after_dropping_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let _r = text.grant();
-    text.write(|pack| pack.unit.remove(1));
+    text.write(|pack| pack.unit.remove(1)).ok();
     let a = text.grant();
-    ace.write(|string| string.push_str("_mutated"));
+    ace.write(|string| string.push_str("_mutated")).ok();
     let b = text.grant();
     assert!(a == b);
 }

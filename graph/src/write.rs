@@ -1,15 +1,15 @@
 use crate::*;
 
-pub type WriteResult<T> = Result<T, String>;
-
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
     pub back: &'a Back,
 }
 
+pub type WriteResult<T> = Result<T, String>;
+
 pub trait Write {
     type Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T;
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T>;
 }
 
 pub trait DoWrite {
@@ -27,7 +27,7 @@ pub trait WriteWithRoots {
 
 pub trait WriteWithPack {
     type Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T>;
 }
 
 pub trait WriteWithBack {

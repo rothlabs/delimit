@@ -43,10 +43,12 @@ impl Grant for Element {
                         .view(&close.grant())
                         //.use_ploy(close)
                         .str(">");
-                });
+                })
+                .ok();
                 element.role(&role);
             }
-        });
+        })
+        .ok();
         role
     }
 }

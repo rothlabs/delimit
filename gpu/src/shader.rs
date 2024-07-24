@@ -39,7 +39,7 @@ impl Act for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(()) // self.target.ace()
+            Ok(())
         } else {
             Err(self
                 .wglrc

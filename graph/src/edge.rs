@@ -293,12 +293,12 @@ where
     N: WriteWithRoots,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T> {
         let (roots, meta, out) = write_part(&self.node, |mut node| node.write_with_roots(write));
         for root in &roots {
-            root.react(&meta);
+            root.react(&meta)?;
         }
-        out
+        Ok(out)
     }
 }
 
@@ -307,14 +307,14 @@ where
     N: 'static + WriteWithBackRoots + DoUpdate,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> T {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T> {
         let (roots, meta, out) = write_part(&self.node, |mut node| {
             node.write_with_back_roots(write, &self.node_as_back())
         });
         for root in &roots {
-            root.react(&meta);
+            root.react(&meta)?;
         }
-        out
+        Ok(out)
     }
 }
 

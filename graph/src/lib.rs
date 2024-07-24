@@ -10,7 +10,8 @@ pub use role::Role;
 pub use unit::{AceUnit, Gate, Repo, Serial, ToSerial};
 pub use view::{AceView, AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
-    DoWrite, Pack, Write, WriteWithBack, WriteWithBackRoots, WriteWithPack, WriteWithRoots,
+    DoWrite, Pack, Write, WriteResult, WriteWithBack, WriteWithBackRoots, WriteWithPack,
+    WriteWithRoots,
 };
 
 use serde::Serialize;

@@ -34,9 +34,11 @@ impl Grant for Tag {
                     inner.view(&att.grant());
                     // inner.use_ploy(att);
                 }
-            });
+            })
+            .ok();
             tag.str("<").role(&role).str(">");
-        });
+        })
+        .ok();
         role
     }
 }

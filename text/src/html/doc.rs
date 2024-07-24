@@ -52,9 +52,10 @@ impl Doc {
         ace.load()
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
-        self.element.link.write(|pack| {
-            pack.unit.items.push(str.into());
-        });
+        self.element
+            .link
+            .write(|pack| pack.unit.items.push(str.into()))
+            .ok();
         self
     }
     pub fn root(self) -> Self {
@@ -64,9 +65,12 @@ impl Doc {
             .expect("element should have a root")
             .replace(None)
             .unwrap();
-        root.element.link.write(|pack| {
-            pack.unit.items.back(pack.back).role(&self.element.role);
-        });
+        root.element
+            .link
+            .write(|pack| {
+                pack.unit.items.back(pack.back).role(&self.element.role);
+            })
+            .ok();
         root
     }
     fn up(self, tag: &str) -> Self {
@@ -82,9 +86,12 @@ impl Doc {
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
             let attribute = Attribute::hold(name, value).role;
-            self.tag.link.write(|Pack { unit, back }| {
-                unit.attributes.back(back).role(&attribute);
-            });
+            self.tag
+                .link
+                .write(|Pack { unit, back }| {
+                    unit.attributes.back(back).role(&attribute);
+                })
+                .ok();
         }
         self
     }
