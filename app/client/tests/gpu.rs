@@ -112,7 +112,7 @@ pub fn draw_elements() {
     if let Err(memo) = draw_result {
         panic!("gpu error: {memo}");
     }
-    vertex_shader.write(|unit| *unit = "wow not a shader".to_owned());
+    vertex_shader.write(|unit| *unit = "wow not a shader".to_owned()); 
     // let draw_result = elements.act();
     // if let Err(memo) = draw_result {
     //     panic!("gpu error: {memo}");

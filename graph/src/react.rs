@@ -177,6 +177,16 @@ impl Ring {
         self.roots.clear();
         result
     }
+    pub fn cycle(&mut self, meta: &Meta) -> (Vec<Root>, Meta) {
+        let mut ring = Ring::new();
+        for root in &self.roots {
+            ring.roots.extend(root.rebut().roots);
+        }
+        self.roots.clear();
+        (Vec::from_iter(ring.roots), meta.clone())
+    }
+}
+
     // pub fn rebut_this(&mut self) -> Ring {
     //     let mut result = Ring::new();
     //     for root in &self.roots {
@@ -190,18 +200,17 @@ impl Ring {
     //     self.roots.clear();
     //     result
     // }
-    pub fn cycle(&mut self, meta: &Meta) {
-        let mut ring = Ring::new();
-        for root in &self.roots {
-            ring.roots.extend(root.rebut().roots);
-        }
-        //let ring = self.rebut_this();
-        for root in &ring.roots {
-            root.react(meta);
-        }
-        self.roots.clear();
-    }
-}
+    // pub fn cycle(&mut self, meta: &Meta) {
+    //     let mut ring = Ring::new();
+    //     for root in &self.roots {
+    //         ring.roots.extend(root.rebut().roots);
+    //     }
+    //     //let ring = self.rebut_this();
+    //     for root in &ring.roots {
+    //         root.react(meta);
+    //     }
+    //     self.roots.clear();
+    // }
 
 // #[cfg(not(feature="oneThread"))]
 // pub trait Update: Rebut + React + Send + Sync {}

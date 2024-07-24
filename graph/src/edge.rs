@@ -280,13 +280,27 @@ impl<N> Backed for Edge<N> {
     }
 }
 
+// impl<N> Write for Edge<N>
+// where
+//     N: DoWrite,
+// {
+//     type Item = N::Item;
+//     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
+//         write_part(&self.node, |mut node| node.do_write(write))
+//     }
+// }
+
 impl<N> Write for Edge<N>
 where
-    N: DoWrite,
+    N: WriteWithRoots,
 {
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
-        write_part(&self.node, |mut node| node.do_write(write))
+        let (roots, meta, out) = write_part(&self.node, |mut node| node.write_with_roots(write));
+        for root in &roots {
+            root.react(&meta);
+        }
+        out
     }
 }
 
