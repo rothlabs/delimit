@@ -9,7 +9,6 @@ pub use vertex_attribute::VertexAttribute;
 use buffer::Array;
 use graph::*;
 use js_sys::*;
-use mecha::*;
 use shader::*;
 use vao::*;
 use wasm_bindgen::prelude::*;
@@ -28,36 +27,36 @@ pub type WGLRC = WebGl2RenderingContext;
 
 /// GPU graph maker
 pub struct Gpu {
-    pub wglrc: WGLRC,
+    pub gl: WGLRC,
 }
 
 impl From<WGLRC> for Gpu {
     fn from(wglrc: WGLRC) -> Self {
-        Self { wglrc }
+        Self { gl: wglrc }
     }
 }
 
 impl Gpu {
     pub fn vertex_shader(&self, source: impl Into<Source>) -> shader::Result {
-        Shader::link(&self.wglrc, WGLRC::VERTEX_SHADER, &source.into())
+        Shader::link(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
     pub fn fragment_shader(&self, source: impl Into<Source>) -> shader::Result {
-        Shader::link(&self.wglrc, WGLRC::FRAGMENT_SHADER, &source.into())
+        Shader::link(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
-        Program::link(&self.wglrc, vertex, fragment)
+        Program::link(&self.gl, vertex, fragment)
     }
     pub fn array_buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
-        Buffer::link_f32(&self.wglrc, WGLRC::ARRAY_BUFFER, &array.into())
+        Buffer::link_f32(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
     pub fn element_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
-        Buffer::link_u16(&self.wglrc, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
+        Buffer::link_u16(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
     pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
-        VertexAttribute::link(&self.wglrc, buffer)
+        VertexAttribute::link(&self.gl, buffer)
     }
     pub fn vao(&self, attributes: &Attributes) -> vao::Result {
-        Vao::link(&self.wglrc, attributes)
+        Vao::link(&self.gl, attributes)
     }
     pub fn elements(
         &self,
@@ -65,6 +64,6 @@ impl Gpu {
         buffer: &Agent<Buffer<f32>>,
         vao: &Agent<Vao>,
     ) -> Agent<Elements> {
-        Elements::link(&self.wglrc, program, buffer, vao)
+        Elements::link(&self.gl, program, buffer, vao)
     }
 }

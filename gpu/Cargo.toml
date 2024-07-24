@@ -11,7 +11,6 @@ edition = "2021"
         derive_builder = "0.20.0"
     # delimit 
         graph = { path = "../graph", features = ["oneThread"] }
-        mecha = { path = "../mecha" } 
         text = {path = "../text"}
 
 [dependencies.web-sys]

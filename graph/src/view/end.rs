@@ -8,8 +8,8 @@ pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, End<L>>;
 /// End-view with plan.  
 pub type Plan<P, T, L> = View<role::Plan<P, T, Ace<L>>, End<L>>;
 
-/// A bare item or ace link.
-/// This should be used at the end of a chain of views.
+/// A bare load or ace link to load.
+/// This can be used at the end of a chain of views.
 #[derive(Clone, Serialize)]
 pub enum End<L> {
     Bare(L),
@@ -25,6 +25,19 @@ where
     }
 }
 
+impl<T> From<T> for End<T> {
+    fn from(value: T) -> Self {
+        Self::Bare(value)
+    }
+}
+
+impl<L> FromItem for End<L> {
+    type Item = L;
+    fn new(item: Self::Item) -> Self {
+        Self::Bare(item)
+    }
+}
+
 impl<L> From<Ace<L>> for End<L> {
     fn from(value: Ace<L>) -> Self {
         Self::Link(value)
@@ -37,25 +50,9 @@ impl<L> From<&Ace<L>> for End<L> {
     }
 }
 
-impl<'a> From<&'a str> for End<String>
-// where
-//     &'a str: Into<String>
-{
+impl<'a> From<&'a str> for End<String> {
     fn from(value: &'a str) -> Self {
         Self::Bare(value.into())
-    }
-}
-
-impl<T> From<T> for End<T> {
-    fn from(value: T) -> Self {
-        Self::Bare(value)
-    }
-}
-
-impl<L> FromItem for End<L> {
-    type Item = L;
-    fn new(item: Self::Item) -> Self {
-        Self::Bare(item)
     }
 }
 

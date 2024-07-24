@@ -1,6 +1,5 @@
 use gpu::*;
 use graph::*;
-use mecha::*;
 
 // Setup
 
@@ -26,7 +25,7 @@ fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
         0.,  0.,  0.,
         10., 0.,  0.,
         0.,  10., 0.,
-    ].array());
+    ]);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
@@ -37,7 +36,7 @@ pub fn draw_basic_elements() -> Result<(Agent<Elements>, Ace<String>), String> {
     let gpu = make_gpu();
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_array_buffer(&gpu);
-    let element_buffer = gpu.element_buffer(vec![0, 1, 3].array()).unwrap();
+    let element_buffer = gpu.element_buffer(vec![0, 1, 3]).unwrap();
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
         pack.unit.size(3);
@@ -83,9 +82,7 @@ pub fn make_array_buffer() {
 pub fn make_element_buffer() {
     let gpu = make_gpu();
     #[rustfmt::skip]
-    let buffer = gpu.element_buffer(vec![
-        0,  1,  3, 
-    ].array());
+    let buffer = gpu.element_buffer(vec![0,  1,  3]);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
@@ -121,7 +118,7 @@ pub fn draw_elements() -> ReactResult {
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
-/// and attempt to compile the shader. It should result in error.
+/// and attempt to compile the shader. Error is expected.
 pub fn draw_elements_react_to_shader_source_write() -> ReactResult {
     let (_elements, shader_source) = draw_basic_elements()?;
     if let Err(_) = shader_source.write(|unit| *unit = "bad shader".to_owned()) {

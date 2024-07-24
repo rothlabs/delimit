@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Array<T> = AcePloy<Array1<T>>;
+pub type Array<T> = AcePloy<Vec<T>>;
 pub type Result<T> = std::result::Result<Agent<Buffer<T>>, String>;
 
 pub struct Buffer<T> {
