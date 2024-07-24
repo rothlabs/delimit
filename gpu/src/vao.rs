@@ -53,3 +53,9 @@ impl Act for Vao {
         self.unbind();
     }
 }
+
+impl React for Vao {
+    fn react(&self, _: &Meta) {
+        self.act();
+    }
+}

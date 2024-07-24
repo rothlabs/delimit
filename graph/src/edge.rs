@@ -288,16 +288,6 @@ impl<N> Backed for Edge<N> {
     }
 }
 
-// impl<N> Write for Edge<N>
-// where
-//     N: DoWrite,
-// {
-//     type Item = N::Item;
-//     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
-//         write_part(&self.node, |mut node| node.do_write(write))
-//     }
-// }
-
 impl<N> Write for Edge<N>
 where
     N: WriteWithRoots,
@@ -438,5 +428,16 @@ impl<T, L> React for BoxConvert<T, L> {
 //         S: serde::Serializer,
 //     {
 //         self.meta.serialize(serializer)
+//     }
+// }
+
+
+// impl<N> Write for Edge<N>
+// where
+//     N: DoWrite,
+// {
+//     type Item = N::Item;
+//     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
+//         write_part(&self.node, |mut node| node.do_write(write))
 //     }
 // }

@@ -63,6 +63,10 @@ impl Act for VertexAttribute {
     }
 }
 
-// im
+impl React for VertexAttribute {
+    fn react(&self, _: &Meta) {
+        self.act();
+    }
+}
 
 // self.gl.vertex_attrib_pointer_with_f64(indx, size, type_, normalized, stride, offset)

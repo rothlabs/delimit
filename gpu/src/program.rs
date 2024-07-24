@@ -52,6 +52,12 @@ impl Act for Program {
     }
 }
 
+impl React for Program {
+    fn react(&self, _: &Meta) {
+        _ = self.act();
+    }
+}
+
 // self.wglrc.attach_shader(&self.target, &self.vertex.act()?);
 //         self.wglrc.attach_shader(&self.target, &self.fragment.act()?);
 

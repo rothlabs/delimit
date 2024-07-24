@@ -59,3 +59,9 @@ impl Act for Elements {
         Ok(())
     }
 }
+
+impl React for Elements {
+    fn react(&self, _: &Meta) {
+        _ = self.act();
+    }
+}

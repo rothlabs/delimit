@@ -50,6 +50,12 @@ impl Act for Shader {
     }
 }
 
+impl React for Shader {
+    fn react(&self, _: &Meta) {
+        _ = self.act();
+    }
+}
+
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {
 //         Self {

@@ -36,6 +36,12 @@ impl Act for Canvas {
     }
 }
 
+impl React for Canvas {
+    fn react(&self, _: &Meta) {
+        self.act();
+    }
+}
+
 // impl Default for Canvas {
 //     fn default() -> Self {
 //         let document = window().unwrap().document().unwrap();
