@@ -5,8 +5,8 @@ pub struct Elements {
     program: Agent<Program>,
     buffer: Agent<Buffer<f32>>,
     vao: Agent<Vao>,
-    count: AceView<i32>,
-    offset: AceView<i32>,
+    count: Value<i32>,
+    offset: Value<i32>,
 }
 
 impl Elements {
@@ -21,15 +21,15 @@ impl Elements {
             program: program.backed(back),
             buffer: buffer.backed(back),
             vao: vao.backed(back),
-            count: AceView::default(),
-            offset: AceView::default(),
+            count: Value::default(),
+            offset: Value::default(),
         })
     }
-    pub fn count(&mut self, count: impl Into<AceView<i32>>) -> &mut Self {
+    pub fn count(&mut self, count: impl Into<Value<i32>>) -> &mut Self {
         self.count = count.into();
         self
     }
-    pub fn offset(&mut self, offset: impl Into<AceView<i32>>) -> &mut Self {
+    pub fn offset(&mut self, offset: impl Into<Value<i32>>) -> &mut Self {
         self.offset = offset.into();
         self
     }

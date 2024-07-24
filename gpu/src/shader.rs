@@ -5,7 +5,7 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-pub type Source = AceView<String>;
+pub type Source = Value<String>;
 pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {

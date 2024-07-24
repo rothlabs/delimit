@@ -4,9 +4,10 @@ pub use end::End;
 
 pub mod end;
 
-/// Link to bare L, Ace<L>, or Ploy<Ace<L>>
-/// Satisfies ToLoad but not Grant
-pub type AceView<L> = View<AcePloy<L>, End<L>>;
+/// Graph part for copy types.
+/// Could be a bare L, `Ace<L>`, or `AcePloy<L>`. 
+/// Satisfies Read and ToLoad.
+pub type Value<L> = View<AcePloy<L>, End<L>>;
 
 /// A base or a role that must provide a base via granting or solving.
 /// Views are phrased as "view of BASE with ROLE" or "BASE view with ROLE".

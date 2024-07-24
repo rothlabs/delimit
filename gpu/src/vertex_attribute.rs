@@ -4,10 +4,10 @@ use super::*;
 pub struct VertexAttribute {
     gl: WGLRC,
     buffer: Agent<Buffer<f32>>,
-    index: AceView<u32>,
-    size: AceView<i32>,
-    stride: AceView<i32>,
-    offset: AceView<i32>,
+    index: Value<u32>,
+    size: Value<i32>,
+    stride: Value<i32>,
+    offset: Value<i32>,
 }
 
 impl VertexAttribute {
@@ -15,25 +15,25 @@ impl VertexAttribute {
         Agent::make(|back| Self {
             gl: wglrc.clone(),
             buffer: buffer.backed(back),
-            index: AceView::default(),
-            size: AceView::default(),
-            stride: AceView::default(),
-            offset: AceView::default(),
+            index: Value::default(),
+            size: Value::default(),
+            stride: Value::default(),
+            offset: Value::default(),
         })
     }
-    pub fn index(&mut self, index: impl Into<AceView<u32>>) -> &mut Self {
+    pub fn index(&mut self, index: impl Into<Value<u32>>) -> &mut Self {
         self.index = index.into();
         self
     }
-    pub fn size(&mut self, size: impl Into<AceView<i32>>) -> &mut Self {
+    pub fn size(&mut self, size: impl Into<Value<i32>>) -> &mut Self {
         self.size = size.into();
         self
     }
-    pub fn stride(&mut self, stride: impl Into<AceView<i32>>) -> &mut Self {
+    pub fn stride(&mut self, stride: impl Into<Value<i32>>) -> &mut Self {
         self.stride = stride.into();
         self
     }
-    pub fn offset(&mut self, offset: impl Into<AceView<i32>>) -> &mut Self {
+    pub fn offset(&mut self, offset: impl Into<Value<i32>>) -> &mut Self {
         self.offset = offset.into();
         self
     }
