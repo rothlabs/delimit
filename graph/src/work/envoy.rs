@@ -55,7 +55,9 @@ impl<U> DoReact for Envoy<U>
 where
     U: Serve,
 {
-    fn do_react(&mut self, _: &Meta) {}
+    fn do_react(&mut self, _: &Meta) -> ReactResult {
+        Ok(())
+    }
 }
 
 // if let Some(load) = &self.load {

@@ -24,7 +24,7 @@ impl Elements {
             count: AceView::default(),
             offset: AceView::default(),
         })
-    } 
+    }
     pub fn count(&mut self, count: impl Into<AceView<i32>>) -> &mut Self {
         self.count = count.into();
         self
@@ -34,9 +34,9 @@ impl Elements {
         self
     }
 }
- 
+
 impl Act for Elements {
-    type Load = std::result::Result<(), String>;
+    type Load = ReactResult;
     fn act(&self) -> Self::Load {
         let window = window().expect("no window");
         let _ = window.alert_with_message("Act for Elements!");
@@ -61,7 +61,7 @@ impl Act for Elements {
 }
 
 impl React for Elements {
-    fn react(&self, _: &Meta) {
-        _ = self.act();
+    fn react(&self, _: &Meta) -> ReactResult {
+        self.act()
     }
 }

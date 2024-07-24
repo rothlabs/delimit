@@ -103,7 +103,8 @@ impl<U> DoReact for Deuce<U>
 where
     U: Grant,
 {
-    fn do_react(&mut self, _: &Meta) {
+    fn do_react(&mut self, _: &Meta) -> ReactResult {
         self.unit.as_ref().unwrap().grant();
+        Ok(())
     }
 }

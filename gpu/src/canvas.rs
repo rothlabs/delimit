@@ -37,8 +37,9 @@ impl Act for Canvas {
 }
 
 impl React for Canvas {
-    fn react(&self, _: &Meta) {
+    fn react(&self, _: &Meta) -> ReactResult {
         self.act();
+        Ok(())
     }
 }
 

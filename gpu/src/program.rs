@@ -27,7 +27,7 @@ impl Program {
 }
 
 impl Act for Program {
-    type Load = std::result::Result<(), String>;
+    type Load = ReactResult;
     fn act(&self) -> Self::Load {
         self.vertex.act()?;
         self.fragment.act()?;
@@ -53,8 +53,8 @@ impl Act for Program {
 }
 
 impl React for Program {
-    fn react(&self, _: &Meta) {
-        _ = self.act();
+    fn react(&self, _: &Meta) -> ReactResult {
+        self.act()
     }
 }
 

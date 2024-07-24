@@ -20,12 +20,14 @@ pub trait DoRebut {
     fn do_rebut(&mut self) -> Ring;
 }
 
+pub type ReactResult = Result<(), String>;
+
 pub trait React {
-    fn react(&self, meta: &Meta);
+    fn react(&self, meta: &Meta) -> ReactResult;
 }
 
 pub trait DoReact {
-    fn do_react(&mut self, meta: &Meta);
+    fn do_react(&mut self, meta: &Meta) -> ReactResult;
 }
 
 pub trait AddRoot {
@@ -97,9 +99,11 @@ impl Root {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) {
+    pub fn react(&self, meta: &Meta) -> ReactResult {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.react(meta));
+            read_part(&edge, |edge| edge.react(meta))
+        } else {
+            Ok(())
         }
     }
 }
@@ -143,9 +147,11 @@ impl Back {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) {
+    pub fn react(&self, meta: &Meta) -> ReactResult {
         if let Some(node) = self.node.upgrade() {
-            write_part(&node, |mut node| node.do_react(meta));
+            write_part(&node, |mut node| node.do_react(meta))
+        } else {
+            Ok(())
         }
     }
 }

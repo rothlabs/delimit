@@ -353,13 +353,8 @@ impl<N> React for Edge<N>
 where
     N: DoReact,
 {
-    fn react(&self, meta: &Meta) {
-        // if self.meta.id != meta.id {
-        write_part(&self.node, |mut node| node.do_react(meta));
-        // }
-        // if let Some(back) = &self.back {
-        //     back.react(meta);
-        // }
+    fn react(&self, meta: &Meta) -> ReactResult {
+        write_part(&self.node, |mut node| node.do_react(meta))
     }
 }
 
@@ -387,7 +382,7 @@ impl<L> Rebut for BoxProduce<L> {
 }
 
 impl<L> React for BoxProduce<L> {
-    fn react(&self, meta: &Meta) {
+    fn react(&self, meta: &Meta) -> ReactResult {
         self.as_ref().react(meta)
     }
 }
@@ -417,7 +412,7 @@ impl<T, L> Rebut for BoxConvert<T, L> {
 }
 
 impl<T, L> React for BoxConvert<T, L> {
-    fn react(&self, meta: &Meta) {
+    fn react(&self, meta: &Meta) -> ReactResult {
         self.as_ref().react(meta)
     }
 }
@@ -430,7 +425,6 @@ impl<T, L> React for BoxConvert<T, L> {
 //         self.meta.serialize(serializer)
 //     }
 // }
-
 
 // impl<N> Write for Edge<N>
 // where

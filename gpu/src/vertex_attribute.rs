@@ -12,7 +12,7 @@ pub struct VertexAttribute {
 
 impl VertexAttribute {
     pub fn link(wglrc: &WGLRC, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
-        Agent::make(|back| Self { 
+        Agent::make(|back| Self {
             gl: wglrc.clone(),
             buffer: buffer.backed(back),
             index: AceView::default(),
@@ -64,8 +64,9 @@ impl Act for VertexAttribute {
 }
 
 impl React for VertexAttribute {
-    fn react(&self, _: &Meta) {
+    fn react(&self, _: &Meta) -> ReactResult {
         self.act();
+        Ok(())
     }
 }
 

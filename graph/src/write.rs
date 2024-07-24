@@ -1,5 +1,7 @@
 use crate::*;
 
+pub type WriteResult<T> = Result<T, String>;
+
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
     pub back: &'a Back,

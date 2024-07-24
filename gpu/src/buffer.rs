@@ -78,13 +78,15 @@ impl Act for Buffer<u16> {
 }
 
 impl React for Buffer<f32> {
-    fn react(&self, _: &Meta) {
+    fn react(&self, _: &Meta) -> ReactResult {
         self.act();
+        Ok(())
     }
 }
 
 impl React for Buffer<u16> {
-    fn react(&self, _: &Meta) {
+    fn react(&self, _: &Meta) -> ReactResult {
         self.act();
+        Ok(())
     }
 }

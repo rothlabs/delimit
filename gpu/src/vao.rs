@@ -55,7 +55,8 @@ impl Act for Vao {
 }
 
 impl React for Vao {
-    fn react(&self, _: &Meta) {
+    fn react(&self, _: &Meta) -> ReactResult {
         self.act();
+        Ok(())
     }
 }
