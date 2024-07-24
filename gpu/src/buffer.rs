@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Array<T> = AcePloy<Vec<T>>;
+pub type Array<T> = Asset<Vec<T>>;
 pub type Result<T> = std::result::Result<Agent<Buffer<T>>, String>;
 
 pub struct Buffer<T> {
@@ -20,10 +20,10 @@ impl<T> Buffer<T> {
 }
 
 impl Buffer<f32> {
-    pub fn link_f32(wglrc: &WGLRC, kind: u32, array: &Array<f32>) -> Result<f32> {
-        let target = wglrc.create_buffer().ok_or("failed to create buffer")?;
+    pub fn link_f32(gl: &WGLRC, kind: u32, array: &Array<f32>) -> Result<f32> {
+        let target = gl.create_buffer().ok_or("failed to create buffer")?;
         let link = Agent::make(|back| Self {
-            gl: wglrc.clone(),
+            gl: gl.clone(),
             target,
             kind,
             array: array.backed(back),

@@ -6,14 +6,16 @@ pub struct Program {
     target: WebGlProgram,
     vertex: Agent<Shader>,
     fragment: Agent<Shader>,
-    wglrc: WGLRC,
+    gl: WGLRC,
 }
 
 impl Program {
-    pub fn link(wglrc: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> Result {
-        let target = wglrc.create_program().ok_or("failed to create program")?;
+    pub fn link(gl: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> Result {
+        let target = gl.create_program().ok_or("failed to create program")?;
+        vertex.read(|unit| gl.attach_shader(&target, &unit.target));
+        fragment.read(|unit| gl.attach_shader(&target, &unit.target));
         let link = Agent::make(|back| Self {
-            wglrc: wglrc.clone(),
+            gl: gl.clone(),
             vertex: vertex.backed(back),
             fragment: fragment.backed(back),
             target,
@@ -22,7 +24,7 @@ impl Program {
         Ok(link)
     }
     pub fn use_target(&self) {
-        self.wglrc.use_program(Some(&self.target));
+        self.gl.use_program(Some(&self.target));
     }
 }
 
@@ -31,13 +33,9 @@ impl Act for Program {
     fn act(&self) -> Self::Load {
         self.vertex.act()?;
         self.fragment.act()?;
-        self.vertex
-            .read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
-        self.fragment
-            .read(|unit| self.wglrc.attach_shader(&self.target, &unit.target));
-        self.wglrc.link_program(&self.target);
+        self.gl.link_program(&self.target);
         if self
-            .wglrc
+            .gl
             .get_program_parameter(&self.target, WGLRC::LINK_STATUS)
             .as_bool()
             .unwrap_or(false)
@@ -45,7 +43,7 @@ impl Act for Program {
             Ok(())
         } else {
             Err(self
-                .wglrc
+                .gl
                 .get_program_info_log(&self.target)
                 .ok_or("failed to get program info log")?)
         }

@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, AcePloy, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Asset, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
@@ -74,6 +74,25 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
     write(part.borrow_mut())
 }
 
+/// Edge that grants a load. It can also clone the edge with a new back.
+#[cfg(not(feature = "oneThread"))]
+pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+/// Edge that grants a load. It can also clone the edge with a new back.
+#[cfg(feature = "oneThread")]
+pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+
+/// Edge that solves a task. It can also clone the edge with a new Back.
+#[cfg(not(feature = "oneThread"))]
+pub trait Convert<T, L>:
+    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
+{
+}
+#[cfg(feature = "oneThread")]
+pub trait Convert<T, L>:
+    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
+{
+}
+
 #[derive(Clone)]
 pub struct Hold<L, R> {
     pub link: L,
@@ -146,24 +165,6 @@ pub trait DoServe {
     type Task;
     type Load;
     fn do_serve(&mut self, task: Self::Task) -> Self::Load;
-}
-
-/// Edge that grants a load. It can also clone the edge with a new back,
-#[cfg(not(feature = "oneThread"))]
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
-#[cfg(feature = "oneThread")]
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
-
-/// Edge that solves a task. It can also clone the edge with a new Back.
-#[cfg(not(feature = "oneThread"))]
-pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
-{
-}
-#[cfg(feature = "oneThread")]
-pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
-{
 }
 
 pub trait ToLoad {

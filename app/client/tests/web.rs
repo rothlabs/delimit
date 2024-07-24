@@ -52,7 +52,13 @@ fn draw_elements() -> ReactResult {
 }
 
 #[wasm_bindgen_test]
-fn draw_elements_react_to_shader_source_write() -> ReactResult {
-    gpu::draw_elements_react_to_shader_source_write()?;
+fn elements_react_to_shader_source() -> ReactResult {
+    gpu::elements_react_to_shader_source()?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+fn shader_source_error() -> ReactResult {
+    gpu::shader_source_error()?;
     Ok(())
 }

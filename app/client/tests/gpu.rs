@@ -3,28 +3,39 @@ use graph::*;
 
 // Setup
 
-fn make_gpu() -> Gpu {
+fn make_canvas() -> Gpu {
     let canvas = Canvas::link();
     canvas.read(|unit| unit.gpu())
+}
+
+fn make_canvas_on_body() -> Gpu {
+    let canvas = Canvas::link();
+    let gpu = canvas.read(|unit| {
+        unit.add_to_body();
+        unit.gpu()
+    });
+    canvas.act();
+    gpu
 }
 
 fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
     let vertex_source = shader::basic::VERTEX.ace();
     let vertex = gpu.vertex_shader(&vertex_source).unwrap();
-    let fragment = gpu.fragment_shader(shader::basic::FRAGMENT).unwrap();
+    let fragment_source = shader::basic::FRAGMENT.ace();
+    let fragment = gpu.fragment_shader(&fragment_source).unwrap();
     let program = gpu.program(&vertex, &fragment);
     if let Err(memo) = program {
         panic!("gpu error: {memo}");
     }
-    (program.unwrap(), vertex_source)
+    (program.unwrap(), fragment_source)
 }
 
 fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
     #[rustfmt::skip]
     let buffer = gpu.array_buffer(vec![
         0.,  0.,  0.,
-        10., 0.,  0.,
-        0.,  10., 0.,
+        0., 0.8,  0.,
+        0.8,  0., 0.,
     ]);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
@@ -32,11 +43,10 @@ fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
     buffer.unwrap()
 }
 
-pub fn draw_basic_elements() -> Result<(Agent<Elements>, Ace<String>), String> {
-    let gpu = make_gpu();
+pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), String> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_array_buffer(&gpu);
-    let element_buffer = gpu.element_buffer(vec![0, 1, 3]).unwrap();
+    let element_buffer = gpu.element_buffer(vec![0, 1, 2]).unwrap();
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
         pack.unit.size(3);
@@ -56,40 +66,40 @@ pub fn draw_basic_elements() -> Result<(Agent<Elements>, Ace<String>), String> {
 ////////////////////////////////////// Tests
 
 pub fn make_vertex_shader() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     if let Err(memo) = gpu.vertex_shader(shader::basic::VERTEX) {
         panic!("gpu error: {memo}");
     }
 }
 
 pub fn make_fragment_shader() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT) {
         panic!("gpu error: {memo}");
     }
 }
 
 pub fn make_program() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     make_basic_program(&gpu);
 }
 
 pub fn make_array_buffer() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     make_basic_array_buffer(&gpu);
 }
 
 pub fn make_element_buffer() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     #[rustfmt::skip]
-    let buffer = gpu.element_buffer(vec![0,  1,  3]);
+    let buffer = gpu.element_buffer(vec![0,  1,  2]);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
 }
 
 pub fn make_vertex_attribute() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     let buffer = make_basic_array_buffer(&gpu);
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
@@ -99,7 +109,7 @@ pub fn make_vertex_attribute() {
 }
 
 pub fn make_vertex_array_object() {
-    let gpu = make_gpu();
+    let gpu = make_canvas();
     let buffer = make_basic_array_buffer(&gpu);
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
@@ -113,17 +123,29 @@ pub fn make_vertex_array_object() {
 }
 
 pub fn draw_elements() -> ReactResult {
-    draw_basic_elements()?;
+    let gpu = make_canvas_on_body();
+    draw_basic_elements(&gpu)?;
+    Ok(())
+}
+
+/// Because elements has not been dropped yet, it should react to the change of shader source.
+pub fn elements_react_to_shader_source() -> ReactResult {
+    let gpu = make_canvas_on_body();
+    let (_elements, shader_source) = draw_basic_elements(&gpu)?;
+    shader_source.write(|unit| *unit = shader::basic::FRAGMENT_GREEN.to_owned())?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
-pub fn draw_elements_react_to_shader_source_write() -> ReactResult {
-    let (_elements, shader_source) = draw_basic_elements()?;
+pub fn shader_source_error() -> ReactResult {
+    let gpu = make_canvas();
+    let (_elements, shader_source) = draw_basic_elements(&gpu)?;
     if let Err(_) = shader_source.write(|unit| *unit = "bad shader".to_owned()) {
         Ok(())
     } else {
         panic!("this shader write should have caused compile error");
     }
 }
+
+

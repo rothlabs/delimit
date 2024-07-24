@@ -30,8 +30,8 @@ pub type Envoy<U> = Link<edge::Envoy<U>>;
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
 
-/// Link that grants a load.
-pub type AcePloy<L> = Link<Box<dyn Produce<Ace<L>>>>;
+/// Link that grants an Ace.
+pub type Asset<L> = Link<Box<dyn Produce<Ace<L>>>>;
 
 /// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
@@ -305,13 +305,13 @@ where
     }
 }
 
-impl<'a> From<&'a str> for AcePloy<String> {
+impl<'a> From<&'a str> for Asset<String> {
     fn from(load: &'a str) -> Self {
         Deuce::new(AceUnit { load: load.into() }).ploy()
     }
 }
 
-impl<T> From<T> for AcePloy<T>
+impl<T> From<T> for Asset<T>
 where
     T: 'static + Clone + SendSync,
 {

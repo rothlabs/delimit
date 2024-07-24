@@ -49,6 +49,7 @@ impl Act for VertexAttribute {
         self.buffer.act();
         self.buffer.read(|buffer| {
             buffer.bind();
+            self.gl.enable_vertex_attrib_array(index);
             self.gl.vertex_attrib_pointer_with_i32(
                 index,
                 size,
@@ -57,7 +58,6 @@ impl Act for VertexAttribute {
                 stride,
                 offset,
             );
-            self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();
         });
     }

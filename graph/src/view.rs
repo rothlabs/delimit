@@ -7,7 +7,7 @@ pub mod end;
 /// Graph part for copy types.
 /// Could be a bare L, `Ace<L>`, or `AcePloy<L>`. 
 /// Satisfies Read and ToLoad.
-pub type Value<L> = View<AcePloy<L>, End<L>>;
+pub type Value<L> = View<Asset<L>, End<L>>;
 
 /// A base or a role that must provide a base via granting or solving.
 /// Views are phrased as "view of BASE with ROLE" or "BASE view with ROLE".

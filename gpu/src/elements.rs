@@ -11,13 +11,13 @@ pub struct Elements {
 
 impl Elements {
     pub fn link(
-        wglrc: &WGLRC,
+        gl: &WGLRC,
         program: &Agent<Program>,
         buffer: &Agent<Buffer<f32>>,
         vao: &Agent<Vao>,
     ) -> Agent<Elements> {
         Agent::make(|back| Self {
-            gl: wglrc.clone(),
+            gl: gl.clone(),
             program: program.backed(back),
             buffer: buffer.backed(back),
             vao: vao.backed(back),

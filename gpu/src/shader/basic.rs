@@ -15,3 +15,13 @@ void main() {
     outColor = vec4(1, 0, 0.5, 1);
 }
 ";
+
+pub const FRAGMENT_GREEN: &str = r"#version 300 es
+precision highp float;
+
+layout(location = 0) out vec4 outColor;
+
+void main() {
+    outColor = vec4(0, 1, 0.1, 1);
+}
+";
