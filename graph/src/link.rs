@@ -83,32 +83,34 @@ impl<E> PartialEq for Link<E> {
 
 impl<E> FromItem for Link<E>
 where
-    E: FromItem,
+    E: FromItem + ToMeta,
 {
     type Item = E::Item;
     fn new(unit: Self::Item) -> Self {
+        let node = E::new(unit);
         Self {
+            meta: node.meta(),
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(E::new(unit))),
+            edge: Arc::new(RwLock::new(node)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(E::new(unit))),
-            meta: Meta::new(),
+            edge: Rc::new(RefCell::new(node)),
         }
     }
 }
 
 impl<E> Make for Link<E>
 where
-    E: Make,
+    E: Make + ToMeta,
 {
     type Unit = E::Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+        let node = E::make(make);
         Self {
+            meta: node.meta(),
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(E::make(make))),
+            edge: Arc::new(RwLock::new(node)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(E::make(make))),
-            meta: Meta::new(),
+            edge: Rc::new(RefCell::new(node)),
         }
     }
 }

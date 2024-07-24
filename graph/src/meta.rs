@@ -38,3 +38,7 @@ impl Default for Meta {
         Self::new()
     }
 }
+
+pub trait ToMeta {
+    fn meta(&self) -> Meta;
+}

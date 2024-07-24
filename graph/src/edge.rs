@@ -27,6 +27,7 @@ pub type Pipe<U> = Edge<node::Pipe<U>>;
 
 /// The forward bridge between nodes.
 pub struct Edge<N> {
+    pub meta: Meta,
     pub back: Option<Back>,
     #[cfg(not(feature = "oneThread"))]
     pub node: Arc<RwLock<N>>,
@@ -34,42 +35,54 @@ pub struct Edge<N> {
     pub node: Rc<RefCell<N>>,
 }
 
+impl<N> ToMeta for Edge<N> {
+    fn meta(&self) -> Meta {
+        self.meta.clone()
+    }
+}
+
 impl<N> FromItem for Edge<N>
 where
-    N: FromItem,
+    N: FromItem + ToMeta,
 {
     type Item = N::Item;
     fn new(unit: Self::Item) -> Self {
+        let node = N::new(unit);
         Self {
+            meta: node.meta(),
             back: None,
             #[cfg(not(feature = "oneThread"))]
-            node: Arc::new(RwLock::new(N::new(unit))),
+            node: Arc::new(RwLock::new(node)),
             #[cfg(feature = "oneThread")]
-            node: Rc::new(RefCell::new(N::new(unit))),
+            node: Rc::new(RefCell::new(node)),
         }
     }
 }
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + DoMake + DoUpdate,
+    N: 'static + Default + DoMake + DoUpdate + ToMeta,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let node = Arc::new(RwLock::new(N::default()));
+        let node = N::default();
+        let meta = node.meta();
+        let node = Arc::new(RwLock::new(node));
         let update = node.clone() as Arc<RwLock<dyn DoUpdate>>;
         let back = Back::new(Arc::downgrade(&update));
         write_part(&node, |mut node| node.do_make(make, &back));
-        Self { back: None, node }
+        Self { meta, back: None, node }
     }
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let node = Rc::new(RefCell::new(N::default()));
+        let node = N::default();
+        let meta = node.meta();
+        let node = Rc::new(RefCell::new(node));
         let update = node.clone() as Rc<RefCell<dyn DoUpdate>>;
         let back = Back::new(Rc::downgrade(&update));
         write_part(&node, |mut node| node.do_make(make, &back));
-        Self { node, back: None }
+        Self { meta, node, back: None }
     }
 }
 
@@ -125,6 +138,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load>>>> {
         Arc::new(RwLock::new(Box::new(Self {
+            meta: self.meta(),
             back: self.back.clone(),
             node: self.node.clone(),
         })))
@@ -133,6 +147,7 @@ where
     fn ploy(&self) -> Rc<RefCell<Box<dyn Produce<Self::Load>>>> {
         //  + Send + Sync
         Rc::new(RefCell::new(Box::new(Self {
+            meta: self.meta(),
             back: self.back.clone(),
             node: self.node.clone(),
         })))
@@ -148,6 +163,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<U::Load>>> {
         Arc::new(RwLock::new(Box::new(Self {
+            meta: self.meta(),
             back: Some(back.clone()),
             node: self.node.clone(),
         })))
@@ -155,6 +171,7 @@ where
     #[cfg(feature = "oneThread")]
     fn backed_ploy(&self, back: &Back) -> Rc<RefCell<BoxProduce<U::Load>>> {
         Rc::new(RefCell::new(Box::new(Self {
+            meta: self.meta(),
             back: Some(back.clone()),
             node: self.node.clone(),
         })))
@@ -202,6 +219,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn plan(&self) -> Arc<RwLock<Box<dyn Convert<Self::Task, Self::Load>>>> {
         Arc::new(RwLock::new(Box::new(Self {
+            meta: self.meta(),
             back: self.back.clone(),
             node: self.node.clone(),
         })))
@@ -209,6 +227,7 @@ where
     #[cfg(feature = "oneThread")]
     fn plan(&self) -> Rc<RefCell<Box<dyn Convert<Self::Task, Self::Load>>>> {
         Rc::new(RefCell::new(Box::new(Self {
+            meta: self.meta(),
             back: self.back.clone(),
             node: self.node.clone(),
         })))
@@ -226,6 +245,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn backed_plan(&self, back: &Back) -> Arc<RwLock<BoxConvert<T, L>>> {
         Arc::new(RwLock::new(Box::new(Self {
+            meta: self.meta(),
             back: Some(back.clone()),
             node: self.node.clone(),
         })))
@@ -233,6 +253,7 @@ where
     #[cfg(feature = "oneThread")]
     fn backed_plan(&self, back: &Back) -> Rc<RefCell<BoxConvert<T, L>>> {
         Rc::new(RefCell::new(Box::new(Self {
+            meta: self.meta(),
             back: Some(back.clone()),
             node: self.node.clone(),
         })))
@@ -252,6 +273,7 @@ where
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
+            meta: self.meta(),
             back: Some(back.clone()),
             node: self.node.clone(),
         }
@@ -316,7 +338,9 @@ where
     N: DoReact
 {
     fn react(&self, meta: &Meta) {
-        write_part(&self.node, |mut node| node.do_react(meta));
+        // if self.meta.id != meta.id {
+            write_part(&self.node, |mut node| node.do_react(meta));
+        // }
         // if let Some(back) = &self.back {
         //     back.react(meta);
         // }

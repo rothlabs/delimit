@@ -1,6 +1,6 @@
 pub use edge::Edge;
 pub use link::{Ace, AcePloy, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
-pub use meta::Meta;
+pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
     AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,

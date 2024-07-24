@@ -24,7 +24,7 @@ impl Elements {
             count: AceView::default(),
             offset: AceView::default(),
         })
-    }
+    } 
     pub fn count(&mut self, count: impl Into<AceView<i32>>) -> &mut Self {
         self.count = count.into();
         self

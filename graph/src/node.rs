@@ -42,31 +42,11 @@ where
     }
 }
 
-// impl<'a, W> From<&'a str> for Node<W>
-// where
-//     &'a str: Into<W>
-// {
-//     fn from(value: &'a str) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: value.into(),
-//         }
-//     }
-// }
-
-// impl<W> From<String> for Node<W>
-// where
-//     String: Into<W>
-// {
-//     fn from(value: String) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: value.into(),
-//         }
-//     }
-// }
+impl<W> ToMeta for Node<W> {
+    fn meta(&self) -> Meta {
+        self.meta.clone()
+    }
+}
 
 impl<W> DoMake for Node<W>
 where
@@ -215,6 +195,33 @@ where
 //             meta: Meta::new(),
 //             ring: Ring::new(),
 //             work: W::set_unit(new, back),
+//         }
+//     }
+// }
+
+
+// impl<'a, W> From<&'a str> for Node<W>
+// where
+//     &'a str: Into<W>
+// {
+//     fn from(value: &'a str) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: value.into(),
+//         }
+//     }
+// }
+
+// impl<W> From<String> for Node<W>
+// where
+//     String: Into<W>
+// {
+//     fn from(value: String) -> Self {
+//         Self {
+//             meta: Meta::new(),
+//             ring: Ring::new(),
+//             work: value.into(),
 //         }
 //     }
 // }
