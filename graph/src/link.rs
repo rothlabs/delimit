@@ -176,9 +176,9 @@ where
     }
 }
 
-impl<E> Write for Link<E>
+impl<E> WriteLoad for Link<E>
 where
-    E: Write,
+    E: WriteLoad,
 {
     type Item = E::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T> {
@@ -186,9 +186,9 @@ where
     }
 }
 
-impl<E> WriteWithPack for Link<E>
+impl<E> WriteUnit for Link<E>
 where
-    E: WriteWithPack,
+    E: WriteUnit,
 {
     type Unit = E::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T> {

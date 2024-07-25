@@ -1,54 +1,62 @@
 use crate::*;
 
+pub type WriteResult<T> = Result<T, String>;
+
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
     pub back: &'a Back,
 }
 
-pub type WriteResult<T> = Result<T, String>;
+pub struct Out<T> {
+    pub roots: Vec<Root>,
+    pub meta: Meta,
+    pub out: T,
+}
 
-pub trait Write {
+pub trait WriteLoad {
     type Item;
+    /// Front-facing write-to-load. 
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T>;
 }
 
-pub trait DoWrite {
+pub trait WriteLoadOut {
     type Item;
-    fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T;
-}
-
-pub trait WriteWithRoots {
-    type Item;
-    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(
+    /// Write and return the node meta and graph roots of the rebut. Node level.
+    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(
         &mut self,
         write: F,
-    ) -> (Vec<Root>, Meta, T);
+    ) -> Out<T>;
 }
 
-pub trait WriteWithPack {
+pub trait WriteLoadWork {
+    type Item;
+    /// Work-level write-to-load. 
+    fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T;
+}
+
+pub trait WriteUnit {
     type Unit;
+    /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T>;
 }
 
-pub trait WriteWithBack {
+pub trait WriteUnitOut {
     type Unit;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    /// Write and return the node meta and graph roots of the rebut. 
+    /// Takes `&Back` to be included in Pack. Node level.
+    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+        &mut self,
+        write: F,
+        back: &Back,
+    ) -> Out<T>;
+}
+
+pub trait WriteUnitWork {
+    type Unit;
+    /// Work-level write-to-unit.
+    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,
     ) -> T;
 }
-
-pub trait WriteWithBackRoots {
-    type Unit;
-    fn write_with_back_roots<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &mut self,
-        write: F,
-        back: &Back,
-    ) -> (Vec<Root>, Meta, T);
-}
-
-// pub trait WriteWithRoots {
-//     type Item;
-//     fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> (Vec<Root>, T);
-// }

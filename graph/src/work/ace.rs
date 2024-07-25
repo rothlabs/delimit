@@ -49,9 +49,9 @@ impl<L> DoRead for Ace<L> {
     }
 }
 
-impl<L> DoWrite for Ace<L> {
+impl<L> WriteLoadWork for Ace<L> {
     type Item = L;
-    fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
+    fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
         write(&mut self.load)
     }
 }

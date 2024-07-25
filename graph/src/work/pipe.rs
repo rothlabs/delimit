@@ -77,13 +77,13 @@ where
     }
 }
 
-impl<U> WriteWithBack for Pipe<U>
+impl<U> WriteUnitWork for Pipe<U>
 where
     U: Grant,
     U::Load: Grant,
 {
     type Unit = U;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,

@@ -63,12 +63,12 @@ where
     }
 }
 
-impl<U> WriteWithBack for Agent<U>
+impl<U> WriteUnitWork for Agent<U>
 where
     U: Act,
 {
     type Unit = U;
-    fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,

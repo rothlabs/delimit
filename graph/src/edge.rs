@@ -288,13 +288,13 @@ impl<N> Backed for Edge<N> {
     }
 }
 
-impl<N> Write for Edge<N>
+impl<N> WriteLoad for Edge<N>
 where
-    N: WriteWithRoots,
+    N: WriteLoadOut,
 {
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T> {
-        let (roots, meta, out) = write_part(&self.node, |mut node| node.write_with_roots(write));
+        let write::Out { roots, meta, out } = write_part(&self.node, |mut node| node.write_load_out(write));
         for root in &roots {
             root.react(&meta)?;
         }
@@ -302,14 +302,14 @@ where
     }
 }
 
-impl<N> WriteWithPack for Edge<N>
+impl<N> WriteUnit for Edge<N>
 where
-    N: 'static + WriteWithBackRoots + DoUpdate,
+    N: 'static + WriteUnitOut + DoUpdate,
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T> {
-        let (roots, meta, out) = write_part(&self.node, |mut node| {
-            node.write_with_back_roots(write, &self.node_as_back())
+        let write::Out { roots, meta, out } = write_part(&self.node, |mut node| {
+            node.write_unit_out(write, &self.node_as_back())
         });
         for root in &roots {
             root.react(&meta)?;

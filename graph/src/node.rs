@@ -78,34 +78,34 @@ where
     }
 }
 
-impl<W> WriteWithRoots for Node<W>
+impl<W> WriteLoadOut for Node<W>
 where
-    W: DoWrite,
+    W: WriteLoadWork,
 {
     type Item = W::Item;
-    fn write_with_roots<T, F: FnOnce(&mut Self::Item) -> T>(
+    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(
         &mut self,
         write: F,
-    ) -> (Vec<Root>, Meta, T) {
-        let out = self.work.do_write(write);
+    ) -> write::Out<T> {
+        let out = self.work.write_load_work(write);
         let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        (roots, meta, out)
+        write::Out { roots, meta, out }
     }
 }
 
-impl<W> WriteWithBackRoots for Node<W>
+impl<W> WriteUnitOut for Node<W>
 where
-    W: WriteWithBack,
+    W: WriteUnitWork,
 {
     type Unit = W::Unit;
-    fn write_with_back_roots<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,
-    ) -> (Vec<Root>, Meta, T) {
-        let out = self.work.write_with_back(write, back);
+    ) -> write::Out<T> {
+        let out = self.work.write_unit_work(write, back);
         let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        (roots, meta, out)
+        write::Out { roots, meta, out }
     }
 }
 
