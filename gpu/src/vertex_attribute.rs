@@ -43,21 +43,18 @@ impl Act for VertexAttribute {
     type Load = ();
     fn act(&self) -> Self::Load {
         let index = self.index.load();
-        let size = self.size.load();
-        let stride = self.stride.load();
-        let offset = self.offset.load();
         self.buffer.act();
         self.buffer.read(|buffer| {
             buffer.bind();
-            self.gl.enable_vertex_attrib_array(index);
             self.gl.vertex_attrib_pointer_with_i32(
                 index,
-                size,
+                self.size.load(),
                 WGLRC::FLOAT,
                 false,
-                stride,
-                offset,
+                self.stride.load(),
+                self.offset.load(),
             );
+            self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();
         });
     }

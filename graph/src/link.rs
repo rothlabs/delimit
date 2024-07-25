@@ -11,7 +11,7 @@ mod ace;
 #[cfg(test)]
 mod tests;
 
-/// Link to a load.
+/// Link to a load. The most simple graph part.
 pub type Ace<L> = Link<edge::Ace<L>>;
 
 /// Link to a unit that grants a load.
@@ -307,7 +307,7 @@ where
 
 impl<'a> From<&'a str> for Asset<String> {
     fn from(load: &'a str) -> Self {
-        Deuce::new(AceUnit { load: load.into() }).ploy()
+        unit::Asset::link(load.into()).ploy()
     }
 }
 
@@ -316,7 +316,7 @@ where
     T: 'static + Clone + SendSync,
 {
     fn from(load: T) -> Self {
-        Deuce::new(AceUnit { load }).ploy()
+        unit::Asset::link(load).ploy()
     }
 }
 
@@ -328,74 +328,3 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
-
-// fn backed(&self, back: &Back) -> Self {
-//     #[cfg(not(feature="oneThread"))]
-//     let edge = self.edge.read().expect(NO_POISON);
-//     #[cfg(feature="oneThread")]
-//     let edge = self.edge.borrow();
-//     Self {
-//         #[cfg(not(feature="oneThread"))]
-//         edge: Arc::new(RwLock::new(edge.backed(back))),
-//         #[cfg(feature="oneThread")]
-//         edge: Rc::new(RefCell::new(edge.backed(back))),
-//         meta: self.meta.clone(),
-//     }
-// }
-
-// struct EdgeGuard<'a, E> {
-//     edge: RwLockReadGuard<'a, E>,
-// }
-
-// fn read_edge<'a, E>(edge: Arc<RwLock<E>>) -> &'a EdgeGuard<'a, E> {
-//     let wow = edge.read(); //.expect(NO_POISON);
-//     &EdgeGuard {
-//         edge: wow.expect(NO_POISON)
-//     }
-// }
-
-// impl<L> Link<dyn Produce<L> + Send + Sync> {
-//     pub fn with_root(&self, root: &Back) -> Self {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Self {
-//             edge: edge.produce_with_back(root.clone()),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<T, L> Link<dyn Convert<T, L> + Send + Sync> {
-//     pub fn with_root(&self, root: &Back) -> Self {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Self {
-//             edge: edge.convert_with_back(root.clone()),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<U, L> Link<Edge<Node<work::Deuce<U, L>>>>
-// where
-//     Edge<Node<work::Deuce<U, L>>>: ToPloy<Load = L>,
-// {
-//     pub fn ploy(&self) -> Ploy<L> {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Ploy {
-//             edge: edge.ploy(),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }
-
-// impl<U, T, L> Link<Edge<Node<work::Trey<U, T, L>>>>
-// where
-//     Edge<Node<work::Trey<U, T, L>>>: ToPlan<Task = T, Load = L>, //Convert<T, L>,
-// {
-//     pub fn plan(&self) -> Plan<T, L> {
-//         let edge = self.edge.read().expect(NO_POISON);
-//         Plan {
-//             edge: edge.plan(),
-//             meta: self.meta.clone(),
-//         }
-//     }
-// }

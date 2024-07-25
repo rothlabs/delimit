@@ -7,7 +7,7 @@ use graph::*;
 pub mod view {
     use super::*;
     /// Array Link for super graphs
-    pub type Plan<P, T, N> = graph::View<role::Plan<P, T, Role<N>>, Stem<N>>;
+    pub type Plan<P, T, N> = View<role::Plan<P, T, Role<N>>, Stem<N>>;
 }
 
 mod add;
@@ -17,7 +17,7 @@ mod tests;
 /// Matrix Load for super graphs
 pub type Role<N> = role::Ploy<Part<N>, Load<N>>;
 
-pub type Stem<N> = graph::view::end::Ploy<Part<N>, Bare<N>>;
+pub type Stem<N> = graph::view::Ploy<Part<N>, Bare<N>>;
 
 /// Units may grant in-memory arrays (Mem) or
 /// they may grant gpu frame_buffer ref (Gpu)

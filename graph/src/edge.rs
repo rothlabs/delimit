@@ -294,7 +294,8 @@ where
 {
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
-        let write::Out { roots, meta, out } = write_part(&self.node, |mut node| node.write_load_out(write));
+        let write::Out { roots, meta, out } =
+            write_part(&self.node, |mut node| node.write_load_out(write));
         for root in &roots {
             root.react(&meta)?;
         }

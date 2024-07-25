@@ -1,13 +1,5 @@
 use crate::*;
 
-// pub type
-
-/// End-view with ploy.  
-pub type Ploy<A, L> = View<role::Ploy<A, Ace<L>>, End<L>>;
-
-/// End-view with plan.  
-pub type Plan<P, T, L> = View<role::Plan<P, T, Ace<L>>, End<L>>;
-
 /// A bare load or ace link to load.
 /// This can be used at the end of a chain of views.
 #[derive(Clone, Serialize)]

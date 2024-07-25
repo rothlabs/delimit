@@ -7,6 +7,7 @@ pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
 use buffer::Array;
+use texture::*;
 use graph::*;
 use js_sys::*;
 use shader::*;
@@ -22,6 +23,7 @@ mod elements;
 mod program;
 mod vao;
 mod vertex_attribute;
+mod texture;
 
 pub type WGLRC = WebGl2RenderingContext;
 
@@ -57,6 +59,9 @@ impl Gpu {
     }
     pub fn vao(&self, attributes: &Attributes) -> vao::Result {
         Vao::link(&self.gl, attributes)
+    }
+    pub fn texture(&self, array: impl Into<Array<u8>>) -> texture::Result<u8> {
+        Texture::link_u8(&self.gl, &array.into())
     }
     pub fn elements(
         &self,

@@ -9,18 +9,18 @@ pub type Source = Value<String>;
 pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {
-    pub wglrc: WGLRC,
+    pub gl: WGLRC,
     pub source: Source,
-    pub target: WebGlShader,
+    pub shader: WebGlShader,
 }
 
 impl Shader {
-    pub fn link(wglrc: &WGLRC, kind: u32, source: &Source) -> Result {
-        let target = wglrc.create_shader(kind).ok_or("failed to create shader")?;
+    pub fn link(gl: &WGLRC, type_: u32, source: &Source) -> Result {
+        let shader = gl.create_shader(type_).ok_or("failed to create shader")?;
         let link = Agent::make(|back| Self {
-            wglrc: wglrc.clone(),
+            gl: gl.clone(),
             source: source.backed(back),
-            target,
+            shader,
         });
         link.act()?;
         Ok(link)
@@ -31,19 +31,19 @@ impl Act for Shader {
     type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.source
-            .read(|src| self.wglrc.shader_source(&self.target, src));
-        self.wglrc.compile_shader(&self.target);
+            .read(|src| self.gl.shader_source(&self.shader, src));
+        self.gl.compile_shader(&self.shader);
         if self
-            .wglrc
-            .get_shader_parameter(&self.target, WGLRC::COMPILE_STATUS)
+            .gl
+            .get_shader_parameter(&self.shader, WGLRC::COMPILE_STATUS)
             .as_bool()
             .unwrap_or(false)
         {
             Ok(())
         } else {
             Err(self
-                .wglrc
-                .get_shader_info_log(&self.target)
+                .gl
+                .get_shader_info_log(&self.shader)
                 .ok_or("failed to get shader info log")?)
         }
     }

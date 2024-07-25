@@ -7,7 +7,7 @@ pub struct Add<N: Number> {
 }
 
 impl<N: Number> Add<N> {
-    pub fn new(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self>, Role<N>> {
+    pub fn hold(base: &Stem<N>, vector: &Array1<N>) -> Hold<Link<Self>, Role<N>> {
         let link = Link::make(|back| Self {
             base: base.backed(back),
             vector: vector.clone(),

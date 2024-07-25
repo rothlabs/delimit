@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Asset, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Agent, Asset, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
@@ -7,11 +7,10 @@ pub use react::{
     Rebut, Ring, Root, ToPlan, ToPloy, Update,
 };
 pub use role::Role;
-pub use unit::{AceUnit, Gate, Repo, Serial, ToSerial};
-pub use view::{Value, AddBase, ToViewsMutator, View, ViewsBuilder};
+pub use unit::{Gate, Repo, Serial, ToSerial};
+pub use view::{AddBase, ToViewsMutator, Value, View, ViewsBuilder};
 pub use write::{
-    WriteLoadWork, Pack, WriteLoad, WriteUnitWork, WriteUnitOut, WriteUnit,
-    WriteLoadOut,
+    Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 
 use serde::Serialize;
@@ -23,9 +22,9 @@ use std::{
     rc::Rc,
 };
 
+pub mod react;
 pub mod role;
 pub mod view;
-pub mod react;
 
 mod edge;
 mod link;

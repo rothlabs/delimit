@@ -6,13 +6,13 @@ void main() {
 }
 ";
 
-pub const FRAGMENT: &str = r"#version 300 es
+pub const FRAGMENT_RED: &str = r"#version 300 es
 precision highp float;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = vec4(1, 0, 0.5, 1);
+    outColor = vec4(1, 0.2, 0.2, 1);
 }
 ";
 
@@ -22,6 +22,33 @@ precision highp float;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = vec4(0, 1, 0.1, 1);
+    outColor = vec4(0.2, 1, 0.2, 1);
+}
+";
+
+pub const VERTEX_TEX: &str = r"#version 300 es
+layout(location = 0) in vec4 aPosition;
+layout(location = 1) in vec2 aTexCoord;
+
+out vec2 vTexCoord;
+void main()
+{
+	vTexCoord = aTexCoord;
+    gl_Position = aPosition;
+}
+";
+
+pub const FRAGMENT_TEX: &str = r"#version 300 es
+precision mediump float;
+
+in vec2 vTexCoord;
+
+uniform sampler2D uSampler;
+
+out vec4 fragColor;
+
+void main()
+{
+    fragColor = texture(uSampler, vTexCoord);
 }
 ";

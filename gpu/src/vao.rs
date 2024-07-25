@@ -7,20 +7,20 @@ pub type Attributes = Vec<Agent<VertexAttribute>>;
 /// Stores attribute settings and which element array buffer to use
 pub struct Vao {
     gl: WGLRC,
-    target: WebGlVertexArrayObject,
+    object: WebGlVertexArrayObject,
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
     element_buffer: Option<Agent<Buffer<u16>>>,
 }
 
 impl Vao {
-    pub fn link(wglrc: &WGLRC, attributes: &Attributes) -> Result {
-        let target = wglrc
+    pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
+        let object = gl
             .create_vertex_array()
             .ok_or("failed to create vertex array object")?;
         let link = Agent::make(|back| Self {
-            gl: wglrc.clone(),
-            target,
+            gl: gl.clone(),
+            object,
             attributes: attributes.backed(back),
             element_buffer: None,
         });
@@ -32,7 +32,7 @@ impl Vao {
         self
     }
     pub fn bind(&self) {
-        self.gl.bind_vertex_array(Some(&self.target));
+        self.gl.bind_vertex_array(Some(&self.object));
     }
     pub fn unbind(&self) {
         self.gl.bind_vertex_array(None);

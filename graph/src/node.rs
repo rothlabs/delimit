@@ -83,10 +83,7 @@ where
     W: WriteLoadWork,
 {
     type Item = W::Item;
-    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(
-        &mut self,
-        write: F,
-    ) -> write::Out<T> {
+    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
         let out = self.work.write_load_work(write);
         let (roots, meta) = self.ring.rebut_roots(&self.meta);
         write::Out { roots, meta, out }

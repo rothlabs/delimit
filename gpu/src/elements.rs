@@ -1,5 +1,6 @@
 use super::*;
 
+/// Draw elements based on program, buffer, vertex array object, count, and offset.
 pub struct Elements {
     gl: WGLRC,
     program: Agent<Program>,

@@ -2,8 +2,9 @@ use super::*;
 
 pub type Result = std::result::Result<Agent<Program>, String>;
 
+/// GPU program based on vertex and fragment shaders. 
 pub struct Program {
-    target: WebGlProgram,
+    program: WebGlProgram,
     vertex: Agent<Shader>,
     fragment: Agent<Shader>,
     gl: WGLRC,
@@ -11,20 +12,20 @@ pub struct Program {
 
 impl Program {
     pub fn link(gl: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> Result {
-        let target = gl.create_program().ok_or("failed to create program")?;
-        vertex.read(|unit| gl.attach_shader(&target, &unit.target));
-        fragment.read(|unit| gl.attach_shader(&target, &unit.target));
+        let program = gl.create_program().ok_or("failed to create program")?;
+        vertex.read(|unit| gl.attach_shader(&program, &unit.shader));
+        fragment.read(|unit| gl.attach_shader(&program, &unit.shader));
         let link = Agent::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),
             fragment: fragment.backed(back),
-            target,
+            program,
         });
         link.act()?;
         Ok(link)
     }
     pub fn use_target(&self) {
-        self.gl.use_program(Some(&self.target));
+        self.gl.use_program(Some(&self.program));
     }
 }
 
@@ -33,10 +34,10 @@ impl Act for Program {
     fn act(&self) -> Self::Load {
         self.vertex.act()?;
         self.fragment.act()?;
-        self.gl.link_program(&self.target);
+        self.gl.link_program(&self.program);
         if self
             .gl
-            .get_program_parameter(&self.target, WGLRC::LINK_STATUS)
+            .get_program_parameter(&self.program, WGLRC::LINK_STATUS)
             .as_bool()
             .unwrap_or(false)
         {
@@ -44,7 +45,7 @@ impl Act for Program {
         } else {
             Err(self
                 .gl
-                .get_program_info_log(&self.target)
+                .get_program_info_log(&self.program)
                 .ok_or("failed to get program info log")?)
         }
     }

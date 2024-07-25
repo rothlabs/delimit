@@ -21,7 +21,7 @@ fn make_canvas_on_body() -> Gpu {
 fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
     let vertex_source = shader::basic::VERTEX.ace();
     let vertex = gpu.vertex_shader(&vertex_source).unwrap();
-    let fragment_source = shader::basic::FRAGMENT.ace();
+    let fragment_source = shader::basic::FRAGMENT_RED.ace();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
     let program = gpu.program(&vertex, &fragment);
     if let Err(memo) = program {
@@ -74,7 +74,7 @@ pub fn make_vertex_shader() {
 
 pub fn make_fragment_shader() {
     let gpu = make_canvas();
-    if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT) {
+    if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT_RED) {
         panic!("gpu error: {memo}");
     }
 }
@@ -147,5 +147,3 @@ pub fn shader_source_error() -> react::Result {
         panic!("this shader write should have caused compile error");
     }
 }
-
-

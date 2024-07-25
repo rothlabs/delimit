@@ -2,28 +2,11 @@ use serde::Serialize;
 
 use crate::*;
 
-/// Wrapper around a single Load as opposed to Work that must Grant for Load
+/// Work that holds a load. The most simple work that allows read, write, and copy of the load.
 #[derive(Serialize)]
 pub struct Ace<L> {
     load: L,
 }
-
-// ///////// TODO: replacing FromItem?!?!
-// impl<L> From<L> for Ace<L> {
-//     fn from(load: L) -> Self {
-//         Self { load }
-//     }
-// }
-//             // impl From<String> for Ace<String> {
-//             //     fn from(load: String) -> Self {
-//             //         Self { load: load.clone() }
-//             //     }
-//             // }
-//             impl<'a> From<&'a str> for Ace<String> {
-//                 fn from(load: &'a str) -> Self {
-//                     Self { load: load.into() }
-//                 }
-//             }
 
 impl<L> FromItem for Ace<L> {
     type Item = L;
@@ -61,3 +44,35 @@ impl<L> DoReact for Ace<L> {
         Ok(())
     }
 }
+
+// impl<L> DoGrant for Ace<L> 
+// where 
+//     L: Clone,
+// {
+//     type Load = L;
+//     fn do_grant(&mut self, _: &Back) -> Self::Load {
+//         self.load.clone()
+//     }
+// }
+
+// impl<L> Clear for Ace<L> {
+//     fn clear(&mut self) {}
+// }
+
+
+// ///////// TODO: replacing FromItem?!?!
+// impl<L> From<L> for Ace<L> {
+//     fn from(load: L) -> Self {
+//         Self { load }
+//     }
+// }
+//             // impl From<String> for Ace<String> {
+//             //     fn from(load: String) -> Self {
+//             //         Self { load: load.clone() }
+//             //     }
+//             // }
+//             impl<'a> From<&'a str> for Ace<String> {
+//                 fn from(load: &'a str) -> Self {
+//                     Self { load: load.into() }
+//                 }
+//             }

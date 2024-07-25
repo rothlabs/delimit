@@ -19,7 +19,7 @@ mod tests;
 pub type Role = role::Ploy<Part, Load>;
 
 /// Plain text to use as graph stem
-pub type Stem = graph::view::end::Ploy<Part, String>;
+pub type Stem = graph::view::Ploy<Part, String>;
 
 #[derive(Clone, Serialize)]
 pub enum Part {

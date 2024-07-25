@@ -10,7 +10,7 @@ fn add_arrays() {
         0., 0., 0., 1.,
     ])));
     let vector = Array1::new([4], vec![1., 2., 3., 4.]);
-    let add = Add::new(&base, &vector);
+    let add = Add::hold(&base, &vector);
     add.link.grant().read(|bare| {
         #[rustfmt::skip]
         assert_eq!(bare.array_ref().vec(), &vec![

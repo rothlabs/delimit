@@ -35,14 +35,14 @@ pub trait DoReact {
 }
 
 pub trait AddRoot {
-    /// Add a root to a node `Ring` of roots. Must be called after reading contents 
-    /// so that the node will react if contents change. 
+    /// Add a root to a node `Ring` of roots. Must be called after reading contents
+    /// so that the node will react if contents change.
     fn add_root(&self, root: Root);
 }
 
 pub trait DoAddRoot {
-    /// Add a root to a node `Ring` of roots. Must be called after reading contents 
-    /// so that the node will react if contents change. 
+    /// Add a root to a node `Ring` of roots. Must be called after reading contents
+    /// so that the node will react if contents change.
     fn do_add_root(&mut self, root: Root);
 }
 
@@ -95,7 +95,7 @@ pub trait DoUpdate: DoRebut + DoReact + SendSync {}
 #[derive(Clone)]
 pub struct Root {
     #[cfg(not(feature = "oneThread"))]
-    pub edge: Weak<RwLock<dyn Update>>, 
+    pub edge: Weak<RwLock<dyn Update>>,
     #[cfg(feature = "oneThread")]
     pub edge: Weak<RefCell<dyn Update>>,
     pub meta: Meta,
