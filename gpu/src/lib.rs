@@ -16,12 +16,12 @@ use wasm_bindgen::prelude::*;
 use web_sys::*;
 
 pub mod shader;
+pub mod buffer;
+pub mod vao;
+pub mod program;
 
-mod buffer;
 mod canvas;
 mod elements;
-mod program;
-mod vao;
 mod vertex_attribute;
 mod texture;
 
@@ -54,6 +54,7 @@ impl Gpu {
     pub fn element_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
         Buffer::link_u16(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
+    // <F: FnOnce(&mut VertexAttribute)> 
     pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
         VertexAttribute::link(&self.gl, buffer)
     }

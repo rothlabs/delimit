@@ -19,8 +19,7 @@ fn make_canvas_on_body() -> Gpu {
 }
 
 fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
-    let vertex_source = shader::basic::VERTEX.ace();
-    let vertex = gpu.vertex_shader(&vertex_source).unwrap();
+    let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment_source = shader::basic::FRAGMENT_RED.ace();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
     let program = gpu.program(&vertex, &fragment);
@@ -30,22 +29,36 @@ fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
     (program.unwrap(), fragment_source)
 }
 
-fn make_basic_array_buffer(gpu: &Gpu) -> Agent<Buffer<f32>> {
+fn make_tex_program(gpu: &Gpu) -> program::Result{
+    let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
+    let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
+    gpu.program(&vertex, &fragment)
+}
+
+fn make_basic_array_buffer(gpu: &Gpu) -> buffer::Result<f32> {
     #[rustfmt::skip]
     let buffer = gpu.array_buffer(vec![
         0.,  0.,  0.,
         0., 0.8,  0.,
         0.8,  0., 0.,
-    ]);
-    if let Err(memo) = buffer {
-        panic!("gpu error: {memo}");
-    }
-    buffer.unwrap()
+    ])?;
+    Ok(buffer)
+}
+
+fn make_vertex_color_buffer(gpu: &Gpu) -> buffer::Result<f32> {
+    #[rustfmt::skip]
+    let buffer = gpu.array_buffer(vec![
+        // xyz          // uv
+        0.,  0.,  0.,   0., 0.,
+        0., 0.8,  0.,   0., 1.,
+        0.8,  0., 0.,   1., 0.,
+    ])?;
+    Ok(buffer)
 }
 
 pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), String> {
     let (program, vertex_source) = make_basic_program(&gpu);
-    let buffer = make_basic_array_buffer(&gpu);
+    let buffer = make_basic_array_buffer(&gpu)?;
     let element_buffer = gpu.element_buffer(vec![0, 1, 2]).unwrap();
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
@@ -61,6 +74,30 @@ pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), 
     })?;
     elements.act()?;
     Ok((elements, vertex_source))
+}
+
+pub fn draw_with_tex(gpu: &Gpu) -> Result<Agent<Elements>, String> {
+    let program = make_tex_program(&gpu)?;
+    let buffer = make_vertex_color_buffer(&gpu)?;
+    let element_buffer = gpu.element_buffer(vec![0, 1, 2]).unwrap();
+    let pos = gpu.vertex_attribute(&buffer);
+    pos.write(|pack| {
+        pack.unit.size(3).stride(20);
+    })?;
+    let uv = gpu.vertex_attribute(&buffer);
+    uv.write(|pack| {
+        pack.unit.size(2).stride(20).offset(12);
+    })?;
+    let vao = gpu.vao(&vec![pos, uv]).unwrap();
+    vao.write(|Pack { unit, back }| {
+        unit.element_buffer(element_buffer.backed(back));
+    })?;
+    let elements = gpu.elements(&program, &buffer, &vao);
+    elements.write(|pack| {
+        pack.unit.count(3);
+    })?;
+    elements.act()?;
+    Ok(elements)
 }
 
 ////////////////////////////////////// Tests
@@ -84,9 +121,9 @@ pub fn make_program() {
     make_basic_program(&gpu);
 }
 
-pub fn make_array_buffer() {
+pub fn make_array_buffer() -> buffer::Result<f32> {
     let gpu = make_canvas();
-    make_basic_array_buffer(&gpu);
+    make_basic_array_buffer(&gpu)
 }
 
 pub fn make_element_buffer() {
@@ -98,28 +135,23 @@ pub fn make_element_buffer() {
     }
 }
 
-pub fn make_vertex_attribute() {
+pub fn make_vertex_attribute() -> react::Result {
     let gpu = make_canvas();
-    let buffer = make_basic_array_buffer(&gpu);
+    let buffer = make_basic_array_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
         pack.unit.index(0).size(3).stride(0).offset(0);
     })
-    .ok();
 }
 
-pub fn make_vertex_array_object() {
+pub fn make_vertex_array_object() -> vao::Result {
     let gpu = make_canvas();
-    let buffer = make_basic_array_buffer(&gpu);
+    let buffer = make_basic_array_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer);
     att.write(|pack| {
         pack.unit.size(3);
-    })
-    .ok();
-    let voa = gpu.vao(&vec![att]);
-    if let Err(memo) = voa {
-        panic!("gpu error: {memo}");
-    }
+    })?;
+    gpu.vao(&vec![att])
 }
 
 pub fn draw_elements() -> react::Result {

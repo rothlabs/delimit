@@ -10,7 +10,8 @@ pub struct VertexAttribute {
     offset: Value<i32>,
 }
 
-impl VertexAttribute {
+impl VertexAttribute { 
+    // <F: FnOnce(&mut Self)> , write: F
     pub fn link(wglrc: &WGLRC, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
         Agent::make(|back| Self {
             gl: wglrc.clone(),
@@ -20,6 +21,8 @@ impl VertexAttribute {
             stride: Value::default(),
             offset: Value::default(),
         })
+        //agent.write(|pack| write(&mut pack.unit));
+        //agent
     }
     pub fn index(&mut self, index: impl Into<Value<u32>>) -> &mut Self {
         self.index = index.into();
