@@ -122,14 +122,14 @@ pub fn make_vertex_array_object() {
     }
 }
 
-pub fn draw_elements() -> ReactResult {
+pub fn draw_elements() -> react::Result {
     let gpu = make_canvas_on_body();
     draw_basic_elements(&gpu)?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
-pub fn elements_react_to_shader_source() -> ReactResult {
+pub fn elements_react_to_shader_source() -> react::Result {
     let gpu = make_canvas_on_body();
     let (_elements, shader_source) = draw_basic_elements(&gpu)?;
     shader_source.write(|unit| *unit = shader::basic::FRAGMENT_GREEN.to_owned())?;
@@ -138,7 +138,7 @@ pub fn elements_react_to_shader_source() -> ReactResult {
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
-pub fn shader_source_error() -> ReactResult {
+pub fn shader_source_error() -> react::Result {
     let gpu = make_canvas();
     let (_elements, shader_source) = draw_basic_elements(&gpu)?;
     if let Err(_) = shader_source.write(|unit| *unit = "bad shader".to_owned()) {

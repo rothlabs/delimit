@@ -64,7 +64,7 @@ impl Act for VertexAttribute {
 }
 
 impl React for VertexAttribute {
-    fn react(&self, _: &Meta) -> ReactResult {
+    fn react(&self, _: &Meta) -> react::Result {
         self.act();
         Ok(())
     }

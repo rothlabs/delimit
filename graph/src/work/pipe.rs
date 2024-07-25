@@ -124,7 +124,7 @@ where
     U: Grant,
     U::Load: Grant,
 {
-    fn do_react(&mut self, _: &Meta) -> ReactResult {
+    fn do_react(&mut self, _: &Meta) -> react::Result {
         Ok(())
     }
 }

@@ -44,7 +44,7 @@ impl<U, T, L> Clear for Trey<U, T, L> {
 }
 
 impl<U, T, L> DoReact for Trey<U, T, L> {
-    fn do_react(&mut self, _: &Meta) -> ReactResult {
+    fn do_react(&mut self, _: &Meta) -> react::Result {
         Ok(())
     }
 }

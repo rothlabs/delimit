@@ -183,7 +183,7 @@ impl<W> DoReact for Node<W>
 where
     W: DoReact,
 {
-    fn do_react(&mut self, meta: &Meta) -> ReactResult {
+    fn do_react(&mut self, meta: &Meta) -> react::Result {
         self.work.do_react(meta)
     }
 }

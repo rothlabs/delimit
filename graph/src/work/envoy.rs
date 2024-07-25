@@ -55,7 +55,7 @@ impl<U> DoReact for Envoy<U>
 where
     U: Serve,
 {
-    fn do_react(&mut self, _: &Meta) -> ReactResult {
+    fn do_react(&mut self, _: &Meta) -> react::Result {
         Ok(())
     }
 }

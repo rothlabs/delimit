@@ -12,33 +12,43 @@ use std::{
 
 use crate::Meta;
 
+pub type Result = std::result::Result<(), String>;
+
 pub trait Rebut {
+    /// Invalidate the load. Call only after write during rebut phase.
     fn rebut(&self) -> Ring;
 }
 
 pub trait DoRebut {
+    /// Invalidatd the load at node level. Call only after write during rebut phase.
     fn do_rebut(&mut self) -> Ring;
 }
 
-pub type ReactResult = Result<(), String>;
-
 pub trait React {
-    fn react(&self, meta: &Meta) -> ReactResult;
+    /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
+    fn react(&self, meta: &Meta) -> react::Result;
 }
 
 pub trait DoReact {
-    fn do_react(&mut self, meta: &Meta) -> ReactResult;
+    /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
+    fn do_react(&mut self, meta: &Meta) -> react::Result;
 }
 
 pub trait AddRoot {
+    /// Add a root to a node `Ring` of roots. Must be called after reading contents 
+    /// so that the node will react if contents change. 
     fn add_root(&self, root: Root);
 }
 
 pub trait DoAddRoot {
+    /// Add a root to a node `Ring` of roots. Must be called after reading contents 
+    /// so that the node will react if contents change. 
     fn do_add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
+    /// Make a copy of the link edge that includes the provided node `&Back`.
+    /// Must be called to include `&Back` in the rebut phase.
     fn backed(&self, back: &Back) -> Self;
 }
 
@@ -81,11 +91,11 @@ pub trait Update: Rebut + React + SendSync {}
 pub trait DoUpdate: DoRebut + DoReact + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
-/// Should meta be removed?
+/// A Node holds a Ring of Roots.
 #[derive(Clone)]
 pub struct Root {
     #[cfg(not(feature = "oneThread"))]
-    pub edge: Weak<RwLock<dyn Update>>, //  + Send + Sync
+    pub edge: Weak<RwLock<dyn Update>>, 
     #[cfg(feature = "oneThread")]
     pub edge: Weak<RefCell<dyn Update>>,
     pub meta: Meta,
@@ -99,7 +109,7 @@ impl Root {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) -> ReactResult {
+    pub fn react(&self, meta: &Meta) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.react(meta))
         } else {
@@ -122,7 +132,7 @@ impl Hash for Root {
     }
 }
 
-/// Weakly point to the back of a node as Update.
+/// Weakly point to the back of a node as DoUpdate.
 #[derive(Clone)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
@@ -147,7 +157,7 @@ impl Back {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) -> ReactResult {
+    pub fn react(&self, meta: &Meta) -> react::Result {
         if let Some(node) = self.node.upgrade() {
             write_part(&node, |mut node| node.do_react(meta))
         } else {

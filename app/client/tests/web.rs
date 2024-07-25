@@ -46,19 +46,19 @@ fn make_vertex_array_object() {
 }
 
 #[wasm_bindgen_test]
-fn draw_elements() -> ReactResult {
+fn draw_elements() -> react::Result {
     gpu::draw_elements()?;
     Ok(())
 }
 
 #[wasm_bindgen_test]
-fn elements_react_to_shader_source() -> ReactResult {
+fn elements_react_to_shader_source() -> react::Result {
     gpu::elements_react_to_shader_source()?;
     Ok(())
 }
 
 #[wasm_bindgen_test]
-fn shader_source_error() -> ReactResult {
+fn shader_source_error() -> react::Result {
     gpu::shader_source_error()?;
     Ok(())
 }

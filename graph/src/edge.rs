@@ -293,7 +293,7 @@ where
     N: WriteLoadOut,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
         let write::Out { roots, meta, out } = write_part(&self.node, |mut node| node.write_load_out(write));
         for root in &roots {
             root.react(&meta)?;
@@ -307,7 +307,7 @@ where
     N: 'static + WriteUnitOut + DoUpdate,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
         let write::Out { roots, meta, out } = write_part(&self.node, |mut node| {
             node.write_unit_out(write, &self.node_as_back())
         });
@@ -353,7 +353,7 @@ impl<N> React for Edge<N>
 where
     N: DoReact,
 {
-    fn react(&self, meta: &Meta) -> ReactResult {
+    fn react(&self, meta: &Meta) -> react::Result {
         write_part(&self.node, |mut node| node.do_react(meta))
     }
 }
@@ -382,7 +382,7 @@ impl<L> Rebut for BoxProduce<L> {
 }
 
 impl<L> React for BoxProduce<L> {
-    fn react(&self, meta: &Meta) -> ReactResult {
+    fn react(&self, meta: &Meta) -> react::Result {
         self.as_ref().react(meta)
     }
 }
@@ -412,7 +412,7 @@ impl<T, L> Rebut for BoxConvert<T, L> {
 }
 
 impl<T, L> React for BoxConvert<T, L> {
-    fn react(&self, meta: &Meta) -> ReactResult {
+    fn react(&self, meta: &Meta) -> react::Result {
         self.as_ref().react(meta)
     }
 }

@@ -1,6 +1,6 @@
 use crate::*;
 
-pub type WriteResult<T> = Result<T, String>;
+pub type Result<T> = std::result::Result<T, String>;
 
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
@@ -16,7 +16,7 @@ pub struct Out<T> {
 pub trait WriteLoad {
     type Item;
     /// Front-facing write-to-load. 
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T>;
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T>;
 }
 
 pub trait WriteLoadOut {
@@ -37,7 +37,7 @@ pub trait WriteLoadWork {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T>;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T>;
 }
 
 pub trait WriteUnitOut {

@@ -28,7 +28,7 @@ impl Shader {
 }
 
 impl Act for Shader {
-    type Load = ReactResult;
+    type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.source
             .read(|src| self.wglrc.shader_source(&self.target, src));
@@ -50,7 +50,7 @@ impl Act for Shader {
 }
 
 impl React for Shader {
-    fn react(&self, _: &Meta) -> ReactResult {
+    fn react(&self, _: &Meta) -> react::Result {
         self.act()
     }
 }

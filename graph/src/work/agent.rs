@@ -103,7 +103,7 @@ impl<U> DoReact for Agent<U>
 where
     U: Act + React,
 {
-    fn do_react(&mut self, meta: &Meta) -> ReactResult {
+    fn do_react(&mut self, meta: &Meta) -> react::Result {
         self.unit.as_ref().unwrap().react(meta)
     }
 }

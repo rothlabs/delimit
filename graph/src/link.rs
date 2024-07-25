@@ -181,7 +181,7 @@ where
     E: WriteLoad,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> WriteResult<T> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
         read_part(&self.edge, |edge| edge.write(write))
     }
 }
@@ -191,7 +191,7 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> WriteResult<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
         read_part(&self.edge, |edge| edge.write(write))
     }
 }

@@ -4,13 +4,13 @@ pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
     AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
-    ReactResult, Rebut, Ring, Root, ToPlan, ToPloy, Update,
+    Rebut, Ring, Root, ToPlan, ToPloy, Update,
 };
 pub use role::Role;
 pub use unit::{AceUnit, Gate, Repo, Serial, ToSerial};
 pub use view::{Value, AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
-    WriteLoadWork, Pack, WriteLoad, WriteResult, WriteUnitWork, WriteUnitOut, WriteUnit,
+    WriteLoadWork, Pack, WriteLoad, WriteUnitWork, WriteUnitOut, WriteUnit,
     WriteLoadOut,
 };
 
@@ -25,12 +25,12 @@ use std::{
 
 pub mod role;
 pub mod view;
+pub mod react;
 
 mod edge;
 mod link;
 mod meta;
 mod node;
-mod react;
 mod unit;
 mod work;
 mod write;

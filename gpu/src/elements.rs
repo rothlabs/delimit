@@ -36,7 +36,7 @@ impl Elements {
 }
 
 impl Act for Elements {
-    type Load = ReactResult;
+    type Load = react::Result;
     fn act(&self) -> Self::Load {
         let count = self.count.load();
         let offset = self.offset.load();
@@ -55,7 +55,7 @@ impl Act for Elements {
 }
 
 impl React for Elements {
-    fn react(&self, _: &Meta) -> ReactResult {
+    fn react(&self, _: &Meta) -> react::Result {
         self.act()
     }
 }
