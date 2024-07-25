@@ -2,7 +2,7 @@ use super::*;
 
 pub type Result = std::result::Result<Agent<Program>, String>;
 
-/// GPU program based on vertex and fragment shaders. 
+/// GPU program based on vertex and fragment shaders.
 pub struct Program {
     program: WebGlProgram,
     vertex: Agent<Shader>,

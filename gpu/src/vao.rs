@@ -4,13 +4,15 @@ pub type Result = std::result::Result<Agent<Vao>, String>;
 pub type Attributes = Vec<Agent<VertexAttribute>>;
 
 /// Vertex Array Object
-/// Stores attribute settings and which element array buffer to use
+/// Stores attribute settings and element array buffer target
+// #[derive(Builder)]
+// #[builder(setter(into))]
 pub struct Vao {
     gl: WGLRC,
     object: WebGlVertexArrayObject,
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
-    element_buffer: Option<Agent<Buffer<u16>>>,
+    index_buffer: Option<Agent<Buffer<u16>>>,
 }
 
 impl Vao {
@@ -22,13 +24,13 @@ impl Vao {
             gl: gl.clone(),
             object,
             attributes: attributes.backed(back),
-            element_buffer: None,
+            index_buffer: None,
         });
         link.act();
         Ok(link)
     }
-    pub fn element_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
-        self.element_buffer = Some(buffer);
+    pub fn index_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
+        self.index_buffer = Some(buffer);
         self
     }
     pub fn bind(&self) {
@@ -46,7 +48,7 @@ impl Act for Vao {
         for attribute in &self.attributes {
             attribute.act();
         }
-        if let Some(buffer) = &self.element_buffer {
+        if let Some(buffer) = &self.index_buffer {
             buffer.act();
             buffer.read(|unit| unit.bind());
         }

@@ -18,7 +18,11 @@ impl<T> Texture<T> {
     pub fn unbind(&self) {
         self.gl.bind_texture(WGLRC::TEXTURE_2D, None);
     }
-    pub fn size(&mut self, width: impl Into<Value<i32>>, height: impl Into<Value<i32>>) -> &mut Self {
+    pub fn size(
+        &mut self,
+        width: impl Into<Value<i32>>,
+        height: impl Into<Value<i32>>,
+    ) -> &mut Self {
         self.width = width.into();
         self.height = height.into();
         self
@@ -29,8 +33,16 @@ impl Texture<u8> {
     pub fn link_u8(gl: &WGLRC, array: &Array<u8>) -> Result<u8> {
         let texture = gl.create_texture().ok_or("failed to create texture")?;
         gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
-        gl.tex_parameteri(WGLRC::TEXTURE_2D, WGLRC::TEXTURE_MIN_FILTER, WGLRC::NEAREST as i32);
-        gl.tex_parameteri(WGLRC::TEXTURE_2D, WGLRC::TEXTURE_MAG_FILTER, WGLRC::NEAREST as i32);
+        gl.tex_parameteri(
+            WGLRC::TEXTURE_2D,
+            WGLRC::TEXTURE_MIN_FILTER,
+            WGLRC::NEAREST as i32,
+        );
+        gl.tex_parameteri(
+            WGLRC::TEXTURE_2D,
+            WGLRC::TEXTURE_MAG_FILTER,
+            WGLRC::NEAREST as i32,
+        );
         let link = Agent::make(|back| Self {
             gl: gl.clone(),
             texture,
@@ -61,7 +73,7 @@ impl Act for Texture<u8> {
     type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.grant().read(|unit| 
+        self.array.grant().read(|unit|
             unsafe {
                 if let Err(memo) = self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(
                     WGLRC::TEXTURE_2D, // target

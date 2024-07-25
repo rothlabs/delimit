@@ -9,7 +9,7 @@ pub struct Asset<L> {
 impl<L> Asset<L> {
     pub fn link(load: L) -> Deuce<Self> {
         Deuce::new(Self {
-            ace: Ace::new(load)
+            ace: Ace::new(load),
         })
     }
 }

@@ -1,5 +1,8 @@
 use gpu::*;
 use graph::*;
+use std::error::Error;
+
+// pub type Result = std::result::Result<(), Box<dyn Error>>;
 
 // Setup
 
@@ -29,7 +32,7 @@ fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<String>) {
     (program.unwrap(), fragment_source)
 }
 
-fn make_tex_program(gpu: &Gpu) -> program::Result{
+fn make_tex_program(gpu: &Gpu) -> program::Result {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
     gpu.program(&vertex, &fragment)
@@ -56,17 +59,14 @@ fn make_vertex_color_buffer(gpu: &Gpu) -> buffer::Result<f32> {
     Ok(buffer)
 }
 
-pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), String> {
+pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), Box<dyn Error>> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_array_buffer(&gpu)?;
-    let element_buffer = gpu.element_buffer(vec![0, 1, 2]).unwrap();
-    let att = gpu.vertex_attribute(&buffer);
-    att.write(|pack| {
-        pack.unit.size(3);
-    })?;
-    let vao = gpu.vao(&vec![att]).unwrap();
+    let index_buffer = gpu.index_buffer(vec![0, 1, 2])?;
+    let att = gpu.vertex_attribute(&buffer).size(3).link()?;
+    let vao = gpu.vao(&vec![att])?;
     vao.write(|Pack { unit, back }| {
-        unit.element_buffer(element_buffer.backed(back));
+        unit.index_buffer(index_buffer.backed(back));
     })?;
     let elements = gpu.elements(&program, &buffer, &vao);
     elements.write(|pack| {
@@ -76,21 +76,20 @@ pub fn draw_basic_elements(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), 
     Ok((elements, vertex_source))
 }
 
-pub fn draw_with_tex(gpu: &Gpu) -> Result<Agent<Elements>, String> {
+pub fn draw_with_tex(gpu: &Gpu) -> Result<Agent<Elements>, Box<dyn Error>> {
     let program = make_tex_program(&gpu)?;
     let buffer = make_vertex_color_buffer(&gpu)?;
-    let element_buffer = gpu.element_buffer(vec![0, 1, 2]).unwrap();
-    let pos = gpu.vertex_attribute(&buffer);
-    pos.write(|pack| {
-        pack.unit.size(3).stride(20);
-    })?;
-    let uv = gpu.vertex_attribute(&buffer);
-    uv.write(|pack| {
-        pack.unit.size(2).stride(20).offset(12);
-    })?;
-    let vao = gpu.vao(&vec![pos, uv]).unwrap();
+    let index_buffer = gpu.index_buffer(vec![0, 1, 2])?;
+    let pos = gpu.vertex_attribute(&buffer).size(3).stride(20).link()?;
+    let uv = gpu
+        .vertex_attribute(&buffer)
+        .size(2)
+        .stride(20)
+        .offset(12)
+        .link()?;
+    let vao = gpu.vao(&vec![pos, uv])?;
     vao.write(|Pack { unit, back }| {
-        unit.element_buffer(element_buffer.backed(back));
+        unit.index_buffer(index_buffer.backed(back));
     })?;
     let elements = gpu.elements(&program, &buffer, &vao);
     elements.write(|pack| {
@@ -126,42 +125,43 @@ pub fn make_array_buffer() -> buffer::Result<f32> {
     make_basic_array_buffer(&gpu)
 }
 
-pub fn make_element_buffer() {
+pub fn make_index_buffer() {
     let gpu = make_canvas();
     #[rustfmt::skip]
-    let buffer = gpu.element_buffer(vec![0,  1,  2]);
+    let buffer = gpu.index_buffer(vec![0,  1,  2]);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
 }
 
-pub fn make_vertex_attribute() -> react::Result {
+pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
     let buffer = make_basic_array_buffer(&gpu)?;
-    let att = gpu.vertex_attribute(&buffer);
-    att.write(|pack| {
-        pack.unit.index(0).size(3).stride(0).offset(0);
-    })
+    gpu.vertex_attribute(&buffer)
+        .index(0)
+        .size(3)
+        .stride(0)
+        .offset(0)
+        .link()?;
+    Ok(())
 }
 
-pub fn make_vertex_array_object() -> vao::Result {
+pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
     let buffer = make_basic_array_buffer(&gpu)?;
-    let att = gpu.vertex_attribute(&buffer);
-    att.write(|pack| {
-        pack.unit.size(3);
-    })?;
-    gpu.vao(&vec![att])
+    let att = gpu.vertex_attribute(&buffer).size(3).link()?;
+    gpu.vao(&vec![att])?;
+    Ok(())
 }
 
-pub fn draw_elements() -> react::Result {
+pub fn draw_elements() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas_on_body();
     draw_basic_elements(&gpu)?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
-pub fn elements_react_to_shader_source() -> react::Result {
+pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas_on_body();
     let (_elements, shader_source) = draw_basic_elements(&gpu)?;
     shader_source.write(|unit| *unit = shader::basic::FRAGMENT_GREEN.to_owned())?;
@@ -170,7 +170,7 @@ pub fn elements_react_to_shader_source() -> react::Result {
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
-pub fn shader_source_error() -> react::Result {
+pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
     let (_elements, shader_source) = draw_basic_elements(&gpu)?;
     if let Err(_) = shader_source.write(|unit| *unit = "bad shader".to_owned()) {

@@ -45,8 +45,8 @@ impl<L> DoReact for Ace<L> {
     }
 }
 
-// impl<L> DoGrant for Ace<L> 
-// where 
+// impl<L> DoGrant for Ace<L>
+// where
 //     L: Clone,
 // {
 //     type Load = L;
@@ -58,7 +58,6 @@ impl<L> DoReact for Ace<L> {
 // impl<L> Clear for Ace<L> {
 //     fn clear(&mut self) {}
 // }
-
 
 // ///////// TODO: replacing FromItem?!?!
 // impl<L> From<L> for Ace<L> {

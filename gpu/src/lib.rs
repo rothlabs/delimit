@@ -7,23 +7,25 @@ pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
 use buffer::Array;
-use texture::*;
 use graph::*;
 use js_sys::*;
 use shader::*;
+use texture::*;
 use vao::*;
+use vertex_attribute::VertexAttributeBuilder;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
+use derive_builder::Builder;
 
-pub mod shader;
 pub mod buffer;
-pub mod vao;
 pub mod program;
+pub mod shader;
+pub mod vao;
 
 mod canvas;
 mod elements;
-mod vertex_attribute;
 mod texture;
+mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
@@ -51,12 +53,18 @@ impl Gpu {
     pub fn array_buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
         Buffer::link_f32(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn element_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
+    pub fn index_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
         Buffer::link_u16(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    // <F: FnOnce(&mut VertexAttribute)> 
-    pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
-        VertexAttribute::link(&self.gl, buffer)
+    // <F: FnOnce(&mut VertexAttribute)>
+    // pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
+    //     VertexAttribute::link(&self.gl, buffer)
+    // }
+    pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> VertexAttributeBuilder {
+        VertexAttributeBuilder::default()
+            .gl(self.gl.clone())
+            .buffer(buffer.clone())
+            .clone()
     }
     pub fn vao(&self, attributes: &Attributes) -> vao::Result {
         Vao::link(&self.gl, attributes)
