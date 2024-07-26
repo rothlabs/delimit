@@ -6,7 +6,6 @@ use std::error::Error;
 
 // mod gpu_setup;
 
-
 pub fn make_canvas() -> Gpu {
     let canvas = Canvas::link();
     canvas.read(|unit| unit.gpu())
@@ -39,9 +38,9 @@ pub fn make_tex_program(gpu: &Gpu) -> program::Result {
     gpu.program(&vertex, &fragment)
 }
 
-pub fn make_basic_array_buffer(gpu: &Gpu) -> buffer::Result<f32> {
+pub fn make_basic_buffer(gpu: &Gpu) -> buffer::Result<f32> {
     #[rustfmt::skip]
-    let buffer = gpu.array_buffer(vec![
+    let buffer = gpu.buffer(vec![
         0.,  0.,  0.,
         0., 0.8,  0.,
         0.8,  0., 0.,
@@ -51,7 +50,7 @@ pub fn make_basic_array_buffer(gpu: &Gpu) -> buffer::Result<f32> {
 
 pub fn make_vertex_color_buffer(gpu: &Gpu) -> buffer::Result<f32> {
     #[rustfmt::skip]
-    let buffer = gpu.array_buffer(vec![
+    let buffer = gpu.buffer(vec![
         // xyz             // uv
         -0.8, 0.,  0.,     0., 0.,
         0.,   0.8, 0.,     0.5, 1.,
@@ -73,14 +72,16 @@ pub fn make_basic_texture(gpu: &Gpu) -> texture::Result<u8> {
 
 pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<String>), Box<dyn Error>> {
     let (program, vertex_source) = make_basic_program(&gpu);
-    let buffer = make_basic_array_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     let index_buffer = gpu.index_buffer(vec![0, 1, 2])?;
     let att = gpu.vertex_attribute(&buffer).size(3).link()?;
     let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).link()?;
-    let elements = gpu.elements(&program, &buffer, &vao);
-    elements.write(|pack| {
-        pack.unit.count(3);
-    })?;
+    let elements = gpu
+        .elements(&program)
+        .buffer(buffer)
+        .vao(vao)
+        .count(3)
+        .link()?;
     elements.act()?;
     Ok((elements, vertex_source))
 }
@@ -99,10 +100,12 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Agent<Elements>, Box<dy
         .link()?;
     let vao = gpu.vao(&vec![pos, uv])?.index_buffer(index_buffer).link()?;
     let _ = make_basic_texture(&gpu)?;
-    let elements = gpu.elements(&program, &buffer, &vao);
-    elements.write(|pack| {
-        pack.unit.count(3);
-    })?;
+    let elements = gpu
+        .elements(&program)
+        .buffer(buffer)
+        .vao(vao)
+        .count(3)
+        .link()?;
     elements.act()?;
     Ok(elements)
 }
@@ -130,9 +133,9 @@ pub fn make_program() {
     make_basic_program(&gpu);
 }
 
-pub fn make_array_buffer() -> buffer::Result<f32> {
+pub fn make_buffer() -> buffer::Result<f32> {
     let gpu = make_canvas();
-    make_basic_array_buffer(&gpu)
+    make_basic_buffer(&gpu)
 }
 
 pub fn make_index_buffer() {
@@ -146,7 +149,7 @@ pub fn make_index_buffer() {
 
 pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
-    let buffer = make_basic_array_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
         .index(0)
         .size(3)
@@ -158,7 +161,7 @@ pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
 
 pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
-    let buffer = make_basic_array_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer).size(3).link()?;
     gpu.vao(&vec![att])?;
     Ok(())

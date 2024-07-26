@@ -24,7 +24,7 @@ impl Program {
         link.act()?;
         Ok(link)
     }
-    pub fn use_target(&self) {
+    pub fn use_(&self) {
         self.gl.use_program(Some(&self.program));
     }
 }

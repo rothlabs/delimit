@@ -91,9 +91,8 @@ impl React for Buffer<u16> {
     }
 }
 
-
-// // impl<T> Act for Buffer<T> 
-// // where 
+// // impl<T> Act for Buffer<T>
+// // where
 // //     T: ToArrayF32,
 // // {
 // //     type Load = ();
@@ -117,7 +116,7 @@ impl React for Buffer<u16> {
 // impl ToJsArray for &Vec<f32> {
 //     fn array_f32(&self) -> Float32Array {
 //         unsafe {
-//             Float32Array::view(self.as_slice())   
+//             Float32Array::view(self.as_slice())
 //         }
 //     }
 // }

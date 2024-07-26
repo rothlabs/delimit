@@ -23,13 +23,6 @@ impl Canvas {
     }
     pub fn gpu(&self) -> Gpu {
         self.gl.clone().into()
-        // self.element
-        //     .get_context("webgl2")
-        //     .unwrap()
-        //     .unwrap()
-        //     .dyn_into::<WGLRC>()
-        //     .unwrap()
-        //     .into()
     }
     pub fn fit_size(&self) {
         self.object.set_width(self.object.client_width() as u32);
@@ -47,9 +40,6 @@ impl Act for Canvas {
     type Load = ();
     fn act(&self) -> Self::Load {
         self.fit_size();
-        // let window = window().unwrap();
-        // let memo = format!("width: {}", self.element.width());
-        // window.alert_with_message(&memo).ok();
         self.gl.viewport(
             0,
             0,
@@ -65,6 +55,19 @@ impl React for Canvas {
         Ok(())
     }
 }
+
+
+        // let window = window().unwrap();
+        // let memo = format!("width: {}", self.element.width());
+        // window.alert_with_message(&memo).ok();
+
+        // self.element
+        //     .get_context("webgl2")
+        //     .unwrap()
+        //     .unwrap()
+        //     .dyn_into::<WGLRC>()
+        //     .unwrap()
+        //     .into()
 
 // impl Default for Canvas {
 //     fn default() -> Self {

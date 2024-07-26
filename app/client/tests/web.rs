@@ -26,8 +26,8 @@ fn make_program() {
 }
 
 #[wasm_bindgen_test]
-fn make_array_buffer() -> Result<(), Box<dyn Error>> {
-    gpu::make_array_buffer()?;
+fn make_buffer() -> Result<(), Box<dyn Error>> {
+    gpu::make_buffer()?;
     Ok(())
 }
 

@@ -61,24 +61,23 @@ impl React for Vao {
     }
 }
 
-
-    // pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
-    //     let object = gl
-    //         .create_vertex_array()
-    //         .ok_or("failed to create vertex array object")?;
-    //     let link = Agent::make(|back| Self {
-    //         gl: gl.clone(),
-    //         object,
-    //         attributes: attributes.backed(back),
-    //         index_buffer: None,
-    //     });
-    //     link.act();
-    //     Ok(link)
-    // }
-    // pub fn index_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
-    //     self.index_buffer = Some(buffer);
-    //     self
-    // }
+// pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
+//     let object = gl
+//         .create_vertex_array()
+//         .ok_or("failed to create vertex array object")?;
+//     let link = Agent::make(|back| Self {
+//         gl: gl.clone(),
+//         object,
+//         attributes: attributes.backed(back),
+//         index_buffer: None,
+//     });
+//     link.act();
+//     Ok(link)
+// }
+// pub fn index_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
+//     self.index_buffer = Some(buffer);
+//     self
+// }
 
 // impl Vao {
 //     pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {

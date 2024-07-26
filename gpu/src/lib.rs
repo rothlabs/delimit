@@ -1,6 +1,7 @@
 pub use buffer::Buffer;
 pub use canvas::Canvas;
 pub use elements::Elements;
+use elements::ElementsBuilder;
 pub use program::Program;
 pub use shader::Shader;
 pub use vao::Vao;
@@ -21,8 +22,8 @@ use web_sys::*;
 pub mod buffer;
 pub mod program;
 pub mod shader;
-pub mod vao;
 pub mod texture;
+pub mod vao;
 
 mod canvas;
 mod elements;
@@ -51,7 +52,7 @@ impl Gpu {
     pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
         Program::link(&self.gl, vertex, fragment)
     }
-    pub fn array_buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
+    pub fn buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
         Buffer::link_f32(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
     pub fn index_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
@@ -74,33 +75,47 @@ impl Gpu {
             .attributes(attributes.clone())
             .clone())
     }
-    pub fn texture<T: Copy>(&self, array: impl Into<Array<T>>) -> result::Result<TextureBuilder<T>, Box<dyn Error>> {
+    pub fn texture<T: Copy>(
+        &self,
+        array: impl Into<Array<T>>,
+    ) -> result::Result<TextureBuilder<T>, Box<dyn Error>> {
         let texture = self.gl.create_texture().ok_or("failed to create texture")?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
+        self.default_texture_filters();        
+        Ok(TextureBuilder::default()
+            .gl(self.gl.clone())
+            .texture(texture)
+            .array(array)
+            .clone())
+    }
+    pub fn elements(
+        &self,
+        program: &Agent<Program>,
+    ) -> ElementsBuilder {
+        ElementsBuilder::default().gl(self.gl.clone()).program(program.clone()).clone()
+        // Elements::link(&self.gl, program, buffer, vao)
+    }
+    fn default_texture_filters(&self) {
+        self.default_texture_min_filter();
+        self.default_texture_mag_filter();
+    }
+    fn default_texture_min_filter(&self) {
         self.gl.tex_parameteri(
             WGLRC::TEXTURE_2D,
             WGLRC::TEXTURE_MIN_FILTER,
             WGLRC::NEAREST as i32,
         );
+    }
+    fn default_texture_mag_filter(&self) {
         self.gl.tex_parameteri(
             WGLRC::TEXTURE_2D,
             WGLRC::TEXTURE_MAG_FILTER,
             WGLRC::NEAREST as i32,
         );
-        Ok(TextureBuilder::default().gl(self.gl.clone()).texture(texture).array(array).clone())
-    }
-    pub fn elements(
-        &self,
-        program: &Agent<Program>,
-        buffer: &Agent<Buffer<f32>>,
-        vao: &Agent<Vao>,
-    ) -> Agent<Elements> {
-        Elements::link(&self.gl, program, buffer, vao)
     }
 }
 
-
-    // <F: FnOnce(&mut VertexAttribute)>
-    // pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
-    //     VertexAttribute::link(&self.gl, buffer)
-    // }
+// <F: FnOnce(&mut VertexAttribute)>
+// pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
+//     VertexAttribute::link(&self.gl, buffer)
+// }

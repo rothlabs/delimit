@@ -168,8 +168,8 @@ pub trait DoServe {
 
 pub trait ToLoad {
     type Load;
-    /// Clone a Load (payload) out of the graph part
-    /// The graph part might perform calculations to generate the load.
+    /// Clone the Load out of the graph part.
+    /// May cause stem nodes to generate the load.
     fn load(&self) -> Self::Load;
 }
 

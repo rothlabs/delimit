@@ -27,6 +27,10 @@ impl VertexAttributeBuilder {
         let mut attrib = self.build()?;
         Ok(Agent::make(|back| {
             attrib.buffer = attrib.buffer.backed(back);
+            attrib.index = attrib.index.backed(back);
+            attrib.size = attrib.size.backed(back);
+            attrib.stride = attrib.stride.backed(back);
+            attrib.offset = attrib.offset.backed(back);
             attrib
         }))
     }
