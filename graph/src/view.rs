@@ -6,7 +6,7 @@ pub mod end;
 
 /// Graph part for copy types.
 /// Could be a bare L, `Ace<L>`, or `AcePloy<L>`.
-/// Satisfies Read and ToLoad.
+/// For use with Read and ToLoad.
 pub type Value<L> = View<Asset<L>, End<L>>;
 
 /// End-view with ploy.  

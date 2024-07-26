@@ -90,3 +90,34 @@ impl React for Buffer<u16> {
         Ok(())
     }
 }
+
+
+// // impl<T> Act for Buffer<T> 
+// // where 
+// //     T: ToArrayF32,
+// // {
+// //     type Load = ();
+// //     fn act(&self) -> Self::Load {
+// //         self.bind();
+// //         self.array.grant().read(|unit| unsafe {
+// //             self.gl.buffer_data_with_array_buffer_view(
+// //                 self.target,
+// //                 &Float32Array::view(unit.as_slice()),
+// //                 WGLRC::STATIC_DRAW,
+// //             )
+// //         });
+// //         self.unbind();
+// //     }
+// // }
+
+// pub trait ToJsArray<T> {
+//     fn array_f32(&self) -> Float32Array;
+// }
+
+// impl ToJsArray for &Vec<f32> {
+//     fn array_f32(&self) -> Float32Array {
+//         unsafe {
+//             Float32Array::view(self.as_slice())   
+//         }
+//     }
+// }

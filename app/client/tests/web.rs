@@ -32,8 +32,8 @@ fn make_array_buffer() -> Result<(), Box<dyn Error>> {
 }
 
 #[wasm_bindgen_test]
-fn make_element_buffer() {
-    gpu::make_element_buffer();
+fn make_index_buffer() {
+    gpu::make_index_buffer();
 }
 
 #[wasm_bindgen_test]
@@ -63,5 +63,11 @@ fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
 #[wasm_bindgen_test]
 fn shader_source_error() -> Result<(), Box<dyn Error>> {
     gpu::shader_source_error()?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+fn draw_elements_textured() -> Result<(), Box<dyn Error>> {
+    gpu::draw_elements_textured()?;
     Ok(())
 }

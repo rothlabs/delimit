@@ -8,12 +8,16 @@ pub type Result = std::result::Result<Agent<VertexAttribute>, VertexAttributeBui
 pub struct VertexAttribute {
     gl: WGLRC,
     buffer: Agent<Buffer<f32>>,
+    /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
     index: Value<u32>,
+    /// Number of components per value
     #[builder(default)]
     size: Value<i32>,
+    /// Number of bytes between values
     #[builder(default)]
     stride: Value<i32>,
+    /// Byte offset of first value
     #[builder(default)]
     offset: Value<i32>,
 }
