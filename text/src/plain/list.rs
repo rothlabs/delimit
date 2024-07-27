@@ -1,8 +1,6 @@
-// use derive_builder::Builder;
-
 use super::*;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct List {
     pub items: Vec<Stem>,
     pub separator: Option<String>,

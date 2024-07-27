@@ -24,7 +24,6 @@ pub type Stem = graph::view::Ploy<Part, String>;
 #[derive(Clone, Serialize)]
 pub enum Part {
     List(Link<List>),
-    Unknown,
 }
 
 type Link<U> = Deuce<U>;
