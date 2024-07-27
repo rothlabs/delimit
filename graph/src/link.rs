@@ -11,6 +11,14 @@ mod ace;
 #[cfg(test)]
 mod tests;
 
+///////////////////////////////////////////////
+// /// impl Read and ToLoad
+// pub enum Asset<L> {
+//     Link(Link<Box<dyn Produce<Ace<L>>>>),
+//     Bare(L)
+// }
+/// ///////////////////////////////////////////
+
 /// Link to a load. The most simple graph part.
 pub type Ace<L> = Link<edge::Ace<L>>;
 
@@ -31,7 +39,7 @@ pub type Envoy<U> = Link<edge::Envoy<U>>;
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
 
 /// Link that grants an Ace.
-pub type Asset<L> = Link<Box<dyn Produce<Ace<L>>>>;
+// pub type OldAsset<L> = Ploy<Ace<L>>;
 
 /// Link that solves a task with resulting load.
 pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
@@ -305,21 +313,6 @@ where
     }
 }
 
-impl<'a> From<&'a str> for Asset<String> {
-    fn from(load: &'a str) -> Self {
-        unit::Asset::link(load.into()).ploy()
-    }
-}
-
-impl<T> From<T> for Asset<T>
-where
-    T: 'static + Clone + SendSync,
-{
-    fn from(load: T) -> Self {
-        unit::Asset::link(load).ploy()
-    }
-}
-
 impl<E> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -328,3 +321,19 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
+
+
+// impl<'a> From<&'a str> for OldAsset<String> {
+//     fn from(load: &'a str) -> Self {
+//         unit::Asset::link(load.into()).ploy()
+//     }
+// }
+
+// impl<T> From<T> for OldAsset<T>
+// where
+//     T: 'static + Clone + SendSync,
+// {
+//     fn from(load: T) -> Self {
+//         unit::Asset::link(load).ploy()
+//     }
+// }

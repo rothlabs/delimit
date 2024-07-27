@@ -1,6 +1,7 @@
 use super::*;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Builder)]
+#[builder(setter(into))]
 pub struct List {
     pub items: Vec<Stem>,
     pub separator: Option<String>,

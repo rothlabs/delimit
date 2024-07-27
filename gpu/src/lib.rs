@@ -7,7 +7,6 @@ pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
-use buffer::Array;
 use derive_builder::Builder;
 use graph::*;
 use js_sys::*;
@@ -30,6 +29,7 @@ mod elements;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
+pub type Array<T> = Value<Vec<T>>;
 
 /// GPU graph maker
 pub struct Gpu {

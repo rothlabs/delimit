@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Array<T> = Asset<Vec<T>>;
+
 pub type Result<T> = std::result::Result<Agent<Texture<T>>, Box<dyn Error>>;
 
 #[derive(Builder)]
@@ -43,7 +43,7 @@ impl Act for Texture<u8> {
     type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.grant().read(|unit| {
+        self.array.read(|unit| {
             let pixels = unsafe {
                 Uint8Array::view(unit.as_slice())
             };

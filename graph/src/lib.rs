@@ -1,5 +1,5 @@
 pub use edge::Edge;
-pub use link::{Ace, Agent, Asset, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
@@ -8,10 +8,12 @@ pub use react::{
 };
 pub use role::Role;
 pub use unit::{Gate, Repo, Serial, ToSerial};
-pub use view::{AddBase, ToViewsMutator, Value, View, ViewsBuilder};
+pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use asset::Asset;
+pub use value::Value;
 
 use serde::Serialize;
 #[cfg(not(feature = "oneThread"))]
@@ -33,6 +35,8 @@ mod node;
 mod unit;
 mod work;
 mod write;
+mod asset;
+mod value;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";

@@ -1,6 +1,5 @@
 use super::*;
 
-pub type Array<T> = Asset<Vec<T>>;
 pub type Result<T> = std::result::Result<Agent<Buffer<T>>, String>;
 
 pub struct Buffer<T> {
@@ -51,7 +50,7 @@ impl Act for Buffer<f32> {
     type Load = ();
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.grant().read(|unit| unsafe {
+        self.array.read(|unit| unsafe {
             self.gl.buffer_data_with_array_buffer_view(
                 self.target,
                 &Float32Array::view(unit.as_slice()),
@@ -66,7 +65,7 @@ impl Act for Buffer<u16> {
     type Load = ();
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.grant().read(|unit| unsafe {
+        self.array.read(|unit| unsafe {
             self.gl.buffer_data_with_array_buffer_view(
                 self.target,
                 &Uint16Array::view(unit.as_slice()),

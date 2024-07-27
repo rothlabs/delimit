@@ -4,10 +4,9 @@ pub use end::End;
 
 pub mod end;
 
-/// Graph part for copy types.
 /// Could be a bare L, `Ace<L>`, or `AcePloy<L>`.
 /// For use with Read and ToLoad.
-pub type Value<L> = View<Asset<L>, End<L>>;
+// pub type OldValue<L> = View<OldAsset<L>, End<L>>;
 
 /// End-view with ploy.  
 pub type Ploy<P, L> = View<role::Ploy<P, Ace<L>>, End<L>>;
