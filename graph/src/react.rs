@@ -47,7 +47,7 @@ pub trait DoAddRoot {
 }
 
 pub trait Backed {
-    /// Make a copy of the link edge that includes the provided node `&Back`.
+    /// Make a copy of the link that includes the provided node `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
     fn backed(&self, back: &Back) -> Self;
 }
@@ -59,6 +59,7 @@ type PloyEdge<L> = Rc<RefCell<Box<dyn Produce<L>>>>;
 
 pub trait ToPloy {
     type Load;
+    /// Copy with unit type erased.  
     fn ploy(&self) -> PloyEdge<Self::Load>;
 }
 

@@ -1,45 +1,39 @@
 use super::*;
 
+#[derive(Default, Clone)]
 pub struct Tag {
-    pub name: Stem,
-    pub attributes: Vec<Stem>,
+    pub name: Value<String>,
+    pub attributes: Vec<Value<String>>,
 }
 
 impl Tag {
-    pub fn hold(name: &Stem) -> Hold<Link<Self>, Role> {
-        let link = Link::make(|back| Self {
-            name: name.backed(back),
-            attributes: vec![],
-        });
-        let role = Role {
-            part: OldPart::Tag(link.clone()),
-            form: link.ploy(),
-        };
-        Hold { link, role }
+    pub fn link(&self) -> Deuce<Self> {
+        Deuce::make(|back| 
+            Self { 
+                name: self.name.backed(back),
+                attributes: self.attributes.backed(back),
+            }
+        )
+    }
+    pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
+        self.name = name.into();
+        self 
+    }
+    pub fn attribute(&mut self, attribute: impl Into<Value<String>>) -> &mut Self {
+        self.attributes.push(attribute.into());
+        self
     }
 }
 
 impl Grant for Tag {
-    type Load = Load;
+    type Load = Vec<plain::Part>;
     fn grant(&self) -> Self::Load {
-        let Hold { link, role } = "".list();
-        link.write(|pack| {
-            let mut tag = pack.unit.items.back(pack.back);
-            let Hold { link, role } = " ".list();
-            link.write(|Pack { unit, back }| {
-                let mut inner = unit.items.back(back);
-                inner.view(&self.name.grant());
-                // inner.use_ploy(&self.name);
-                for att in &self.attributes {
-                    inner.view(&att.grant());
-                    // inner.use_ploy(att);
-                }
-            })
-            .ok();
-            tag.str("<").role(&role).str(">");
-        })
-        .ok();
-        role
+        let inner = List::new().separator(" ").item(&self.name).extend(self.attributes.clone()).link();
+        let tag = List::new().item("<").item(inner.ploy()).item(">").link();
+        vec![
+            plain::Part::List(inner),
+            plain::Part::List(tag),
+        ]
     }
 }
 
@@ -57,6 +51,63 @@ pub const H1: &str = "h1";
 pub const TAGS: [&str; 10] = [
     DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
 ];
+
+
+
+
+
+// impl Tag {
+//     pub fn hold(name: &Stem) -> Hold<Link<Self>, Role> {
+//         let link = Link::make(|back| Self {
+//             name: name.backed(back),
+//             attributes: vec![],
+//         });
+//         let role = Role {
+//             part: OldPart::Tag(link.clone()),
+//             form: link.ploy(),
+//         };
+//         Hold { link, role }
+//     }
+// }
+
+// impl Grant for Tag {
+//     type Load = Load;
+//     fn grant(&self) -> Self::Load {
+//         let Hold { link, role } = "".list();
+//         link.write(|pack| {
+//             let mut tag = pack.unit.items.back(pack.back);
+//             let Hold { link, role } = " ".list();
+//             link.write(|Pack { unit, back }| {
+//                 let mut inner = unit.items.back(back);
+//                 inner.view(&self.name.grant());
+//                 // inner.use_ploy(&self.name);
+//                 for att in &self.attributes {
+//                     inner.view(&att.grant());
+//                     // inner.use_ploy(att);
+//                 }
+//             })
+//             .ok();
+//             tag.str("<").role(&role).str(">");
+//         })
+//         .ok();
+//         role
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // #[derive(Default, Clone, Serialize)]
 // pub struct TagName {

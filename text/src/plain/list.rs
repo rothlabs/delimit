@@ -1,46 +1,51 @@
 use super::*;
 
-#[derive(Clone, Serialize, Builder)]
-#[builder(setter(into))]
+#[derive(Default, Clone)]
 pub struct List {
-    pub items: Vec<Stem>,
-    pub separator: Option<String>,
+    pub items: Vec<Value<String>>,
+    pub separator: Value<String>,
 }
 
 impl List {
-    pub fn role<F: FnOnce(&Back) -> Self>(make: F) -> Role {
-        let link = Link::make(make);
-        Role {
-            part: OldPart::List(link.clone()),
-            form: link.ploy(),
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
-    pub fn separator(&mut self, sep: &str) {
-        self.separator = Some(sep.to_owned());
-        //sep.clone_into(&mut self.separator);
+    pub fn link(&self) -> Deuce<Self> {
+        Deuce::make(|back| {
+            Self { items: self.items.backed(back), separator: self.separator.backed(back) }
+        })
     }
-    pub fn remove(&mut self, index: usize) {
+    pub fn separator(&mut self, separator: impl Into<Value<String>>) -> &mut Self {
+        self.separator = separator.into();
+        self 
+    }
+    pub fn extend(&mut self, items: Vec<impl Into<Value<String>>>) -> &mut Self {
+        self.items.extend(items.into_iter().map(|item| item.into()));
+        self
+    }
+    pub fn item(&mut self, item: impl Into<Value<String>>) -> &mut Self {
+        self.items.push(item.into());
+        self
+    }
+    pub fn remove(&mut self, index: usize) -> &mut Self {
         self.items.remove(index);
+        self
     }
 }
 
 impl Grant for List {
-    type Load = Load;
-    fn grant(&self) -> Load {
+    type Load = Ace<String>;
+    fn grant(&self) -> Self::Load {
         let mut string = String::new();
         if self.items.is_empty() {
             return string.into_ace();
         }
-        if let Some(sep) = &self.separator {
+        self.separator.read(|sep| {
             for i in 0..self.items.len() - 1 {
                 self.items[i].read(|s| string += s);
                 string += sep;
             }
-        } else {
-            for i in 0..self.items.len() - 1 {
-                self.items[i].read(|s| string += s);
-            }
-        }
+        });
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
@@ -48,23 +53,31 @@ impl Grant for List {
     }
 }
 
-pub trait ToList {
-    fn list(self) -> Hold<Link<List>, Role>;
-}
+// pub fn role<F: FnOnce(&Back) -> Self>(make: F) -> Role {
+//     let link = Link::make(make);
+//     Role {
+//         part: OldPart::List(link.clone()),
+//         form: link.ploy(),
+//     }
+// }
 
-impl ToList for &str {
-    fn list(self) -> Hold<Link<List>, Role> {
-        let link = Link::new(List {
-            separator: Some(self.into()),
-            items: vec![],
-        });
-        let role = Role {
-            part: OldPart::List(link.clone()),
-            form: link.ploy(),
-        };
-        Hold { link, role }
-    }
-}
+// pub trait ToList {
+//     fn list(self) -> Hold<Link<List>, Role>;
+// }
+
+// impl ToList for &str {
+//     fn list(self) -> Hold<Link<List>, Role> {
+//         let link = Link::new(List {
+//             separator: Some(self.into()),
+//             items: vec![],
+//         });
+//         let role = Role {
+//             part: OldPart::List(link.clone()),
+//             form: link.ploy(),
+//         };
+//         Hold { link, role }
+//     }
+// }
 
 // pub fn new() -> Self {
 //     List::default()

@@ -3,6 +3,7 @@
 use crate::*;
 
 /// Contains a unit that must impl Grant to produce a Load which is saved here.
+/// This could be renamed to Trey if other Trey that takes Task is removed
 // #[derive(Serialize)]
 pub struct Pipe<U>
 where

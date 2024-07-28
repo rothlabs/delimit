@@ -266,6 +266,7 @@ impl<E> Link<E>
 where
     E: Grant + ToPloy<Load = <E as Grant>::Load>,
 {
+    /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Ploy<<E as Grant>::Load> {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),

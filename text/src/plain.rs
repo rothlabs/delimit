@@ -1,7 +1,7 @@
 pub use doc::Doc;
-pub use list::{List, ToList};
+pub use list::List; //{List, ToList};
 
-use super::*;
+// use super::*;
 use graph::*;
 use serde::Serialize;
 
