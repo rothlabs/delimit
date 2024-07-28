@@ -27,6 +27,7 @@ use std::{
 pub mod react;
 pub mod role;
 pub mod view;
+pub mod part;
 
 mod edge;
 mod link;
