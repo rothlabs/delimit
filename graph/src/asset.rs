@@ -1,5 +1,11 @@
 use super::*;
 
+// #[derive(Clone)]
+// pub enum Asset2<L> {
+//     Bare(Deuce<L>),
+//     Ploy(Ploy<Deuce<L>>),
+// }
+
 #[derive(Clone)]
 pub enum Asset<L> {
     Bare(L),

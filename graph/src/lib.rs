@@ -37,6 +37,7 @@ mod work;
 mod write;
 mod asset;
 mod value;
+mod edit;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
