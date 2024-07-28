@@ -12,7 +12,7 @@ impl Attribute {
             value: value.into().backed(back),
         });
         let role = Role {
-            part: Part::Attribute(link.clone()),
+            part: OldPart::Attribute(link.clone()),
             form: link.ploy(),
         };
         Hold { link, role }

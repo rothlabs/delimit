@@ -13,14 +13,20 @@ mod tag;
 #[cfg(test)]
 mod tests;
 
+pub enum Part {
+    Tag(Deuce<Tag>),
+    Attribute(Deuce<Attribute>),
+    Element(Deuce<Element>),
+}
+
 /// HTML Pipe
 pub type Pipe = graph::Pipe<Role>;
 
 /// HTML Role
-pub type Role = role::Ploy<Part, Load>;
+pub type Role = role::Ploy<OldPart, Load>;
 
 #[derive(Clone)]
-pub enum Part {
+pub enum OldPart {
     Element(Link<Element>),
     Tag(Link<Tag>),
     Attribute(Link<Attribute>),
@@ -33,4 +39,4 @@ type Link<U> = Deuce<U>;
 type Load = plain::Role;
 
 /// HTML stem view
-type Stem = plain::view::Ploy<Part>;
+type Stem = plain::view::Ploy<OldPart>;

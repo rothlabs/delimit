@@ -12,7 +12,7 @@ impl Tag {
             attributes: vec![],
         });
         let role = Role {
-            part: Part::Tag(link.clone()),
+            part: OldPart::Tag(link.clone()),
             form: link.ploy(),
         };
         Hold { link, role }

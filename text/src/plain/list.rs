@@ -11,7 +11,7 @@ impl List {
     pub fn role<F: FnOnce(&Back) -> Self>(make: F) -> Role {
         let link = Link::make(make);
         Role {
-            part: Part::List(link.clone()),
+            part: OldPart::List(link.clone()),
             form: link.ploy(),
         }
     }
@@ -59,7 +59,7 @@ impl ToList for &str {
             items: vec![],
         });
         let role = Role {
-            part: Part::List(link.clone()),
+            part: OldPart::List(link.clone()),
             form: link.ploy(),
         };
         Hold { link, role }

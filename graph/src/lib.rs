@@ -7,13 +7,14 @@ pub use react::{
     Rebut, Ring, Root, ToPlan, ToPloy, Update,
 };
 pub use role::Role;
-pub use unit::{Gate, Repo, Serial, ToSerial};
+pub use unit::{Gate, Serial, ToSerial};
 pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 pub use asset::Asset;
 pub use value::Value;
+pub use repo::Repo;
 
 use serde::Serialize;
 #[cfg(not(feature = "oneThread"))]
@@ -39,6 +40,7 @@ mod write;
 mod asset;
 mod value;
 mod edit;
+mod repo;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
