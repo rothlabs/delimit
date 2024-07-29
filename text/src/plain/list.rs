@@ -56,39 +56,3 @@ impl Grant for List {
         string.ace().into()
     }
 }
-
-// pub fn role<F: FnOnce(&Back) -> Self>(make: F) -> Role {
-//     let link = Link::make(make);
-//     Role {
-//         part: OldPart::List(link.clone()),
-//         form: link.ploy(),
-//     }
-// }
-
-// pub trait ToList {
-//     fn list(self) -> Hold<Link<List>, Role>;
-// }
-
-// impl ToList for &str {
-//     fn list(self) -> Hold<Link<List>, Role> {
-//         let link = Link::new(List {
-//             separator: Some(self.into()),
-//             items: vec![],
-//         });
-//         let role = Role {
-//             part: OldPart::List(link.clone()),
-//             form: link.ploy(),
-//         };
-//         Hold { link, role }
-//     }
-// }
-
-// pub fn new() -> Self {
-//     List::default()
-// }
-// pub fn from_separator(sep: &str) -> Self {
-//     Self {
-//         items: vec![],
-//         separator: sep.to_owned(),
-//     }
-// }

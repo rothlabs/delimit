@@ -1,5 +1,4 @@
 use super::*;
-use serde::Serialize;
 
 pub type Ace<L> = Apex<work::Ace<L>>;
 pub type Deuce<U> = Apex<work::Deuce<U>>;
@@ -58,15 +57,15 @@ where
     }
 }
 
-impl<W> ToSerial for Apex<W>
-where
-    W: Serialize,
-{
-    fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
-        // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
-        serial.add(&self.work)
-    }
-}
+// impl<W> ToSerial for Apex<W>
+// where
+//     W: Serialize,
+// {
+//     fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
+//         // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
+//         serial.add(&self.work)
+//     }
+// }
 
 impl<W> ToLoad for Apex<W>
 where

@@ -1,4 +1,3 @@
-// pub use asset::Asset;
 pub use edge::Edge;
 pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
@@ -8,14 +7,10 @@ pub use react::{
     Rebut, Ring, Root, ToPipedPloy, ToPlan, ToPloy, Update,
 };
 pub use repo::Repo;
-// pub use role::Role;
-pub use unit::{Gate, Serial, ToSerial};
 pub use node::{RankDown, Node};
-// pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-
 
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -25,19 +20,14 @@ use std::{
     rc::Rc,
 };
 
-pub mod part;
 pub mod react;
-// pub mod role;
-// pub mod view;
 
-// mod asset;
 mod edge;
 mod edit;
 mod link;
 mod meta;
 mod apex;
 mod repo;
-mod unit;
 mod node;
 mod work;
 mod write;
@@ -87,13 +77,6 @@ pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update 
 /// Edge that grants a load. It can also clone the edge with a new back.
 #[cfg(feature = "oneThread")]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
-
-// /// Edge that grants a load. It can also clone the edge with a new back.
-// #[cfg(not(feature = "oneThread"))]
-// pub trait Produce<L>: Grant<Load = L> + AddRoot + Update {}
-// /// Edge that grants a load. It can also clone the edge with a new back.
-// #[cfg(feature = "oneThread")]
-// pub trait Produce<L>: Grant<Load = L> + AddRoot + Update {}
 
 /// Edge that solves a task. It can also clone the edge with a new Back.
 #[cfg(not(feature = "oneThread"))]
@@ -188,12 +171,6 @@ pub trait ToLoad {
     fn load(&self) -> Self::Load;
 }
 
-pub trait ToLoadByTask {
-    type Task;
-    type Load;
-    fn load(&self, task: Self::Task) -> Self::Load;
-}
-
 pub trait FromItem {
     type Item;
     fn new(item: Self::Item) -> Self;
@@ -209,46 +186,6 @@ pub trait DoMake {
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
 }
 
-pub trait FromAce {
-    type Load;
-    fn from_ace(ace: &Ace<Self::Load>) -> Self;
-}
-
-pub trait IntoView {
-    type Item;
-    fn into_view(item: Self::Item) -> Self;
-}
-
-pub trait AddAce {
-    type Load;
-    fn add_ace(&mut self, ace: Ace<Self::Load>);
-}
-
-// pub trait AddBacked<T> {
-//     fn add_backed(&mut self, item: T) -> &mut Self;
-// }
-
-pub trait AddStr {
-    fn add_str(&mut self, str: &'static str);
-}
-
 pub trait Clear {
     fn clear(&mut self);
 }
-
-// pub trait UsePloy {
-//     type Load;
-//     fn use_ploy<T: Grant<Load = Self::Load>>(&mut self, item: &T);
-// }
-
-// pub trait Memory {
-//     type Task;
-//     type Load;
-//     fn add(&mut self, task: Self::Task, load: Self::Load);
-//     fn get(&self, task: &Self::Task) -> Option<&Self::Load>;
-// }
-
-// pub trait AddStem {
-//     type Unit;
-//     fn add_stem<T, F: FnOnce(&mut Self::Unit, T)>(&mut self, stem: T, add_stem: F);
-// }

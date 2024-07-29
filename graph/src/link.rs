@@ -11,14 +11,6 @@ mod ace;
 #[cfg(test)]
 mod tests;
 
-///////////////////////////////////////////////
-// /// impl Read and ToLoad
-// pub enum Asset<L> {
-//     Link(Link<Box<dyn Produce<Ace<L>>>>),
-//     Bare(L)
-// }
-/// ///////////////////////////////////////////
-
 /// Link to a load. The most simple graph part.
 pub type Ace<L> = Link<edge::Ace<L>>;
 
