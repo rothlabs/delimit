@@ -31,7 +31,6 @@ impl Doc {
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::new().name(doctype).link();
-        let wow = tag.ploy();
         Self {
             tag_name: DOCTYPE,
             root: None,

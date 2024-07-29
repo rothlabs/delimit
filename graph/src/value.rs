@@ -9,6 +9,13 @@ pub enum Value<L> {
     Bare(L),
     Ace(Ace<L>),
     Ploy(Ploy<Ace<L>>),
+    //Next(Ploy<Next<L>>),
+}
+
+#[derive(Clone)]
+pub enum Next<L> {
+    Ace(Ace<L>),
+    Ploy(Ploy<Next<L>>),
 }
 
 impl<L> Default for Value<L>
