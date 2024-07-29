@@ -1,4 +1,7 @@
+use std::error::Error;
 use super::*;
+
+pub type Result<L> = std::result::Result<Node<L>, Box<dyn Error>>;
 
 #[derive(Clone, Default, PartialEq)]
 pub struct Node<L> {

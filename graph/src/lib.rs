@@ -21,6 +21,7 @@ use std::{
 };
 
 pub mod react;
+pub mod node;
 
 mod edge;
 mod edit;
@@ -28,7 +29,6 @@ mod link;
 mod meta;
 mod apex;
 mod repo;
-mod node;
 mod work;
 mod write;
 
@@ -112,6 +112,10 @@ pub trait ReadByTask {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T;
 }
 
+// pub trait Give<T> {
+//     fn give(&self) -> Sel;
+// }
+
 /// For units to grant a load and NOT act upon external systems
 pub trait Grant {
     type Load;
@@ -124,7 +128,6 @@ pub trait DoGrant {
     fn do_grant(&mut self, back: &Back) -> Self::Load;
 }
 
-/// For units to provide a load by task and NOT act upon externals
 pub trait Solve {
     type Task;
     type Load;
