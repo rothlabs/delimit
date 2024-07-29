@@ -1,254 +1,256 @@
 use super::*;
-use serde::Serialize;
 
-pub type Ace<L> = Node<work::Ace<L>>;
-pub type Deuce<U> = Node<work::Deuce<U>>;
-pub type Trey<U, T, L> = Node<work::Trey<U, T, L>>;
-pub type Agent<U> = Node<work::Agent<U>>;
-pub type Envoy<U> = Node<work::Envoy<U>>;
-pub type Pipe<U> = Node<work::Pipe<U>>;
-
-/// A node creates an interactive bridge between root edges and work.
-pub struct Node<W> {
-    meta: Meta,
-    ring: Ring,
-    work: W,
+#[derive(Clone, Default, PartialEq)]
+pub struct Node<L> {
+    rank: usize,
+    form: Form<L>,
 }
 
-impl<W> Default for Node<W>
+impl<L> ToLoad for Node<L>
 where
-    W: Default,
+    L: 'static + Clone + Default,
+{
+    type Load = L;
+    // TODO: load should take a link with repo traits
+    fn load(&self) -> Self::Load {
+        self.form.load()
+    }
+}
+
+impl<L> Read for Node<L>
+where
+    L: 'static + SendSync + Default,
+{
+    type Item = L;
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
+        self.form.read(read)
+    }
+}
+
+impl<L: 'static + Clone + Default> Grant for Node<L> {
+    type Load = Self;
+    fn grant(&self) -> Self::Load {
+        Self {
+            rank: self.rank - 1,
+            form: self.form.grant(),
+        }
+    }
+}
+
+impl<L> Backed for Node<L>
+where
+    L: Clone,
+{
+    fn backed(&self, back: &Back) -> Self {
+        Self {
+            rank: self.rank,
+            form: self.form.backed(back),
+        }
+    }
+}
+
+pub trait RankDown {
+    fn down(&self, level: usize) -> Self;
+}
+
+impl<L> RankDown for Node<L>
+where
+    L: 'static + Clone + Default,
+{
+    fn down(&self, level: usize) -> Self {
+        let mut value = self.clone();
+        while value.rank > level {
+            value = value.grant();
+        }
+        value
+    }
+}
+
+impl<L> RankDown for Vec<Node<L>>
+where
+    L: 'static + Clone + Default,
+{
+    fn down(&self, level: usize) -> Self {
+        self.iter().map(|x| x.down(level)).collect()
+    }
+}
+
+/// This could be renamed to leaf because only a leaf value should ever
+/// be placed here. It could also be replaced with Leaf<L> = Box<dyn ReadLoadBacked<L>>
+/// and impl ToLoad, Read, and backed for L
+#[derive(Clone, PartialEq)]
+pub enum Form<L> {
+    Meta(Meta),
+    Bare(L),
+    Ace(Ace<L>),
+    Ploy(Ploy<Node<L>>),
+}
+
+impl<L> Default for Form<L>
+where
+    L: Default,
 {
     fn default() -> Self {
-        Self {
-            meta: Meta::new(),
-            ring: Ring::new(),
-            work: W::default(),
-        }
+        Self::Bare(L::default())
     }
 }
 
-impl<W> FromItem for Node<W>
+impl<L> ToLoad for Form<L>
 where
-    W: FromItem,
+    L: 'static + Clone + Default,
 {
-    type Item = W::Item;
-    fn new(item: Self::Item) -> Self {
-        Self {
-            meta: Meta::new(),
-            ring: Ring::new(),
-            work: W::new(item),
-        }
-    }
-}
-
-impl<W> ToMeta for Node<W> {
-    fn meta(&self) -> Meta {
-        self.meta.clone()
-    }
-}
-
-impl<W> DoMake for Node<W>
-where
-    W: DoMake,
-{
-    type Unit = W::Unit;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
-        self.work.do_make(make, back);
-    }
-}
-
-impl<W> ToSerial for Node<W>
-where
-    W: Serialize,
-{
-    fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
-        // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
-        serial.add(&self.work)
-    }
-}
-
-impl<W> ToLoad for Node<W>
-where
-    W: ToLoad,
-{
-    type Load = W::Load;
+    type Load = L;
+    // TODO: load should take a link with repo traits
     fn load(&self) -> Self::Load {
-        self.work.load()
+        match self {
+            // TODO: should attempt to lookup from repo
+            Self::Meta(_) => L::default(),
+            Self::Bare(bare) => bare.clone(),
+            Self::Ace(ace) => ace.load(),
+            Self::Ploy(ploy) => ploy.grant().load(),
+        }
     }
 }
 
-impl<W> WriteLoadOut for Node<W>
+impl<L> Read for Form<L>
 where
-    W: WriteLoadWork,
+    L: 'static + SendSync + Default,
 {
-    type Item = W::Item;
-    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
-        let out = self.work.write_load_work(write);
-        let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        write::Out { roots, meta, out }
+    type Item = L;
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
+        match self {
+            Self::Meta(_) => read(&L::default()),
+            Self::Bare(bare) => read(bare),
+            Self::Ace(ace) => ace.read(read),
+            Self::Ploy(ploy) => ploy.grant().read(read),
+        }
     }
 }
 
-impl<W> WriteUnitOut for Node<W>
+impl<L: 'static + Clone + Default> Grant for Form<L> {
+    type Load = Form<L>;
+    fn grant(&self) -> Self::Load {
+        match self {
+            Self::Meta(_) => panic!("wrong level variant: meta"),
+            Self::Bare(_) => panic!("wrong level variant: bare"),
+            Self::Ace(_) => panic!("wrong level variant: ace"),
+            Self::Ploy(ploy) => ploy.grant().form,
+        }
+    }
+}
+
+impl<L> Backed for Form<L>
 where
-    W: WriteUnitWork,
+    L: Clone,
 {
-    type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &mut self,
-        write: F,
-        back: &Back,
-    ) -> write::Out<T> {
-        let out = self.work.write_unit_work(write, back);
-        let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        write::Out { roots, meta, out }
+    fn backed(&self, back: &Back) -> Self {
+        match self {
+            Self::Meta(meta) => Self::Meta(meta.clone()),
+            Self::Bare(bare) => Self::Bare(bare.clone()),
+            Self::Ace(ace) => Self::Ace(ace.backed(back)),
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+        }
     }
 }
 
-impl<W> DoRead for Node<W>
-where
-    W: DoRead,
-{
-    type Item = W::Item;
-    fn do_read(&self) -> &Self::Item {
-        self.work.do_read()
+impl<L> From<L> for Node<L> {
+    fn from(value: L) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(value),
+        }
     }
 }
 
-impl<W> DoGrant for Node<W>
-where
-    W: DoGrant,
-{
-    type Load = W::Load;
-    fn do_grant(&mut self, back: &Back) -> Self::Load {
-        self.work.do_grant(back)
+impl<L> From<Ace<L>> for Node<L> {
+    fn from(value: Ace<L>) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Ace(value),
+        }
     }
 }
 
-impl<W> DoSolve for Node<W>
-where
-    W: DoSolve,
-{
-    type Task = W::Task;
-    type Load = W::Load;
-    fn do_solve(&mut self, task: Self::Task) -> Self::Load {
-        self.work.do_solve(task)
+impl<L: 'static + Default> From<Ploy<Node<L>>> for Node<L> {
+    fn from(value: Ploy<Node<L>>) -> Self {
+        Self {
+            rank: value.grant().rank + 1,
+            form: Form::Ploy(value),
+        }
     }
 }
 
-impl<W> DoAct for Node<W>
-where
-    W: DoAct,
-{
-    type Load = W::Load;
-    fn do_act(&mut self, back: &Back) -> Self::Load {
-        self.work.do_act(back)
-    }
-}
-
-impl<W> DoServe for Node<W>
-where
-    W: DoServe,
-{
-    type Task = W::Task;
-    type Load = W::Load;
-    fn do_serve(&mut self, task: Self::Task) -> Self::Load {
-        self.work.do_serve(task)
-    }
-}
-
-impl<W> DoAddRoot for Node<W> {
-    fn do_add_root(&mut self, root: Root) {
-        self.ring.add_root(root);
-    }
-}
-
-impl<W> DoUpdate for Node<W> where W: Clear + DoReact + SendSync {}
-
-impl<W> DoRebut for Node<W>
-where
-    W: Clear,
-{
-    fn do_rebut(&mut self) -> Ring {
-        self.work.clear();
-        self.ring.rebut()
-    }
-}
-
-impl<W> DoReact for Node<W>
-where
-    W: DoReact,
-{
-    fn do_react(&mut self, meta: &Meta) -> react::Result {
-        self.work.do_react(meta)
-    }
-}
-
-// impl<W> DoWrite for Node<W>
+// impl<L> From<&L> for Value<L>
 // where
-//     W: DoWrite,
+//     L: Clone,
 // {
-//     type Item = W::Item;
-//     fn do_write<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
-//         let out = self.work.do_write(write);
-//         self.ring.cycle(&self.meta);
-//         out
+//     fn from(value: &L) -> Self {
+//         Self::Bare(value.clone())
 //     }
 // }
 
-// impl<W> WriteWithBack for Node<W>
-// where
-//     W: WriteWithBack,
-// {
-//     type Unit = W::Unit;
-//     fn write_with_back<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-//         &mut self,
-//         write: F,
-//         back: &Back,
-//     ) -> T {
-//         let out = self.work.write_with_back(write, back);
-//         self.ring.cycle(&self.meta);
-//         out
-//     }
-// }
+impl<L> From<&Ace<L>> for Node<L> {
+    fn from(value: &Ace<L>) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Ace(value.clone()),
+        }
+    }
+}
 
-// impl<W> Make for Node<W>
-// where
-//     W: Dummy,
-// {
-//     type Item = W::Unit;
-//     fn new<F: FnOnce(&Back) -> Self::Item>(new: F, back: &Back) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: W::set_unit(new, back),
-//         }
-//     }
-// }
+// // impl<L> From<&Ploy<Ace<L>>> for Value<L> {
+// //     fn from(value: &Ploy<Ace<L>>) -> Self {
+// //         Self::Ploy(value.clone())
+// //     }
+// // }
 
-// impl<'a, W> From<&'a str> for Node<W>
-// where
-//     &'a str: Into<W>
-// {
-//     fn from(value: &'a str) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: value.into(),
-//         }
-//     }
-// }
+impl From<&str> for Node<String> {
+    fn from(value: &str) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(value.to_owned()),
+        }
+    }
+}
 
-// impl<W> From<String> for Node<W>
-// where
-//     String: Into<W>
-// {
-//     fn from(value: String) -> Self {
-//         Self {
-//             meta: Meta::new(),
-//             ring: Ring::new(),
-//             work: value.into(),
-//         }
-//     }
-// }
+impl<L> From<&Node<L>> for Node<L>
+where
+    L: Clone,
+{
+    fn from(value: &Node<L>) -> Self {
+        value.clone()
+    }
+}
+
+// // impl<L> From<Ploy<Ploy<Ace<L>>>> for Value<L>
+// // where
+// //     L: 'static + SendSync,
+// // {
+// //     fn from(value: Ploy<Ploy<Ace<L>>>) -> Self {
+// //         Self::Ploy(Pipe::new(value).ploy())
+// //     }
+// // }
+
+// // impl<L> From<&Ploy<Ploy<Ace<L>>>> for Value<L>
+// // where
+// //     L: 'static + SendSync,
+// // {
+// //     fn from(value: &Ploy<Ploy<Ace<L>>>) -> Self {
+// //         Self::Ploy(Pipe::new(value.clone()).ploy())
+// //     }
+// // }
+
+// // impl<L> From<&Vec<Value<L>>> for Value<L>
+// // where
+// //     L: Clone
+// // {
+// //     fn from(value: &Vec<Value<L>>) -> Self {
+// //         value.clone()
+// //     }
+// // }
+
+// // impl From<&str> for &Value<String> {
+// //     fn from(value: &str) -> Self {
+// //         Self::Bare(value.to_owned())
+// //     }
+// // }

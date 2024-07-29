@@ -2,9 +2,9 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct Element {
-    pub tag: Value<String>,
-    pub items: Vec<Value<String>>,
-    pub close: Option<Value<String>>,
+    pub tag: Node<String>,
+    pub items: Vec<Node<String>>,
+    pub close: Option<Node<String>>,
 }
 
 impl Element {
@@ -18,22 +18,22 @@ impl Element {
             close: self.close.as_ref().map(|close| close.backed(back)),
         })
     }
-    pub fn tag(&mut self, tag: impl Into<Value<String>>) -> &mut Self {
+    pub fn tag(&mut self, tag: impl Into<Node<String>>) -> &mut Self {
         self.tag = tag.into();
         self
     }
-    pub fn item(&mut self, item: impl Into<Value<String>>) -> &mut Self {
+    pub fn item(&mut self, item: impl Into<Node<String>>) -> &mut Self {
         self.items.push(item.into());
         self
     }
-    pub fn close(&mut self, close: impl Into<Value<String>>) -> &mut Self {
+    pub fn close(&mut self, close: impl Into<Node<String>>) -> &mut Self {
         self.close = Some(close.into());
         self
     }
 }
 
 impl Grant for Element {
-    type Load = Value<String>;
+    type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         let mut element = List::new();
         element.separator("\n").item(self.tag.down(1));

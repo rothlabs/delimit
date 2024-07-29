@@ -5,7 +5,7 @@ use graph::*;
 
 mod facet;
 
-pub type Role = role::Ploy<Part, ()>;
+// pub type Role = role::Ploy<Part, ()>;
 
 type Link<U> = Deuce<U>;
 

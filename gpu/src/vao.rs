@@ -1,4 +1,5 @@
 use super::*;
+use web_sys::WebGlVertexArrayObject;
 
 //pub type Result = std::result::Result<Agent<Vao>, VaoBuilderError>; // Box<dyn std::error::Error>
 pub type Attributes = Vec<Agent<VertexAttribute>>;

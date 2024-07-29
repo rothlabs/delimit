@@ -1,11 +1,12 @@
 use super::*;
+use web_sys::WebGlShader;
 
 pub mod basic;
 
 #[cfg(test)]
 mod tests;
 
-pub type Source = Value<String>;
+pub type Source = Node<String>;
 pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {

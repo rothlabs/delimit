@@ -1,4 +1,5 @@
 use super::*;
+use web_sys::WebGlBuffer;
 
 pub type Result<T> = std::result::Result<Agent<Buffer<T>>, String>;
 

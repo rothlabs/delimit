@@ -1,5 +1,5 @@
 use super::*;
-
+use web_sys::WebGlTexture;
 
 pub type Result<T> = std::result::Result<Agent<Texture<T>>, Box<dyn Error>>;
 
@@ -12,10 +12,10 @@ pub struct Texture<T> {
     array: Array<T>,
     /// Horizontal pixel count.
     #[builder(default)]
-    width: Value<i32>,
+    width: Node<i32>,
     /// Vertical pixel count.
     #[builder(default)]
-    height: Value<i32>,
+    height: Node<i32>,
 }
 
 impl<T> Texture<T> {

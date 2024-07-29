@@ -10,7 +10,7 @@ pub struct Doc {
     tag_name: &'static str,
     tag: Deuce<Tag>,
     element: Deuce<Element>,
-    tag_names: HashMap<&'static str, Value<String>>,
+    tag_names: HashMap<&'static str, Node<String>>,
     attributes: AttributeSet,
 }
 
@@ -40,7 +40,7 @@ impl Doc {
             attributes: atts.clone(),
         }
     }
-    pub fn pipe(&self) -> graph::Ploy<Value<String>> {
+    pub fn pipe(&self) -> graph::Ploy<Node<String>> {
         graph::Pipe::make(|back| self.element.backed(back)).ploy()
     }
     pub fn link(&self) -> Deuce<Element> {

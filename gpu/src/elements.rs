@@ -12,10 +12,10 @@ pub struct Elements {
     vao: Agent<Vao>,
     /// Number of values to draw.
     #[builder(default)]
-    count: Value<i32>,
+    count: Node<i32>,
     /// Number of values to skip before drawing.
     #[builder(default)]
-    offset: Value<i32>,
+    offset: Node<i32>,
 }
 
 impl ElementsBuilder {

@@ -5,16 +5,16 @@ pub struct Facets {
 }
 
 impl Facets {
-    pub fn new() -> Hold<Link<Self>, Role> {
-        let link = Link::new(Self{
-            // arrays: vec![]
-        });
-        let role = Role {
-            part: Part::Facets(link.clone()),
-            form: link.ploy(),
-        };
-        Hold { link, role }
-    }
+    // pub fn new() -> Hold<Link<Self>, Role> {
+    //     let link = Link::new(Self{
+    //         // arrays: vec![]
+    //     });
+    //     let role = Role {
+    //         part: Part::Facets(link.clone()),
+    //         form: link.ploy(),
+    //     };
+    //     Hold { link, role }
+    // }
 }
 
 impl Grant for Facets {

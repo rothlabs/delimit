@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Ploy<Value<String>>, Deuce<Element>, AttributeSet) {
+fn make_doc() -> (Ploy<Node<String>>, Deuce<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");

@@ -1,4 +1,5 @@
 use super::*;
+use web_sys::WebGlProgram;
 
 pub type Result = std::result::Result<Agent<Program>, String>;
 

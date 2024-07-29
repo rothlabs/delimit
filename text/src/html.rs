@@ -13,11 +13,11 @@ mod tag;
 #[cfg(test)]
 mod tests;
 
-pub enum Part {
-    Tag(Deuce<Tag>),
-    Attribute(Deuce<Attribute>),
-    Element(Deuce<Element>),
-}
+// pub enum Part {
+//     Tag(Deuce<Tag>),
+//     Attribute(Deuce<Attribute>),
+//     Element(Deuce<Element>),
+// }
 
 // /// HTML Pipe
 // pub type Pipe = graph::Pipe<Role>;

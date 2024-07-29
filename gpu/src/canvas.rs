@@ -1,4 +1,5 @@
 use super::*;
+use web_sys::{window, HtmlCanvasElement};
 
 pub struct Canvas {
     object: HtmlCanvasElement,

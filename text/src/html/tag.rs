@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct Tag {
-    pub name: Value<String>,
-    pub attributes: Vec<Value<String>>,
+    pub name: Node<String>,
+    pub attributes: Vec<Node<String>>,
 }
 
 impl Tag {
@@ -16,21 +16,21 @@ impl Tag {
             attributes: self.attributes.backed(back),
         })
     }
-    pub fn value(&self) -> Value<String> {
-        self.link().ploy().into()
-    }
-    pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
+    // pub fn value(&self) -> Value<String> {
+    //     self.link().ploy().into()
+    // }
+    pub fn name(&mut self, name: impl Into<Node<String>>) -> &mut Self {
         self.name = name.into();
         self
     }
-    pub fn attribute(&mut self, attribute: impl Into<Value<String>>) -> &mut Self {
+    pub fn attribute(&mut self, attribute: impl Into<Node<String>>) -> &mut Self {
         self.attributes.push(attribute.into());
         self
     }
 }
 
 impl Grant for Tag {
-    type Load = Value<String>;
+    type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         let inner = List::new()
             .separator(" ")

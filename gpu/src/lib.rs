@@ -9,14 +9,14 @@ pub use vertex_attribute::VertexAttribute;
 
 use derive_builder::Builder;
 use graph::*;
-use js_sys::*;
+// use js_sys::*;
 use shader::*;
 use std::{error::Error, result};
 use texture::*;
 use vao::*;
 use vertex_attribute::VertexAttributeBuilder;
 use wasm_bindgen::prelude::*;
-use web_sys::*;
+use web_sys::{js_sys::*, WebGl2RenderingContext};
 
 pub mod buffer;
 pub mod program;
@@ -29,7 +29,7 @@ mod elements;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
-pub type Array<T> = Value<Vec<T>>;
+pub type Array<T> = Node<Vec<T>>;
 
 /// GPU graph maker
 pub struct Gpu {

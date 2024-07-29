@@ -7,32 +7,32 @@ use std::{cell::RefCell, rc::Rc};
 use crate::*;
 
 /// Edge to a load.
-pub type Ace<L> = Edge<node::Ace<L>>;
+pub type Ace<L> = Edge<apex::Ace<L>>;
 
 /// Edge to a unit that grants a load.
-pub type Deuce<U> = Edge<node::Deuce<U>>;
+pub type Deuce<U> = Edge<apex::Deuce<U>>;
 
 /// Edge to a unit that solves a task with resulting load.
-pub type Trey<U, T, L> = Edge<node::Trey<U, T, L>>;
+pub type Trey<U, T, L> = Edge<apex::Trey<U, T, L>>;
 
 /// Edge to a unit that grants a load.
 /// Unlike Deuce, the agent will act upon some external system.
-pub type Agent<U> = Edge<node::Agent<U>>;
+pub type Agent<U> = Edge<apex::Agent<U>>;
 
 /// Edge to a unit that solves a task and could act upon externals.
-pub type Envoy<U> = Edge<node::Envoy<U>>;
+pub type Envoy<U> = Edge<apex::Envoy<U>>;
 
 /// Edge to a link that grants a link that grants a load.
-pub type Pipe<U> = Edge<node::Pipe<U>>;
+pub type Pipe<U> = Edge<apex::Pipe<U>>;
 
 /// The forward bridge between nodes.
 pub struct Edge<N> {
     pub meta: Meta,
     pub back: Option<Back>,
     #[cfg(not(feature = "oneThread"))]
-    pub node: Arc<RwLock<N>>,
+    pub apex: Arc<RwLock<N>>,
     #[cfg(feature = "oneThread")]
-    pub node: Rc<RefCell<N>>,
+    pub apex: Rc<RefCell<N>>,
 }
 
 impl<N> ToMeta for Edge<N> {
@@ -47,14 +47,14 @@ where
 {
     type Item = N::Item;
     fn new(unit: Self::Item) -> Self {
-        let node = N::new(unit);
+        let apex = N::new(unit);
         Self {
-            meta: node.meta(),
+            meta: apex.meta(),
             back: None,
             #[cfg(not(feature = "oneThread"))]
-            node: Arc::new(RwLock::new(node)),
+            apex: Arc::new(RwLock::new(apex)),
             #[cfg(feature = "oneThread")]
-            node: Rc::new(RefCell::new(node)),
+            apex: Rc::new(RefCell::new(apex)),
         }
     }
 }
@@ -66,29 +66,29 @@ where
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let node = N::default();
-        let meta = node.meta();
-        let node = Arc::new(RwLock::new(node));
-        let update = node.clone() as Arc<RwLock<dyn DoUpdate>>;
+        let apex = N::default();
+        let meta = apex.meta();
+        let apex = Arc::new(RwLock::new(apex));
+        let update = apex.clone() as Arc<RwLock<dyn DoUpdate>>;
         let back = Back::new(Arc::downgrade(&update));
-        write_part(&node, |mut node| node.do_make(make, &back));
+        write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
             meta,
             back: None,
-            node,
+            apex: apex,
         }
     }
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let node = N::default();
-        let meta = node.meta();
-        let node = Rc::new(RefCell::new(node));
-        let update = node.clone() as Rc<RefCell<dyn DoUpdate>>;
+        let apex = N::default();
+        let meta = apex.meta();
+        let apex = Rc::new(RefCell::new(apex));
+        let update = apex.clone() as Rc<RefCell<dyn DoUpdate>>;
         let back = Back::new(Rc::downgrade(&update));
-        write_part(&node, |mut node| node.do_make(make, &back));
+        write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
             meta,
-            node,
+            apex,
             back: None,
         }
     }
@@ -100,12 +100,12 @@ where
 {
     #[cfg(not(feature = "oneThread"))]
     fn node_as_back(&self) -> Back {
-        let update = self.node.clone() as Arc<RwLock<dyn DoUpdate>>;
+        let update = self.apex.clone() as Arc<RwLock<dyn DoUpdate>>;
         Back::new(Arc::downgrade(&update))
     }
     #[cfg(feature = "oneThread")]
     fn node_as_back(&self) -> Back {
-        let update = self.node.clone() as Rc<RefCell<dyn DoUpdate>>;
+        let update = self.apex.clone() as Rc<RefCell<dyn DoUpdate>>;
         Back::new(Rc::downgrade(&update))
     }
 }
@@ -131,7 +131,7 @@ where
 {
     type Load = N::Load;
     fn grant(&self) -> Self::Load {
-        write_part(&self.node, |mut node| node.do_grant(&self.node_as_back()))
+        write_part(&self.apex, |mut apex| apex.do_grant(&self.node_as_back()))
     }
 }
 
@@ -141,7 +141,7 @@ where
 {
     type Load = N::Load;
     fn act(&self) -> Self::Load {
-        write_part(&self.node, |mut node| node.do_act(&self.node_as_back()))
+        write_part(&self.apex, |mut apex| apex.do_act(&self.node_as_back()))
     }
 }
 
@@ -156,7 +156,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -165,7 +165,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -182,7 +182,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -191,7 +191,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -207,7 +207,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -215,7 +215,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -232,7 +232,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -240,7 +240,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -260,7 +260,7 @@ where
     type Task = N::Task;
     type Load = N::Load;
     fn solve(&self, task: Self::Task) -> Self::Load {
-        write_part(&self.node, |mut node| node.do_solve(task))
+        write_part(&self.apex, |mut apex| apex.do_solve(task))
     }
 }
 
@@ -271,7 +271,7 @@ where
     type Task = N::Task;
     type Load = N::Load;
     fn serve(&self, task: Self::Task) -> Self::Load {
-        write_part(&self.node, |mut node| node.do_serve(task))
+        write_part(&self.apex, |mut apex| apex.do_serve(task))
     }
 }
 
@@ -288,7 +288,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -296,7 +296,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -314,7 +314,7 @@ where
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
@@ -322,7 +322,7 @@ where
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         })))
     }
 }
@@ -333,7 +333,7 @@ where
 {
     type Load = N::Load;
     fn load(&self) -> Self::Load {
-        read_part(&self.node, |node| node.load())
+        read_part(&self.apex, |apex| apex.load())
     }
 }
 
@@ -342,7 +342,7 @@ impl<N> Backed for Edge<N> {
         Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            node: self.node.clone(),
+            apex: self.apex.clone(),
         }
     }
 }
@@ -354,7 +354,7 @@ where
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
         let write::Out { roots, meta, out } =
-            write_part(&self.node, |mut node| node.write_load_out(write));
+            write_part(&self.apex, |mut apex| apex.write_load_out(write));
         for root in &roots {
             root.react(&meta)?;
         }
@@ -368,8 +368,8 @@ where
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
-        let write::Out { roots, meta, out } = write_part(&self.node, |mut node| {
-            node.write_unit_out(write, &self.node_as_back())
+        let write::Out { roots, meta, out } = write_part(&self.apex, |mut apex| {
+            apex.write_unit_out(write, &self.node_as_back())
         });
         for root in &roots {
             root.react(&meta)?;
@@ -384,7 +384,7 @@ where
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        read_part(&self.node, |node| read(node.do_read()))
+        read_part(&self.apex, |apex| read(apex.do_read()))
     }
 }
 
@@ -393,7 +393,7 @@ where
     N: DoAddRoot,
 {
     fn add_root(&self, root: Root) {
-        write_part(&self.node, |mut node| node.do_add_root(root));
+        write_part(&self.apex, |mut apex| apex.do_add_root(root));
     }
 }
 
@@ -414,7 +414,7 @@ where
     N: DoReact,
 {
     fn react(&self, meta: &Meta) -> react::Result {
-        write_part(&self.node, |mut node| node.do_react(meta))
+        write_part(&self.apex, |mut apex| apex.do_react(meta))
     }
 }
 
@@ -492,6 +492,6 @@ impl<T, L> React for BoxConvert<T, L> {
 // {
 //     type Item = N::Item;
 //     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
-//         write_part(&self.node, |mut node| node.do_write(write))
+//         write_part(&self.apex, |mut apex| apex.do_write(write))
 //     }
 // }

@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct List {
-    pub items: Vec<Value<String>>,
-    pub separator: Value<String>,
+    pub items: Vec<Node<String>>,
+    pub separator: Node<String>,
 }
 
 impl List {
@@ -16,18 +16,18 @@ impl List {
             separator: self.separator.backed(back),
         })
     }
-    pub fn value(&self) -> Value<String> {
+    pub fn value(&self) -> Node<String> {
         self.link().ploy().into()
     }
-    pub fn separator(&mut self, separator: impl Into<Value<String>>) -> &mut Self {
+    pub fn separator(&mut self, separator: impl Into<Node<String>>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(&mut self, items: Vec<impl Into<Value<String>>>) -> &mut Self {
+    pub fn extend(&mut self, items: Vec<impl Into<Node<String>>>) -> &mut Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn item(&mut self, item: impl Into<Value<String>>) -> &mut Self {
+    pub fn item(&mut self, item: impl Into<Node<String>>) -> &mut Self {
         self.items.push(item.into());
         self
     }
@@ -38,10 +38,10 @@ impl List {
 }
 
 impl Grant for List {
-    type Load = Value<String>;
+    type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         if self.items.is_empty() {
-            return Value::default(); //string.into_ace();
+            return Node::default(); //string.into_ace();
         }
         let mut string = String::new();
         self.separator.read(|sep| {

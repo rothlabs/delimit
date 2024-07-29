@@ -49,7 +49,7 @@ pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
 /// The intermediate is a sub graph of the super graph unit.
 pub type Pipe<U> = Link<edge::Pipe<U>>;
 
-/// Link to an edge that leads to a node that contains a unit.
+/// Link to an edge that leads to a apex that contains a unit.
 /// Units hold links as source of input used to compute output.
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
@@ -95,13 +95,13 @@ where
 {
     type Item = E::Item;
     fn new(unit: Self::Item) -> Self {
-        let node = E::new(unit);
+        let apex = E::new(unit);
         Self {
-            meta: node.meta(),
+            meta: apex.meta(),
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(node)),
+            edge: Arc::new(RwLock::new(apex)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(node)),
+            edge: Rc::new(RefCell::new(apex)),
         }
     }
 }
@@ -112,13 +112,13 @@ where
 {
     type Unit = E::Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let node = E::make(make);
+        let apex = E::make(make);
         Self {
-            meta: node.meta(),
+            meta: apex.meta(),
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(node)),
+            edge: Arc::new(RwLock::new(apex)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(node)),
+            edge: Rc::new(RefCell::new(apex)),
         }
     }
 }
@@ -168,7 +168,7 @@ where
     }
 }
 
-/// TODO: make reader that does not add a root to the node.
+/// TODO: make reader that does not add a root to the apex.
 /// This will allow readers to inspect without rebuting in the future.
 impl<E> Read for Link<E>
 where
