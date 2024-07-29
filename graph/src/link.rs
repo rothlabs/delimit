@@ -275,6 +275,20 @@ where
     }
 }
 
+impl<E> Link<E>
+where
+    E: Grant + ToPloy<Load = <<E as Grant>::Load as Grant>::Load>,
+    <E as Grant>::Load: Grant
+{
+    /// Copy the link with unit type erased.  
+    pub fn piped_ploy(&self) -> Ploy<<<E as Grant>::Load as Grant>::Load> {
+        read_part(&self.edge, |edge| Ploy {
+            edge: edge.ploy(),
+            meta: self.meta.clone(),
+        })
+    }
+}
+
 impl<L> Backed for Link<Box<dyn Produce<L>>> {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {

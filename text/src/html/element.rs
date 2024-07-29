@@ -36,21 +36,16 @@ impl Element {
 }
 
 impl Grant for Element {
-    type Load = Vec<plain::Part>;
+    type Load = Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
-        let mut parts = vec![];
         let mut element = List::new();
         element.separator("\n").item(&self.tag);
         element.extend(self.items.clone());
         if let Some(close) = &self.close {
             let close = List::new().item("</").item(close).item(">").link();
             element.item(close.ploy());
-            parts.push(plain::Part::List(close));
         }
-        let element = element.link();
-        // let wow = plain_element.ploy();
-        parts.push(plain::Part::List(element));
-        parts
+        element.link().ploy()
     }
 }
 

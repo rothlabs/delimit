@@ -8,9 +8,9 @@ pub type AttributeSet = HashMap<&'static str, Ace<String>>;
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
     tag_name: &'static str,
-    tag: Hold<Link<Tag>, Role>,
-    element: Hold<Link<Element>, Role>,
-    tag_names: HashMap<&'static str, Stem>,
+    tag: Deuce<Tag>,
+    element: Deuce<Element>,
+    tag_names: HashMap<&'static str, Value<String>>,
     attributes: AttributeSet,
 }
 
@@ -30,12 +30,15 @@ impl Doc {
             tags.insert(tag, tag.into());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        let tag = Tag::hold(doctype);
+        let tag = Tag::new().name(doctype).link();
+        let wow = tag.ploy();
+        let hey = graph::Pipe::new(tag.ploy());
+        //let nice = hey.grant();
         Self {
             tag_name: DOCTYPE,
             root: None,
+            element: Element::new().tag(hey).clone(),
             tag: tag.clone(),
-            element: Element::hold(&Stem::Role(tag.role), None),
             tag_names: tags,
             attributes: atts.clone(),
         }

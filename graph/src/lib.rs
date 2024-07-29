@@ -4,7 +4,7 @@ pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
     AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
-    Rebut, Ring, Root, ToPlan, ToPloy, Update,
+    Rebut, Ring, Root, ToPlan, ToPloy, Update, ToPipedPloy,
 };
 pub use role::Role;
 pub use unit::{Gate, Serial, ToSerial};

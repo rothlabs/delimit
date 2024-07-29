@@ -26,12 +26,9 @@ impl Attribute {
 }
 
 impl Grant for Attribute {
-    type Load = Vec<plain::Part>;
+    type Load = Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
-        let attribute = List::new().item(&self.name).item(r#"=""#).item(&self.value).item(r#"""#).link();
-        vec![
-            plain::Part::List(attribute),
-        ]
+        List::new().item(&self.name).item(r#"=""#).item(&self.value).item(r#"""#).link().ploy()
     }
 }
 

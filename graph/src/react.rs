@@ -63,10 +63,21 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyEdge<Self::Load>;
 }
 
+pub trait ToPipedPloy {
+    type Load;
+    /// Copy with unit type erased.  
+    fn ploy(&self) -> PloyEdge<Self::Load>;
+}
+
 pub trait BackedPloy {
     type Load;
     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
 }
+
+// pub trait BackedPipedPloy {
+//     type Load;
+//     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
+// }
 
 #[cfg(not(feature = "oneThread"))]
 type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>;

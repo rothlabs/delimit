@@ -7,6 +7,9 @@ pub struct Tag {
 }
 
 impl Tag {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn link(&self) -> Deuce<Self> {
         Deuce::make(|back| 
             Self { 
@@ -26,14 +29,11 @@ impl Tag {
 }
 
 impl Grant for Tag {
-    type Load = Vec<plain::Part>;
+    type Load = Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
         let inner = List::new().separator(" ").item(&self.name).extend(self.attributes.clone()).link();
-        let tag = List::new().item("<").item(inner.ploy()).item(">").link();
-        vec![
-            plain::Part::List(inner),
-            plain::Part::List(tag),
-        ]
+        List::new().item("<").item(inner.ploy()).item(">").link().ploy()
+        
     }
 }
 

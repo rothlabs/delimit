@@ -120,6 +120,20 @@ where
     }
 }
 
+// impl<L> From<&Ploy<Ploy<Ace<L>>>> for Value<L> 
+// where 
+//     L: 'static + Clone + Update + SendSync
+// {
+//     fn from(value: &Ploy<Ploy<Ace<L>>>) -> Self {
+//         let wow = Pipe::new(value.clone());
+//         let val = wow.grant();
+//         let huh = wow.ploy();
+//         Self::Ploy(Pipe::new(value.clone()))
+//     }
+// }
+
+
+
 // impl<L> From<&Vec<Value<L>>> for Value<L> 
 // where 
 //     L: Clone

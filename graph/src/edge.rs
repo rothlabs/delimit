@@ -162,6 +162,36 @@ where
     }
 }
 
+
+
+// impl<U> ToPipedPloy for Deuce<U>
+// where
+//     U: 'static + Grant + SendSync,
+//     U::Load: 'static + Grant + SendSync,
+//     <U::Load as Grant>::Load: 'static + Clone + SendSync,
+// {
+//     type Load = <U::Load as Grant>::Load;
+//     #[cfg(not(feature = "oneThread"))]
+//     fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load>>>> {
+//         Arc::new(RwLock::new(Box::new(Self {
+//             meta: self.meta(),
+//             back: self.back.clone(),
+//             node: self.node.clone(),
+//         })))
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn ploy(&self) -> Rc<RefCell<Box<dyn Produce<Self::Load>>>> {
+//         //  + Send + Sync
+//         Rc::new(RefCell::new(Box::new(Self {
+//             meta: self.meta(),
+//             back: self.back.clone(),
+//             node: self.node.clone(),
+//         })))
+//     }
+// }
+
+
+
 impl<U> BackedPloy for Deuce<U>
 where
     U: 'static + Grant + SendSync,
@@ -185,6 +215,30 @@ where
         })))
     }
 }
+
+// impl<U> BackedPloy for Deuce<U>
+// where
+//     U: 'static + Grant + SendSync,
+//     U::Load: 'static + Clone + SendSync,
+// {
+//     type Load = U::Load;
+//     #[cfg(not(feature = "oneThread"))]
+//     fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<U::Load>>> {
+//         Arc::new(RwLock::new(Box::new(Self {
+//             meta: self.meta(),
+//             back: Some(back.clone()),
+//             node: self.node.clone(),
+//         })))
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn backed_ploy(&self, back: &Back) -> Rc<RefCell<BoxProduce<U::Load>>> {
+//         Rc::new(RefCell::new(Box::new(Self {
+//             meta: self.meta(),
+//             back: Some(back.clone()),
+//             node: self.node.clone(),
+//         })))
+//     }
+// }
 
 impl<U, T, L> Convert<T, L> for Trey<U, T, L>
 where
