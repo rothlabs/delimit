@@ -32,32 +32,31 @@ impl Doc {
         let doctype = tags.get(DOCTYPE).unwrap();
         let tag = Tag::new().name(doctype).link();
         let wow = tag.ploy();
-        let hey = graph::Pipe::new(tag.ploy());
-        //let nice = hey.grant();
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(hey).clone(),
-            tag: tag.clone(),
+            element: Element::new().tag(tag.ploy()).link(),
+            tag,
             tag_names: tags,
             attributes: atts.clone(),
         }
     }
-    pub fn pipe(&self) -> Pipe {
-        Pipe::make(|back| self.element.role.backed(back))
+    pub fn pipe(&self) -> graph::Ploy<Ace<String>> {
+        graph::Pipe::make(|back| self.element.backed(back)).ploy()
     }
-    pub fn link(&self) -> Link<Element> {
-        self.element.link.clone()
+    pub fn link(&self) -> Deuce<Element> {
+        self.element.clone()
     }
     pub fn string(&self) -> String {
-        let plain = self.element.link.grant();
+        let plain = self.element.grant();
         let ace = plain.grant();
         ace.load()
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element
-            .link
-            .write(|pack| pack.unit.items.push(str.into()))
+            .write(|pack| {
+                pack.unit.item(str);
+            })
             .ok();
         self
     }
@@ -69,9 +68,9 @@ impl Doc {
             .replace(None)
             .unwrap();
         root.element
-            .link
-            .write(|pack| {
-                pack.unit.items.back(pack.back).role(&self.element.role);
+            .write(|Pack { unit, back }| {
+                let element = self.element.backed(back).ploy();
+                unit.item(element);
             })
             .ok();
         root
@@ -88,11 +87,11 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::hold(name, value).role;
+            let attribute = Attribute::new().name(name).value(value).link();
             self.tag
-                .link
                 .write(|Pack { unit, back }| {
-                    unit.attributes.back(back).role(&attribute);
+                    let attribute = attribute.backed(back).ploy();
+                    unit.attribute(attribute);
                 })
                 .ok();
         }
@@ -100,17 +99,20 @@ impl Doc {
     }
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
-        let tag = Tag::hold(tag_leaf);
-        let close = match tag_name {
-            "meta" => None,
-            _ => Some(tag_leaf),
-        };
+        let tag = Tag::new().name(tag_leaf).link();
+        let mut element = Element::new();
+        let element = match tag_name {
+            "meta" => &mut element,
+            _ => element.close(tag_leaf),
+        }
+        .tag(tag.ploy())
+        .link();
         Doc {
             tag_name,
             tag_names: self.tag_names.clone(),
             attributes: self.attributes.clone(),
-            tag: tag.clone(),
-            element: Element::hold(&Stem::Role(tag.role), close),
+            element,
+            tag,
             root: Some(Box::new(RefCell::new(Some(self)))),
         }
     }

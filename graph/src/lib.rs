@@ -1,20 +1,20 @@
+pub use asset::Asset;
 pub use edge::Edge;
 pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
 pub use node::Node;
 pub use react::{
     AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
-    Rebut, Ring, Root, ToPlan, ToPloy, Update, ToPipedPloy,
+    Rebut, Ring, Root, ToPipedPloy, ToPlan, ToPloy, Update,
 };
+pub use repo::Repo;
 pub use role::Role;
 pub use unit::{Gate, Serial, ToSerial};
+pub use value::Value;
 pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use asset::Asset;
-pub use value::Value;
-pub use repo::Repo;
 
 use serde::Serialize;
 #[cfg(not(feature = "oneThread"))]
@@ -25,22 +25,22 @@ use std::{
     rc::Rc,
 };
 
+pub mod part;
 pub mod react;
 pub mod role;
 pub mod view;
-pub mod part;
 
+mod asset;
 mod edge;
+mod edit;
 mod link;
 mod meta;
 mod node;
+mod repo;
 mod unit;
+mod value;
 mod work;
 mod write;
-mod asset;
-mod value;
-mod edit;
-mod repo;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
@@ -87,6 +87,13 @@ pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update 
 /// Edge that grants a load. It can also clone the edge with a new back.
 #[cfg(feature = "oneThread")]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+
+// /// Edge that grants a load. It can also clone the edge with a new back.
+// #[cfg(not(feature = "oneThread"))]
+// pub trait Produce<L>: Grant<Load = L> + AddRoot + Update {}
+// /// Edge that grants a load. It can also clone the edge with a new back.
+// #[cfg(feature = "oneThread")]
+// pub trait Produce<L>: Grant<Load = L> + AddRoot + Update {}
 
 /// Edge that solves a task. It can also clone the edge with a new Back.
 #[cfg(not(feature = "oneThread"))]

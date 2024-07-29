@@ -73,7 +73,7 @@ where
 {
     fn clear(&mut self) {
         // TODO: Check if midd should be cleared
-        self.midd = None;
+        // self.midd = None;
         self.load = None;
     }
 }
@@ -94,7 +94,7 @@ where
             back,
         });
         // TODO: Check if midd should be cleared
-        self.midd = None;
+        // self.midd = None;
         self.load = None;
         out
     }

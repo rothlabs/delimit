@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Element {
     pub tag: Value<String>,
     pub items: Vec<Value<String>>,
@@ -12,25 +12,22 @@ impl Element {
         Self::default()
     }
     pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| {
-            let close = if let Some(close) = &self.close  {
-                Some(close.backed(back))
-            } else {
-                None
-            };
-            Self { 
-                tag: self.tag.backed(back),
-                items: self.items.backed(back),
-                close, 
-            }
+        Deuce::make(|back| Self {
+            tag: self.tag.backed(back),
+            items: self.items.backed(back),
+            close: self.close.as_ref().map(|close| close.backed(back)),
         })
     }
     pub fn tag(&mut self, tag: impl Into<Value<String>>) -> &mut Self {
         self.tag = tag.into();
-        self 
+        self
     }
     pub fn item(&mut self, item: impl Into<Value<String>>) -> &mut Self {
         self.items.push(item.into());
+        self
+    }
+    pub fn close(&mut self, close: impl Into<Value<String>>) -> &mut Self {
+        self.close = Some(close.into());
         self
     }
 }
@@ -48,7 +45,6 @@ impl Grant for Element {
         element.link().ploy()
     }
 }
-
 
 // pub struct Element {
 //     pub tag: Stem,
@@ -102,27 +98,6 @@ impl Grant for Element {
 //         role
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // impl Grant for Element {
 //     type Load = Load;

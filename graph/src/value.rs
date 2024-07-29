@@ -1,6 +1,6 @@
 use super::*;
 
-/// This could be renamed to leaf because only a leaf value should ever 
+/// This could be renamed to leaf because only a leaf value should ever
 /// be placed here. It could also be replaced with Leaf<L> = Box<dyn ReadLoadBacked<L>>
 /// and impl ToLoad, Read, and backed for L
 #[derive(Clone)]
@@ -11,18 +11,18 @@ pub enum Value<L> {
     Ploy(Ploy<Ace<L>>),
 }
 
-impl<L> Default for Value<L> 
-where 
-    L: Default
+impl<L> Default for Value<L>
+where
+    L: Default,
 {
     fn default() -> Self {
         Self::Bare(L::default())
     }
 }
 
-impl<L> ToLoad for Value<L> 
-where 
-    L: 'static + Clone + Default
+impl<L> ToLoad for Value<L>
+where
+    L: 'static + Clone + Default,
 {
     type Load = L;
     // TODO: load should take a link with repo traits
@@ -32,14 +32,14 @@ where
             Self::Meta(_) => L::default(),
             Self::Bare(bare) => bare.clone(),
             Self::Ace(ace) => ace.load(),
-            Self::Ploy(ploy) => ploy.grant().load()
+            Self::Ploy(ploy) => ploy.grant().load(),
         }
     }
 }
 
-impl<L> Read for Value<L> 
-where 
-    L: 'static + SendSync + Default
+impl<L> Read for Value<L>
+where
+    L: 'static + SendSync + Default,
 {
     type Item = L;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -47,14 +47,14 @@ where
             Self::Meta(_) => read(&L::default()),
             Self::Bare(bare) => read(bare),
             Self::Ace(ace) => ace.read(read),
-            Self::Ploy(ploy) => ploy.grant().read(read)
+            Self::Ploy(ploy) => ploy.grant().read(read),
         }
     }
 }
 
-impl<L> Backed for Value<L> 
-where 
-    L: Clone
+impl<L> Backed for Value<L>
+where
+    L: Clone,
 {
     fn backed(&self, back: &Back) -> Self {
         match self {
@@ -84,9 +84,9 @@ impl<L> From<Ploy<Ace<L>>> for Value<L> {
     }
 }
 
-impl<L> From<&L> for Value<L> 
-where 
-    L: Clone
+impl<L> From<&L> for Value<L>
+where
+    L: Clone,
 {
     fn from(value: &L) -> Self {
         Self::Bare(value.clone())
@@ -111,31 +111,35 @@ impl From<&str> for Value<String> {
     }
 }
 
-impl<L> From<&Value<L>> for Value<L> 
-where 
-    L: Clone
+impl<L> From<&Value<L>> for Value<L>
+where
+    L: Clone,
 {
     fn from(value: &Value<L>) -> Self {
         value.clone()
     }
 }
 
-// impl<L> From<&Ploy<Ploy<Ace<L>>>> for Value<L> 
-// where 
-//     L: 'static + Clone + Update + SendSync
-// {
-//     fn from(value: &Ploy<Ploy<Ace<L>>>) -> Self {
-//         let wow = Pipe::new(value.clone());
-//         let val = wow.grant();
-//         let huh = wow.ploy();
-//         Self::Ploy(Pipe::new(value.clone()))
-//     }
-// }
+impl<L> From<Ploy<Ploy<Ace<L>>>> for Value<L>
+where
+    L: 'static + SendSync,
+{
+    fn from(value: Ploy<Ploy<Ace<L>>>) -> Self {
+        Self::Ploy(Pipe::new(value).ploy())
+    }
+}
 
+impl<L> From<&Ploy<Ploy<Ace<L>>>> for Value<L>
+where
+    L: 'static + SendSync,
+{
+    fn from(value: &Ploy<Ploy<Ace<L>>>) -> Self {
+        Self::Ploy(Pipe::new(value.clone()).ploy())
+    }
+}
 
-
-// impl<L> From<&Vec<Value<L>>> for Value<L> 
-// where 
+// impl<L> From<&Vec<Value<L>>> for Value<L>
+// where
 //     L: Clone
 // {
 //     fn from(value: &Vec<Value<L>>) -> Self {

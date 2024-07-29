@@ -19,24 +19,24 @@ pub enum Part {
     Element(Deuce<Element>),
 }
 
-/// HTML Pipe
-pub type Pipe = graph::Pipe<Role>;
+// /// HTML Pipe
+// pub type Pipe = graph::Pipe<Role>;
 
-/// HTML Role
-pub type Role = role::Ploy<OldPart, Load>;
+// /// HTML Role
+// pub type Role = role::Ploy<OldPart, Load>;
 
-#[derive(Clone)]
-pub enum OldPart {
-    Element(Link<Element>),
-    Tag(Link<Tag>),
-    Attribute(Link<Attribute>),
-}
+// #[derive(Clone)]
+// pub enum OldPart {
+//     Element(Link<Element>),
+//     Tag(Link<Tag>),
+//     Attribute(Link<Attribute>),
+// }
 
-/// HTML link
-type Link<U> = Deuce<U>;
+// /// HTML link
+// type Link<U> = Deuce<U>;
 
-// HTML load
-type Load = plain::Role;
+// // HTML load
+// type Load = plain::Role;
 
-/// HTML stem view
-type Stem = plain::view::Ploy<OldPart>;
+// /// HTML stem view
+// type Stem = plain::view::Ploy<OldPart>;

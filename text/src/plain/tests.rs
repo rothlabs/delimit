@@ -1,7 +1,7 @@
 use super::*;
 
 fn new_list(ace: &Ace<String>) -> Deuce<List> {
-    List::new().separator(", ").item(ace).link()
+    List::new().separator(", ").item("str").item(ace).link()
     //list.link()
     // let list = ", ".list();
     // list.link
@@ -56,7 +56,10 @@ fn no_rebut_after_dropping_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let _r = text.grant();
-    text.write(|pack| { pack.unit.remove(1); }).ok();
+    text.write(|pack| {
+        pack.unit.remove(1);
+    })
+    .ok();
     let a = text.grant();
     ace.write(|string| string.push_str("_mutated")).ok();
     let b = text.grant();

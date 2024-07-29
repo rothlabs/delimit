@@ -11,13 +11,14 @@ impl List {
         Self::default()
     }
     pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| {
-            Self { items: self.items.backed(back), separator: self.separator.backed(back) }
+        Deuce::make(|back| Self {
+            items: self.items.backed(back),
+            separator: self.separator.backed(back),
         })
     }
     pub fn separator(&mut self, separator: impl Into<Value<String>>) -> &mut Self {
         self.separator = separator.into();
-        self 
+        self
     }
     pub fn extend(&mut self, items: Vec<impl Into<Value<String>>>) -> &mut Self {
         self.items.extend(items.into_iter().map(|item| item.into()));

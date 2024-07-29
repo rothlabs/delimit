@@ -12,9 +12,9 @@ pub enum Asset<L> {
     Ploy(Ploy<L>),
 }
 
-impl<L> Default for Asset<L> 
-where 
-    L: Default
+impl<L> Default for Asset<L>
+where
+    L: Default,
 {
     fn default() -> Self {
         Self::Bare(L::default())
@@ -33,35 +33,35 @@ impl<L> From<Ploy<L>> for Asset<L> {
     }
 }
 
-impl<L> ToLoad for Asset<L> 
-where 
-    L: 'static + ToLoad
+impl<L> ToLoad for Asset<L>
+where
+    L: 'static + ToLoad,
 {
     type Load = L::Load;
     fn load(&self) -> Self::Load {
         match self {
             Self::Bare(bare) => bare.load(),
-            Self::Ploy(ploy) => ploy.grant().load()
+            Self::Ploy(ploy) => ploy.grant().load(),
         }
     }
 }
 
-impl<L> Read for Asset<L> 
-where 
-    L: 'static + Read
+impl<L> Read for Asset<L>
+where
+    L: 'static + Read,
 {
     type Item = L::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         match self {
             Self::Bare(bare) => bare.read(read),
-            Self::Ploy(ploy) => ploy.grant().read(read)
+            Self::Ploy(ploy) => ploy.grant().read(read),
         }
     }
 }
 
-impl<L> Backed for Asset<L> 
-where 
-    L: Clone
+impl<L> Backed for Asset<L>
+where
+    L: Clone,
 {
     fn backed(&self, back: &Back) -> Self {
         match self {

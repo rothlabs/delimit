@@ -1,10 +1,10 @@
 pub use proto::*;
 
-use text;
 use graph::*;
 use part::Part;
+// use text;
 
 pub mod array;
-pub mod proto;
 pub mod part;
+pub mod proto;
 pub mod repo;

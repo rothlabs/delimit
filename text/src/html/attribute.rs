@@ -7,28 +7,35 @@ pub struct Attribute {
 }
 
 impl Attribute {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| 
-            Self { 
-                name: self.name.backed(back),
-                value: self.value.backed(back),
-            }
-        )
+        Deuce::make(|back| Self {
+            name: self.name.backed(back),
+            value: self.value.backed(back),
+        })
     }
     pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
         self.name = name.into();
-        self 
+        self
     }
     pub fn value(&mut self, value: impl Into<Value<String>>) -> &mut Self {
         self.value = value.into();
-        self 
+        self
     }
 }
 
 impl Grant for Attribute {
     type Load = Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
-        List::new().item(&self.name).item(r#"=""#).item(&self.value).item(r#"""#).link().ploy()
+        List::new()
+            .item(&self.name)
+            .item(r#"=""#)
+            .item(&self.value)
+            .item(r#"""#)
+            .link()
+            .ploy()
     }
 }
 
@@ -41,10 +48,6 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
-
-
-
-
 
 // impl Attribute {
 //     pub fn hold(name: impl Into<Stem>, value: impl Into<Stem>) -> Hold<Link<Self>, Role> {
@@ -77,19 +80,6 @@ pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
 //         })
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // impl Grant for Attribute {
 //     type Load = Load;

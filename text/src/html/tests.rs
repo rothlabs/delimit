@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Pipe, Link<Element>, AttributeSet) {
+fn make_doc() -> (Ploy<Ace<String>>, Deuce<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -50,7 +50,7 @@ fn mutate_lower_graph_plain() {
     assert_eq!(MUTATED_ATTRIB, string);
 }
 
-/// The upper graph (html) should rebute up to the doc (pipe)
+/// The upper graph (html) should rebut up to the doc (pipe)
 #[test]
 fn mutate_upper_graph_html() {
     let (doc, head, _) = make_doc();

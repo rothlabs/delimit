@@ -11,16 +11,14 @@ impl Tag {
         Self::default()
     }
     pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| 
-            Self { 
-                name: self.name.backed(back),
-                attributes: self.attributes.backed(back),
-            }
-        )
+        Deuce::make(|back| Self {
+            name: self.name.backed(back),
+            attributes: self.attributes.backed(back),
+        })
     }
     pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
         self.name = name.into();
-        self 
+        self
     }
     pub fn attribute(&mut self, attribute: impl Into<Value<String>>) -> &mut Self {
         self.attributes.push(attribute.into());
@@ -31,9 +29,17 @@ impl Tag {
 impl Grant for Tag {
     type Load = Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
-        let inner = List::new().separator(" ").item(&self.name).extend(self.attributes.clone()).link();
-        List::new().item("<").item(inner.ploy()).item(">").link().ploy()
-        
+        let inner = List::new()
+            .separator(" ")
+            .item(&self.name)
+            .extend(self.attributes.clone())
+            .link();
+        List::new()
+            .item("<")
+            .item(inner.ploy())
+            .item(">")
+            .link()
+            .ploy()
     }
 }
 
@@ -51,10 +57,6 @@ pub const H1: &str = "h1";
 pub const TAGS: [&str; 10] = [
     DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
 ];
-
-
-
-
 
 // impl Tag {
 //     pub fn hold(name: &Stem) -> Hold<Link<Self>, Role> {
@@ -93,21 +95,6 @@ pub const TAGS: [&str; 10] = [
 //         role
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // #[derive(Default, Clone, Serialize)]
 // pub struct TagName {
