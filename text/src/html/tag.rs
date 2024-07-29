@@ -27,19 +27,20 @@ impl Tag {
 }
 
 impl Grant for Tag {
-    type Load = Ploy<Ace<String>>;
+    type Load = Value<String>;//Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
         let inner = List::new()
             .separator(" ")
             .item(&self.name)
             .extend(self.attributes.clone())
-            .link();
-        List::new()
+            .link().ploy();
+        let tag = List::new()
             .item("<")
             .item(inner.ploy())
             .item(">")
             .link()
-            .ploy()
+            .ploy();
+        tag
     }
 }
 
