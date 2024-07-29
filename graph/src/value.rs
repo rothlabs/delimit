@@ -8,7 +8,7 @@ pub struct Level<L> {
 #[derive(Clone)]
 pub enum Next<L> {
     Ace(Ace<L>),
-    Ploy(Ploy<Next<L>>),
+    Ploy(Ploy<Level<L>>),
 }
 
 impl<L> ToLoad for Next<L>
