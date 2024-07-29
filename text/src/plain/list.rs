@@ -35,12 +35,12 @@ impl List {
 }
 
 impl Grant for List {
-    type Load = Ace<String>;
+    type Load = Value<String>;
     fn grant(&self) -> Self::Load {
-        let mut string = String::new();
         if self.items.is_empty() {
-            return string.into_ace();
+            return Value::default(); //string.into_ace();
         }
+        let mut string = String::new();
         self.separator.read(|sep| {
             for i in 0..self.items.len() - 1 {
                 self.items[i].read(|s| string += s);
@@ -50,7 +50,7 @@ impl Grant for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        string.into_ace()
+        Value::ace(string)
     }
 }
 

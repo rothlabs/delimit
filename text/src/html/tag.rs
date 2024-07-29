@@ -29,6 +29,7 @@ impl Tag {
 impl Grant for Tag {
     type Load = Value<String>;//Ploy<Ace<String>>;
     fn grant(&self) -> Self::Load {
+        //let wow = self.name;
         let inner = List::new()
             .separator(" ")
             .item(&self.name)
@@ -36,7 +37,7 @@ impl Grant for Tag {
             .link().ploy();
         let tag = List::new()
             .item("<")
-            .item(inner.ploy())
+            .item(inner)
             .item(">")
             .link()
             .ploy();
