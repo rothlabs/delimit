@@ -16,6 +16,9 @@ impl List {
             separator: self.separator.backed(back),
         })
     }
+    pub fn value(&self) -> Value<String> {
+        self.link().ploy().into()
+    }
     pub fn separator(&mut self, separator: impl Into<Value<String>>) -> &mut Self {
         self.separator = separator.into();
         self
@@ -50,7 +53,7 @@ impl Grant for List {
         if let Some(item) = self.items.last() {
             item.read(|s| string += s);
         }
-        Value::ace(string)
+        string.ace().into()
     }
 }
 

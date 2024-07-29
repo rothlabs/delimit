@@ -16,6 +16,9 @@ impl Tag {
             attributes: self.attributes.backed(back),
         })
     }
+    pub fn value(&self) -> Value<String> {
+        self.link().ploy().into()
+    }
     pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
         self.name = name.into();
         self
@@ -27,21 +30,14 @@ impl Tag {
 }
 
 impl Grant for Tag {
-    type Load = Value<String>;//Ploy<Ace<String>>;
+    type Load = Value<String>;
     fn grant(&self) -> Self::Load {
-        //let wow = self.name;
         let inner = List::new()
             .separator(" ")
-            .item(&self.name)
-            .extend(self.attributes.clone())
-            .link().ploy();
-        let tag = List::new()
-            .item("<")
-            .item(inner)
-            .item(">")
-            .link()
-            .ploy();
-        tag
+            .item(self.name.down(1))
+            .extend(self.attributes.down(1))
+            .value();
+        List::new().item("<").item(inner).item(">").value()
     }
 }
 

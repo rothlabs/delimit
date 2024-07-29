@@ -10,7 +10,7 @@ pub use react::{
 pub use repo::Repo;
 pub use role::Role;
 pub use unit::{Gate, Serial, ToSerial};
-pub use value::Value;
+pub use value::{DownToLevel, Value};
 pub use view::{AddBase, ToViewsMutator, View, ViewsBuilder};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,

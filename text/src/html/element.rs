@@ -33,16 +33,20 @@ impl Element {
 }
 
 impl Grant for Element {
-    type Load = Ploy<Ace<String>>;
+    type Load = Value<String>;
     fn grant(&self) -> Self::Load {
         let mut element = List::new();
-        element.separator("\n").item(&self.tag);
-        element.extend(self.items.clone());
+        element.separator("\n").item(self.tag.down(1));
+        element.extend(self.items.down(1));
         if let Some(close) = &self.close {
-            let close = List::new().item("</").item(close).item(">").link();
-            element.item(close.ploy());
+            let close = List::new()
+                .item("</")
+                .item(close.down(1))
+                .item(">")
+                .value();
+            element.item(close);
         }
-        element.link().ploy()
+        element.value()
     }
 }
 

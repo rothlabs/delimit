@@ -3,7 +3,7 @@ use crate::html::*;
 #[derive(Default, Clone)]
 pub struct Attribute {
     name: Value<String>,
-    value: Value<String>,
+    content: Value<String>,
 }
 
 impl Attribute {
@@ -13,29 +13,31 @@ impl Attribute {
     pub fn link(&self) -> Deuce<Self> {
         Deuce::make(|back| Self {
             name: self.name.backed(back),
-            value: self.value.backed(back),
+            content: self.content.backed(back),
         })
+    }
+    pub fn value(&self) -> Value<String> {
+        self.link().ploy().into()
     }
     pub fn name(&mut self, name: impl Into<Value<String>>) -> &mut Self {
         self.name = name.into();
         self
     }
-    pub fn value(&mut self, value: impl Into<Value<String>>) -> &mut Self {
-        self.value = value.into();
+    pub fn content(&mut self, content: impl Into<Value<String>>) -> &mut Self {
+        self.content = content.into();
         self
     }
 }
 
 impl Grant for Attribute {
-    type Load = Ploy<Ace<String>>;
+    type Load = Value<String>;
     fn grant(&self) -> Self::Load {
         List::new()
-            .item(&self.name)
+            .item(self.name.down(1))
             .item(r#"=""#)
-            .item(&self.value)
+            .item(self.content.down(1))
             .item(r#"""#)
-            .link()
-            .ploy()
+            .value()
     }
 }
 

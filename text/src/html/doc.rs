@@ -40,7 +40,7 @@ impl Doc {
             attributes: atts.clone(),
         }
     }
-    pub fn pipe(&self) -> graph::Ploy<Ace<String>> {
+    pub fn pipe(&self) -> graph::Ploy<Value<String>> {
         graph::Pipe::make(|back| self.element.backed(back)).ploy()
     }
     pub fn link(&self) -> Deuce<Element> {
@@ -86,11 +86,11 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::new().name(name).value(value).link();
+            let attribute = Attribute::new().name(name).content(value).value();
             self.tag
                 .write(|Pack { unit, back }| {
-                    let attribute = attribute.backed(back).ploy();
-                    unit.attribute(attribute);
+                    //let attribute = attribute.backed(back).ploy();
+                    unit.attribute(attribute.backed(back));
                 })
                 .ok();
         }

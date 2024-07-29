@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Ploy<Ace<String>>, Deuce<Element>, AttributeSet) {
+fn make_doc() -> (Ploy<Value<String>>, Deuce<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -40,7 +40,7 @@ fn basic_doc() {
     assert_eq!(DOC, string);
 }
 
-/// The lower graph (plain) should rebute up to the doc (pipe)
+/// The lower graph (plain) should rebut up to the doc (pipe)
 #[test]
 fn mutate_lower_graph_plain() {
     let (doc, _, atts) = make_doc();
