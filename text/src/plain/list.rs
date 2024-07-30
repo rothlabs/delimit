@@ -18,7 +18,7 @@ impl List {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn item(&mut self, item: impl Into<Node<String>>) -> &mut Self {
+    pub fn push(&mut self, item: impl Into<Node<String>>) -> &mut Self {
         self.items.push(item.into());
         self
     }
@@ -28,12 +28,12 @@ impl List {
     }
 }
 
-impl ToLink for List {
-    fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| Self {
+impl Backed for List {
+    fn backed(&self, back: &Back) -> Self {
+        Self {
             items: self.items.backed(back),
             separator: self.separator.backed(back),
-        })
+        }
     }
 }
 

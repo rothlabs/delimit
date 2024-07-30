@@ -11,13 +11,6 @@ impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| Self {
-            tag: self.tag.backed(back),
-            items: self.items.backed(back),
-            close: self.close.as_ref().map(|close| close.backed(back)),
-        })
-    }
     pub fn tag(&mut self, tag: impl Into<Node<String>>) -> &mut Self {
         self.tag = tag.into();
         self
@@ -32,21 +25,29 @@ impl Element {
     }
 }
 
+impl Backed for Element {
+    fn backed(&self, back: &Back) -> Self {
+        Self {
+            tag: self.tag.backed(back),
+            items: self.items.backed(back),
+            close: self.close.as_ref().map(|close| close.backed(back)),
+        }
+    }
+}
+
 impl Grant for Element {
     type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         let mut element = List::new();
-        element.separator("\n").item(self.tag.down(1));
-        element.extend(self.items.down(1));
+        element.separator("\n").push(self.tag.rank(1));
+        element.extend(self.items.rank(1));
         if let Some(close) = &self.close {
-            let close = List::new().item("</").item(close.down(1)).item(">").node();
-            element.item(close);
+            let close = List::new().push("</").push(close.rank(1)).push(">").node();
+            element.push(close);
         }
         element.node()
     }
 }
-
-
 
 // pub struct Element {
 //     pub tag: Stem,

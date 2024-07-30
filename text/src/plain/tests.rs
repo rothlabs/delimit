@@ -1,7 +1,7 @@
 use super::*;
 
 fn new_list(ace: &Ace<String>) -> Deuce<List> {
-    List::new().separator(", ").item("str").item(ace).link()
+    List::new().separator(", ").push("str").push(ace).link()
     //list.link()
     // let list = ", ".list();
     // list.link

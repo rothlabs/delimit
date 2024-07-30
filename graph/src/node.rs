@@ -3,6 +3,7 @@ use std::error::Error;
 
 pub type Result<L> = std::result::Result<Node<L>, Box<dyn Error + Send + Sync>>;
 
+/// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, Default, PartialEq)]
 pub struct Node<L> {
     rank: usize,
@@ -23,7 +24,6 @@ where
     L: 'static + Clone + Default,
 {
     type Load = L;
-    // TODO: load should take a link with repo traits
     fn load(&self) -> Self::Load {
         self.form.load()
     }
@@ -31,7 +31,7 @@ where
 
 impl<L> Read for Node<L>
 where
-    L: 'static + SendSync + Default,
+    L: 'static + Default + SendSync,
 {
     type Item = L;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
@@ -62,14 +62,15 @@ where
 }
 
 pub trait RankDown {
-    fn down(&self, level: usize) -> Self;
+    /// Reduce node rank down to specified number.
+    fn rank(&self, rank: usize) -> Self;
 }
 
 impl<L> RankDown for Node<L>
 where
     L: 'static + Clone + Default,
 {
-    fn down(&self, level: usize) -> Self {
+    fn rank(&self, level: usize) -> Self {
         let mut value = self.clone();
         while value.rank > level {
             value = value.grant();
@@ -82,14 +83,12 @@ impl<L> RankDown for Vec<Node<L>>
 where
     L: 'static + Clone + Default,
 {
-    fn down(&self, level: usize) -> Self {
-        self.iter().map(|x| x.down(level)).collect()
+    fn rank(&self, rank: usize) -> Self {
+        self.iter().map(|x| x.rank(rank)).collect()
     }
 }
 
-/// This could be renamed to leaf because only a leaf value should ever
-/// be placed here. It could also be replaced with Leaf<L> = Box<dyn ReadLoadBacked<L>>
-/// and impl ToLoad, Read, and backed for L
+/// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, PartialEq)]
 pub enum Form<L> {
     Meta(Meta),
@@ -183,9 +182,9 @@ impl<L> From<Ace<L>> for Node<L> {
     }
 }
 
-impl<L> From<Ploy<Node<L>>> for Node<L> 
-where 
-    L: 'static + Default
+impl<L> From<Ploy<Node<L>>> for Node<L>
+where
+    L: 'static + Default,
 {
     fn from(value: Ploy<Node<L>>) -> Self {
         Self {

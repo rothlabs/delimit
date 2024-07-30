@@ -10,12 +10,6 @@ impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| Self {
-            name: self.name.backed(back),
-            attributes: self.attributes.backed(back),
-        })
-    }
     pub fn name(&mut self, name: impl Into<Node<String>>) -> &mut Self {
         self.name = name.into();
         self
@@ -26,15 +20,26 @@ impl Tag {
     }
 }
 
+impl Backed for Tag {
+    fn backed(&self, back: &Back) -> Self {
+        Self {
+            name: self.name.backed(back),
+            attributes: self.attributes.backed(back),
+        }
+    }
+}
+
 impl Grant for Tag {
-    type Load = Node<String>;
+    type Load = Node<String>;// node::Result<String>;
     fn grant(&self) -> Self::Load {
-        let inner = List::new()
+        let items = List::new()
             .separator(" ")
-            .item(self.name.down(1))
-            .extend(self.attributes.down(1))
+            .push(self.name.rank(1))
+            .extend(self.attributes.rank(1))
             .node();
-        List::new().item("<").item(inner).item(">").node()
+        let tag = List::new().push("<").push(items).push(">").node();
+        // self.repo.field("nodes").insert(items).insert(tag);
+        tag 
     }
 }
 

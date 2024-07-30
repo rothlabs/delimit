@@ -90,24 +90,45 @@ pub trait Convert<T, L>:
 {
 }
 
-pub trait ToLink 
-where 
-    Self: Grant + Sized
+pub trait ToDeuce
+where
+    Self: Grant + Sized,
 {
     fn link(&self) -> Deuce<Self>;
 }
 
-pub trait ToNode<L> 
-// where 
-//     Self: Grant + Sized
+// impl<U> MakeLink for U
+// where
+//     U: 'static + ToLink + Grant + SendSync,
+//     U::Load: SendSync
+// {
+//     fn link(&self) -> Deuce<Self> {
+//         Deuce::make(|back| self.to_link(back))
+//     }
+// }
+
+// pub trait ToLink {
+//     fn to_link(&self, back: &Back) -> Self;
+// }
+
+impl<U> ToDeuce for U
+where
+    U: 'static + Backed + Grant + SendSync,
+    U::Load: SendSync,
 {
+    fn link(&self) -> Deuce<Self> {
+        Deuce::make(|back| self.backed(back))
+    }
+}
+
+pub trait ToNode<L> {
     fn node(&self) -> Node<L>;
 }
 
-impl<U, L> ToNode<L> for U 
-where 
-    U: 'static + ToLink + Grant<Load = Node<L>> + SendSync, 
-    L: 'static + Clone + Default + SendSync
+impl<U, L> ToNode<L> for U
+where
+    U: 'static + ToDeuce + Grant<Load = Node<L>> + SendSync,
+    L: 'static + Clone + Default + SendSync,
 {
     fn node(&self) -> Node<L> {
         self.link().ploy().into()

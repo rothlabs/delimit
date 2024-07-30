@@ -10,12 +10,6 @@ impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| Self {
-            name: self.name.backed(back),
-            content: self.content.backed(back),
-        })
-    }
     pub fn value(&self) -> Node<String> {
         self.link().ploy().into()
     }
@@ -29,14 +23,23 @@ impl Attribute {
     }
 }
 
+impl Backed for Attribute {
+    fn backed(&self, back: &Back) -> Self {
+        Self {
+            name: self.name.backed(back),
+            content: self.content.backed(back),
+        }
+    }
+}
+
 impl Grant for Attribute {
     type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         List::new()
-            .item(self.name.down(1))
-            .item(r#"=""#)
-            .item(self.content.down(1))
-            .item(r#"""#)
+            .push(self.name.rank(1))
+            .push(r#"=""#)
+            .push(self.content.rank(1))
+            .push(r#"""#)
             .node()
     }
 }
