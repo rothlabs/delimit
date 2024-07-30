@@ -7,15 +7,15 @@ pub struct Elements {
     gl: WGLRC,
     /// WebGL program
     program: Agent<Program>,
-    buffer: Agent<Buffer<f32>>,
+    buffer: Agent<Buffer>, // f32
     /// Vertex array object, collection of buffer attributes.
     vao: Agent<Vao>,
     /// Number of values to draw.
     #[builder(default)]
-    count: Node<i32>,
+    count: Node,
     /// Number of values to skip before drawing.
     #[builder(default)]
-    offset: Node<i32>,
+    offset: Node,
 }
 
 impl ElementsBuilder {
@@ -44,9 +44,9 @@ impl Act for Elements {
             vao.bind();
             self.gl.draw_elements_with_i32(
                 WGLRC::TRIANGLES,
-                self.count.load(),
+                self.count.i32(),
                 WGLRC::UNSIGNED_SHORT,
-                self.offset.load(),
+                self.offset.i32(),
             );
             vao.unbind();
         });

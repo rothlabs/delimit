@@ -13,7 +13,7 @@ pub struct Vao {
     object: WebGlVertexArrayObject,
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
-    index_buffer: Option<Agent<Buffer<u16>>>,
+    index_buffer: Option<Agent<Buffer>>, // u16
 }
 
 impl VaoBuilder {

@@ -29,7 +29,7 @@ mod elements;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
-pub type Array<T> = Node<Vec<T>>;
+//pub type Array<T> = Node<Vec<T>>;
 
 /// GPU graph maker
 pub struct Gpu {
@@ -43,22 +43,22 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<Source>) -> shader::Result {
+    pub fn vertex_shader(&self, source: impl Into<Node>) -> shader::Result {
         Shader::link(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Source>) -> shader::Result {
+    pub fn fragment_shader(&self, source: impl Into<Node>) -> shader::Result {
         Shader::link(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
         Program::link(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Array<f32>>) -> buffer::Result<f32> {
-        Buffer::link_f32(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
+    pub fn buffer(&self, array: impl Into<Node>) -> buffer::Result { // f32
+        Buffer::link(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Array<u16>>) -> buffer::Result<u16> {
-        Buffer::link_u16(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
+    pub fn index_buffer(&self, array: impl Into<Node>) -> buffer::Result { // u16
+        Buffer::link(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> VertexAttributeBuilder {
+    pub fn vertex_attribute(&self, buffer: &Agent<Buffer>) -> VertexAttributeBuilder { // f32
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())
@@ -77,8 +77,8 @@ impl Gpu {
     }
     pub fn texture<T: Copy>(
         &self,
-        array: impl Into<Array<T>>,
-    ) -> result::Result<TextureBuilder<T>, Box<dyn Error>> {
+        array: impl Into<Node>,
+    ) -> result::Result<TextureBuilder, Box<dyn Error>> {
         let texture = self.gl.create_texture().ok_or("failed to create texture")?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
         self.default_texture_filters();        

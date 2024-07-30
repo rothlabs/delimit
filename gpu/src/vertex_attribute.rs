@@ -7,19 +7,19 @@ pub type Result = std::result::Result<Agent<VertexAttribute>, VertexAttributeBui
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
-    buffer: Agent<Buffer<f32>>,
+    buffer: Agent<Buffer>, // f32
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
-    index: Node<u32>,
+    index: Node, // u32
     /// Number of components per value
     #[builder(default)]
-    size: Node<i32>,
+    size: Node, //i32
     /// Number of bytes between values
     #[builder(default)]
-    stride: Node<i32>,
+    stride: Node, // i32
     /// Byte offset of first value
     #[builder(default)]
-    offset: Node<i32>,
+    offset: Node, // i32
 }
 
 impl VertexAttributeBuilder { 
@@ -39,17 +39,17 @@ impl VertexAttributeBuilder {
 impl Act for VertexAttribute {
     type Load = ();
     fn act(&self) -> Self::Load {
-        let index = self.index.load();
+        let index = self.index.u32();
         self.buffer.act();
         self.buffer.read(|buffer| {
             buffer.bind();
             self.gl.vertex_attrib_pointer_with_i32(
                 index,
-                self.size.load(),
+                self.size.i32(),
                 WGLRC::FLOAT,
                 false,
-                self.stride.load(),
-                self.offset.load(),
+                self.stride.i32(),
+                self.offset.i32(),
             );
             self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();

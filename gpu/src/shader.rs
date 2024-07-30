@@ -6,17 +6,17 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-pub type Source = Node<String>;
+//pub type Source = Node;
 pub type Result = std::result::Result<Agent<Shader>, String>;
 
 pub struct Shader {
     pub gl: WGLRC,
-    pub source: Source,
+    pub source: Node,
     pub shader: WebGlShader,
 }
 
 impl Shader {
-    pub fn link(gl: &WGLRC, type_: u32, source: &Source) -> Result {
+    pub fn link(gl: &WGLRC, type_: u32, source: &Node) -> Result {
         let shader = gl.create_shader(type_).ok_or("failed to create shader")?;
         let link = Agent::make(|back| Self {
             gl: gl.clone(),
@@ -32,7 +32,7 @@ impl Act for Shader {
     type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.source
-            .read(|src| self.gl.shader_source(&self.shader, src));
+            .read_string(|src| self.gl.shader_source(&self.shader, src));
         self.gl.compile_shader(&self.shader);
         if self
             .gl

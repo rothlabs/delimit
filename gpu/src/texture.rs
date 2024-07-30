@@ -1,32 +1,32 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-pub type Result<T> = std::result::Result<Agent<Texture<T>>, Box<dyn Error>>;
+pub type Result = std::result::Result<Agent<Texture>, Box<dyn Error>>;
 
 #[derive(Builder)]
 #[builder(setter(into))]
-pub struct Texture<T> {
+pub struct Texture {
     gl: WGLRC,
     texture: WebGlTexture,
     /// Linear data array of image.
-    array: Array<T>,
+    array: Node,
     /// Horizontal pixel count.
     #[builder(default)]
-    width: Node<i32>,
+    width: Node,
     /// Vertical pixel count.
     #[builder(default)]
-    height: Node<i32>,
+    height: Node,
 }
 
-impl<T> Texture<T> {
+impl Texture {
     pub fn bind(&self) {
         // self.gl.active_texture(WGLRC::TEXTURE0);
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.texture));
     }
 }
 
-impl TextureBuilder<u8> {
-    pub fn link_u8(&self) -> Result<u8> {
+impl TextureBuilder {
+    pub fn link_u8(&self) -> Result {
         let mut texture = self.build()?;
         let link = Agent::make(|back| {
             texture.array = texture.array.backed(back);
@@ -39,11 +39,11 @@ impl TextureBuilder<u8> {
     }
 }
 
-impl Act for Texture<u8> {
+impl Act for Texture {
     type Load = react::Result;
     fn act(&self) -> Self::Load {
         self.bind();
-        self.array.read(|unit| {
+        self.array.read_vu8(|unit| {
             let pixels = unsafe {
                 Uint8Array::view(unit.as_slice())
             };
@@ -53,8 +53,8 @@ impl Act for Texture<u8> {
                 WGLRC::TEXTURE_2D, // target
                 0, // level, 
                 WGLRC::RGB as i32, // internalformat, 
-                self.width.load(), // width 
-                self.height.load(), // height
+                self.width.i32(), // width 
+                self.height.i32(), // height
                 0, // border, 
                 WGLRC::RGB, // format
                 WGLRC::UNSIGNED_BYTE, // type_
@@ -68,7 +68,7 @@ impl Act for Texture<u8> {
     }
 }
 
-impl React for Texture<u8> {
+impl React for Texture {
     fn react(&self, _: &Meta) -> react::Result {
         self.act()
     }

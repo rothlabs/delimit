@@ -26,7 +26,7 @@ impl Node {
     pub fn insert(&self, field: &str, node: Node) {
         self.form.insert(field, node);
     }
-    pub fn read_string<F: FnOnce(&String)>(&self, read: F)  {
+    pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
         self.form.read(|load|{
             if let Load::String(string) = load {
                 read(string)
@@ -34,6 +34,47 @@ impl Node {
                 read(&"".into())
             }
         })
+    }
+    pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T  {
+        self.form.read(|load|{
+            if let Load::Vu8(value) = load {
+                read(value)
+            } else {
+                read(&vec![])
+            }
+        })
+    }
+    pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T  {
+        self.form.read(|load|{
+            if let Load::Vu16(value) = load {
+                read(value)
+            } else {
+                read(&vec![])
+            }
+        })
+    }
+    pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T  {
+        self.form.read(|load|{
+            if let Load::Vf32(value) = load {
+                read(value)
+            } else {
+                read(&vec![])
+            }
+        })
+    }
+    pub fn u32(&self) -> u32  {
+        if let Load::U32(value) = self.load() {
+            value
+        } else {
+            0
+        }
+    }
+    pub fn i32(&self) -> i32  {
+        if let Load::I32(value) = self.load() {
+            value
+        } else {
+            0
+        }
     }
 }
 

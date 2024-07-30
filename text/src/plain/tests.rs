@@ -2,14 +2,6 @@ use super::*;
 
 fn new_list(ace: &Ace<Load>) -> Deuce<List> {
     List::new().separator(", ").push("str").push(ace).link()
-    //list.link()
-    // let list = ", ".list();
-    // list.link
-    //     .write(|pack| {
-    //         pack.unit.items.back(pack.back).str("str").base(ace);
-    //     })
-    //     .ok();
-    // list.link
 }
 
 #[test]
