@@ -39,16 +39,14 @@ impl Grant for Element {
         element.separator("\n").item(self.tag.down(1));
         element.extend(self.items.down(1));
         if let Some(close) = &self.close {
-            let close = List::new()
-                .item("</")
-                .item(close.down(1))
-                .item(">")
-                .value();
+            let close = List::new().item("</").item(close.down(1)).item(">").node();
             element.item(close);
         }
-        element.value()
+        element.node()
     }
 }
+
+
 
 // pub struct Element {
 //     pub tag: Stem,

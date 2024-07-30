@@ -37,7 +37,7 @@ impl Grant for Attribute {
             .item(r#"=""#)
             .item(self.content.down(1))
             .item(r#"""#)
-            .value()
+            .node()
     }
 }
 

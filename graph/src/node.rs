@@ -1,12 +1,21 @@
-use std::error::Error;
 use super::*;
+use std::error::Error;
 
-pub type Result<L> = std::result::Result<Node<L>, Box<dyn Error>>;
+pub type Result<L> = std::result::Result<Node<L>, Box<dyn Error + Send + Sync>>;
 
 #[derive(Clone, Default, PartialEq)]
 pub struct Node<L> {
     rank: usize,
     form: Form<L>,
+}
+
+impl<L> Node<L>
+where
+    L: Default,
+{
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl<L> ToLoad for Node<L>
@@ -174,7 +183,10 @@ impl<L> From<Ace<L>> for Node<L> {
     }
 }
 
-impl<L: 'static + Default> From<Ploy<Node<L>>> for Node<L> {
+impl<L> From<Ploy<Node<L>>> for Node<L> 
+where 
+    L: 'static + Default
+{
     fn from(value: Ploy<Node<L>>) -> Self {
         Self {
             rank: value.grant().rank + 1,
@@ -201,11 +213,15 @@ impl<L> From<&Ace<L>> for Node<L> {
     }
 }
 
-// // impl<L> From<&Ploy<Ace<L>>> for Value<L> {
-// //     fn from(value: &Ploy<Ace<L>>) -> Self {
-// //         Self::Ploy(value.clone())
-// //     }
-// // }
+// impl<L> From<Ploy<L>> for Node<L> {
+//     fn from(value: Ploy<L>) -> Self {
+//         Self {
+//             rank: 0,
+//             form: Form::Bare(value.to_owned()),
+//         }
+//         Self::Ploy(value.clone())
+//     }
+// }
 
 impl From<&str> for Node<String> {
     fn from(value: &str) -> Self {

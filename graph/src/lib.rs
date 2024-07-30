@@ -1,13 +1,13 @@
+pub use apex::Apex;
 pub use edge::Edge;
 pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
 pub use meta::{Meta, ToMeta};
-pub use apex::Apex;
+pub use node::{Node, RankDown};
 pub use react::{
     AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
     Rebut, Ring, Root, ToPipedPloy, ToPlan, ToPloy, Update,
 };
 pub use repo::Repo;
-pub use node::{RankDown, Node};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
@@ -20,14 +20,14 @@ use std::{
     rc::Rc,
 };
 
-pub mod react;
 pub mod node;
+pub mod react;
 
+mod apex;
 mod edge;
 mod edit;
 mod link;
 mod meta;
-mod apex;
 mod repo;
 mod work;
 mod write;
@@ -90,10 +90,28 @@ pub trait Convert<T, L>:
 {
 }
 
-#[derive(Clone)]
-pub struct Hold<L, R> {
-    pub link: L,
-    pub role: R,
+pub trait ToLink 
+where 
+    Self: Grant + Sized
+{
+    fn link(&self) -> Deuce<Self>;
+}
+
+pub trait ToNode<L> 
+// where 
+//     Self: Grant + Sized
+{
+    fn node(&self) -> Node<L>;
+}
+
+impl<U, L> ToNode<L> for U 
+where 
+    U: 'static + ToLink + Grant<Load = Node<L>> + SendSync, 
+    L: 'static + Clone + Default + SendSync
+{
+    fn node(&self) -> Node<L> {
+        self.link().ploy().into()
+    }
 }
 
 pub trait DoRead {
@@ -112,32 +130,29 @@ pub trait ReadByTask {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T;
 }
 
-// pub trait Give<T> {
-//     fn give(&self) -> Sel;
-// }
-
-/// For units to grant a load and NOT act upon external systems
 pub trait Grant {
     type Load;
+    /// For units to grant a load and NOT act upon external systems
     fn grant(&self) -> Self::Load;
 }
 
-/// For graph internals to handle grant calls
 pub trait DoGrant {
     type Load;
+    /// For graph internals to handle grant calls
     fn do_grant(&mut self, back: &Back) -> Self::Load;
 }
 
 pub trait Solve {
     type Task;
     type Load;
+    /// Unit solves a task and does NOT act on externals
     fn solve(&self, task: Self::Task) -> Self::Load;
 }
 
-/// For graph internals to handle solve calls
 pub trait DoSolve {
     type Task;
     type Load;
+    /// For graph internals to handle solve calls
     fn do_solve(&mut self, task: Self::Task) -> Self::Load;
 }
 

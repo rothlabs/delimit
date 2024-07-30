@@ -75,7 +75,7 @@ where
         Self {
             meta,
             back: None,
-            apex: apex,
+            apex,
         }
     }
     #[cfg(feature = "oneThread")]

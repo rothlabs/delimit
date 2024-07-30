@@ -16,9 +16,6 @@ impl Tag {
             attributes: self.attributes.backed(back),
         })
     }
-    // pub fn value(&self) -> Value<String> {
-    //     self.link().ploy().into()
-    // }
     pub fn name(&mut self, name: impl Into<Node<String>>) -> &mut Self {
         self.name = name.into();
         self
@@ -36,8 +33,8 @@ impl Grant for Tag {
             .separator(" ")
             .item(self.name.down(1))
             .extend(self.attributes.down(1))
-            .value();
-        List::new().item("<").item(inner).item(">").value()
+            .node();
+        List::new().item("<").item(inner).item(">").node()
     }
 }
 

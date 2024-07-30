@@ -10,15 +10,6 @@ impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| Self {
-            items: self.items.backed(back),
-            separator: self.separator.backed(back),
-        })
-    }
-    pub fn value(&self) -> Node<String> {
-        self.link().ploy().into()
-    }
     pub fn separator(&mut self, separator: impl Into<Node<String>>) -> &mut Self {
         self.separator = separator.into();
         self
@@ -37,11 +28,20 @@ impl List {
     }
 }
 
+impl ToLink for List {
+    fn link(&self) -> Deuce<Self> {
+        Deuce::make(|back| Self {
+            items: self.items.backed(back),
+            separator: self.separator.backed(back),
+        })
+    }
+}
+
 impl Grant for List {
     type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         if self.items.is_empty() {
-            return Node::default(); //string.into_ace();
+            return Node::new();
         }
         let mut string = String::new();
         self.separator.read(|sep| {
@@ -50,9 +50,11 @@ impl Grant for List {
                 string += sep;
             }
         });
-        if let Some(item) = self.items.last() {
-            item.read(|s| string += s);
-        }
-        string.ace().into()
+        self.items[self.items.len() - 1].read(|s| string += s);
+        string.into_ace().into()
     }
 }
+
+// if let Some(item) = self.items.last() {
+//     item.read(|s| string += s);
+// }
