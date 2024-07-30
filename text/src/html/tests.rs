@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Ploy<Node<String>>, Deuce<Element>, AttributeSet) {
+fn make_doc() -> (Ploy<Node>, Deuce<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -37,7 +37,7 @@ fn make_doc() -> (Ploy<Node<String>>, Deuce<Element>, AttributeSet) {
 fn basic_doc() {
     let (doc, _, _) = make_doc();
     let string = doc.grant().load();
-    assert_eq!(DOC, string);
+    assert_eq!(Load::String(DOC.into()), string);
 }
 
 /// The lower graph (plain) should rebut up to the doc (pipe)
@@ -45,9 +45,15 @@ fn basic_doc() {
 fn mutate_lower_graph_plain() {
     let (doc, _, atts) = make_doc();
     let att = atts.get("type").unwrap();
-    att.write(|unit| *unit += "_mutated").ok();
+    att.write(|load| 
+        if let Load::String(string) = load {
+            *string += "_mutated"
+        } else {
+            panic!("not a string")
+        }
+    ).ok();
     let string = doc.grant().load();
-    assert_eq!(MUTATED_ATTRIB, string);
+    assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);
 }
 
 /// The upper graph (html) should rebut up to the doc (pipe)
@@ -59,7 +65,7 @@ fn mutate_upper_graph_html() {
     })
     .ok();
     let string = doc.grant().load();
-    assert_eq!(REMOVED_TITLE, string);
+    assert_eq!(Load::String(REMOVED_TITLE.into()), string);
 }
 
 const DOC: &str = r#"<!DOCTYPE html>

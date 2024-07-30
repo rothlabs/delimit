@@ -26,12 +26,12 @@ impl Node {
     pub fn insert(&self, field: &str, node: Node) {
         self.form.insert(field, node);
     }
-    pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> std::result::Result<T, String> {
+    pub fn read_string<F: FnOnce(&String)>(&self, read: F)  {
         self.form.read(|load|{
             if let Load::String(string) = load {
-                Ok(read(string))
+                read(string)
             } else {
-                Err("no string".to_owned())
+                read(&"".into())
             }
         })
     }
@@ -248,6 +248,29 @@ impl From<&Node> for Node {
         value.clone()
     }
 }
+
+
+
+// pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> std::result::Result<T, T> {
+//     self.form.read(|load|{
+//         if let Load::String(string) = load {
+//             Ok(read(string))
+//         } else {
+//             //panic!("not a string");
+//             //Err("no string".to_owned())
+//             Err(read(&"".into()))
+//         }
+//     })
+// }
+
+
+
+
+
+
+
+
+
 
 // // impl<L> From<Ploy<Ploy<Ace<L>>>> for Value<L>
 // // where

@@ -1,5 +1,5 @@
 /// The Load enum allows Nodes to be handled with unknown payload datatype.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Load {
     String(String),
     U8(u8),
@@ -9,8 +9,8 @@ pub enum Load {
     None,
 }
 
-impl Default for Load {
-    fn default() -> Self {
-        Self::None
-    }
-}
+// impl Default for Load {
+//     fn default() -> Self {
+//         Self::String("".to_owned())
+//     }
+// }

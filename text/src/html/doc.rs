@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use super::*;
 
-pub type AttributeSet = HashMap<&'static str, Ace<String>>;
+pub type AttributeSet = HashMap<&'static str, Ace<Load>>;
 
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
@@ -17,7 +17,7 @@ pub struct Doc {
 pub fn attribute_set() -> AttributeSet {
     let mut atts = HashMap::new();
     for att in ATTRIBUTES {
-        atts.insert(att, att.to_owned().ace());
+        atts.insert(att, att.ace());
     }
     atts
 }
@@ -27,9 +27,12 @@ impl Doc {
         let mut tags = HashMap::new();
         for tag in TAGS {
             //tags.insert(tag, Stem::new(tag.into()));
-            tags.insert(tag, tag.into());
+            tags.insert(tag, Node::from(tag.ace()));
         }
         let doctype = tags.get(DOCTYPE).unwrap();
+        // doctype.read_string(|string|{
+        //     println!("tag string!!!! {}", string)
+        // });
         let tag = Tag::new().name(doctype).link();
         Self {
             tag_name: DOCTYPE,
@@ -40,7 +43,7 @@ impl Doc {
             attributes: atts.clone(),
         }
     }
-    pub fn pipe(&self) -> graph::Ploy<Node<String>> {
+    pub fn pipe(&self) -> graph::Ploy<Node> {
         graph::Pipe::make(|back| self.element.backed(back)).ploy()
     }
     pub fn link(&self) -> Deuce<Element> {
@@ -49,7 +52,11 @@ impl Doc {
     pub fn string(&self) -> String {
         let plain = self.element.grant();
         let ace = plain.grant();
-        ace.load()
+        if let Load::String(string) = ace.load() {
+            string
+        } else {
+            String::new()
+        }
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element

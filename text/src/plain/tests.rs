@@ -1,5 +1,3 @@
-use std::ops::DerefMut;
-
 use super::*;
 
 fn new_list(ace: &Ace<Load>) -> Deuce<List> {
@@ -15,13 +13,12 @@ fn new_list(ace: &Ace<Load>) -> Deuce<List> {
 }
 
 #[test]
-fn grant_and_read_ace_from_list() -> Result<(), String> {
+fn grant_and_read_ace_from_list()  { 
     let ace = "ace".ace();
     let text = new_list(&ace);
     text.grant().read_string(|string| {
         assert_eq!(string, "str, ace");
-    })?;
-    Ok(())
+    });
 }
 
 #[test]
