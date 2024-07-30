@@ -6,8 +6,11 @@ use rand::distributions::{Alphanumeric, DistString};
 pub struct Id(String);
 
 impl Id {
-    pub fn new() -> Id {
-        Id(Alphanumeric.sample_string(&mut rand::thread_rng(), 16))
+    pub fn new() -> Self {
+        Self(Alphanumeric.sample_string(&mut rand::thread_rng(), 16))
+    }
+    pub fn none() -> Self {
+        Self("".into())
     }
     pub fn string(&self) -> &str {
         &self.0
@@ -22,7 +25,7 @@ impl Default for Id {
 
 impl Eq for Id {}
 
-#[derive(Clone, PartialEq, Eq, Serialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Serialize, Debug, Hash)]
 pub struct Meta {
     pub id: Id,
 }
@@ -30,6 +33,9 @@ pub struct Meta {
 impl Meta {
     pub fn new() -> Self {
         Self { id: Id::new() }
+    }
+    pub fn none() -> Self {
+        Self { id: Id::none() }
     }
 }
 

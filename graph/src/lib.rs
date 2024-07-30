@@ -11,6 +11,7 @@ pub use repo::Repo;
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use edit::{Field, InsertMut, Insert};
 
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -96,20 +97,6 @@ where
 {
     fn link(&self) -> Deuce<Self>;
 }
-
-// impl<U> MakeLink for U
-// where
-//     U: 'static + ToLink + Grant + SendSync,
-//     U::Load: SendSync
-// {
-//     fn link(&self) -> Deuce<Self> {
-//         Deuce::make(|back| self.to_link(back))
-//     }
-// }
-
-// pub trait ToLink {
-//     fn to_link(&self, back: &Back) -> Self;
-// }
 
 impl<U> ToDeuce for U
 where

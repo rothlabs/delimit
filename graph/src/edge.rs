@@ -110,21 +110,6 @@ where
     }
 }
 
-impl<U, L> Produce<L> for Deuce<U>
-where
-    U: 'static + Grant<Load = L> + SendSync,
-    L: 'static + Clone + SendSync,
-{
-}
-
-impl<U, L> Produce<L> for Pipe<U>
-where
-    U: 'static + Grant + SendSync,
-    U::Load: 'static + Grant<Load = L> + SendSync + Backed,
-    L: 'static + Clone + SendSync,
-{
-}
-
 impl<N> Grant for Edge<N>
 where
     N: 'static + DoGrant + DoUpdate,
@@ -143,6 +128,30 @@ where
     fn act(&self) -> Self::Load {
         write_part(&self.apex, |mut apex| apex.do_act(&self.node_as_back()))
     }
+}
+
+impl<N, T> Insert<T> for Edge<N> 
+where 
+    N: InsertMut<T>
+{
+    fn insert(&self, field: &str, node: Node<T>) {
+        write_part(&self.apex, |mut apex| apex.insert_mut(field, node));
+    }
+}
+
+impl<U, L> Produce<L> for Deuce<U>
+where
+    U: 'static + Grant<Load = L> + SendSync,
+    L: 'static + Clone + SendSync,
+{
+}
+
+impl<U, L> Produce<L> for Pipe<U>
+where
+    U: 'static + Grant + SendSync,
+    U::Load: 'static + Grant<Load = L> + SendSync + Backed,
+    L: 'static + Clone + SendSync,
+{
 }
 
 impl<U> ToPloy for Deuce<U>
@@ -476,6 +485,8 @@ impl<T, L> React for BoxConvert<T, L> {
         self.as_ref().react(meta)
     }
 }
+
+
 
 // impl<R, St> Serialize for Edge<R, St> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

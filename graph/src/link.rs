@@ -51,6 +51,12 @@ pub struct Link<E> {
     meta: Meta,
 }
 
+impl<E> ToMeta for Link<E> {
+    fn meta(&self) -> Meta {
+        self.meta.clone()
+    }
+}
+
 impl<E> ToLoad for Link<E>
 where
     E: ToLoad,
@@ -210,6 +216,15 @@ where
     }
 }
 
+impl<E, T> Insert<T> for Link<E> 
+where 
+    E: Insert<T>
+{
+    fn insert(&self, field: &str, node: Node<T>) {
+        read_part(&self.edge, |edge| edge.insert(field, node));
+    }
+}
+
 impl<E> Act for Link<E>
 where
     E: 'static + Act + AddRoot + Update,
@@ -281,7 +296,7 @@ where
 //     }
 // }
 
-impl<L> Backed for Link<Box<dyn Produce<L>>> {
+impl<L> Backed for Ploy<L> {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),

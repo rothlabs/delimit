@@ -184,6 +184,15 @@ where
     }
 }
 
+impl<W, T> InsertMut<T> for Apex<W> 
+where 
+    W: InsertMut<T>
+{
+    fn insert_mut(&mut self, field: &str, node: Node<T>) {
+        self.work.insert_mut(field, node);
+    }
+}
+
 // impl<W> DoWrite for Apex<W>
 // where
 //     W: DoWrite,

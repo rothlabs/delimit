@@ -19,6 +19,30 @@ where
     }
 }
 
+impl<L> Node<L> 
+where 
+    L: Clone
+{
+    pub fn field(&self, name: String) -> Field<L> {
+        Field::new(self.clone(), name)
+    }
+}
+
+impl<L> Node<L> {
+    pub fn meta(&self) -> Meta {
+        self.form.meta()
+    }
+}
+
+impl<L, T> Insert<T> for Node<L> 
+where 
+    Form<L>: Insert<T>
+{
+    fn insert(&self, field: &str, node: Node<T>) {
+        self.form.insert(field, node);
+    }
+}
+
 impl<L> ToLoad for Node<L>
 where
     L: 'static + Clone + Default,
@@ -95,6 +119,31 @@ pub enum Form<L> {
     Bare(L),
     Ace(Ace<L>),
     Ploy(Ploy<Node<L>>),
+}
+
+impl<L> Form<L> {
+    fn meta(&self) -> Meta {
+        match self {
+            Self::Meta(meta) => meta.clone(),
+            Self::Bare(_) => Meta::none(),
+            Self::Ace(ace) => ace.meta(),
+            Self::Ploy(ploy) => ploy.meta(),
+        }
+    }
+}
+
+impl<L, T> Insert<T> for Form<L> 
+where 
+    Ace<L>: Insert<T>,
+    Ploy<Node<L>>: Insert<T>
+{
+    fn insert(&self, field: &str, node: Node<T>) {
+        match self {
+            // Self::Ace(ace) => ace.insert(field, node),
+            Self::Ploy(ploy) => ploy.insert(field, node),
+            _ => ()
+        }
+    }
 }
 
 impl<L> Default for Form<L>

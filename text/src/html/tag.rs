@@ -30,7 +30,7 @@ impl Backed for Tag {
 }
 
 impl Grant for Tag {
-    type Load = Node<String>;// node::Result<String>;
+    type Load = Node<String>;
     fn grant(&self) -> Self::Load {
         let items = List::new()
             .separator(" ")
@@ -39,7 +39,7 @@ impl Grant for Tag {
             .node();
         let tag = List::new().push("<").push(items).push(">").node();
         // self.repo.field("nodes").insert(items).insert(tag);
-        tag 
+        tag
     }
 }
 

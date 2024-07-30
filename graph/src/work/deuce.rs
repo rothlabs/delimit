@@ -108,3 +108,12 @@ where
         Ok(())
     }
 }
+
+impl<U, T> InsertMut<T> for Deuce<U> 
+where 
+    U: InsertMut<T> + Grant
+{
+    fn insert_mut(&mut self, field: &str, node: Node<T>) {
+        self.unit.as_mut().unwrap().insert_mut(field, node);
+    }
+}
