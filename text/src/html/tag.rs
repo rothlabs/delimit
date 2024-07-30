@@ -4,6 +4,7 @@ use super::*;
 pub struct Tag {
     pub name: Node<String>,
     pub attributes: Vec<Node<String>>,
+    pub repo: Node<()>,
 }
 
 impl Tag {
@@ -25,6 +26,7 @@ impl Backed for Tag {
         Self {
             name: self.name.backed(back),
             attributes: self.attributes.backed(back),
+            repo: self.repo.clone(),
         }
     }
 }
@@ -38,6 +40,7 @@ impl Grant for Tag {
             .extend(self.attributes.rank(1))
             .node();
         let tag = List::new().push("<").push(items).push(">").node();
+        // self.repo.insert();
         // self.repo.field("nodes").insert(items).insert(tag);
         tag
     }
