@@ -1,5 +1,3 @@
-use std::array;
-
 use super::*;
 use web_sys::WebGlBuffer;
 

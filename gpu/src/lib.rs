@@ -10,7 +10,7 @@ pub use vertex_attribute::VertexAttribute;
 use derive_builder::Builder;
 use graph::*;
 // use js_sys::*;
-use shader::*;
+// use shader::*;
 use std::{error::Error, result};
 use texture::*;
 use vao::*;
@@ -75,7 +75,7 @@ impl Gpu {
             .attributes(attributes.clone())
             .clone())
     }
-    pub fn texture<T: Copy>(
+    pub fn texture( // <T: Copy>
         &self,
         array: impl Into<Node>,
     ) -> result::Result<TextureBuilder, Box<dyn Error>> {

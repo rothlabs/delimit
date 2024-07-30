@@ -66,6 +66,7 @@ impl Node {
         if let Load::U32(value) = self.load() {
             value
         } else {
+            //panic!("no u32");
             0
         }
     }
@@ -73,6 +74,7 @@ impl Node {
         if let Load::I32(value) = self.load() {
             value
         } else {
+            // panic!("no i32");
             0
         }
     }
@@ -235,10 +237,7 @@ impl From<Ace<Load>> for Node {
     }
 }
 
-impl From<Ploy<Node>> for Node
-// where
-//     L: 'static + Default,
-{
+impl From<Ploy<Node>> for Node {
     fn from(value: Ploy<Node>) -> Self {
         Self {
             rank: value.grant().rank + 1,
@@ -246,15 +245,6 @@ impl From<Ploy<Node>> for Node
         }
     }
 }
-
-// impl<L> From<&L> for Value<L>
-// where
-//     L: Clone,
-// {
-//     fn from(value: &L) -> Self {
-//         Self::Bare(value.clone())
-//     }
-// }
 
 impl From<&Ace<Load>> for Node {
     fn from(value: &Ace<Load>) -> Self {
@@ -265,15 +255,11 @@ impl From<&Ace<Load>> for Node {
     }
 }
 
-// impl<L> From<Ploy<L>> for Node<L> {
-//     fn from(value: Ploy<L>) -> Self {
-//         Self {
-//             rank: 0,
-//             form: Form::Bare(value.to_owned()),
-//         }
-//         Self::Ploy(value.clone())
-//     }
-// }
+impl From<&Node> for Node {
+    fn from(value: &Node) -> Self {
+        value.clone()
+    }
+}
 
 impl From<&str> for Node {
     fn from(value: &str) -> Self {
@@ -284,11 +270,78 @@ impl From<&str> for Node {
     }
 }
 
-impl From<&Node> for Node {
-    fn from(value: &Node) -> Self {
-        value.clone()
+impl From<u32> for Node {
+    fn from(value: u32) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(Load::U32(value)),
+        }
     }
 }
+
+impl From<i32> for Node {
+    fn from(value: i32) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(Load::I32(value)),
+        }
+    }
+}
+
+impl From<Vec<u8>> for Node {
+    fn from(value: Vec<u8>) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(Load::Vu8(value)),
+        }
+    }
+}
+
+impl From<Vec<u16>> for Node {
+    fn from(value: Vec<u16>) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(Load::Vu16(value)),
+        }
+    }
+}
+
+impl From<Vec<f32>> for Node {
+    fn from(value: Vec<f32>) -> Self {
+        Self {
+            rank: 0,
+            form: Form::Bare(Load::Vf32(value)),
+        }
+    }
+}
+
+// impl From<Vec<u8>> for Node {
+//     fn from(value: Vec<u8>) -> Self {
+//         Self {
+//             rank: 0,
+//             form: Form::Bare(Load::Vu8(value)),
+//         }
+//     }
+// }
+
+// impl<L> From<&L> for Value<L>
+// where
+//     L: Clone,
+// {
+//     fn from(value: &L) -> Self {
+//         Self::Bare(value.clone())
+//     }
+// }
+
+// impl<L> From<Ploy<L>> for Node<L> {
+//     fn from(value: Ploy<L>) -> Self {
+//         Self {
+//             rank: 0,
+//             form: Form::Bare(value.to_owned()),
+//         }
+//         Self::Ploy(value.clone())
+//     }
+// }
 
 
 
