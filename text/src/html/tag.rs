@@ -2,20 +2,20 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct Tag {
-    pub name: Node<String>,
-    pub attributes: Vec<Node<String>>,
-    pub repo: Node<()>,
+    pub name: Node,
+    pub attributes: Vec<Node>,
+    pub repo: Node,
 }
 
 impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(&mut self, name: impl Into<Node<String>>) -> &mut Self {
+    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
         self.name = name.into();
         self
     }
-    pub fn attribute(&mut self, attribute: impl Into<Node<String>>) -> &mut Self {
+    pub fn attribute(&mut self, attribute: impl Into<Node>) -> &mut Self {
         self.attributes.push(attribute.into());
         self
     }
@@ -32,7 +32,7 @@ impl Backed for Tag {
 }
 
 impl Grant for Tag {
-    type Load = Node<String>;
+    type Load = Node;
     fn grant(&self) -> Self::Load {
         let items = List::new()
             .separator(" ")

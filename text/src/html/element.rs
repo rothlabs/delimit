@@ -2,24 +2,24 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct Element {
-    pub tag: Node<String>,
-    pub items: Vec<Node<String>>,
-    pub close: Option<Node<String>>,
+    pub tag: Node,
+    pub items: Vec<Node>,
+    pub close: Option<Node>,
 }
 
 impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn tag(&mut self, tag: impl Into<Node<String>>) -> &mut Self {
+    pub fn tag(&mut self, tag: impl Into<Node>) -> &mut Self {
         self.tag = tag.into();
         self
     }
-    pub fn item(&mut self, item: impl Into<Node<String>>) -> &mut Self {
+    pub fn item(&mut self, item: impl Into<Node>) -> &mut Self {
         self.items.push(item.into());
         self
     }
-    pub fn close(&mut self, close: impl Into<Node<String>>) -> &mut Self {
+    pub fn close(&mut self, close: impl Into<Node>) -> &mut Self {
         self.close = Some(close.into());
         self
     }
@@ -36,7 +36,7 @@ impl Backed for Element {
 }
 
 impl Grant for Element {
-    type Load = Node<String>;
+    type Load = Node;
     fn grant(&self) -> Self::Load {
         let mut element = List::new();
         element.separator("\n").push(self.tag.rank(1));

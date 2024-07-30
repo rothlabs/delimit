@@ -10,7 +10,7 @@ pub struct Doc {
     tag_name: &'static str,
     tag: Deuce<Tag>,
     element: Deuce<Element>,
-    tag_names: HashMap<&'static str, Node<String>>,
+    tag_names: HashMap<&'static str, Node>,
     attributes: AttributeSet,
 }
 

@@ -109,11 +109,11 @@ where
     }
 }
 
-impl<U, T> InsertMut<T> for Deuce<U> 
+impl<U> InsertMut for Deuce<U> 
 where 
-    U: InsertMut<T> + Grant
+    U: InsertMut + Grant
 {
-    fn insert_mut(&mut self, field: &str, node: Node<T>) {
+    fn insert_mut(&mut self, field: &str, node: Node) {
         self.unit.as_mut().unwrap().insert_mut(field, node);
     }
 }

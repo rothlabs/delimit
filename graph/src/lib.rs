@@ -12,6 +12,7 @@ pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 pub use edit::{Field, InsertMut, Insert};
+pub use load::Load;
 
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -32,6 +33,7 @@ mod meta;
 mod repo;
 mod work;
 mod write;
+mod load;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
@@ -108,16 +110,16 @@ where
     }
 }
 
-pub trait ToNode<L> {
-    fn node(&self) -> Node<L>;
+pub trait ToNode {
+    fn node(&self) -> Node;
 }
 
-impl<U, L> ToNode<L> for U
+impl<U> ToNode for U
 where
-    U: 'static + ToDeuce + Grant<Load = Node<L>> + SendSync,
-    L: 'static + Clone + Default + SendSync,
+    U: 'static + ToDeuce + Grant<Load = Node> + SendSync,
+    // L: 'static + Clone + Default + SendSync,
 {
-    fn node(&self) -> Node<L> {
+    fn node(&self) -> Node {
         self.link().ploy().into()
     }
 }

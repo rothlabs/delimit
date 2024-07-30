@@ -2,23 +2,23 @@ use super::*;
 
 #[derive(Default, Clone)]
 pub struct List {
-    pub items: Vec<Node<String>>,
-    pub separator: Node<String>,
+    pub items: Vec<Node>,
+    pub separator: Node,
 }
 
 impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn separator(&mut self, separator: impl Into<Node<String>>) -> &mut Self {
+    pub fn separator(&mut self, separator: impl Into<Node>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(&mut self, items: Vec<impl Into<Node<String>>>) -> &mut Self {
+    pub fn extend(&mut self, items: Vec<impl Into<Node>>) -> &mut Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(&mut self, item: impl Into<Node<String>>) -> &mut Self {
+    pub fn push(&mut self, item: impl Into<Node>) -> &mut Self {
         self.items.push(item.into());
         self
     }
@@ -38,20 +38,20 @@ impl Backed for List {
 }
 
 impl Grant for List {
-    type Load = Node<String>;
+    type Load = Node;
     fn grant(&self) -> Self::Load {
         if self.items.is_empty() {
             return Node::new();
         }
         let mut string = String::new();
-        self.separator.read(|sep| {
+        self.separator.read_string(|sep| {
             for i in 0..self.items.len() - 1 {
-                self.items[i].read(|s| string += s);
+                self.items[i].read_string(|s| string += s);
                 string += sep;
             }
         });
-        self.items[self.items.len() - 1].read(|s| string += s);
-        string.into_ace().into()
+        self.items[self.items.len() - 1].read_string(|s| string += s);
+        Load::String(string).into_ace().into()
     }
 }
 

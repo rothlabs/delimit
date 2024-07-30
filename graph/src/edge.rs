@@ -130,11 +130,11 @@ where
     }
 }
 
-impl<N, T> Insert<T> for Edge<N> 
+impl<N> Insert for Edge<N> 
 where 
-    N: InsertMut<T>
+    N: InsertMut
 {
-    fn insert(&self, field: &str, node: Node<T>) {
+    fn insert(&self, field: &str, node: Node) {
         write_part(&self.apex, |mut apex| apex.insert_mut(field, node));
     }
 }

@@ -1,12 +1,12 @@
 use super::*;
 
-pub struct Field<T> {
-    node: Node<T>,
+pub struct Field {
+    node: Node,
     name: String,
 }
 
-impl<T> Field<T> {
-    pub fn new(node: Node<T>, name: String) -> Self {
+impl Field {
+    pub fn new(node: Node, name: String) -> Self {
         Self {
             node,
             name,
@@ -14,21 +14,18 @@ impl<T> Field<T> {
     }
 }
 
-impl<T> Insert<T> for Field<T> 
-where 
-    Node<T>: Insert<T> 
-{
-    fn insert(&self, field: &str, node: Node<T>) {
-        self.node.insert(field, node);
+impl Field {
+    fn insert(&self, node: Node) {
+        self.node.insert(&self.name, node);
     }
 }
 
-pub trait Insert<T> {
-    fn insert(&self, field: &str, node: Node<T>);
+pub trait Insert {
+    fn insert(&self, field: &str, node: Node);
 }
 
-pub trait InsertMut<T> {
-    fn insert_mut(&mut self, field: &str, node: Node<T>);
+pub trait InsertMut {
+    fn insert_mut(&mut self, field: &str, node: Node);
 }
 
 

@@ -1,6 +1,8 @@
+use std::ops::DerefMut;
+
 use super::*;
 
-fn new_list(ace: &Ace<String>) -> Deuce<List> {
+fn new_list(ace: &Ace<Load>) -> Deuce<List> {
     List::new().separator(", ").push("str").push(ace).link()
     //list.link()
     // let list = ", ".list();
@@ -13,12 +15,13 @@ fn new_list(ace: &Ace<String>) -> Deuce<List> {
 }
 
 #[test]
-fn grant_and_read_ace_from_list() {
+fn grant_and_read_ace_from_list() -> Result<(), String> {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    text.grant().read(|string| {
+    text.grant().read_string(|string| {
         assert_eq!(string, "str, ace");
-    });
+    })?;
+    Ok(())
 }
 
 #[test]
@@ -46,7 +49,13 @@ fn react_from_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let a = text.grant();
-    ace.write(|string| string.push_str("_mutated")).ok();
+    ace.write(|load| 
+        if let Load::String(string) = load {
+            string.push_str("_mutated");
+        } else {
+            panic!("was not a string")
+        }
+    ).ok();
     let b = text.grant();
     assert!(a != b);
 }
@@ -61,7 +70,15 @@ fn no_rebut_after_dropping_stem() {
     })
     .ok();
     let a = text.grant();
-    ace.write(|string| string.push_str("_mutated")).ok();
+    ace.write(|load| 
+        if let Load::String(string) = load {
+            string.push_str("_mutated");
+        } else {
+            panic!("was not a string")
+        }
+    ).ok();
     let b = text.grant();
     assert!(a == b);
 }
+
+// ace.write(|string| string.push_str("_mutated")).ok();

@@ -216,11 +216,11 @@ where
     }
 }
 
-impl<E, T> Insert<T> for Link<E> 
+impl<E> Insert for Link<E> 
 where 
-    E: Insert<T>
+    E: Insert
 {
-    fn insert(&self, field: &str, node: Node<T>) {
+    fn insert(&self, field: &str, node: Node) {
         read_part(&self.edge, |edge| edge.insert(field, node));
     }
 }

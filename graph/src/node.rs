@@ -1,69 +1,57 @@
 use super::*;
 use std::error::Error;
 
-pub type Result<L> = std::result::Result<Node<L>, Box<dyn Error + Send + Sync>>;
+pub type Result = std::result::Result<Node, Box<dyn Error + Send + Sync>>;
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, Default, PartialEq)]
-pub struct Node<L> {
+pub struct Node {
     rank: usize,
-    form: Form<L>,
+    form: Form,
 }
 
-impl<L> Node<L>
-where
-    L: Default,
-{
+impl Node {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<L> Node<L> 
-where 
-    L: Clone
-{
-    pub fn field(&self, name: String) -> Field<L> {
+impl Node {
+    pub fn field(&self, name: String) -> Field {
         Field::new(self.clone(), name)
     }
-}
-
-impl<L> Node<L> {
     pub fn meta(&self) -> Meta {
         self.form.meta()
     }
-}
-
-impl<L, T> Insert<T> for Node<L> 
-where 
-    Form<L>: Insert<T>
-{
-    fn insert(&self, field: &str, node: Node<T>) {
+    pub fn insert(&self, field: &str, node: Node) {
         self.form.insert(field, node);
+    }
+    pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> std::result::Result<T, String> {
+        self.form.read(|load|{
+            if let Load::String(string) = load {
+                Ok(read(string))
+            } else {
+                Err("no string".to_owned())
+            }
+        })
     }
 }
 
-impl<L> ToLoad for Node<L>
-where
-    L: 'static + Clone + Default,
-{
-    type Load = L;
+impl ToLoad for Node {
+    type Load = Load;
     fn load(&self) -> Self::Load {
         self.form.load()
     }
 }
 
-impl<L> Read for Node<L>
-where
-    L: 'static + Default + SendSync,
-{
-    type Item = L;
+impl Read for Node {
+    type Item = Load;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         self.form.read(read)
     }
 }
 
-impl<L: 'static + Clone + Default> Grant for Node<L> {
+impl Grant for Node {
     type Load = Self;
     fn grant(&self) -> Self::Load {
         Self {
@@ -73,10 +61,7 @@ impl<L: 'static + Clone + Default> Grant for Node<L> {
     }
 }
 
-impl<L> Backed for Node<L>
-where
-    L: Clone,
-{
+impl Backed for Node {
     fn backed(&self, back: &Back) -> Self {
         Self {
             rank: self.rank,
@@ -90,23 +75,17 @@ pub trait RankDown {
     fn rank(&self, rank: usize) -> Self;
 }
 
-impl<L> RankDown for Node<L>
-where
-    L: 'static + Clone + Default,
-{
-    fn rank(&self, level: usize) -> Self {
+impl RankDown for Node {
+    fn rank(&self, rank: usize) -> Self {
         let mut value = self.clone();
-        while value.rank > level {
+        while value.rank > rank {
             value = value.grant();
         }
         value
     }
 }
 
-impl<L> RankDown for Vec<Node<L>>
-where
-    L: 'static + Clone + Default,
-{
+impl RankDown for Vec<Node> {
     fn rank(&self, rank: usize) -> Self {
         self.iter().map(|x| x.rank(rank)).collect()
     }
@@ -114,14 +93,14 @@ where
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, PartialEq)]
-pub enum Form<L> {
+pub enum Form {
     Meta(Meta),
-    Bare(L),
-    Ace(Ace<L>),
-    Ploy(Ploy<Node<L>>),
+    Bare(Load),
+    Ace(Ace<Load>),
+    Ploy(Ploy<Node>),
 }
 
-impl<L> Form<L> {
+impl Form {
     fn meta(&self) -> Meta {
         match self {
             Self::Meta(meta) => meta.clone(),
@@ -130,41 +109,28 @@ impl<L> Form<L> {
             Self::Ploy(ploy) => ploy.meta(),
         }
     }
-}
-
-impl<L, T> Insert<T> for Form<L> 
-where 
-    Ace<L>: Insert<T>,
-    Ploy<Node<L>>: Insert<T>
-{
-    fn insert(&self, field: &str, node: Node<T>) {
+    fn insert(&self, field: &str, node: Node) {
         match self {
             // Self::Ace(ace) => ace.insert(field, node),
-            Self::Ploy(ploy) => ploy.insert(field, node),
+            // Self::Ploy(ploy) => ploy.insert(field, node),
             _ => ()
         }
     }
 }
 
-impl<L> Default for Form<L>
-where
-    L: Default,
-{
+impl Default for Form {
     fn default() -> Self {
-        Self::Bare(L::default())
+        Self::Bare(Load::None)
     }
 }
 
-impl<L> ToLoad for Form<L>
-where
-    L: 'static + Clone + Default,
-{
-    type Load = L;
+impl ToLoad for Form {
+    type Load = Load;
     // TODO: load should take a link with repo traits
     fn load(&self) -> Self::Load {
         match self {
             // TODO: should attempt to lookup from repo
-            Self::Meta(_) => L::default(),
+            Self::Meta(_) => Load::None,
             Self::Bare(bare) => bare.clone(),
             Self::Ace(ace) => ace.load(),
             Self::Ploy(ploy) => ploy.grant().load(),
@@ -172,14 +138,11 @@ where
     }
 }
 
-impl<L> Read for Form<L>
-where
-    L: 'static + SendSync + Default,
-{
-    type Item = L;
+impl Read for Form {
+    type Item = Load;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         match self {
-            Self::Meta(_) => read(&L::default()),
+            Self::Meta(_) => read(&Load::None),
             Self::Bare(bare) => read(bare),
             Self::Ace(ace) => ace.read(read),
             Self::Ploy(ploy) => ploy.grant().read(read),
@@ -187,8 +150,8 @@ where
     }
 }
 
-impl<L: 'static + Clone + Default> Grant for Form<L> {
-    type Load = Form<L>;
+impl Grant for Form {
+    type Load = Self;
     fn grant(&self) -> Self::Load {
         match self {
             Self::Meta(_) => panic!("wrong level variant: meta"),
@@ -199,9 +162,9 @@ impl<L: 'static + Clone + Default> Grant for Form<L> {
     }
 }
 
-impl<L> Backed for Form<L>
-where
-    L: Clone,
+impl Backed for Form
+// where
+//     L: Clone,
 {
     fn backed(&self, back: &Back) -> Self {
         match self {
@@ -213,8 +176,8 @@ where
     }
 }
 
-impl<L> From<L> for Node<L> {
-    fn from(value: L) -> Self {
+impl From<Load> for Node {
+    fn from(value: Load) -> Self {
         Self {
             rank: 0,
             form: Form::Bare(value),
@@ -222,8 +185,8 @@ impl<L> From<L> for Node<L> {
     }
 }
 
-impl<L> From<Ace<L>> for Node<L> {
-    fn from(value: Ace<L>) -> Self {
+impl From<Ace<Load>> for Node {
+    fn from(value: Ace<Load>) -> Self {
         Self {
             rank: 0,
             form: Form::Ace(value),
@@ -231,11 +194,11 @@ impl<L> From<Ace<L>> for Node<L> {
     }
 }
 
-impl<L> From<Ploy<Node<L>>> for Node<L>
-where
-    L: 'static + Default,
+impl From<Ploy<Node>> for Node
+// where
+//     L: 'static + Default,
 {
-    fn from(value: Ploy<Node<L>>) -> Self {
+    fn from(value: Ploy<Node>) -> Self {
         Self {
             rank: value.grant().rank + 1,
             form: Form::Ploy(value),
@@ -252,8 +215,8 @@ where
 //     }
 // }
 
-impl<L> From<&Ace<L>> for Node<L> {
-    fn from(value: &Ace<L>) -> Self {
+impl From<&Ace<Load>> for Node {
+    fn from(value: &Ace<Load>) -> Self {
         Self {
             rank: 0,
             form: Form::Ace(value.clone()),
@@ -271,20 +234,17 @@ impl<L> From<&Ace<L>> for Node<L> {
 //     }
 // }
 
-impl From<&str> for Node<String> {
+impl From<&str> for Node {
     fn from(value: &str) -> Self {
         Self {
             rank: 0,
-            form: Form::Bare(value.to_owned()),
+            form: Form::Bare(Load::String(value.to_owned())),
         }
     }
 }
 
-impl<L> From<&Node<L>> for Node<L>
-where
-    L: Clone,
-{
-    fn from(value: &Node<L>) -> Self {
+impl From<&Node> for Node {
+    fn from(value: &Node) -> Self {
         value.clone()
     }
 }

@@ -184,11 +184,11 @@ where
     }
 }
 
-impl<W, T> InsertMut<T> for Apex<W> 
+impl<W> InsertMut for Apex<W> 
 where 
-    W: InsertMut<T>
+    W: InsertMut
 {
-    fn insert_mut(&mut self, field: &str, node: Node<T>) {
+    fn insert_mut(&mut self, field: &str, node: Node) {
         self.work.insert_mut(field, node);
     }
 }

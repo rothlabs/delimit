@@ -2,22 +2,22 @@ use crate::html::*;
 
 #[derive(Default, Clone)]
 pub struct Attribute {
-    name: Node<String>,
-    content: Node<String>,
+    name: Node,
+    content: Node,
 }
 
 impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn value(&self) -> Node<String> {
+    pub fn value(&self) -> Node {
         self.link().ploy().into()
     }
-    pub fn name(&mut self, name: impl Into<Node<String>>) -> &mut Self {
+    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
         self.name = name.into();
         self
     }
-    pub fn content(&mut self, content: impl Into<Node<String>>) -> &mut Self {
+    pub fn content(&mut self, content: impl Into<Node>) -> &mut Self {
         self.content = content.into();
         self
     }
@@ -33,7 +33,7 @@ impl Backed for Attribute {
 }
 
 impl Grant for Attribute {
-    type Load = Node<String>;
+    type Load = Node;
     fn grant(&self) -> Self::Load {
         List::new()
             .push(self.name.rank(1))
