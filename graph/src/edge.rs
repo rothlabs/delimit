@@ -100,8 +100,7 @@ impl<N> Solve for Edge<N>
 where
     N: 'static + DoSolve + DoUpdate,
 {
-    type Load = N::Load;
-    fn solve(&self) -> Self::Load {
+    fn solve(&self) -> solve::Result {
         write_part(&self.apex, |mut apex| apex.do_solve(&self.node_as_back()))
     }
 }
@@ -115,21 +114,18 @@ where
     }
 }
 
-impl<U, L> Produce<L> for Agent<U>
+impl<U> Engage for Agent<U>
 where
-    U: 'static + Solve<Load = L> + SendSync,
-    L: 'static + Clone + SendSync,
+    U: 'static + Solve + SendSync,
 {
 }
 
 impl<U> ToPloy for Agent<U>
 where
     U: 'static + Solve + SendSync,
-    U::Load: 'static + Clone + SendSync,
 {
-    type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load>>>> {
+    fn ploy(&self) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: self.back.clone(),
@@ -137,7 +133,7 @@ where
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> Rc<RefCell<Box<dyn Produce<Self::Load>>>> {
+    fn ploy(&self) -> PloyEdge {
         //  + Send + Sync
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
@@ -150,11 +146,9 @@ where
 impl<U> BackedPloy for Agent<U>
 where
     U: 'static + Solve + SendSync,
-    U::Load: 'static + Clone + SendSync,
 {
-    type Load = U::Load;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<Self::Load>>> {
+    fn backed_ploy(&self, back: &Back) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
@@ -162,7 +156,7 @@ where
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn backed_ploy(&self, back: &Back) -> Rc<RefCell<BoxProduce<Self::Load>>> {
+    fn backed_ploy(&self, back: &Back) -> PloyEdge {
         Rc::new(RefCell::new(Box::new(Self {
             meta: self.meta(),
             back: Some(back.clone()),
@@ -262,30 +256,27 @@ where
     }
 }
 
-type BoxProduce<L> = Box<dyn Produce<L>>;
-
-impl<L> Solve for BoxProduce<L> {
-    type Load = L;
-    fn solve(&self) -> Self::Load {
+impl Solve for Box<dyn Engage> {
+    fn solve(&self) -> solve::Result {
         self.as_ref().solve()
     }
 }
 
-impl<L> AddRoot for BoxProduce<L> {
+impl AddRoot for Box<dyn Engage> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
     }
 }
 
-impl<L> Update for BoxProduce<L> {}
+impl Update for Box<dyn Engage> {}
 
-impl<L> Rebut for BoxProduce<L> {
+impl Rebut for Box<dyn Engage> {
     fn rebut(&self) -> Ring {
         self.as_ref().rebut()
     }
 }
 
-impl<L> React for BoxProduce<L> {
+impl React for Box<dyn Engage> {
     fn react(&self, meta: &Meta) -> react::Result {
         self.as_ref().react(meta)
     }

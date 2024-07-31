@@ -1,3 +1,10 @@
+use std::result;
+use super::*;
+
+pub type Result = result::Result<Load, Error>;
+
+pub type ResultRef<'a> = result::Result<&'a Load, Error>;
+
 /// The Load enum allows Nodes to be handled with unknown payload datatype.
 #[derive(Clone, PartialEq, Debug)]
 pub enum Load {

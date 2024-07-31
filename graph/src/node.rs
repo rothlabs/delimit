@@ -1,7 +1,7 @@
 use super::*;
-use std::error::Error;
+use std::result;
 
-pub type Result = std::result::Result<Node, Box<dyn Error + Send + Sync>>;
+pub type Result = result::Result<Node, Error>;
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, Default, PartialEq)]
@@ -14,9 +14,19 @@ impl Node {
     pub fn new() -> Self {
         Self::default()
     }
-}
-
-impl Node {
+    // pub fn query(&self) -> Query<Self> {
+    //     Query::new(self)
+    // }
+    fn load(&self) -> load::Result {
+        self.form.load()
+    }
+    fn rank(&self, rank: usize) -> Result {
+        let mut node = self.clone();
+        while node.rank > rank {
+            node = node.query().node()?;
+        }
+        Ok(node)
+    }
     pub fn field(&self, name: String) -> Field {
         Field::new(self.clone(), name)
     }
@@ -63,29 +73,29 @@ impl Node {
         })
     }
     pub fn u32(&self) -> u32  {
-        if let Load::U32(value) = self.load() {
-            value
-        } else {
-            //panic!("no u32");
-            0
+        if let Ok(load) = self.load() {
+            if let Load::U32(value) = load {
+                return value
+            }
         }
+        0
     }
     pub fn i32(&self) -> i32  {
-        if let Load::I32(value) = self.load() {
-            value
-        } else {
-            // panic!("no i32");
-            0
+        if let Ok(load) = self.load() {
+            if let Load::I32(value) = load {
+                return value
+            }
         }
+        0
     }
 }
 
-impl ToLoad for Node {
-    type Load = Load;
-    fn load(&self) -> Self::Load {
-        self.form.load()
-    }
-}
+// impl ToLoad for Node {
+//     type Load = Load;
+//     fn load(&self) -> Self::Load {
+//         self.form.load()
+//     }
+// }
 
 impl Read for Node {
     type Item = Load;
@@ -95,12 +105,11 @@ impl Read for Node {
 }
 
 impl Solve for Node {
-    type Load = Self;
-    fn solve(&self) -> Self::Load {
-        Self {
+    fn solve(&self) -> solve::Result {
+        Ok(Self {
             rank: self.rank - 1,
-            form: self.form.solve(),
-        }
+            form: self.form.solve()?,
+        }.into())
     }
 }
 
@@ -115,22 +124,12 @@ impl Backed for Node {
 
 pub trait RankDown {
     /// Reduce node rank down to specified number.
-    fn rank(&self, rank: usize) -> Self;
-}
-
-impl RankDown for Node {
-    fn rank(&self, rank: usize) -> Self {
-        let mut value = self.clone();
-        while value.rank > rank {
-            value = value.solve();
-        }
-        value
-    }
+    fn rank(&self, rank: usize) -> result::Result<Vec<Node>, Error>;
 }
 
 impl RankDown for Vec<Node> {
-    fn rank(&self, rank: usize) -> Self {
-        self.iter().map(|x| x.rank(rank)).collect()
+    fn rank(&self, rank: usize) -> result::Result<Vec<Node>, Error> {
+        self.iter().map(|x| Ok(x.rank(rank)?)).collect()
     }
 }
 
@@ -140,7 +139,7 @@ pub enum Form {
     Meta(Meta),
     Bare(Load),
     Ace(Ace<Load>),
-    Ploy(Ploy<Node>),
+    Ploy(Ploy),
 }
 
 impl Form {
@@ -150,6 +149,37 @@ impl Form {
             Self::Bare(_) => Meta::none(),
             Self::Ace(ace) => ace.meta(),
             Self::Ploy(ploy) => ploy.meta(),
+        }
+    }
+    fn load(&self) -> load::Result {
+        match self {
+            // TODO: should attempt to lookup from repo before error
+            Self::Meta(_) => Err("not a load".into()),
+            Self::Bare(bare) => Ok(bare.clone()),
+            Self::Ace(ace) => Ok(ace.load()),
+            Self::Ploy(ploy) => ploy.query().node()?.load(),
+        }
+    }
+    fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+        match self {
+            Self::Meta(_) => read(Err("not a load".into())),
+            Self::Bare(bare) => read(Ok(bare)),
+            Self::Ace(ace) => read(Ok(ace.read(|load| load))),
+            Self::Ploy(ploy) => read({
+                if let Ok(node) = ploy.query().node() {
+                    Ok(node.read(|load| load))
+                } else {
+                    Err(("wow".into()))
+                }
+            }),
+        }
+    }
+    fn solve(&self) -> result::Result<Form, Error> {
+        match self {
+            Self::Meta(_) => Err("not a solver".into()),
+            Self::Bare(_) => Err("not a solver".into()),
+            Self::Ace(_) => Err("not a solver".into()),
+            Self::Ploy(ploy) => Ok(ploy.query().node()?.form),
         }
     }
     fn insert(&self, field: &str, node: Node) {
@@ -167,43 +197,28 @@ impl Default for Form {
     }
 }
 
-impl ToLoad for Form {
-    type Load = Load;
-    // TODO: load should take a link with repo traits
-    fn load(&self) -> Self::Load {
-        match self {
-            // TODO: should attempt to lookup from repo
-            Self::Meta(_) => Load::None,
-            Self::Bare(bare) => bare.clone(),
-            Self::Ace(ace) => ace.load(),
-            Self::Ploy(ploy) => ploy.solve().load(),
-        }
-    }
-}
+// impl Read for Form {
+//     type Item = Load;
+//     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
+//         match self {
+//             Self::Meta(_) => read(&Load::None),
+//             Self::Bare(bare) => read(bare),
+//             Self::Ace(ace) => ace.read(read),
+//             Self::Ploy(ploy) => ploy.query().node()?.read(read),
+//         }
+//     }
+// }
 
-impl Read for Form {
-    type Item = Load;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        match self {
-            Self::Meta(_) => read(&Load::None),
-            Self::Bare(bare) => read(bare),
-            Self::Ace(ace) => ace.read(read),
-            Self::Ploy(ploy) => ploy.solve().read(read),
-        }
-    }
-}
-
-impl Solve for Form {
-    type Load = Self;
-    fn solve(&self) -> Self::Load {
-        match self {
-            Self::Meta(_) => panic!("wrong level variant: meta"),
-            Self::Bare(_) => panic!("wrong level variant: bare"),
-            Self::Ace(_) => panic!("wrong level variant: ace"),
-            Self::Ploy(ploy) => ploy.solve().form,
-        }
-    }
-}
+// impl Form {
+//     fn solve(&self) -> Self {
+//         match self {
+//             Self::Meta(_) => panic!("wrong level variant: meta"),
+//             Self::Bare(_) => panic!("wrong level variant: bare"),
+//             Self::Ace(_) => panic!("wrong level variant: ace"),
+//             Self::Ploy(ploy) => ploy.solve().form,
+//         }
+//     }
+// }
 
 impl Backed for Form
 // where
@@ -314,6 +329,41 @@ impl From<Vec<f32>> for Node {
         }
     }
 }
+
+
+
+
+
+
+// impl ToLoad for Form {
+//     type Load = Load;
+//     // TODO: load should take a link with repo traits
+//     fn load(&self) -> Self::Load {
+//         match self {
+//             // TODO: should attempt to lookup from repo
+//             Self::Meta(_) => Load::None,
+//             Self::Bare(bare) => bare.clone(),
+//             Self::Ace(ace) => ace.load(),
+//             Self::Ploy(ploy) => {
+//                 let wow = ploy.query().node()?;
+//                 ploy.solve().load()
+//             }
+//         }
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // impl From<Vec<u8>> for Node {
 //     fn from(value: Vec<u8>) -> Self {

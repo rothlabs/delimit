@@ -13,8 +13,9 @@ pub use write::{
 };
 pub use edit::{Field, InsertMut, Insert};
 pub use load::Load;
-pub use solve::{Solve, DoSolve};
+pub use solve::{Solve, DoSolve, Tray, Query, ToQuery};
 
+use std::error;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 #[cfg(feature = "oneThread")]
@@ -36,6 +37,13 @@ mod repo;
 mod work;
 mod write;
 mod load;
+
+//trait GraphError: error::Error + SendSync {}
+
+#[cfg(not(feature = "oneThread"))]
+pub type Error = Box<dyn error::Error + Send + Sync>;
+#[cfg(feature = "oneThread")]
+pub type Error = Box<dyn error::Error>;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "the lock should not be poisoned";
@@ -77,7 +85,12 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Produce<L>: Solve<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+pub trait Engage: Solve + BackedPloy + AddRoot + Update {}
+
+#[cfg(not(feature = "oneThread"))]
+type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
+#[cfg(feature = "oneThread")]
+type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 pub trait ToAgent
 where
@@ -89,7 +102,6 @@ where
 impl<U> ToAgent for U
 where
     U: 'static + Backed + Solve + SendSync,
-    U::Load: SendSync,
 {
     fn link(&self) -> Agent<Self> {
         Agent::make(|back| self.backed(back))
@@ -102,8 +114,7 @@ pub trait ToNode {
 
 impl<U> ToNode for U
 where
-    U: 'static + ToAgent + Solve<Load = Node> + SendSync,
-    // L: 'static + Clone + Default + SendSync,
+    U: 'static + ToAgent + Solve + SendSync,
 {
     fn node(&self) -> Node {
         self.link().ploy().into()

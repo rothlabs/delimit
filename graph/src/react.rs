@@ -52,26 +52,18 @@ pub trait Backed {
     fn backed(&self, back: &Back) -> Self;
 }
 
-#[cfg(not(feature = "oneThread"))]
-type PloyEdge<L> = Arc<RwLock<Box<dyn Produce<L>>>>;
-#[cfg(feature = "oneThread")]
-type PloyEdge<L> = Rc<RefCell<Box<dyn Produce<L>>>>;
-
 pub trait ToPloy {
-    type Load;
     /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyEdge<Self::Load>;
+    fn ploy(&self) -> PloyEdge;
 }
 
 pub trait ToPipedPloy {
-    type Load;
     /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyEdge<Self::Load>;
+    fn ploy(&self) -> PloyEdge;
 }
 
 pub trait BackedPloy {
-    type Load;
-    fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
+    fn backed_ploy(&self, back: &Back) -> PloyEdge;
 }
 
 /// For edge that Rebuts a Ring and reacts.

@@ -18,7 +18,7 @@ pub type Ace<L> = Link<edge::Ace<L>>;
 pub type Agent<U> = Link<edge::Agent<U>>;
 
 /// Link that grants a load.
-pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
+pub type Ploy = Link<Box<dyn Engage>>;
 
 /// Link to an edge that leads to a apex that contains a unit.
 /// Units hold links as source of input used to compute output.
@@ -185,8 +185,7 @@ impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
 {
-    type Load = E::Load;
-    fn solve(&self) -> Self::Load {
+    fn solve(&self) -> solve::Result {
         read_part(&self.edge, |edge| {
             let result = edge.solve();
             edge.add_root(self.as_root());
@@ -206,10 +205,11 @@ where
 
 impl<E> Link<E>
 where
-    E: Solve + ToPloy<Load = <E as Solve>::Load>,
+    //E: Solve + ToPloy<Load = <E as Solve>::Load>,
+    E: ToPloy,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Ploy<<E as Solve>::Load> {
+    pub fn ploy(&self) -> Ploy {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             meta: self.meta.clone(),
@@ -231,7 +231,7 @@ where
 //     }
 // }
 
-impl<L> Backed for Ploy<L> {
+impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),

@@ -1,21 +1,67 @@
-use std::{error::Error, result};
+use std::result;
 
 use super::*;
 
 pub trait Solve {
-    type Load;
-    /// For units to grant a load and NOT act upon external systems
-    fn solve(&self) -> Self::Load;
+    /// Solve a task. 
+    /// The node will perform computations or return an existing result.
+    fn solve(&self) -> Result;
 }
 
 pub trait DoSolve {
-    type Load;
-    /// For graph internals to handle grant calls
-    fn do_solve(&mut self, back: &Back) -> Self::Load;
+    /// For graph internals to handle solve calls
+    fn do_solve(&mut self, back: &Back) -> Result;
 }
 
-pub type Result = result::Result<Tray, Box<dyn Error>>;
+pub type Result = result::Result<Tray, Error>;
 
+#[derive(Clone)]
 pub enum Tray {
-    Node(Node)
+    Node(Node),
+    //Load(Load),
+    None
+}
+
+impl From<Node> for Tray {
+    fn from(value: Node) -> Self {
+        Self::Node(value)
+    }
+}
+
+pub struct Query<T> {
+    item: T,
+}
+
+impl<T> Query<T> 
+where 
+    T: Solve + Clone
+{
+    pub fn new(item: &T) -> Self {
+        Self { item: item.clone() }
+    }
+    pub fn node(&self) -> node::Result {
+        match self.item.solve()? {
+            Tray::Node(node) => Ok(node),
+            _ => Err("not a node".into())
+        } 
+    }
+    // pub fn load(&self) -> load::Result {
+    //     match self.item.solve()? {
+    //         Tray::Load(load) => Ok(load),
+    //         _ => Err("not a load".into())
+    //     } 
+    // }
+}
+
+pub trait ToQuery<T> {
+    fn query(&self) -> Query<T>;
+}
+
+impl<T> ToQuery<T> for T 
+where 
+    T: Solve + Clone
+{
+    fn query(&self) -> Query<T> {
+        Query { item: self.clone() }
+    }    
 }
