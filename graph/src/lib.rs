@@ -13,6 +13,7 @@ pub use write::{
 };
 pub use edit::{Field, InsertMut, Insert};
 pub use load::Load;
+pub use solve::{Solve, DoSolve};
 
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -24,6 +25,7 @@ use std::{
 
 pub mod node;
 pub mod react;
+pub mod solve;
 
 mod apex;
 mod edge;
@@ -75,22 +77,18 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-// #[cfg(not(feature = "oneThread"))]
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
-// /// Edge that grants a load. It can also clone the edge with a new back.
-// #[cfg(feature = "oneThread")]
-// pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+pub trait Produce<L>: Solve<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
 pub trait ToAgent
 where
-    Self: Grant + Sized,
+    Self: Solve + Sized,
 {
     fn link(&self) -> Agent<Self>;
 }
 
 impl<U> ToAgent for U
 where
-    U: 'static + Backed + Grant + SendSync,
+    U: 'static + Backed + Solve + SendSync,
     U::Load: SendSync,
 {
     fn link(&self) -> Agent<Self> {
@@ -104,7 +102,7 @@ pub trait ToNode {
 
 impl<U> ToNode for U
 where
-    U: 'static + ToAgent + Grant<Load = Node> + SendSync,
+    U: 'static + ToAgent + Solve<Load = Node> + SendSync,
     // L: 'static + Clone + Default + SendSync,
 {
     fn node(&self) -> Node {
@@ -120,24 +118,6 @@ pub trait DoRead {
 pub trait Read {
     type Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
-}
-
-pub trait ReadByTask {
-    type Task;
-    type Item;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, task: Self::Task, read: F) -> T;
-}
-
-pub trait Grant {
-    type Load;
-    /// For units to grant a load and NOT act upon external systems
-    fn grant(&self) -> Self::Load;
-}
-
-pub trait DoGrant {
-    type Load;
-    /// For graph internals to handle grant calls
-    fn do_grant(&mut self, back: &Back) -> Self::Load;
 }
 
 pub trait ToLoad {
@@ -165,3 +145,5 @@ pub trait DoMake {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+

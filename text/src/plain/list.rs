@@ -37,9 +37,9 @@ impl Backed for List {
     }
 }
 
-impl Grant for List {
+impl Solve for List {
     type Load = Node;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         if self.items.is_empty() {
             return Node::new();
         }

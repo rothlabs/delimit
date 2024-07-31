@@ -8,7 +8,7 @@ fn new_list(ace: &Ace<Load>) -> Agent<List> {
 fn grant_and_read_ace_from_list()  { 
     let ace = "ace".ace();
     let text = new_list(&ace);
-    text.grant().read_string(|string| {
+    text.solve().read_string(|string| {
         assert_eq!(string, "str, ace");
     });
 }
@@ -17,19 +17,19 @@ fn grant_and_read_ace_from_list()  {
 fn grant_same_link_twice() {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    assert!(text.grant() == text.grant());
+    assert!(text.solve() == text.solve());
 }
 
 #[test]
 fn rebut_from_self() {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    let a = text.grant();
+    let a = text.solve();
     text.write(|pack| {
         pack.unit.separator(" > ");
     })
     .ok();
-    let b = text.grant();
+    let b = text.solve();
     assert!(a != b);
 }
 
@@ -37,7 +37,7 @@ fn rebut_from_self() {
 fn react_from_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    let a = text.grant();
+    let a = text.solve();
     ace.write(|load| 
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -45,7 +45,7 @@ fn react_from_stem() {
             panic!("was not a string")
         }
     ).ok();
-    let b = text.grant();
+    let b = text.solve();
     assert!(a != b);
 }
 
@@ -53,12 +53,12 @@ fn react_from_stem() {
 fn no_rebut_after_dropping_stem() {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    let _r = text.grant();
+    let _r = text.solve();
     text.write(|pack| {
         pack.unit.remove(1);
     })
     .ok();
-    let a = text.grant();
+    let a = text.solve();
     ace.write(|load| 
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -66,7 +66,7 @@ fn no_rebut_after_dropping_stem() {
             panic!("was not a string")
         }
     ).ok();
-    let b = text.grant();
+    let b = text.solve();
     assert!(a == b);
 }
 

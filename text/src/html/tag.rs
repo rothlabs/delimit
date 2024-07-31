@@ -31,9 +31,9 @@ impl Backed for Tag {
     }
 }
 
-impl Grant for Tag {
+impl Solve for Tag {
     type Load = Node;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         let items = List::new()
             .separator(" ")
             .push(self.name.rank(1))

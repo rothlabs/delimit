@@ -50,8 +50,8 @@ impl Doc {
         self.element.clone()
     }
     pub fn string(&self) -> String {
-        let plain = self.element.grant();
-        let ace = plain.grant();
+        let plain = self.element.solve();
+        let ace = plain.solve();
         if let Load::String(string) = ace.load() {
             string
         } else {

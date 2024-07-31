@@ -29,14 +29,14 @@ fn make_doc() -> (Ploy<Node>, Agent<Element>, AttributeSet) {
         .attribute("type", "module");
     let doc = script.up_to_doc().ploy();
     // ensure memorization
-    doc.grant();
+    doc.solve();
     (doc, head_link, atts)
 }
 
 #[test]
 fn basic_doc() {
     let (doc, _, _) = make_doc();
-    let string = doc.grant().load();
+    let string = doc.solve().load();
     assert_eq!(Load::String(DOC.into()), string);
 }
 
@@ -52,7 +52,7 @@ fn mutate_lower_graph_plain() {
             panic!("not a string")
         }
     ).ok();
-    let string = doc.grant().load();
+    let string = doc.solve().load();
     assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);
 }
 
@@ -64,7 +64,7 @@ fn mutate_upper_graph_html() {
         pack.unit.items.remove(0);
     })
     .ok();
-    let mut string = doc.grant().load();
+    let mut string = doc.solve().load();
     assert_eq!(Load::String(REMOVED_TITLE.into()), string);
 }
 

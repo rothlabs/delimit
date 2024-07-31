@@ -111,13 +111,13 @@ where
     }
 }
 
-impl<W> DoGrant for Apex<W>
+impl<W> DoSolve for Apex<W>
 where
-    W: DoGrant,
+    W: DoSolve,
 {
     type Load = W::Load;
-    fn do_grant(&mut self, back: &Back) -> Self::Load {
-        self.work.do_grant(back)
+    fn do_solve(&mut self, back: &Back) -> Self::Load {
+        self.work.do_solve(back)
     }
 }
 

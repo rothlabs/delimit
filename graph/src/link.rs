@@ -181,14 +181,14 @@ where
     }
 }
 
-impl<E> Grant for Link<E>
+impl<E> Solve for Link<E>
 where
-    E: 'static + Grant + AddRoot + Update,
+    E: 'static + Solve + AddRoot + Update,
 {
     type Load = E::Load;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         read_part(&self.edge, |edge| {
-            let result = edge.grant();
+            let result = edge.solve();
             edge.add_root(self.as_root());
             result
         })
@@ -206,10 +206,10 @@ where
 
 impl<E> Link<E>
 where
-    E: Grant + ToPloy<Load = <E as Grant>::Load>,
+    E: Solve + ToPloy<Load = <E as Solve>::Load>,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Ploy<<E as Grant>::Load> {
+    pub fn ploy(&self) -> Ploy<<E as Solve>::Load> {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             meta: self.meta.clone(),

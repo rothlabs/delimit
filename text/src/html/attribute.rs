@@ -32,9 +32,9 @@ impl Backed for Attribute {
     }
 }
 
-impl Grant for Attribute {
+impl Solve for Attribute {
     type Load = Node;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         List::new()
             .push(self.name.rank(1))
             .push(r#"=""#)

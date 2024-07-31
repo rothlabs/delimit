@@ -96,13 +96,13 @@ where
     }
 }
 
-impl<N> Grant for Edge<N>
+impl<N> Solve for Edge<N>
 where
-    N: 'static + DoGrant + DoUpdate,
+    N: 'static + DoSolve + DoUpdate,
 {
     type Load = N::Load;
-    fn grant(&self) -> Self::Load {
-        write_part(&self.apex, |mut apex| apex.do_grant(&self.node_as_back()))
+    fn solve(&self) -> Self::Load {
+        write_part(&self.apex, |mut apex| apex.do_solve(&self.node_as_back()))
     }
 }
 
@@ -117,14 +117,14 @@ where
 
 impl<U, L> Produce<L> for Agent<U>
 where
-    U: 'static + Grant<Load = L> + SendSync,
+    U: 'static + Solve<Load = L> + SendSync,
     L: 'static + Clone + SendSync,
 {
 }
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Grant + SendSync,
+    U: 'static + Solve + SendSync,
     U::Load: 'static + Clone + SendSync,
 {
     type Load = U::Load;
@@ -149,7 +149,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Grant + SendSync,
+    U: 'static + Solve + SendSync,
     U::Load: 'static + Clone + SendSync,
 {
     type Load = U::Load;
@@ -264,10 +264,10 @@ where
 
 type BoxProduce<L> = Box<dyn Produce<L>>;
 
-impl<L> Grant for BoxProduce<L> {
+impl<L> Solve for BoxProduce<L> {
     type Load = L;
-    fn grant(&self) -> Self::Load {
-        self.as_ref().grant()
+    fn solve(&self) -> Self::Load {
+        self.as_ref().solve()
     }
 }
 

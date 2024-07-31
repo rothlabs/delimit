@@ -94,12 +94,12 @@ impl Read for Node {
     }
 }
 
-impl Grant for Node {
+impl Solve for Node {
     type Load = Self;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         Self {
             rank: self.rank - 1,
-            form: self.form.grant(),
+            form: self.form.solve(),
         }
     }
 }
@@ -122,7 +122,7 @@ impl RankDown for Node {
     fn rank(&self, rank: usize) -> Self {
         let mut value = self.clone();
         while value.rank > rank {
-            value = value.grant();
+            value = value.solve();
         }
         value
     }
@@ -176,7 +176,7 @@ impl ToLoad for Form {
             Self::Meta(_) => Load::None,
             Self::Bare(bare) => bare.clone(),
             Self::Ace(ace) => ace.load(),
-            Self::Ploy(ploy) => ploy.grant().load(),
+            Self::Ploy(ploy) => ploy.solve().load(),
         }
     }
 }
@@ -188,19 +188,19 @@ impl Read for Form {
             Self::Meta(_) => read(&Load::None),
             Self::Bare(bare) => read(bare),
             Self::Ace(ace) => ace.read(read),
-            Self::Ploy(ploy) => ploy.grant().read(read),
+            Self::Ploy(ploy) => ploy.solve().read(read),
         }
     }
 }
 
-impl Grant for Form {
+impl Solve for Form {
     type Load = Self;
-    fn grant(&self) -> Self::Load {
+    fn solve(&self) -> Self::Load {
         match self {
             Self::Meta(_) => panic!("wrong level variant: meta"),
             Self::Bare(_) => panic!("wrong level variant: bare"),
             Self::Ace(_) => panic!("wrong level variant: ace"),
-            Self::Ploy(ploy) => ploy.grant().form,
+            Self::Ploy(ploy) => ploy.solve().form,
         }
     }
 }
@@ -240,7 +240,7 @@ impl From<Ace<Load>> for Node {
 impl From<Ploy<Node>> for Node {
     fn from(value: Ploy<Node>) -> Self {
         Self {
-            rank: value.grant().rank + 1,
+            rank: value.solve().rank + 1,
             form: Form::Ploy(value),
         }
     }

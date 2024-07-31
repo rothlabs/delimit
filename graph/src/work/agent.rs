@@ -3,7 +3,7 @@ use crate::*;
 /// Contains a unit that must impl Grant to produce a Load which is saved here.
 pub struct Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     unit: Option<U>,
     load: Option<U::Load>,
@@ -11,7 +11,7 @@ where
 
 impl<U> Default for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     fn default() -> Self {
         Self {
@@ -23,7 +23,7 @@ where
 
 impl<U> DoMake for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     type Unit = U;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
@@ -33,7 +33,7 @@ where
 
 impl<U> FromItem for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -46,7 +46,7 @@ where
 
 impl<U> DoRead for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     type Item = U;
     fn do_read(&self) -> &Self::Item {
@@ -56,7 +56,7 @@ where
 
 impl<U> Clear for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     fn clear(&mut self) {
         self.load = None;
@@ -65,7 +65,7 @@ where
 
 impl<U> WriteUnitWork for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     type Unit = U;
     fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
@@ -82,17 +82,17 @@ where
     }
 }
 
-impl<U> DoGrant for Agent<U>
+impl<U> DoSolve for Agent<U>
 where
-    U: Grant,
+    U: Solve,
     U::Load: Clone,
 {
     type Load = U::Load;
-    fn do_grant(&mut self, _: &Back) -> Self::Load {
+    fn do_solve(&mut self, _: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {
-            let load = self.unit.as_ref().unwrap().grant();
+            let load = self.unit.as_ref().unwrap().solve();
             self.load = Some(load.clone());
             load
         }
@@ -101,17 +101,17 @@ where
 
 impl<U> DoReact for Agent<U>
 where
-    U: Grant,
+    U: Solve,
 {
     fn do_react(&mut self, _: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().grant();
+        self.unit.as_ref().unwrap().solve();
         Ok(())
     }
 }
 
 impl<U> InsertMut for Agent<U> 
 where 
-    U: InsertMut + Grant
+    U: InsertMut + Solve
 {
     fn insert_mut(&mut self, field: &str, node: Node) {
         self.unit.as_mut().unwrap().insert_mut(field, node);
