@@ -1,6 +1,6 @@
 pub use apex::Apex;
 pub use edge::Edge;
-pub use link::{Ace, Agent, Deuce, Envoy, IntoAce, Link, Pipe, Plan, Ploy, ToAce, Trey};
+pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce};
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{

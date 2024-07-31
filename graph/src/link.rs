@@ -17,15 +17,9 @@ pub type Ace<L> = Link<edge::Ace<L>>;
 /// Link to a unit that grants a load.
 pub type Deuce<U> = Link<edge::Deuce<U>>;
 
-/// Link to a unit that solves a task with resulting load.
-pub type Trey<U, T, L> = Link<edge::Trey<U, T, L>>;
-
 /// Link to a unit that grants a load.
 /// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Link<edge::Agent<U>>;
-
-/// Link to a unit that solves a task and could act upon externals.
-pub type Envoy<U> = Link<edge::Envoy<U>>;
 
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>;

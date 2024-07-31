@@ -2,9 +2,7 @@ use super::*;
 
 pub type Ace<L> = Apex<work::Ace<L>>;
 pub type Deuce<U> = Apex<work::Deuce<U>>;
-pub type Trey<U, T, L> = Apex<work::Trey<U, T, L>>;
 pub type Agent<U> = Apex<work::Agent<U>>;
-pub type Envoy<U> = Apex<work::Envoy<U>>;
 pub type Pipe<U> = Apex<work::Pipe<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.

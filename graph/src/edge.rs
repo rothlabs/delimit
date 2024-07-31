@@ -1,4 +1,3 @@
-use std::hash::Hash;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
@@ -12,15 +11,9 @@ pub type Ace<L> = Edge<apex::Ace<L>>;
 /// Edge to a unit that grants a load.
 pub type Deuce<U> = Edge<apex::Deuce<U>>;
 
-/// Edge to a unit that solves a task with resulting load.
-pub type Trey<U, T, L> = Edge<apex::Trey<U, T, L>>;
-
 /// Edge to a unit that grants a load.
 /// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Edge<apex::Agent<U>>;
-
-/// Edge to a unit that solves a task and could act upon externals.
-pub type Envoy<U> = Edge<apex::Envoy<U>>;
 
 /// Edge to a link that grants a link that grants a load.
 pub type Pipe<U> = Edge<apex::Pipe<U>>;
@@ -254,14 +247,6 @@ where
     }
 }
 
-impl<U, T, L> Convert<T, L> for Trey<U, T, L>
-where
-    U: 'static + Solve<Task = T, Load = L> + SendSync,
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
-    L: 'static + Clone + SendSync,
-{
-}
-
 impl<N> Solve for Edge<N>
 where
     N: DoSolve,
@@ -281,58 +266,6 @@ where
     type Load = N::Load;
     fn serve(&self, task: Self::Task) -> Self::Load {
         write_part(&self.apex, |mut apex| apex.do_serve(task))
-    }
-}
-
-impl<U, T, L> ToPlan for Trey<U, T, L>
-where
-    U: 'static + Solve<Task = T, Load = L> + SendSync,
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
-    L: 'static + Clone + SendSync,
-{
-    type Task = T;
-    type Load = L;
-    #[cfg(not(feature = "oneThread"))]
-    fn plan(&self) -> Arc<RwLock<Box<dyn Convert<Self::Task, Self::Load>>>> {
-        Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn plan(&self) -> Rc<RefCell<Box<dyn Convert<Self::Task, Self::Load>>>> {
-        Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-}
-
-impl<U, T, L> BackedPlan for Trey<U, T, L>
-where
-    U: 'static + Solve<Task = T, Load = L> + SendSync,
-    T: 'static + Clone + Eq + PartialEq + Hash + SendSync,
-    L: 'static + Clone + SendSync,
-{
-    type Task = T;
-    type Load = L;
-    #[cfg(not(feature = "oneThread"))]
-    fn backed_plan(&self, back: &Back) -> Arc<RwLock<BoxConvert<T, L>>> {
-        Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
-            back: Some(back.clone()),
-            apex: self.apex.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn backed_plan(&self, back: &Back) -> Rc<RefCell<BoxConvert<T, L>>> {
-        Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
-            back: Some(back.clone()),
-            apex: self.apex.clone(),
-        })))
     }
 }
 
