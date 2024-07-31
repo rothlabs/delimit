@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Ploy<Node>, Deuce<Element>, AttributeSet) {
+fn make_doc() -> (Ploy<Node>, Agent<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -27,7 +27,7 @@ fn make_doc() -> (Ploy<Node>, Deuce<Element>, AttributeSet) {
     script
         .attribute("src", "/app.js")
         .attribute("type", "module");
-    let doc = script.up_to_doc().pipe();
+    let doc = script.up_to_doc().ploy();
     // ensure memorization
     doc.grant();
     (doc, head_link, atts)
@@ -64,7 +64,7 @@ fn mutate_upper_graph_html() {
         pack.unit.items.remove(0);
     })
     .ok();
-    let string = doc.grant().load();
+    let mut string = doc.grant().load();
     assert_eq!(Load::String(REMOVED_TITLE.into()), string);
 }
 

@@ -1,9 +1,7 @@
 use super::*;
 
 pub type Ace<L> = Apex<work::Ace<L>>;
-pub type Deuce<U> = Apex<work::Deuce<U>>;
 pub type Agent<U> = Apex<work::Agent<U>>;
-pub type Pipe<U> = Apex<work::Pipe<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
 pub struct Apex<W> {
@@ -120,38 +118,6 @@ where
     type Load = W::Load;
     fn do_grant(&mut self, back: &Back) -> Self::Load {
         self.work.do_grant(back)
-    }
-}
-
-impl<W> DoSolve for Apex<W>
-where
-    W: DoSolve,
-{
-    type Task = W::Task;
-    type Load = W::Load;
-    fn do_solve(&mut self, task: Self::Task) -> Self::Load {
-        self.work.do_solve(task)
-    }
-}
-
-impl<W> DoAct for Apex<W>
-where
-    W: DoAct,
-{
-    type Load = W::Load;
-    fn do_act(&mut self, back: &Back) -> Self::Load {
-        self.work.do_act(back)
-    }
-}
-
-impl<W> DoServe for Apex<W>
-where
-    W: DoServe,
-{
-    type Task = W::Task;
-    type Load = W::Load;
-    fn do_serve(&mut self, task: Self::Task) -> Self::Load {
-        self.work.do_serve(task)
     }
 }
 

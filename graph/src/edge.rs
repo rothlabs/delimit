@@ -9,14 +9,7 @@ use crate::*;
 pub type Ace<L> = Edge<apex::Ace<L>>;
 
 /// Edge to a unit that grants a load.
-pub type Deuce<U> = Edge<apex::Deuce<U>>;
-
-/// Edge to a unit that grants a load.
-/// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Edge<apex::Agent<U>>;
-
-/// Edge to a link that grants a link that grants a load.
-pub type Pipe<U> = Edge<apex::Pipe<U>>;
 
 /// The forward bridge between nodes.
 pub struct Edge<N> {
@@ -113,16 +106,6 @@ where
     }
 }
 
-impl<N> Act for Edge<N>
-where
-    N: 'static + DoAct + DoUpdate,
-{
-    type Load = N::Load;
-    fn act(&self) -> Self::Load {
-        write_part(&self.apex, |mut apex| apex.do_act(&self.node_as_back()))
-    }
-}
-
 impl<N> Insert for Edge<N> 
 where 
     N: InsertMut
@@ -132,22 +115,14 @@ where
     }
 }
 
-impl<U, L> Produce<L> for Deuce<U>
+impl<U, L> Produce<L> for Agent<U>
 where
     U: 'static + Grant<Load = L> + SendSync,
     L: 'static + Clone + SendSync,
 {
 }
 
-impl<U, L> Produce<L> for Pipe<U>
-where
-    U: 'static + Grant + SendSync,
-    U::Load: 'static + Grant<Load = L> + SendSync + Backed,
-    L: 'static + Clone + SendSync,
-{
-}
-
-impl<U> ToPloy for Deuce<U>
+impl<U> ToPloy for Agent<U>
 where
     U: 'static + Grant + SendSync,
     U::Load: 'static + Clone + SendSync,
@@ -172,33 +147,7 @@ where
     }
 }
 
-impl<U> ToPloy for Pipe<U>
-where
-    U: 'static + Grant + SendSync,
-    U::Load: 'static + Grant + SendSync + Backed,
-    <U::Load as Grant>::Load: 'static + Clone + SendSync,
-{
-    type Load = <U::Load as Grant>::Load;
-    #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> Arc<RwLock<Box<dyn Produce<Self::Load>>>> {
-        Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> Rc<RefCell<Box<dyn Produce<Self::Load>>>> {
-        //  + Send + Sync
-        Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-}
-
-impl<U> BackedPloy for Deuce<U>
+impl<U> BackedPloy for Agent<U>
 where
     U: 'static + Grant + SendSync,
     U::Load: 'static + Clone + SendSync,
@@ -219,53 +168,6 @@ where
             back: Some(back.clone()),
             apex: self.apex.clone(),
         })))
-    }
-}
-
-impl<U> BackedPloy for Pipe<U>
-where
-    U: 'static + Grant + SendSync,
-    U::Load: 'static + Grant + SendSync + Backed,
-    <U::Load as Grant>::Load: 'static + Clone + SendSync,
-{
-    type Load = <U::Load as Grant>::Load; // <BoxProduce<U> as Grant>::Load
-    #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> Arc<RwLock<BoxProduce<Self::Load>>> {
-        Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
-            back: Some(back.clone()),
-            apex: self.apex.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn backed_ploy(&self, back: &Back) -> Rc<RefCell<BoxProduce<Self::Load>>> {
-        Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
-            back: Some(back.clone()),
-            apex: self.apex.clone(),
-        })))
-    }
-}
-
-impl<N> Solve for Edge<N>
-where
-    N: DoSolve,
-{
-    type Task = N::Task;
-    type Load = N::Load;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        write_part(&self.apex, |mut apex| apex.do_solve(task))
-    }
-}
-
-impl<N> Serve for Edge<N>
-where
-    N: DoServe,
-{
-    type Task = N::Task;
-    type Load = N::Load;
-    fn serve(&self, task: Self::Task) -> Self::Load {
-        write_part(&self.apex, |mut apex| apex.do_serve(task))
     }
 }
 
@@ -384,36 +286,6 @@ impl<L> Rebut for BoxProduce<L> {
 }
 
 impl<L> React for BoxProduce<L> {
-    fn react(&self, meta: &Meta) -> react::Result {
-        self.as_ref().react(meta)
-    }
-}
-
-type BoxConvert<T, L> = Box<dyn Convert<T, L>>;
-
-impl<T, L> Solve for BoxConvert<T, L> {
-    type Task = T;
-    type Load = L;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        self.as_ref().solve(task)
-    }
-}
-
-impl<T, L> AddRoot for BoxConvert<T, L> {
-    fn add_root(&self, root: Root) {
-        self.as_ref().add_root(root)
-    }
-}
-
-impl<T, L> Update for BoxConvert<T, L> {}
-
-impl<T, L> Rebut for BoxConvert<T, L> {
-    fn rebut(&self) -> Ring {
-        self.as_ref().rebut()
-    }
-}
-
-impl<T, L> React for BoxConvert<T, L> {
     fn react(&self, meta: &Meta) -> react::Result {
         self.as_ref().react(meta)
     }

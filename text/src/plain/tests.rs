@@ -1,6 +1,6 @@
 use super::*;
 
-fn new_list(ace: &Ace<Load>) -> Deuce<List> {
+fn new_list(ace: &Ace<Load>) -> Agent<List> {
     List::new().separator(", ").push("str").push(ace).link()
 }
 

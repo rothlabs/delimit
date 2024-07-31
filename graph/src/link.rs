@@ -15,25 +15,10 @@ mod tests;
 pub type Ace<L> = Link<edge::Ace<L>>;
 
 /// Link to a unit that grants a load.
-pub type Deuce<U> = Link<edge::Deuce<U>>;
-
-/// Link to a unit that grants a load.
-/// Unlike Deuce, the agent will act upon some external system.
 pub type Agent<U> = Link<edge::Agent<U>>;
 
 /// Link that grants a load.
 pub type Ploy<L> = Link<Box<dyn Produce<L>>>;
-
-/// Link that grants an Ace.
-// pub type OldAsset<L> = Ploy<Ace<L>>;
-
-/// Link that solves a task with resulting load.
-pub type Plan<T, L> = Link<Box<dyn Convert<T, L>>>;
-
-/// Link that grants a load of a intermediate. The unit should
-/// be a link. The pipe will react to both the unit and intermediate.
-/// The intermediate is a sub graph of the super graph unit.
-pub type Pipe<U> = Link<edge::Pipe<U>>;
 
 /// Link to an edge that leads to a apex that contains a unit.
 /// Units hold links as source of input used to compute output.
@@ -219,50 +204,6 @@ where
     }
 }
 
-impl<E> Act for Link<E>
-where
-    E: 'static + Act + AddRoot + Update,
-{
-    type Load = E::Load;
-    fn act(&self) -> Self::Load {
-        read_part(&self.edge, |edge| {
-            let result = edge.act();
-            edge.add_root(self.as_root());
-            result
-        })
-    }
-}
-
-impl<E> Solve for Link<E>
-where
-    E: 'static + Solve + AddRoot + Update,
-{
-    type Task = E::Task;
-    type Load = E::Load;
-    fn solve(&self, task: Self::Task) -> Self::Load {
-        read_part(&self.edge, |edge| {
-            let result = edge.solve(task);
-            edge.add_root(self.as_root());
-            result
-        })
-    }
-}
-
-impl<E> Serve for Link<E>
-where
-    E: 'static + Serve + AddRoot + Update,
-{
-    type Task = E::Task;
-    type Load = E::Load;
-    fn serve(&self, task: Self::Task) -> Self::Load {
-        read_part(&self.edge, |edge| {
-            let result = edge.serve(task);
-            edge.add_root(self.as_root());
-            result
-        })
-    }
-}
-
 impl<E> Link<E>
 where
     E: Grant + ToPloy<Load = <E as Grant>::Load>,
@@ -294,27 +235,6 @@ impl<L> Backed for Ploy<L> {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
-            meta: self.meta.clone(),
-        })
-    }
-}
-
-impl<E> Link<E>
-where
-    E: Solve + ToPlan<Task = <E as Solve>::Task, Load = <E as Solve>::Load>,
-{
-    pub fn plan(&self) -> Plan<<E as Solve>::Task, <E as Solve>::Load> {
-        read_part(&self.edge, |edge| Plan {
-            edge: edge.plan(),
-            meta: self.meta.clone(),
-        })
-    }
-}
-
-impl<T, L> Backed for Link<Box<dyn Convert<T, L>>> {
-    fn backed(&self, back: &Back) -> Self {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.backed_plan(back),
             meta: self.meta.clone(),
         })
     }

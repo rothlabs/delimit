@@ -1,11 +1,11 @@
 pub use apex::Apex;
 pub use edge::Edge;
-pub use link::{Ace, Agent, Deuce, IntoAce, Link, Pipe, Plan, Ploy, ToAce};
+pub use link::{Ace, Agent, IntoAce, Link, Ploy, ToAce};
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{
-    AddRoot, Back, Backed, BackedPlan, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
-    Rebut, Ring, Root, ToPipedPloy, ToPlan, ToPloy, Update,
+    AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
+    Rebut, Ring, Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
 pub use write::{
@@ -75,38 +75,26 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-#[cfg(not(feature = "oneThread"))]
+// #[cfg(not(feature = "oneThread"))]
 pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
-/// Edge that grants a load. It can also clone the edge with a new back.
-#[cfg(feature = "oneThread")]
-pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
+// /// Edge that grants a load. It can also clone the edge with a new back.
+// #[cfg(feature = "oneThread")]
+// pub trait Produce<L>: Grant<Load = L> + BackedPloy<Load = L> + AddRoot + Update {}
 
-/// Edge that solves a task. It can also clone the edge with a new Back.
-#[cfg(not(feature = "oneThread"))]
-pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
-{
-}
-#[cfg(feature = "oneThread")]
-pub trait Convert<T, L>:
-    Solve<Task = T, Load = L> + BackedPlan<Task = T, Load = L> + AddRoot + Update
-{
-}
-
-pub trait ToDeuce
+pub trait ToAgent
 where
     Self: Grant + Sized,
 {
-    fn link(&self) -> Deuce<Self>;
+    fn link(&self) -> Agent<Self>;
 }
 
-impl<U> ToDeuce for U
+impl<U> ToAgent for U
 where
     U: 'static + Backed + Grant + SendSync,
     U::Load: SendSync,
 {
-    fn link(&self) -> Deuce<Self> {
-        Deuce::make(|back| self.backed(back))
+    fn link(&self) -> Agent<Self> {
+        Agent::make(|back| self.backed(back))
     }
 }
 
@@ -116,7 +104,7 @@ pub trait ToNode {
 
 impl<U> ToNode for U
 where
-    U: 'static + ToDeuce + Grant<Load = Node> + SendSync,
+    U: 'static + ToAgent + Grant<Load = Node> + SendSync,
     // L: 'static + Clone + Default + SendSync,
 {
     fn node(&self) -> Node {
@@ -150,46 +138,6 @@ pub trait DoGrant {
     type Load;
     /// For graph internals to handle grant calls
     fn do_grant(&mut self, back: &Back) -> Self::Load;
-}
-
-pub trait Solve {
-    type Task;
-    type Load;
-    /// Unit solves a task and does NOT act on externals
-    fn solve(&self, task: Self::Task) -> Self::Load;
-}
-
-pub trait DoSolve {
-    type Task;
-    type Load;
-    /// For graph internals to handle solve calls
-    fn do_solve(&mut self, task: Self::Task) -> Self::Load;
-}
-
-pub trait Act {
-    type Load;
-    /// Unit will act upon externals and provide a load
-    fn act(&self) -> Self::Load;
-}
-
-pub trait DoAct {
-    type Load;
-    /// For graph internals to handle act calls
-    fn do_act(&mut self, back: &Back) -> Self::Load;
-}
-
-/// For units to act upon externals and provide a load by task
-pub trait Serve {
-    type Task;
-    type Load;
-    fn serve(&self, task: Self::Task) -> Self::Load;
-}
-
-/// For graph internals to handle serve calls
-pub trait DoServe {
-    type Task;
-    type Load;
-    fn do_serve(&mut self, task: Self::Task) -> Self::Load;
 }
 
 pub trait ToLoad {

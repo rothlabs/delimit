@@ -8,8 +8,8 @@ pub type AttributeSet = HashMap<&'static str, Ace<Load>>;
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
     tag_name: &'static str,
-    tag: Deuce<Tag>,
-    element: Deuce<Element>,
+    tag: Agent<Tag>,
+    element: Agent<Element>,
     tag_names: HashMap<&'static str, Node>,
     attributes: AttributeSet,
 }
@@ -43,10 +43,10 @@ impl Doc {
             attributes: atts.clone(),
         }
     }
-    pub fn pipe(&self) -> graph::Ploy<Node> {
-        graph::Pipe::make(|back| self.element.backed(back)).ploy()
+    pub fn ploy(&self) -> graph::Ploy<Node> {
+        graph::Agent::make(|back| self.element.backed(back)).ploy()
     }
-    pub fn link(&self) -> Deuce<Element> {
+    pub fn link(&self) -> Agent<Element> {
         self.element.clone()
     }
     pub fn string(&self) -> String {

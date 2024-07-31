@@ -74,28 +74,6 @@ pub trait BackedPloy {
     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
 }
 
-// pub trait BackedPipedPloy {
-//     type Load;
-//     fn backed_ploy(&self, back: &Back) -> PloyEdge<Self::Load>;
-// }
-
-#[cfg(not(feature = "oneThread"))]
-type PlanEdge<T, L> = Arc<RwLock<Box<dyn Convert<T, L>>>>;
-#[cfg(feature = "oneThread")]
-type PlanEdge<T, L> = Rc<RefCell<Box<dyn Convert<T, L>>>>;
-
-pub trait ToPlan {
-    type Task;
-    type Load;
-    fn plan(&self) -> PlanEdge<Self::Task, Self::Load>;
-}
-
-pub trait BackedPlan {
-    type Task;
-    type Load;
-    fn backed_plan(&self, back: &Back) -> PlanEdge<Self::Task, Self::Load>;
-}
-
 /// For edge that Rebuts a Ring and reacts.
 pub trait Update: Rebut + React + SendSync {}
 

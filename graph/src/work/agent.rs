@@ -1,9 +1,9 @@
 use crate::*;
 
-/// Contains a unit that must impl Act to produce a Load which is saved here.
+/// Contains a unit that must impl Grant to produce a Load which is saved here.
 pub struct Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     unit: Option<U>,
     load: Option<U::Load>,
@@ -11,7 +11,7 @@ where
 
 impl<U> Default for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     fn default() -> Self {
         Self {
@@ -23,7 +23,7 @@ where
 
 impl<U> DoMake for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     type Unit = U;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
@@ -33,7 +33,7 @@ where
 
 impl<U> FromItem for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -46,7 +46,7 @@ where
 
 impl<U> DoRead for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     type Item = U;
     fn do_read(&self) -> &Self::Item {
@@ -56,7 +56,7 @@ where
 
 impl<U> Clear for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     fn clear(&mut self) {
         self.load = None;
@@ -65,7 +65,7 @@ where
 
 impl<U> WriteUnitWork for Agent<U>
 where
-    U: Act,
+    U: Grant,
 {
     type Unit = U;
     fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
@@ -82,17 +82,17 @@ where
     }
 }
 
-impl<U> DoAct for Agent<U>
+impl<U> DoGrant for Agent<U>
 where
-    U: Act,
+    U: Grant,
     U::Load: Clone,
 {
     type Load = U::Load;
-    fn do_act(&mut self, _: &Back) -> Self::Load {
+    fn do_grant(&mut self, _: &Back) -> Self::Load {
         if let Some(load) = &self.load {
             load.clone()
         } else {
-            let load = self.unit.as_ref().unwrap().act();
+            let load = self.unit.as_ref().unwrap().grant();
             self.load = Some(load.clone());
             load
         }
@@ -101,9 +101,19 @@ where
 
 impl<U> DoReact for Agent<U>
 where
-    U: Act + React,
+    U: Grant,
 {
-    fn do_react(&mut self, meta: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().react(meta)
+    fn do_react(&mut self, _: &Meta) -> react::Result {
+        self.unit.as_ref().unwrap().grant();
+        Ok(())
+    }
+}
+
+impl<U> InsertMut for Agent<U> 
+where 
+    U: InsertMut + Grant
+{
+    fn insert_mut(&mut self, field: &str, node: Node) {
+        self.unit.as_mut().unwrap().insert_mut(field, node);
     }
 }
