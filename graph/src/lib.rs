@@ -1,6 +1,6 @@
 pub use apex::Apex;
 pub use edge::Edge;
-pub use link::{Ace, Agent, IntoAce, Link, Ploy, ToAce};
+pub use link::{Ace, Agent, Link, Ploy, ToAce};
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{
@@ -129,6 +129,14 @@ pub trait DoRead {
 pub trait Read {
     type Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
+}
+
+pub trait DoReadLoad {
+    fn do_read_load(&self) -> load::ResultRef;
+}
+
+pub trait ReadLoad {
+    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T;
 }
 
 pub trait ToLoad {

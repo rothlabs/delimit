@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Ace<L> = Apex<work::Ace<L>>;
+pub type Ace = Apex<work::Ace>;
 pub type Agent<U> = Apex<work::Agent<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
@@ -108,6 +108,15 @@ where
     type Item = W::Item;
     fn do_read(&self) -> &Self::Item {
         self.work.do_read()
+    }
+}
+
+impl<W> DoReadLoad for Apex<W>
+where
+    W: DoReadLoad,
+{
+    fn do_read_load(&self) -> load::ResultRef {
+        self.work.do_read_load()
     }
 }
 

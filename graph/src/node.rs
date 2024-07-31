@@ -36,40 +36,47 @@ impl Node {
     pub fn insert(&self, field: &str, node: Node) {
         self.form.insert(field, node);
     }
+    fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+        self.form.read(read)
+    }
     pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
         self.form.read(|load|{
-            if let Load::String(string) = load {
-                read(string)
-            } else {
-                read(&"".into())
+            if let Ok(load) = load {
+                if let Load::String(string) = load {
+                    return read(string)
+                }
             }
+            read(&"".into())
         })
     }
     pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T  {
         self.form.read(|load|{
-            if let Load::Vu8(value) = load {
-                read(value)
-            } else {
-                read(&vec![])
+            if let Ok(load) = load {
+                if let Load::Vu8(value) = load {
+                    return read(value)
+                }
             }
+            read(&vec![])
         })
     }
     pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T  {
         self.form.read(|load|{
-            if let Load::Vu16(value) = load {
-                read(value)
-            } else {
-                read(&vec![])
+            if let Ok(load) = load {
+                if let Load::Vu16(value) = load {
+                    return read(value)
+                }
             }
+            read(&vec![])
         })
     }
     pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T  {
         self.form.read(|load|{
-            if let Load::Vf32(value) = load {
-                read(value)
-            } else {
-                read(&vec![])
+            if let Ok(load) = load {
+                if let Load::Vf32(value) = load {
+                    return read(value)
+                }
             }
+            read(&vec![])
         })
     }
     pub fn u32(&self) -> u32  {
@@ -97,12 +104,12 @@ impl Node {
 //     }
 // }
 
-impl Read for Node {
-    type Item = Load;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        self.form.read(read)
-    }
-}
+// impl Read for Node {
+//     type Item = load::Result;
+//     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
+//         self.form.read(read)
+//     }
+// }
 
 impl Solve for Node {
     fn solve(&self) -> solve::Result {
@@ -138,7 +145,7 @@ impl RankDown for Vec<Node> {
 pub enum Form {
     Meta(Meta),
     Bare(Load),
-    Ace(Ace<Load>),
+    Ace(Ace),
     Ploy(Ploy),
 }
 
@@ -164,14 +171,14 @@ impl Form {
         match self {
             Self::Meta(_) => read(Err("not a load".into())),
             Self::Bare(bare) => read(Ok(bare)),
-            Self::Ace(ace) => read(Ok(ace.read(|load| load))),
-            Self::Ploy(ploy) => read({
+            Self::Ace(ace) => ace.read_load(read),
+            Self::Ploy(ploy) => {
                 if let Ok(node) = ploy.query().node() {
-                    Ok(node.read(|load| load))
+                    node.read(read)
                 } else {
-                    Err(("wow".into()))
+                    read(Err("not a load".into()))
                 }
-            }),
+            },
         }
     }
     fn solve(&self) -> result::Result<Form, Error> {
@@ -243,26 +250,31 @@ impl From<Load> for Node {
     }
 }
 
-impl From<Ace<Load>> for Node {
-    fn from(value: Ace<Load>) -> Self {
+impl From<Ace> for Node {
+    fn from(ace: Ace) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(value),
+            form: Form::Ace(ace),
         }
     }
 }
 
-impl From<Ploy<Node>> for Node {
-    fn from(value: Ploy<Node>) -> Self {
+impl From<Ploy> for Node {
+    fn from(ploy: Ploy) -> Self {
+        // TODO: find way to not query the node to get rank!
+        let rank = match ploy.query().node() {
+            Ok(node) => node.rank + 1,
+            _ => 0,
+        };
         Self {
-            rank: value.solve().rank + 1,
-            form: Form::Ploy(value),
+            rank, 
+            form: Form::Ploy(ploy),
         }
     }
 }
 
-impl From<&Ace<Load>> for Node {
-    fn from(value: &Ace<Load>) -> Self {
+impl From<&Ace> for Node {
+    fn from(value: &Ace) -> Self {
         Self {
             rank: 0,
             form: Form::Ace(value.clone()),

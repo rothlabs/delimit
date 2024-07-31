@@ -6,7 +6,7 @@ where
     U: Solve,
 {
     unit: Option<U>,
-    load: Option<solve::Result>,
+    load: Option<Tray>,
 }
 
 impl<U> Default for Agent<U>
@@ -88,11 +88,11 @@ where
 {
     fn do_solve(&mut self, _: &Back) -> solve::Result {
         if let Some(load) = &self.load {
-            load.clone()
+            Ok(load.clone())
         } else {
-            let load = self.unit.as_ref().unwrap().solve();
+            let load = self.unit.as_ref().unwrap().solve()?;
             self.load = Some(load.clone());
-            load
+            Ok(load)
         }
     }
 }

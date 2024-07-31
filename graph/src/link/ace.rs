@@ -2,20 +2,11 @@ use crate::*;
 
 /// Clone to Ace link.
 pub trait ToAce {
-    fn ace(&self) -> Ace<Load>;
+    fn ace(&self) -> Ace;
 }
 
-// impl<L> ToAce<L> for L
-// where
-//     L: Clone,
-// {
-//     fn ace(&self) -> Ace<L> {
-//         Ace::new(self.clone())
-//     }
-// }
-
 impl ToAce for str {
-    fn ace(&self) -> Ace<Load> {
+    fn ace(&self) -> Ace {
         Ace::new(Load::String(self.into()))
     }
 }
@@ -26,13 +17,13 @@ impl ToAce for str {
 //     }
 // }
 
-/// Move into Ace link.
-pub trait IntoAce<L> {
-    fn into_ace(self) -> Ace<L>;
-}
+// / Move into Ace link.
+// pub trait IntoAce<L> {
+//     fn into_ace(self) -> Ace;
+// }
 
-impl<L> IntoAce<L> for L {
-    fn into_ace(self) -> Ace<L> {
-        Ace::new(self)
-    }
-}
+// impl IntoAce for str {
+//     fn into_ace(self) -> Ace {
+//         Ace::new(Load::String(self.into()))
+//     }
+// }

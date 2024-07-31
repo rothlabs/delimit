@@ -1,45 +1,48 @@
-use serde::Serialize;
+// use serde::Serialize;
 
 use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.
-#[derive(Serialize)]
-pub struct Ace<L> {
-    load: L,
+// #[derive(Serialize)]
+pub struct Ace {
+    load: Load,
 }
 
-impl<L> FromItem for Ace<L> {
-    type Item = L;
+impl FromItem for Ace {
+    type Item = Load;
     fn new(load: Self::Item) -> Self {
         Self { load }
     }
 }
 
-impl<L> ToLoad for Ace<L>
-where
-    L: Clone,
-{
-    type Load = L;
+impl ToLoad for Ace{
+    type Load = Load;
     fn load(&self) -> Self::Load {
         self.load.clone()
     }
 }
 
-impl<L> DoRead for Ace<L> {
-    type Item = L;
+impl DoRead for Ace {
+    type Item = Load;
     fn do_read(&self) -> &Self::Item {
         &self.load
     }
 }
 
-impl<L> WriteLoadWork for Ace<L> {
-    type Item = L;
+impl DoReadLoad for Ace {
+    fn do_read_load(&self) -> load::ResultRef {
+        Ok(&self.load)
+    }
+}
+
+impl WriteLoadWork for Ace {
+    type Item = Load;
     fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
         write(&mut self.load)
     }
 }
 
-impl<L> DoReact for Ace<L> {
+impl DoReact for Ace {
     fn do_react(&mut self, _: &Meta) -> react::Result {
         Ok(())
     }

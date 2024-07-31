@@ -6,7 +6,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::*;
 
 /// Edge to a load.
-pub type Ace<L> = Edge<apex::Ace<L>>;
+pub type Ace = Edge<apex::Ace>;
 
 /// Edge to a unit that grants a load.
 pub type Agent<U> = Edge<apex::Agent<U>>;
@@ -223,6 +223,15 @@ where
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         read_part(&self.apex, |apex| read(apex.do_read()))
+    }
+}
+
+impl<N> ReadLoad for Edge<N>
+where
+    N: DoReadLoad,
+{
+    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+        read_part(&self.apex, |apex| read(apex.do_read_load()))
     }
 }
 

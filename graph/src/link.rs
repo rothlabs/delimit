@@ -1,4 +1,4 @@
-pub use ace::{IntoAce, ToAce};
+pub use ace::ToAce;
 
 use super::*;
 use serde::Serialize;
@@ -12,7 +12,7 @@ mod ace;
 mod tests;
 
 /// Link to a load. The most simple graph part.
-pub type Ace<L> = Link<edge::Ace<L>>;
+pub type Ace = Link<edge::Ace>;
 
 /// Link to a unit that grants a load.
 pub type Agent<U> = Link<edge::Agent<U>>;
@@ -155,6 +155,19 @@ where
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
+            edge.add_root(self.as_root());
+            out
+        })
+    }
+}
+
+impl<E> ReadLoad for Link<E>
+where
+    E: 'static + ReadLoad + Update + AddRoot,
+{
+    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+        read_part(&self.edge, |edge| {
+            let out = edge.read_load(read);
             edge.add_root(self.as_root());
             out
         })
