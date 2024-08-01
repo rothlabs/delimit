@@ -198,9 +198,9 @@ impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
 {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, task: Task) -> solve::Result {
         read_part(&self.edge, |edge| {
-            let result = edge.solve();
+            let result = edge.solve(task);
             edge.add_root(self.as_root());
             result
         })

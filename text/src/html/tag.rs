@@ -32,7 +32,7 @@ impl Backed for Tag {
 }
 
 impl Solve for Tag {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         let items = List::new()
             .separator(" ")
             .push(self.name.rank(1)?)

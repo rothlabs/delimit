@@ -100,8 +100,8 @@ impl<N> Solve for Edge<N>
 where
     N: 'static + DoSolve + DoUpdate,
 {
-    fn solve(&self) -> solve::Result {
-        write_part(&self.apex, |mut apex| apex.do_solve(&self.node_as_back()))
+    fn solve(&self, task: Task) -> solve::Result {
+        write_part(&self.apex, |mut apex| apex.do_solve(task, &self.node_as_back()))
     }
 }
 
@@ -253,8 +253,8 @@ where
 }
 
 impl Solve for Box<dyn Engage> {
-    fn solve(&self) -> solve::Result {
-        self.as_ref().solve()
+    fn solve(&self, task: Task) -> solve::Result {
+        self.as_ref().solve(task)
     }
 }
 

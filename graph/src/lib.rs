@@ -10,7 +10,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
-pub use solve::{DoSolve, IntoTray, Query, Solve, ToQuery, Tray};
+pub use solve::{DoSolve, IntoTray, Query, Solve, ToQuery, Tray, Task};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };

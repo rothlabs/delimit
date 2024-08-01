@@ -114,8 +114,8 @@ impl<W> DoSolve for Apex<W>
 where
     W: DoSolve,
 {
-    fn do_solve(&mut self, back: &Back) -> solve::Result {
-        self.work.do_solve(back)
+    fn do_solve(&mut self, task: Task, back: &Back) -> solve::Result {
+        self.work.do_solve(task, back)
     }
 }
 

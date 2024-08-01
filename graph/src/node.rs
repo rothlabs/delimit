@@ -75,10 +75,10 @@ impl Node {
 }
 
 impl Solve for Node {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, task: Task) -> solve::Result {
         Ok(Self {
             rank: self.rank - 1,
-            form: self.form.solve()?,
+            form: self.form.solve(task)?,
         }
         .into())
     }
@@ -145,7 +145,7 @@ impl Form {
             }
         }
     }
-    fn solve(&self) -> result::Result<Form, Error> {
+    fn solve(&self, _: Task) -> result::Result<Form, Error> {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
             Self::Bare(_) => Err("not a ploy".into()),

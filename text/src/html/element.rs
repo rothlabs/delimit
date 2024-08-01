@@ -36,7 +36,7 @@ impl Backed for Element {
 }
 
 impl Solve for Element {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         let mut element = List::new();
         element.separator("\n").push(self.tag.rank(1)?);
         element.extend(self.items.rank(1)?);

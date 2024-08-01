@@ -33,7 +33,7 @@ impl Backed for Attribute {
 }
 
 impl Solve for Attribute {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         let node = List::new()
             .push(self.name.rank(1)?)
             .push(r#"=""#)

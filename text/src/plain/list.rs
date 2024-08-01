@@ -38,7 +38,7 @@ impl Backed for List {
 }
 
 impl Solve for List {
-    fn solve(&self) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         if self.items.is_empty() {
             return Node::empty();
         }

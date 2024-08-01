@@ -29,7 +29,7 @@ fn make_doc() -> (Node, Agent<Element>, AttributeSet) {
         .attribute("type", "module");
     let doc = script.up_to_doc().node();
     // ensure memorization
-    doc.solve().ok();
+    // doc.solve().ok();
     (doc, head_link, atts)
 }
 

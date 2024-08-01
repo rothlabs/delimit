@@ -86,11 +86,11 @@ impl<U> DoSolve for Agent<U>
 where
     U: Solve,
 {
-    fn do_solve(&mut self, _: &Back) -> solve::Result {
+    fn do_solve(&mut self, task: Task, _: &Back) -> solve::Result {
         if let Some(load) = &self.load {
             Ok(load.clone())
         } else {
-            let load = self.unit.as_ref().unwrap().solve()?;
+            let load = self.unit.as_ref().unwrap().solve(task)?;
             self.load = Some(load.clone());
             Ok(load)
         }
@@ -102,7 +102,7 @@ where
     U: Solve,
 {
     fn do_react(&mut self, _: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().solve().ok();
+        self.unit.as_ref().unwrap().solve(Task::React).ok();
         Ok(())
     }
 }
