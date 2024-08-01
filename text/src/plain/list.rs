@@ -38,10 +38,9 @@ impl Backed for List {
 }
 
 impl Solve for List {
-    type Load = Node;
-    fn solve(&self) -> Self::Load {
+    fn solve(&self) -> solve::Result {
         if self.items.is_empty() {
-            return Node::new();
+            return Node::empty()
         }
         let mut string = String::new();
         self.separator.read_string(|sep| {
@@ -51,7 +50,7 @@ impl Solve for List {
             }
         });
         self.items[self.items.len() - 1].read_string(|s| string += s);
-        Load::String(string).into_ace().into()
+        Ok(string.ace().node().tray())
     }
 }
 

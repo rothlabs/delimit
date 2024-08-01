@@ -76,7 +76,7 @@ type RequestResult = hyper::Result<Response<BoxBody<Bytes, std::io::Error>>>;
 async fn handle(req: Request<Incoming>, count: i32) -> RequestResult {
     println!("count!!! {count}");
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => text(index()),
+        (&Method::GET, "/") => text(index().unwrap()),
         (&Method::GET, BOOT) => static_file(BOOT).await,
         (&Method::GET, INIT) => client_file(INIT).await,
         (&Method::GET, MAIN) => client_file(MAIN).await,

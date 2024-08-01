@@ -1,43 +1,46 @@
 use super::*;
 
-fn new_list(ace: &Ace<Load>) -> Agent<List> {
-    List::new().separator(", ").push("str").push(ace).link()
+fn new_list(ace: &Ace) -> Agent<List> {
+    List::new().separator(", ").push("str").push(ace).agent()
 }
 
 #[test]
-fn grant_and_read_ace_from_list()  { 
+fn read_from_list() -> Result<(), Error>  { 
     let ace = "ace".ace();
     let text = new_list(&ace);
-    text.solve().read_string(|string| {
+    text.node().read_string(|string| {
         assert_eq!(string, "str, ace");
     });
+    Ok(())
 }
 
 #[test]
-fn grant_same_link_twice() {
+fn solve_same_node_twice() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    assert!(text.solve() == text.solve());
+    assert!(text.solve()? == text.solve()?);
+    Ok(())
 }
 
 #[test]
-fn rebut_from_self() {
+fn rebut_from_self() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    let a = text.solve();
+    let a = text.solve()?;
     text.write(|pack| {
         pack.unit.separator(" > ");
     })
     .ok();
-    let b = text.solve();
+    let b = text.solve()?;
     assert!(a != b);
+    Ok(())
 }
 
 #[test]
-fn react_from_stem() {
+fn react_from_stem() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
-    let a = text.solve();
+    let a = text.solve()?;
     ace.write(|load| 
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -45,12 +48,13 @@ fn react_from_stem() {
             panic!("was not a string")
         }
     ).ok();
-    let b = text.solve();
+    let b = text.solve()?;
     assert!(a != b);
+    Ok(())
 }
 
 #[test]
-fn no_rebut_after_dropping_stem() {
+fn no_rebut_after_dropping_stem() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let _r = text.solve();
@@ -58,7 +62,7 @@ fn no_rebut_after_dropping_stem() {
         pack.unit.remove(1);
     })
     .ok();
-    let a = text.solve();
+    let a = text.solve()?;
     ace.write(|load| 
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -66,8 +70,9 @@ fn no_rebut_after_dropping_stem() {
             panic!("was not a string")
         }
     ).ok();
-    let b = text.solve();
+    let b = text.solve()?;
     assert!(a == b);
+    Ok(())
 }
 
 // ace.write(|string| string.push_str("_mutated")).ok();

@@ -1,3 +1,5 @@
+use std::result;
+
 use super::*;
 
 #[derive(Default, Clone)]
@@ -32,17 +34,16 @@ impl Backed for Tag {
 }
 
 impl Solve for Tag {
-    type Load = Node;
-    fn solve(&self) -> Self::Load {
+    fn solve(&self) -> solve::Result {
         let items = List::new()
             .separator(" ")
-            .push(self.name.rank(1))
-            .extend(self.attributes.rank(1))
+            .push(self.name.rank(1)?)
+            .extend(self.attributes.rank(1)?)
             .node();
-        let tag = List::new().push("<").push(items).push(">").node();
+        let tag = List::new().push("<").push(items).push(">").node().tray();
         // self.repo.insert();
         // self.repo.field("nodes").insert(items).insert(tag);
-        tag
+        Ok(tag)
     }
 }
 

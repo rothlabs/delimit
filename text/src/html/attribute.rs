@@ -11,7 +11,7 @@ impl Attribute {
         Self::default()
     }
     pub fn value(&self) -> Node {
-        self.link().ploy().into()
+        self.agent().ploy().into()
     }
     pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
         self.name = name.into();
@@ -33,14 +33,14 @@ impl Backed for Attribute {
 }
 
 impl Solve for Attribute {
-    type Load = Node;
-    fn solve(&self) -> Self::Load {
-        List::new()
-            .push(self.name.rank(1))
+    fn solve(&self) -> solve::Result {
+        let node = List::new()
+            .push(self.name.rank(1)?)
             .push(r#"=""#)
-            .push(self.content.rank(1))
+            .push(self.content.rank(1)?)
             .push(r#"""#)
-            .node()
+            .node();
+        Ok(Tray::Node(node))
     }
 }
 

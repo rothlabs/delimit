@@ -24,5 +24,5 @@ Delimit
 
 #[test]
 fn index_page() {
-    assert_eq!(EXPECTED_INDEX, index());
+    assert_eq!(EXPECTED_INDEX, index().unwrap());
 }

@@ -1,6 +1,6 @@
 use super::*;
 
-fn make_doc() -> (Ploy<Node>, Agent<Element>, AttributeSet) {
+fn make_doc() -> (Node, Agent<Element>, AttributeSet) {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -27,22 +27,23 @@ fn make_doc() -> (Ploy<Node>, Agent<Element>, AttributeSet) {
     script
         .attribute("src", "/app.js")
         .attribute("type", "module");
-    let doc = script.up_to_doc().ploy();
+    let doc = script.up_to_doc().node();
     // ensure memorization
-    doc.solve();
+    doc.solve().ok();
     (doc, head_link, atts)
 }
 
 #[test]
-fn basic_doc() {
+fn basic_doc() -> Result<(), Error> {
     let (doc, _, _) = make_doc();
-    let string = doc.solve().load();
+    let string = doc.load()?;
     assert_eq!(Load::String(DOC.into()), string);
+    Ok(())
 }
 
 /// The lower graph (plain) should rebut up to the doc (pipe)
 #[test]
-fn mutate_lower_graph_plain() {
+fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (doc, _, atts) = make_doc();
     let att = atts.get("type").unwrap();
     att.write(|load| 
@@ -52,20 +53,22 @@ fn mutate_lower_graph_plain() {
             panic!("not a string")
         }
     ).ok();
-    let string = doc.solve().load();
+    let string = doc.load()?;
     assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);
+    Ok(())
 }
 
 /// The upper graph (html) should rebut up to the doc (pipe)
 #[test]
-fn mutate_upper_graph_html() {
+fn mutate_upper_graph_html() -> Result<(), Error> {
     let (doc, head, _) = make_doc();
     head.write(|pack| {
         pack.unit.items.remove(0);
     })
     .ok();
-    let mut string = doc.solve().load();
+    let string = doc.load()?;
     assert_eq!(Load::String(REMOVED_TITLE.into()), string);
+    Ok(())
 }
 
 const DOC: &str = r#"<!DOCTYPE html>

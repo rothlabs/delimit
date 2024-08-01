@@ -1,9 +1,10 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::result;
 
 use super::*;
 
-pub type AttributeSet = HashMap<&'static str, Ace<Load>>;
+pub type AttributeSet = HashMap<&'static str, Ace>;
 
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
@@ -33,30 +34,28 @@ impl Doc {
         // doctype.read_string(|string|{
         //     println!("tag string!!!! {}", string)
         // });
-        let tag = Tag::new().name(doctype).link();
+        let tag = Tag::new().name(doctype).agent();
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(tag.ploy()).link(),
+            element: Element::new().tag(tag.ploy()).agent(),
             tag,
             tag_names: tags,
             attributes: atts.clone(),
         }
     }
-    pub fn ploy(&self) -> graph::Ploy<Node> {
-        graph::Agent::make(|back| self.element.backed(back)).ploy()
+    pub fn node(&self) -> Node {
+        self.element.node()
+        //graph::Agent::make(|back| self.element.backed(back)).ploy()
     }
     pub fn link(&self) -> Agent<Element> {
         self.element.clone()
     }
-    pub fn string(&self) -> String {
-        let plain = self.element.solve();
-        let ace = plain.solve();
-        if let Load::String(string) = ace.load() {
-            string
-        } else {
-            String::new()
-        }
+    pub fn string(&self) -> Result<String, Error> {
+        if let Load::String(string) = self.element.node().load()? {
+            return Ok(string)
+        } 
+        Err("not a string".into())
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element
@@ -105,14 +104,14 @@ impl Doc {
     }
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
-        let tag = Tag::new().name(tag_leaf).link();
+        let tag = Tag::new().name(tag_leaf).agent();
         let mut element = Element::new();
         let element = match tag_name {
             "meta" => &mut element,
             _ => element.close(tag_leaf),
         }
         .tag(tag.ploy())
-        .link();
+        .agent();
         Doc {
             tag_name,
             tag_names: self.tag_names.clone(),

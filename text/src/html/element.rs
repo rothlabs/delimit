@@ -36,16 +36,15 @@ impl Backed for Element {
 }
 
 impl Solve for Element {
-    type Load = Node;
-    fn solve(&self) -> Self::Load {
+    fn solve(&self) -> solve::Result {
         let mut element = List::new();
-        element.separator("\n").push(self.tag.rank(1));
-        element.extend(self.items.rank(1));
+        element.separator("\n").push(self.tag.rank(1)?);
+        element.extend(self.items.rank(1)?);
         if let Some(close) = &self.close {
-            let close = List::new().push("</").push(close.rank(1)).push(">").node();
+            let close = List::new().push("</").push(close.rank(1)?).push(">").node();
             element.push(close);
         }
-        element.node()
+        Ok(element.node().tray())
     }
 }
 

@@ -1,3 +1,4 @@
+use graph::Error;
 use serde::Serialize;
 
 use text::html::{attribute_set, Doc};
@@ -25,7 +26,7 @@ impl Default for Imports {
     }
 }
 
-pub fn index() -> String {
+pub fn index() -> Result<String, Error> {
     let atts = attribute_set();
     let mut html = Doc::new(&atts).html();
     html.attribute("lang", "en");
@@ -48,5 +49,6 @@ pub fn index() -> String {
     canvas.attribute("id", "canvas");
     let mut script = canvas.root().script();
     script.attribute("src", BOOT).attribute("type", "module");
-    script.up_to_doc().string()
+    let string = script.up_to_doc().string()?;
+    Ok(string)
 }

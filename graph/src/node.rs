@@ -11,16 +11,19 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn new() -> Self {
-        Self::default()
+    // pub fn new() -> Self {
+    //     Self::default()
+    // }
+    pub fn empty() -> solve::Result {
+        Ok(Tray::Node(Self::default()))
     }
     // pub fn query(&self) -> Query<Self> {
     //     Query::new(self)
     // }
-    fn load(&self) -> load::Result {
+    pub fn load(&self) -> load::Result {
         self.form.load()
     }
-    fn rank(&self, rank: usize) -> Result {
+    pub fn rank(&self, rank: usize) -> Result {
         let mut node = self.clone();
         while node.rank > rank {
             node = node.query().node()?;

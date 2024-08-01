@@ -13,7 +13,7 @@ pub use write::{
 };
 pub use edit::{Field, InsertMut, Insert};
 pub use load::Load;
-pub use solve::{Solve, DoSolve, Tray, Query, ToQuery};
+pub use solve::{Solve, DoSolve, Tray, Query, ToQuery, IntoTray};
 
 use std::error;
 #[cfg(not(feature = "oneThread"))]
@@ -96,14 +96,14 @@ pub trait ToAgent
 where
     Self: Solve + Sized,
 {
-    fn link(&self) -> Agent<Self>;
+    fn agent(&self) -> Agent<Self>;
 }
 
 impl<U> ToAgent for U
 where
     U: 'static + Backed + Solve + SendSync,
 {
-    fn link(&self) -> Agent<Self> {
+    fn agent(&self) -> Agent<Self> {
         Agent::make(|back| self.backed(back))
     }
 }
@@ -117,7 +117,13 @@ where
     U: 'static + ToAgent + Solve + SendSync,
 {
     fn node(&self) -> Node {
-        self.link().ploy().into()
+        self.agent().ploy().into()
+    }
+}
+
+impl ToNode for Ace {
+    fn node(&self) -> Node {
+        self.into()
     }
 }
 
