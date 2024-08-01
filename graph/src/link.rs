@@ -12,7 +12,7 @@ mod ace;
 mod tests;
 
 /// Link to a load. The most simple graph part.
-pub type Ace = Link<edge::Ace>;
+pub type Leaf = Link<edge::Leaf>;
 
 /// Link to a unit that grants a load.
 pub type Agent<U> = Link<edge::Agent<U>>;
@@ -204,15 +204,6 @@ where
             edge.add_root(self.as_root());
             result
         })
-    }
-}
-
-impl<E> Insert for Link<E> 
-where 
-    E: Insert
-{
-    fn insert(&self, field: &str, node: Node) {
-        read_part(&self.edge, |edge| edge.insert(field, node));
     }
 }
 

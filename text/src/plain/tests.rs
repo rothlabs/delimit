@@ -1,11 +1,11 @@
 use super::*;
 
-fn new_list(ace: &Ace) -> Agent<List> {
+fn new_list(ace: &Leaf) -> Agent<List> {
     List::new().separator(", ").push("str").push(ace).agent()
 }
 
 #[test]
-fn read_from_list() -> Result<(), Error>  { 
+fn read_from_list() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
     text.node().read_string(|string| {
@@ -41,13 +41,14 @@ fn react_from_stem() -> Result<(), Error> {
     let ace = "ace".ace();
     let text = new_list(&ace);
     let a = text.solve()?;
-    ace.write(|load| 
+    ace.write(|load| {
         if let Load::String(string) = load {
             string.push_str("_mutated");
         } else {
             panic!("was not a string")
         }
-    ).ok();
+    })
+    .ok();
     let b = text.solve()?;
     assert!(a != b);
     Ok(())
@@ -63,13 +64,14 @@ fn no_rebut_after_dropping_stem() -> Result<(), Error> {
     })
     .ok();
     let a = text.solve()?;
-    ace.write(|load| 
+    ace.write(|load| {
         if let Load::String(string) = load {
             string.push_str("_mutated");
         } else {
             panic!("was not a string")
         }
-    ).ok();
+    })
+    .ok();
     let b = text.solve()?;
     assert!(a == b);
     Ok(())

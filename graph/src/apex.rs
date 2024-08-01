@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Ace = Apex<work::Ace>;
+pub type Leaf = Apex<work::Leaf>;
 pub type Agent<U> = Apex<work::Agent<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
@@ -52,16 +52,6 @@ where
         self.work.do_make(make, back);
     }
 }
-
-// impl<W> ToSerial for Apex<W>
-// where
-//     W: Serialize,
-// {
-//     fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
-//         // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
-//         serial.add(&self.work)
-//     }
-// }
 
 impl<W> ToLoad for Apex<W>
 where
@@ -156,14 +146,15 @@ where
     }
 }
 
-impl<W> InsertMut for Apex<W> 
-where 
-    W: InsertMut
-{
-    fn insert_mut(&mut self, field: &str, node: Node) {
-        self.work.insert_mut(field, node);
-    }
-}
+// impl<W> ToSerial for Apex<W>
+// where
+//     W: Serialize,
+// {
+//     fn serial(&mut self, serial: &'static mut Serial) -> &mut Serial {
+//         // TODO: need to call serial on work as well and put items in HashMap with key as ID!!!
+//         serial.add(&self.work)
+//     }
+// }
 
 // impl<W> DoWrite for Apex<W>
 // where

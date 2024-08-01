@@ -1,35 +1,21 @@
 use super::*;
 
 pub struct Field {
-    node: Node,
-    name: String,
+    pub node: Node,
+    pub name: String,
 }
 
 impl Field {
     pub fn new(node: Node, name: String) -> Self {
-        Self {
-            node,
-            name,
-        }
+        Self { node, name }
     }
 }
 
-impl Field {
-    fn insert(&self, node: Node) {
-        self.node.insert(&self.name, node);
-    }
-}
-
-pub trait Insert {
-    fn insert(&self, field: &str, node: Node);
-}
-
-pub trait InsertMut {
-    fn insert_mut(&mut self, field: &str, node: Node);
-}
-
-
-
+// impl Field {
+//     fn insert(&self, node: Node) {
+//         self.node.insert(&self.name, node);
+//     }
+// }
 
 // pub struct Field<T> {
 //     name: String,
@@ -43,10 +29,9 @@ pub trait InsertMut {
 //     // TextList(Field<Asset<Deuce<List>>>),
 // }
 
-
-// impl<N> FieldEditor<N> 
-// where 
-//     N:  
+// impl<N> FieldEditor<N>
+// where
+//     N:
 // {
 //     pub fn insert<L>(&self, node: impl Into<Node<L>>) -> &Self {
 

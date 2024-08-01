@@ -1,5 +1,5 @@
-use std::result;
 use super::*;
+use std::result;
 
 pub type Result = result::Result<Load, Error>;
 

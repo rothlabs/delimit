@@ -1,4 +1,4 @@
-pub use list::List; 
+pub use list::List;
 
 use graph::*;
 

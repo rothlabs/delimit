@@ -2,12 +2,12 @@ use crate::*;
 
 /// Clone to Ace link.
 pub trait ToAce {
-    fn ace(&self) -> Ace;
+    fn ace(&self) -> Leaf;
 }
 
 impl ToAce for str {
-    fn ace(&self) -> Ace {
-        Ace::new(Load::String(self.into()))
+    fn ace(&self) -> Leaf {
+        Leaf::new(Load::String(self.into()))
     }
 }
 

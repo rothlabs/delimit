@@ -84,7 +84,7 @@ where
 
 impl<U> DoSolve for Agent<U>
 where
-    U: Solve
+    U: Solve,
 {
     fn do_solve(&mut self, _: &Back) -> solve::Result {
         if let Some(load) = &self.load {
@@ -102,16 +102,7 @@ where
     U: Solve,
 {
     fn do_react(&mut self, _: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().solve();
+        self.unit.as_ref().unwrap().solve().ok();
         Ok(())
-    }
-}
-
-impl<U> InsertMut for Agent<U> 
-where 
-    U: InsertMut + Solve
-{
-    fn insert_mut(&mut self, field: &str, node: Node) {
-        self.unit.as_mut().unwrap().insert_mut(field, node);
     }
 }

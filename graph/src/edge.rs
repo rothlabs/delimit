@@ -6,7 +6,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::*;
 
 /// Edge to a load.
-pub type Ace = Edge<apex::Ace>;
+pub type Leaf = Edge<apex::Leaf>;
 
 /// Edge to a unit that grants a load.
 pub type Agent<U> = Edge<apex::Agent<U>>;
@@ -105,20 +105,7 @@ where
     }
 }
 
-impl<N> Insert for Edge<N> 
-where 
-    N: InsertMut
-{
-    fn insert(&self, field: &str, node: Node) {
-        write_part(&self.apex, |mut apex| apex.insert_mut(field, node));
-    }
-}
-
-impl<U> Engage for Agent<U>
-where
-    U: 'static + Solve + SendSync,
-{
-}
+impl<U> Engage for Agent<U> where U: 'static + Solve + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where
@@ -290,8 +277,6 @@ impl React for Box<dyn Engage> {
         self.as_ref().react(meta)
     }
 }
-
-
 
 // impl<R, St> Serialize for Edge<R, St> {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

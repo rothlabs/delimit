@@ -1,10 +1,9 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::result;
 
 use super::*;
 
-pub type AttributeSet = HashMap<&'static str, Ace>;
+pub type AttributeSet = HashMap<&'static str, Leaf>;
 
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
@@ -28,7 +27,7 @@ impl Doc {
         let mut tags = HashMap::new();
         for tag in TAGS {
             //tags.insert(tag, Stem::new(tag.into()));
-            tags.insert(tag, Node::from(tag.ace()));
+            tags.insert(tag, tag.ace().node());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         // doctype.read_string(|string|{
@@ -53,8 +52,8 @@ impl Doc {
     }
     pub fn string(&self) -> Result<String, Error> {
         if let Load::String(string) = self.element.node().load()? {
-            return Ok(string)
-        } 
+            return Ok(string);
+        }
         Err("not a string".into())
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
@@ -92,10 +91,9 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::new().name(name).content(value).value();
+            let attribute = Attribute::new().name(name).content(value).node();
             self.tag
                 .write(|Pack { unit, back }| {
-                    //let attribute = attribute.backed(back).ploy();
                     unit.attribute(attribute.backed(back));
                 })
                 .ok();

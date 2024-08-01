@@ -3,7 +3,7 @@ use crate::*;
 use std::{collections::HashSet, hash::Hash};
 
 #[cfg(not(feature = "oneThread"))]
-use std::sync::{Arc, RwLock, Weak};
+use std::sync::{RwLock, Weak};
 #[cfg(feature = "oneThread")]
 use std::{
     cell::RefCell,

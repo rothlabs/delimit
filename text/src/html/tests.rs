@@ -45,15 +45,19 @@ fn basic_doc() -> Result<(), Error> {
 #[test]
 fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (doc, _, atts) = make_doc();
-    let att = atts.get("type").unwrap();
-    att.write(|load| 
+    let plain = doc.rank(1)?;
+    let _r = plain.load()?;
+    let _r = doc.load()?;
+    atts.get("type").unwrap().write(|load| {
         if let Load::String(string) = load {
             *string += "_mutated"
         } else {
             panic!("not a string")
         }
-    ).ok();
-    let string = doc.load()?;
+    })
+    .ok();
+    //let string = doc.load()?;
+    let string = plain.load()?;
     assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);
     Ok(())
 }
@@ -62,11 +66,15 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
 #[test]
 fn mutate_upper_graph_html() -> Result<(), Error> {
     let (doc, head, _) = make_doc();
+    let plain = doc.rank(1)?;
+    let _r = plain.load()?;
+    let _r = doc.load()?;
     head.write(|pack| {
         pack.unit.items.remove(0);
     })
     .ok();
     let string = doc.load()?;
+    //let string = plain.load()?;
     assert_eq!(Load::String(REMOVED_TITLE.into()), string);
     Ok(())
 }

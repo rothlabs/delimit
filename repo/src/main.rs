@@ -20,7 +20,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let ace = Ace::new(Load::I32(0));
+    let ace = Leaf::new(Load::I32(0));
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
@@ -29,7 +29,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 }
 
-async fn future(io: Io, ace: Ace) {
+async fn future(io: Io, ace: Leaf) {
     let result = http1::Builder::new()
         .serve_connection(io, service_fn(|req| service(req, ace.clone())))
         .await;
@@ -38,10 +38,7 @@ async fn future(io: Io, ace: Ace) {
     }
 }
 
-async fn service(
-    _: Request<impl Body>,
-    ace: Ace,
-) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn service(_: Request<impl Body>, ace: Leaf) -> Result<Response<Full<Bytes>>, Infallible> {
     ace.write(|load| {
         if let Load::I32(value) = load {
             println!("load: {value}");

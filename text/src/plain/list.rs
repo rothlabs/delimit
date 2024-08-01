@@ -40,7 +40,7 @@ impl Backed for List {
 impl Solve for List {
     fn solve(&self) -> solve::Result {
         if self.items.is_empty() {
-            return Node::empty()
+            return Node::empty();
         }
         let mut string = String::new();
         self.separator.read_string(|sep| {

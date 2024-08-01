@@ -1,19 +1,19 @@
 pub use apex::Apex;
 pub use edge::Edge;
-pub use link::{Ace, Agent, Link, Ploy, ToAce};
+pub use edit::Field;
+pub use link::{Leaf, Agent, Link, Ploy, ToAce};
+pub use load::Load;
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{
-    AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React,
-    Rebut, Ring, Root, ToPipedPloy, ToPloy, Update,
+    AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
+    Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
+pub use solve::{DoSolve, IntoTray, Query, Solve, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use edit::{Field, InsertMut, Insert};
-pub use load::Load;
-pub use solve::{Solve, DoSolve, Tray, Query, ToQuery, IntoTray};
 
 use std::error;
 #[cfg(not(feature = "oneThread"))]
@@ -32,11 +32,11 @@ mod apex;
 mod edge;
 mod edit;
 mod link;
+mod load;
 mod meta;
 mod repo;
 mod work;
 mod write;
-mod load;
 
 //trait GraphError: error::Error + SendSync {}
 
@@ -121,7 +121,7 @@ where
     }
 }
 
-impl ToNode for Ace {
+impl ToNode for Leaf {
     fn node(&self) -> Node {
         self.into()
     }
@@ -170,5 +170,3 @@ pub trait DoMake {
 pub trait Clear {
     fn clear(&mut self);
 }
-
-

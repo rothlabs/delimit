@@ -4,45 +4,45 @@ use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.
 // #[derive(Serialize)]
-pub struct Ace {
+pub struct Leaf {
     load: Load,
 }
 
-impl FromItem for Ace {
+impl FromItem for Leaf {
     type Item = Load;
     fn new(load: Self::Item) -> Self {
         Self { load }
     }
 }
 
-impl ToLoad for Ace{
+impl ToLoad for Leaf {
     type Load = Load;
     fn load(&self) -> Self::Load {
         self.load.clone()
     }
 }
 
-impl DoRead for Ace {
+impl DoRead for Leaf {
     type Item = Load;
     fn do_read(&self) -> &Self::Item {
         &self.load
     }
 }
 
-impl DoReadLoad for Ace {
+impl DoReadLoad for Leaf {
     fn do_read_load(&self) -> load::ResultRef {
         Ok(&self.load)
     }
 }
 
-impl WriteLoadWork for Ace {
+impl WriteLoadWork for Leaf {
     type Item = Load;
     fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
         write(&mut self.load)
     }
 }
 
-impl DoReact for Ace {
+impl DoReact for Leaf {
     fn do_react(&mut self, _: &Meta) -> react::Result {
         Ok(())
     }
