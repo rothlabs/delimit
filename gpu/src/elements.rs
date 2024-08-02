@@ -33,9 +33,8 @@ impl ElementsBuilder {
     }
 }
 
-impl Act for Elements {
-    type Load = react::Result;
-    fn act(&self) -> Self::Load {
+impl Solve for Elements {
+    fn solve(&self, task: Task) -> solve::Result {
         self.program.act()?;
         self.program.read(|program| program.use_());
         self.buffer.act();

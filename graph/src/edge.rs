@@ -65,7 +65,7 @@ where
         }
     }
     #[cfg(feature = "oneThread")]
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
         let meta = apex.meta();
         let apex = Rc::new(RefCell::new(apex));

@@ -40,9 +40,8 @@ impl Vao {
     }
 }
 
-impl Act for Vao {
-    type Load = ();
-    fn act(&self) -> Self::Load {
+impl Solve for Vao {
+    fn solve(&self, task: Task) -> solve::Result {
         self.bind();
         for attribute in &self.attributes {
             attribute.act();

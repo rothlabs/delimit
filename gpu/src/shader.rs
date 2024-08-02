@@ -28,9 +28,8 @@ impl Shader {
     }
 }
 
-impl Act for Shader {
-    type Load = react::Result;
-    fn act(&self) -> Self::Load {
+impl Solve for Shader {
+    fn solve(&self, task: Task) -> solve::Result {
         self.source
             .read_string(|src| self.gl.shader_source(&self.shader, src));
         self.gl.compile_shader(&self.shader);

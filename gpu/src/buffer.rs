@@ -19,6 +19,17 @@ impl Buffer {
     }
 }
 
+// impl Make for Buffer {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             gl: gl.clone(),
+//             buffer,
+//             target,
+//             array: array.backed(back),
+//         }
+//     }
+// }
+
 impl Buffer {
     pub fn link(gl: &WGLRC, target: u32, array: &Node) -> Result {
         let buffer = gl.create_buffer().ok_or("failed to create buffer")?;
@@ -33,23 +44,8 @@ impl Buffer {
     }
 }
 
-// impl Buffer {
-//     pub fn link_u16(wglrc: &WGLRC, target: u32, array: &Node) -> Result {
-//         let buffer = wglrc.create_buffer().ok_or("failed to create buffer")?;
-//         let link = Agent::make(|back| Self {
-//             gl: wglrc.clone(),
-//             target,
-//             buffer,
-//             array: array.backed(back),
-//         });
-//         link.act();
-//         Ok(link)
-//     }
-// }
-
-impl Act for Buffer {
-    type Load = ();
-    fn act(&self) -> Self::Load {
+impl Solve for Buffer {
+    fn solve(&self, _: Task) -> solve::Result {
         self.bind();
         self.array.read(|array| 
             unsafe {
@@ -80,10 +76,6 @@ impl React for Buffer {
         Ok(())
     }
 }
-
-
-
-
 
 
 

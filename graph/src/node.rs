@@ -31,7 +31,7 @@ impl Node {
     pub fn meta(&self) -> Meta {
         self.form.meta()
     }
-    fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+    pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         self.form.read(read)
     }
     pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {

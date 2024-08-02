@@ -30,9 +30,8 @@ impl Program {
     }
 }
 
-impl Act for Program {
-    type Load = react::Result;
-    fn act(&self) -> Self::Load {
+impl Solve for Program {
+    fn solve(&self, task: Task) -> solve::Result {
         self.vertex.act()?;
         self.fragment.act()?;
         self.gl.link_program(&self.program);

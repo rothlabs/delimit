@@ -36,9 +36,8 @@ impl VertexAttributeBuilder {
     }
 }
 
-impl Act for VertexAttribute {
-    type Load = ();
-    fn act(&self) -> Self::Load {
+impl Solve for VertexAttribute {
+    fn solve(&self, task: Task) -> solve::Result {
         let index = self.index.u32();
         self.buffer.act();
         self.buffer.read(|buffer| {

@@ -39,9 +39,8 @@ impl TextureBuilder {
     }
 }
 
-impl Act for Texture {
-    type Load = react::Result;
-    fn act(&self) -> Self::Load {
+impl Solve for Texture {
+    fn solve(&self, task: Task) -> solve::Result {
         self.bind();
         self.array.read_vu8(|unit| {
             let pixels = unsafe {

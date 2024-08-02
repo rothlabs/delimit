@@ -37,9 +37,8 @@ impl Canvas {
     }
 }
 
-impl Act for Canvas {
-    type Load = ();
-    fn act(&self) -> Self::Load {
+impl Solve for Canvas {
+    fn solve(&self, task: Task) -> solve::Result {
         self.fit_size();
         self.gl.viewport(
             0,
