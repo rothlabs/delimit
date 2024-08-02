@@ -48,14 +48,16 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
     let plain = doc.rank(1)?;
     let _r = plain.load()?;
     let _r = doc.load()?;
-    atts.get("type").unwrap().write(|load| {
-        if let Load::String(string) = load {
-            *string += "_mutated"
-        } else {
-            panic!("not a string")
-        }
-    })
-    .ok();
+    atts.get("type")
+        .unwrap()
+        .write(|load| {
+            if let Load::String(string) = load {
+                *string += "_mutated"
+            } else {
+                panic!("not a string")
+            }
+        })
+        .ok();
     //let string = doc.load()?;
     let string = plain.load()?;
     assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);

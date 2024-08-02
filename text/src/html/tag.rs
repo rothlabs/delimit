@@ -45,6 +45,12 @@ impl Solve for Tag {
     }
 }
 
+impl Alter for Tag {
+    fn alter(&mut self, _: Post) -> alter::Result {
+        Ok(Report::default())
+    }
+}
+
 pub const DOCTYPE: &str = "!DOCTYPE html";
 pub const HTML: &str = "html";
 pub const HEAD: &str = "head";

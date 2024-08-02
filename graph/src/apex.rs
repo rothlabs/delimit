@@ -110,15 +110,6 @@ where
     }
 }
 
-impl<W> DoSolve for Apex<W>
-where
-    W: DoSolve,
-{
-    fn do_solve(&mut self, task: Task, back: &Back) -> solve::Result {
-        self.work.do_solve(task, back)
-    }
-}
-
 impl<W> DoAddRoot for Apex<W> {
     fn do_add_root(&mut self, root: Root) {
         self.ring.add_root(root);
@@ -143,6 +134,24 @@ where
 {
     fn do_react(&mut self, meta: &Meta) -> react::Result {
         self.work.do_react(meta)
+    }
+}
+
+impl<W> DoSolve for Apex<W>
+where
+    W: DoSolve,
+{
+    fn do_solve(&mut self, task: Task, back: &Back) -> solve::Result {
+        self.work.do_solve(task, back)
+    }
+}
+
+impl<W> Alter for Apex<W>
+where
+    W: Alter,
+{
+    fn alter(&mut self, post: Post) -> alter::Result {
+        self.work.alter(post)
     }
 }
 

@@ -42,18 +42,21 @@ impl Solve for List {
         if self.items.is_empty() {
             return Node::empty();
         }
+        let last = self.items.len() - 1;
         let mut string = String::new();
         self.separator.read_string(|sep| {
-            for i in 0..self.items.len() - 1 {
+            for i in 0..last {
                 self.items[i].read_string(|s| string += s);
                 string += sep;
             }
         });
-        self.items[self.items.len() - 1].read_string(|s| string += s);
+        self.items[last].read_string(|s| string += s);
         Ok(string.ace().node().tray())
     }
 }
 
-// if let Some(item) = self.items.last() {
-//     item.read(|s| string += s);
-// }
+impl Alter for List {
+    fn alter(&mut self, _: Post) -> alter::Result {
+        Ok(Report::default())
+    }
+}

@@ -44,6 +44,12 @@ impl Solve for Attribute {
     }
 }
 
+impl Alter for Attribute {
+    fn alter(&mut self, _: Post) -> alter::Result {
+        Ok(Report::default())
+    }
+}
+
 pub const ID: &str = "id";
 pub const LANG: &str = "lang";
 pub const CHARSET: &str = "charset";

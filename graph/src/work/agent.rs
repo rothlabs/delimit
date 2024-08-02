@@ -2,8 +2,8 @@ use crate::*;
 
 /// Contains a unit that must impl Grant to produce a Load which is saved here.
 pub struct Agent<U>
-where
-    U: Solve,
+// where
+//     U: Solve,
 {
     unit: Option<U>,
     load: Option<Tray>,
@@ -82,6 +82,16 @@ where
     }
 }
 
+impl<U> DoReact for Agent<U>
+where
+    U: Solve,
+{
+    fn do_react(&mut self, _: &Meta) -> react::Result {
+        self.unit.as_ref().unwrap().solve(Task::React).ok();
+        Ok(())
+    }
+}
+
 impl<U> DoSolve for Agent<U>
 where
     U: Solve,
@@ -97,12 +107,11 @@ where
     }
 }
 
-impl<U> DoReact for Agent<U>
+impl<U> Alter for Agent<U>
 where
-    U: Solve,
+    U: Alter,
 {
-    fn do_react(&mut self, _: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().solve(Task::React).ok();
-        Ok(())
+    fn alter(&mut self, post: Post) -> alter::Result {
+        self.unit.as_mut().unwrap().alter(post)
     }
 }

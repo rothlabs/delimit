@@ -48,6 +48,12 @@ impl Solve for Element {
     }
 }
 
+impl Alter for Element {
+    fn alter(&mut self, _: Post) -> alter::Result {
+        Ok(Report::default())
+    }
+}
+
 // pub struct Element {
 //     pub tag: Stem,
 //     pub items: Vec<Stem>,

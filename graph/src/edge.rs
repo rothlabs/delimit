@@ -101,15 +101,27 @@ where
     N: 'static + DoSolve + DoUpdate,
 {
     fn solve(&self, task: Task) -> solve::Result {
-        write_part(&self.apex, |mut apex| apex.do_solve(task, &self.node_as_back()))
+        write_part(&self.apex, |mut apex| {
+            apex.do_solve(task, &self.node_as_back())
+        })
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + SendSync {}
+impl<N> DoAlter for Edge<N>
+where
+    N: 'static + Alter + DoUpdate,
+{
+    fn alter(&self, post: Post) -> alter::Result {
+        let post = post.backed(&self.node_as_back());
+        write_part(&self.apex, |mut apex| apex.alter(post))
+    }
+}
+
+impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Solve + SendSync,
+    U: 'static + Solve + Alter + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
@@ -132,7 +144,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Solve + SendSync,
+    U: 'static + Solve + Alter + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
@@ -252,12 +264,6 @@ where
     }
 }
 
-impl Solve for Box<dyn Engage> {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.as_ref().solve(task)
-    }
-}
-
 impl AddRoot for Box<dyn Engage> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
@@ -275,6 +281,18 @@ impl Rebut for Box<dyn Engage> {
 impl React for Box<dyn Engage> {
     fn react(&self, meta: &Meta) -> react::Result {
         self.as_ref().react(meta)
+    }
+}
+
+impl Solve for Box<dyn Engage> {
+    fn solve(&self, task: Task) -> solve::Result {
+        self.as_ref().solve(task)
+    }
+}
+
+impl DoAlter for Box<dyn Engage> {
+    fn alter(&self, post: Post) -> alter::Result {
+        self.as_ref().alter(post)
     }
 }
 

@@ -30,9 +30,6 @@ impl Node {
     pub fn meta(&self) -> Meta {
         self.form.meta()
     }
-    // pub fn insert(&self, field: &str, node: Node) {
-    //     self.form.insert(field, node);
-    // }
     fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         self.form.read(read)
     }
@@ -272,12 +269,6 @@ impl From<Vec<f32>> for Node {
         }
     }
 }
-
-
-
-
-
-
 
 // impl ToLoad for Form {
 //     type Load = Load;

@@ -1,13 +1,13 @@
-pub use tray::{Tray, IntoTray};
 pub use query::{Query, ToQuery};
 pub use task::Task;
+pub use tray::{IntoTray, Tray};
 
-use std::result;
 use super::*;
+use std::result;
 
-mod tray;
 mod query;
 mod task;
+mod tray;
 
 pub type Result = result::Result<Tray, Error>;
 

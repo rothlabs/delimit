@@ -1,7 +1,8 @@
+pub use alter::{Alter, DoAlter, Post, Report};
 pub use apex::Apex;
 pub use edge::Edge;
 pub use edit::Field;
-pub use link::{Leaf, Agent, Link, Ploy, ToAce};
+pub use link::{Agent, Leaf, Link, Ploy, ToAce};
 pub use load::Load;
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
@@ -10,7 +11,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
-pub use solve::{DoSolve, IntoTray, Query, Solve, ToQuery, Tray, Task};
+pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
@@ -24,6 +25,7 @@ use std::{
     rc::Rc,
 };
 
+pub mod alter;
 pub mod node;
 pub mod react;
 pub mod solve;
@@ -85,7 +87,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + BackedPloy + AddRoot + Update {}
+pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -94,14 +96,14 @@ type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 pub trait ToAgent
 where
-    Self: Solve + Sized,
+    Self: Sized,
 {
     fn agent(&self) -> Agent<Self>;
 }
 
-impl<U> ToAgent for U
+impl<T> ToAgent for T
 where
-    U: 'static + Backed + Solve + SendSync,
+    T: 'static + Backed + Solve + Alter + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
         Agent::make(|back| self.backed(back))
@@ -112,12 +114,21 @@ pub trait ToNode {
     fn node(&self) -> Node;
 }
 
-impl<U> ToNode for U
+impl<T> ToNode for T
 where
-    U: 'static + ToAgent + Solve + SendSync,
+    T: 'static + ToAgent + Solve + Alter + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
+    }
+}
+
+impl<T> ToNode for Agent<T>
+where
+    T: 'static + Solve + Alter + SendSync,
+{
+    fn node(&self) -> Node {
+        self.ploy().into()
     }
 }
 
