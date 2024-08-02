@@ -1,6 +1,6 @@
 use crate::*;
 
-pub type Result<T> = std::result::Result<T, String>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// The unit to be mutated and a node back to create backed links.
 /// Packs are provided for write-to-unit closures.

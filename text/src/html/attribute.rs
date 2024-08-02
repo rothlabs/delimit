@@ -1,6 +1,6 @@
 use crate::html::*;
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct Attribute {
     name: Node,
     content: Node,
@@ -10,9 +10,6 @@ impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    // pub fn value(&self) -> Node {
-    //     self.agent().ploy().into()
-    // }
     pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
         self.name = name.into();
         self
@@ -35,9 +32,9 @@ impl Backed for Attribute {
 impl Solve for Attribute {
     fn solve(&self, _: Task) -> solve::Result {
         let node = List::new()
-            .push(self.name.rank(1)?)
+            .push(self.name.at(PLAIN)?)
             .push(r#"=""#)
-            .push(self.content.rank(1)?)
+            .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node();
         Ok(Tray::Node(node))
@@ -59,67 +56,3 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
-
-// impl Attribute {
-//     pub fn hold(name: impl Into<Stem>, value: impl Into<Stem>) -> Hold<Link<Self>, Role> {
-//         let link = Link::make(|back| Self {
-//             name: name.into().backed(back),
-//             value: value.into().backed(back),
-//         });
-//         let role = Role {
-//             part: OldPart::Attribute(link.clone()),
-//             form: link.ploy(),
-//         };
-//         Hold { link, role }
-//     }
-// }
-
-// impl Grant for Attribute {
-//     type Load = Load;
-//     fn grant(&self) -> Load {
-//         List::role(|back| {
-//             let items = ViewsBuilder::new(back)
-//                 .view(&self.name.grant())
-//                 .str(r#"=""#)
-//                 .view(&self.value.grant())
-//                 .str(r#"""#)
-//                 .build();
-//             List {
-//                 items,
-//                 separator: None,
-//             }
-//         })
-//     }
-// }
-
-// impl Grant for Attribute {
-//     type Load = Load;
-//     fn grant(&self) -> Load {
-//         let Hold { link, role } = "".list();
-//         link.write(|Pack { unit, back }| {
-//             unit.items
-//                 .back(back)
-//                 .push(&self.name.grant())
-//                 // .use_ploy(&self.name)
-//                 .str(r#"=""#)
-//                 .push(&self.value.grant())
-//                 // .use_ploy(&self.value)
-//                 .str(r#"""#);
-//         });
-//         role
-//     }
-// }
-
-// impl Attribute {
-//     pub fn hold(name: &Stem, value: &Stem) -> Hold<Link<Self>, Role> {
-//         let link = Link::make(|back| Self {
-//             name: name.backed(back),
-//             value: value.backed(back),
-//         });
-//         let role = Role {
-//             part: Part::Attribute(link.clone()),
-//             form: link.ploy(),
-//         };
-//         Hold { link, role }
-//     }
-// }

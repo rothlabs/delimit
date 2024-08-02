@@ -2,7 +2,7 @@ pub use alter::{Alter, DoAlter, Post, Report};
 pub use apex::Apex;
 pub use edge::Edge;
 pub use edit::Field;
-pub use link::{Agent, Leaf, Link, Ploy, ToAce};
+pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};

@@ -6,7 +6,7 @@ fn new_list(ace: &Leaf) -> Agent<List> {
 
 #[test]
 fn read_from_list() -> Result<(), Error> {
-    let ace = "ace".ace();
+    let ace = "ace".leaf();
     let text = new_list(&ace);
     text.node().read_string(|string| {
         assert_eq!(string, "str, ace");
@@ -16,7 +16,7 @@ fn read_from_list() -> Result<(), Error> {
 
 #[test]
 fn solve_same_node_twice() -> Result<(), Error> {
-    let ace = "ace".ace();
+    let ace = "ace".leaf();
     let text = new_list(&ace);
     assert!(text.solve(Task::Main)? == text.solve(Task::Main)?);
     Ok(())
@@ -24,7 +24,7 @@ fn solve_same_node_twice() -> Result<(), Error> {
 
 #[test]
 fn rebut_from_self() -> Result<(), Error> {
-    let ace = "ace".ace();
+    let ace = "ace".leaf();
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
     text.write(|pack| {
@@ -38,7 +38,7 @@ fn rebut_from_self() -> Result<(), Error> {
 
 #[test]
 fn react_from_stem() -> Result<(), Error> {
-    let ace = "ace".ace();
+    let ace = "ace".leaf();
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
     ace.write(|load| {
@@ -56,7 +56,7 @@ fn react_from_stem() -> Result<(), Error> {
 
 #[test]
 fn no_rebut_after_dropping_stem() -> Result<(), Error> {
-    let ace = "ace".ace();
+    let ace = "ace".leaf();
     let text = new_list(&ace);
     let _r = text.solve(Task::Main);
     text.write(|pack| {

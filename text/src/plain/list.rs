@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct List {
     pub items: Vec<Node>,
     pub separator: Node,
@@ -51,7 +51,7 @@ impl Solve for List {
             }
         });
         self.items[last].read_string(|s| string += s);
-        Ok(string.ace().node().tray())
+        Ok(string.leaf().node().tray())
     }
 }
 

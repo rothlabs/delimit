@@ -1,9 +1,8 @@
-// pub use part::Part;
-pub use plain::List; //, ToList};
-
-// use derive_builder::Builder;
+pub use plain::List;
 
 pub mod html;
 pub mod plain;
 
 mod part;
+
+pub const PLAIN: usize = 1;

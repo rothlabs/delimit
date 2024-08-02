@@ -17,7 +17,8 @@ impl Node {
     pub fn load(&self) -> load::Result {
         self.form.load()
     }
-    pub fn rank(&self, rank: usize) -> Result {
+    /// Solve the node for the next node until the given rank.
+    pub fn at(&self, rank: usize) -> Result {
         let mut node = self.clone();
         while node.rank > rank {
             node = node.query().node()?;
@@ -92,12 +93,12 @@ impl Backed for Node {
 
 pub trait RankDown {
     /// Reduce node rank down to specified number.
-    fn rank(&self, rank: usize) -> result::Result<Vec<Node>, Error>;
+    fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error>;
 }
 
 impl RankDown for Vec<Node> {
-    fn rank(&self, rank: usize) -> result::Result<Vec<Node>, Error> {
-        self.iter().map(|x| x.rank(rank)).collect()
+    fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error> {
+        self.iter().map(|x| x.at(rank)).collect()
     }
 }
 
@@ -106,16 +107,17 @@ impl RankDown for Vec<Node> {
 pub enum Form {
     Meta(Meta),
     Bare(Load),
-    Ace(Leaf),
+    Leaf(Leaf),
     Ploy(Ploy),
 }
 
 impl Form {
+    // TODO: make fallible
     fn meta(&self) -> Meta {
         match self {
             Self::Meta(meta) => meta.clone(),
             Self::Bare(_) => Meta::none(),
-            Self::Ace(ace) => ace.meta(),
+            Self::Leaf(leaf) => leaf.meta(),
             Self::Ploy(ploy) => ploy.meta(),
         }
     }
@@ -124,20 +126,20 @@ impl Form {
             // TODO: should attempt to lookup from repo before error
             Self::Meta(_) => Err("not a load".into()),
             Self::Bare(bare) => Ok(bare.clone()),
-            Self::Ace(ace) => Ok(ace.load()),
+            Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.query().node()?.load(),
         }
     }
     fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
-            Self::Meta(_) => read(Err("not a load".into())),
+            Self::Meta(_) => read(Err("nothing to read".into())),
             Self::Bare(bare) => read(Ok(bare)),
-            Self::Ace(ace) => ace.read_load(read),
+            Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {
                 if let Ok(node) = ploy.query().node() {
                     node.read(read)
                 } else {
-                    read(Err("not a load".into()))
+                    read(Err("failed to read ploy".into()))
                 }
             }
         }
@@ -146,7 +148,7 @@ impl Form {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
             Self::Bare(_) => Err("not a ploy".into()),
-            Self::Ace(_) => Err("not a ploy".into()),
+            Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => Ok(ploy.query().node()?.form),
         }
     }
@@ -163,7 +165,7 @@ impl Backed for Form {
         match self {
             Self::Meta(meta) => Self::Meta(meta.clone()),
             Self::Bare(bare) => Self::Bare(bare.clone()),
-            Self::Ace(ace) => Self::Ace(ace.backed(back)),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
         }
     }
@@ -179,10 +181,10 @@ impl From<Load> for Node {
 }
 
 impl From<Leaf> for Node {
-    fn from(ace: Leaf) -> Self {
+    fn from(leaf: Leaf) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(ace),
+            form: Form::Leaf(leaf),
         }
     }
 }
@@ -205,7 +207,7 @@ impl From<&Leaf> for Node {
     fn from(value: &Leaf) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(value.clone()),
+            form: Form::Leaf(value.clone()),
         }
     }
 }
@@ -247,7 +249,7 @@ impl From<Vec<u8>> for Node {
     fn from(value: Vec<u8>) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(Leaf::new(Load::Vu8(value))),
+            form: Form::Leaf(Leaf::new(Load::Vu8(value))),
         }
     }
 }
@@ -256,7 +258,7 @@ impl From<Vec<u16>> for Node {
     fn from(value: Vec<u16>) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(Leaf::new(Load::Vu16(value))),
+            form: Form::Leaf(Leaf::new(Load::Vu16(value))),
         }
     }
 }
@@ -265,7 +267,7 @@ impl From<Vec<f32>> for Node {
     fn from(value: Vec<f32>) -> Self {
         Self {
             rank: 0,
-            form: Form::Ace(Leaf::new(Load::Vf32(value))),
+            form: Form::Leaf(Leaf::new(Load::Vf32(value))),
         }
     }
 }
@@ -278,7 +280,7 @@ impl From<Vec<f32>> for Node {
 //             // TODO: should attempt to lookup from repo
 //             Self::Meta(_) => Load::None,
 //             Self::Bare(bare) => bare.clone(),
-//             Self::Ace(ace) => ace.load(),
+//             Self::Ace(leaf) => leaf.load(),
 //             Self::Ploy(ploy) => {
 //                 let wow = ploy.query().node()?;
 //                 ploy.solve().load()

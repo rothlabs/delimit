@@ -12,7 +12,7 @@ use std::{
 
 use crate::Meta;
 
-pub type Result = std::result::Result<(), String>;
+pub type Result = std::result::Result<(), Error>;
 
 pub trait Rebut {
     /// Invalidate the load. Call only after write during rebut phase.

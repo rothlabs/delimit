@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct Element {
     pub tag: Node,
     pub items: Vec<Node>,
@@ -38,10 +38,10 @@ impl Backed for Element {
 impl Solve for Element {
     fn solve(&self, _: Task) -> solve::Result {
         let mut element = List::new();
-        element.separator("\n").push(self.tag.rank(1)?);
-        element.extend(self.items.rank(1)?);
+        element.separator("\n").push(self.tag.at(PLAIN)?);
+        element.extend(self.items.at(PLAIN)?);
         if let Some(close) = &self.close {
-            let close = List::new().push("</").push(close.rank(1)?).push(">").node();
+            let close = List::new().push("</").push(close.at(PLAIN)?).push(">").node();
             element.push(close);
         }
         Ok(element.node().tray())
@@ -53,86 +53,3 @@ impl Alter for Element {
         Ok(Report::default())
     }
 }
-
-// pub struct Element {
-//     pub tag: Stem,
-//     pub items: Vec<Stem>,
-//     pub close: Option<Stem>,
-// }
-
-// impl Element {
-//     pub fn hold(tag: &Stem, close: Option<&Stem>) -> Hold<Link<Self>, Role> {
-//         let link = Link::make(|back| Self {
-//             tag: tag.backed(back),
-//             items: vec![],
-//             close: close.cloned(),
-//         });
-//         let role = Role {
-//             part: OldPart::Element(link.clone()),
-//             form: link.ploy(),
-//         };
-//         Hold { link, role }
-//     }
-// }
-
-// impl Grant for Element {
-//     type Load = Load;
-//     fn grant(&self) -> Load {
-//         let Hold { link, role } = "\n".list();
-//         link.write(|pack| {
-//             let mut element = pack.unit.items.back(pack.back);
-//             element.view(&self.tag.grant());
-//             // element.use_ploy(&self.tag);
-//             for item in &self.items {
-//                 element.view(&item.grant());
-//                 // element.use_ploy(item);
-//             }
-//             if let Some(close) = &self.close {
-//                 let Hold { link, role } = "".list();
-//                 link.write(|pack| {
-//                     pack.unit
-//                         .items
-//                         .back(pack.back)
-//                         .str("</")
-//                         .view(&close.grant())
-//                         //.use_ploy(close)
-//                         .str(">");
-//                 })
-//                 .ok();
-//                 element.role(&role);
-//             }
-//         })
-//         .ok();
-//         role
-//     }
-// }
-
-// impl Grant for Element {
-//     type Load = Load;
-//     fn grant(&self) -> Load {
-//         let Hold { link, role } = "\n".list();
-//         link.write(|pack| {
-//             let mut element = pack.unit.items.back(pack.back);
-//             element.push(&self.tag.grant());
-//             // element.use_ploy(&self.tag);
-//             for item in &self.items {
-//                 element.push(&item.grant());
-//                 // element.use_ploy(item);
-//             }
-//             if let Some(close) = &self.close {
-//                 let Hold { link, role } = "".list();
-//                 link.write(|pack| {
-//                     pack.unit
-//                         .items
-//                         .back(pack.back)
-//                         .str("</")
-//                         .push(&close.grant())
-//                         //.use_ploy(close)
-//                         .str(">");
-//                 });
-//                 element.add_role(&role);
-//             }
-//         });
-//         role
-//     }
-// }

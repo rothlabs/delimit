@@ -17,7 +17,7 @@ pub struct Doc {
 pub fn attribute_set() -> AttributeSet {
     let mut atts = HashMap::new();
     for att in ATTRIBUTES {
-        atts.insert(att, att.ace());
+        atts.insert(att, att.leaf());
     }
     atts
 }
@@ -27,7 +27,7 @@ impl Doc {
         let mut tags = HashMap::new();
         for tag in TAGS {
             //tags.insert(tag, Stem::new(tag.into()));
-            tags.insert(tag, tag.ace().node());
+            tags.insert(tag, tag.leaf().node());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
         // doctype.read_string(|string|{

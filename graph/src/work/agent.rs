@@ -1,12 +1,11 @@
 use crate::*;
 
-/// Contains a unit that must impl Grant to produce a Load which is saved here.
-pub struct Agent<U>
-// where
-//     U: Solve,
-{
+/// Contains a unit that must impl Solve and Alter.
+/// The solved Tray is kept to be return on subsequent solve requests
+/// until the unit changes.
+pub struct Agent<U> {
     unit: Option<U>,
-    load: Option<Tray>,
+    tray: Option<Tray>,
 }
 
 impl<U> Default for Agent<U>
@@ -16,7 +15,7 @@ where
     fn default() -> Self {
         Self {
             unit: None,
-            load: None,
+            tray: None,
         }
     }
 }
@@ -39,7 +38,7 @@ where
     fn new(unit: Self::Item) -> Self {
         Self {
             unit: Some(unit),
-            load: None,
+            tray: None,
         }
     }
 }
@@ -59,7 +58,7 @@ where
     U: Solve,
 {
     fn clear(&mut self) {
-        self.load = None;
+        self.tray = None;
     }
 }
 
@@ -77,7 +76,7 @@ where
             unit: self.unit.as_mut().unwrap(),
             back,
         });
-        self.load = None;
+        self.tray = None;
         out
     }
 }
@@ -87,7 +86,7 @@ where
     U: Solve,
 {
     fn do_react(&mut self, _: &Meta) -> react::Result {
-        self.unit.as_ref().unwrap().solve(Task::React).ok();
+        self.unit.as_ref().unwrap().solve(Task::React)?;
         Ok(())
     }
 }
@@ -97,12 +96,12 @@ where
     U: Solve,
 {
     fn do_solve(&mut self, task: Task, _: &Back) -> solve::Result {
-        if let Some(load) = &self.load {
-            Ok(load.clone())
+        if let Some(tray) = &self.tray {
+            Ok(tray.clone())
         } else {
-            let load = self.unit.as_ref().unwrap().solve(task)?;
-            self.load = Some(load.clone());
-            Ok(load)
+            let tray = self.unit.as_ref().unwrap().solve(task)?;
+            self.tray = Some(tray.clone());
+            Ok(tray)
         }
     }
 }

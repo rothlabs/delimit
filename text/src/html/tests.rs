@@ -45,7 +45,7 @@ fn basic_doc() -> Result<(), Error> {
 #[test]
 fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (doc, _, atts) = make_doc();
-    let plain = doc.rank(1)?;
+    let plain = doc.at(1)?;
     let _r = plain.load()?;
     let _r = doc.load()?;
     atts.get("type")
@@ -68,7 +68,7 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
 #[test]
 fn mutate_upper_graph_html() -> Result<(), Error> {
     let (doc, head, _) = make_doc();
-    let plain = doc.rank(1)?;
+    let plain = doc.at(1)?;
     let _r = plain.load()?;
     let _r = doc.load()?;
     head.write(|pack| {
