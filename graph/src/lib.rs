@@ -166,8 +166,11 @@ pub trait FromItem {
     fn new(item: Self::Item) -> Self;
 }
 
-pub trait Make {
-    fn make(&self, back: &Back) -> Self;
+pub trait Make 
+where 
+    Self: Sized
+{
+    fn make(&self, back: &Back) -> Result<Self, Error>;
 }
 
 pub trait Maker {
