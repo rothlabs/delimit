@@ -30,19 +30,85 @@ pub struct Link<E> {
     meta: Meta,
 }
 
-impl<E> ToMeta for Link<E> {
-    fn meta(&self) -> Meta {
+impl<E> Link<E> {
+    pub fn meta(&self) -> Meta {
         self.meta.clone()
     }
 }
 
-impl<E> ToLoad for Link<E>
+impl<E> Link<E>
+where
+    E: FromItem + ToMeta,
+{
+    pub fn new(unit: E::Item) -> Self {
+        let apex = E::new(unit);
+        Self {
+            meta: apex.meta(),
+            #[cfg(not(feature = "oneThread"))]
+            edge: Arc::new(RwLock::new(apex)),
+            #[cfg(feature = "oneThread")]
+            edge: Rc::new(RefCell::new(apex)),
+        }
+    }
+}
+
+impl<E> Link<E>
+where
+    E: Maker + ToMeta,
+{
+    pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
+        let apex = E::maker(make);
+        Self {
+            meta: apex.meta(),
+            #[cfg(not(feature = "oneThread"))]
+            edge: Arc::new(RwLock::new(apex)),
+            #[cfg(feature = "oneThread")]
+            edge: Rc::new(RefCell::new(apex)),
+        }
+    }
+}
+
+impl<E> Link<E> 
 where
     E: ToLoad,
 {
-    type Load = E::Load;
-    fn load(&self) -> Self::Load {
+    pub fn load(&self) -> E::Load {
         read_part(&self.edge, |edge| edge.load())
+    }
+}
+
+impl<E> Link<E>
+where
+    E: 'static + Update,
+{
+    #[cfg(not(feature = "oneThread"))]
+    pub fn as_root(&self) -> Root {
+        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
+        Root {
+            edge: Arc::downgrade(&edge),
+            meta: self.meta.clone(),
+        }
+    }
+    #[cfg(feature = "oneThread")]
+    pub fn as_root(&self) -> Root {
+        let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
+        Root {
+            edge: Rc::downgrade(&edge),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
+impl<E> Link<E>
+where
+    E: ToPloy,
+{
+    /// Copy the link with unit type erased.  
+    pub fn ploy(&self) -> Ploy {
+        read_part(&self.edge, |edge| Ploy {
+            edge: edge.ploy(),
+            meta: self.meta.clone(),
+        })
     }
 }
 
@@ -66,40 +132,6 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> FromItem for Link<E>
-where
-    E: FromItem + ToMeta,
-{
-    type Item = E::Item;
-    fn new(unit: Self::Item) -> Self {
-        let apex = E::new(unit);
-        Self {
-            meta: apex.meta(),
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(apex)),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(apex)),
-        }
-    }
-}
-
-impl<E> Link<E>
-where
-    E: Maker + ToMeta,
-{
-    //type Unit = E::Unit;
-    pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
-        let apex = E::maker(make);
-        Self {
-            meta: apex.meta(),
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(apex)),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(apex)),
-        }
-    }
-}
-
 /// TODO: make method to make new link with cloned edge without Back!
 impl<E> Backed for Link<E>
 where
@@ -118,28 +150,6 @@ where
         let edge = self.edge.borrow();
         Self {
             edge: Rc::new(RefCell::new(edge.backed(back))),
-            meta: self.meta.clone(),
-        }
-    }
-}
-
-impl<E> Link<E>
-where
-    E: 'static + Update,
-{
-    #[cfg(not(feature = "oneThread"))]
-    pub fn as_root(&self) -> Root {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
-        Root {
-            edge: Arc::downgrade(&edge),
-            meta: self.meta.clone(),
-        }
-    }
-    #[cfg(feature = "oneThread")]
-    pub fn as_root(&self) -> Root {
-        let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
-        Root {
-            edge: Rc::downgrade(&edge),
             meta: self.meta.clone(),
         }
     }
@@ -216,20 +226,6 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    //E: Solve + ToPloy<Load = <E as Solve>::Load>,
-    E: ToPloy,
-{
-    /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Ploy {
-        read_part(&self.edge, |edge| Ploy {
-            edge: edge.ploy(),
-            meta: self.meta.clone(),
-        })
-    }
-}
-
 impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
@@ -256,53 +252,3 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
-
-
-
-// impl<E> Maker for Link<E>
-// where
-//     E: Maker + ToMeta,
-// {
-//     type Unit = E::Unit;
-//     fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-//         let apex = E::maker(make);
-//         Self {
-//             meta: apex.meta(),
-//             #[cfg(not(feature = "oneThread"))]
-//             edge: Arc::new(RwLock::new(apex)),
-//             #[cfg(feature = "oneThread")]
-//             edge: Rc::new(RefCell::new(apex)),
-//         }
-//     }
-// }
-
-
-
-// impl<E> Link<E>
-// where
-//     E: Grant + ToPloy<Load = <<E as Grant>::Load as Grant>::Load>,
-//     <E as Grant>::Load: Grant,
-// {
-//     /// Copy the link with unit type erased.
-//     pub fn piped_ploy(&self) -> Ploy<<<E as Grant>::Load as Grant>::Load> {
-//         read_part(&self.edge, |edge| Ploy {
-//             edge: edge.ploy(),
-//             meta: self.meta.clone(),
-//         })
-//     }
-// }
-
-// impl<'a> From<&'a str> for OldAsset<String> {
-//     fn from(load: &'a str) -> Self {
-//         unit::Asset::link(load.into()).ploy()
-//     }
-// }
-
-// impl<T> From<T> for OldAsset<T>
-// where
-//     T: 'static + Clone + SendSync,
-// {
-//     fn from(load: T) -> Self {
-//         unit::Asset::link(load).ploy()
-//     }
-// }

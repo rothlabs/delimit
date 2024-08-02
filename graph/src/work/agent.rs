@@ -1,7 +1,8 @@
 use crate::*;
 
-/// Contains a unit that must impl Solve and Alter.
-/// The solved Tray is kept to be return on subsequent solve requests
+/// Main Work type.
+/// To be useful, unit should at least impl Solve.
+/// The solved Tray is kept to be return on subsequent solve calls
 /// until the unit changes.
 pub struct Agent<U> {
     unit: Option<U>,

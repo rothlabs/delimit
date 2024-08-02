@@ -184,38 +184,3 @@ impl Ring {
         (Vec::from_iter(ring.roots), meta.clone())
     }
 }
-
-// pub fn rebut_this(&mut self) -> Ring {
-//     let mut result = Ring::new();
-//     for root in &self.roots {
-//         let ring = root.rebut();
-//         if ring.roots.is_empty() {
-//             result.roots.insert(root.clone());
-//         } else {
-//             result.roots.extend(ring.roots);
-//         }
-//     }
-//     self.roots.clear();
-//     result
-// }
-// pub fn cycle(&mut self, meta: &Meta) {
-//     let mut ring = Ring::new();
-//     for root in &self.roots {
-//         ring.roots.extend(root.rebut().roots);
-//     }
-//     //let ring = self.rebut_this();
-//     for root in &ring.roots {
-//         root.react(meta);
-//     }
-//     self.roots.clear();
-// }
-
-// #[cfg(not(feature="oneThread"))]
-// pub trait Update: Rebut + React + Send + Sync {}
-// #[cfg(feature="oneThread")]
-// pub trait Update: Rebut + React {}
-
-// #[cfg(not(feature="oneThread"))]
-// pub trait DoUpdate: DoRebut + DoReact + Send + Sync {}
-// #[cfg(feature="oneThread")]
-// pub trait DoUpdate: DoRebut + DoReact {}
