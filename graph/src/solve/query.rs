@@ -12,7 +12,7 @@ where
         Self { item: item.clone() }
     }
     pub fn node(&self) -> node::Result {
-        match self.item.solve(Task::Main)? {
+        match self.item.solve(Task::Node)? {
             Tray::Node(node) => Ok(node),
             _ => Err("not a node".into()),
         }

@@ -25,7 +25,7 @@ pub struct VertexAttribute {
 impl VertexAttributeBuilder { 
     pub fn link(&self) -> Result {
         let mut attrib = self.build()?;
-        Ok(Agent::make(|back| {
+        Ok(Agent::maker(|back| {
             attrib.buffer = attrib.buffer.backed(back);
             attrib.index = attrib.index.backed(back);
             attrib.size = attrib.size.backed(back);
@@ -37,9 +37,9 @@ impl VertexAttributeBuilder {
 }
 
 impl Solve for VertexAttribute {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         let index = self.index.u32();
-        self.buffer.act();
+        self.buffer.solve(Task::None)?;
         self.buffer.read(|buffer| {
             buffer.bind();
             self.gl.vertex_attrib_pointer_with_i32(
@@ -53,15 +53,16 @@ impl Solve for VertexAttribute {
             self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();
         });
+        Ok(Tray::None)
     }
 }
 
-impl React for VertexAttribute {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act();
-        Ok(())
-    }
-}
+// impl React for VertexAttribute {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act();
+//         Ok(())
+//     }
+// }
 
 // self.gl.vertex_attrib_pointer_with_f64(indx, size, type_, normalized, stride, offset)
 

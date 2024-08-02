@@ -21,7 +21,7 @@ pub struct Elements {
 impl ElementsBuilder {
     pub fn link(&self) -> result::Result<Agent<Elements>, ElementsBuilderError> {
         let mut elements = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Agent::maker(|back| {
             elements.program = elements.program.backed(back);
             elements.buffer = elements.buffer.backed(back);
             elements.vao = elements.vao.backed(back);
@@ -34,11 +34,11 @@ impl ElementsBuilder {
 }
 
 impl Solve for Elements {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.program.act()?;
+    fn solve(&self, _: Task) -> solve::Result {
+        self.program.solve(Task::None)?;
         self.program.read(|program| program.use_());
-        self.buffer.act();
-        self.vao.act();
+        self.buffer.solve(Task::None)?;
+        self.vao.solve(Task::None)?;
         self.vao.read(|vao| {
             vao.bind();
             self.gl.draw_elements_with_i32(
@@ -49,15 +49,15 @@ impl Solve for Elements {
             );
             vao.unbind();
         });
-        Ok(())
+        Ok(Tray::None)
     }
 }
 
-impl React for Elements {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act()
-    }
-}
+// impl React for Elements {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act()
+//     }
+// }
 
 // pub struct Elements {
 //     gl: WGLRC,

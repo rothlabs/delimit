@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-pub type Result = std::result::Result<Agent<Texture>, Box<dyn Error>>;
+pub type Result = std::result::Result<Agent<Texture>, graph::Error>;
 
 #[derive(Builder)]
 #[builder(setter(into))]
@@ -28,19 +28,19 @@ impl Texture {
 impl TextureBuilder {
     pub fn link_u8(&self) -> Result {
         let mut texture = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Agent::maker(|back| {
             texture.array = texture.array.backed(back);
             texture.width = texture.width.backed(back);
             texture.height = texture.height.backed(back);
             texture
         });
-        link.act()?;
+        link.solve(Task::None)?;
         Ok(link)
     }
 }
 
 impl Solve for Texture {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         self.bind();
         self.array.read_vu8(|unit| {
             let pixels = unsafe {
@@ -63,15 +63,15 @@ impl Solve for Texture {
             }
             Ok(())
         })?;
-        Ok(())
+        Ok(Tray::None)
     }
 }
 
-impl React for Texture {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act()
-    }
-}
+// impl React for Texture {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act()
+//     }
+// }
 
 // impl React for Texture<f32> {
 //     fn react(&self, _: &Meta) -> react::Result {

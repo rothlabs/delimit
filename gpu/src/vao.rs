@@ -19,14 +19,14 @@ pub struct Vao {
 impl VaoBuilder {
     pub fn link(&self) -> std::result::Result<Agent<Vao>, VaoBuilderError> {
         let mut vao = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Agent::maker(|back| {
             vao.attributes = vao.attributes.backed(back);
             if let Some(index_buffer) = vao.index_buffer {
                 vao.index_buffer = Some(index_buffer.backed(back));
             }
             vao
         });
-        link.act();
+        link.solve(Task::None).ok();
         Ok(link)
     }
 }
@@ -41,25 +41,26 @@ impl Vao {
 }
 
 impl Solve for Vao {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         self.bind();
         for attribute in &self.attributes {
-            attribute.act();
+            attribute.solve(Task::None)?;
         }
         if let Some(buffer) = &self.index_buffer {
-            buffer.act();
+            buffer.solve(Task::None)?;
             buffer.read(|unit| unit.bind());
         }
         self.unbind();
+        Ok(Tray::None)
     }
 }
 
-impl React for Vao {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act();
-        Ok(())
-    }
-}
+// impl React for Vao {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act();
+//         Ok(())
+//     }
+// }
 
 // pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
 //     let object = gl

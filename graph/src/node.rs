@@ -31,6 +31,12 @@ impl Node {
     pub fn meta(&self) -> Meta {
         self.form.meta()
     }
+    pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
+        self.form.read(|load| match load {
+            Ok(value) => Ok(read(value)),
+            _ => Err("nothing to read".into()),
+        })
+    }
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         self.form.read(read)
     }

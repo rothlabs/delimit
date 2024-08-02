@@ -7,7 +7,7 @@ use std::sync::{RwLock, Weak};
 #[cfg(feature = "oneThread")]
 use std::{
     cell::RefCell,
-    rc::{Rc, Weak},
+    rc::Weak,
 };
 
 use crate::Meta;

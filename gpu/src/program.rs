@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlProgram;
 
-pub type Result = std::result::Result<Agent<Program>, String>;
+pub type Result = std::result::Result<Agent<Program>, graph::Error>;
 
 /// GPU program based on vertex and fragment shaders.
 pub struct Program {
@@ -16,13 +16,13 @@ impl Program {
         let program = gl.create_program().ok_or("failed to create program")?;
         vertex.read(|unit| gl.attach_shader(&program, &unit.shader));
         fragment.read(|unit| gl.attach_shader(&program, &unit.shader));
-        let link = Agent::make(|back| Self {
+        let link = Agent::maker(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),
             fragment: fragment.backed(back),
             program,
         });
-        link.act()?;
+        link.solve(Task::None)?;
         Ok(link)
     }
     pub fn use_(&self) {
@@ -31,9 +31,9 @@ impl Program {
 }
 
 impl Solve for Program {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.vertex.act()?;
-        self.fragment.act()?;
+    fn solve(&self, _: Task) -> solve::Result {
+        self.vertex.solve(Task::None)?;
+        self.fragment.solve(Task::None)?;
         self.gl.link_program(&self.program);
         if self
             .gl
@@ -41,21 +41,21 @@ impl Solve for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(())
+            Ok(Tray::None)
         } else {
             Err(self
                 .gl
                 .get_program_info_log(&self.program)
-                .ok_or("failed to get program info log")?)
+                .ok_or("failed to get program info log")?.into())
         }
     }
 }
 
-impl React for Program {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act()
-    }
-}
+// impl React for Program {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act()
+//     }
+// }
 
 // self.wglrc.attach_shader(&self.target, &self.vertex.act()?);
 //         self.wglrc.attach_shader(&self.target, &self.fragment.act()?);

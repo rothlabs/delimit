@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-pub type Result = std::result::Result<Agent<Buffer>, String>;
+pub type Result = std::result::Result<Agent<Buffer>, graph::Error>;
 
 pub struct Buffer {
     gl: WGLRC,
@@ -33,13 +33,13 @@ impl Buffer {
 impl Buffer {
     pub fn link(gl: &WGLRC, target: u32, array: &Node) -> Result {
         let buffer = gl.create_buffer().ok_or("failed to create buffer")?;
-        let link = Agent::make(|back| Self {
+        let link = Agent::maker(|back| Self {
             gl: gl.clone(),
             buffer,
             target,
             array: array.backed(back),
         });
-        link.act();
+        link.solve(Task::None)?;
         Ok(link)
     }
 }
@@ -47,7 +47,7 @@ impl Buffer {
 impl Solve for Buffer {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.read(|array| 
+        self.array.read_or_error(|array| 
             unsafe {
                 match array {
                     Load::Vf32(array) => 
@@ -65,17 +65,18 @@ impl Solve for Buffer {
                     _ => ()
                 }
             }
-        );
+        )?;
         self.unbind();
+        Ok(Tray::None)
     }
 }
 
-impl React for Buffer {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act();
-        Ok(())
-    }
-}
+// impl React for Buffer {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.solve(Task::Main);
+//         Ok(())
+//     }
+// }
 
 
 

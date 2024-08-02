@@ -38,7 +38,7 @@ impl Canvas {
 }
 
 impl Solve for Canvas {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         self.fit_size();
         self.gl.viewport(
             0,
@@ -46,15 +46,16 @@ impl Solve for Canvas {
             self.object.width() as i32,
             self.object.height() as i32,
         );
+        Ok(Tray::None)
     }
 }
 
-impl React for Canvas {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act();
-        Ok(())
-    }
-}
+// impl React for Canvas {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.solve(Task::Main);
+//         Ok(())
+//     }
+// }
 
 
         // let window = window().unwrap();

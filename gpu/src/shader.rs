@@ -7,7 +7,7 @@ pub mod basic;
 mod tests;
 
 //pub type Source = Node;
-pub type Result = std::result::Result<Agent<Shader>, String>;
+pub type Result = std::result::Result<Agent<Shader>, graph::Error>;
 
 pub struct Shader {
     pub gl: WGLRC,
@@ -18,18 +18,18 @@ pub struct Shader {
 impl Shader {
     pub fn link(gl: &WGLRC, type_: u32, source: &Node) -> Result {
         let shader = gl.create_shader(type_).ok_or("failed to create shader")?;
-        let link = Agent::make(|back| Self {
+        let link = Agent::maker(|back| Self {
             gl: gl.clone(),
             source: source.backed(back),
             shader,
         });
-        link.act()?;
+        link.solve(Task::None)?;
         Ok(link)
     }
 }
 
 impl Solve for Shader {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> solve::Result {
         self.source
             .read_string(|src| self.gl.shader_source(&self.shader, src));
         self.gl.compile_shader(&self.shader);
@@ -39,21 +39,21 @@ impl Solve for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(())
+            Ok(Tray::None)
         } else {
             Err(self
                 .gl
                 .get_shader_info_log(&self.shader)
-                .ok_or("failed to get shader info log")?)
+                .ok_or("failed to get shader info log")?.into())
         }
     }
 }
 
-impl React for Shader {
-    fn react(&self, _: &Meta) -> react::Result {
-        self.act()
-    }
-}
+// impl React for Shader {
+//     fn react(&self, _: &Meta) -> react::Result {
+//         self.act()
+//     }
+// }
 
 // impl Shader {
 //     pub fn new(wglrc: &WGLRC, kind: u32) -> Self {

@@ -18,7 +18,7 @@ fn read_from_list() -> Result<(), Error> {
 fn solve_same_node_twice() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
-    assert!(text.solve(Task::Main)? == text.solve(Task::Main)?);
+    assert!(text.solve(Task::Node)? == text.solve(Task::Node)?);
     Ok(())
 }
 
@@ -26,12 +26,12 @@ fn solve_same_node_twice() -> Result<(), Error> {
 fn rebut_from_self() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
-    let a = text.solve(Task::Main)?;
+    let a = text.solve(Task::Node)?;
     text.write(|pack| {
         pack.unit.separator(" > ");
     })
     .ok();
-    let b = text.solve(Task::Main)?;
+    let b = text.solve(Task::Node)?;
     assert!(a != b);
     Ok(())
 }
@@ -40,7 +40,7 @@ fn rebut_from_self() -> Result<(), Error> {
 fn react_from_stem() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
-    let a = text.solve(Task::Main)?;
+    let a = text.solve(Task::Node)?;
     ace.write(|load| {
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -49,7 +49,7 @@ fn react_from_stem() -> Result<(), Error> {
         }
     })
     .ok();
-    let b = text.solve(Task::Main)?;
+    let b = text.solve(Task::Node)?;
     assert!(a != b);
     Ok(())
 }
@@ -58,12 +58,12 @@ fn react_from_stem() -> Result<(), Error> {
 fn no_rebut_after_dropping_stem() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
-    let _r = text.solve(Task::Main);
+    let _r = text.solve(Task::Node);
     text.write(|pack| {
         pack.unit.remove(1);
     })
     .ok();
-    let a = text.solve(Task::Main)?;
+    let a = text.solve(Task::Node)?;
     ace.write(|load| {
         if let Load::String(string) = load {
             string.push_str("_mutated");
@@ -72,7 +72,7 @@ fn no_rebut_after_dropping_stem() -> Result<(), Error> {
         }
     })
     .ok();
-    let b = text.solve(Task::Main)?;
+    let b = text.solve(Task::Node)?;
     assert!(a == b);
     Ok(())
 }
