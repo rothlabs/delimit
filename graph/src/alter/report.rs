@@ -1,2 +1,3 @@
-#[derive(Default)]
-pub struct Report {}
+pub enum Report {
+    None
+}

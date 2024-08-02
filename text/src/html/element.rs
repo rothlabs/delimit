@@ -49,7 +49,7 @@ impl Solve for Element {
 }
 
 impl Alter for Element {
-    fn alter(&mut self, _: Post) -> alter::Result {
-        Ok(Report::default())
+    fn alter(&mut self, _: Post, _: &Back) -> alter::Result {
+        Ok(Report::None)
     }
 }

@@ -150,8 +150,8 @@ impl<W> Alter for Apex<W>
 where
     W: Alter,
 {
-    fn alter(&mut self, post: Post) -> alter::Result {
-        self.work.alter(post)
+    fn alter(&mut self, post: Post, back: &Back) -> alter::Result {
+        self.work.alter(post, back)
     }
 }
 

@@ -16,12 +16,15 @@ impl Repo {
 
 impl Alter for Repo {
     fn alter(&mut self, post: Post, back: &Back) -> alter::Result {
-        match post.form {
-            Form::Insert(nodes) => (),
+        match post {
+            Post::Insert(nodes) => self.insert(nodes.backed(back)),
             _ => ()
-        }
+        };
+        Ok(Report::None)
     }
 }
+
+
 
 
 // impl InsertMut for Repo {

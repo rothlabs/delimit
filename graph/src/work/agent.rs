@@ -111,7 +111,7 @@ impl<U> Alter for Agent<U>
 where
     U: Alter,
 {
-    fn alter(&mut self, post: Post) -> alter::Result {
-        self.unit.as_mut().unwrap().alter(post)
+    fn alter(&mut self, post: Post, back: &Back) -> alter::Result {
+        self.unit.as_mut().unwrap().alter(post, back)
     }
 }

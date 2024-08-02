@@ -15,7 +15,6 @@ pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use alter::Form;
 
 use std::error;
 #[cfg(not(feature = "oneThread"))]

@@ -1,4 +1,4 @@
-pub use post::{Post, Form};
+pub use post::Post;
 pub use report::Report;
 
 use super::*;
@@ -12,7 +12,7 @@ pub type Result = result::Result<Report, Error>;
 pub trait Alter {
     /// Alter a node.
     /// Useful for inserting, removing, and more.
-    fn alter(&mut self, post: Post) -> Result;
+    fn alter(&mut self, post: Post, back: &Back) -> Result;
 }
 
 pub trait DoAlter {

@@ -112,8 +112,7 @@ where
     N: 'static + Alter + DoUpdate,
 {
     fn alter(&self, post: Post) -> alter::Result {
-        let post = post.backed(&self.node_as_back());
-        write_part(&self.apex, |mut apex| apex.alter(post))
+        write_part(&self.apex, |mut apex| apex.alter(post, &self.node_as_back()))
     }
 }
 
