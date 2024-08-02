@@ -83,12 +83,12 @@ where
     }
 }
 
-impl<E> Maker for Link<E>
+impl<E> Link<E>
 where
     E: Maker + ToMeta,
 {
-    type Unit = E::Unit;
-    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    //type Unit = E::Unit;
+    pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let apex = E::maker(make);
         Self {
             meta: apex.meta(),
@@ -256,6 +256,27 @@ impl<E> Serialize for Link<E> {
         self.meta.serialize(serializer)
     }
 }
+
+
+
+// impl<E> Maker for Link<E>
+// where
+//     E: Maker + ToMeta,
+// {
+//     type Unit = E::Unit;
+//     fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+//         let apex = E::maker(make);
+//         Self {
+//             meta: apex.meta(),
+//             #[cfg(not(feature = "oneThread"))]
+//             edge: Arc::new(RwLock::new(apex)),
+//             #[cfg(feature = "oneThread")]
+//             edge: Rc::new(RefCell::new(apex)),
+//         }
+//     }
+// }
+
+
 
 // impl<E> Link<E>
 // where

@@ -17,9 +17,10 @@ impl Facets {
     // }
 }
 
-impl Grant for Facets {
-    type Load = ();
-    fn grant(&self) -> Self::Load {}
+impl Solve for Facets {
+    fn solve(&self, _: Task) -> solve::Result {
+        Ok(Tray::None)
+    }
 }
 
 // type Array = array::Role<f32>;

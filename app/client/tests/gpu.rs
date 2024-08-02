@@ -17,13 +17,13 @@ pub fn make_canvas_on_body() -> Gpu {
         unit.add_to_body();
         unit.gpu()
     });
-    canvas.act();
+    canvas.solve(Task::None).ok();
     gpu
 }
 
-pub fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Ace<Load>) {
+pub fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Leaf) {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
-    let fragment_source = shader::basic::FRAGMENT_RED.ace();
+    let fragment_source = shader::basic::FRAGMENT_RED.leaf();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
     let program = gpu.program(&vertex, &fragment);
     if let Err(memo) = program {
@@ -69,11 +69,11 @@ pub fn make_basic_texture(gpu: &Gpu) -> texture::Result {
         240,50,230,			188,246,12,			250,190,190,		0,128,128,
         230,190,255,		154,99,36,			255,250,200,		0,0,0,
     ];
-    let texture = gpu.texture(array)?.width(4_i32).height(4_i32).link_u8()?;
+    let texture = gpu.texture(array)?.width(4_i32).height(4_i32).link()?;
     Ok(texture)
 }
 
-pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<Load>), Box<dyn Error>> {
+pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Leaf), Box<dyn Error>> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -86,7 +86,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Ace<Load>), Bo
         .vao(vao)
         .count(3_i32)
         .link()?;
-    elements.act()?;
+    elements.solve(Task::None)?;
     Ok((elements, vertex_source))
 }
 
@@ -111,7 +111,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Agent<Elements>, Box<dy
         .vao(vao)
         .count(3_i32)
         .link()?;
-    elements.act()?;
+    elements.solve(Task::None)?;
     Ok(elements)
 }
 

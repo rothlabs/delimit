@@ -3,7 +3,7 @@ use std::result;
 
 pub type Result = result::Result<Node, Error>;
 
-/// Contains a bare load, meta about a link, or the link itself.
+/// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
 #[derive(Clone, Default, PartialEq)]
 pub struct Node {
     rank: usize,

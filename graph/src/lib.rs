@@ -104,7 +104,7 @@ where
     T: 'static + Make + Solve + Alter + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
-        Agent::maker(|back| self.make(back))
+        Agent::make(|back| self.make(back))
     }
 }
 

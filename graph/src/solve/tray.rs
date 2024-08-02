@@ -2,9 +2,8 @@ use super::*;
 
 #[derive(Clone, PartialEq)]
 pub enum Tray {
-    Node(Node),
-    //Load(Load),
     None,
+    Node(Node),
 }
 
 impl From<Node> for Tray {

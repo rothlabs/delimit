@@ -21,7 +21,7 @@ pub struct Elements {
 impl ElementsBuilder {
     pub fn link(&self) -> result::Result<Agent<Elements>, ElementsBuilderError> {
         let mut elements = self.build()?;
-        let link = Agent::maker(|back| {
+        let link = Agent::make(|back| {
             elements.program = elements.program.backed(back);
             elements.buffer = elements.buffer.backed(back);
             elements.vao = elements.vao.backed(back);
@@ -52,44 +52,3 @@ impl Solve for Elements {
         Ok(Tray::None)
     }
 }
-
-// impl React for Elements {
-//     fn react(&self, _: &Meta) -> react::Result {
-//         self.act()
-//     }
-// }
-
-// pub struct Elements {
-//     gl: WGLRC,
-//     program: Agent<Program>,
-//     buffer: Agent<Buffer<f32>>,
-//     vao: Agent<Vao>,
-//     count: Value<i32>,
-//     offset: Value<i32>,
-// }
-
-// impl Elements {
-//     pub fn link(
-//         gl: &WGLRC,
-//         program: &Agent<Program>,
-//         buffer: &Agent<Buffer<f32>>,
-//         vao: &Agent<Vao>,
-//     ) -> Agent<Elements> {
-//         Agent::make(|back| Self {
-//             gl: gl.clone(),
-//             program: program.backed(back),
-//             buffer: buffer.backed(back),
-//             vao: vao.backed(back),
-//             count: Value::default(),
-//             offset: Value::default(),
-//         })
-//     }
-//     pub fn count(&mut self, count: impl Into<Value<i32>>) -> &mut Self {
-//         self.count = count.into();
-//         self
-//     }
-//     pub fn offset(&mut self, offset: impl Into<Value<i32>>) -> &mut Self {
-//         self.offset = offset.into();
-//         self
-//     }
-// }

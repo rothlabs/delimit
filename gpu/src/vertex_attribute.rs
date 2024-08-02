@@ -25,7 +25,7 @@ pub struct VertexAttribute {
 impl VertexAttributeBuilder { 
     pub fn link(&self) -> Result {
         let mut attrib = self.build()?;
-        Ok(Agent::maker(|back| {
+        Ok(Agent::make(|back| {
             attrib.buffer = attrib.buffer.backed(back);
             attrib.index = attrib.index.backed(back);
             attrib.size = attrib.size.backed(back);

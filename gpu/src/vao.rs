@@ -19,7 +19,7 @@ pub struct Vao {
 impl VaoBuilder {
     pub fn link(&self) -> std::result::Result<Agent<Vao>, VaoBuilderError> {
         let mut vao = self.build()?;
-        let link = Agent::maker(|back| {
+        let link = Agent::make(|back| {
             vao.attributes = vao.attributes.backed(back);
             if let Some(index_buffer) = vao.index_buffer {
                 vao.index_buffer = Some(index_buffer.backed(back));

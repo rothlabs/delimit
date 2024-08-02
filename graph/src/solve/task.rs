@@ -1,5 +1,5 @@
 pub enum Task {
-    Node,
     None,
+    Node,
     React,
 }
