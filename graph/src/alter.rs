@@ -1,4 +1,4 @@
-pub use post::Post;
+pub use post::{Post, Form};
 pub use report::Report;
 
 use super::*;
