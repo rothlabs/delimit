@@ -83,13 +83,13 @@ where
     }
 }
 
-impl<E> Make for Link<E>
+impl<E> Maker for Link<E>
 where
-    E: Make + ToMeta,
+    E: Maker + ToMeta,
 {
     type Unit = E::Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-        let apex = E::make(make);
+    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+        let apex = E::maker(make);
         Self {
             meta: apex.meta(),
             #[cfg(not(feature = "oneThread"))]

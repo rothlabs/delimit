@@ -20,8 +20,8 @@ impl Attribute {
     }
 }
 
-impl Backed for Attribute {
-    fn backed(&self, back: &Back) -> Self {
+impl Make for Attribute {
+    fn make(&self, back: &Back) -> Self {
         Self {
             name: self.name.backed(back),
             content: self.content.backed(back),

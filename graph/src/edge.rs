@@ -45,13 +45,13 @@ where
     }
 }
 
-impl<N> Make for Edge<N>
+impl<N> Maker for Edge<N>
 where
     N: 'static + Default + DoMake + DoUpdate + ToMeta,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
         let meta = apex.meta();
         let apex = Arc::new(RwLock::new(apex));

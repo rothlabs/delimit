@@ -28,8 +28,8 @@ impl List {
     }
 }
 
-impl Backed for List {
-    fn backed(&self, back: &Back) -> Self {
+impl Make for List {
+    fn make(&self, back: &Back) -> Self {
         Self {
             items: self.items.backed(back),
             separator: self.separator.backed(back),

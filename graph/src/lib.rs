@@ -40,8 +40,6 @@ mod repo;
 mod work;
 mod write;
 
-//trait GraphError: error::Error + SendSync {}
-
 #[cfg(not(feature = "oneThread"))]
 pub type Error = Box<dyn error::Error + Send + Sync>;
 #[cfg(feature = "oneThread")]
@@ -103,10 +101,10 @@ where
 
 impl<T> ToAgent for T
 where
-    T: 'static + Backed + Solve + Alter + SendSync,
+    T: 'static + Make + Solve + Alter + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
-        Agent::make(|back| self.backed(back))
+        Agent::maker(|back| self.make(back))
     }
 }
 
@@ -169,8 +167,12 @@ pub trait FromItem {
 }
 
 pub trait Make {
+    fn make(&self, back: &Back) -> Self;
+}
+
+pub trait Maker {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
+    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
 
 pub trait DoMake {

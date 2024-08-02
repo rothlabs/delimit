@@ -25,8 +25,8 @@ impl Element {
     }
 }
 
-impl Backed for Element {
-    fn backed(&self, back: &Back) -> Self {
+impl Make for Element {
+    fn make(&self, back: &Back) -> Self {
         Self {
             tag: self.tag.backed(back),
             items: self.items.backed(back),
