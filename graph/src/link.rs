@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<E> Link<E> 
+impl<E> Link<E>
 where
     E: ToLoad,
 {

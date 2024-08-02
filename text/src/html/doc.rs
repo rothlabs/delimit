@@ -12,6 +12,7 @@ pub struct Doc {
     element: Agent<Element>,
     tag_names: HashMap<&'static str, Node>,
     attributes: AttributeSet,
+    repo: Node,
 }
 
 pub fn attribute_set() -> AttributeSet {
@@ -23,24 +24,22 @@ pub fn attribute_set() -> AttributeSet {
 }
 
 impl Doc {
-    pub fn new(atts: &AttributeSet) -> Self {
+    pub fn new(repo: &Node, atts: &AttributeSet) -> Self {
+        let repo = repo.clone();
         let mut tags = HashMap::new();
         for tag in TAGS {
-            //tags.insert(tag, Stem::new(tag.into()));
             tags.insert(tag, tag.leaf().node());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        // doctype.read_string(|string|{
-        //     println!("tag string!!!! {}", string)
-        // });
-        let tag = Tag::new().name(doctype).agent();
+        let tag = Tag::new().repo(&repo).name(doctype).agent();
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(tag.ploy()).agent(),
+            element: Element::new().repo(&repo).tag(tag.ploy()).agent(),
             tag,
             tag_names: tags,
             attributes: atts.clone(),
+            repo,
         }
     }
     pub fn node(&self) -> Node {
@@ -71,12 +70,13 @@ impl Doc {
             .expect("element should have a root")
             .replace(None)
             .unwrap();
+        let element = self.element.node();
         root.element
             .write(|Pack { unit, back }| {
-                let element = self.element.backed(back).ploy();
-                unit.item(element);
+                unit.item(element.backed(back));
             })
             .ok();
+        self.repo.edit().insert(element).run().ok();
         root
     }
     fn up(self, tag: &str) -> Self {
@@ -91,23 +91,29 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::new().name(name).content(value).node();
+            let attribute = Attribute::new()
+                .repo(&self.repo)
+                .name(name)
+                .content(value)
+                .node();
             self.tag
                 .write(|Pack { unit, back }| {
                     unit.attribute(attribute.backed(back));
                 })
                 .ok();
+            self.repo.edit().insert(attribute).run().ok();
         }
         self
     }
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
-        let tag = Tag::new().name(tag_leaf).agent();
+        let tag = Tag::new().repo(&self.repo).name(tag_leaf).agent();
         let mut element = Element::new();
         let element = match tag_name {
             "meta" => &mut element,
             _ => element.close(tag_leaf),
         }
+        .repo(&self.repo)
         .tag(tag.ploy())
         .agent();
         Doc {
@@ -116,6 +122,7 @@ impl Doc {
             attributes: self.attributes.clone(),
             element,
             tag,
+            repo: self.repo.clone(),
             root: Some(Box::new(RefCell::new(Some(self)))),
         }
     }

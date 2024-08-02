@@ -19,6 +19,10 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
+    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+        self.repo = repo.into();
+        self
+    }
 }
 
 impl Make for Tag {
@@ -38,15 +42,14 @@ impl Solve for Tag {
             .push(self.name.at(PLAIN)?)
             .extend(self.attributes.at(PLAIN)?)
             .node();
-        let tag = List::new().push("<").push(items).push(">").node().tray();
-        // self.repo.insert();
-        // self.repo.field("nodes").insert(items).insert(tag);
-        Ok(tag)
+        let tag = List::new().push("<").push(&items).push(">").node();
+        self.repo.edit().insert(items).insert(&tag).run()?;
+        Ok(tag.tray())
     }
 }
 
 impl Alter for Tag {
-    fn alter(&mut self, _: Post, _: &Back) -> alter::Result {
+    fn alter(&mut self, _: Post) -> alter::Result {
         Ok(Report::None)
     }
 }

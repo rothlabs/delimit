@@ -1,7 +1,7 @@
+pub use alter::{post, ToEdit};
 pub use alter::{Alter, DoAlter, Post, Report};
 pub use apex::Apex;
 pub use edge::Edge;
-pub use edit::Field;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{Meta, ToMeta};
@@ -32,7 +32,6 @@ pub mod solve;
 
 mod apex;
 mod edge;
-mod edit;
 mod link;
 mod load;
 mod meta;
@@ -109,6 +108,7 @@ where
 }
 
 pub trait ToNode {
+    /// Place inside a Node.
     fn node(&self) -> Node;
 }
 

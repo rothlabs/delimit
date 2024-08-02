@@ -25,6 +25,7 @@ impl Default for Id {
 
 impl Eq for Id {}
 
+/// Meta about a Node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Serialize, Debug, Hash)]
 pub struct Meta {
     pub id: Id,

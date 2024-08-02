@@ -5,6 +5,7 @@ pub struct Element {
     pub tag: Node,
     pub items: Vec<Node>,
     pub close: Option<Node>,
+    repo: Node,
 }
 
 impl Element {
@@ -23,6 +24,10 @@ impl Element {
         self.close = Some(close.into());
         self
     }
+    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+        self.repo = repo.into();
+        self
+    }
 }
 
 impl Make for Element {
@@ -31,25 +36,34 @@ impl Make for Element {
             tag: self.tag.backed(back),
             items: self.items.backed(back),
             close: self.close.as_ref().map(|close| close.backed(back)),
+            repo: self.repo.clone(),
         }
     }
 }
 
 impl Solve for Element {
     fn solve(&self, _: Task) -> solve::Result {
+        let mut edit = self.repo.edit();
         let mut element = List::new();
         element.separator("\n").push(self.tag.at(PLAIN)?);
         element.extend(self.items.at(PLAIN)?);
         if let Some(close) = &self.close {
-            let close = List::new().push("</").push(close.at(PLAIN)?).push(">").node();
+            let close = List::new()
+                .push("</")
+                .push(close.at(PLAIN)?)
+                .push(">")
+                .node();
+            edit.insert(&close);
             element.push(close);
         }
-        Ok(element.node().tray())
+        let element = element.node();
+        edit.insert(&element).run()?;
+        Ok(element.tray())
     }
 }
 
 impl Alter for Element {
-    fn alter(&mut self, _: Post, _: &Back) -> alter::Result {
+    fn alter(&mut self, _: Post) -> alter::Result {
         Ok(Report::None)
     }
 }

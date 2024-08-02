@@ -1,3 +1,3 @@
 pub enum Report {
-    None
+    None,
 }

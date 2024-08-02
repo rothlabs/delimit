@@ -1,4 +1,4 @@
-use graph::Error;
+use graph::*;
 use serde::Serialize;
 
 use text::html::{attribute_set, Doc};
@@ -27,8 +27,9 @@ impl Default for Imports {
 }
 
 pub fn index() -> Result<String, Error> {
+    let repo = Repo::new().node();
     let atts = attribute_set();
-    let mut html = Doc::new(&atts).html();
+    let mut html = Doc::new(&repo, &atts).html();
     html.attribute("lang", "en");
     let mut title = html.head().title();
     title.add_str("Delimit");

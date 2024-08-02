@@ -5,10 +5,7 @@ use std::{collections::HashSet, hash::Hash};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{RwLock, Weak};
 #[cfg(feature = "oneThread")]
-use std::{
-    cell::RefCell,
-    rc::Weak,
-};
+use std::{cell::RefCell, rc::Weak};
 
 use crate::Meta;
 

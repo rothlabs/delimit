@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Default)]
 pub struct List {
-    pub items: Vec<Node>,
-    pub separator: Node,
+    items: Vec<Node>,
+    separator: Node,
 }
 
 impl List {
@@ -56,7 +56,7 @@ impl Solve for List {
 }
 
 impl Alter for List {
-    fn alter(&mut self, _: Post, _: &Back) -> alter::Result {
+    fn alter(&mut self, _: Post) -> alter::Result {
         Ok(Report::None)
     }
 }

@@ -4,6 +4,7 @@ use crate::html::*;
 pub struct Attribute {
     name: Node,
     content: Node,
+    repo: Node,
 }
 
 impl Attribute {
@@ -18,6 +19,10 @@ impl Attribute {
         self.content = content.into();
         self
     }
+    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+        self.repo = repo.into();
+        self
+    }
 }
 
 impl Make for Attribute {
@@ -25,6 +30,7 @@ impl Make for Attribute {
         Self {
             name: self.name.backed(back),
             content: self.content.backed(back),
+            repo: self.repo.clone(),
         }
     }
 }
@@ -37,12 +43,13 @@ impl Solve for Attribute {
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node();
-        Ok(Tray::Node(node))
+        self.repo.edit().insert(&node).run()?;
+        Ok(node.tray())
     }
 }
 
 impl Alter for Attribute {
-    fn alter(&mut self, _: Post, _: &Back) -> alter::Result {
+    fn alter(&mut self, _: Post) -> alter::Result {
         Ok(Report::None)
     }
 }
