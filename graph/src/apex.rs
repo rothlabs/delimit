@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use super::*;
 
 pub type Leaf = Apex<work::Leaf>;
@@ -34,6 +36,16 @@ where
             ring: Ring::new(),
             work: W::new(item),
         }
+    }
+}
+
+impl<W> SerializeGraph for Apex<W> 
+where 
+    W: Serialize
+{
+    fn serial(&self, serial: &mut Serial) -> serial::Result {
+        serial.insert(&self.meta, serde_json::to_string(&self.work)?);
+        Ok(())
     }
 }
 

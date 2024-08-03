@@ -1,9 +1,9 @@
-// use serde::Serialize;
+use serde::Serialize;
 
 use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.
-// #[derive(Serialize)]
+#[derive(Serialize)]
 pub struct Leaf {
     load: Load,
 }
@@ -47,6 +47,13 @@ impl DoReact for Leaf {
         Ok(())
     }
 }
+
+// impl SerializeGraph for Leaf {
+//     fn serial(&self, serial: &mut Serial) -> serial::Result {
+//         self.load.serial(serial)
+//     }
+// }
+
 
 // impl<L> DoGrant for Ace<L>
 // where

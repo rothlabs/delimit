@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Serialize)]
 pub struct List {
     items: Vec<Node>,
     separator: Node,

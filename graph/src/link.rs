@@ -1,7 +1,6 @@
 pub use leaf::ToLeaf;
 
 use super::*;
-use serde::Serialize;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
@@ -28,6 +27,20 @@ pub struct Link<E> {
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     meta: Meta,
+}
+
+impl<E: SerializeGraph> Link<E> {
+    pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+        read_part(&self.edge, |edge| edge.serial(serial))
+    }
+}
+
+impl<E> Serialize for Link<E> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        self.meta.serialize(serializer)
+    }
 }
 
 impl<E> Link<E> {
@@ -244,11 +257,16 @@ where
     }
 }
 
-impl<E> Serialize for Link<E> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.meta.serialize(serializer)
-    }
-}
+
+// impl<E> Serialize for Link<E> 
+// where 
+//     E: SerializeGraph
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         read_part(&self.edge, |edge| edge.serialize(serializer, serial))
+//         self.meta.serialize(serializer)
+//     }
+// }

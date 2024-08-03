@@ -3,6 +3,8 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
+use serde::Serialize;
+
 use crate::*;
 
 /// Edge to a load.
@@ -24,6 +26,15 @@ pub struct Edge<N> {
 impl<N> ToMeta for Edge<N> {
     fn meta(&self) -> Meta {
         self.meta.clone()
+    }
+}
+
+impl<N> SerializeGraph for Edge<N> 
+where 
+    N: SerializeGraph
+{
+    fn serial(&self, serial: &mut Serial) -> serial::Result {
+        read_part(&self.apex, |apex| apex.serial(serial))
     }
 }
 
@@ -117,11 +128,11 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + SendSync {}
+impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + SendSync,
+    U: 'static + Solve + Alter + Serialize + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
@@ -144,7 +155,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + SendSync,
+    U: 'static + Solve + Alter + Serialize + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
@@ -261,6 +272,12 @@ where
 {
     fn react(&self, meta: &Meta) -> react::Result {
         write_part(&self.apex, |mut apex| apex.do_react(meta))
+    }
+}
+
+impl SerializeGraph for Box<dyn Engage> {
+    fn serial(&self, serial: &mut Serial) -> serial::Result {
+        self.as_ref().serial(serial)
     }
 }
 

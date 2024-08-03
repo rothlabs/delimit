@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use super::*;
 use std::result;
 
@@ -6,7 +8,7 @@ pub type Result = result::Result<Load, Error>;
 pub type ResultRef<'a> = result::Result<&'a Load, Error>;
 
 /// The Load enum allows Nodes to be handled with unknown payload datatype.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize)]
 pub enum Load {
     None,
     String(String),
@@ -24,3 +26,9 @@ pub enum Load {
     Vf32(Vec<f32>),
     Vf64(Vec<f64>),
 }
+
+// impl Load {
+//     pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+//         serial.insert()
+//     }
+// }

@@ -32,6 +32,12 @@ impl Node {
     pub fn meta(&self) -> Meta {
         self.form.meta()
     }
+    pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+        if !serial.contains(&self.meta()) {
+            return self.form.serial(serial)
+        }
+        Ok(())
+    }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
         self.form.read(|load| match load {
             Ok(value) => Ok(read(value)),
@@ -76,6 +82,14 @@ impl Node {
             Ok(Load::I32(value)) => value,
             _ => 0,
         }
+    }
+}
+
+impl Serialize for Node {
+    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        self.form.serialize(serializer)
     }
 }
 

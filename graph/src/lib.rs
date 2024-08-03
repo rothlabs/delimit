@@ -11,10 +11,12 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
+use serde::Serialize;
 pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use serial::{Serial, SerializeGraph};
 
 use std::error;
 #[cfg(not(feature = "oneThread"))]
@@ -29,6 +31,7 @@ pub mod alter;
 pub mod node;
 pub mod react;
 pub mod solve;
+pub mod serial;
 
 mod apex;
 mod edge;
@@ -84,7 +87,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update {}
+pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -114,7 +117,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Alter + SendSync,
+    T: 'static + ToAgent + Solve + Alter + Serialize + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -123,7 +126,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Alter + SendSync,
+    T: 'static + Solve + Alter + Serialize + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use crate::*;
 
 /// Main Work type.
@@ -113,5 +115,16 @@ where
 {
     fn alter(&mut self, post: Post) -> alter::Result {
         self.unit.as_mut().unwrap().alter(post)
+    }
+}
+
+impl<U> Serialize for Agent<U> 
+where 
+    U: Serialize
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        self.unit.as_ref().unwrap().serialize(serializer)
     }
 }

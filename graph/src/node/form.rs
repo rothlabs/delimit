@@ -19,6 +19,14 @@ impl Form {
             Self::Ploy(ploy) => ploy.meta(),
         }
     }
+    pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+        match self {
+            Self::Meta(_) => Ok(()),
+            Self::Bare(_) => Ok(()),
+            Self::Leaf(leaf) => leaf.serial(serial),
+            Self::Ploy(ploy) => ploy.serial(serial),
+        }
+    }
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
@@ -63,6 +71,20 @@ impl Form {
 impl Default for Form {
     fn default() -> Self {
         Self::Bare(Load::None)
+    }
+}
+
+impl Serialize for Form {
+    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        match self {
+            Self::Meta(meta) => meta.serialize(serializer),
+            Self::Bare(load) => load.serialize(serializer),
+            Self::Leaf(leaf) => leaf.serialize(serializer),
+            Self::Ploy(ploy) => ploy.serialize(serializer),
+
+        }
     }
 }
 
