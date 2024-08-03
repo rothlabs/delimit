@@ -48,10 +48,20 @@ impl DoReact for Leaf {
     }
 }
 
-impl Solve for Leaf {
-    fn solve(&self, _: Task) -> solve::Result {
+impl DoSolve for Leaf {
+    fn do_solve(&mut self, _: Task, _: &Back) -> solve::Result {
         Ok(Tray::None)
     }
+}
+
+impl DoRebut for Leaf {
+    fn do_rebut(&mut self) -> Ring {
+        Ring::new()
+    }
+}
+
+impl Clear for Leaf {
+    fn clear(&mut self) {}
 }
 
 // impl SerializeGraph for Leaf {

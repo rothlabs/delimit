@@ -28,19 +28,14 @@ impl List {
         self.items.remove(index);
         self
     }
-}
-
-impl Make for List {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            items: self.items.backed(back),
-            separator: self.separator.backed(back),
+    fn serial(&self, serial: &mut Serial) -> solve::Result {
+        self.separator.serial(serial)?;
+        for item in &self.items {
+            item.serial(serial)?;
         }
+        Ok(Tray::None)
     }
-}
-
-impl Solve for List {
-    fn solve(&self, _: Task) -> solve::Result {
+    fn main(&self) -> solve::Result {
         if self.items.is_empty() {
             return Node::empty();
         }
@@ -54,6 +49,25 @@ impl Solve for List {
         });
         self.items[last].read_string(|s| string += s);
         Ok(string.leaf().node().tray())
+    }
+}
+
+impl Make for List {
+    fn make(&self, back: &Back) -> Self {
+        Self {
+            items: self.items.backed(back),
+            separator: self.separator.backed(back),
+        }
+    }
+}
+
+impl Solve for List {
+    fn solve(&self, task: Task) -> solve::Result {
+        match task {
+            Task::Node => self.main(),
+            Task::Serial(serial) => self.serial(serial),
+            _ => Ok(Tray::None)
+        }
     }
 }
 

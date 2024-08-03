@@ -31,10 +31,10 @@ impl<N> ToMeta for Edge<N> {
 
 impl<N> SerializeGraph for Edge<N> 
 where 
-    N: SerializeGraph
+    N: 'static + DoSerializeGraph + DoUpdate
 {
     fn serial(&self, serial: &mut Serial) -> serial::Result {
-        read_part(&self.apex, |apex| apex.serial(serial))
+        write_part(&self.apex, |mut apex| apex.serial(serial, &self.node_as_back()))
     }
 }
 

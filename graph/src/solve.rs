@@ -21,3 +21,8 @@ pub trait DoSolve {
     /// For graph internals to handle solve calls
     fn do_solve(&mut self, task: Task, back: &Back) -> Result;
 }
+
+// pub trait DoSolve {
+//     /// For graph internals to handle solve calls
+//     fn do_solve(&mut self, task: Task, back: &Back) -> Result;
+// }

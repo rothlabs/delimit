@@ -16,7 +16,7 @@ pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use serial::{Serial, SerializeGraph};
+pub use serial::{Serial, SerializeGraph, DoSerializeGraph};
 
 use std::error;
 #[cfg(not(feature = "oneThread"))]
