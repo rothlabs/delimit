@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use super::*;
 
-#[derive(Default, Serialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct Tag {
     pub name: Node,
     pub attributes: Vec<Node>,
@@ -25,10 +25,10 @@ impl Tag {
         self.repo = repo.into();
         self
     }
-    fn serial(&self, serial: &mut Serial) -> solve::Result {
-        self.name.serial(serial)?;
-        // self.attributes.serial(serial)?;
-        Ok(Tray::None)
+    fn stems(&self) -> solve::Result {
+        let mut stems = self.attributes.clone();
+        stems.push(self.name.clone());
+        Ok(Tray::Nodes(stems))
     }
     fn main(&self) -> solve::Result {
         let items = List::new()
@@ -55,8 +55,8 @@ impl Make for Tag {
 impl Solve for Tag {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
-            Task::Node => self.main(),
-            Task::Serial(serial) => self.serial(serial),
+            Task::Main => self.main(),
+            Task::Stems => self.stems(),
             _ => Ok(Tray::None)
         }
     }

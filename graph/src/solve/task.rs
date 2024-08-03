@@ -1,8 +1,15 @@
-use super::*;
+// use super::*;
 
-pub enum Task<'a> {
+pub enum Task {
     None,
-    Node,
+    Main,
+    Stems,
     React,
-    Serial(&'a mut Serial),
 }
+
+// pub enum Task<'a> {
+//     None,
+//     Node,
+//     React,
+//     Serial(&'a mut Serial),
+// }

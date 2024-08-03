@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use super::*;
 
-#[derive(Default, Serialize)]
+#[derive(Default, Clone, Serialize)]
 pub struct Element {
     pub tag: Node,
     pub items: Vec<Node>,

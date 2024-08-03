@@ -4,6 +4,7 @@ use super::*;
 pub enum Tray {
     None,
     Node(Node),
+    Nodes(Vec<Node>),
     // Serial(serial::Result),
 }
 

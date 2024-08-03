@@ -1,7 +1,7 @@
 use super::*;
 use std::collections::HashMap;
 
-#[derive(Default, Serialize)]
+#[derive(Default, Clone, Serialize)]
 pub struct Repo {
     pub nodes: HashMap<Meta, Node>,
 }

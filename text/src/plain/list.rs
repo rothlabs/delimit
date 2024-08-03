@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use super::*;
 
-#[derive(Default, Serialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct List {
     items: Vec<Node>,
     separator: Node,
@@ -28,12 +28,10 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn serial(&self, serial: &mut Serial) -> solve::Result {
-        self.separator.serial(serial)?;
-        for item in &self.items {
-            item.serial(serial)?;
-        }
-        Ok(Tray::None)
+    fn stems(&self) -> solve::Result {
+        let mut stems = self.items.clone();
+        stems.push(self.separator.clone());
+        Ok(Tray::Nodes(stems))
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
@@ -52,34 +50,11 @@ impl List {
     }
 }
 
-impl Stems for List {
-    fn stems(&self) -> Vec<&Node> {
-        let mut stems: Vec<&Node> = self.items.iter().collect();
-        stems.push(&self.separator);
-        stems
-    }
-}
-
-///////////////////////////////////
-/// instead of Make and SerializeGraph for unit
-///     impl Stem or Stems that returns Vec<&mut Node>
-///     that should cover the creation process 
-///     and serialization
-/// //////////////////////////
-impl Make for List {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            items: self.items.backed(back),
-            separator: self.separator.backed(back),
-        }
-    }
-}
-
 impl Solve for List {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
-            Task::Node => self.main(),
-            Task::Serial(serial) => self.serial(serial),
+            Task::Main => self.main(),
+            Task::Stems => self.stems(),
             _ => Ok(Tray::None)
         }
     }
@@ -90,6 +65,29 @@ impl Alter for List {
         Ok(Report::None)
     }
 }
+
+// impl Stems for List {
+//     fn stems(&self) -> Vec<&Node> {
+//         let mut stems: Vec<&Node> = self.items.iter().collect();
+//         stems.push(&self.separator);
+//         stems
+//     }
+// }
+
+// ///////////////////////////////////
+// /// instead of Make and SerializeGraph for unit
+// ///     impl Stem or Stems that returns Vec<&mut Node>
+// ///     that should cover the creation process 
+// ///     and serialization
+// /// //////////////////////////
+// impl Make for List {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             items: self.items.backed(back),
+//             separator: self.separator.backed(back),
+//         }
+//     }
+// }
 
 
 // impl Stems for List {

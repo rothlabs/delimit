@@ -102,9 +102,9 @@ pub trait CloneEdgePloy {
     fn clone_edge_ploy(&self) -> PloyEdge;
 }
 
-pub trait Stems {
-    fn stems(&self) -> Vec<&Node>;
-}
+// pub trait Stems {
+//     fn stems(&self) -> Vec<&Node>;
+// }
 
 pub trait ToAgent
 where
@@ -115,10 +115,18 @@ where
 
 impl<T> ToAgent for T
 where
-    T: 'static + Make + Solve + Alter + SendSync,
+    T: 'static + Make + Solve + Alter + Clone + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
-        Agent::make(|back| self.make(back))
+        Agent::make(|back| {
+            if let Ok(Tray::Nodes(nodes)) = self.solve(Task::Stems) {
+                for node in &nodes {
+                    node.back(back);
+                }
+            }
+            self.clone()
+        })
+        // Agent::make(|back| self.make(back))
     }
 }
 

@@ -9,7 +9,7 @@ where
     T: Solve + Clone,
 {
     pub fn node(&self) -> node::Result {
-        match self.target.solve(Task::Node)? {
+        match self.target.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
             _ => Err("not a node".into()),
         }
