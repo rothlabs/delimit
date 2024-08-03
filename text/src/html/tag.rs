@@ -25,6 +25,21 @@ impl Tag {
         self.repo = repo.into();
         self
     }
+    fn serial(&self, serial: &mut Serial) -> solve::Result {
+        self.name.serial(serial)?;
+        // self.attributes.serial(serial)?;
+        Ok(Tray::None)
+    }
+    fn main(&self) -> solve::Result {
+        let items = List::new()
+            .separator(" ")
+            .push(self.name.at(PLAIN)?)
+            .extend(self.attributes.at(PLAIN)?)
+            .node();
+        let tag = List::new().push("<").push(&items).push(">").node();
+        self.repo.edit().insert(items).insert(&tag).run()?;
+        Ok(tag.tray())
+    }
 }
 
 impl Make for Tag {
@@ -38,15 +53,12 @@ impl Make for Tag {
 }
 
 impl Solve for Tag {
-    fn solve(&self, _: Task) -> solve::Result {
-        let items = List::new()
-            .separator(" ")
-            .push(self.name.at(PLAIN)?)
-            .extend(self.attributes.at(PLAIN)?)
-            .node();
-        let tag = List::new().push("<").push(&items).push(">").node();
-        self.repo.edit().insert(items).insert(&tag).run()?;
-        Ok(tag.tray())
+    fn solve(&self, task: Task) -> solve::Result {
+        match task {
+            Task::Node => self.main(),
+            Task::Serial(serial) => self.serial(serial),
+            _ => Ok(Tray::None)
+        }
     }
 }
 

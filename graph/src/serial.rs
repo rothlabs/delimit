@@ -23,6 +23,18 @@ pub trait SerializeGraph {
     fn serial(&self, serial: &mut Serial) -> Result;
 }
 
+impl<T> SerializeGraph for Vec<T> 
+where 
+    T: SerializeGraph
+{
+    fn serial(&self, serial: &mut Serial) -> Result {
+        for item in self {
+            item.serial(serial)?;
+        }
+        Ok(())
+    }
+}
+
 pub trait DoSerializeGraph {
     fn serial(&mut self, serial: &mut Serial, back: &Back) -> Result;
 }

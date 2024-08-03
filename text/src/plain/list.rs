@@ -52,6 +52,12 @@ impl List {
     }
 }
 
+///////////////////////////////////
+/// instead of Make and SerializeGraph for unit
+///     impl Stem or Stems that returns Vec<&mut Node>
+///     that should cover the creation process 
+///     and serialization
+/// //////////////////////////
 impl Make for List {
     fn make(&self, back: &Back) -> Self {
         Self {
