@@ -145,6 +145,15 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
+impl<E> SetBack for Link<E>
+where
+    E: DoSetBack,
+{
+    fn back(&self, back: &Back) {
+        write_part(&self.edge, |mut edge| edge.back(back));
+    }
+}
+
 /// TODO: make method to make new link with cloned edge without Back!
 impl<E> Backed for Link<E>
 where

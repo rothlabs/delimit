@@ -188,6 +188,12 @@ where
     }
 }
 
+impl<N> DoSetBack for Edge<N> {
+    fn back(&mut self, back: &Back) {
+        self.back = Some(back.clone());
+    }
+}
+
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
@@ -275,6 +281,12 @@ where
 {
     fn react(&self, meta: &Meta) -> react::Result {
         write_part(&self.apex, |mut apex| apex.do_react(meta))
+    }
+}
+
+impl DoSetBack for Box<dyn Engage> {
+    fn back(&mut self, back: &Back) {
+        self.as_mut().back(back);
     }
 }
 

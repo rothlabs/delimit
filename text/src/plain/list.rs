@@ -52,6 +52,14 @@ impl List {
     }
 }
 
+impl Stems for List {
+    fn stems(&self) -> Vec<&Node> {
+        let mut stems: Vec<&Node> = self.items.iter().collect();
+        stems.push(&self.separator);
+        stems
+    }
+}
+
 ///////////////////////////////////
 /// instead of Make and SerializeGraph for unit
 ///     impl Stem or Stems that returns Vec<&mut Node>
@@ -82,3 +90,12 @@ impl Alter for List {
         Ok(Report::None)
     }
 }
+
+
+// impl Stems for List {
+//     fn stems(&mut self) -> Vec<&mut Node> {
+//         let mut stems: Vec<&mut Node> = self.items.iter_mut().collect();
+//         stems.push(&mut self.separator);
+//         stems
+//     }
+// }

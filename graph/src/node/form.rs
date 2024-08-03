@@ -27,6 +27,14 @@ impl Form {
             Self::Ploy(ploy) => ploy.serial(serial),
         }
     }
+    pub fn back(&self, back: &Back) {
+        match self {
+            Self::Meta(_) => (),
+            Self::Bare(_) => (),
+            Self::Leaf(leaf) => leaf.back(back),
+            Self::Ploy(ploy) => ploy.back(back),
+        }
+    }
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
@@ -95,107 +103,6 @@ impl Backed for Form {
             Self::Bare(bare) => Self::Bare(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
-        }
-    }
-}
-
-impl From<Load> for Node {
-    fn from(value: Load) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Bare(value),
-        }
-    }
-}
-
-impl From<Leaf> for Node {
-    fn from(leaf: Leaf) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Leaf(leaf),
-        }
-    }
-}
-
-impl From<Ploy> for Node {
-    fn from(ploy: Ploy) -> Self {
-        // TODO: find way to not query the node to get rank!
-        let rank = match ploy.query().node() {
-            Ok(node) => node.rank + 1,
-            _ => 0,
-        };
-        Self {
-            rank,
-            form: Form::Ploy(ploy),
-        }
-    }
-}
-
-impl From<&Leaf> for Node {
-    fn from(value: &Leaf) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Leaf(value.clone()),
-        }
-    }
-}
-
-impl From<&Node> for Node {
-    fn from(value: &Node) -> Self {
-        value.clone()
-    }
-}
-
-impl From<&str> for Node {
-    fn from(value: &str) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Bare(Load::String(value.to_owned())),
-        }
-    }
-}
-
-impl From<u32> for Node {
-    fn from(value: u32) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Bare(Load::U32(value)),
-        }
-    }
-}
-
-impl From<i32> for Node {
-    fn from(value: i32) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Bare(Load::I32(value)),
-        }
-    }
-}
-
-impl From<Vec<u8>> for Node {
-    fn from(value: Vec<u8>) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Leaf(Leaf::new(Load::Vu8(value))),
-        }
-    }
-}
-
-impl From<Vec<u16>> for Node {
-    fn from(value: Vec<u16>) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Leaf(Leaf::new(Load::Vu16(value))),
-        }
-    }
-}
-
-impl From<Vec<f32>> for Node {
-    fn from(value: Vec<f32>) -> Self {
-        Self {
-            rank: 0,
-            form: Form::Leaf(Leaf::new(Load::Vf32(value))),
         }
     }
 }
