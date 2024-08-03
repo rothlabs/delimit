@@ -48,6 +48,12 @@ impl DoReact for Leaf {
     }
 }
 
+impl Solve for Leaf {
+    fn solve(&self, _: Task) -> solve::Result {
+        Ok(Tray::None)
+    }
+}
+
 // impl SerializeGraph for Leaf {
 //     fn serial(&self, serial: &mut Serial) -> serial::Result {
 //         self.load.serial(serial)

@@ -128,7 +128,10 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + SendSync {}
+impl<U> Engage for Agent<U> 
+where 
+    U: 'static + Solve + Alter + Serialize + SendSync,
+{}
 
 impl<U> ToPloy for Agent<U>
 where

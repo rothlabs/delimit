@@ -14,6 +14,10 @@ where
             _ => Err("not a node".into()),
         }
     }
+    // pub fn serial(&self) -> serial::Result {
+    //     self.target.solve(Task::Serial)?;
+    //     Ok(())
+    // }
 }
 
 pub trait ToQuery<T> {
@@ -30,6 +34,8 @@ where
         }
     }
 }
+
+
 
 // pub fn new(item: &T) -> Self {
 //     Self { item: item.clone() }

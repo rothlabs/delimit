@@ -41,10 +41,11 @@ where
 
 impl<W> SerializeGraph for Apex<W> 
 where 
-    W: Serialize
+    W: Serialize + DoSolve
 {
     fn serial(&self, serial: &mut Serial) -> serial::Result {
         serial.insert(&self.meta, serde_json::to_string(&self.work)?);
+        self.work.do_solve(Task::Serial(serial))?;
         Ok(())
     }
 }
