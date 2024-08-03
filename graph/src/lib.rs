@@ -87,12 +87,20 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph + DoSetBack {}
+pub trait Engage: Solve + DoAlter + BackedPloy + CloneEdgePloy + AddRoot + Update + SerializeGraph + DoSetBack {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
+
+pub trait CloneEdge {
+    fn clone_edge(&self) -> Self;
+}
+
+pub trait CloneEdgePloy {
+    fn clone_edge_ploy(&self) -> PloyEdge;
+}
 
 pub trait Stems {
     fn stems(&self) -> Vec<&Node>;

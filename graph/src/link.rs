@@ -177,6 +177,28 @@ where
     }
 }
 
+impl<E> CloneEdge for Link<E>
+where
+    E: CloneEdge,
+{
+    #[cfg(not(feature = "oneThread"))]
+    fn clone_edge(&self) -> Self {
+        let edge = self.edge.read().expect(NO_POISON);
+        Self {
+            edge: Arc::new(RwLock::new(edge.clone_edge())),
+            meta: self.meta.clone(),
+        }
+    }
+    #[cfg(feature = "oneThread")]
+    fn clone_edge(&self) -> Self {
+        let edge = self.edge.borrow();
+        Self {
+            edge: Rc::new(RefCell::new(edge.clone_edge())),
+            meta: self.meta.clone(),
+        }
+    }
+}
+
 /// TODO: make reader that does not add a root to the apex.
 /// This will allow readers to inspect without rebuting in the future.
 impl<E> Read for Link<E>
@@ -252,6 +274,15 @@ impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
+            meta: self.meta.clone(),
+        })
+    }
+}
+
+impl CloneEdge for Ploy {
+    fn clone_edge(&self) -> Self {
+        read_part(&self.edge, |edge| Self {
+            edge: edge.clone_edge_ploy(),
             meta: self.meta.clone(),
         })
     }
