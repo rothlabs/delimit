@@ -25,20 +25,10 @@ impl Attribute {
         self.repo = repo.into();
         self
     }
-}
-
-impl Make for Attribute {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            name: self.name.backed(back),
-            content: self.content.backed(back),
-            repo: self.repo.clone(),
-        }
+    fn stems(&self) -> solve::Result {
+        Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
     }
-}
-
-impl Solve for Attribute {
-    fn solve(&self, _: Task) -> solve::Result {
+    fn main(&self) -> solve::Result {
         let node = List::new()
             .push(self.name.at(PLAIN)?)
             .push(r#"=""#)
@@ -50,9 +40,29 @@ impl Solve for Attribute {
     }
 }
 
+impl Solve for Attribute {
+    fn solve(&self, task: Task) -> solve::Result {
+        match task {
+            Task::Main => self.main(),
+            Task::Stems => self.stems(),
+            _ => Ok(Tray::None)
+        }
+    }
+}
+
 impl Alter for Attribute {
     fn alter(&mut self, _: Post) -> alter::Result {
         Ok(Report::None)
+    }
+}
+
+impl Make for Attribute {
+    fn make(&self, back: &Back) -> Self {
+        Self {
+            name: self.name.backed(back),
+            content: self.content.backed(back),
+            repo: self.repo.clone(),
+        }
     }
 }
 

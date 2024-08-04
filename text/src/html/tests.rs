@@ -34,8 +34,12 @@ fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
 
 #[test]
 fn basic_doc() -> Result<(), Error> {
-    let (_, doc, _, _) = make_doc();
+    let (repo, doc, head, _) = make_doc();
     let string = doc.load()?;
+    let mut serial = Serial::new();
+    head.serial(&mut serial)?;
+    let wow = serial.string()?;
+    eprintln!("serial: {}", wow);
     assert_eq!(Load::String(DOC.into()), string);
     Ok(())
 }

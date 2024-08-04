@@ -20,6 +20,7 @@ where
 }
 
 pub trait ToEdit<T> {
+    /// Make an editor to setup changes. Call Run to apply changes.
     fn edit(&self) -> Edit<T>;
 }
 

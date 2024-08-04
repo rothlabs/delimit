@@ -38,6 +38,12 @@ impl Meta {
     pub fn none() -> Self {
         Self { id: Id::none() }
     }
+    pub fn id(&self) -> &String {
+        &self.id.0
+    }
+    pub fn string(&self) -> String {
+        self.id.0.clone()
+    }
 }
 
 impl Default for Meta {

@@ -99,12 +99,16 @@ where
     U: Solve,
 {
     fn do_solve(&mut self, task: Task, _: &Back) -> solve::Result {
-        if let Some(tray) = &self.tray {
-            Ok(tray.clone())
+        if let Task::Main = task {
+            if let Some(tray) = &self.tray {
+                Ok(tray.clone())
+            } else {
+                let tray = self.unit.as_ref().unwrap().solve(task)?;
+                self.tray = Some(tray.clone());
+                Ok(tray)
+            }
         } else {
-            let tray = self.unit.as_ref().unwrap().solve(task)?;
-            self.tray = Some(tray.clone());
-            Ok(tray)
+            self.unit.as_ref().unwrap().solve(task)
         }
     }
 }

@@ -1,21 +1,25 @@
-// use serde::{Serialize, Serializer};
-
 use super::*;
 use std::{collections::HashMap, result};
 
 pub type Result = result::Result<(), Error>;
 
-// #[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct Serial {
-    pub nodes: HashMap<Meta, String>,
+    pub nodes: HashMap<String, String>,
 }
 
 impl Serial {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn contains(&self, meta: &Meta) -> bool {
-        self.nodes.contains_key(meta)
+        self.nodes.contains_key(meta.id())
     }
     pub fn insert(&mut self, meta: &Meta, node: String) {
-        self.nodes.insert(meta.clone(), node);
+        self.nodes.insert(meta.string(), node);
+    }
+    pub fn string(&self) -> result::Result<String, serde_json::Error> {
+        serde_json::to_string(self)
     }
 }
 

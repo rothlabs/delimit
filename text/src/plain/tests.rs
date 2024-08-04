@@ -7,8 +7,8 @@ fn new_list(ace: &Leaf) -> Agent<List> {
 #[test]
 fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
-    let text = new_list(&ace);
-    text.node().read_string(|string| {
+    let text = new_list(&ace).node();
+    text.read_string(|string| {
         assert_eq!(string, "str, ace");
     });
     Ok(())

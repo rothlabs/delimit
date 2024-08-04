@@ -43,9 +43,13 @@ impl<W> DoSerializeGraph for Apex<W>
 where 
     W: Serialize + DoSolve
 {
-    fn serial(&mut self, serial: &mut Serial, _: &Back) -> serial::Result {
+    fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
         serial.insert(&self.meta, serde_json::to_string(&self.work)?);
-        // self.work.do_solve(Task::Serial(serial), back)?;
+        if let Tray::Nodes(nodes) = self.work.do_solve(Task::Stems, back)? {
+            for node in &nodes {
+                node.serial(serial)?;
+            }
+        }
         Ok(())
     }
 }
