@@ -50,6 +50,15 @@ impl List {
     }
 }
 
+impl Make for List {
+    fn make(&self, back: &Back) -> Self {
+        Self {
+            items: self.items.backed(back),
+            separator: self.separator.backed(back),
+        }
+    }
+}
+
 impl Solve for List {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
@@ -80,14 +89,6 @@ impl Alter for List {
 // ///     that should cover the creation process 
 // ///     and serialization
 // /// //////////////////////////
-// impl Make for List {
-//     fn make(&self, back: &Back) -> Self {
-//         Self {
-//             items: self.items.backed(back),
-//             separator: self.separator.backed(back),
-//         }
-//     }
-// }
 
 
 // impl Stems for List {
