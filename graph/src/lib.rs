@@ -8,7 +8,7 @@ pub use meta::{Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
-    Root, ToPipedPloy, ToPloy, Update, SetBack, DoSetBack,
+    Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
 use serde::Serialize;
@@ -87,24 +87,12 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + DoAlter + BackedPloy + CloneEdgePloy + AddRoot + Update + SerializeGraph + DoSetBack {}
+pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
-
-pub trait CloneEdge {
-    fn clone_edge(&self) -> Self;
-}
-
-pub trait CloneEdgePloy {
-    fn clone_edge_ploy(&self) -> PloyEdge;
-}
-
-// pub trait Stems {
-//     fn stems(&self) -> Vec<&Node>;
-// }
 
 pub trait ToAgent
 where
@@ -118,14 +106,6 @@ where
     T: 'static + Make + Solve + Alter + Clone + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
-        // Agent::make(|back| {
-        //     if let Ok(Tray::Nodes(nodes)) = self.solve(Task::Stems) {
-        //         for node in &nodes {
-        //             node.back(back);
-        //         }
-        //     }
-        //     self.clone()
-        // })
         Agent::make(|back| self.make(back))
     }
 }

@@ -38,12 +38,6 @@ impl Node {
         }
         Ok(())
     }
-    pub fn back(&self, back: &Back) {
-        self.form.back(back);
-    }
-    fn clone_edge(&self) -> Self {
-        Self { rank: self.rank, form: self.form.clone_edge() }
-    }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
         self.form.read(|load| match load {
             Ok(value) => Ok(read(value)),
@@ -171,14 +165,14 @@ impl From<&Leaf> for Node {
     fn from(value: &Leaf) -> Self {
         Self {
             rank: 0,
-            form: Form::Leaf(value.clone_edge()),
+            form: Form::Leaf(value.clone()),
         }
     }
 }
 
 impl From<&Node> for Node {
     fn from(value: &Node) -> Self {
-        value.clone_edge()
+        value.clone()
     }
 }
 

@@ -145,15 +145,6 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> SetBack for Link<E>
-where
-    E: DoSetBack,
-{
-    fn back(&self, back: &Back) {
-        write_part(&self.edge, |mut edge| edge.back(back));
-    }
-}
-
 /// TODO: make method to make new link with cloned edge without Back!
 impl<E> Backed for Link<E>
 where
@@ -172,28 +163,6 @@ where
         let edge = self.edge.borrow();
         Self {
             edge: Rc::new(RefCell::new(edge.backed(back))),
-            meta: self.meta.clone(),
-        }
-    }
-}
-
-impl<E> CloneEdge for Link<E>
-where
-    E: CloneEdge,
-{
-    #[cfg(not(feature = "oneThread"))]
-    fn clone_edge(&self) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
-            edge: Arc::new(RwLock::new(edge.clone_edge())),
-            meta: self.meta.clone(),
-        }
-    }
-    #[cfg(feature = "oneThread")]
-    fn clone_edge(&self) -> Self {
-        let edge = self.edge.borrow();
-        Self {
-            edge: Rc::new(RefCell::new(edge.clone_edge())),
             meta: self.meta.clone(),
         }
     }
@@ -274,15 +243,6 @@ impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
-            meta: self.meta.clone(),
-        })
-    }
-}
-
-impl CloneEdge for Ploy {
-    fn clone_edge(&self) -> Self {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.clone_edge_ploy(),
             meta: self.meta.clone(),
         })
     }

@@ -178,28 +178,6 @@ where
     }
 }
 
-impl<U> CloneEdgePloy for Agent<U>
-where
-    U: 'static + Solve + Alter + Serialize + SendSync,
-{
-    #[cfg(not(feature = "oneThread"))]
-    fn clone_edge_ploy(&self) -> PloyEdge {
-        Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn clone_edge_ploy(&self) -> PloyEdge {
-        Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
-            back: self.back.clone(),
-            apex: self.apex.clone(),
-        })))
-    }
-}
-
 impl<N> ToLoad for Edge<N>
 where
     N: ToLoad,
@@ -210,27 +188,11 @@ where
     }
 }
 
-impl<N> DoSetBack for Edge<N> {
-    fn back(&mut self, back: &Back) {
-        self.back = Some(back.clone());
-    }
-}
-
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
             meta: self.meta(),
             back: Some(back.clone()),
-            apex: self.apex.clone(),
-        }
-    }
-}
-
-impl<N> CloneEdge for Edge<N> {
-    fn clone_edge(&self) -> Self {
-        Self {
-            meta: self.meta(),
-            back: self.back.clone(),
             apex: self.apex.clone(),
         }
     }
@@ -313,12 +275,6 @@ where
 {
     fn react(&self, meta: &Meta) -> react::Result {
         write_part(&self.apex, |mut apex| apex.do_react(meta))
-    }
-}
-
-impl DoSetBack for Box<dyn Engage> {
-    fn back(&mut self, back: &Back) {
-        self.as_mut().back(back);
     }
 }
 

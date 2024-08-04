@@ -43,14 +43,6 @@ pub trait DoAddRoot {
     fn do_add_root(&mut self, root: Root);
 }
 
-pub trait SetBack {
-    fn back(&self, back: &Back);
-}
-
-pub trait DoSetBack {
-    fn back(&mut self, back: &Back);
-}
-
 pub trait Backed {
     /// Make a copy of the link that includes the provided apex `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.

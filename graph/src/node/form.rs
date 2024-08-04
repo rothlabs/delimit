@@ -27,22 +27,6 @@ impl Form {
             Self::Ploy(ploy) => ploy.serial(serial),
         }
     }
-    pub fn back(&self, back: &Back) {
-        match self {
-            Self::Meta(_) => (),
-            Self::Bare(_) => (),
-            Self::Leaf(leaf) => leaf.back(back),
-            Self::Ploy(ploy) => ploy.back(back),
-        }
-    }
-    pub fn clone_edge(&self) -> Self {
-        match self {
-            Self::Meta(meta) => Self::Meta(meta.clone()),
-            Self::Bare(bare) => Self::Bare(bare.clone()),
-            Self::Leaf(leaf) => Self::Leaf(leaf.clone_edge()),
-            Self::Ploy(ploy) => Self::Ploy(ploy.clone_edge()),
-        }
-    }
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
