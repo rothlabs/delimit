@@ -5,6 +5,7 @@ pub enum Task {
     Main,
     Stems,
     React,
+    Cmd(String),
 }
 
 // pub enum Task<'a> {

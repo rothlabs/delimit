@@ -13,6 +13,9 @@ where
         self.post.insert(node.into());
         self
     }
+    pub fn cmd(&mut self, name: &str) -> alter::Result {
+        self.target.alter(Post::cmd(name))
+    }
     /// Alter the node with built Post.
     pub fn run(&mut self) -> alter::Result {
         self.target.alter(self.post.clone())

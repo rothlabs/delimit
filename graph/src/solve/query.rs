@@ -8,11 +8,15 @@ impl<T> Query<T>
 where
     T: Solve + Clone,
 {
-    pub fn node(&self) -> node::Result {
+    pub fn main(&self) -> node::Result {
         match self.target.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
             _ => Err("not a node".into()),
         }
+    }
+    pub fn cmd(&self, name: &str) -> solve::Result {
+        self.target.solve(Task::Cmd(name.into()))?;
+        Ok(Tray::None)
     }
     // pub fn serial(&self) -> serial::Result {
     //     self.target.solve(Task::Serial)?;

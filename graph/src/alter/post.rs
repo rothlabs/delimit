@@ -21,6 +21,12 @@ impl Post {
         }
         self
     }
+    pub fn cmd(name: &str) -> Self{
+        Self {
+            field: "".into(),
+            form: Form::Cmd(name.into()),
+        }
+    }
 }
 
 impl Backed for Post {
@@ -41,6 +47,7 @@ pub enum Form {
     None,
     Insert(Vec<Node>),
     Remove(usize),
+    Cmd(String),
 }
 
 impl Default for Form {
@@ -51,5 +58,10 @@ impl Default for Form {
 
 // pub fn insert(&mut self, nodes: Vec<Node>) -> &mut Self {
 //     self.form = Form::Insert(nodes);
+//     self
+// }
+
+// pub fn cmd(&mut self, name: &str) -> &mut Self {
+//     self.form = Form::Cmd(name.into());
 //     self
 // }

@@ -11,7 +11,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -41,6 +41,9 @@ mod meta;
 mod repo;
 mod work;
 mod write;
+
+pub const SAVE: &str = "save";
+pub const LOAD: &str = "load";
 
 #[cfg(not(feature = "oneThread"))]
 pub type Error = Box<dyn error::Error + Send + Sync>;

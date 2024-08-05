@@ -33,7 +33,7 @@ impl Form {
             Self::Meta(_) => Err("not a load".into()),
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
-            Self::Ploy(ploy) => ploy.query().node()?.load(),
+            Self::Ploy(ploy) => ploy.query().main()?.load(),
         }
     }
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
@@ -42,7 +42,7 @@ impl Form {
             Self::Load(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {
-                if let Ok(node) = ploy.query().node() {
+                if let Ok(node) = ploy.query().main() {
                     node.read(read)
                 } else {
                     read(Err("failed to read ploy".into()))
@@ -50,12 +50,20 @@ impl Form {
             }
         }
     }
-    pub fn solve(&self, _: Task) -> result::Result<Form, Error> {
+    pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
             Self::Load(_) => Err("not a ploy".into()),
             Self::Leaf(_) => Err("not a ploy".into()),
-            Self::Ploy(ploy) => Ok(ploy.query().node()?.form),
+            Self::Ploy(ploy) => Ok(ploy.query().main()?.form),
+        }
+    }
+    pub fn solve(&self, task: Task) -> solve::Result {
+        match self {
+            Self::Meta(_) => Err("not a ploy".into()),
+            Self::Load(_) => Err("not a ploy".into()),
+            Self::Leaf(_) => Err("not a ploy".into()),
+            Self::Ploy(ploy) => ploy.solve(task),
         }
     }
     pub fn alter(&self, post: Post) -> alter::Result {

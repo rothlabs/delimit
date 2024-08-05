@@ -3,7 +3,7 @@ use std::{collections::HashMap, result};
 
 pub type Result = result::Result<(), Error>;
 
-#[derive(Default, Serialize)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Serial {
     pub nodes: HashMap<Id, String>,
 }

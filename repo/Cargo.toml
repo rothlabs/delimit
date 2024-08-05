@@ -18,4 +18,5 @@
     # delimit
         # graph
             graph = {path = "../graph"}
+            text = {path = "../text"}
             #graph = { workspace = true, features = [] }

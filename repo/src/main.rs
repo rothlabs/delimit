@@ -1,3 +1,5 @@
+pub use config::STORAGE;
+
 use std::convert::Infallible;
 use std::net::SocketAddr;
 
@@ -12,9 +14,13 @@ use tokio::net::{TcpListener, TcpStream};
 
 use graph::*;
 
+#[cfg(test)]
+mod tests;
+mod config;
+
 type Io = TokioIo<TcpStream>;
 
-#[tokio::main(flavor = "current_thread")] // #[tokio::main(flavor = "current_thread")]
+#[tokio::main] // #[tokio::main(flavor = "current_thread")]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pretty_env_logger::init();
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();

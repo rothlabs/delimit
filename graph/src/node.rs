@@ -25,7 +25,7 @@ impl Node {
     pub fn at(&self, rank: usize) -> Result {
         let mut node = self.clone();
         while node.rank > rank {
-            node = node.query().node()?;
+            node = node.query().main()?;
         }
         Ok(node)
     }
@@ -71,6 +71,12 @@ impl Node {
             _ => read(&vec![]),
         })
     }
+    pub fn string(&self) -> result::Result<String, Error> {
+        match self.load() {
+            Ok(Load::String(value)) => Ok(value),
+            _ => Err("not a string".into()),
+        }
+    }
     pub fn u32(&self) -> u32 {
         match self.load() {
             Ok(Load::U32(value)) => value,
@@ -95,11 +101,14 @@ impl Node {
 
 impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
-        Ok(Self {
-            rank: self.rank - 1,
-            form: self.form.solve(task)?,
+        match task {
+            Task::Main => Ok(Self {
+                    rank: self.rank - 1,
+                    form: self.form.solve_form(task)?,
+                }
+                .into()),
+            _ => self.form.solve(task),
         }
-        .into())
     }
 }
 
@@ -150,7 +159,7 @@ impl From<Leaf> for Node {
 impl From<Ploy> for Node {
     fn from(ploy: Ploy) -> Self {
         // TODO: find way to not query the node to get rank!
-        let rank = match ploy.query().node() {
+        let rank = match ploy.query().main() {
             Ok(node) => node.rank + 1,
             _ => 0,
         };
