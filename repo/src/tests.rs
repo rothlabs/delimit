@@ -40,6 +40,7 @@ fn save_repo() -> result::Result<(), Error> {
     Ok(())
 }
 
+#[test]
 fn load_repo() -> result::Result<(), Error> {
     let path = STORAGE.leaf().node();
     let repo = Repo::new().path(path).node();

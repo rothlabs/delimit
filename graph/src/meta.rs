@@ -1,11 +1,11 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
 pub type Id = String;
 
 /// Meta about a Node. It stands in place of actual nodes in serial form.
-#[derive(Clone, PartialEq, Eq, Serialize, Debug, Hash)]
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub struct Meta {
     pub id: Id,
 }

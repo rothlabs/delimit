@@ -1,8 +1,6 @@
-use serde::Serialize;
-
 use crate::html::*;
 
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Attribute {
     name: Node,
     content: Node,

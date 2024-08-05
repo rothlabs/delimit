@@ -25,13 +25,18 @@ impl Repo {
         fs::write(path, data)?;
         Ok(Tray::None)
     }
-    fn load(&self) -> alter::Result {
+    fn load(&mut self) -> alter::Result {
         let path = self.path.string()?;
-        // let data = fs::read_to_string(path)?;
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         let serial: Serial = serde_json::from_reader(reader)?;
-
+        let mut all = String::new();
+        for (Id, string) in &serial.nodes {
+            all.push_str(&"\n\n");
+            all.push_str(&string);
+            // let node: Node = serde_json::from_str(string)?;
+        }
+        fs::write("/home/julian/delimit/repo/storage/debug.txt", all)?;
         Ok(Report::None)
     }
     fn insert(&mut self, nodes: Vec<Node>) -> alter::Result {

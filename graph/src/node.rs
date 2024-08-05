@@ -8,7 +8,7 @@ mod form;
 pub type Result = result::Result<Node, Error>;
 
 /// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
-#[derive(Clone, Default, PartialEq, Serialize)]
+#[derive(Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Node {
     rank: usize,
     form: Form,
@@ -112,8 +112,8 @@ impl Solve for Node {
     }
 }
 
-impl Alter for Node {
-    fn alter(&mut self, post: Post) -> alter::Result {
+impl DoAlter for Node {
+    fn alter(&self, post: Post) -> alter::Result {
         self.form.alter(post)
     }
 }

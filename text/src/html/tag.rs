@@ -1,8 +1,6 @@
-use serde::Serialize;
-
 use super::*;
 
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Tag {
     pub name: Node,
     pub attributes: Vec<Node>,

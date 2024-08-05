@@ -1,3 +1,5 @@
+use serde::de::{self, MapAccess, Visitor};
+use std::fmt;
 use super::*;
 
 /// Contains a bare load, meta about a link, or the link itself.
@@ -30,7 +32,7 @@ impl Form {
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
-            Self::Meta(_) => Err("not a load".into()),
+            Self::Meta(_) => Err("no load available".into()),
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.query().main()?.load(),
@@ -82,6 +84,103 @@ impl Default for Form {
     }
 }
 
+impl Backed for Form {
+    fn backed(&self, back: &Back) -> Self {
+        match self {
+            Self::Meta(meta) => Self::Meta(meta.clone()),
+            Self::Load(bare) => Self::Load(bare.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Form {
+    fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de> {
+
+        const VARIANTS: &[&str] = &["Meta", "Load", "Leaf", "Ploy"];
+        deserializer.deserialize_enum("Form", VARIANTS, FormVisitor)
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(variant_identifier)]
+enum FormIdentifier { Meta, Load, Leaf, Ploy }
+
+struct FormVisitor;
+
+impl<'de> Visitor<'de> for FormVisitor {
+    type Value = Form;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("enum Form")
+    }
+
+    fn visit_map<V>(self, mut map: V) -> result::Result<Form, V::Error>
+    where
+        V: MapAccess<'de>,
+    {
+        if let Some(key) = map.next_key()? {
+            match key {
+                FormIdentifier::Meta => Ok(Form::Meta(map.next_value()?)),
+                FormIdentifier::Load => Ok(Form::Load(map.next_value()?)),
+                FormIdentifier::Leaf => Ok(Form::Meta(map.next_value()?)),
+                FormIdentifier::Ploy => Ok(Form::Meta(map.next_value()?)),
+            }
+        } else {
+            Err(de::Error::invalid_length(0, &self))
+        }
+    }
+}
+
+
+        // let mut secs = None;
+        // let mut nanos = None;
+        // while let Some(key) = map.next_key()? {
+        //     match key {
+        //         Field::Secs => {
+        //             if secs.is_some() {
+        //                 return Err(de::Error::duplicate_field("secs"));
+        //             }
+        //             secs = Some(map.next_value()?);
+        //         }
+        //         Field::Nanos => {
+        //             if nanos.is_some() {
+        //                 return Err(de::Error::duplicate_field("nanos"));
+        //             }
+        //             nanos = Some(map.next_value()?);
+        //         }
+        //     }
+        // }
+        // let secs = secs.ok_or_else(|| de::Error::missing_field("secs"))?;
+        // let nanos = nanos.ok_or_else(|| de::Error::missing_field("nanos"))?;
+        // Ok(Duration::new(secs, nanos))
+
+// fn visit_seq<V>(self, mut seq: V) -> result::Result<Form, V::Error>
+    // where
+    //     V: SeqAccess<'de>,
+    // {
+    //     let secs = seq.next_element()?
+    //         .ok_or_else(|| de::Error::invalid_length(0, &self))?;
+    //     let nanos = seq.next_element()?
+    //         .ok_or_else(|| de::Error::invalid_length(1, &self))?;
+    //     Ok(Duration::new(secs, nanos))
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // impl Serialize for Form {
 //     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
 //         where
@@ -95,17 +194,6 @@ impl Default for Form {
 //         }
 //     }
 // }
-
-impl Backed for Form {
-    fn backed(&self, back: &Back) -> Self {
-        match self {
-            Self::Meta(meta) => Self::Meta(meta.clone()),
-            Self::Load(bare) => Self::Load(bare.clone()),
-            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
-            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
-        }
-    }
-}
 
 // impl ToLoad for Form {
 //     type Load = Load;

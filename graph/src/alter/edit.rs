@@ -7,17 +7,17 @@ pub struct Edit<T> {
 
 impl<T> Edit<T>
 where
-    T: Alter + Clone,
+    T: DoAlter + Clone,
 {
     pub fn insert(&mut self, node: impl Into<Node>) -> &mut Self {
         self.post.insert(node.into());
         self
     }
-    pub fn cmd(&mut self, name: &str) -> alter::Result {
+    pub fn cmd(&self, name: &str) -> alter::Result {
         self.target.alter(Post::cmd(name))
     }
     /// Alter the node with built Post.
-    pub fn run(&mut self) -> alter::Result {
+    pub fn run(&self) -> alter::Result {
         self.target.alter(self.post.clone())
     }
 }
@@ -29,7 +29,7 @@ pub trait ToEdit<T> {
 
 impl<T> ToEdit<T> for T
 where
-    T: Alter + Clone,
+    T: DoAlter + Clone,
 {
     fn edit(&self) -> Edit<T> {
         Edit {
