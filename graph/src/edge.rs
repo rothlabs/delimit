@@ -29,12 +29,14 @@ impl<N> ToMeta for Edge<N> {
     }
 }
 
-impl<N> SerializeGraph for Edge<N> 
-where 
-    N: 'static + DoSerializeGraph + DoUpdate
+impl<N> SerializeGraph for Edge<N>
+where
+    N: 'static + DoSerializeGraph + DoUpdate,
 {
     fn serial(&self, serial: &mut Serial) -> serial::Result {
-        write_part(&self.apex, |mut apex| apex.serial(serial, &self.node_as_back()))
+        write_part(&self.apex, |mut apex| {
+            apex.serial(serial, &self.node_as_back())
+        })
     }
 }
 
@@ -128,10 +130,7 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> 
-where 
-    U: 'static + Solve + Alter + Serialize + SendSync,
-{}
+impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where

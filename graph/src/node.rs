@@ -34,7 +34,7 @@ impl Node {
     }
     pub fn serial(&self, serial: &mut Serial) -> serial::Result {
         if !serial.contains(&self.meta()) {
-            return self.form.serial(serial)
+            return self.form.serial(serial);
         }
         Ok(())
     }
@@ -103,10 +103,10 @@ impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => Ok(Self {
-                    rank: self.rank - 1,
-                    form: self.form.solve_form(task)?,
-                }
-                .into()),
+                rank: self.rank - 1,
+                form: self.form.solve_form(task)?,
+            }
+            .into()),
             _ => self.form.solve(task),
         }
     }

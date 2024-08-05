@@ -1,6 +1,7 @@
 pub use alter::{post, ToEdit};
 pub use alter::{Alter, DoAlter, Post, Report};
 pub use apex::Apex;
+use dyn_clone::DynClone;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
@@ -11,14 +12,13 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+pub use serial::{DoSerializeGraph, Serial, SerializeGraph};
 pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use serial::{Serial, SerializeGraph, DoSerializeGraph};
 
-use std::error;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 #[cfg(feature = "oneThread")]
@@ -26,12 +26,13 @@ use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
+use std::{error, result};
 
 pub mod alter;
 pub mod node;
 pub mod react;
-pub mod solve;
 pub mod serial;
+pub mod solve;
 
 mod apex;
 mod edge;
@@ -96,6 +97,11 @@ pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGra
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
+
+dyn_clone::clone_trait_object!(DeserializeNode);
+pub trait DeserializeNode: DynClone + SendSync {
+    fn deserialize(&self, string: &String) -> result::Result<Node, Error>;
+}
 
 pub trait ToAgent
 where

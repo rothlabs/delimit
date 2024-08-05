@@ -1,6 +1,6 @@
-use serde::de::{self, MapAccess, Visitor};
-use std::fmt;
 use super::*;
+use serde::de::{self, VariantAccess, Visitor};
+use std::fmt;
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Clone, PartialEq, Serialize)]
@@ -97,17 +97,22 @@ impl Backed for Form {
 
 impl<'de> Deserialize<'de> for Form {
     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de> {
-
+    where
+        D: serde::Deserializer<'de>,
+    {
         const VARIANTS: &[&str] = &["Meta", "Load", "Leaf", "Ploy"];
         deserializer.deserialize_enum("Form", VARIANTS, FormVisitor)
     }
 }
 
 #[derive(Deserialize)]
-#[serde(variant_identifier)]
-enum FormIdentifier { Meta, Load, Leaf, Ploy }
+// #[serde(variant_identifier)]
+enum FormIdentifier {
+    Meta,
+    Load,
+    Leaf,
+    Ploy,
+}
 
 struct FormVisitor;
 
@@ -115,71 +120,73 @@ impl<'de> Visitor<'de> for FormVisitor {
     type Value = Form;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("enum Form")
+        formatter.write_str("enum node form")
     }
 
-    fn visit_map<V>(self, mut map: V) -> result::Result<Form, V::Error>
+    fn visit_enum<A>(self, data: A) -> result::Result<Form, A::Error>
     where
-        V: MapAccess<'de>,
+        A: de::EnumAccess<'de>,
     {
-        if let Some(key) = map.next_key()? {
-            match key {
-                FormIdentifier::Meta => Ok(Form::Meta(map.next_value()?)),
-                FormIdentifier::Load => Ok(Form::Load(map.next_value()?)),
-                FormIdentifier::Leaf => Ok(Form::Meta(map.next_value()?)),
-                FormIdentifier::Ploy => Ok(Form::Meta(map.next_value()?)),
-            }
-        } else {
-            Err(de::Error::invalid_length(0, &self))
+        let (identifier, variant) = data.variant()?;
+        match identifier {
+            FormIdentifier::Meta => Ok(Form::Meta(variant.newtype_variant()?)),
+            FormIdentifier::Load => Ok(Form::Load(variant.newtype_variant()?)),
+            FormIdentifier::Leaf => Ok(Form::Meta(variant.newtype_variant()?)),
+            FormIdentifier::Ploy => Ok(Form::Meta(variant.newtype_variant()?)),
         }
     }
 }
 
+// fn visit_map<V>(self, mut map: V) -> result::Result<Form, V::Error>
+// where
+//     V: MapAccess<'de>,
+// {
+//     eprint!(" node form visit_map ");
+//     if let Some(key) = map.next_key()? {
 
-        // let mut secs = None;
-        // let mut nanos = None;
-        // while let Some(key) = map.next_key()? {
-        //     match key {
-        //         Field::Secs => {
-        //             if secs.is_some() {
-        //                 return Err(de::Error::duplicate_field("secs"));
-        //             }
-        //             secs = Some(map.next_value()?);
-        //         }
-        //         Field::Nanos => {
-        //             if nanos.is_some() {
-        //                 return Err(de::Error::duplicate_field("nanos"));
-        //             }
-        //             nanos = Some(map.next_value()?);
-        //         }
-        //     }
-        // }
-        // let secs = secs.ok_or_else(|| de::Error::missing_field("secs"))?;
-        // let nanos = nanos.ok_or_else(|| de::Error::missing_field("nanos"))?;
-        // Ok(Duration::new(secs, nanos))
+//         match key {
+//             FormIdentifier::Meta => Ok(Form::Meta(map.next_value()?)),
+//             FormIdentifier::Load => Ok(Form::Load(map.next_value()?)),
+//             FormIdentifier::Leaf => Ok(Form::Meta(map.next_value()?)),
+//             FormIdentifier::Ploy => Ok(Form::Meta(map.next_value()?)),
+//         }
+//     } else {
+//         Err(de::Error::invalid_length(0, &self))
+//     }
+// }
+
+// let mut secs = None;
+// let mut nanos = None;
+// while let Some(key) = map.next_key()? {
+//     match key {
+//         Field::Secs => {
+//             if secs.is_some() {
+//                 return Err(de::Error::duplicate_field("secs"));
+//             }
+//             secs = Some(map.next_value()?);
+//         }
+//         Field::Nanos => {
+//             if nanos.is_some() {
+//                 return Err(de::Error::duplicate_field("nanos"));
+//             }
+//             nanos = Some(map.next_value()?);
+//         }
+//     }
+// }
+// let secs = secs.ok_or_else(|| de::Error::missing_field("secs"))?;
+// let nanos = nanos.ok_or_else(|| de::Error::missing_field("nanos"))?;
+// Ok(Duration::new(secs, nanos))
 
 // fn visit_seq<V>(self, mut seq: V) -> result::Result<Form, V::Error>
-    // where
-    //     V: SeqAccess<'de>,
-    // {
-    //     let secs = seq.next_element()?
-    //         .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-    //     let nanos = seq.next_element()?
-    //         .ok_or_else(|| de::Error::invalid_length(1, &self))?;
-    //     Ok(Duration::new(secs, nanos))
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
+// where
+//     V: SeqAccess<'de>,
+// {
+//     let secs = seq.next_element()?
+//         .ok_or_else(|| de::Error::invalid_length(0, &self))?;
+//     let nanos = seq.next_element()?
+//         .ok_or_else(|| de::Error::invalid_length(1, &self))?;
+//     Ok(Duration::new(secs, nanos))
+// }
 
 // impl Serialize for Form {
 //     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>

@@ -1,10 +1,10 @@
+pub use attribute::*;
 pub use doc::*;
+pub use element::Element;
+pub use tag::*;
 
 use super::*;
-use attribute::*;
-use element::*;
 use graph::*;
-use tag::*;
 
 mod attribute;
 mod doc;

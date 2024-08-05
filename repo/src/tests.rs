@@ -1,5 +1,5 @@
-use std::result;
 use super::*;
+use std::result;
 use text::*;
 
 fn make_doc() -> (Node, Node) {
@@ -42,8 +42,10 @@ fn save_repo() -> result::Result<(), Error> {
 
 #[test]
 fn load_repo() -> result::Result<(), Error> {
+    let deserial = Deserial::default();
     let path = STORAGE.leaf().node();
-    let repo = Repo::new().path(path).node();
+    let repo = Repo::new().path(path).deserial(Box::new(deserial)).node();
     repo.edit().cmd(LOAD)?;
+    // Err("crap".into())
     Ok(())
-} 
+}

@@ -54,7 +54,7 @@ fn serialize_basic_doc() -> Result<(), Error> {
 #[test]
 fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (_, doc, _, atts) = make_doc();
-    let plain = doc.at(PLAIN)?; 
+    let plain = doc.at(PLAIN)?;
     let _r = plain.load()?;
     let _r = doc.load()?;
     atts.get("type")

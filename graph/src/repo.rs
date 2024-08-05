@@ -1,10 +1,16 @@
 use super::*;
-use std::{collections::HashMap, fs::{self, File}, io::BufReader};
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    io::BufReader,
+};
 
-#[derive(Default, Clone, Serialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct Repo {
     nodes: HashMap<Id, Node>,
     path: Node,
+    #[serde(skip)]
+    deserial: Option<Box<dyn DeserializeNode>>,
 }
 
 impl Repo {
@@ -13,6 +19,10 @@ impl Repo {
     }
     pub fn path(&mut self, path: impl Into<Node>) -> &mut Self {
         self.path = path.into();
+        self
+    }
+    pub fn deserial(&mut self, deserial: Box<dyn DeserializeNode>) -> &mut Self {
+        self.deserial = Some(deserial);
         self
     }
     fn save(&self) -> solve::Result {
@@ -31,11 +41,24 @@ impl Repo {
         let reader = BufReader::new(file);
         let serial: Serial = serde_json::from_reader(reader)?;
         let mut all = String::new();
-        for (Id, string) in &serial.nodes {
-            all.push_str(&"\n\n");
-            all.push_str(&string);
+        for (id, string) in &serial.nodes {
+            let node_result = self
+                .deserial
+                .as_ref()
+                .ok_or("no node deserializer")?
+                .deserialize(string);
+            if let Ok(node) = node_result {
+                self.nodes.insert(id.into(), node);
+                all.push_str(&string);
+                all.push_str(&"\n\n");
+            }
+            // if let Err(_) = node_result {
+            //     all.push_str(&string);
+            //     all.push_str(&"\n\n");
+            // }
             // let node: Node = serde_json::from_str(string)?;
         }
+        all.push_str(&self.nodes.len().to_string());
         fs::write("/home/julian/delimit/repo/storage/debug.txt", all)?;
         Ok(Report::None)
     }
@@ -57,6 +80,7 @@ impl Make for Repo {
         Self {
             nodes: self.nodes.clone(),
             path: self.path.clone(),
+            deserial: self.deserial.clone(),
         }
     }
 }
@@ -65,13 +89,11 @@ impl Alter for Repo {
     fn alter(&mut self, post: Post) -> alter::Result {
         match post.form {
             post::Form::Insert(nodes) => self.insert(nodes),
-            post::Form::Cmd(name) => {
-                match name.as_str() {
-                    LOAD => self.load(),
-                    _ => Ok(Report::None)
-                }
+            post::Form::Cmd(name) => match name.as_str() {
+                LOAD => self.load(),
+                _ => Ok(Report::None),
             },
-            _ => Ok(Report::None)
+            _ => Ok(Report::None),
         }
         // if let post::Form::Insert(nodes) = post.form {
         //     self.insert(nodes)
@@ -84,13 +106,11 @@ impl Solve for Repo {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Stems => self.stems(),
-            Task::Cmd(name) => {
-                match name.as_str() {
-                    SAVE => self.save(),
-                    _ => Ok(Tray::None)
-                }
-            }
-            _ => Ok(Tray::None)
+            Task::Cmd(name) => match name.as_str() {
+                SAVE => self.save(),
+                _ => Ok(Tray::None),
+            },
+            _ => Ok(Tray::None),
         }
     }
 }

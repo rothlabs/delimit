@@ -61,7 +61,7 @@ impl Solve for Element {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
-            _ => Ok(Tray::None)
+            _ => Ok(Tray::None),
         }
     }
 }

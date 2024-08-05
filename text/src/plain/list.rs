@@ -62,7 +62,7 @@ impl Solve for List {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
-            _ => Ok(Tray::None)
+            _ => Ok(Tray::None),
         }
     }
 }
@@ -84,10 +84,9 @@ impl Alter for List {
 // ///////////////////////////////////
 // /// instead of Make and SerializeGraph for unit
 // ///     impl Stem or Stems that returns Vec<&mut Node>
-// ///     that should cover the creation process 
+// ///     that should cover the creation process
 // ///     and serialization
 // /// //////////////////////////
-
 
 // impl Stems for List {
 //     fn stems(&mut self) -> Vec<&mut Node> {

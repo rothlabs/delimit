@@ -21,7 +21,7 @@ impl Post {
         }
         self
     }
-    pub fn cmd(name: &str) -> Self{
+    pub fn cmd(name: &str) -> Self {
         Self {
             field: "".into(),
             form: Form::Cmd(name.into()),

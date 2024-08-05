@@ -11,6 +11,12 @@ impl ToLeaf for str {
     }
 }
 
+impl ToLeaf for Load {
+    fn leaf(&self) -> Leaf {
+        Leaf::new(self.clone())
+    }
+}
+
 // impl ToAce<String> for str {
 //     fn ace(&self) -> Ace<String> {
 //         Ace::new(self.into())

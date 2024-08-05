@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.
-#[derive(Serialize)]
+// #[derive(Serialize)]
 pub struct Leaf {
     load: Load,
 }
@@ -64,12 +64,20 @@ impl Clear for Leaf {
     fn clear(&mut self) {}
 }
 
+impl Serialize for Leaf {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.load.serialize(serializer)
+    }
+}
+
 // impl SerializeGraph for Leaf {
 //     fn serial(&self, serial: &mut Serial) -> serial::Result {
 //         self.load.serial(serial)
 //     }
 // }
-
 
 // impl<L> DoGrant for Ace<L>
 // where

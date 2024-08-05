@@ -37,8 +37,9 @@ impl<E: SerializeGraph> Link<E> {
 
 impl<E> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         self.meta.serialize(serializer)
     }
 }
@@ -257,9 +258,8 @@ where
     }
 }
 
-
-// impl<E> Serialize for Link<E> 
-// where 
+// impl<E> Serialize for Link<E>
+// where
 //     E: SerializeGraph
 // {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

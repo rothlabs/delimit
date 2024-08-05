@@ -12,7 +12,7 @@ pub struct Meta {
 
 impl Meta {
     pub fn new() -> Self {
-        Self { 
+        Self {
             id: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
         }
     }
@@ -30,7 +30,6 @@ impl Default for Meta {
 pub trait ToMeta {
     fn meta(&self) -> Meta;
 }
-
 
 // pub fn id(&self) -> &String {
 //     &self.id

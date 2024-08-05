@@ -1,4 +1,5 @@
 pub use config::STORAGE;
+pub use part::Deserial;
 
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -13,10 +14,12 @@ use hyper_util::rt::TokioIo;
 use tokio::net::{TcpListener, TcpStream};
 
 use graph::*;
+use serde::*;
 
+mod config;
+mod part;
 #[cfg(test)]
 mod tests;
-mod config;
 
 type Io = TokioIo<TcpStream>;
 

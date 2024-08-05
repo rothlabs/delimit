@@ -7,7 +7,7 @@ pub type Agent<U> = Apex<work::Agent<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
 pub struct Apex<W> {
-    meta: Meta,
+    meta: Meta, // should meta contain the deserialize method
     ring: Ring,
     work: W,
 }
@@ -39,9 +39,9 @@ where
     }
 }
 
-impl<W> DoSerializeGraph for Apex<W> 
-where 
-    W: Serialize + DoSolve
+impl<W> DoSerializeGraph for Apex<W>
+where
+    W: Serialize + DoSolve,
 {
     fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
         serial.insert(&self.meta, serde_json::to_string(&self.work)?);

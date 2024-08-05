@@ -122,13 +122,14 @@ where
     }
 }
 
-impl<U> Serialize for Agent<U> 
-where 
-    U: Serialize
+impl<U> Serialize for Agent<U>
+where
+    U: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         self.unit.as_ref().unwrap().serialize(serializer)
     }
 }
