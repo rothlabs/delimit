@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Default, Clone, Serialize)]
 pub struct Repo {
-    pub nodes: HashMap<Meta, Node>,
+    pub nodes: HashMap<Id, Node>,
 }
 
 impl Repo {
@@ -13,8 +13,12 @@ impl Repo {
     fn insert(&mut self, nodes: Vec<Node>) {
         for node in nodes {
             let meta = node.meta();
-            self.nodes.insert(meta, node);
+            self.nodes.insert(meta.id.clone(), node);
         }
+    }
+    fn stems(&self) -> solve::Result {
+        let stems = self.nodes.values().cloned().collect();
+        Ok(Tray::Nodes(stems))
     }
 }
 
@@ -36,8 +40,11 @@ impl Alter for Repo {
 }
 
 impl Solve for Repo {
-    fn solve(&self, _: Task) -> solve::Result {
-        Ok(Tray::None)
+    fn solve(&self, task: Task) -> solve::Result {
+        match task {
+            Task::Stems => self.stems(),
+            _ => Ok(Tray::None)
+        }
     }
 }
 

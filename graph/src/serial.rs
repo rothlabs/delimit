@@ -5,7 +5,7 @@ pub type Result = result::Result<(), Error>;
 
 #[derive(Default, Serialize)]
 pub struct Serial {
-    pub nodes: HashMap<String, String>,
+    pub nodes: HashMap<Id, String>,
 }
 
 impl Serial {
@@ -13,10 +13,10 @@ impl Serial {
         Self::default()
     }
     pub fn contains(&self, meta: &Meta) -> bool {
-        self.nodes.contains_key(meta.id())
+        self.nodes.contains_key(&meta.id)
     }
     pub fn insert(&mut self, meta: &Meta, node: String) {
-        self.nodes.insert(meta.string(), node);
+        self.nodes.insert(meta.id.clone(), node);
     }
     pub fn string(&self) -> result::Result<String, serde_json::Error> {
         serde_json::to_string(self)

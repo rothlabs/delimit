@@ -34,13 +34,19 @@ fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
 
 #[test]
 fn basic_doc() -> Result<(), Error> {
-    let (repo, doc, head, _) = make_doc();
+    let (_, doc, _, _) = make_doc();
     let string = doc.load()?;
-    let mut serial = Serial::new();
-    head.serial(&mut serial)?;
-    let wow = serial.string()?;
-    eprintln!("serial: {}", wow);
     assert_eq!(Load::String(DOC.into()), string);
+    Ok(())
+}
+
+#[test]
+fn serialize_basic_doc() -> Result<(), Error> {
+    let (repo, _, _, _) = make_doc();
+    let mut serial = Serial::new();
+    repo.serial(&mut serial)?;
+    let serialized = serial.string()?;
+    eprintln!("serial: {}", serialized);
     Ok(())
 }
 
@@ -48,7 +54,7 @@ fn basic_doc() -> Result<(), Error> {
 #[test]
 fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (_, doc, _, atts) = make_doc();
-    let plain = doc.at(PLAIN)?;
+    let plain = doc.at(PLAIN)?; 
     let _r = plain.load()?;
     let _r = doc.load()?;
     atts.get("type")

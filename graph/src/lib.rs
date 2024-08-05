@@ -4,7 +4,7 @@ pub use apex::Apex;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
-pub use meta::{Meta, ToMeta};
+pub use meta::{Id, Meta, ToMeta};
 pub use node::{Node, RankDown};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,

@@ -1,10 +1,10 @@
 use super::*;
 
 /// Contains a bare load, meta about a link, or the link itself.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize)]
 pub enum Form {
     Meta(Meta),
-    Bare(Load),
+    Load(Load),
     Leaf(Leaf),
     Ploy(Ploy),
 }
@@ -14,7 +14,7 @@ impl Form {
     pub fn meta(&self) -> Meta {
         match self {
             Self::Meta(meta) => meta.clone(),
-            Self::Bare(_) => Meta::none(),
+            Self::Load(_) => Meta::none(),
             Self::Leaf(leaf) => leaf.meta(),
             Self::Ploy(ploy) => ploy.meta(),
         }
@@ -22,7 +22,7 @@ impl Form {
     pub fn serial(&self, serial: &mut Serial) -> serial::Result {
         match self {
             Self::Meta(_) => Ok(()),
-            Self::Bare(_) => Ok(()),
+            Self::Load(_) => Ok(()),
             Self::Leaf(leaf) => leaf.serial(serial),
             Self::Ploy(ploy) => ploy.serial(serial),
         }
@@ -31,7 +31,7 @@ impl Form {
         match self {
             // TODO: should attempt to lookup from repo before error
             Self::Meta(_) => Err("not a load".into()),
-            Self::Bare(bare) => Ok(bare.clone()),
+            Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.query().node()?.load(),
         }
@@ -39,7 +39,7 @@ impl Form {
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
             Self::Meta(_) => read(Err("nothing to read".into())),
-            Self::Bare(bare) => read(Ok(bare)),
+            Self::Load(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {
                 if let Ok(node) = ploy.query().node() {
@@ -53,7 +53,7 @@ impl Form {
     pub fn solve(&self, _: Task) -> result::Result<Form, Error> {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
-            Self::Bare(_) => Err("not a ploy".into()),
+            Self::Load(_) => Err("not a ploy".into()),
             Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => Ok(ploy.query().node()?.form),
         }
@@ -61,7 +61,7 @@ impl Form {
     pub fn alter(&self, post: Post) -> alter::Result {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
-            Self::Bare(_) => Err("not a ploy".into()),
+            Self::Load(_) => Err("not a ploy".into()),
             Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => ploy.alter(post),
         }
@@ -70,29 +70,29 @@ impl Form {
 
 impl Default for Form {
     fn default() -> Self {
-        Self::Bare(Load::None)
+        Self::Load(Load::None)
     }
 }
 
-impl Serialize for Form {
-    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
-        match self {
-            Self::Meta(meta) => meta.serialize(serializer),
-            Self::Bare(load) => load.serialize(serializer),
-            Self::Leaf(leaf) => leaf.serialize(serializer),
-            Self::Ploy(ploy) => ploy.serialize(serializer),
+// impl Serialize for Form {
+//     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         match self {
+//             Self::Meta(meta) => meta.serialize(serializer),
+//             Self::Bare(load) => load.serialize(serializer),
+//             Self::Leaf(leaf) => leaf.serialize(serializer),
+//             Self::Ploy(ploy) => ploy.serialize(serializer),
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
 impl Backed for Form {
     fn backed(&self, back: &Back) -> Self {
         match self {
             Self::Meta(meta) => Self::Meta(meta.clone()),
-            Self::Bare(bare) => Self::Bare(bare.clone()),
+            Self::Load(bare) => Self::Load(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
         }

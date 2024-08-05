@@ -8,7 +8,7 @@ mod form;
 pub type Result = result::Result<Node, Error>;
 
 /// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Serialize)]
 pub struct Node {
     rank: usize,
     form: Form,
@@ -85,13 +85,13 @@ impl Node {
     }
 }
 
-impl Serialize for Node {
-    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
-        self.form.serialize(serializer)
-    }
-}
+// impl Serialize for Node {
+//     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         self.form.serialize(serializer)
+//     }
+// }
 
 impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
@@ -133,7 +133,7 @@ impl From<Load> for Node {
     fn from(value: Load) -> Self {
         Self {
             rank: 0,
-            form: Form::Bare(value),
+            form: Form::Load(value),
         }
     }
 }
@@ -180,7 +180,7 @@ impl From<&str> for Node {
     fn from(value: &str) -> Self {
         Self {
             rank: 0,
-            form: Form::Bare(Load::String(value.to_owned())),
+            form: Form::Load(Load::String(value.to_owned())),
         }
     }
 }
@@ -189,7 +189,7 @@ impl From<u32> for Node {
     fn from(value: u32) -> Self {
         Self {
             rank: 0,
-            form: Form::Bare(Load::U32(value)),
+            form: Form::Load(Load::U32(value)),
         }
     }
 }
@@ -198,7 +198,7 @@ impl From<i32> for Node {
     fn from(value: i32) -> Self {
         Self {
             rank: 0,
-            form: Form::Bare(Load::I32(value)),
+            form: Form::Load(Load::I32(value)),
         }
     }
 }
