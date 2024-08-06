@@ -22,7 +22,7 @@ impl Program {
             fragment: fragment.backed(back),
             program,
         });
-        link.solve(Task::None)?;
+        link.solve(Task::Main)?;
         Ok(link)
     }
     pub fn use_(&self) {
@@ -32,8 +32,8 @@ impl Program {
 
 impl Solve for Program {
     fn solve(&self, _: Task) -> solve::Result {
-        self.vertex.solve(Task::None)?;
-        self.fragment.solve(Task::None)?;
+        self.vertex.solve(Task::Main)?;
+        self.fragment.solve(Task::Main)?;
         self.gl.link_program(&self.program);
         if self
             .gl

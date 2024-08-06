@@ -34,7 +34,7 @@ impl TextureBuilder {
             texture.height = texture.height.backed(back);
             texture
         });
-        link.solve(Task::None)?;
+        link.solve(Task::Main)?;
         Ok(link)
     }
 }

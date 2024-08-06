@@ -4,7 +4,6 @@ use super::*;
 pub struct Tag {
     pub name: Node,
     pub attributes: Vec<Node>,
-    // pub repo: Node,
 }
 
 impl Tag {
@@ -19,15 +18,6 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-    //     self.repo = repo.into();
-    //     self
-    // }
-    fn stems(&self) -> solve::Result {
-        let mut stems = self.attributes.clone();
-        stems.push(self.name.clone());
-        Ok(Tray::Nodes(stems))
-    }
     fn main(&self) -> solve::Result {
         let items = List::new()
             .separator(" ")
@@ -35,8 +25,12 @@ impl Tag {
             .extend(self.attributes.at(PLAIN)?)
             .node();
         let tag = List::new().push("<").push(&items).push(">").node();
-        // self.repo.edit().insert(items).insert(&tag).run()?;
         Ok(tag.tray())
+    }
+    fn stems(&self) -> solve::Result {
+        let mut nodes = self.attributes.clone();
+        nodes.push(self.name.clone());
+        Ok(nodes.tray())
     }
 }
 
@@ -45,8 +39,13 @@ impl Make for Tag {
         Self {
             name: self.name.backed(back),
             attributes: self.attributes.backed(back),
-            // repo: self.repo.clone(),
         }
+    }
+}
+
+impl Adapt for Tag {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        did_not_adapt()
     }
 }
 
@@ -55,14 +54,8 @@ impl Solve for Tag {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
-            _ => Ok(Tray::None),
+            _ => did_not_solve(),
         }
-    }
-}
-
-impl Adapt for Tag {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        Ok(Gain::None)
     }
 }
 

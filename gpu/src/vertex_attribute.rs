@@ -39,7 +39,7 @@ impl VertexAttributeBuilder {
 impl Solve for VertexAttribute {
     fn solve(&self, _: Task) -> solve::Result {
         let index = self.index.u32();
-        self.buffer.solve(Task::None)?;
+        self.buffer.solve(Task::Main)?;
         self.buffer.read(|buffer| {
             buffer.bind();
             self.gl.vertex_attrib_pointer_with_i32(

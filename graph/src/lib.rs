@@ -1,5 +1,5 @@
 pub use adapt::{post, ToAlter};
-pub use adapt::{Adapt, AdaptInner, Post, Gain};
+pub use adapt::{Adapt, AdaptInner, Post, Gain, did_not_adapt};
 pub use apex::Apex;
 use dyn_clone::DynClone;
 pub use edge::Edge;
@@ -14,7 +14,7 @@ pub use react::{
 pub use repo::Repo;
 use serde::{Deserialize, Serialize};
 pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
-pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
+pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray, did_not_solve};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };

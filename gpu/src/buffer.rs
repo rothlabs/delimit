@@ -28,7 +28,7 @@ impl Buffer {
             target,
             array: array.backed(back),
         });
-        link.solve(Task::None)?;
+        link.solve(Task::Main)?;
         Ok(link)
     }
 }

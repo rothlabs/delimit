@@ -26,7 +26,7 @@ impl VaoBuilder {
             }
             vao
         });
-        link.solve(Task::None).ok();
+        link.solve(Task::Main).ok();
         Ok(link)
     }
 }
@@ -44,10 +44,10 @@ impl Solve for Vao {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
         for attribute in &self.attributes {
-            attribute.solve(Task::None)?;
+            attribute.solve(Task::Main)?;
         }
         if let Some(buffer) = &self.index_buffer {
-            buffer.solve(Task::None)?;
+            buffer.solve(Task::Main)?;
             buffer.read(|unit| unit.bind());
         }
         self.unbind();

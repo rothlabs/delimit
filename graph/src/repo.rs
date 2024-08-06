@@ -92,7 +92,7 @@ impl Adapt for Repo {
         match post {
             Post::Extend(nodes) => self.extend(nodes),
             Post::Import => self.import(),
-            _ => Err("did not adapt".into()),
+            _ => did_not_adapt(),
         }
     }
 }
@@ -103,7 +103,7 @@ impl Solve for Repo {
             Task::Stems => self.stems(),
             Task::Export => self.export(),
             Task::Find(regex) => self.find(&regex),
-            _ => Err("did not solve".into()),
+            _ => did_not_solve(),
         }
     }
 }

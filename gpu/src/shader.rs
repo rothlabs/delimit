@@ -23,7 +23,7 @@ impl Shader {
             source: source.backed(back),
             shader,
         });
-        link.solve(Task::None)?;
+        link.solve(Task::Main)?;
         Ok(link)
     }
 }

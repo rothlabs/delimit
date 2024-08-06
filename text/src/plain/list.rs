@@ -26,11 +26,6 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn stems(&self) -> solve::Result {
-        let mut stems = self.items.clone();
-        stems.push(self.separator.clone());
-        Ok(Tray::Nodes(stems))
-    }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
             return Node::empty();
@@ -46,6 +41,11 @@ impl List {
         self.items[last].read_string(|s| string += s);
         Ok(string.leaf().node().tray())
     }
+    fn stems(&self) -> solve::Result {
+        let mut nodes = self.items.clone();
+        nodes.push(self.separator.clone());
+        Ok(nodes.tray())
+    }
 }
 
 impl Make for List {
@@ -57,19 +57,19 @@ impl Make for List {
     }
 }
 
+impl Adapt for List {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        did_not_adapt()
+    }
+}
+
 impl Solve for List {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
-            _ => Ok(Tray::None),
+            _ => did_not_solve(),
         }
-    }
-}
-
-impl Adapt for List {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        Ok(Gain::None)
     }
 }
 

@@ -5,12 +5,17 @@ pub enum Tray {
     None,
     Node(Node),
     Nodes(Vec<Node>),
-    // Serial(serial::Result),
 }
 
 impl From<Node> for Tray {
     fn from(value: Node) -> Self {
         Self::Node(value)
+    }
+}
+
+impl From<Vec<Node>> for Tray {
+    fn from(value: Vec<Node>) -> Self {
+        Self::Nodes(value)
     }
 }
 

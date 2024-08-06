@@ -22,6 +22,10 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Task, back: &Back) -> Result;
 }
 
+pub fn did_not_solve() -> solve::Result {
+    Err("did not solve".into())
+}
+
 // pub trait DoSolve {
 //     /// For graph internals to handle solve calls
 //     fn do_solve(&mut self, task: Task, back: &Back) -> Result;

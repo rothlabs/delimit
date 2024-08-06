@@ -17,7 +17,7 @@ pub fn make_canvas_on_body() -> Gpu {
         unit.add_to_body();
         unit.gpu()
     });
-    canvas.solve(Task::None).ok();
+    canvas.solve(Task::Main).ok();
     gpu
 }
 
@@ -86,7 +86,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Leaf), Box<dyn
         .vao(vao)
         .count(3_i32)
         .link()?;
-    elements.solve(Task::None)?;
+    elements.solve(Task::Main)?;
     Ok((elements, vertex_source))
 }
 
@@ -111,7 +111,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Agent<Elements>, Box<dy
         .vao(vao)
         .count(3_i32)
         .link()?;
-    elements.solve(Task::None)?;
+    elements.solve(Task::Main)?;
     Ok(elements)
 }
 

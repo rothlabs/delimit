@@ -22,3 +22,7 @@ pub trait AdaptInner {
     /// For graph internals to handle alter calls
     fn adapt(&self, post: Post) -> Result;
 }
+
+pub fn did_not_adapt() -> adapt::Result {
+    Err("did not adept".into())
+}

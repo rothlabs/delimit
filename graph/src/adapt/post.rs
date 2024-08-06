@@ -2,7 +2,6 @@ use super::*;
 
 #[derive(Clone)]
 pub enum Post {
-    None,
     Import,
     Insert(Node),
     Extend(Vec<Node>),

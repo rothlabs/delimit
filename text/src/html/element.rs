@@ -6,7 +6,6 @@ pub struct Element {
     pub items: Vec<Node>,
     close: Option<Node>,
     story: Node,
-    // repo: Node,
 }
 
 impl Element {
@@ -29,20 +28,7 @@ impl Element {
         self.story = story.into();
         self
     }
-    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-    //     self.repo = repo.into();
-    //     self
-    // }
-    fn stems(&self) -> solve::Result {
-        let mut stems = self.items.clone();
-        stems.push(self.tag.clone());
-        if let Some(node) = &self.close {
-            stems.push(node.clone());
-        }
-        Ok(Tray::Nodes(stems))
-    }
     fn main(&self) -> solve::Result {
-        // let mut edit = self.repo.edit();
         let mut element = List::new();
         element.separator("\n").push(self.tag.at(PLAIN)?);
         element.extend(self.items.at(PLAIN)?);
@@ -52,12 +38,18 @@ impl Element {
                 .push(close.at(PLAIN)?)
                 .push(">")
                 .node();
-            // edit.insert(&close);
             element.push(close);
         }
         let element = element.node();
-        // edit.insert(&element).run()?;
         Ok(element.tray())
+    }
+    fn stems(&self) -> solve::Result {
+        let mut nodes = self.items.clone();
+        nodes.push(self.tag.clone());
+        if let Some(node) = &self.close {
+            nodes.push(node.clone());
+        }
+        Ok(nodes.tray())
     }
 }
 
@@ -84,7 +76,6 @@ impl Make for Element {
             items: self.items.backed(back),
             close: self.close.as_ref().map(|close| close.backed(back)),
             story: self.story.backed(back),
-            // repo: self.repo.clone(),
         }
     }
 }
