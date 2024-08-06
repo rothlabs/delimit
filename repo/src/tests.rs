@@ -37,13 +37,11 @@ fn make_doc() -> (Node, Node) {
 #[test]
 fn save_repo() -> result::Result<(), Error> {
     let (repo, doc) = make_doc();
-    let doc_stems = doc.query().stems()?;
     let plain = doc.at(PLAIN)?;
-    let plain_stems = plain.query().stems()?;
-    let mut alter = repo.alter();
-    alter.insert(doc).extend(doc_stems);
-    alter.insert(plain).extend(plain_stems);
-    alter.run()?;
+    let mut nodes = vec![doc.clone(), plain.clone()];
+    nodes.extend(doc.query().stems()?);
+    nodes.extend(plain.query().stems()?);
+    repo.alter().extend(nodes)?;
     repo.query().export()?;
     Ok(())
 }

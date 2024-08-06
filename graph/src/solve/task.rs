@@ -1,5 +1,3 @@
-// use super::*;
-
 pub enum Task {
     None,
     Main,
@@ -8,10 +6,3 @@ pub enum Task {
     Export,
     Find(String),
 }
-
-// pub enum Task<'a> {
-//     None,
-//     Node,
-//     React,
-//     Serial(&'a mut Serial),
-// }

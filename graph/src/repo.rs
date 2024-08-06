@@ -28,7 +28,7 @@ impl Repo {
         self.deserializer = Some(deserial);
         self
     }
-    fn insert(&mut self, nodes: Vec<Node>) -> adapt::Result {
+    fn extend(&mut self, nodes: Vec<Node>) -> adapt::Result {
         for node in nodes {
             let meta = node.meta();
             self.nodes.insert(meta.id.clone(), node);
@@ -89,10 +89,10 @@ impl Make for Repo {
 
 impl Adapt for Repo {
     fn adapt(&mut self, post: Post) -> adapt::Result {
-        match post.form {
-            post::Form::Insert(nodes) => self.insert(nodes),
-            post::Form::Import => self.import(),
-            _ => Ok(Gain::None),
+        match post {
+            Post::Extend(nodes) => self.extend(nodes),
+            Post::Import => self.import(),
+            _ => Err("did not adapt".into()),
         }
     }
 }
@@ -103,7 +103,7 @@ impl Solve for Repo {
             Task::Stems => self.stems(),
             Task::Export => self.export(),
             Task::Find(regex) => self.find(&regex),
-            _ => Ok(Tray::None),
+            _ => Err("did not solve".into()),
         }
     }
 }
