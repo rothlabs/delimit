@@ -4,6 +4,7 @@ use super::*;
 pub struct NodeDeserializer;
 
 impl NodeDeserializer {
+    #[allow(dead_code)]
     pub fn new() -> Box<Self> {
         Box::new(Self)
     }

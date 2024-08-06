@@ -67,9 +67,9 @@ impl Solve for List {
     }
 }
 
-impl Alter for List {
-    fn alter(&mut self, _: Post) -> alter::Result {
-        Ok(Report::None)
+impl Adapt for List {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        Ok(Gain::None)
     }
 }
 

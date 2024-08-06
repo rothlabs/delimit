@@ -48,9 +48,9 @@ impl Solve for Attribute {
     }
 }
 
-impl Alter for Attribute {
-    fn alter(&mut self, _: Post) -> alter::Result {
-        Ok(Report::None)
+impl Adapt for Attribute {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        Ok(Gain::None)
     }
 }
 

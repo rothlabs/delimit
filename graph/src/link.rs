@@ -232,12 +232,12 @@ where
     }
 }
 
-impl<E> DoAlter for Link<E>
+impl<E> AdaptInner for Link<E>
 where
-    E: DoAlter,
+    E: AdaptInner,
 {
-    fn alter(&self, post: Post) -> alter::Result {
-        read_part(&self.edge, |edge| edge.alter(post))
+    fn adapt(&self, post: Post) -> adapt::Result {
+        read_part(&self.edge, |edge| edge.adapt(post))
     }
 }
 

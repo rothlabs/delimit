@@ -28,18 +28,18 @@ impl Repo {
         self.deserializer = Some(deserial);
         self
     }
-    fn insert(&mut self, nodes: Vec<Node>) -> alter::Result {
+    fn insert(&mut self, nodes: Vec<Node>) -> adapt::Result {
         for node in nodes {
             let meta = node.meta();
             self.nodes.insert(meta.id.clone(), node);
         }
-        Ok(Report::None)
+        Ok(Gain::None)
     }
     fn stems(&self) -> solve::Result {
         let stems = self.nodes.values().cloned().collect();
         Ok(Tray::Nodes(stems))
     }
-    fn save(&self) -> solve::Result {
+    fn export(&self) -> solve::Result {
         let mut serial = Serial::new();
         for node in self.nodes.values() {
             node.serial(&mut serial)?;
@@ -49,7 +49,7 @@ impl Repo {
         fs::write(path, data)?;
         Ok(Tray::None)
     }
-    fn load(&mut self) -> alter::Result {
+    fn import(&mut self) -> adapt::Result {
         let deserializer = self.deserializer.as_ref().ok_or("missing deserializer")?;
         let path = self.path.string()?;
         let file = File::open(path)?;
@@ -63,7 +63,7 @@ impl Repo {
             }
         }
         fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.pool)?;
-        Ok(Report::None)
+        Ok(Gain::None)
     }
     fn find(&self, regex: &String) -> solve::Result {
         let re = Regex::new(regex)?;//Regex::new(r"(?P<story>Delimit index page)")?;
@@ -71,7 +71,6 @@ impl Repo {
         let start = caps.get(0).unwrap().start();
         let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?.captures_at(&self.pool, start).ok_or("no match")?;
         let id = caps.get(1).unwrap().as_str();
-        eprintln!("id!!!: {}", id);
         let node = self.nodes.get(id).ok_or("id not found")?.clone();
         Ok(Tray::Node(node))
     }
@@ -88,15 +87,12 @@ impl Make for Repo {
     }
 }
 
-impl Alter for Repo {
-    fn alter(&mut self, post: Post) -> alter::Result {
+impl Adapt for Repo {
+    fn adapt(&mut self, post: Post) -> adapt::Result {
         match post.form {
             post::Form::Insert(nodes) => self.insert(nodes),
-            post::Form::Cmd(name) => match name.as_str() {
-                LOAD => self.load(),
-                _ => Ok(Report::None),
-            },
-            _ => Ok(Report::None),
+            post::Form::Import => self.import(),
+            _ => Ok(Gain::None),
         }
     }
 }
@@ -105,15 +101,23 @@ impl Solve for Repo {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Stems => self.stems(),
-            Task::Cmd(name) => match name.as_str() {
-                SAVE => self.save(),
-                _ => Ok(Tray::None),
-            },
+            Task::Export => self.export(),
             Task::Find(regex) => self.find(&regex),
             _ => Ok(Tray::None),
         }
     }
 }
+
+
+
+// Task::Cmd(name) => match name.as_str() {
+//     SAVE => self.save(),
+//     _ => Ok(Tray::None),
+// },
+// post::Form::Cmd(name) => match name.as_str() {
+//     LOAD => self.load(),
+//     _ => Ok(Report::None),
+// },
 
 // let mut debug = String::new();
 // if let Ok(node) = node_result {

@@ -1,5 +1,5 @@
-pub use alter::{post, ToEdit};
-pub use alter::{Alter, DoAlter, Post, Report};
+pub use adapt::{post, ToAlter};
+pub use adapt::{Adapt, AdaptInner, Post, Gain};
 pub use apex::Apex;
 use dyn_clone::DynClone;
 pub use edge::Edge;
@@ -28,7 +28,7 @@ use std::{
 };
 use std::{error, result};
 
-pub mod alter;
+pub mod adapt;
 pub mod node;
 pub mod react;
 pub mod serial;
@@ -92,7 +92,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug {}
+pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -113,7 +113,7 @@ where
 
 impl<T> ToAgent for T
 where
-    T: 'static + Make + Solve + Alter + Clone + SendSync,
+    T: 'static + Make + Solve + Adapt + Clone + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
         Agent::make(|back| self.make(back))
@@ -127,7 +127,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
+    T: 'static + ToAgent + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -136,7 +136,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
+    T: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

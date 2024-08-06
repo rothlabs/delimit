@@ -119,21 +119,21 @@ where
     }
 }
 
-impl<N> DoAlter for Edge<N>
+impl<N> AdaptInner for Edge<N>
 where
-    N: 'static + Alter + DoUpdate,
+    N: 'static + Adapt + DoUpdate,
 {
-    fn alter(&self, post: Post) -> alter::Result {
+    fn adapt(&self, post: Post) -> adapt::Result {
         let back = &self.node_as_back();
-        write_part(&self.apex, |mut apex| apex.alter(post.backed(back)))
+        write_part(&self.apex, |mut apex| apex.adapt(post.backed(back)))
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync {}
+impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
+    U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
@@ -156,7 +156,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
+    U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
@@ -308,9 +308,9 @@ impl Solve for Box<dyn Engage> {
     }
 }
 
-impl DoAlter for Box<dyn Engage> {
-    fn alter(&self, post: Post) -> alter::Result {
-        self.as_ref().alter(post)
+impl AdaptInner for Box<dyn Engage> {
+    fn adapt(&self, post: Post) -> adapt::Result {
+        self.as_ref().adapt(post)
     }
 }
 

@@ -23,9 +23,8 @@ where
     pub fn find(&self, regex: &str) -> solve::Result {
         self.target.solve(Task::Find(regex.into()))
     }
-    pub fn cmd(&self, name: &str) -> solve::Result {
-        self.target.solve(Task::Cmd(name.into()))?;
-        Ok(Tray::None)
+    pub fn export(&self) -> solve::Result {
+        self.target.solve(Task::Export)
     }
     // pub fn serial(&self) -> serial::Result {
     //     self.target.solve(Task::Serial)?;

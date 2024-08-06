@@ -68,12 +68,12 @@ impl Form {
             Self::Ploy(ploy) => ploy.solve(task),
         }
     }
-    pub fn alter(&self, post: Post) -> alter::Result {
+    pub fn alter(&self, post: Post) -> adapt::Result {
         match self {
             Self::Meta(_) => Err("not a ploy".into()),
             Self::Load(_) => Err("not a ploy".into()),
             Self::Leaf(_) => Err("not a ploy".into()),
-            Self::Ploy(ploy) => ploy.alter(post),
+            Self::Ploy(ploy) => ploy.adapt(post),
         }
     }
 }

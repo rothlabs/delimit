@@ -60,9 +60,9 @@ impl Solve for Tag {
     }
 }
 
-impl Alter for Tag {
-    fn alter(&mut self, _: Post) -> alter::Result {
-        Ok(Report::None)
+impl Adapt for Tag {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        Ok(Gain::None)
     }
 }
 

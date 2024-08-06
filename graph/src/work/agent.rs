@@ -112,12 +112,12 @@ where
     }
 }
 
-impl<U> Alter for Agent<U>
+impl<U> Adapt for Agent<U>
 where
-    U: Alter,
+    U: Adapt,
 {
-    fn alter(&mut self, post: Post) -> alter::Result {
-        self.unit.as_mut().unwrap().alter(post)
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        self.unit.as_mut().unwrap().adapt(post)
     }
 }
 

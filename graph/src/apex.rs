@@ -163,12 +163,12 @@ where
     }
 }
 
-impl<W> Alter for Apex<W>
+impl<W> Adapt for Apex<W>
 where
-    W: Alter,
+    W: Adapt,
 {
-    fn alter(&mut self, post: Post) -> alter::Result {
-        self.work.alter(post)
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        self.work.adapt(post)
     }
 }
 

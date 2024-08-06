@@ -5,8 +5,8 @@ pub enum Task {
     Main,
     Stems,
     React,
+    Export,
     Find(String),
-    Cmd(String),
 }
 
 // pub enum Task<'a> {

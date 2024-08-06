@@ -29,12 +29,9 @@ impl Post {
         }
         self
     }
-    pub fn cmd(name: &str) -> Self {
-        Self {
-            field: "".into(),
-            form: Form::Cmd(name.into()),
-        }
-    }
+    // pub fn import() -> Self {
+    //     Self { field: "".into(), form: Form::Import }
+    // }
 }
 
 impl Backed for Post {
@@ -55,7 +52,7 @@ pub enum Form {
     None,
     Insert(Vec<Node>),
     Remove(usize),
-    Cmd(String),
+    Import,
 }
 
 impl Default for Form {

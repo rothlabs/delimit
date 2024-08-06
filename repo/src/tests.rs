@@ -40,11 +40,11 @@ fn save_repo() -> result::Result<(), Error> {
     let doc_stems = doc.query().stems()?;
     let plain = doc.at(PLAIN)?;
     let plain_stems = plain.query().stems()?;
-    let mut edit = repo.edit();
-    edit.insert(doc).extend(doc_stems);
-    edit.insert(plain).extend(plain_stems);
-    edit.run()?;
-    repo.query().cmd(SAVE)?;
+    let mut alter = repo.alter();
+    alter.insert(doc).extend(doc_stems);
+    alter.insert(plain).extend(plain_stems);
+    alter.run()?;
+    repo.query().export()?;
     Ok(())
 }
 
@@ -53,7 +53,7 @@ fn load_repo() -> result::Result<(), Error> {
     let path = STORAGE.leaf().node();
     let deserializer = NodeDeserializer::new();
     let repo = Repo::new().path(path).deserializer(deserializer).node();
-    repo.edit().cmd(LOAD)?;
+    repo.alter().import()?;
     // repo.query().cmd(SAVE)?;
     // Err("crap".into())
     Ok(())
@@ -64,7 +64,7 @@ fn find_node_in_loaded_repo() -> result::Result<(), Error> {
     let path = STORAGE.leaf().node();
     let deserializer = NodeDeserializer::new();
     let repo = Repo::new().path(path).deserializer(deserializer).node();
-    repo.edit().cmd(LOAD)?;
+    repo.alter().import()?;
     if let Tray::Node(node) = repo.query().find("Delimit index page")? {
         eprintln!("node: {:?}", node);
     }

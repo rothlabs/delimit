@@ -104,8 +104,8 @@ impl Solve for Node {
     }
 }
 
-impl DoAlter for Node {
-    fn alter(&self, post: Post) -> alter::Result {
+impl AdaptInner for Node {
+    fn adapt(&self, post: Post) -> adapt::Result {
         self.form.alter(post)
     }
 }

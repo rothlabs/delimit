@@ -1,13 +1,13 @@
 use super::*;
 
-pub struct Edit<T> {
+pub struct Alter<T> {
     target: T,
     post: Post,
 }
 
-impl<T> Edit<T>
+impl<T> Alter<T>
 where
-    T: DoAlter + Clone,
+    T: AdaptInner + Clone,
 {
     pub fn insert(&mut self, node: impl Into<Node>) -> &mut Self {
         self.post.insert(node);
@@ -17,26 +17,26 @@ where
         self.post.extend(nodes);
         self
     }
-    pub fn cmd(&self, name: &str) -> alter::Result {
-        self.target.alter(Post::cmd(name))
+    pub fn import(&self) -> adapt::Result {
+        self.target.adapt(Post { field: "".into(), form: post::Form::Import })
     }
     /// Alter the node with built Post.
-    pub fn run(&self) -> alter::Result {
-        self.target.alter(self.post.clone())
+    pub fn run(&self) -> adapt::Result {
+        self.target.adapt(self.post.clone())
     }
 }
 
-pub trait ToEdit<T> {
+pub trait ToAlter<T> {
     /// Make an editor to setup changes. Call Run to apply changes.
-    fn edit(&self) -> Edit<T>;
+    fn alter(&self) -> Alter<T>;
 }
 
-impl<T> ToEdit<T> for T
+impl<T> ToAlter<T> for T
 where
-    T: DoAlter + Clone,
+    T: AdaptInner + Clone,
 {
-    fn edit(&self) -> Edit<T> {
-        Edit {
+    fn alter(&self) -> Alter<T> {
+        Alter {
             target: self.clone(),
             post: Post::new(),
         }
