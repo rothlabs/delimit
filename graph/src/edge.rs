@@ -3,8 +3,6 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
-use serde::Serialize;
-
 use crate::*;
 
 /// Edge to a load.
@@ -31,7 +29,7 @@ impl<N> ToMeta for Edge<N> {
 
 impl<N> SerializeGraph for Edge<N>
 where
-    N: 'static + DoSerializeGraph + DoUpdate,
+    N: 'static + SerializeGraphInner + DoUpdate,
 {
     fn serial(&self, serial: &mut Serial) -> serial::Result {
         write_part(&self.apex, |mut apex| {
@@ -314,15 +312,6 @@ impl DoAlter for Box<dyn Engage> {
         self.as_ref().alter(post)
     }
 }
-
-// impl<R, St> Serialize for Edge<R, St> {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         self.meta.serialize(serializer)
-//     }
-// }
 
 // impl<N> Write for Edge<N>
 // where

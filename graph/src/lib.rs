@@ -13,7 +13,7 @@ pub use react::{
 };
 pub use repo::Repo;
 use serde::{Deserialize, Serialize};
-pub use serial::{DoSerializeGraph, Serial, SerializeGraph};
+pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
 pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -100,7 +100,7 @@ type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(DeserializeNode);
 pub trait DeserializeNode: DynClone + SendSync {
-    fn deserialize(&self, string: &String) -> result::Result<Node, Error>;
+    fn deserialize(&self, string: &str) -> result::Result<Node, Error>;
 }
 
 pub trait ToAgent

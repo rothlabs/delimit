@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.

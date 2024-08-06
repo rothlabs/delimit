@@ -91,14 +91,6 @@ impl Node {
     }
 }
 
-// impl Serialize for Node {
-//     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         self.form.serialize(serializer)
-//     }
-// }
-
 impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
         match task {

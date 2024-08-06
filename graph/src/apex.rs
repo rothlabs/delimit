@@ -1,13 +1,12 @@
-use serde::Serialize;
-
 use super::*;
 
 pub type Leaf = Apex<work::Leaf>;
+
 pub type Agent<U> = Apex<work::Agent<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
 pub struct Apex<W> {
-    meta: Meta, // should meta contain the deserialize method
+    meta: Meta,
     ring: Ring,
     work: W,
 }
@@ -39,7 +38,7 @@ where
     }
 }
 
-impl<W> DoSerializeGraph for Apex<W>
+impl<W> SerializeGraphInner for Apex<W>
 where
     W: Serialize + DoSolve,
 {

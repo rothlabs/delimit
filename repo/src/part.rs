@@ -4,7 +4,7 @@ use super::*;
 pub struct Deserial;
 
 impl DeserializeNode for Deserial {
-    fn deserialize(&self, string: &String) -> Result<Node, Error> {
+    fn deserialize(&self, string: &str) -> Result<Node, Error> {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.node())
     }

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::*;
 
 /// Main Work type.

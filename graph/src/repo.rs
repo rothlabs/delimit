@@ -40,26 +40,12 @@ impl Repo {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         let serial: Serial = serde_json::from_reader(reader)?;
-        let mut all = String::new();
-        for (id, string) in &serial.nodes {
-            let node_result = self
-                .deserial
-                .as_ref()
-                .ok_or("no node deserializer")?
-                .deserialize(string);
-            if let Ok(node) = node_result {
+        let deserial = self.deserial.as_ref().ok_or("missing deserial")?;
+        for (id, string) in &serial.parts {
+            if let Ok(node) = deserial.deserialize(string) {
                 self.nodes.insert(id.into(), node);
-                all.push_str(&string);
-                all.push_str(&"\n\n");
             }
-            // if let Err(_) = node_result {
-            //     all.push_str(&string);
-            //     all.push_str(&"\n\n");
-            // }
-            // let node: Node = serde_json::from_str(string)?;
         }
-        all.push_str(&self.nodes.len().to_string());
-        fs::write("/home/julian/delimit/repo/storage/debug.txt", all)?;
         Ok(Report::None)
     }
     fn insert(&mut self, nodes: Vec<Node>) -> alter::Result {
@@ -95,10 +81,6 @@ impl Alter for Repo {
             },
             _ => Ok(Report::None),
         }
-        // if let post::Form::Insert(nodes) = post.form {
-        //     self.insert(nodes)
-        // }
-        // Ok(Report::None)
     }
 }
 
@@ -115,8 +97,16 @@ impl Solve for Repo {
     }
 }
 
-// match name.as_str() {
-//     SAVE => self.save()?,
-//     LOAD => self.load()?,
-//     _ => ()
+// let mut debug = String::new();
+// if let Ok(node) = node_result {
+//     self.nodes.insert(id.into(), node);
+//     all.push_str(string);
+//     all.push_str("\n\n");
 // }
+// // if let Err(_) = node_result {
+// //     all.push_str(&string);
+// //     all.push_str(&"\n\n");
+// // }
+
+// debug.push_str(&self.nodes.len().to_string());
+//         fs::write("/home/julian/delimit/repo/storage/debug.txt", debug)?;
