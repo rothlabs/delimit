@@ -1,3 +1,5 @@
+use node::TradeNodes;
+
 use super::*;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -26,6 +28,11 @@ impl List {
         self.items.remove(index);
         self
     }
+    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+        self.items = self.items.trade(trade);
+        self.separator = self.separator.trade(trade);
+        Ok(Gain::None)
+    }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
             return Node::empty();
@@ -48,18 +55,12 @@ impl List {
     }
 }
 
-impl Make for List {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            items: self.items.backed(back),
-            separator: self.separator.backed(back),
-        }
-    }
-}
-
 impl Adapt for List {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        did_not_adapt()
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        match post {
+            Post::Trade(trade) => self.trade(trade.as_ref()),
+            _ => did_not_adapt(post),
+        }
     }
 }
 
@@ -72,6 +73,17 @@ impl Solve for List {
         }
     }
 }
+
+// impl Make for List {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             items: self.items.backed(back),
+//             separator: self.separator.backed(back),
+//         }
+//     }
+// }
+
+// fn swap<F: Fn(&Node) -> Node>(&mut self, swap: F) -> adapt::Result {
 
 // impl Stems for List {
 //     fn stems(&self) -> Vec<&Node> {

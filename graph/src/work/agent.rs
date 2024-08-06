@@ -22,7 +22,7 @@ where
     }
 }
 
-impl<U> DoMake for Agent<U>
+impl<U> MakeInner for Agent<U>
 where
     U: Solve,
 {

@@ -18,6 +18,11 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
+    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+        self.name = self.name.trade(trade);
+        self.attributes = self.attributes.trade(trade);
+        Ok(Gain::None)
+    }
     fn main(&self) -> solve::Result {
         let items = List::new()
             .separator(" ")
@@ -34,18 +39,12 @@ impl Tag {
     }
 }
 
-impl Make for Tag {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            name: self.name.backed(back),
-            attributes: self.attributes.backed(back),
-        }
-    }
-}
-
 impl Adapt for Tag {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        did_not_adapt()
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        match post {
+            Post::Trade(trade) => self.trade(trade.as_ref()),
+            _ => did_not_adapt(post),
+        }
     }
 }
 
@@ -73,3 +72,12 @@ pub const H1: &str = "h1";
 pub const TAGS: [&str; 10] = [
     DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
 ];
+
+// impl Make for Tag {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             name: self.name.backed(back),
+//             attributes: self.attributes.backed(back),
+//         }
+//     }
+// }

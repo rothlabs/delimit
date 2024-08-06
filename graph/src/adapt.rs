@@ -1,6 +1,6 @@
 pub use alter::ToAlter;
-pub use post::Post;
 pub use gain::Gain;
+pub use post::Post;
 
 use super::*;
 use std::result;
@@ -23,6 +23,6 @@ pub trait AdaptInner {
     fn adapt(&self, post: Post) -> Result;
 }
 
-pub fn did_not_adapt() -> adapt::Result {
-    Err("did not adept".into())
+pub fn did_not_adapt(post: Post) -> adapt::Result {
+    Err(format!("did not adept: {:?}", post).into())
 }

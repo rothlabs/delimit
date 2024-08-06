@@ -69,10 +69,10 @@ where
 
 impl<E> Link<E>
 where
-    E: Maker + ToMeta,
+    E: Make + ToMeta,
 {
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
-        let apex = E::maker(make);
+        let apex = E::make(make);
         Self {
             meta: apex.meta(),
             #[cfg(not(feature = "oneThread"))]

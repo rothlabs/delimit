@@ -1,12 +1,12 @@
+pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post};
 pub use adapt::{post, ToAlter};
-pub use adapt::{Adapt, AdaptInner, Post, Gain, did_not_adapt};
 pub use apex::Apex;
 use dyn_clone::DynClone;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{Id, Meta, ToMeta};
-pub use node::{Node, RankDown};
+pub use node::{Node, RankDown, TradeNodes};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
@@ -14,7 +14,7 @@ pub use react::{
 pub use repo::Repo;
 use serde::{Deserialize, Serialize};
 pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
-pub use solve::{DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray, did_not_solve};
+pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
@@ -92,7 +92,10 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug {}
+pub trait Engage:
+    Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug
+{
+}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -104,6 +107,28 @@ pub trait DeserializeNode: DynClone + std::fmt::Debug + SendSync {
     fn deserialize(&self, string: &str) -> result::Result<Node, Error>;
 }
 
+dyn_clone::clone_trait_object!(Trade);
+pub trait Trade: DynClone + std::fmt::Debug {
+    fn trade(&self, node: &Node) -> Node;
+}
+
+#[derive(Clone, Debug)]
+struct BackTrader {
+    back: Back,
+}
+
+impl BackTrader {
+    fn new(back: &Back) -> Box<Self> {
+        Box::new(Self { back: back.clone() })
+    }
+}
+
+impl Trade for BackTrader {
+    fn trade(&self, node: &Node) -> Node {
+        node.backed(&self.back)
+    }
+}
+
 pub trait ToAgent
 where
     Self: Sized,
@@ -113,10 +138,17 @@ where
 
 impl<T> ToAgent for T
 where
-    T: 'static + Make + Solve + Adapt + Clone + SendSync,
+    T: 'static + Adapt + Solve + Clone + SendSync,
 {
     fn agent(&self) -> Agent<Self> {
-        Agent::make(|back| self.make(back))
+        Agent::make(|back| {
+            let mut unit = self.clone();
+            let trade = BackTrader::new(back);
+            unit.adapt(Post::Trade(trade))
+                .expect("unit must handle Post::Trade");
+            unit
+        })
+        //Agent::make(|back| self.make(back))
     }
 }
 
@@ -180,15 +212,11 @@ pub trait FromItem {
 }
 
 pub trait Make {
-    fn make(&self, back: &Back) -> Self;
-}
-
-pub trait Maker {
     type Unit;
-    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
 
-pub trait DoMake {
+pub trait MakeInner {
     type Unit;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
 }
@@ -196,3 +224,7 @@ pub trait DoMake {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+// pub trait Make {
+//     fn make(&self, back: &Back) -> Self;
+// }

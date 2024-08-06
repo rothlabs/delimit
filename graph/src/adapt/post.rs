@@ -1,7 +1,8 @@
 use super::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Post {
+    Trade(Box<dyn Trade>),
     Import,
     Insert(Node),
     Extend(Vec<Node>),
@@ -44,8 +45,6 @@ impl Backed for Post {
 //     //     Self { field: "".into(), form: Form::Import }
 //     // }
 // }
-
-
 
 // #[derive(Clone)]
 // pub enum Form {

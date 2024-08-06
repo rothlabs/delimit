@@ -65,34 +65,26 @@ impl Repo {
         fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.pool)?;
         Ok(Gain::None)
     }
-    fn find(&self, regex: &String) -> solve::Result {
-        let re = Regex::new(regex)?;//Regex::new(r"(?P<story>Delimit index page)")?;
+    fn find(&self, regex: &str) -> solve::Result {
+        let re = Regex::new(regex)?; //Regex::new(r"(?P<story>Delimit index page)")?;
         let caps = re.captures(&self.pool).ok_or("no match")?;
         let start = caps.get(0).unwrap().start();
-        let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?.captures_at(&self.pool, start).ok_or("no match")?;
+        let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?
+            .captures_at(&self.pool, start)
+            .ok_or("no match")?;
         let id = caps.get(1).unwrap().as_str();
         let node = self.nodes.get(id).ok_or("id not found")?.clone();
         Ok(Tray::Node(node))
     }
 }
 
-impl Make for Repo {
-    fn make(&self, _: &Back) -> Self {
-        Self {
-            nodes: self.nodes.clone(),
-            path: self.path.clone(),
-            pool: self.pool.clone(),
-            deserializer: self.deserializer.clone(),
-        }
-    }
-}
-
 impl Adapt for Repo {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
+            Post::Trade(_) => Ok(Gain::None),
             Post::Extend(nodes) => self.extend(nodes),
             Post::Import => self.import(),
-            _ => did_not_adapt(),
+            _ => did_not_adapt(post),
         }
     }
 }
@@ -108,7 +100,16 @@ impl Solve for Repo {
     }
 }
 
-
+// impl Make for Repo {
+//     fn make(&self, _: &Back) -> Self {
+//         Self {
+//             nodes: self.nodes.clone(),
+//             path: self.path.clone(),
+//             pool: self.pool.clone(),
+//             deserializer: self.deserializer.clone(),
+//         }
+//     }
+// }
 
 // Task::Cmd(name) => match name.as_str() {
 //     SAVE => self.save(),

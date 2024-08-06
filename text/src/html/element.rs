@@ -28,6 +28,14 @@ impl Element {
         self.story = story.into();
         self
     }
+    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+        self.tag = self.tag.trade(trade);
+        self.items = self.items.trade(trade);
+        if let Some(close) = &self.close {
+            self.close = Some(close.trade(trade));
+        }
+        Ok(Gain::None)
+    }
     fn main(&self) -> solve::Result {
         let mut element = List::new();
         element.separator("\n").push(self.tag.at(PLAIN)?);
@@ -54,8 +62,11 @@ impl Element {
 }
 
 impl Adapt for Element {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        did_not_adapt()
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        match post {
+            Post::Trade(trade) => self.trade(trade.as_ref()),
+            _ => did_not_adapt(post),
+        }
     }
 }
 
@@ -69,13 +80,13 @@ impl Solve for Element {
     }
 }
 
-impl Make for Element {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            tag: self.tag.backed(back),
-            items: self.items.backed(back),
-            close: self.close.as_ref().map(|close| close.backed(back)),
-            story: self.story.backed(back),
-        }
-    }
-}
+// impl Make for Element {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             tag: self.tag.backed(back),
+//             items: self.items.backed(back),
+//             close: self.close.as_ref().map(|close| close.backed(back)),
+//             story: self.story.backed(back),
+//         }
+//     }
+// }

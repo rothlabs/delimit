@@ -1,7 +1,7 @@
 use super::*;
-use text::*;
 use deserializer::NodeDeserializer;
 use std::result;
+use text::*;
 
 fn make_doc() -> (Node, Node) {
     let path = STORAGE.leaf().node();
@@ -69,5 +69,3 @@ fn find_node_in_loaded_repo() -> result::Result<(), Error> {
     // Err("crap".into())
     Ok(())
 }
-
-

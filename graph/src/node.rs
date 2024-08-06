@@ -22,6 +22,9 @@ impl Node {
     pub fn load(&self) -> load::Result {
         self.form.load()
     }
+    pub fn trade(&self, base: &dyn Trade) -> Self {
+        base.trade(self)
+    }
     /// Solve the node for the next node down until the given rank.
     pub fn at(&self, rank: usize) -> Result {
         let mut node = self.clone();
@@ -89,6 +92,16 @@ impl Node {
             Ok(Load::I32(value)) => value,
             _ => 0,
         }
+    }
+}
+
+pub trait TradeNodes {
+    fn trade(&self, base: &dyn Trade) -> Self;
+}
+
+impl TradeNodes for Vec<Node> {
+    fn trade(&self, base: &dyn Trade) -> Self {
+        self.iter().map(|x| x.trade(base)).collect()
     }
 }
 

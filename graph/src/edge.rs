@@ -57,13 +57,13 @@ where
     }
 }
 
-impl<N> Maker for Edge<N>
+impl<N> Make for Edge<N>
 where
-    N: 'static + Default + DoMake + DoUpdate + ToMeta,
+    N: 'static + Default + MakeInner + DoUpdate + ToMeta,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
         let meta = apex.meta();
         let apex = Arc::new(RwLock::new(apex));
@@ -77,7 +77,7 @@ where
         }
     }
     #[cfg(feature = "oneThread")]
-    fn maker<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
         let meta = apex.meta();
         let apex = Rc::new(RefCell::new(apex));
@@ -129,7 +129,8 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync {}
+impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync
+{}
 
 impl<U> ToPloy for Agent<U>
 where

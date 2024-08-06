@@ -60,9 +60,9 @@ impl<W> ToMeta for Apex<W> {
     }
 }
 
-impl<W> DoMake for Apex<W>
+impl<W> MakeInner for Apex<W>
 where
-    W: DoMake,
+    W: MakeInner,
 {
     type Unit = W::Unit;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {

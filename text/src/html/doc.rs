@@ -95,10 +95,7 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::new()
-                .name(name)
-                .content(value)
-                .node();
+            let attribute = Attribute::new().name(name).content(value).node();
             self.tag
                 .write(|Pack { unit, back }| {
                     unit.attribute(attribute.backed(back));

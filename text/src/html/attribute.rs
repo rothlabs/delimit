@@ -19,12 +19,10 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-    //     self.repo = repo.into();
-    //     self
-    // }
-    fn stems(&self) -> solve::Result {
-        Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
+    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+        self.name = self.name.trade(trade);
+        self.content = self.content.trade(trade);
+        Ok(Gain::None)
     }
     fn main(&self) -> solve::Result {
         let node = List::new()
@@ -33,14 +31,19 @@ impl Attribute {
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node();
-        // self.repo.edit().insert(&node).run()?;
         Ok(node.tray())
+    }
+    fn stems(&self) -> solve::Result {
+        Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
     }
 }
 
 impl Adapt for Attribute {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        did_not_adapt()
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        match post {
+            Post::Trade(trade) => self.trade(trade.as_ref()),
+            _ => did_not_adapt(post),
+        }
     }
 }
 
@@ -54,16 +57,6 @@ impl Solve for Attribute {
     }
 }
 
-impl Make for Attribute {
-    fn make(&self, back: &Back) -> Self {
-        Self {
-            name: self.name.backed(back),
-            content: self.content.backed(back),
-            // repo: self.repo.clone(),
-        }
-    }
-}
-
 pub const ID: &str = "id";
 pub const LANG: &str = "lang";
 pub const CHARSET: &str = "charset";
@@ -73,3 +66,13 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
+
+// impl Make for Attribute {
+//     fn make(&self, back: &Back) -> Self {
+//         Self {
+//             name: self.name.backed(back),
+//             content: self.content.backed(back),
+//             // repo: self.repo.clone(),
+//         }
+//     }
+// }
