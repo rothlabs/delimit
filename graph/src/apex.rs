@@ -5,6 +5,7 @@ pub type Leaf = Apex<work::Leaf>;
 pub type Agent<U> = Apex<work::Agent<U>>;
 
 /// A apex creates an interactive bridge between root edges and work.
+#[derive(Debug)]
 pub struct Apex<W> {
     meta: Meta,
     ring: Ring,

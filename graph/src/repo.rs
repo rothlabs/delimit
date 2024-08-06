@@ -1,3 +1,5 @@
+use regex::Regex;
+
 use super::*;
 use std::{
     collections::HashMap,
@@ -5,12 +7,13 @@ use std::{
     io::BufReader,
 };
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Repo {
     nodes: HashMap<Id, Node>,
     path: Node,
+    pool: String,
     #[serde(skip)]
-    deserial: Option<Box<dyn DeserializeNode>>,
+    deserializer: Option<Box<dyn DeserializeNode>>,
 }
 
 impl Repo {
@@ -21,32 +24,9 @@ impl Repo {
         self.path = path.into();
         self
     }
-    pub fn deserial(&mut self, deserial: Box<dyn DeserializeNode>) -> &mut Self {
-        self.deserial = Some(deserial);
+    pub fn deserializer(&mut self, deserial: Box<dyn DeserializeNode>) -> &mut Self {
+        self.deserializer = Some(deserial);
         self
-    }
-    fn save(&self) -> solve::Result {
-        let mut serial = Serial::new();
-        for node in self.nodes.values() {
-            node.serial(&mut serial)?;
-        }
-        let path = self.path.string()?;
-        let data = serde_json::to_string(&serial)?;
-        fs::write(path, data)?;
-        Ok(Tray::None)
-    }
-    fn load(&mut self) -> alter::Result {
-        let path = self.path.string()?;
-        let file = File::open(path)?;
-        let reader = BufReader::new(file);
-        let serial: Serial = serde_json::from_reader(reader)?;
-        let deserial = self.deserial.as_ref().ok_or("missing deserial")?;
-        for (id, string) in &serial.parts {
-            if let Ok(node) = deserial.deserialize(string) {
-                self.nodes.insert(id.into(), node);
-            }
-        }
-        Ok(Report::None)
     }
     fn insert(&mut self, nodes: Vec<Node>) -> alter::Result {
         for node in nodes {
@@ -59,6 +39,42 @@ impl Repo {
         let stems = self.nodes.values().cloned().collect();
         Ok(Tray::Nodes(stems))
     }
+    fn save(&self) -> solve::Result {
+        let mut serial = Serial::new();
+        for node in self.nodes.values() {
+            node.serial(&mut serial)?;
+        }
+        let path = self.path.string()?;
+        let data = serde_json::to_string(&serial)?;
+        fs::write(path, data)?;
+        Ok(Tray::None)
+    }
+    fn load(&mut self) -> alter::Result {
+        let deserializer = self.deserializer.as_ref().ok_or("missing deserializer")?;
+        let path = self.path.string()?;
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let serial: Serial = serde_json::from_reader(reader)?;
+        self.pool = String::new();
+        for (id, part) in &serial.parts {
+            if let Ok(node) = deserializer.deserialize(part) {
+                self.nodes.insert(id.into(), node);
+                self.pool += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
+            }
+        }
+        fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.pool)?;
+        Ok(Report::None)
+    }
+    fn find(&self, regex: &String) -> solve::Result {
+        let re = Regex::new(regex)?;//Regex::new(r"(?P<story>Delimit index page)")?;
+        let caps = re.captures(&self.pool).ok_or("no match")?;
+        let start = caps.get(0).unwrap().start();
+        let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?.captures_at(&self.pool, start).ok_or("no match")?;
+        let id = caps.get(1).unwrap().as_str();
+        eprintln!("id!!!: {}", id);
+        let node = self.nodes.get(id).ok_or("id not found")?.clone();
+        Ok(Tray::Node(node))
+    }
 }
 
 impl Make for Repo {
@@ -66,7 +82,8 @@ impl Make for Repo {
         Self {
             nodes: self.nodes.clone(),
             path: self.path.clone(),
-            deserial: self.deserial.clone(),
+            pool: self.pool.clone(),
+            deserializer: self.deserializer.clone(),
         }
     }
 }
@@ -92,6 +109,7 @@ impl Solve for Repo {
                 SAVE => self.save(),
                 _ => Ok(Tray::None),
             },
+            Task::Find(regex) => self.find(&regex),
             _ => Ok(Tray::None),
         }
     }

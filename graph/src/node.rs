@@ -8,7 +8,7 @@ mod form;
 pub type Result = result::Result<Node, Error>;
 
 /// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
-#[derive(Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Node {
     rank: usize,
     form: Form,

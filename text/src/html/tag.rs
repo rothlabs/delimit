@@ -1,10 +1,10 @@
 use super::*;
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Tag {
     pub name: Node,
     pub attributes: Vec<Node>,
-    pub repo: Node,
+    // pub repo: Node,
 }
 
 impl Tag {
@@ -19,10 +19,10 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-        self.repo = repo.into();
-        self
-    }
+    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+    //     self.repo = repo.into();
+    //     self
+    // }
     fn stems(&self) -> solve::Result {
         let mut stems = self.attributes.clone();
         stems.push(self.name.clone());
@@ -35,7 +35,7 @@ impl Tag {
             .extend(self.attributes.at(PLAIN)?)
             .node();
         let tag = List::new().push("<").push(&items).push(">").node();
-        self.repo.edit().insert(items).insert(&tag).run()?;
+        // self.repo.edit().insert(items).insert(&tag).run()?;
         Ok(tag.tray())
     }
 }
@@ -45,7 +45,7 @@ impl Make for Tag {
         Self {
             name: self.name.backed(back),
             attributes: self.attributes.backed(back),
-            repo: self.repo.clone(),
+            // repo: self.repo.clone(),
         }
     }
 }

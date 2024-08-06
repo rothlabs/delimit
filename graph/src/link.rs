@@ -21,6 +21,7 @@ pub type Ploy = Link<Box<dyn Engage>>;
 
 /// Link to an edge that leads to a apex that contains a unit.
 /// Units hold links as source of input used to compute output.
+#[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
@@ -257,16 +258,3 @@ where
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
-
-// impl<E> Serialize for Link<E>
-// where
-//     E: SerializeGraph
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         read_part(&self.edge, |edge| edge.serialize(serializer, serial))
-//         self.meta.serialize(serializer)
-//     }
-// }

@@ -1,5 +1,4 @@
 pub use config::STORAGE;
-pub use part::Deserial;
 
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -17,7 +16,7 @@ use graph::*;
 use serde::*;
 
 mod config;
-mod part;
+mod deserializer;
 #[cfg(test)]
 mod tests;
 

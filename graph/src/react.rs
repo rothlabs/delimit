@@ -71,7 +71,7 @@ pub trait DoUpdate: DoRebut + DoReact + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Apex holds a Ring of Roots.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Root {
     #[cfg(not(feature = "oneThread"))]
     pub edge: Weak<RwLock<dyn Update>>,
@@ -112,7 +112,7 @@ impl Hash for Root {
 }
 
 /// Weakly point to the back of a apex as DoUpdate.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
     pub apex: Weak<RwLock<dyn DoUpdate>>,
@@ -146,7 +146,7 @@ impl Back {
 }
 
 /// Points to many root edges, each pointing to back of a apex.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Ring {
     roots: HashSet<Root>,
 }

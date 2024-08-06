@@ -4,6 +4,7 @@ use crate::*;
 /// To be useful, unit should at least impl Solve.
 /// The solved Tray is kept to be return on subsequent solve calls
 /// until the unit changes.
+#[derive(Debug)]
 pub struct Agent<U> {
     unit: Option<U>,
     tray: Option<Tray>,

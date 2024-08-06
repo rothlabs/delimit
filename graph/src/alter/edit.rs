@@ -10,7 +10,11 @@ where
     T: DoAlter + Clone,
 {
     pub fn insert(&mut self, node: impl Into<Node>) -> &mut Self {
-        self.post.insert(node.into());
+        self.post.insert(node);
+        self
+    }
+    pub fn extend(&mut self, nodes: Vec<impl Into<Node>>) -> &mut Self {
+        self.post.extend(nodes);
         self
     }
     pub fn cmd(&self, name: &str) -> alter::Result {

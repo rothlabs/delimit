@@ -14,6 +14,15 @@ where
             _ => Err("not a node".into()),
         }
     }
+    pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
+        match self.target.solve(Task::Stems)? {
+            Tray::Nodes(nodes) => Ok(nodes),
+            _ => Err("not node vector".into()),
+        }
+    }
+    pub fn find(&self, regex: &str) -> solve::Result {
+        self.target.solve(Task::Find(regex.into()))
+    }
     pub fn cmd(&self, name: &str) -> solve::Result {
         self.target.solve(Task::Cmd(name.into()))?;
         Ok(Tray::None)

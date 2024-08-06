@@ -45,6 +45,7 @@ mod write;
 
 pub const SAVE: &str = "save";
 pub const LOAD: &str = "load";
+pub const FIND: &str = "find";
 
 #[cfg(not(feature = "oneThread"))]
 pub type Error = Box<dyn error::Error + Send + Sync>;
@@ -91,7 +92,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph {}
+pub trait Engage: Solve + DoAlter + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -99,7 +100,7 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + SendSync {
+pub trait DeserializeNode: DynClone + std::fmt::Debug + SendSync {
     fn deserialize(&self, string: &str) -> result::Result<Node, Error>;
 }
 
@@ -126,7 +127,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Alter + Serialize + SendSync,
+    T: 'static + ToAgent + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -135,7 +136,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Alter + Serialize + SendSync,
+    T: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

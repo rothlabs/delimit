@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct List {
     items: Vec<Node>,
     separator: Node,

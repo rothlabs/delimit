@@ -5,6 +5,7 @@ pub enum Task {
     Main,
     Stems,
     React,
+    Find(String),
     Cmd(String),
 }
 

@@ -1,11 +1,12 @@
 use super::*;
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Element {
-    pub tag: Node,
+    tag: Node,
     pub items: Vec<Node>,
-    pub close: Option<Node>,
-    repo: Node,
+    close: Option<Node>,
+    story: Node,
+    // repo: Node,
 }
 
 impl Element {
@@ -24,10 +25,14 @@ impl Element {
         self.close = Some(close.into());
         self
     }
-    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-        self.repo = repo.into();
+    pub fn story(&mut self, story: impl Into<Node>) -> &mut Self {
+        self.story = story.into();
         self
     }
+    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+    //     self.repo = repo.into();
+    //     self
+    // }
     fn stems(&self) -> solve::Result {
         let mut stems = self.items.clone();
         stems.push(self.tag.clone());
@@ -37,7 +42,7 @@ impl Element {
         Ok(Tray::Nodes(stems))
     }
     fn main(&self) -> solve::Result {
-        let mut edit = self.repo.edit();
+        // let mut edit = self.repo.edit();
         let mut element = List::new();
         element.separator("\n").push(self.tag.at(PLAIN)?);
         element.extend(self.items.at(PLAIN)?);
@@ -47,11 +52,11 @@ impl Element {
                 .push(close.at(PLAIN)?)
                 .push(">")
                 .node();
-            edit.insert(&close);
+            // edit.insert(&close);
             element.push(close);
         }
         let element = element.node();
-        edit.insert(&element).run()?;
+        // edit.insert(&element).run()?;
         Ok(element.tray())
     }
 }
@@ -78,7 +83,8 @@ impl Make for Element {
             tag: self.tag.backed(back),
             items: self.items.backed(back),
             close: self.close.as_ref().map(|close| close.backed(back)),
-            repo: self.repo.clone(),
+            story: self.story.backed(back),
+            // repo: self.repo.clone(),
         }
     }
 }

@@ -3,7 +3,7 @@ use super::*;
 fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
     let repo = Repo::new().node();
     let atts = attribute_set();
-    let mut html = Doc::new(&repo, &atts).html();
+    let mut html = Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
     let head = html.head();
     let head_link = head.link();

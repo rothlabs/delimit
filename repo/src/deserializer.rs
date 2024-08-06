@@ -1,9 +1,15 @@
 use super::*;
 
-#[derive(Default, Clone)]
-pub struct Deserial;
+#[derive(Debug, Clone)]
+pub struct NodeDeserializer;
 
-impl DeserializeNode for Deserial {
+impl NodeDeserializer {
+    pub fn new() -> Box<Self> {
+        Box::new(Self)
+    }
+}
+
+impl DeserializeNode for NodeDeserializer {
     fn deserialize(&self, string: &str) -> Result<Node, Error> {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.node())

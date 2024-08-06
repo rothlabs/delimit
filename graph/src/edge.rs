@@ -12,6 +12,7 @@ pub type Leaf = Edge<apex::Leaf>;
 pub type Agent<U> = Edge<apex::Agent<U>>;
 
 /// The forward bridge between nodes.
+#[derive(Debug)]
 pub struct Edge<N> {
     pub meta: Meta,
     pub back: Option<Back>,
@@ -128,11 +129,11 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + SendSync {}
+impl<U> Engage for Agent<U> where U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync {}
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + Serialize + SendSync,
+    U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
@@ -155,7 +156,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Solve + Alter + Serialize + SendSync,
+    U: 'static + Solve + Alter + Serialize + std::fmt::Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {

@@ -1,10 +1,10 @@
 use crate::html::*;
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Attribute {
     name: Node,
     content: Node,
-    repo: Node,
+    // repo: Node,
 }
 
 impl Attribute {
@@ -19,10 +19,10 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
-        self.repo = repo.into();
-        self
-    }
+    // pub fn repo(&mut self, repo: impl Into<Node>) -> &mut Self {
+    //     self.repo = repo.into();
+    //     self
+    // }
     fn stems(&self) -> solve::Result {
         Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
     }
@@ -33,7 +33,7 @@ impl Attribute {
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node();
-        self.repo.edit().insert(&node).run()?;
+        // self.repo.edit().insert(&node).run()?;
         Ok(node.tray())
     }
 }
@@ -59,7 +59,7 @@ impl Make for Attribute {
         Self {
             name: self.name.backed(back),
             content: self.content.backed(back),
-            repo: self.repo.clone(),
+            // repo: self.repo.clone(),
         }
     }
 }

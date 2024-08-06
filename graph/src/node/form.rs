@@ -3,7 +3,7 @@ use serde::de::{self, VariantAccess, Visitor};
 use std::fmt;
 
 /// Contains a bare load, meta about a link, or the link itself.
-#[derive(Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Form {
     Meta(Meta),
     Load(Load),

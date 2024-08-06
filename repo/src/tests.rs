@@ -1,12 +1,13 @@
 use super::*;
-use std::result;
 use text::*;
+use deserializer::NodeDeserializer;
+use std::result;
 
 fn make_doc() -> (Node, Node) {
     let path = STORAGE.leaf().node();
     let repo = Repo::new().path(path).node();
     let atts = html::attribute_set();
-    let mut html = html::Doc::new(&repo, &atts).html();
+    let mut html = html::Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
     let mut title = html.head().title();
     title.add_str("Delimit");
@@ -35,17 +36,40 @@ fn make_doc() -> (Node, Node) {
 
 #[test]
 fn save_repo() -> result::Result<(), Error> {
-    let (repo, _) = make_doc();
+    let (repo, doc) = make_doc();
+    let doc_stems = doc.query().stems()?;
+    let plain = doc.at(PLAIN)?;
+    let plain_stems = plain.query().stems()?;
+    let mut edit = repo.edit();
+    edit.insert(doc).extend(doc_stems);
+    edit.insert(plain).extend(plain_stems);
+    edit.run()?;
     repo.query().cmd(SAVE)?;
     Ok(())
 }
 
 #[test]
 fn load_repo() -> result::Result<(), Error> {
-    let deserial = Deserial::default();
     let path = STORAGE.leaf().node();
-    let repo = Repo::new().path(path).deserial(Box::new(deserial)).node();
+    let deserializer = NodeDeserializer::new();
+    let repo = Repo::new().path(path).deserializer(deserializer).node();
     repo.edit().cmd(LOAD)?;
+    // repo.query().cmd(SAVE)?;
     // Err("crap".into())
     Ok(())
 }
+
+#[test]
+fn find_node_in_loaded_repo() -> result::Result<(), Error> {
+    let path = STORAGE.leaf().node();
+    let deserializer = NodeDeserializer::new();
+    let repo = Repo::new().path(path).deserializer(deserializer).node();
+    repo.edit().cmd(LOAD)?;
+    if let Tray::Node(node) = repo.query().find("Delimit index page")? {
+        eprintln!("node: {:?}", node);
+    }
+    // Err("crap".into())
+    Ok(())
+}
+
+

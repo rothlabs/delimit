@@ -27,9 +27,9 @@ impl Default for Imports {
 }
 
 pub fn index() -> Result<String, Error> {
-    let repo = Repo::new().node();
+    // let repo = Repo::new().node();
     let atts = attribute_set();
-    let mut html = Doc::new(&repo, &atts).html();
+    let mut html = Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
     let mut title = html.head().title();
     title.add_str("Delimit");

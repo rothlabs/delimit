@@ -21,6 +21,14 @@ impl Post {
         }
         self
     }
+    pub fn extend(&mut self, nodes: Vec<impl Into<Node>>) -> &mut Self {
+        let map = nodes.into_iter().map(|node| node.into());
+        match &mut self.form {
+            Form::Insert(n) => n.extend(map),
+            _ => self.form = Form::Insert(map.collect()),
+        }
+        self
+    }
     pub fn cmd(name: &str) -> Self {
         Self {
             field: "".into(),
