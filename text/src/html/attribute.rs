@@ -38,19 +38,19 @@ impl Attribute {
     }
 }
 
+impl Adapt for Attribute {
+    fn adapt(&mut self, _: Post) -> adapt::Result {
+        did_not_adapt()
+    }
+}
+
 impl Solve for Attribute {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
-            _ => Ok(Tray::None),
+            _ => did_not_solve(),
         }
-    }
-}
-
-impl Adapt for Attribute {
-    fn adapt(&mut self, _: Post) -> adapt::Result {
-        Ok(Gain::None)
     }
 }
 
