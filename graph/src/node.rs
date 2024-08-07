@@ -7,35 +7,28 @@ pub type Result = result::Result<Node, Error>;
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Node {
+    None,
     Meta(Meta),
     Load(Load),
     Leaf(Leaf),
     Ploy(Ploy),
 }
 
-// Self::Ploy(ploy) => match ploy.solve(Task::Main)? {
-//     Tray::Node(node) => Ok(node),
-//     _ => Err("not Tray::Node".into()),
-// },
-
 impl Node {
     pub fn main(&self) -> node::Result {
         match self {
-            Self::Leaf(leaf) => leaf.main(),
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy".into())
         }
-    }
-    pub fn empty() -> solve::Result {
-        Ok(Tray::Node(Self::default()))
     }
     // TODO: make fallible
     pub fn meta(&self) -> Meta {
         match self {
             Self::Meta(meta) => meta.clone(),
-            Self::Load(_) => Meta::none(),
+            // Self::Load(_) => Meta::none(),
             Self::Leaf(leaf) => leaf.meta(),
             Self::Ploy(ploy) => ploy.meta(),
+            _ => Meta::none(),
         }
     }
     pub fn serial(&self, serial: &mut Serial) -> serial::Result {
@@ -51,10 +44,11 @@ impl Node {
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
-            Self::Meta(_) => Err("no load available".into()),
+            // Self::Meta(_) => Err("no load available".into()),
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.main()?.load(),
+            _ => Err("no load available".into()),
         }
     }
     pub fn trade(&self, base: &dyn Trade) -> Self {
@@ -82,7 +76,7 @@ impl Node {
     }
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
-            Self::Meta(_) => read(Err("nothing to read".into())),
+            // Self::Meta(_) => read(Err("nothing to read".into())),
             Self::Load(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {
@@ -91,7 +85,8 @@ impl Node {
                 } else {
                     read(Err("failed to read ploy".into()))
                 }
-            }
+            },
+            _ => read(Err("nothing to read".into()))
         }
     }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
@@ -146,13 +141,15 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::Load(Load::None)
+        Self::None
+        //Self::Load(Load::None)
     }
 }
 
 impl Backed for Node {
     fn backed(&self, back: &Back) -> Self {
         match self {
+            Self::None => Self::None,
             Self::Meta(meta) => Self::Meta(meta.clone()),
             Self::Load(bare) => Self::Load(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
@@ -218,10 +215,8 @@ impl TradeNode for Vec<Node> {
 impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
         match self {
-            Self::Meta(_) => Err("not a ploy".into()),
-            Self::Load(_) => Err("not a ploy".into()),
-            Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => ploy.solve(task),
+            _ => Err("not a ploy".into()),
         }
     }
 }
@@ -229,10 +224,8 @@ impl Solve for Node {
 impl AdaptInner for Node {
     fn adapt(&self, post: Post) -> adapt::Result {
         match self {
-            Self::Meta(_) => Err("not a ploy".into()),
-            Self::Load(_) => Err("not a ploy".into()),
-            Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => ploy.adapt(post),
+            _ => Err("not a ploy".into()),
         }
     }
 }

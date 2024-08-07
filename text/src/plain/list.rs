@@ -35,7 +35,7 @@ impl List {
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
-            return Node::empty();
+            return Ok(Tray::None);
         }
         let last = self.items.len() - 1;
         let mut string = String::new();
