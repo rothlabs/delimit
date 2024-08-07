@@ -26,7 +26,7 @@ impl Attribute {
     fn main(&self) -> solve::Result {
         let node = List::new()
             .push(self.name.at(PLAIN)?)
-            .push(r#"WOW""#)
+            .push(r#"=""#)
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node();

@@ -1,7 +1,6 @@
 use super::*;
 use std::{result, fmt};
-use serde::de::{self, MapAccess, VariantAccess, Visitor};
-use serde_untagged::UntaggedEnumVisitor;
+use serde::de::{MapAccess, Visitor};
 
 pub type Result = result::Result<Node, Error>;
 
@@ -9,14 +8,22 @@ pub type Result = result::Result<Node, Error>;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum Node {
-    None,
+    None(Empty),
     Meta(Meta),
     Load(Load),
     Leaf(Leaf),
     Ploy(Ploy),
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize)]
+pub struct Empty {
+    n: u8,
+}
+
 impl Node {
+    pub fn none() -> Self {
+        Self::default()
+    }
     pub fn main(&self) -> node::Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
@@ -143,15 +150,14 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::None
-        //Self::Load(Load::None)
+        Self::None(Empty::default())
     }
 }
 
 impl Backed for Node {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            Self::None => Self::None,
+            Self::None(x) => Self::None(x.clone()),
             Self::Meta(meta) => Self::Meta(meta.clone()),
             Self::Load(bare) => Self::Load(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
@@ -159,61 +165,6 @@ impl Backed for Node {
         }
     }
 }
-
-impl<'de> Deserialize<'de> for Node {
-    fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        deserializer.deserialize_map(NodeVisitor)
-    }
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
-enum NodeIdentifier {
-    Id,
-    String,
-    U8,
-    U16,
-    U32,
-    I8,
-    I16,
-    I32,
-    F32,
-    F64,
-    Vu8,
-    Vu16,
-    Vu32,
-    Vf32,
-    Vf64,
-}
-
-struct NodeVisitor;
-
-
-impl<'de> Visitor<'de> for NodeVisitor {
-    type Value = Node;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("enum node form")
-    }
-    fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
-        where
-            A: MapAccess<'de>, {
-        if let Some(key) = map.next_key()? { 
-            let node = match key {
-                NodeIdentifier::Id => Node::Meta(Meta{id:map.next_value()?}),
-                NodeIdentifier::String => Node::Load(Load::String(map.next_value()?)),
-                _ => Node::None
-            };
-            Ok(node)
-        } else {
-            Ok(Node::None)
-        }
-    }
-}
-
 
 pub trait TradeNode {
     /// Trade nodes for others via base.
@@ -331,7 +282,69 @@ impl From<Vec<f32>> for Node {
     }
 }
 
+impl<'de> Deserialize<'de> for Node {
+    fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_map(NodeVisitor)
+    }
+}
 
+struct NodeVisitor;
+
+impl<'de> Visitor<'de> for NodeVisitor {
+    type Value = Node;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("enum node form")
+    }
+    fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
+        where
+            A: MapAccess<'de>, {
+        if let Some(key) = map.next_key()? { 
+            let node = match key {
+                NodeIdentifier::Id => Node::Meta(Meta{id:map.next_value()?}),
+                NodeIdentifier::String => Node::Load(Load::String(map.next_value()?)),
+                _ => Node::none()
+            };
+            Ok(node)
+        } else {
+            Ok(Node::none())
+        }
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum NodeIdentifier {
+    N,
+    Id,
+    String,
+    U8,
+    U16,
+    U32,
+    I8,
+    I16,
+    I32,
+    F32,
+    F64,
+    Vu8,
+    Vu16,
+    Vu32,
+    Vf32,
+    Vf64,
+}
+
+
+
+
+// fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
+// where
+//     S: Serializer,
+// {
+//     serializer.serialize_str(&r#"{"n":"n"}"#)
+// }
 
 
 

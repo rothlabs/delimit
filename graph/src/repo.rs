@@ -60,6 +60,8 @@ impl Repo {
             if let Ok(node) = deserializer.deserialize(part) {
                 self.nodes.insert(id.into(), node);
                 self.pool += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
+            } else {
+                panic!("failed to load part: {}", part)
             }
         }
         fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.pool)?;
