@@ -21,6 +21,7 @@ pub enum Node {
 impl Node {
     pub fn main(&self) -> node::Result {
         match self {
+            Self::Leaf(leaf) => leaf.main(),
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy".into())
         }
