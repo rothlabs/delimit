@@ -1,4 +1,4 @@
-use node::TradeNodes;
+use node::TradeNode;
 
 use super::*;
 
@@ -73,37 +73,3 @@ impl Solve for List {
         }
     }
 }
-
-// impl Make for List {
-//     fn make(&self, back: &Back) -> Self {
-//         Self {
-//             items: self.items.backed(back),
-//             separator: self.separator.backed(back),
-//         }
-//     }
-// }
-
-// fn swap<F: Fn(&Node) -> Node>(&mut self, swap: F) -> adapt::Result {
-
-// impl Stems for List {
-//     fn stems(&self) -> Vec<&Node> {
-//         let mut stems: Vec<&Node> = self.items.iter().collect();
-//         stems.push(&self.separator);
-//         stems
-//     }
-// }
-
-// ///////////////////////////////////
-// /// instead of Make and SerializeGraph for unit
-// ///     impl Stem or Stems that returns Vec<&mut Node>
-// ///     that should cover the creation process
-// ///     and serialization
-// /// //////////////////////////
-
-// impl Stems for List {
-//     fn stems(&mut self) -> Vec<&mut Node> {
-//         let mut stems: Vec<&mut Node> = self.items.iter_mut().collect();
-//         stems.push(&mut self.separator);
-//         stems
-//     }
-// }

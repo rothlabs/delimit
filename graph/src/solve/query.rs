@@ -11,13 +11,31 @@ where
     pub fn main(&self) -> node::Result {
         match self.target.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
-            _ => Err("not a node".into()),
+            _ => Err("not Tray::Node".into()),
         }
     }
     pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
         match self.target.solve(Task::Stems)? {
             Tray::Nodes(nodes) => Ok(nodes),
-            _ => Err("not node vector".into()),
+            _ => Err("not Tray::Nodes".into()),
+        }
+    }
+    pub fn deep_stems(&self) -> result::Result<Vec<Node>, Error> {
+        match self.target.solve(Task::Stems)? {
+            Tray::Nodes(nodes) => {
+                let mut deep: Vec<Node> = nodes
+                .iter()
+                .flat_map(|x| {
+                    if let Ok(nodes) = x.query().deep_stems() {
+                        return nodes;
+                    }
+                    vec![]
+                })
+                .collect();
+                deep.extend(nodes);
+                Ok(deep)
+            },
+            _ => Err("not Tray::Nodes".into()),
         }
     }
     pub fn find(&self, regex: &str) -> solve::Result {
@@ -26,10 +44,6 @@ where
     pub fn export(&self) -> solve::Result {
         self.target.solve(Task::Export)
     }
-    // pub fn serial(&self) -> serial::Result {
-    //     self.target.solve(Task::Serial)?;
-    //     Ok(())
-    // }
 }
 
 pub trait ToQuery<T> {
@@ -46,6 +60,11 @@ where
         }
     }
 }
+
+// pub fn serial(&self) -> serial::Result {
+//     self.target.solve(Task::Serial)?;
+//     Ok(())
+// }
 
 // pub fn new(item: &T) -> Self {
 //     Self { item: item.clone() }

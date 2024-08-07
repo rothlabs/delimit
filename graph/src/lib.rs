@@ -1,24 +1,23 @@
-pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post};
-pub use adapt::{post, ToAlter};
+pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post, ToAlter};
 pub use apex::Apex;
-use dyn_clone::DynClone;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{Id, Meta, ToMeta};
-pub use node::{Node, RankDown, TradeNodes};
+pub use node::{Node, SolveDown, TradeNode};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use repo::Repo;
-use serde::{Deserialize, Serialize};
 pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 
+use dyn_clone::DynClone;
+use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 #[cfg(feature = "oneThread")]
@@ -26,7 +25,7 @@ use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
-use std::{error, result};
+use std::{error, fmt};
 
 pub mod adapt;
 pub mod node;
@@ -42,10 +41,6 @@ mod meta;
 mod repo;
 mod work;
 mod write;
-
-pub const SAVE: &str = "save";
-pub const LOAD: &str = "load";
-pub const FIND: &str = "find";
 
 #[cfg(not(feature = "oneThread"))]
 pub type Error = Box<dyn error::Error + Send + Sync>;
@@ -93,7 +88,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 
 /// Edge that grants a load. It can also clone the edge with a new back.
 pub trait Engage:
-    Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + std::fmt::Debug
+    Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + fmt::Debug
 {
 }
 
@@ -103,12 +98,14 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + std::fmt::Debug + SendSync {
-    fn deserialize(&self, string: &str) -> result::Result<Node, Error>;
+pub trait DeserializeNode: DynClone + fmt::Debug + SendSync {
+    fn deserialize(&self, string: &str) -> Result<Node, Error>;
 }
 
 dyn_clone::clone_trait_object!(Trade);
-pub trait Trade: DynClone + std::fmt::Debug {
+/// Trade a node for another. The implmentation should return the same semantic node with different graph qualities.
+pub trait Trade: DynClone + fmt::Debug {
+    /// Trade a node for another.
     fn trade(&self, node: &Node) -> Node;
 }
 
@@ -148,7 +145,6 @@ where
                 .expect("unit must handle Post::Trade");
             unit
         })
-        //Agent::make(|back| self.make(back))
     }
 }
 
@@ -159,7 +155,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
+    T: 'static + ToAgent + Solve + Adapt + Serialize + fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -168,7 +164,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync,
+    T: 'static + Solve + Adapt + Serialize + fmt::Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

@@ -11,6 +11,7 @@ pub type Result = result::Result<Node, Error>;
 /// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Node {
+    /// TODO: rank should go in Meta! Form can be Node!
     rank: usize,
     form: Form,
 }
@@ -22,10 +23,11 @@ impl Node {
     pub fn load(&self) -> load::Result {
         self.form.load()
     }
+    /// Trade for another node via base.
     pub fn trade(&self, base: &dyn Trade) -> Self {
         base.trade(self)
     }
-    /// Solve the node for the next node down until the given rank.
+    /// Solve down to the given rank.
     pub fn at(&self, rank: usize) -> Result {
         let mut node = self.clone();
         while node.rank > rank {
@@ -95,11 +97,12 @@ impl Node {
     }
 }
 
-pub trait TradeNodes {
+pub trait TradeNode {
+    /// Trade nodes for others via base.
     fn trade(&self, base: &dyn Trade) -> Self;
 }
 
-impl TradeNodes for Vec<Node> {
+impl TradeNode for Vec<Node> {
     fn trade(&self, base: &dyn Trade) -> Self {
         self.iter().map(|x| x.trade(base)).collect()
     }
@@ -133,12 +136,12 @@ impl Backed for Node {
     }
 }
 
-pub trait RankDown {
+pub trait SolveDown {
     /// Reduce node rank down to specified number.
     fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error>;
 }
 
-impl RankDown for Vec<Node> {
+impl SolveDown for Vec<Node> {
     fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error> {
         self.iter().map(|x| x.at(rank)).collect()
     }

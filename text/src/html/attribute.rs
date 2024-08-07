@@ -4,7 +4,6 @@ use crate::html::*;
 pub struct Attribute {
     name: Node,
     content: Node,
-    // repo: Node,
 }
 
 impl Attribute {
@@ -66,13 +65,3 @@ pub const TYPE: &str = "type";
 pub const SRC: &str = "src";
 
 pub const ATTRIBUTES: [&str; 7] = [ID, LANG, CHARSET, NAME, CONTENT, TYPE, SRC];
-
-// impl Make for Attribute {
-//     fn make(&self, back: &Back) -> Self {
-//         Self {
-//             name: self.name.backed(back),
-//             content: self.content.backed(back),
-//             // repo: self.repo.clone(),
-//         }
-//     }
-// }

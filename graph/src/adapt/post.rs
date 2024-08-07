@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Clone, Debug)]
 pub enum Post {
+    /// Trade a node for another. The implmentation should update graph info and return the same node semantically.
     Trade(Box<dyn Trade>),
     Import,
     Insert(Node),

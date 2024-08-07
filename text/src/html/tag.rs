@@ -72,12 +72,3 @@ pub const H1: &str = "h1";
 pub const TAGS: [&str; 10] = [
     DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
 ];
-
-// impl Make for Tag {
-//     fn make(&self, back: &Back) -> Self {
-//         Self {
-//             name: self.name.backed(back),
-//             attributes: self.attributes.backed(back),
-//         }
-//     }
-// }

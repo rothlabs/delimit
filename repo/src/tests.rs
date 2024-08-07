@@ -39,8 +39,8 @@ fn save_repo() -> result::Result<(), Error> {
     let (repo, doc) = make_doc();
     let plain = doc.at(PLAIN)?;
     let mut nodes = vec![doc.clone(), plain.clone()];
-    nodes.extend(doc.query().stems()?);
-    nodes.extend(plain.query().stems()?);
+    nodes.extend(doc.query().deep_stems()?);
+    nodes.extend(plain.query().deep_stems()?);
     repo.alter().extend(nodes)?;
     repo.query().export()?;
     Ok(())
@@ -52,8 +52,6 @@ fn load_repo() -> result::Result<(), Error> {
     let deserializer = NodeDeserializer::new();
     let repo = Repo::new().path(path).deserializer(deserializer).node();
     repo.alter().import()?;
-    // repo.query().cmd(SAVE)?;
-    // Err("crap".into())
     Ok(())
 }
 
@@ -63,9 +61,9 @@ fn find_node_in_loaded_repo() -> result::Result<(), Error> {
     let deserializer = NodeDeserializer::new();
     let repo = Repo::new().path(path).deserializer(deserializer).node();
     repo.alter().import()?;
-    if let Tray::Node(node) = repo.query().find("Delimit index page")? {
-        eprintln!("node: {:?}", node);
+    if let Tray::Node(_) = repo.query().find("Delimit index page")? {
+        Ok(())
+    } else {
+        Err("did not find node in loaded repo".into())
     }
-    // Err("crap".into())
-    Ok(())
 }
