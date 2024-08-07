@@ -7,6 +7,7 @@ pub type ResultRef<'a> = result::Result<&'a Load, Error>;
 
 /// The Load enum allows Nodes to be handled with unknown payload datatype.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Load {
     String(String),
     U8(u8),

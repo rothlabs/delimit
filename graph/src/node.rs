@@ -1,11 +1,13 @@
 use super::*;
 use std::{result, fmt};
-use serde::de::{self, VariantAccess, Visitor};
+use serde::de::{self, MapAccess, VariantAccess, Visitor};
+use serde_untagged::UntaggedEnumVisitor;
 
 pub type Result = result::Result<Node, Error>;
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(untagged)]
 pub enum Node {
     None,
     Meta(Meta),
@@ -163,21 +165,32 @@ impl<'de> Deserialize<'de> for Node {
     where
         D: serde::Deserializer<'de>,
     {
-        const VARIANTS: &[&str] = &["Meta", "Load", "Leaf", "Ploy"];
-        deserializer.deserialize_enum("Node", VARIANTS, NodeVisitor)
+        deserializer.deserialize_map(NodeVisitor)
     }
 }
 
 #[derive(Deserialize)]
-// #[serde(variant_identifier)]
+#[serde(rename_all = "lowercase")]
 enum NodeIdentifier {
-    Meta,
-    Load,
-    Leaf,
-    Ploy,
+    Id,
+    String,
+    U8,
+    U16,
+    U32,
+    I8,
+    I16,
+    I32,
+    F32,
+    F64,
+    Vu8,
+    Vu16,
+    Vu32,
+    Vf32,
+    Vf64,
 }
 
 struct NodeVisitor;
+
 
 impl<'de> Visitor<'de> for NodeVisitor {
     type Value = Node;
@@ -185,17 +198,18 @@ impl<'de> Visitor<'de> for NodeVisitor {
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("enum node form")
     }
-
-    fn visit_enum<A>(self, data: A) -> result::Result<Node, A::Error>
-    where
-        A: de::EnumAccess<'de>,
-    {
-        let (identifier, variant) = data.variant()?;
-        match identifier {
-            NodeIdentifier::Meta => Ok(Node::Meta(variant.newtype_variant()?)),
-            NodeIdentifier::Load => Ok(Node::Load(variant.newtype_variant()?)),
-            NodeIdentifier::Leaf => Ok(Node::Meta(variant.newtype_variant()?)),
-            NodeIdentifier::Ploy => Ok(Node::Meta(variant.newtype_variant()?)),
+    fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
+        where
+            A: MapAccess<'de>, {
+        if let Some(key) = map.next_key()? { 
+            let node = match key {
+                NodeIdentifier::Id => Node::Meta(Meta{id:map.next_value()?}),
+                NodeIdentifier::String => Node::Load(Load::String(map.next_value()?)),
+                _ => Node::None
+            };
+            Ok(node)
+        } else {
+            Ok(Node::None)
         }
     }
 }
@@ -316,6 +330,62 @@ impl From<Vec<f32>> for Node {
         Node::Leaf(Leaf::new(Load::Vf32(value)))
     }
 }
+
+
+
+
+
+// impl<'de> Deserialize<'de> for Node {
+//     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
+//     where
+//         D: serde::Deserializer<'de>,
+//     {
+//         const VARIANTS: &[&str] = &["Meta", "Load", "Leaf", "Ploy"];
+//         // deserializer.deserialize_any(visitor)
+//         deserializer.deserialize_enum("Node", VARIANTS, NodeVisitor)
+//     }
+// }
+
+// #[derive(Deserialize)]
+// // #[serde(variant_identifier)]
+// enum NodeIdentifier {
+//     Meta,
+//     Load,
+//     Leaf,
+//     Ploy,
+// }
+
+// struct NodeVisitor;
+
+// impl<'de> Visitor<'de> for NodeVisitor {
+//     type Value = Node;
+
+//     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+//         formatter.write_str("enum node form")
+//     }
+
+//     fn visit_enum<A>(self, data: A) -> result::Result<Node, A::Error>
+//     where
+//         A: de::EnumAccess<'de>,
+//     {
+//         let (identifier, variant) = data.variant()?;
+//         match identifier {
+//             NodeIdentifier::Meta => Ok(Node::Meta(variant.newtype_variant()?)),
+//             NodeIdentifier::Load => Ok(Node::Load(variant.newtype_variant()?)),
+//             NodeIdentifier::Leaf => Ok(Node::Meta(variant.newtype_variant()?)),
+//             NodeIdentifier::Ploy => Ok(Node::Meta(variant.newtype_variant()?)),
+//         }
+//     }
+// }
+
+
+
+
+
+
+
+
+
 
 
 

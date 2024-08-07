@@ -6,6 +6,7 @@ pub type Id = String;
 
 /// Meta about a Node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+// #[serde(rename_all = "PascalCase")]
 pub struct Meta {
     pub id: Id,
 }
