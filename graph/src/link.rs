@@ -28,6 +28,7 @@ pub struct Link<E> {
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     meta: Meta,
+    rank: Option<usize>,
 }
 
 impl<E: SerializeGraph> Link<E> {
@@ -49,6 +50,16 @@ impl<E> Link<E> {
     pub fn meta(&self) -> Meta {
         self.meta.clone()
     }
+    pub fn rank(&self) -> Option<usize> {
+        self.rank
+    }
+    pub fn ranked(&self, rank: usize) -> Self {
+        Self {
+            edge: self.edge.clone(),
+            meta: self.meta.clone(),
+            rank: Some(rank),
+        }
+    }
 }
 
 impl<E> Link<E>
@@ -59,6 +70,7 @@ where
         let apex = E::new(unit);
         Self {
             meta: apex.meta(),
+            rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(apex)),
             #[cfg(feature = "oneThread")]
@@ -75,6 +87,7 @@ where
         let apex = E::make(make);
         Self {
             meta: apex.meta(),
+            rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(apex)),
             #[cfg(feature = "oneThread")]
@@ -123,6 +136,7 @@ where
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             meta: self.meta.clone(),
+            rank: self.rank,
         })
     }
 }
@@ -132,6 +146,7 @@ impl<E> Clone for Link<E> {
         Self {
             edge: self.edge.clone(),
             meta: self.meta.clone(),
+            rank: self.rank,
         }
     }
 }
@@ -158,6 +173,7 @@ where
         Self {
             edge: Arc::new(RwLock::new(edge.backed(back))),
             meta: self.meta.clone(),
+            rank: self.rank,
         }
     }
     #[cfg(feature = "oneThread")]
@@ -166,6 +182,7 @@ where
         Self {
             edge: Rc::new(RefCell::new(edge.backed(back))),
             meta: self.meta.clone(),
+            rank: self.rank,
         }
     }
 }
@@ -246,6 +263,7 @@ impl Backed for Ploy {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
             meta: self.meta.clone(),
+            rank: self.rank,
         })
     }
 }
