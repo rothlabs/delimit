@@ -8,12 +8,6 @@ impl<T> Query<T>
 where
     T: Solve + Clone,
 {
-    pub fn main(&self) -> node::Result {
-        match self.target.solve(Task::Main)? {
-            Tray::Node(node) => Ok(node),
-            _ => Err("not Tray::Node".into()),
-        }
-    }
     pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
         match self.target.solve(Task::Stems)? {
             Tray::Nodes(nodes) => Ok(nodes),
@@ -60,6 +54,14 @@ where
         }
     }
 }
+
+
+// pub fn main(&self) -> node::Result {
+    //     match self.target.solve(Task::Main)? {
+    //         Tray::Node(node) => Ok(node),
+    //         _ => Err("not Tray::Node".into()),
+    //     }
+    // }
 
 // pub fn serial(&self) -> serial::Result {
 //     self.target.solve(Task::Serial)?;

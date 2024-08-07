@@ -62,19 +62,31 @@ impl<E> Link<E> {
     }
 }
 
+impl<E> Link<E> 
+where 
+    E: Solve
+{
+    pub fn main(&self) -> node::Result {
+        match read_part(&self.edge, |edge| edge.solve(Task::Main))? {
+            Tray::Node(node) => Ok(node),
+            _ => Err("not Tray::Node".into()),
+        }
+    }    
+}
+
 impl<E> Link<E>
 where
     E: FromItem + ToMeta,
 {
     pub fn new(unit: E::Item) -> Self {
-        let apex = E::new(unit);
+        let edge = E::new(unit);
         Self {
-            meta: apex.meta(),
+            meta: edge.meta(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(apex)),
+            edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(apex)),
+            edge: Rc::new(RefCell::new(edge)),
         }
     }
 }
@@ -84,14 +96,14 @@ where
     E: Make + ToMeta,
 {
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
-        let apex = E::make(make);
+        let edge = E::make(make);
         Self {
-            meta: apex.meta(),
+            meta: edge.meta(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(apex)),
+            edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(apex)),
+            edge: Rc::new(RefCell::new(edge)),
         }
     }
 }

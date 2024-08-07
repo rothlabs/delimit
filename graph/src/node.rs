@@ -1,16 +1,8 @@
-// pub use form::Form;
-
 use super::*;
 use std::{result, fmt};
 use serde::de::{self, VariantAccess, Visitor};
 
-// mod form;
-// mod alter;
-
 pub type Result = result::Result<Node, Error>;
-
-
-
 
 /// Contains a bare load, meta about a link, or the link itself.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -21,7 +13,18 @@ pub enum Node {
     Ploy(Ploy),
 }
 
+// Self::Ploy(ploy) => match ploy.solve(Task::Main)? {
+//     Tray::Node(node) => Ok(node),
+//     _ => Err("not Tray::Node".into()),
+// },
+
 impl Node {
+    pub fn main(&self) -> node::Result {
+        match self {
+            Self::Ploy(ploy) => ploy.main(),
+            _ => Err("not ploy".into())
+        }
+    }
     pub fn empty() -> solve::Result {
         Ok(Tray::Node(Self::default()))
     }
@@ -50,7 +53,7 @@ impl Node {
             Self::Meta(_) => Err("no load available".into()),
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
-            Self::Ploy(ploy) => ploy.query().main()?.load(),
+            Self::Ploy(ploy) => ploy.main()?.load(),
         }
     }
     pub fn trade(&self, base: &dyn Trade) -> Self {
@@ -68,7 +71,7 @@ impl Node {
         let mut rank = node.rank();
         while let Some(current) = rank {
             if current > target {
-                node = node.query().main()?;
+                node = node.main()?;
                 rank = node.rank();
             } else {
                 rank = None;
@@ -76,37 +79,13 @@ impl Node {
         }
         Ok(node)
     }
-    // pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => Ok(ploy.query().main()?),
-    //     }
-    // }
-    // pub fn solve(&self, task: Task) -> solve::Result {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => ploy.solve(task),
-    //     }
-    // }
-    // pub fn alter(&self, post: Post) -> adapt::Result {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => ploy.adapt(post),
-    //     }
-    // }
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
             Self::Meta(_) => read(Err("nothing to read".into())),
             Self::Load(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {
-                if let Ok(node) = ploy.query().main() {
+                if let Ok(node) = ploy.main() {
                     node.read(read)
                 } else {
                     read(Err("failed to read ploy".into()))
@@ -243,14 +222,6 @@ impl Solve for Node {
             Self::Leaf(_) => Err("not a ploy".into()),
             Self::Ploy(ploy) => ploy.solve(task),
         }
-        // match task {
-        //     // Task::Main => Ok(Self {
-        //     //     rank: self.rank - 1,
-        //     //     form: self.form.solve_form(task)?,
-        //     // }
-        //     // .into()),
-            
-        // }
     }
 }
 
@@ -291,7 +262,7 @@ impl From<Leaf> for Node {
 impl From<Ploy> for Node {
     fn from(ploy: Ploy) -> Self {
         // TODO: find way to not query the node to get rank!
-        let rank = match ploy.query().main() {
+        let rank = match ploy.main() {
             Ok(node) => {
                 match node.rank() {
                     Some(rank) => rank + 1,
@@ -354,99 +325,35 @@ impl From<Vec<f32>> for Node {
 
 
 
-// // TODO: report error and do not panic
-// Err(err) => {
-//     eprintln!("wow: {}", err);
-//     panic!("ploy must handle Task::Main")
-// },
+// match task {
+        //     // Task::Main => Ok(Self {
+        //     //     rank: self.rank - 1,
+        //     //     form: self.form.solve_form(task)?,
+        //     // }
+        //     // .into()),
+        // }
 
-
-
-// /// Graph node. The Form could be Meta, Load, Leaf, or Ploy.
-// // #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-// pub struct Crap {
-//     /// TODO: rank should go in Meta! Form can be Node!
-//     rank: usize,
-//     // form: Form,
-// }
-
-// impl Crap {
-//     // pub fn empty() -> solve::Result {
-//     //     Ok(Tray::Node(Self::default()))
-//     // }
-//     // pub fn load(&self) -> load::Result {
-//     //     self.form.load()
-//     // }
-//     // /// Trade for another node via base.
-//     // pub fn trade(&self, base: &dyn Trade) -> Self {
-//     //     base.trade(self)
-//     // }
-//     // /// Solve down to the given rank.
-//     // pub fn at(&self, rank: usize) -> Result {
-//     //     let mut node = self.clone();
-//     //     while node.rank > rank {
-//     //         node = node.query().main()?;
-//     //     }
-//     //     Ok(node)
-//     // }
-//     // pub fn meta(&self) -> Meta {
-//     //     self.form.meta()
-//     // }
-//     // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-//     //     if !serial.contains(&self.meta()) {
-//     //         return self.form.serial(serial);
-//     //     }
-//     //     Ok(())
-//     // }
-//     // pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
-//     //     self.form.read(|load| match load {
-//     //         Ok(value) => Ok(read(value)),
-//     //         _ => Err("nothing to read".into()),
-//     //     })
-//     // }
-//     // pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
-//     //     self.form.read(read)
-//     // }
-//     // pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
-//     //     self.form.read(|load| match load {
-//     //         Ok(Load::String(value)) => read(value),
-//     //         _ => read(&"".into()),
-//     //     })
-//     // }
-//     // pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
-//     //     self.form.read(|load| match load {
-//     //         Ok(Load::Vu8(value)) => read(value),
-//     //         _ => read(&vec![]),
-//     //     })
-//     // }
-//     // pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
-//     //     self.form.read(|load| match load {
-//     //         Ok(Load::Vu16(value)) => read(value),
-//     //         _ => read(&vec![]),
-//     //     })
-//     // }
-//     // pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
-//     //     self.form.read(|load| match load {
-//     //         Ok(Load::Vf32(value)) => read(value),
-//     //         _ => read(&vec![]),
-//     //     })
-//     // }
-//     // pub fn string(&self) -> result::Result<String, Error> {
-//     //     match self.load() {
-//     //         Ok(Load::String(value)) => Ok(value),
-//     //         _ => Err("not a string".into()),
-//     //     }
-//     // }
-//     // pub fn u32(&self) -> u32 {
-//     //     match self.load() {
-//     //         Ok(Load::U32(value)) => value,
-//     //         _ => 0,
-//     //     }
-//     // }
-//     // pub fn i32(&self) -> i32 {
-//     //     match self.load() {
-//     //         Ok(Load::I32(value)) => value,
-//     //         _ => 0,
-//     //     }
-//     // }
-// }
+    // pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
+    //     match self {
+    //         Self::Meta(_) => Err("not a ploy".into()),
+    //         Self::Load(_) => Err("not a ploy".into()),
+    //         Self::Leaf(_) => Err("not a ploy".into()),
+    //         Self::Ploy(ploy) => Ok(ploy.query().main()?),
+    //     }
+    // }
+    // pub fn solve(&self, task: Task) -> solve::Result {
+    //     match self {
+    //         Self::Meta(_) => Err("not a ploy".into()),
+    //         Self::Load(_) => Err("not a ploy".into()),
+    //         Self::Leaf(_) => Err("not a ploy".into()),
+    //         Self::Ploy(ploy) => ploy.solve(task),
+    //     }
+    // }
+    // pub fn alter(&self, post: Post) -> adapt::Result {
+    //     match self {
+    //         Self::Meta(_) => Err("not a ploy".into()),
+    //         Self::Load(_) => Err("not a ploy".into()),
+    //         Self::Leaf(_) => Err("not a ploy".into()),
+    //         Self::Ploy(ploy) => ploy.adapt(post),
+    //     }
+    // }
