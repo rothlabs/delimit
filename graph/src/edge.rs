@@ -14,7 +14,7 @@ pub type Agent<U> = Edge<apex::Agent<U>>;
 /// The forward bridge between nodes.
 #[derive(Debug)]
 pub struct Edge<N> {
-    pub meta: Meta,
+    //pub meta: Meta,
     pub back: Option<Back>,
     #[cfg(not(feature = "oneThread"))]
     pub apex: Arc<RwLock<N>>,
@@ -22,43 +22,21 @@ pub struct Edge<N> {
     pub apex: Rc<RefCell<N>>,
 }
 
-impl<N> ToMeta for Edge<N> {
-    fn meta(&self) -> Meta {
-        self.meta.clone()
-    }
-}
-
-// impl<A> Serialize for Edge<A> 
-// where 
-//     A: Serialize
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         read_part(&self.apex, |apex| apex.serialize(serializer))
-//     }
-// }
-
-// impl<N> SerializeGraph for Edge<N>
-// where
-//     N: 'static + SerializeGraph + DoUpdate,
-// {
-//     fn serialize(&self) -> serial::Result {
-//         read_part(&self.apex, |apex| {
-//             apex.serialize()
-//         })
+// impl<N> ToMeta for Edge<N> {
+//     fn meta(&self) -> Meta {
+//         self.meta.clone()
 //     }
 // }
 
 impl<N> FromItem for Edge<N>
 where
-    N: FromItem + ToMeta,
+    N: FromItem// + ToMeta,
 {
     type Item = N::Item;
     fn new(unit: Self::Item) -> Self {
         let apex = N::new(unit);
         Self {
-            meta: apex.meta(),
+            //meta: apex.meta(),
             back: None,
             #[cfg(not(feature = "oneThread"))]
             apex: Arc::new(RwLock::new(apex)),
@@ -70,19 +48,19 @@ where
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + MakeInner + DoUpdate + ToMeta,
+    N: 'static + Default + MakeInner + DoUpdate// + ToMeta,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
-        let meta = apex.meta();
+        //let meta = apex.meta();
         let apex = Arc::new(RwLock::new(apex));
         let update = apex.clone() as Arc<RwLock<dyn DoUpdate>>;
         let back = Back::new(Arc::downgrade(&update));
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
-            meta,
+            //meta,
             back: None,
             apex,
         }
@@ -90,13 +68,13 @@ where
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
-        let meta = apex.meta();
+        //let meta = apex.meta();
         let apex = Rc::new(RefCell::new(apex));
         let update = apex.clone() as Rc<RefCell<dyn DoUpdate>>;
         let back = Back::new(Rc::downgrade(&update));
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
-            meta,
+            //meta,
             apex,
             back: None,
         }
@@ -159,7 +137,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
+            //meta: self.meta(),
             back: self.back.clone(),
             apex: self.apex.clone(),
         })))
@@ -168,7 +146,7 @@ where
     fn ploy(&self) -> PloyEdge {
         //  + Send + Sync
         Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
+            //meta: self.meta(),
             back: self.back.clone(),
             apex: self.apex.clone(),
         })))
@@ -182,7 +160,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
-            meta: self.meta(),
+            //meta: self.meta(),
             back: Some(back.clone()),
             apex: self.apex.clone(),
         })))
@@ -190,7 +168,7 @@ where
     #[cfg(feature = "oneThread")]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
         Rc::new(RefCell::new(Box::new(Self {
-            meta: self.meta(),
+            //meta: self.meta(),
             back: Some(back.clone()),
             apex: self.apex.clone(),
         })))
@@ -210,7 +188,7 @@ where
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
-            meta: self.meta(),
+            //meta: self.meta(),
             back: Some(back.clone()),
             apex: self.apex.clone(),
         }
@@ -223,7 +201,7 @@ where
 {
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
-        let write::Out { roots, meta, out } =
+        let write::Out { roots, id: meta, out } =
             write_part(&self.apex, |mut apex| apex.write_load_out(write));
         for root in &roots {
             root.react(&meta)?;
@@ -238,7 +216,7 @@ where
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
-        let write::Out { roots, meta, out } = write_part(&self.apex, |mut apex| {
+        let write::Out { roots, id: meta, out } = write_part(&self.apex, |mut apex| {
             apex.write_unit_out(write, &self.node_as_back())
         });
         for root in &roots {
@@ -292,8 +270,8 @@ impl<N> React for Edge<N>
 where
     N: DoReact,
 {
-    fn react(&self, meta: &Meta) -> react::Result {
-        write_part(&self.apex, |mut apex| apex.do_react(meta))
+    fn react(&self, id: &Id) -> react::Result {
+        write_part(&self.apex, |mut apex| apex.do_react(id))
     }
 }
 
@@ -318,8 +296,8 @@ impl Rebut for Box<dyn Engage> {
 }
 
 impl React for Box<dyn Engage> {
-    fn react(&self, meta: &Meta) -> react::Result {
-        self.as_ref().react(meta)
+    fn react(&self, id: &Id) -> react::Result {
+        self.as_ref().react(id)
     }
 }
 
@@ -334,6 +312,31 @@ impl AdaptInner for Box<dyn Engage> {
         self.as_ref().adapt(post)
     }
 }
+
+
+// impl<A> Serialize for Edge<A> 
+// where 
+//     A: Serialize
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         read_part(&self.apex, |apex| apex.serialize(serializer))
+//     }
+// }
+
+// impl<N> SerializeGraph for Edge<N>
+// where
+//     N: 'static + SerializeGraph + DoUpdate,
+// {
+//     fn serialize(&self) -> serial::Result {
+//         read_part(&self.apex, |apex| {
+//             apex.serialize()
+//         })
+//     }
+// }
+
+
 
 // impl Serialize for Box<dyn Engage> 
 // // where 

@@ -41,7 +41,7 @@ impl WriteLoadWork for Leaf {
 }
 
 impl DoReact for Leaf {
-    fn do_react(&mut self, _: &Meta) -> react::Result {
+    fn do_react(&mut self, _: &Id) -> react::Result {
         Ok(())
     }
 }

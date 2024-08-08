@@ -1,13 +1,9 @@
-use crate::*;
-
+use super::*;
 use std::{collections::HashSet, hash::Hash};
-
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{RwLock, Weak};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Weak};
-
-use crate::Meta;
 
 pub type Result = std::result::Result<(), Error>;
 
@@ -23,12 +19,12 @@ pub trait DoRebut {
 
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn react(&self, meta: &Meta) -> react::Result;
+    fn react(&self, id: &Id) -> react::Result;
 }
 
 pub trait DoReact {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn do_react(&mut self, meta: &Meta) -> react::Result;
+    fn do_react(&mut self, id: &Id) -> react::Result;
 }
 
 pub trait AddRoot {
@@ -88,9 +84,9 @@ impl Root {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) -> react::Result {
+    pub fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.react(meta))
+            read_part(&edge, |edge| edge.react(id))
         } else {
             Ok(())
         }
@@ -101,7 +97,7 @@ impl Eq for Root {}
 
 impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
-        Weak::ptr_eq(&self.edge, &other.edge) && self.meta.path == other.meta.path
+        Weak::ptr_eq(&self.edge, &other.edge)// && self.meta.path == other.meta.path
     }
 }
 
@@ -136,9 +132,9 @@ impl Back {
             Ring::new()
         }
     }
-    pub fn react(&self, meta: &Meta) -> react::Result {
+    pub fn react(&self, id: &Id) -> react::Result {
         if let Some(apex) = self.apex.upgrade() {
-            write_part(&apex, |mut apex| apex.do_react(meta))
+            write_part(&apex, |mut apex| apex.do_react(id))
         } else {
             Ok(())
         }
@@ -172,12 +168,12 @@ impl Ring {
         self.roots.clear();
         result
     }
-    pub fn rebut_roots(&mut self, meta: &Meta) -> (Vec<Root>, Meta) {
+    pub fn rebut_roots(&mut self) -> Vec<Root> {
         let mut ring = Ring::new();
         for root in &self.roots {
             ring.roots.extend(root.rebut().roots);
         }
         self.roots.clear();
-        (Vec::from_iter(ring.roots), meta.clone())
+        Vec::from_iter(ring.roots)
     }
 }

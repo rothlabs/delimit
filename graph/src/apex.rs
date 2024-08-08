@@ -7,7 +7,7 @@ pub type Agent<U> = Apex<work::Agent<U>>;
 /// A apex creates an interactive bridge between root edges and work.
 #[derive(Debug)]
 pub struct Apex<W> {
-    meta: Meta,
+    id: Id,
     ring: Ring,
     work: W,
 }
@@ -18,7 +18,7 @@ where
 {
     fn default() -> Self {
         Self {
-            meta: Meta::new(),
+            id: random(),
             ring: Ring::new(),
             work: W::default(),
         }
@@ -32,42 +32,10 @@ where
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
-            meta: Meta::new(),
+            id: random(),
             ring: Ring::new(),
             work: W::new(item),
         }
-    }
-}
-
-// impl<W> Serialize for Apex<W> 
-// where 
-//     W: Serialize
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         self.work.serialize(serializer)
-//     }
-// }
-
-// impl<W> SerializeGraphInner for Apex<W>
-// where
-//     W: Serialize + DoSolve,
-// {
-//     fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
-//         serial.insert(&self.meta, serde_json::to_string(&self.work)?);
-//         if let Tray::Nodes(nodes) = self.work.do_solve(Task::Stems, back)? {
-//             for node in &nodes {
-//                 node.serial(serial)?;
-//             }
-//         }
-//         Ok(())
-//     }
-// }
-
-impl<W> ToMeta for Apex<W> {
-    fn meta(&self) -> Meta {
-        self.meta.clone()
     }
 }
 
@@ -98,8 +66,8 @@ where
     type Item = W::Item;
     fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
         let out = self.work.write_load_work(write);
-        let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        write::Out { roots, meta, out }
+        let roots = self.ring.rebut_roots();
+        write::Out { roots, out, id: self.id.clone() }
     }
 }
 
@@ -114,8 +82,8 @@ where
         back: &Back,
     ) -> write::Out<T> {
         let out = self.work.write_unit_work(write, back);
-        let (roots, meta) = self.ring.rebut_roots(&self.meta);
-        write::Out { roots, meta, out }
+        let roots = self.ring.rebut_roots();
+        write::Out { roots, out, id: self.id.clone() }
     }
 }
 
@@ -160,8 +128,8 @@ impl<W> DoReact for Apex<W>
 where
     W: DoReact,
 {
-    fn do_react(&mut self, meta: &Meta) -> react::Result {
-        self.work.do_react(meta)
+    fn do_react(&mut self, id: &Id) -> react::Result {
+        self.work.do_react(id)
     }
 }
 
@@ -182,6 +150,42 @@ where
         self.work.adapt(post)
     }
 }
+
+
+
+// impl<W> Serialize for Apex<W> 
+// where 
+//     W: Serialize
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         self.work.serialize(serializer)
+//     }
+// }
+
+// impl<W> SerializeGraphInner for Apex<W>
+// where
+//     W: Serialize + DoSolve,
+// {
+//     fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
+//         serial.insert(&self.meta, serde_json::to_string(&self.work)?);
+//         if let Tray::Nodes(nodes) = self.work.do_solve(Task::Stems, back)? {
+//             for node in &nodes {
+//                 node.serial(serial)?;
+//             }
+//         }
+//         Ok(())
+//     }
+// }
+
+// impl<W> ToMeta for Apex<W> {
+//     fn meta(&self) -> Meta {
+//         self.meta.clone()
+//     }
+// }
+
+
 
 // impl<W> ToSerial for Apex<W>
 // where

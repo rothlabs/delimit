@@ -11,7 +11,7 @@ pub struct Pack<'a, U: 'a> {
 
 pub struct Out<T> {
     pub roots: Vec<Root>,
-    pub meta: Meta,
+    pub id: Id,
     pub out: T,
 }
 

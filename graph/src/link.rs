@@ -77,12 +77,12 @@ where
 
 impl<E> Link<E>
 where
-    E: FromItem + ToMeta,
+    E: FromItem// + ToMeta,
 {
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            meta: edge.meta(),
+            meta: Meta::new(), // edge.meta(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -94,12 +94,12 @@ where
 
 impl<E> Link<E>
 where
-    E: Make + ToMeta,
+    E: Make// + ToMeta,
 {
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            meta: edge.meta(),
+            meta: Meta::new(), // edge.meta(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),

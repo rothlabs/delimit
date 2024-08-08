@@ -87,7 +87,7 @@ impl<U> DoReact for Agent<U>
 where
     U: Solve,
 {
-    fn do_react(&mut self, _: &Meta) -> react::Result {
+    fn do_react(&mut self, _: &Id) -> react::Result {
         self.unit.as_ref().unwrap().solve(Task::React)?;
         Ok(())
     }

@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
+pub type Id = String;
+
 pub type Path = String;
 
 /// Meta about a Node. It stands in place of actual nodes in serial form.
@@ -14,7 +16,7 @@ pub struct Meta {
 impl Meta {
     pub fn new() -> Self {
         Self {
-            path: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
+            path: random(),
         }
     }
     pub fn none() -> Self {
@@ -28,9 +30,14 @@ impl Default for Meta {
     }
 }
 
-pub trait ToMeta {
-    fn meta(&self) -> Meta;
+// pub trait ToMeta {
+//     fn meta(&self) -> Meta;
+// }
+
+pub fn random() -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
+
 
 // pub fn id(&self) -> &String {
 //     &self.id

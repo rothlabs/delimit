@@ -4,7 +4,7 @@ pub use bay::Bay;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
-pub use meta::{Path, Meta, ToMeta};
+pub use meta::{Path, Meta, Id, random};
 pub use node::{Node, SolveDown, TradeNode};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
