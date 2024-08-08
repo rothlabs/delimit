@@ -31,17 +31,18 @@ pub struct Link<E> {
     rank: Option<usize>,
 }
 
-impl<E: SerializeGraph> Link<E> {
-    pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-        read_part(&self.edge, |edge| edge.serial(serial))
-    }
-}
+// impl<E: SerializeGraph> Link<E> {
+//     pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+//         read_part(&self.edge, |edge| edge.serial(serial))
+//     }
+// }
 
 impl<E> Serialize for Link<E> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
+        // read_part(&self.edge, |edge| edge.serialize(serializer))
         self.meta.serialize(serializer)
     }
 }

@@ -38,16 +38,16 @@ impl Node {
             _ => Meta::none(),
         }
     }
-    pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-        if serial.contains(&self.meta()) {
-            return Ok(());
-        }
-        match self {
-            Self::Leaf(leaf) => leaf.serial(serial),
-            Self::Ploy(ploy) => ploy.serial(serial),
-            _ => Ok(()),
-        }
-    }
+    // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+    //     if serial.contains(&self.meta()) {
+    //         return Ok(());
+    //     }
+    //     match self {
+    //         Self::Leaf(leaf) => leaf.serial(serial),
+    //         Self::Ploy(ploy) => ploy.serial(serial),
+    //         _ => Ok(()),
+    //     }
+    // }
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error

@@ -5,6 +5,7 @@ pub enum Tray {
     None,
     Node(Node),
     Nodes(Vec<Node>),
+    String(String),
 }
 
 impl From<Node> for Tray {

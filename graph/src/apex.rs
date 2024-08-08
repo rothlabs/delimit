@@ -39,20 +39,31 @@ where
     }
 }
 
-impl<W> SerializeGraphInner for Apex<W>
-where
-    W: Serialize + DoSolve,
-{
-    fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
-        serial.insert(&self.meta, serde_json::to_string(&self.work)?);
-        if let Tray::Nodes(nodes) = self.work.do_solve(Task::Stems, back)? {
-            for node in &nodes {
-                node.serial(serial)?;
-            }
-        }
-        Ok(())
-    }
-}
+// impl<W> Serialize for Apex<W> 
+// where 
+//     W: Serialize
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         self.work.serialize(serializer)
+//     }
+// }
+
+// impl<W> SerializeGraphInner for Apex<W>
+// where
+//     W: Serialize + DoSolve,
+// {
+//     fn serial(&mut self, serial: &mut Serial, back: &Back) -> serial::Result {
+//         serial.insert(&self.meta, serde_json::to_string(&self.work)?);
+//         if let Tray::Nodes(nodes) = self.work.do_solve(Task::Stems, back)? {
+//             for node in &nodes {
+//                 node.serial(serial)?;
+//             }
+//         }
+//         Ok(())
+//     }
+// }
 
 impl<W> ToMeta for Apex<W> {
     fn meta(&self) -> Meta {

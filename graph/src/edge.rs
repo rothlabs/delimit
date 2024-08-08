@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
-use crate::*;
+use super::*;
 
 /// Edge to a load.
 pub type Leaf = Edge<apex::Leaf>;
@@ -28,16 +28,27 @@ impl<N> ToMeta for Edge<N> {
     }
 }
 
-impl<N> SerializeGraph for Edge<N>
-where
-    N: 'static + SerializeGraphInner + DoUpdate,
-{
-    fn serial(&self, serial: &mut Serial) -> serial::Result {
-        write_part(&self.apex, |mut apex| {
-            apex.serial(serial, &self.node_as_back())
-        })
-    }
-}
+// impl<A> Serialize for Edge<A> 
+// where 
+//     A: Serialize
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         read_part(&self.apex, |apex| apex.serialize(serializer))
+//     }
+// }
+
+// impl<N> SerializeGraph for Edge<N>
+// where
+//     N: 'static + SerializeGraph + DoUpdate,
+// {
+//     fn serialize(&self) -> serial::Result {
+//         read_part(&self.apex, |apex| {
+//             apex.serialize()
+//         })
+//     }
+// }
 
 impl<N> FromItem for Edge<N>
 where
@@ -131,6 +142,15 @@ where
 
 impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + std::fmt::Debug + SendSync
 {}
+
+// impl<U> SerializeGraph for Agent<U> 
+// where 
+//     U: Serialize
+// {
+//     fn serialize(&self) -> serial::Result {
+//         read_part(&self.apex, |apex| apex.serialize())
+//     }
+// }
 
 impl<U> ToPloy for Agent<U>
 where
@@ -277,11 +297,11 @@ where
     }
 }
 
-impl SerializeGraph for Box<dyn Engage> {
-    fn serial(&self, serial: &mut Serial) -> serial::Result {
-        self.as_ref().serial(serial)
-    }
-}
+// impl SerializeGraph for Box<dyn Engage> {
+//     fn serialize(&self) -> serial::Result {
+//         self.as_ref().serialize()
+//     }
+// }
 
 impl AddRoot for Box<dyn Engage> {
     fn add_root(&self, root: Root) {
@@ -314,6 +334,18 @@ impl AdaptInner for Box<dyn Engage> {
         self.as_ref().adapt(post)
     }
 }
+
+// impl Serialize for Box<dyn Engage> 
+// // where 
+// //     W: Serialize
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         self.as_ref().serialize(serializer)
+//         // self.work.serialize(serializer)
+//     }
+// }
 
 // impl<N> Write for Edge<N>
 // where

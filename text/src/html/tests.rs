@@ -42,11 +42,11 @@ fn basic_doc() -> Result<(), Error> {
 
 #[test]
 fn serialize_basic_doc() -> Result<(), Error> {
-    let (repo, _, _, _) = make_doc();
-    let mut serial = Serial::new();
-    repo.serial(&mut serial)?;
-    let serialized = serial.string()?;
-    eprintln!("serial: {}", serialized);
+    // let (repo, _, _, _) = make_doc();
+    // let mut serial = Serial::new();
+    // repo.serial(&mut serial)?;
+    // let serialized = serial.string()?;
+    // eprintln!("serial: {}", serialized);
     Ok(())
 }
 

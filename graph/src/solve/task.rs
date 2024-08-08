@@ -4,4 +4,5 @@ pub enum Task {
     React,
     Export,
     Find(String),
+    Serial,
 }

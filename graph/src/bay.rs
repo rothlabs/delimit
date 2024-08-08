@@ -41,31 +41,31 @@ impl Bay {
         Ok(Tray::Nodes(stems))
     }
     fn export(&self) -> solve::Result {
-        let mut serial = Serial::new();
-        for node in self.nodes.values() {
-            node.serial(&mut serial)?;
-        }
-        let path = self.path.string()?;
-        let data = serde_json::to_string(&serial)?;
-        fs::write(path, data)?;
+        // let mut serial = Serial::new();
+        // for node in self.nodes.values() {
+        //     node.serial(&mut serial)?;
+        // }
+        // let path = self.path.string()?;
+        // let data = serde_json::to_string(&serial)?;
+        // fs::write(path, data)?;
         Ok(Tray::None)
     }
     fn import(&mut self) -> adapt::Result {
-        let deserializer = self.deserializer.as_ref().ok_or("missing deserializer")?;
-        let path = self.path.string()?;
-        let file = File::open(path)?;
-        let reader = BufReader::new(file);
-        let serial: Serial = serde_json::from_reader(reader)?;
-        self.dump = String::new();
-        for (id, part) in &serial.parts {
-            if let Ok(node) = deserializer.deserialize(part) {
-                self.nodes.insert(id.into(), node);
-                self.dump += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
-            } else {
-                panic!("failed to load part: {}", part)
-            }
-        }
-        fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
+        // let deserializer = self.deserializer.as_ref().ok_or("missing deserializer")?;
+        // let path = self.path.string()?;
+        // let file = File::open(path)?;
+        // let reader = BufReader::new(file);
+        // let serial: Serial = serde_json::from_reader(reader)?;
+        // self.dump = String::new();
+        // for (id, part) in &serial.parts {
+        //     if let Ok(node) = deserializer.deserialize(part) {
+        //         self.nodes.insert(id.into(), node);
+        //         self.dump += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
+        //     } else {
+        //         panic!("failed to load part: {}", part)
+        //     }
+        // }
+        // fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
         Ok(Gain::None)
     }
     fn find(&self, regex: &str) -> solve::Result {

@@ -10,7 +10,7 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
+// pub use serial::SerializeGraph;
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -42,6 +42,7 @@ mod meta;
 mod work;
 mod write;
 
+/// Graph error
 #[cfg(not(feature = "oneThread"))]
 pub type Error = Box<dyn error::Error + Send + Sync>;
 #[cfg(feature = "oneThread")]
@@ -88,7 +89,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 
 /// Edge that grants a load. It can also clone the edge with a new back.
 pub trait Engage:
-    Solve + AdaptInner + BackedPloy + AddRoot + Update + SerializeGraph + fmt::Debug
+    Solve + AdaptInner + BackedPloy + AddRoot + Update + fmt::Debug
 {
 }
 
