@@ -10,7 +10,7 @@ use std::{
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Bay {
     /// The nodes can be another bay
-    nodes: HashMap<Id, Node>,
+    nodes: HashMap<Path, Node>,
     path: Node,
     dump: String,
     #[serde(skip)]
@@ -32,7 +32,7 @@ impl Bay {
     fn extend(&mut self, nodes: Vec<Node>) -> adapt::Result {
         for node in nodes {
             let meta = node.meta();
-            self.nodes.insert(meta.id.clone(), node);
+            self.nodes.insert(meta.path.clone(), node);
         }
         Ok(Gain::None)
     }

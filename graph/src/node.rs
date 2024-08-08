@@ -299,10 +299,23 @@ impl<'de> Visitor<'de> for NodeVisitor {
     {
         if let Some(key) = map.next_key()? {
             let node = match key {
-                NodeIdentifier::Id => Node::Meta(Meta {
-                    id: map.next_value()?,
+                NodeType::Path => Node::Meta(Meta {
+                    path: map.next_value()?,
                 }),
-                NodeIdentifier::String => Node::Load(Load::String(map.next_value()?)),
+                NodeType::String => Node::Load(Load::String(map.next_value()?)),
+                NodeType::U8 => Node::Load(Load::U8(map.next_value()?)),
+                NodeType::U16 => Node::Load(Load::U16(map.next_value()?)),
+                NodeType::U32 => Node::Load(Load::U32(map.next_value()?)),
+                NodeType::I8 => Node::Load(Load::I8(map.next_value()?)),
+                NodeType::I16 => Node::Load(Load::I16(map.next_value()?)),
+                NodeType::I32 => Node::Load(Load::I32(map.next_value()?)),
+                NodeType::F32 => Node::Load(Load::F32(map.next_value()?)),
+                NodeType::F64 => Node::Load(Load::F64(map.next_value()?)),
+                NodeType::Vu8 => Node::Load(Load::Vu8(map.next_value()?)),
+                NodeType::Vu16 => Node::Load(Load::Vu16(map.next_value()?)),
+                NodeType::Vu32 => Node::Load(Load::Vu32(map.next_value()?)),
+                NodeType::Vf32 => Node::Load(Load::Vf32(map.next_value()?)),
+                NodeType::Vf64 => Node::Load(Load::Vf64(map.next_value()?)),
                 _ => Node::none(),
             };
             Ok(node)
@@ -314,9 +327,9 @@ impl<'de> Visitor<'de> for NodeVisitor {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
-enum NodeIdentifier {
+enum NodeType {
     N,
-    Id,
+    Path,
     String,
     U8,
     U16,

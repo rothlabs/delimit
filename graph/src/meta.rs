@@ -2,23 +2,23 @@ use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
-pub type Id = String;
+pub type Path = String;
 
 /// Meta about a Node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 // #[serde(rename_all = "PascalCase")]
 pub struct Meta {
-    pub id: Id,
+    pub path: Path,
 }
 
 impl Meta {
     pub fn new() -> Self {
         Self {
-            id: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
+            path: Alphanumeric.sample_string(&mut rand::thread_rng(), 16),
         }
     }
     pub fn none() -> Self {
-        Self { id: "".into() }
+        Self { path: "".into() }
     }
 }
 

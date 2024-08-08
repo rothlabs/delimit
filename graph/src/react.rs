@@ -101,13 +101,13 @@ impl Eq for Root {}
 
 impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
-        Weak::ptr_eq(&self.edge, &other.edge) && self.meta.id == other.meta.id
+        Weak::ptr_eq(&self.edge, &other.edge) && self.meta.path == other.meta.path
     }
 }
 
 impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.meta.id.hash(state);
+        self.meta.path.hash(state);
     }
 }
 
