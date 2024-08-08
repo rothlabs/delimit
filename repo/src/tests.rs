@@ -5,7 +5,7 @@ use text::*;
 
 fn make_doc() -> (Node, Node) {
     let path = STORAGE.leaf().node();
-    let repo = Repo::new().path(path).node();
+    let bay = Bay::new().path(path).node();
     let atts = html::attribute_set();
     let mut html = html::Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
@@ -31,18 +31,18 @@ fn make_doc() -> (Node, Node) {
         .attribute("src", "/app.js")
         .attribute("type", "module");
     let doc = script.up_to_doc().node();
-    (repo, doc)
+    (bay, doc)
 }
 
 #[test]
 fn save_repo() -> result::Result<(), Error> {
-    let (repo, doc) = make_doc();
+    let (bay, doc) = make_doc();
     let plain = doc.at(PLAIN)?;
     let mut nodes = vec![plain.clone()]; // doc.clone(), 
     // nodes.extend(doc.query().deep_stems()?);
     nodes.extend(plain.query().deep_stems()?);
-    repo.alter().extend(nodes)?;
-    repo.query().export()?;
+    bay.alter().extend(nodes)?;
+    bay.query().export()?;
     Ok(())
 }
 
@@ -50,7 +50,7 @@ fn save_repo() -> result::Result<(), Error> {
 fn load_repo() -> result::Result<(), Error> {
     let path = STORAGE.leaf().node();
     let deserializer = NodeDeserializer::new();
-    let repo = Repo::new().path(path).deserializer(deserializer).node();
+    let repo = Bay::new().path(path).deserializer(deserializer).node();
     repo.alter().import()?;
     Ok(())
 }

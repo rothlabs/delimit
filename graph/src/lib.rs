@@ -9,7 +9,7 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use repo::Repo;
+pub use bay::Bay;
 pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
@@ -38,7 +38,7 @@ mod edge;
 mod link;
 mod load;
 mod meta;
-mod repo;
+mod bay;
 mod work;
 mod write;
 

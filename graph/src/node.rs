@@ -30,11 +30,9 @@ impl Node {
             _ => Err("not ploy".into())
         }
     }
-    // TODO: make fallible
     pub fn meta(&self) -> Meta {
         match self {
             Self::Meta(meta) => meta.clone(),
-            // Self::Load(_) => Meta::none(),
             Self::Leaf(leaf) => leaf.meta(),
             Self::Ploy(ploy) => ploy.meta(),
             _ => Meta::none(),
@@ -53,7 +51,6 @@ impl Node {
     pub fn load(&self) -> load::Result {
         match self {
             // TODO: should attempt to lookup from repo before error
-            // Self::Meta(_) => Err("no load available".into()),
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.main()?.load(),
@@ -85,7 +82,6 @@ impl Node {
     }
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
-            // Self::Meta(_) => read(Err("nothing to read".into())),
             Self::Load(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_load(read),
             Self::Ploy(ploy) => {

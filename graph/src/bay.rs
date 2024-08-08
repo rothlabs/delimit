@@ -8,15 +8,16 @@ use std::{
 };
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct Repo {
+pub struct Bay {
+    /// The nodes can be another bay
     nodes: HashMap<Id, Node>,
     path: Node,
-    pool: String,
+    dump: String,
     #[serde(skip)]
     deserializer: Option<Box<dyn DeserializeNode>>,
 }
 
-impl Repo {
+impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
@@ -55,24 +56,24 @@ impl Repo {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         let serial: Serial = serde_json::from_reader(reader)?;
-        self.pool = String::new();
+        self.dump = String::new();
         for (id, part) in &serial.parts {
             if let Ok(node) = deserializer.deserialize(part) {
                 self.nodes.insert(id.into(), node);
-                self.pool += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
+                self.dump += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
             } else {
                 panic!("failed to load part: {}", part)
             }
         }
-        fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.pool)?;
+        fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
         Ok(Gain::None)
     }
     fn find(&self, regex: &str) -> solve::Result {
         let re = Regex::new(regex)?; //Regex::new(r"(?P<story>Delimit index page)")?;
-        let caps = re.captures(&self.pool).ok_or("no match")?;
+        let caps = re.captures(&self.dump).ok_or("no match")?;
         let start = caps.get(0).unwrap().start();
         let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?
-            .captures_at(&self.pool, start)
+            .captures_at(&self.dump, start)
             .ok_or("no match")?;
         let id = caps.get(1).unwrap().as_str();
         let node = self.nodes.get(id).ok_or("id not found")?.clone();
@@ -80,7 +81,7 @@ impl Repo {
     }
 }
 
-impl Adapt for Repo {
+impl Adapt for Bay {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(_) => Ok(Gain::None),
@@ -91,7 +92,7 @@ impl Adapt for Repo {
     }
 }
 
-impl Solve for Repo {
+impl Solve for Bay {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Stems => self.stems(),
