@@ -1,5 +1,5 @@
-use serde::Serialize;
 use super::*;
+use serde::Serialize;
 use std::result;
 
 pub type Result = result::Result<Load, Error>;

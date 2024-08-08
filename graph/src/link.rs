@@ -62,16 +62,16 @@ impl<E> Link<E> {
     }
 }
 
-impl<E> Link<E> 
-where 
-    Self: Solve
+impl<E> Link<E>
+where
+    Self: Solve,
 {
     pub fn main(&self) -> node::Result {
         match self.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
             _ => Err("not Tray::Node".into()),
         }
-    }    
+    }
 }
 
 impl<E> Link<E>

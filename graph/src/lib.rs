@@ -1,5 +1,6 @@
 pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post, ToAlter};
 pub use apex::Apex;
+pub use bay::Bay;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
@@ -9,7 +10,6 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use bay::Bay;
 pub use serial::{Serial, SerializeGraph, SerializeGraphInner};
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
@@ -34,11 +34,11 @@ pub mod serial;
 pub mod solve;
 
 mod apex;
+mod bay;
 mod edge;
 mod link;
 mod load;
 mod meta;
-mod bay;
 mod work;
 mod write;
 

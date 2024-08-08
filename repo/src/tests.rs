@@ -38,8 +38,8 @@ fn make_doc() -> (Node, Node) {
 fn save_repo() -> result::Result<(), Error> {
     let (bay, doc) = make_doc();
     let plain = doc.at(PLAIN)?;
-    let mut nodes = vec![plain.clone()]; // doc.clone(), 
-    // nodes.extend(doc.query().deep_stems()?);
+    let mut nodes = vec![plain.clone()]; // doc.clone(),
+                                         // nodes.extend(doc.query().deep_stems()?);
     nodes.extend(plain.query().deep_stems()?);
     bay.alter().extend(nodes)?;
     bay.query().export()?;

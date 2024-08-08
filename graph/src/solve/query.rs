@@ -18,17 +18,17 @@ where
         match self.target.solve(Task::Stems)? {
             Tray::Nodes(nodes) => {
                 let mut deep: Vec<Node> = nodes
-                .iter()
-                .flat_map(|x| {
-                    if let Ok(nodes) = x.query().deep_stems() {
-                        return nodes;
-                    }
-                    vec![]
-                })
-                .collect();
+                    .iter()
+                    .flat_map(|x| {
+                        if let Ok(nodes) = x.query().deep_stems() {
+                            return nodes;
+                        }
+                        vec![]
+                    })
+                    .collect();
                 deep.extend(nodes);
                 Ok(deep)
-            },
+            }
             _ => Err("not Tray::Nodes".into()),
         }
     }
@@ -55,13 +55,12 @@ where
     }
 }
 
-
 // pub fn main(&self) -> node::Result {
-    //     match self.target.solve(Task::Main)? {
-    //         Tray::Node(node) => Ok(node),
-    //         _ => Err("not Tray::Node".into()),
-    //     }
-    // }
+//     match self.target.solve(Task::Main)? {
+//         Tray::Node(node) => Ok(node),
+//         _ => Err("not Tray::Node".into()),
+//     }
+// }
 
 // pub fn serial(&self) -> serial::Result {
 //     self.target.solve(Task::Serial)?;

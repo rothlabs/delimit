@@ -1,6 +1,6 @@
 use super::*;
-use std::{result, fmt};
 use serde::de::{MapAccess, Visitor};
+use std::{fmt, result};
 
 pub type Result = result::Result<Node, Error>;
 
@@ -27,7 +27,7 @@ impl Node {
     pub fn main(&self) -> node::Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
-            _ => Err("not ploy".into())
+            _ => Err("not ploy".into()),
         }
     }
     pub fn meta(&self) -> Meta {
@@ -45,7 +45,7 @@ impl Node {
         match self {
             Self::Leaf(leaf) => leaf.serial(serial),
             Self::Ploy(ploy) => ploy.serial(serial),
-            _ => Ok(())
+            _ => Ok(()),
         }
     }
     pub fn load(&self) -> load::Result {
@@ -63,7 +63,7 @@ impl Node {
     pub fn rank(&self) -> Option<usize> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
-            _ => None
+            _ => None,
         }
     }
     /// Solve down to the given rank.
@@ -90,8 +90,8 @@ impl Node {
                 } else {
                     read(Err("failed to read ploy".into()))
                 }
-            },
-            _ => read(Err("nothing to read".into()))
+            }
+            _ => read(Err("nothing to read".into())),
         }
     }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
@@ -218,12 +218,10 @@ impl From<Ploy> for Node {
     fn from(ploy: Ploy) -> Self {
         // TODO: find way to not query the node to get rank!
         let rank = match ploy.main() {
-            Ok(node) => {
-                match node.rank() {
-                    Some(rank) => rank + 1,
-                    None => 1,
-                }
-            }
+            Ok(node) => match node.rank() {
+                Some(rank) => rank + 1,
+                None => 1,
+            },
             _ => 0,
         };
         Node::Ploy(ploy.ranked(rank))
@@ -296,13 +294,16 @@ impl<'de> Visitor<'de> for NodeVisitor {
         formatter.write_str("enum node form")
     }
     fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
-        where
-            A: MapAccess<'de>, {
-        if let Some(key) = map.next_key()? { 
+    where
+        A: MapAccess<'de>,
+    {
+        if let Some(key) = map.next_key()? {
             let node = match key {
-                NodeIdentifier::Id => Node::Meta(Meta{id:map.next_value()?}),
+                NodeIdentifier::Id => Node::Meta(Meta {
+                    id: map.next_value()?,
+                }),
                 NodeIdentifier::String => Node::Load(Load::String(map.next_value()?)),
-                _ => Node::none()
+                _ => Node::none(),
             };
             Ok(node)
         } else {
@@ -332,17 +333,12 @@ enum NodeIdentifier {
     Vf64,
 }
 
-
-
-
 // fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
 // where
 //     S: Serializer,
 // {
 //     serializer.serialize_str(&r#"{"n":"n"}"#)
 // }
-
-
 
 // impl<'de> Deserialize<'de> for Node {
 //     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
@@ -387,46 +383,35 @@ enum NodeIdentifier {
 //     }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
 // match task {
-        //     // Task::Main => Ok(Self {
-        //     //     rank: self.rank - 1,
-        //     //     form: self.form.solve_form(task)?,
-        //     // }
-        //     // .into()),
-        // }
+//     // Task::Main => Ok(Self {
+//     //     rank: self.rank - 1,
+//     //     form: self.form.solve_form(task)?,
+//     // }
+//     // .into()),
+// }
 
-    // pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => Ok(ploy.query().main()?),
-    //     }
-    // }
-    // pub fn solve(&self, task: Task) -> solve::Result {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => ploy.solve(task),
-    //     }
-    // }
-    // pub fn alter(&self, post: Post) -> adapt::Result {
-    //     match self {
-    //         Self::Meta(_) => Err("not a ploy".into()),
-    //         Self::Load(_) => Err("not a ploy".into()),
-    //         Self::Leaf(_) => Err("not a ploy".into()),
-    //         Self::Ploy(ploy) => ploy.adapt(post),
-    //     }
-    // }
+// pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
+//     match self {
+//         Self::Meta(_) => Err("not a ploy".into()),
+//         Self::Load(_) => Err("not a ploy".into()),
+//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Ploy(ploy) => Ok(ploy.query().main()?),
+//     }
+// }
+// pub fn solve(&self, task: Task) -> solve::Result {
+//     match self {
+//         Self::Meta(_) => Err("not a ploy".into()),
+//         Self::Load(_) => Err("not a ploy".into()),
+//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Ploy(ploy) => ploy.solve(task),
+//     }
+// }
+// pub fn alter(&self, post: Post) -> adapt::Result {
+//     match self {
+//         Self::Meta(_) => Err("not a ploy".into()),
+//         Self::Load(_) => Err("not a ploy".into()),
+//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Ploy(ploy) => ploy.adapt(post),
+//     }
+// }
