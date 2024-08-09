@@ -14,7 +14,7 @@ pub type Agent<U> = Edge<apex::Agent<U>>;
 /// The forward bridge between nodes.
 #[derive(Debug)]
 pub struct Edge<N> {
-    //pub meta: Meta,
+    //pub id: Id,
     pub back: Option<Back>,
     #[cfg(not(feature = "oneThread"))]
     pub apex: Arc<RwLock<N>>,
@@ -25,28 +25,22 @@ pub struct Edge<N> {
 impl<N> ToId for Edge<N> {
     fn id(&self) -> Id {
         if let Some(back) = &self.back {
-            back.id()
+            back.id.clone()
         } else {
             random()
         }
     }
 }
 
-// impl<N> ToMeta for Edge<N> {
-//     fn meta(&self) -> Meta {
-//         self.meta.clone()
-//     }
-// }
-
 impl<N> FromItem for Edge<N>
 where
-    N: FromItem// + ToMeta,
+    N: FromItem,// + ToId,
 {
     type Item = N::Item;
     fn new(unit: Self::Item) -> Self {
         let apex = N::new(unit);
         Self {
-            //meta: apex.meta(),
+            // id: "".into(),
             back: None,
             #[cfg(not(feature = "oneThread"))]
             apex: Arc::new(RwLock::new(apex)),
@@ -70,9 +64,9 @@ where
         let back = Back::new(Arc::downgrade(&update), id);
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
-            //meta,
             apex,
             back: None,
+            // id: "".into(),
         }
     }
     #[cfg(feature = "oneThread")]
@@ -84,28 +78,28 @@ where
         let back = Back::new(Rc::downgrade(&update), id);
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
-            //meta,
             apex,
             back: None,
+            id: "".into(),
         }
     }
 }
 
-impl<N> Edge<N>
-where
-    N: 'static + DoUpdate,
-{
-    #[cfg(not(feature = "oneThread"))]
-    fn node_as_back(&self) -> Back {
-        let update = self.apex.clone() as Arc<RwLock<dyn DoUpdate>>;
-        Back::new(Arc::downgrade(&update))
-    }
-    #[cfg(feature = "oneThread")]
-    fn node_as_back(&self) -> Back {
-        let update = self.apex.clone() as Rc<RefCell<dyn DoUpdate>>;
-        Back::new(Rc::downgrade(&update))
-    }
-}
+// impl<N> Edge<N>
+// where
+//     N: 'static + DoUpdate,
+// {
+//     #[cfg(not(feature = "oneThread"))]
+//     fn node_as_back(&self) -> Back {
+//         let update = self.apex.clone() as Arc<RwLock<dyn DoUpdate>>;
+//         Back::new(Arc::downgrade(&update))
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn node_as_back(&self) -> Back {
+//         let update = self.apex.clone() as Rc<RefCell<dyn DoUpdate>>;
+//         Back::new(Rc::downgrade(&update))
+//     }
+// }
 
 impl<N> Solve for Edge<N>
 where
@@ -113,8 +107,7 @@ where
 {
     fn solve(&self, task: Task) -> solve::Result {
         write_part(&self.apex, |mut apex| {
-            apex.do_solve(task, &self.node_as_back())
-            // apex.do_solve(task, &self.node_as_back())
+            apex.do_solve(task)
         })
     }
 }
@@ -124,8 +117,9 @@ where
     N: 'static + Adapt + DoUpdate,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        let back = &self.node_as_back();
-        write_part(&self.apex, |mut apex| apex.adapt(post.backed(back)))
+        write_part(&self.apex, |mut apex| apex.adapt(post))
+        // let back = &self.node_as_back();
+        // write_part(&self.apex, |mut apex| apex.adapt(post.backed(back)))
     }
 }
 
@@ -148,7 +142,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
-            //meta: self.meta(),
+            // id: self.id.clone(),
             back: self.back.clone(),
             apex: self.apex.clone(),
         })))
@@ -171,7 +165,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
         Arc::new(RwLock::new(Box::new(Self {
-            //meta: self.meta(),
+            // id: self.id.clone(),
             back: Some(back.clone()),
             apex: self.apex.clone(),
         })))
@@ -199,7 +193,7 @@ where
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
-            //meta: self.meta(),
+            // id: back.id.clone(),
             back: Some(back.clone()),
             apex: self.apex.clone(),
         }
@@ -228,7 +222,7 @@ where
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
         let write::Out { roots, id, out } = write_part(&self.apex, |mut apex| {
-            apex.write_unit_out(write, &self.node_as_back())
+            apex.write_unit_out(write)
         });
         for root in &roots {
             root.react(&id)?;

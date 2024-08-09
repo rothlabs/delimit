@@ -97,7 +97,7 @@ impl<U> DoSolve for Agent<U>
 where
     U: Solve,
 {
-    fn do_solve(&mut self, task: Task, _: &Back) -> solve::Result {
+    fn do_solve(&mut self, task: Task) -> solve::Result {
         if let Task::Main = task {
             if let Some(tray) = &self.tray {
                 Ok(tray.clone())

@@ -89,9 +89,9 @@ where
     fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
-        back: &Back,
+        //back: &Back,
     ) -> write::Out<T> {
-        let out = self.work.write_unit_work(write, back);
+        let out = self.work.write_unit_work(write, &self.back.clone().unwrap());
         let roots = self.ring.rebut_roots();
         write::Out { roots, out, id: self.id.clone() }
     }
@@ -147,8 +147,8 @@ impl<W> DoSolve for Apex<W>
 where
     W: DoSolve,
 {
-    fn do_solve(&mut self, task: Task, back: &Back) -> solve::Result {
-        self.work.do_solve(task, back)
+    fn do_solve(&mut self, task: Task) -> solve::Result {
+        self.work.do_solve(task)
     }
 }
 
@@ -157,7 +157,7 @@ where
     W: Adapt,
 {
     fn adapt(&mut self, post: Post) -> adapt::Result {
-        self.work.adapt(post)
+        self.work.adapt(post.backed(&self.back.clone().unwrap()))
     }
 }
 

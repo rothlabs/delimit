@@ -47,7 +47,7 @@ impl DoReact for Leaf {
 }
 
 impl DoSolve for Leaf {
-    fn do_solve(&mut self, _: Task, _: &Back) -> solve::Result {
+    fn do_solve(&mut self, _: Task) -> solve::Result {
         Ok(Tray::None)
     }
 }

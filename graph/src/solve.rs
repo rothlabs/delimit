@@ -19,7 +19,7 @@ pub trait Solve {
 
 pub trait DoSolve {
     /// For graph internals to handle solve calls
-    fn do_solve(&mut self, task: Task, back: &Back) -> Result;
+    fn do_solve(&mut self, task: Task) -> Result;
 }
 
 pub fn did_not_solve() -> solve::Result {

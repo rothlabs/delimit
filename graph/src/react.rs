@@ -114,7 +114,7 @@ pub struct Back {
     pub apex: Weak<RwLock<dyn DoUpdate>>,
     #[cfg(feature = "oneThread")]
     pub apex: Weak<RefCell<dyn DoUpdate>>,
-    id: Id,
+    pub id: Id,
 }
 
 impl Back {
@@ -140,13 +140,13 @@ impl Back {
             Ok(())
         }
     }
-    pub fn id(&self) -> Id {
-        if let Some(apex) = self.apex.upgrade() {
-            read_part(&apex, |apex| apex.id())
-        } else {
-            random()
-        }
-    }
+    // pub fn id(&self) -> Id {
+    //     if let Some(apex) = self.apex.upgrade() {
+    //         read_part(&apex, |apex| apex.id())
+    //     } else {
+    //         random()
+    //     }
+    // }
 }
 
 /// Points to many root edges, each pointing to back of a apex.
