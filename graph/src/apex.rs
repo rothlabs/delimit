@@ -10,6 +10,7 @@ pub struct Apex<W> {
     id: Id,
     ring: Ring,
     work: W,
+    back: Option<Back>,
 }
 
 impl<W> Default for Apex<W>
@@ -21,6 +22,7 @@ where
             id: random(),
             ring: Ring::new(),
             work: W::default(),
+            back: None,
         }
     }
 }
@@ -35,6 +37,7 @@ where
             id: random(),
             ring: Ring::new(),
             work: W::new(item),
+            back: None,
         }
     }
 }
@@ -51,6 +54,7 @@ where
 {
     type Unit = W::Unit;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+        self.back = Some(back.clone());
         self.work.do_make(make, back);
     }
 }

@@ -64,24 +64,24 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
-        //let meta = apex.meta();
+        let id = apex.id();
         let apex = Arc::new(RwLock::new(apex));
         let update = apex.clone() as Arc<RwLock<dyn DoUpdate>>;
-        let back = Back::new(Arc::downgrade(&update));
+        let back = Back::new(Arc::downgrade(&update), id);
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
             //meta,
-            back: None,
             apex,
+            back: None,
         }
     }
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
         let apex = N::default();
-        //let meta = apex.meta();
+        let id = apex.id();
         let apex = Rc::new(RefCell::new(apex));
         let update = apex.clone() as Rc<RefCell<dyn DoUpdate>>;
-        let back = Back::new(Rc::downgrade(&update));
+        let back = Back::new(Rc::downgrade(&update), id);
         write_part(&apex, |mut apex| apex.do_make(make, &back));
         Self {
             //meta,
@@ -114,6 +114,7 @@ where
     fn solve(&self, task: Task) -> solve::Result {
         write_part(&self.apex, |mut apex| {
             apex.do_solve(task, &self.node_as_back())
+            // apex.do_solve(task, &self.node_as_back())
         })
     }
 }
@@ -226,11 +227,11 @@ where
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
-        let write::Out { roots, id: meta, out } = write_part(&self.apex, |mut apex| {
+        let write::Out { roots, id, out } = write_part(&self.apex, |mut apex| {
             apex.write_unit_out(write, &self.node_as_back())
         });
         for root in &roots {
-            root.react(&meta)?;
+            root.react(&id)?;
         }
         Ok(out)
     }

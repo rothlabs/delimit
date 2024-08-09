@@ -114,12 +114,13 @@ pub struct Back {
     pub apex: Weak<RwLock<dyn DoUpdate>>,
     #[cfg(feature = "oneThread")]
     pub apex: Weak<RefCell<dyn DoUpdate>>,
+    id: Id,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
-    pub fn new(apex: Weak<RwLock<dyn DoUpdate>>) -> Self {
-        Self { apex }
+    pub fn new(apex: Weak<RwLock<dyn DoUpdate>>, id: Id) -> Self {
+        Self { apex, id }
     }
     #[cfg(feature = "oneThread")]
     pub fn new(apex: Weak<RefCell<dyn DoUpdate>>) -> Self {
