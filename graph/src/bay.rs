@@ -1,10 +1,10 @@
-use regex::Regex;
+// use regex::Regex;
 
 use super::*;
 use std::{
     collections::HashMap,
-    fs::{self, File},
-    io::BufReader,
+    // fs::{self, File},
+    // io::BufReader,
 };
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -68,16 +68,17 @@ impl Bay {
         // fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
         Ok(Gain::None)
     }
-    fn find(&self, regex: &str) -> solve::Result {
-        let re = Regex::new(regex)?; //Regex::new(r"(?P<story>Delimit index page)")?;
-        let caps = re.captures(&self.dump).ok_or("no match")?;
-        let start = caps.get(0).unwrap().start();
-        let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?
-            .captures_at(&self.dump, start)
-            .ok_or("no match")?;
-        let id = caps.get(1).unwrap().as_str();
-        let node = self.nodes.get(id).ok_or("id not found")?.clone();
-        Ok(Tray::Node(node))
+    fn find(&self, _: &str) -> solve::Result {
+        // let re = Regex::new(regex)?; //Regex::new(r"(?P<story>Delimit index page)")?;
+        // let caps = re.captures(&self.dump).ok_or("no match")?;
+        // let start = caps.get(0).unwrap().start();
+        // let caps = Regex::new("gnid==([a-zA-Z0-9]{16})")?
+        //     .captures_at(&self.dump, start)
+        //     .ok_or("no match")?;
+        // let id = caps.get(1).unwrap().as_str();
+        // let node = self.nodes.get(id).ok_or("id not found")?.clone();
+        // Ok(Tray::Node(node))
+        Ok(Tray::None)
     }
 }
 

@@ -78,12 +78,12 @@ where
 
 impl<E> Link<E>
 where
-    E: FromItem// + ToMeta,
+    E: FromItem,
 {
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            meta: Meta::new(), // edge.meta(),
+            meta: Meta::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -95,12 +95,12 @@ where
 
 impl<E> Link<E>
 where
-    E: Make// + ToMeta,
+    E: Make,
 {
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            meta: Meta::new(), // edge.meta(),
+            meta: Meta::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -128,7 +128,7 @@ where
         let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
         Root {
             edge: Arc::downgrade(&edge),
-            id
+            id,
         }
     }
     #[cfg(feature = "oneThread")]
@@ -136,7 +136,7 @@ where
         let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
         Root {
             edge: Rc::downgrade(&edge),
-            id
+            id,
         }
     }
 }

@@ -77,7 +77,11 @@ where
     fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
         let out = self.work.write_load_work(write);
         let roots = self.ring.rebut_roots();
-        write::Out { roots, out, id: self.id.clone() }
+        write::Out {
+            roots,
+            out,
+            id: self.id.clone(),
+        }
     }
 }
 
@@ -91,9 +95,15 @@ where
         write: F,
         //back: &Back,
     ) -> write::Out<T> {
-        let out = self.work.write_unit_work(write, &self.back.clone().unwrap());
+        let out = self
+            .work
+            .write_unit_work(write, &self.back.clone().unwrap());
         let roots = self.ring.rebut_roots();
-        write::Out { roots, out, id: self.id.clone() }
+        write::Out {
+            roots,
+            out,
+            id: self.id.clone(),
+        }
     }
 }
 
@@ -161,10 +171,8 @@ where
     }
 }
 
-
-
-// impl<W> Serialize for Apex<W> 
-// where 
+// impl<W> Serialize for Apex<W>
+// where
 //     W: Serialize
 // {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -188,14 +196,6 @@ where
 //         Ok(())
 //     }
 // }
-
-// impl<W> ToMeta for Apex<W> {
-//     fn meta(&self) -> Meta {
-//         self.meta.clone()
-//     }
-// }
-
-
 
 // impl<W> ToSerial for Apex<W>
 // where

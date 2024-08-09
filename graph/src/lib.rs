@@ -4,7 +4,7 @@ pub use bay::Bay;
 pub use edge::Edge;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
-pub use meta::{Path, Meta, Id, ToId, random};
+pub use meta::{random, Id, Meta, Path, ToId};
 pub use node::{Node, SolveDown, TradeNode};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
@@ -88,10 +88,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage:
-    Solve + AdaptInner + BackedPloy + AddRoot + Update + fmt::Debug
-{
-}
+pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + fmt::Debug {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;

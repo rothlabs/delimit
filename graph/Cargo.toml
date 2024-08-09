@@ -11,16 +11,16 @@
     # third party
         # serde
             serde = { version = "1.0", features = ["derive"] }
-            serde-untagged = "0.1.6"
             serde_json = "1.0"
         # rand
             rand = "0.8.5"
         # regex
-            regex = "1.0.0"
+            # regex = "1.0.0"
         # dyn-clone
             dyn-clone = "1.0.17"
 
 
+    # serde-untagged = "0.1.6"
 
             # erased-serde = {workspace = true}
         # derive

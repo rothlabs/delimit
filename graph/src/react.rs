@@ -1,9 +1,9 @@
 use super::*;
-use std::{collections::HashSet, hash::Hash};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{RwLock, Weak};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Weak};
+use std::{collections::HashSet, hash::Hash};
 
 pub type Result = std::result::Result<(), Error>;
 
@@ -97,7 +97,7 @@ impl Eq for Root {}
 
 impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
-        Weak::ptr_eq(&self.edge, &other.edge)// && self.meta.path == other.meta.path
+        Weak::ptr_eq(&self.edge, &other.edge) // && self.id == other.id
     }
 }
 
@@ -123,8 +123,8 @@ impl Back {
         Self { apex, id }
     }
     #[cfg(feature = "oneThread")]
-    pub fn new(apex: Weak<RefCell<dyn DoUpdate>>) -> Self {
-        Self { apex }
+    pub fn new(apex: Weak<RefCell<dyn DoUpdate>>, id: Id) -> Self {
+        Self { apex, id }
     }
     pub fn rebut(&self) -> Ring {
         if let Some(apex) = self.apex.upgrade() {
@@ -140,13 +140,6 @@ impl Back {
             Ok(())
         }
     }
-    // pub fn id(&self) -> Id {
-    //     if let Some(apex) = self.apex.upgrade() {
-    //         read_part(&apex, |apex| apex.id())
-    //     } else {
-    //         random()
-    //     }
-    // }
 }
 
 /// Points to many root edges, each pointing to back of a apex.
@@ -186,12 +179,11 @@ impl Ring {
     }
 }
 
-
-        // if let Some(edge) = self.edge.upgrade() {
-        //     read_part(&edge, |edge| edge.id()).hash(state)
-        // } else {
-        //     random().hash(state)
-        // }
-        // read_part(&self.edge, |edge: RwLockReadGuard<'_, dyn Update>| edge.back_id().hash(state))
-        // self.edge.back_id().hash(state);
-        //self.meta.path.hash(state);
+// if let Some(edge) = self.edge.upgrade() {
+//     read_part(&edge, |edge| edge.id()).hash(state)
+// } else {
+//     random().hash(state)
+// }
+// read_part(&self.edge, |edge: RwLockReadGuard<'_, dyn Update>| edge.back_id().hash(state))
+// self.edge.back_id().hash(state);
+//self.meta.path.hash(state);

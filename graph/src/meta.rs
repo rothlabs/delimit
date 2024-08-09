@@ -19,9 +19,7 @@ pub struct Meta {
 
 impl Meta {
     pub fn new() -> Self {
-        Self {
-            path: random(),
-        }
+        Self { path: random() }
     }
     pub fn none() -> Self {
         Self { path: "".into() }
@@ -37,7 +35,6 @@ impl Default for Meta {
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
-
 
 // pub fn id(&self) -> &String {
 //     &self.id
