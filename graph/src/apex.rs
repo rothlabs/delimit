@@ -39,6 +39,12 @@ where
     }
 }
 
+impl<W> ToId for Apex<W> {
+    fn id(&self) -> Id {
+        self.id.clone()
+    }
+}
+
 impl<W> MakeInner for Apex<W>
 where
     W: MakeInner,

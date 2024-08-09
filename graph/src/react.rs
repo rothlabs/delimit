@@ -60,10 +60,10 @@ pub trait BackedPloy {
 }
 
 /// For edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut + React + SendSync {}
+pub trait Update: Rebut + React + ToId + SendSync {}
 
-/// For apex that mutably Rebuts a Ring and reacts.
-pub trait DoUpdate: DoRebut + DoReact + SendSync {}
+/// For apex to rebut a ring and react if the root of the rebut phase.
+pub trait DoUpdate: DoRebut + DoReact + ToId + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Apex holds a Ring of Roots.
@@ -73,7 +73,7 @@ pub struct Root {
     pub edge: Weak<RwLock<dyn Update>>,
     #[cfg(feature = "oneThread")]
     pub edge: Weak<RefCell<dyn Update>>,
-    pub meta: Meta,
+    pub id: Id,
 }
 
 impl Root {
@@ -103,7 +103,7 @@ impl PartialEq for Root {
 
 impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.meta.path.hash(state);
+        self.id.hash(state)
     }
 }
 
@@ -137,6 +137,13 @@ impl Back {
             write_part(&apex, |mut apex| apex.do_react(id))
         } else {
             Ok(())
+        }
+    }
+    pub fn id(&self) -> Id {
+        if let Some(apex) = self.apex.upgrade() {
+            read_part(&apex, |apex| apex.id())
+        } else {
+            random()
         }
     }
 }
@@ -177,3 +184,13 @@ impl Ring {
         Vec::from_iter(ring.roots)
     }
 }
+
+
+        // if let Some(edge) = self.edge.upgrade() {
+        //     read_part(&edge, |edge| edge.id()).hash(state)
+        // } else {
+        //     random().hash(state)
+        // }
+        // read_part(&self.edge, |edge: RwLockReadGuard<'_, dyn Update>| edge.back_id().hash(state))
+        // self.edge.back_id().hash(state);
+        //self.meta.path.hash(state);

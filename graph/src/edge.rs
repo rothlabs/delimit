@@ -22,6 +22,16 @@ pub struct Edge<N> {
     pub apex: Rc<RefCell<N>>,
 }
 
+impl<N> ToId for Edge<N> {
+    fn id(&self) -> Id {
+        if let Some(back) = &self.back {
+            back.id()
+        } else {
+            random()
+        }
+    }
+}
+
 // impl<N> ToMeta for Edge<N> {
 //     fn meta(&self) -> Meta {
 //         self.meta.clone()
@@ -275,12 +285,6 @@ where
     }
 }
 
-// impl SerializeGraph for Box<dyn Engage> {
-//     fn serialize(&self) -> serial::Result {
-//         self.as_ref().serialize()
-//     }
-// }
-
 impl AddRoot for Box<dyn Engage> {
     fn add_root(&self, root: Root) {
         self.as_ref().add_root(root)
@@ -288,6 +292,12 @@ impl AddRoot for Box<dyn Engage> {
 }
 
 impl Update for Box<dyn Engage> {}
+
+impl ToId for Box<dyn Engage> {
+    fn id(&self) -> Id {
+        self.as_ref().id()
+    }
+}
 
 impl Rebut for Box<dyn Engage> {
     fn rebut(&self) -> Ring {
@@ -312,6 +322,12 @@ impl AdaptInner for Box<dyn Engage> {
         self.as_ref().adapt(post)
     }
 }
+
+// impl SerializeGraph for Box<dyn Engage> {
+//     fn serialize(&self) -> serial::Result {
+//         self.as_ref().serialize()
+//     }
+// }
 
 
 // impl<A> Serialize for Edge<A> 

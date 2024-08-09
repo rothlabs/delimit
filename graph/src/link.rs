@@ -27,6 +27,7 @@ pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
+    /// TODO: rename to Path
     meta: Meta,
     rank: Option<usize>,
 }
@@ -123,19 +124,19 @@ where
     E: 'static + Update,
 {
     #[cfg(not(feature = "oneThread"))]
-    pub fn as_root(&self) -> Root {
+    pub fn as_root(&self, id: Id) -> Root {
         let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
         Root {
             edge: Arc::downgrade(&edge),
-            meta: self.meta.clone(),
+            id
         }
     }
     #[cfg(feature = "oneThread")]
-    pub fn as_root(&self) -> Root {
+    pub fn as_root(&self, id: Id) -> Root {
         let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
         Root {
             edge: Rc::downgrade(&edge),
-            meta: self.meta.clone(),
+            id
         }
     }
 }
@@ -210,7 +211,7 @@ where
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
-            edge.add_root(self.as_root());
+            edge.add_root(self.as_root(edge.id()));
             out
         })
     }
@@ -223,7 +224,7 @@ where
     fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         read_part(&self.edge, |edge| {
             let out = edge.read_load(read);
-            edge.add_root(self.as_root());
+            edge.add_root(self.as_root(edge.id()));
             out
         })
     }
@@ -256,7 +257,7 @@ where
     fn solve(&self, task: Task) -> solve::Result {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
-            edge.add_root(self.as_root());
+            edge.add_root(self.as_root(edge.id()));
             result
         })
     }
