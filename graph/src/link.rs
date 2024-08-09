@@ -28,7 +28,7 @@ pub struct Link<E> {
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     /// TODO: rename to Path
-    meta: Meta,
+    meta: Path,
     rank: Option<usize>,
 }
 
@@ -49,7 +49,7 @@ impl<E> Serialize for Link<E> {
 }
 
 impl<E> Link<E> {
-    pub fn meta(&self) -> Meta {
+    pub fn meta(&self) -> Path {
         self.meta.clone()
     }
     pub fn rank(&self) -> Option<usize> {
@@ -83,7 +83,7 @@ where
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            meta: Meta::new(),
+            meta: Path::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -100,7 +100,7 @@ where
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            meta: Meta::new(),
+            meta: Path::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),

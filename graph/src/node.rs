@@ -1,6 +1,7 @@
 use super::*;
-use serde::de::{MapAccess, Visitor};
-use std::{fmt, result};
+// use serde::de::{MapAccess, Visitor};
+use serde_untagged::UntaggedEnumVisitor;
+use std::result;
 
 pub type Result = result::Result<Node, Error>;
 
@@ -8,16 +9,11 @@ pub type Result = result::Result<Node, Error>;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum Node {
-    None(Empty),
-    Meta(Meta),
+    // None(Empty),
+    //Meta(Path),
     Load(Load),
     Leaf(Leaf),
     Ploy(Ploy),
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize)]
-pub struct Empty {
-    n: u8,
 }
 
 impl Node {
@@ -30,12 +26,11 @@ impl Node {
             _ => Err("not ploy".into()),
         }
     }
-    pub fn meta(&self) -> Meta {
+    pub fn meta(&self) -> Path {
         match self {
-            Self::Meta(meta) => meta.clone(),
+            Self::Load(load) => load.path(),
             Self::Leaf(leaf) => leaf.meta(),
             Self::Ploy(ploy) => ploy.meta(),
-            _ => Meta::none(),
         }
     }
     // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
@@ -54,7 +49,7 @@ impl Node {
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.main()?.load(),
-            _ => Err("no load available".into()),
+            // _ => Err("no load available".into()),
         }
     }
     pub fn trade(&self, base: &dyn Trade) -> Self {
@@ -90,8 +85,7 @@ impl Node {
                 } else {
                     read(Err("failed to read ploy".into()))
                 }
-            }
-            _ => read(Err("nothing to read".into())),
+            } // _ => read(Err("nothing to read".into())),
         }
     }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
@@ -146,15 +140,15 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::None(Empty::default())
+        Self::Load(Load::None)//(Empty::default()))
     }
 }
 
 impl Backed for Node {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            Self::None(x) => Self::None(x.clone()),
-            Self::Meta(meta) => Self::Meta(meta.clone()),
+            //Self::None(x) => Self::None(x.clone()),
+            //Self::Meta(meta) => Self::Meta(meta.clone()),
             Self::Load(bare) => Self::Load(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
@@ -281,70 +275,73 @@ impl<'de> Deserialize<'de> for Node {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_map(NodeVisitor)
+        UntaggedEnumVisitor::new()
+            .map(|map| map.deserialize().map(Node::Load))
+            .deserialize(deserializer)
+        // deserializer.deserialize_map(NodeVisitor)
     }
 }
 
-struct NodeVisitor;
+// struct NodeVisitor;
 
-impl<'de> Visitor<'de> for NodeVisitor {
-    type Value = Node;
+// impl<'de> Visitor<'de> for NodeVisitor {
+//     type Value = Node;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("enum node form")
-    }
-    fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
-    where
-        A: MapAccess<'de>,
-    {
-        if let Some(key) = map.next_key()? {
-            let node = match key {
-                NodeType::Path => Node::Meta(Meta {
-                    path: map.next_value()?,
-                }),
-                NodeType::String => Node::Load(Load::String(map.next_value()?)),
-                NodeType::U8 => Node::Load(Load::U8(map.next_value()?)),
-                NodeType::U16 => Node::Load(Load::U16(map.next_value()?)),
-                NodeType::U32 => Node::Load(Load::U32(map.next_value()?)),
-                NodeType::I8 => Node::Load(Load::I8(map.next_value()?)),
-                NodeType::I16 => Node::Load(Load::I16(map.next_value()?)),
-                NodeType::I32 => Node::Load(Load::I32(map.next_value()?)),
-                NodeType::F32 => Node::Load(Load::F32(map.next_value()?)),
-                NodeType::F64 => Node::Load(Load::F64(map.next_value()?)),
-                NodeType::Vu8 => Node::Load(Load::Vu8(map.next_value()?)),
-                NodeType::Vu16 => Node::Load(Load::Vu16(map.next_value()?)),
-                NodeType::Vu32 => Node::Load(Load::Vu32(map.next_value()?)),
-                NodeType::Vf32 => Node::Load(Load::Vf32(map.next_value()?)),
-                NodeType::Vf64 => Node::Load(Load::Vf64(map.next_value()?)),
-                _ => Node::none(),
-            };
-            Ok(node)
-        } else {
-            Ok(Node::none())
-        }
-    }
-}
+//     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+//         formatter.write_str("enum node form")
+//     }
+//     fn visit_map<A>(self, mut map: A) -> result::Result<Self::Value, A::Error>
+//     where
+//         A: MapAccess<'de>,
+//     {
+//         if let Some(key) = map.next_key()? {
+//             let node = match key {
+//                 NodeType::Path => Node::Meta(Path {
+//                     keys: map.next_value()?,
+//                 }),
+//                 NodeType::String => Node::Load(Load::String(map.next_value()?)),
+//                 NodeType::U8 => Node::Load(Load::U8(map.next_value()?)),
+//                 NodeType::U16 => Node::Load(Load::U16(map.next_value()?)),
+//                 NodeType::U32 => Node::Load(Load::U32(map.next_value()?)),
+//                 NodeType::I8 => Node::Load(Load::I8(map.next_value()?)),
+//                 NodeType::I16 => Node::Load(Load::I16(map.next_value()?)),
+//                 NodeType::I32 => Node::Load(Load::I32(map.next_value()?)),
+//                 NodeType::F32 => Node::Load(Load::F32(map.next_value()?)),
+//                 NodeType::F64 => Node::Load(Load::F64(map.next_value()?)),
+//                 NodeType::Vu8 => Node::Load(Load::Vu8(map.next_value()?)),
+//                 NodeType::Vu16 => Node::Load(Load::Vu16(map.next_value()?)),
+//                 NodeType::Vu32 => Node::Load(Load::Vu32(map.next_value()?)),
+//                 NodeType::Vf32 => Node::Load(Load::Vf32(map.next_value()?)),
+//                 NodeType::Vf64 => Node::Load(Load::Vf64(map.next_value()?)),
+//                 _ => Node::none(),
+//             };
+//             Ok(node)
+//         } else {
+//             Ok(Node::none())
+//         }
+//     }
+// }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
-enum NodeType {
-    N,
-    Path,
-    String,
-    U8,
-    U16,
-    U32,
-    I8,
-    I16,
-    I32,
-    F32,
-    F64,
-    Vu8,
-    Vu16,
-    Vu32,
-    Vf32,
-    Vf64,
-}
+// #[derive(Deserialize)]
+// #[serde(rename_all = "lowercase")]
+// enum NodeType {
+//     N,
+//     Path,
+//     String,
+//     U8,
+//     U16,
+//     U32,
+//     I8,
+//     I16,
+//     I32,
+//     F32,
+//     F64,
+//     Vu8,
+//     Vu16,
+//     Vu32,
+//     Vf32,
+//     Vf64,
+// }
 
 // fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
 // where

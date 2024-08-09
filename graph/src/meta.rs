@@ -2,31 +2,40 @@ use serde::{Deserialize, Serialize};
 
 use rand::distributions::{Alphanumeric, DistString};
 
+/// Runtime-only ID. Used to easily distinguish between node instances.
 pub type Id = String;
 
 pub trait ToId {
     fn id(&self) -> Id;
 }
 
-pub type Path = String;
+/// Path component. Used to lookup a node from a Bay or Lake.
+pub type Key = String;
 
-/// Meta about a Node. It stands in place of actual nodes in serial form.
+/// Path to node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 // #[serde(rename_all = "PascalCase")]
-pub struct Meta {
-    pub path: Path,
+pub struct Path {
+    root: Root,
+    pub keys: Vec<Key>,
 }
 
-impl Meta {
+impl Path {
     pub fn new() -> Self {
-        Self { path: random() }
+        Self {
+            root: Root::Lake,
+            keys: vec![random()],
+        }
     }
     pub fn none() -> Self {
-        Self { path: "".into() }
+        Self {
+            root: Root::Lake,
+            keys: vec!["".into()],
+        }
     }
 }
 
-impl Default for Meta {
+impl Default for Path {
     fn default() -> Self {
         Self::new()
     }
@@ -34,6 +43,12 @@ impl Default for Meta {
 
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+enum Root {
+    Lake,
+    Up(usize),
 }
 
 // pub fn id(&self) -> &String {
