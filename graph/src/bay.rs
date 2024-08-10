@@ -31,7 +31,7 @@ impl Bay {
     }
     fn extend(&mut self, nodes: Vec<Node>) -> adapt::Result {
         for node in nodes {
-            let meta = node.meta();
+            let meta = node.path();
             self.nodes.insert(meta.keys[0].clone(), node);
         }
         Ok(Gain::None)

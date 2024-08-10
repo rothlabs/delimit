@@ -9,8 +9,6 @@ pub type Result = result::Result<Node, Error>;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum Node {
-    // None(Empty),
-    //Meta(Path),
     Load(Load),
     Leaf(Leaf),
     Ploy(Ploy),
@@ -20,36 +18,33 @@ impl Node {
     pub fn none() -> Self {
         Self::default()
     }
-    pub fn main(&self) -> node::Result {
+    pub fn main(&self) -> Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy".into()),
         }
     }
-    pub fn meta(&self) -> Path {
-        match self {
-            Self::Load(load) => load.path(),
-            Self::Leaf(leaf) => leaf.meta(),
-            Self::Ploy(ploy) => ploy.meta(),
+    pub fn serial(&self) -> serial::Result {
+        match self.solve(Task::Serial)? {
+            Tray::String(string) => Ok(string),
+            _ => Err("not serialized".into()),
         }
     }
-    // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-    //     if serial.contains(&self.meta()) {
-    //         return Ok(());
-    //     }
-    //     match self {
-    //         Self::Leaf(leaf) => leaf.serial(serial),
-    //         Self::Ploy(ploy) => ploy.serial(serial),
-    //         _ => Ok(()),
-    //     }
+    // pub fn export(&self) -> result::Result<Lake, Error> {
+
     // }
+    pub fn path(&self) -> Path {
+        match self {
+            Self::Load(load) => load.path(),
+            Self::Leaf(leaf) => leaf.path(),
+            Self::Ploy(ploy) => ploy.path(),
+        }
+    }
     pub fn load(&self) -> load::Result {
         match self {
-            // TODO: should attempt to lookup from repo before error
             Self::Load(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => Ok(leaf.load()),
             Self::Ploy(ploy) => ploy.main()?.load(),
-            // _ => Err("no load available".into()),
         }
     }
     pub fn trade(&self, base: &dyn Trade) -> Self {
@@ -85,7 +80,7 @@ impl Node {
                 } else {
                     read(Err("failed to read ploy".into()))
                 }
-            } // _ => read(Err("nothing to read".into())),
+            }
         }
     }
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
@@ -140,15 +135,13 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::Load(Load::None)//(Empty::default()))
+        Self::Load(Load::None)
     }
 }
 
 impl Backed for Node {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            //Self::None(x) => Self::None(x.clone()),
-            //Self::Meta(meta) => Self::Meta(meta.clone()),
             Self::Load(bare) => Self::Load(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
@@ -342,6 +335,18 @@ impl<'de> Deserialize<'de> for Node {
 //     Vf32,
 //     Vf64,
 // }
+
+
+// pub fn serial(&self, serial: &mut Serial) -> serial::Result {
+    //     if serial.contains(&self.meta()) {
+    //         return Ok(());
+    //     }
+    //     match self {
+    //         Self::Leaf(leaf) => leaf.serial(serial),
+    //         Self::Ploy(ploy) => ploy.serial(serial),
+    //         _ => Ok(()),
+    //     }
+    // }
 
 // fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
 // where

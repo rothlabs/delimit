@@ -94,15 +94,6 @@ where
 
 impl<U> Engage for Agent<U> where U: 'static + Adapt + Solve + Debug + SendSync {}
 
-// impl<U> SerializeGraph for Agent<U>
-// where
-//     U: Serialize
-// {
-//     fn serialize(&self) -> serial::Result {
-//         read_part(&self.apex, |apex| apex.serialize())
-//     }
-// }
-
 impl<U> ToPloy for Agent<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
@@ -278,53 +269,3 @@ impl AdaptInner for Box<dyn Engage> {
         self.as_ref().adapt(post)
     }
 }
-
-// impl SerializeGraph for Box<dyn Engage> {
-//     fn serialize(&self) -> serial::Result {
-//         self.as_ref().serialize()
-//     }
-// }
-
-// impl<A> Serialize for Edge<A>
-// where
-//     A: Serialize
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         read_part(&self.apex, |apex| apex.serialize(serializer))
-//     }
-// }
-
-// impl<N> SerializeGraph for Edge<N>
-// where
-//     N: 'static + SerializeGraph + DoUpdate,
-// {
-//     fn serialize(&self) -> serial::Result {
-//         read_part(&self.apex, |apex| {
-//             apex.serialize()
-//         })
-//     }
-// }
-
-// impl Serialize for Box<dyn Engage>
-// // where
-// //     W: Serialize
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         self.as_ref().serialize(serializer)
-//         // self.work.serialize(serializer)
-//     }
-// }
-
-// impl<N> Write for Edge<N>
-// where
-//     N: DoWrite,
-// {
-//     type Item = N::Item;
-//     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> T {
-//         write_part(&self.apex, |mut apex| apex.do_write(write))
-//     }
-// }
