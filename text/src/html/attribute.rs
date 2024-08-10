@@ -51,6 +51,7 @@ impl Solve for Attribute {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
+            Task::Serial => self.serial(),
             _ => did_not_solve(),
         }
     }

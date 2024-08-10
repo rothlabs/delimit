@@ -28,7 +28,7 @@ pub struct Link<E> {
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     /// TODO: rename to Path
-    meta: Path,
+    path: Path,
     rank: Option<usize>,
 }
 
@@ -44,13 +44,13 @@ impl<E> Serialize for Link<E> {
         S: serde::Serializer,
     {
         // read_part(&self.edge, |edge| edge.serialize(serializer))
-        self.meta.serialize(serializer)
+        self.path.serialize(serializer)
     }
 }
 
 impl<E> Link<E> {
     pub fn meta(&self) -> Path {
-        self.meta.clone()
+        self.path.clone()
     }
     pub fn rank(&self) -> Option<usize> {
         self.rank
@@ -58,7 +58,7 @@ impl<E> Link<E> {
     pub fn ranked(&self, rank: usize) -> Self {
         Self {
             edge: self.edge.clone(),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: Some(rank),
         }
     }
@@ -83,7 +83,7 @@ where
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            meta: Path::new(),
+            path: Path::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -100,7 +100,7 @@ where
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            meta: Path::new(),
+            path: Path::new(),
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -149,7 +149,7 @@ where
     pub fn ploy(&self) -> Ploy {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: self.rank,
         })
     }
@@ -159,7 +159,7 @@ impl<E> Clone for Link<E> {
     fn clone(&self) -> Self {
         Self {
             edge: self.edge.clone(),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: self.rank,
         }
     }
@@ -168,7 +168,7 @@ impl<E> Clone for Link<E> {
 impl<E> PartialEq for Link<E> {
     #[cfg(not(feature = "oneThread"))]
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path
     }
     #[cfg(feature = "oneThread")]
     fn eq(&self, other: &Self) -> bool {
@@ -186,7 +186,7 @@ where
         let edge = self.edge.read().expect(NO_POISON);
         Self {
             edge: Arc::new(RwLock::new(edge.backed(back))),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: self.rank,
         }
     }
@@ -276,7 +276,7 @@ impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: self.rank,
         })
     }

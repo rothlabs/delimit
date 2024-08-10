@@ -1,5 +1,4 @@
 use node::TradeNode;
-
 use super::*;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -69,6 +68,7 @@ impl Solve for List {
         match task {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
+            Task::Serial => self.serial(),
             _ => did_not_solve(),
         }
     }

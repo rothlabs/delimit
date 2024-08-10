@@ -25,7 +25,7 @@ use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
-use std::{error, fmt};
+use std::{error, fmt::Debug};
 
 pub mod adapt;
 pub mod node;
@@ -88,7 +88,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// Edge that grants a load. It can also clone the edge with a new back.
-pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + fmt::Debug {}
+pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -96,15 +96,29 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + fmt::Debug + SendSync {
+pub trait DeserializeNode: DynClone + Debug + SendSync {
     fn deserialize(&self, string: &str) -> Result<Node, Error>;
 }
 
 dyn_clone::clone_trait_object!(Trade);
 /// Trade a node for another. The implmentation should return the same semantic node with different graph qualities.
-pub trait Trade: DynClone + fmt::Debug {
+pub trait Trade: DynClone + Debug {
     /// Trade a node for another.
     fn trade(&self, node: &Node) -> Node;
+}
+
+pub trait ToSerial {
+    fn serial(&self) -> solve::Result;
+}
+
+impl<T> ToSerial for T
+where 
+    T: Serialize
+{
+    /// Convert to a string.
+    fn serial(&self) -> solve::Result {
+        Ok(Tray::String(serde_json::to_string(self)?))
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -153,7 +167,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Adapt + Serialize + fmt::Debug + SendSync,
+    T: 'static + ToAgent + Solve + Adapt + Serialize + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -162,7 +176,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Adapt + Serialize + fmt::Debug + SendSync,
+    T: 'static + Solve + Adapt + Serialize + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

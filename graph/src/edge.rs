@@ -92,7 +92,7 @@ where
     }
 }
 
-impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + fmt::Debug + SendSync {}
+impl<U> Engage for Agent<U> where U: 'static + Adapt + Solve + Debug + SendSync {}
 
 // impl<U> SerializeGraph for Agent<U>
 // where
@@ -105,7 +105,7 @@ impl<U> Engage for Agent<U> where U: 'static + Solve + Adapt + Serialize + fmt::
 
 impl<U> ToPloy for Agent<U>
 where
-    U: 'static + Solve + Adapt + Serialize + fmt::Debug + SendSync,
+    U: 'static + Solve + Adapt + Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyEdge {
@@ -125,7 +125,7 @@ where
 
 impl<U> BackedPloy for Agent<U>
 where
-    U: 'static + Solve + Adapt + Serialize + fmt::Debug + SendSync,
+    U: 'static + Solve + Adapt + Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed_ploy(&self, back: &Back) -> PloyEdge {
