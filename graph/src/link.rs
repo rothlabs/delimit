@@ -172,7 +172,7 @@ impl<E> PartialEq for Link<E> {
     }
     #[cfg(feature = "oneThread")]
     fn eq(&self, other: &Self) -> bool {
-        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.meta == other.meta
+        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path
     }
 }
 
@@ -195,7 +195,7 @@ where
         let edge = self.edge.borrow();
         Self {
             edge: Rc::new(RefCell::new(edge.backed(back))),
-            meta: self.meta.clone(),
+            path: self.path.clone(),
             rank: self.rank,
         }
     }
