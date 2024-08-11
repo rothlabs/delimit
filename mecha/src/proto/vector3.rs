@@ -1,30 +1,26 @@
 use super::*;
 
-pub struct Vector3<N> {
-    pub x: N,
-    pub y: N,
-    pub z: N,
+pub struct Vector3 {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
-impl<N> Vector3<N> 
-where 
-    N: Number
-{
-    pub fn new(vector: &[N]) -> Self {
+impl Vector3 {
+    pub fn new(vector: &[f64]) -> Self {
         Self {
             x: vector[0],
             y: vector[1],
             z: vector[2],
         }
     }
-    pub fn interpolate(&self, rhs: &Self, u: N) -> Self {
-        &(self * (1. as N - u)) + &(rhs * u)
+    pub fn interpolate(&self, rhs: &Self, u: f64) -> Self {
+        &(self * (1. - u)) + &(rhs * u)
     }
-    //pub fn zero() -> 
 }
 
-impl<N: Number> Add for &Vector3<N> {
-    type Output = Vector3<N>;
+impl Add for &Vector3 {
+    type Output = Vector3;
     fn add(self, rhs: Self) -> Self::Output {
         Vector3 {
             x: self.x + rhs.x,
@@ -34,8 +30,8 @@ impl<N: Number> Add for &Vector3<N> {
     }
 }
 
-impl<N: Number> Sub for &Vector3<N> {
-    type Output = Vector3<N>;
+impl Sub for &Vector3 {
+    type Output = Vector3;
     fn sub(self, rhs: Self) -> Self::Output {
         Vector3 {
             x: self.x - rhs.x,
@@ -45,9 +41,9 @@ impl<N: Number> Sub for &Vector3<N> {
     }
 }
 
-impl<N: Number> Mul<N> for &Vector3<N> {
-    type Output = Vector3<N>;
-    fn mul(self, rhs: N) -> Self::Output {
+impl Mul<f64> for &Vector3 {
+    type Output = Vector3;
+    fn mul(self, rhs: f64) -> Self::Output {
         Vector3 {
             x: self.x * rhs,
             y: self.y * rhs,
