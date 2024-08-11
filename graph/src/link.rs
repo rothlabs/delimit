@@ -67,6 +67,12 @@ where
             _ => Err("not Tray::Node".into()),
         }
     }
+    // pub fn serial(&self) -> serial::Result {
+    //     match self.solve(Task::Serial)? {
+    //         Tray::String(string) => Ok(string),
+    //         _ => Err("not Tray::String".into()),
+    //     }
+    // }
 }
 
 impl<E> Link<E>
@@ -76,7 +82,7 @@ where
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            path: Path::new(),
+            path: Path::None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -93,7 +99,7 @@ where
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            path: Path::new(),
+            path: Path::None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),

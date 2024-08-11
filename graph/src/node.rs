@@ -24,15 +24,17 @@ impl Node {
             _ => Err("not ploy".into()),
         }
     }
+    pub fn lake(&self) -> lake::Result {
+        let mut lake = Lake::new();
+        lake.root(self.serial()?);
+        Ok(lake)
+    }
     pub fn serial(&self) -> serial::Result {
         match self.solve(Task::Serial)? {
             Tray::String(string) => Ok(string),
             _ => Err("not serialized".into()),
         }
     }
-    // pub fn export(&self) -> result::Result<Lake, Error> {
-
-    // }
     pub fn path(&self) -> Path {
         match self {
             Self::Load(load) => load.path(),

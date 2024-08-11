@@ -15,6 +15,7 @@ pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, T
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use lake::Lake;
 
 use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
@@ -32,6 +33,7 @@ pub mod node;
 pub mod react;
 pub mod serial;
 pub mod solve;
+pub mod lake;
 
 mod apex;
 mod bay;

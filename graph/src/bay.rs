@@ -29,11 +29,11 @@ impl Bay {
         self.deserializer = Some(deserial);
         self
     }
-    fn extend(&mut self, nodes: Vec<Node>) -> adapt::Result {
-        for node in nodes {
-            let meta = node.path();
-            self.nodes.insert(meta.keys[0].clone(), node);
-        }
+    fn extend(&mut self, _: Vec<Node>) -> adapt::Result {
+        // for node in nodes {
+        //     let meta = node.path();
+        //     self.nodes.insert(meta.keys[0].clone(), node);
+        // }
         Ok(Gain::None)
     }
     fn stems(&self) -> solve::Result {

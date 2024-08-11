@@ -15,29 +15,26 @@ pub type Key = String;
 /// Path to node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 // #[serde(rename_all = "PascalCase")]
-pub struct Path {
-    root: Root,
+pub enum Path {
+    None,
+    Base(Key),
+    World(Vec<Key>),
+    Local(Vec<Key>),
+    Upper(Upper), 
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+pub struct Upper {
+    rank: usize,
     pub keys: Vec<Key>,
 }
 
-impl Path {
+impl Upper {
     pub fn new() -> Self {
         Self {
-            root: Root::Lake,
+            rank: 0,
             keys: vec![random()],
         }
-    }
-    pub fn none() -> Self {
-        Self {
-            root: Root::Lake,
-            keys: vec!["".into()],
-        }
-    }
-}
-
-impl Default for Path {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -45,11 +42,23 @@ pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
-enum Root {
-    Lake,
-    Up(usize),
-}
+// impl Path {
+//     pub fn new() -> Self {
+//         Self::default()
+//     }
+// }
+
+// impl Default for Path {
+//     fn default() -> Self {
+//         Self::None
+//     }
+// }
+
+// impl Default for Path {
+//     fn default() -> Self {
+//         Self::new()
+//     }
+// }
 
 // pub fn id(&self) -> &String {
 //     &self.id

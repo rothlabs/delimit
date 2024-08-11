@@ -34,7 +34,7 @@ impl Load {
     pub fn path(&self) -> Path {
         match self {
             Self::Path(path) => path.clone(),
-            _ => Path::new(),
+            _ => Path::None,
         }
     }
 }
