@@ -1,9 +1,7 @@
+pub use mesh::*;
 pub use proto::*;
 
-// use graph::*;
-// use part::Part;
+use graph::*;
 
-// pub mod array;
-pub mod part;
+pub mod mesh;
 pub mod proto;
-pub mod repo;
