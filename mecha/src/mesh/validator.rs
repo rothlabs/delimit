@@ -6,7 +6,7 @@ use super::*;
 #[derive(Default, Clone, Debug)]
 pub struct Validator {
     /// Expect non-indexed single-attribute of XYZ position.
-    vector: Node,
+    mesh: Node,
     /// Distance threshold for hit/miss
     tolerance: Node,
 }
@@ -16,7 +16,7 @@ impl Validator {
         Self::default()
     }
     pub fn vector(&mut self, vector: impl Into<Node>) -> &mut Self {
-        self.vector = vector.into();
+        self.mesh = vector.into();
         self
     } 
     pub fn tolerance(&mut self, tolerance: impl Into<Node>) -> &mut Self {
@@ -24,12 +24,14 @@ impl Validator {
         self
     } 
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.vector = self.vector.trade(trade);
+        self.mesh = self.mesh.trade(trade);
         self.tolerance = self.tolerance.trade(trade);
         Ok(Gain::None)
     }
     fn main(&self) -> solve::Result {
-        
+        let triangles = self.mesh.vec_f64().windows(9).step_by(9).map(|points| {
+            Triangle::new(&points)
+        });
         Ok(Tray::None)
     }
 }

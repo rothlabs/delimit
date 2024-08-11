@@ -17,7 +17,10 @@ where
             c: Vector3::new(&points[6..])
         }
     }
-    pub fn plot(&self, u: f64, v: f64) {
-        //let point = (&self.a + &self.b) * ;
+    pub fn plot(&self, u: f64, v: f64) -> Plot<N> {
+        let point = self.a.interpolate(&self.b, u).interpolate(&self.c, v);
+        let velocity_u = &(&self.b - &self.a) * (1. - v);
+        let velocity_v = (&self.c - &self.a).interpolate(&(&self.c - &self.b), u);
+        Plot {point, velocity_u, velocity_v}
     }
 }

@@ -133,6 +133,18 @@ impl Node {
             _ => 0,
         }
     }
+    pub fn vec_f32(&self) -> Vec<f32> {
+        match self.load() {
+            Ok(Load::Vf32(value)) => value,
+            _ => vec![],
+        }
+    }
+    pub fn vec_f64(&self) -> Vec<f64> {
+        match self.load() {
+            Ok(Load::Vf64(value)) => value,
+            _ => vec![],
+        }
+    }
 }
 
 impl Default for Node {
