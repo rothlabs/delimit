@@ -18,6 +18,7 @@ impl Node {
     pub fn none() -> Self {
         Self::default()
     }
+    /// Run main node function. Returns a new node at lower level.
     pub fn main(&self) -> Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
@@ -42,6 +43,7 @@ impl Node {
             Self::Ploy(ploy) => ploy.path(),
         }
     }
+    /// Solve graph down and clone out `Load` at lowest level
     pub fn load(&self) -> load::Result {
         match self {
             Self::Load(bare) => Ok(bare.clone()),
@@ -247,6 +249,12 @@ impl From<&str> for Node {
     }
 }
 
+impl From<String> for Node {
+    fn from(value: String) -> Self {
+        Node::Load(Load::String(value))
+    }
+}
+
 impl From<u32> for Node {
     fn from(value: u32) -> Self {
         Node::Load(Load::U32(value))
@@ -268,6 +276,12 @@ impl From<Vec<u8>> for Node {
 impl From<Vec<u16>> for Node {
     fn from(value: Vec<u16>) -> Self {
         Node::Leaf(Leaf::new(Load::Vu16(value)))
+    }
+}
+
+impl From<f64> for Node {
+    fn from(value: f64) -> Self {
+        Node::Leaf(Leaf::new(Load::F64(value)))
     }
 }
 

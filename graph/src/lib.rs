@@ -169,7 +169,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Adapt + Serialize + Debug + SendSync,
+    T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -178,7 +178,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Adapt + Serialize + Debug + SendSync,
+    T: 'static + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()

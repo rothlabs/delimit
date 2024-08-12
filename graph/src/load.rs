@@ -40,11 +40,12 @@ impl Load {
 }
 
 pub trait IntoLoad {
-    fn into_load(self) -> Load;
+    /// Put the value in the Load enum so it can be placed in Nodes.
+    fn load(self) -> Load;
 }
 
 impl IntoLoad for Vec<f64> {
-    fn into_load(self) -> Load {
+    fn load(self) -> Load {
         Load::Vf64(self)
     }
 }

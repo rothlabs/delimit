@@ -29,14 +29,14 @@ pub struct Upper {
     pub keys: Vec<Key>,
 }
 
-impl Upper {
-    pub fn new() -> Self {
-        Self {
-            rank: 0,
-            keys: vec![random()],
-        }
-    }
-}
+// impl Upper {
+//     pub fn new() -> Self {
+//         Self {
+//             rank: 0,
+//             keys: vec![random()],
+//         }
+//     }
+// }
 
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)

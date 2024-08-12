@@ -26,6 +26,6 @@ where
     T: IntoLoad,
 {
     fn leaf(self) -> Leaf {
-        Leaf::new(self.into_load())
+        Leaf::new(self.load())
     }
 }
