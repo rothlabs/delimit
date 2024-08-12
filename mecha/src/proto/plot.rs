@@ -1,3 +1,5 @@
+use std::f64::EPSILON;
+
 use super::*;
 
 /// Parametric surface plot
@@ -18,4 +20,12 @@ impl Param {
     pub fn new(u: f64, v: f64) -> Self {
         Self { u, v }
     }
+    pub fn on_edge(&self) -> bool {
+        self.u < EPSILON || self.u > 1. - EPSILON || self.v < EPSILON || self.v > 1. - EPSILON
+        // let tol = 0.00001;
+        // self.u < tol || self.u > 1. - tol || self.v < tol || self.v > 1. - tol
+        // false
+    }
 }
+
+// self.u < EPSILON || self.u > 1. - EPSILON || self.v < EPSILON || self.v > 1. - EPSILON

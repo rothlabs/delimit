@@ -1,20 +1,23 @@
-use regex::Regex;
 use super::*;
-use std::{
-    fs::{self, File},
-    io::BufReader,
-};
+use regex::Regex;
+use std::fs;
 
-/// Mesh import.
+/// STL mesh import.
 #[derive(Default, Clone, Debug)]
 pub struct Import {
-    /// Expect file system path String
+    /// Expect file system path String of stl file.
     path: Node,
 }
 
 impl Import {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Set import path
+    pub fn path(&mut self, path: impl Into<Node>) -> &mut Self {
+        self.path = path.into();
+        self
     }
 
     /// Trade nodes for others with same semantics and different graph properties
@@ -27,12 +30,27 @@ impl Import {
     fn main(&self) -> solve::Result {
         let path = self.path.string()?;
         let data = fs::read_to_string(path)?;
-        let re = Regex::new(r"vertex (-?[0-9]\d*(\.\d+)?) (-?[0-9]\d*(\.\d+)?) (-?[0-9]\d*(\.\d+)?)")?;
+        let re = Regex::new(r"vertex (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
         let mut mesh = vec![];
-        for (_, [x, y, z]) in re.captures_iter(&data).map(|c| c.extract()) {
-            mesh.push(x.parse::<f64>()?);
-            mesh.push(y.parse::<f64>()?);
-            mesh.push(z.parse::<f64>()?);
+        for caps in re.captures_iter(&data) {
+            mesh.push(
+                caps.get(1)
+                    .ok_or("import failed")?
+                    .as_str()
+                    .parse::<f64>()?,
+            );
+            mesh.push(
+                caps.get(2)
+                    .ok_or("import failed")?
+                    .as_str()
+                    .parse::<f64>()?,
+            );
+            mesh.push(
+                caps.get(3)
+                    .ok_or("import failed")?
+                    .as_str()
+                    .parse::<f64>()?,
+            );
         }
         Ok(mesh.leaf().node().tray())
     }

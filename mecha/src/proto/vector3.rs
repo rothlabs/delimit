@@ -1,4 +1,4 @@
-use std::ops::*;
+use std::{f64::EPSILON, ops::*};
 
 /// 3D Vector
 #[derive(PartialEq)]
@@ -17,6 +17,11 @@ impl Vector3 {
         }
     }
 
+    /// True if one or more components are NaN.
+    pub fn is_nan(&self) -> bool {
+        self.x.is_nan() || self.y.is_nan() || self.z.is_nan()
+    }
+
     /// Also known as vector magnitude
     pub fn length(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
@@ -27,13 +32,18 @@ impl Vector3 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
-    /// New vector normalized to unit length of 1
-    pub fn normalized(&self) -> Self {
+    /// New vector normalized to unit length of 1.
+    /// Returns None if original length is too small.
+    pub fn normalized(&self) -> Option<Self> {
         let length = self.length();
-        Self {
-            x: self.x / length,
-            y: self.y / length,
-            z: self.z / length,
+        if length > 0.00001 {
+            Some(Self {
+                x: self.x / length,
+                y: self.y / length,
+                z: self.z / length,
+            })
+        } else {
+            None
         }
     }
 

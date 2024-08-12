@@ -18,7 +18,7 @@ impl Validate {
     }
 
     /// Set source mesh vector
-    pub fn vector(&mut self, vector: impl Into<Node>) -> &mut Self {
+    pub fn mesh(&mut self, vector: impl Into<Node>) -> &mut Self {
         self.mesh = vector.into();
         self
     }
@@ -39,28 +39,26 @@ impl Validate {
     /// Validator main function
     fn main(&self) -> solve::Result {
         self.mesh.read_vf64(|source| {
-            let mesh = self.mesh(source);
+            let mesh = self.mesh_with_go_no_go(source);
             Ok(mesh.leaf().node().tray())
         })
     }
 
     /// Parametric triangles from mesh source vector
-    fn triangles(&self, source: &Vec<f64>) -> Vec<Triangle> {
-        source
-            .windows(9)
-            .step_by(9)
-            .map(|points| Triangle::new(&points))
-            .collect()
+    fn triangles(&self, source: &[f64]) -> Vec<Triangle> {
+        // 3 vector components by 3 points equals 9 values to make triangle
+        source.windows(9).step_by(9).map(Triangle::new).collect()
     }
 
     /// Make go/no-go mesh vector
-    fn mesh(&self, source: &Vec<f64>) -> Vec<f64> {
+    fn mesh_with_go_no_go(&self, source: &[f64]) -> Vec<f64> {
         let triangles = self.triangles(source);
         let mut mesh = vec![];
         for (i, tri_a) in triangles.iter().enumerate() {
-            mesh.extend(&source[i..i + 9]);
+            // copy position attribute
+            mesh.extend(&source[i * 9..(i * 9 + 9)]);
             let intersects = self.intersects(tri_a, &triangles);
-            self.go_no_go(&mut mesh, intersects);
+            self.push_go_no_go(&mut mesh, intersects);
         }
         mesh
     }
@@ -79,11 +77,12 @@ impl Validate {
     }
 
     /// Push go/no-go attribute element to mesh vector
-    fn go_no_go(&self, mesh: &mut Vec<f64>, intersects: HashSet<Intersection>) {
+    fn push_go_no_go(&self, mesh: &mut Vec<f64>, intersects: HashSet<Intersection>) {
+        // Push 1.0 (Go) if triangle intersects with only 3 others on the edge and no crossings
         if intersects.len() == 3 && !intersects.contains(&Intersection::Other) {
-            mesh.push(1.);
+            mesh.push(1.0);
         } else {
-            mesh.push(0.);
+            mesh.push(0.0);
         }
     }
 }
