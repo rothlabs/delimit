@@ -115,6 +115,12 @@ impl Node {
             _ => read(&vec![]),
         })
     }
+    pub fn read_vf64<T, F: FnOnce(&Vec<f64>) -> T>(&self, read: F) -> T {
+        self.read(|load| match load {
+            Ok(Load::Vf64(value)) => read(value),
+            _ => read(&vec![]),
+        })
+    }
     pub fn string(&self) -> result::Result<String, Error> {
         match self.load() {
             Ok(Load::String(value)) => Ok(value),
@@ -133,16 +139,10 @@ impl Node {
             _ => 0,
         }
     }
-    pub fn vec_f32(&self) -> Vec<f32> {
+    pub fn f64(&self) -> f64 {
         match self.load() {
-            Ok(Load::Vf32(value)) => value,
-            _ => vec![],
-        }
-    }
-    pub fn vec_f64(&self) -> Vec<f64> {
-        match self.load() {
-            Ok(Load::Vf64(value)) => value,
-            _ => vec![],
+            Ok(Load::F64(value)) => value,
+            _ => 0.,
         }
     }
 }
@@ -350,17 +350,16 @@ impl<'de> Deserialize<'de> for Node {
 //     Vf64,
 // }
 
-
 // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-    //     if serial.contains(&self.meta()) {
-    //         return Ok(());
-    //     }
-    //     match self {
-    //         Self::Leaf(leaf) => leaf.serial(serial),
-    //         Self::Ploy(ploy) => ploy.serial(serial),
-    //         _ => Ok(()),
-    //     }
-    // }
+//     if serial.contains(&self.meta()) {
+//         return Ok(());
+//     }
+//     match self {
+//         Self::Leaf(leaf) => leaf.serial(serial),
+//         Self::Ploy(ploy) => ploy.serial(serial),
+//         _ => Ok(()),
+//     }
+// }
 
 // fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
 // where

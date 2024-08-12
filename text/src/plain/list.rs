@@ -1,5 +1,5 @@
-use node::TradeNode;
 use super::*;
+use node::TradeNode;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct List {

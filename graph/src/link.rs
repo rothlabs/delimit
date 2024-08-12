@@ -1,4 +1,4 @@
-pub use leaf::ToLeaf;
+pub use leaf::{IntoLeaf, ToLeaf};
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]

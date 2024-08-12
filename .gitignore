@@ -4,3 +4,5 @@ target/
 **/config.rs
 
 storage/
+
+test_data/

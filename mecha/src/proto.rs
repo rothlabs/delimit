@@ -1,9 +1,9 @@
-pub use vector3::*;
-pub use triangle::*;
 pub use plot::*;
+pub use triangle::*;
+pub use vector3::*;
 
 use std::ops::*;
 
-mod vector3;
-mod triangle;
 mod plot;
+mod triangle;
+mod vector3;

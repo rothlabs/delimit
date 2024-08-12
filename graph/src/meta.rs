@@ -20,7 +20,7 @@ pub enum Path {
     Base(Key),
     World(Vec<Key>),
     Local(Vec<Key>),
-    Upper(Upper), 
+    Upper(Upper),
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
