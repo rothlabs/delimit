@@ -1,7 +1,7 @@
 use super::*;
 
 /// Parametric surface plot
-/// UV vectors are velocity or derivative by respective param UV. 
+/// UV vectors are velocity or derivative by respective param UV.
 pub struct Plot {
     pub point: Vector3,
     pub vector_u: Vector3,

@@ -1,4 +1,4 @@
-use super::*;
+use std::ops::*;
 
 /// 3D Vector
 #[derive(PartialEq)]
@@ -16,15 +16,18 @@ impl Vector3 {
             z: vector[2],
         }
     }
-    /// Also known as vector magnitude 
+
+    /// Also known as vector magnitude
     pub fn length(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
+
     /// Vector dot product
     pub fn dot(&self, rhs: &Self) -> f64 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
-    /// Make new vector normalized to unit length of 1
+
+    /// New vector normalized to unit length of 1
     pub fn normalized(&self) -> Self {
         let length = self.length();
         Self {
@@ -33,7 +36,8 @@ impl Vector3 {
             z: self.z / length,
         }
     }
-    /// Interpolate from self to other Vector3 by U.
+
+    /// New vector interpolated from self to `rhs` by param U.
     pub fn lerp(&self, rhs: &Self, u: f64) -> Self {
         &(self * (1. - u)) + &(rhs * u)
     }

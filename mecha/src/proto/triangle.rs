@@ -1,6 +1,8 @@
 use super::*;
 
-/// Parametric triangle 
+/// Parametric triangle. 
+/// Use the `plot` method to get a point and derivative vectors from UV params.
+/// The `intersect` method gives an intersection type with other triangle if any.
 #[derive(PartialEq)]
 pub struct Triangle {
     a: Vector3,
@@ -16,6 +18,7 @@ impl Triangle {
             c: Vector3::new(&points[6..]),
         }
     }
+
     /// Find intersection with other triangle
     pub fn intersect(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
         let edge = self.intersect_edge(rhs, tol);
@@ -25,6 +28,7 @@ impl Triangle {
             self.intersect_other(rhs, tol)
         }
     }
+
     /// Find intersection along edge with other triangle
     fn intersect_edge(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
         // AB
@@ -51,6 +55,7 @@ impl Triangle {
         }
         None
     }
+
     /// Find any intersection besides edge intersections
     fn intersect_other(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
         let mut param_a = Param::new(0.5, 0.5);
@@ -65,6 +70,7 @@ impl Triangle {
             None
         }
     }
+
     /// New param adjusted so the plot is closer to target
     fn hone(&self, param: &Param, target: &Vector3) -> Param {
         let plot = self.plot(param);
@@ -78,6 +84,7 @@ impl Triangle {
             v: (param.v + proj_v / plot.vector_v.length()).min(0.).max(1.),
         }
     }
+
     /// New plot from param UV
     fn plot(&self, param: &Param) -> Plot {
         let point = self.a.lerp(&self.b, param.u).lerp(&self.c, param.v);

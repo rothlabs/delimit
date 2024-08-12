@@ -1,41 +1,49 @@
 use super::*;
 use std::collections::HashSet;
 
-/// Mesh validation. Produces new mesh with go/no-go attribute.
-/// "Go" means the triangle intersections with exactly three trianlges along their edges with same winding.
-/// "No-go" means the triangle intersections in some other way such as a crossing in the middle.
+/// Mesh validation. Produce new mesh with go/no-go attribute.
+/// "Go" means the triangle intersects with exactly three trianlges along their edges with same winding.
+/// "No-go" means the triangle intersects in some other way like crossing in the middle.
 #[derive(Default, Clone, Debug)]
-pub struct Validator {
-    /// Expect non-indexed single-attribute of XYZ position.
+pub struct Validate {
+    /// Expect non-indexed single-attribute of XYZ position (Vec<f64>).
     mesh: Node,
-    /// Distance threshold for hit/miss of intersection tests
+    /// Distance threshold for intersection tests
     tolerance: Node,
 }
 
-impl Validator {
+impl Validate {
     pub fn new() -> Self {
         Self::default()
     }
+
+    /// Set source mesh vector
     pub fn vector(&mut self, vector: impl Into<Node>) -> &mut Self {
         self.mesh = vector.into();
         self
     }
+
+    /// Set intersection threshold
     pub fn tolerance(&mut self, tolerance: impl Into<Node>) -> &mut Self {
         self.tolerance = tolerance.into();
         self
     }
+
+    /// Trade nodes for others with same semantics and different graph properties
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
         self.mesh = self.mesh.trade(trade);
         self.tolerance = self.tolerance.trade(trade);
         Ok(Gain::None)
     }
-    /// Validator main function 
+
+    /// Validator main function
     fn main(&self) -> solve::Result {
         self.mesh.read_vf64(|source| {
             let mesh = self.mesh(source);
             Ok(mesh.leaf().node().tray())
         })
     }
+
     /// Parametric triangles from mesh source vector
     fn triangles(&self, source: &Vec<f64>) -> Vec<Triangle> {
         source
@@ -44,6 +52,7 @@ impl Validator {
             .map(|points| Triangle::new(&points))
             .collect()
     }
+
     /// Make go/no-go mesh vector
     fn mesh(&self, source: &Vec<f64>) -> Vec<f64> {
         let triangles = self.triangles(source);
@@ -55,7 +64,8 @@ impl Validator {
         }
         mesh
     }
-    /// Find intersection hash set by comparing with other triangles
+
+    /// Find intersection type hash set by comparing with other triangles
     fn intersects(&self, tri_a: &Triangle, triangles: &Vec<Triangle>) -> HashSet<Intersection> {
         let mut intersects = HashSet::new();
         for tri_b in triangles {
@@ -67,6 +77,7 @@ impl Validator {
         }
         intersects
     }
+
     /// Push go/no-go attribute element to mesh vector
     fn go_no_go(&self, mesh: &mut Vec<f64>, intersects: HashSet<Intersection>) {
         if intersects.len() == 3 && !intersects.contains(&Intersection::Other) {
@@ -77,7 +88,8 @@ impl Validator {
     }
 }
 
-impl Adapt for Validator {
+impl Adapt for Validate {
+    /// Mutate node by Post options
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(trade) => self.trade(trade.as_ref()),
@@ -86,7 +98,8 @@ impl Adapt for Validator {
     }
 }
 
-impl Solve for Validator {
+impl Solve for Validate {
+    /// Solve node by Task options
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),

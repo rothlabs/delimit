@@ -13,8 +13,3 @@ edition = "2021"
     # graph
         graph = { path = "../graph" }
         text = { path = "../text" }
-
-
-
-        # itertools
-            # itertools = "0.13.0"
