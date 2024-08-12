@@ -1,7 +1,7 @@
 use std::{f64::EPSILON, ops::*};
 
 /// 3D Vector
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,

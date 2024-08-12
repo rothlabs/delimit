@@ -54,22 +54,26 @@ impl Validate {
     fn mesh_with_go_no_go(&self, source: &[f64]) -> Vec<f64> {
         let triangles = self.triangles(source);
         let mut mesh = vec![];
-        for (i, tri_a) in triangles.iter().enumerate() {
+        let mut hit_points = vec![];
+        for (j, tri_a) in triangles.iter().enumerate() {
             // copy position attribute
-            mesh.extend(&source[i * 9..(i * 9 + 9)]);
-            let intersects = self.intersects(tri_a, &triangles);
+            mesh.extend(&source[j * 9..(j * 9 + 9)]);
+            let intersects = self.intersects(j, tri_a, &triangles, &mut hit_points);
             self.push_go_no_go(&mut mesh, intersects);
         }
+        // hit_points
         mesh
     }
 
     /// Find intersection type hash set by comparing with other triangles
-    fn intersects(&self, tri_a: &Triangle, triangles: &Vec<Triangle>) -> HashSet<Intersection> {
+    fn intersects(&self, j: usize, tri_a: &Triangle, triangles: &Vec<Triangle>, hit_points: &mut Vec<f64>) -> HashSet<Intersection> {
         let mut intersects = HashSet::new();
-        for tri_b in triangles {
-            if tri_a != tri_b {
+        for (k, tri_b) in triangles.iter().enumerate() {
+            if j != k {
                 if let Some(intersect) = tri_a.intersect(tri_b, self.tolerance.f64()) {
-                    intersects.insert(intersect);
+                    intersects.insert(intersect.0);
+                    hit_points.extend(&[intersect.1.x, intersect.1.y, intersect.1.z]);
+                    hit_points.extend(&[intersect.2.x, intersect.2.y, intersect.2.z]);
                 }
             }
         }

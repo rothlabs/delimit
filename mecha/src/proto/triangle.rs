@@ -22,7 +22,7 @@ impl Triangle {
     }
 
     /// Find intersection with other triangle
-    pub fn intersect(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
+    pub fn intersect(&self, rhs: &Self, tol: f64) -> Option<(Intersection, Vector3, Vector3)> {
         let edge = self.intersect_edge(rhs, tol);
         if edge.is_some() {
             edge
@@ -32,38 +32,38 @@ impl Triangle {
     }
 
     /// Find intersection along edge with other triangle
-    fn intersect_edge(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
+    fn intersect_edge(&self, rhs: &Self, tol: f64) -> Option<(Intersection, Vector3, Vector3)> {
         // AB
         if ((&self.a - &rhs.a).length() < tol && (&self.b - &rhs.c).length() < tol)
             || ((&self.a - &rhs.b).length() < tol && (&self.b - &rhs.a).length() < tol)
             || ((&self.a - &rhs.c).length() < tol && (&self.b - &rhs.b).length() < tol)
         {
-            return Some(Intersection::AB);
+            return Some((Intersection::AB, self.a.clone(), self.b.clone()));
         // AC
         } else if ((&self.a - &rhs.a).length() < tol && (&self.c - &rhs.b).length() < tol)
             || ((&self.a - &rhs.b).length() < tol && (&self.c - &rhs.c).length() < tol)
             || ((&self.a - &rhs.c).length() < tol && (&self.c - &rhs.a).length() < tol)
         {
-            return Some(Intersection::AC);
+            return Some((Intersection::AC, self.a.clone(), self.c.clone()));
         // BC
         } else if ((&self.b - &rhs.a).length() < tol && (&self.c - &rhs.c).length() < tol)
             || ((&self.b - &rhs.b).length() < tol && (&self.c - &rhs.a).length() < tol)
             || ((&self.b - &rhs.c).length() < tol && (&self.c - &rhs.b).length() < tol)
         {
-            return Some(Intersection::BC);
+            return Some((Intersection::BC, self.b.clone(), self.c.clone()));
         }
         None
     }
 
     /// Find any intersection besides edge intersections
-    fn intersect_other(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
+    fn intersect_other(&self, rhs: &Self, tol: f64) -> Option<(Intersection, Vector3, Vector3)> {
         // setup point A at center of self
         let mut param_a = Param::new(0.5, 0.5);
         let mut point_a = self.plot(&param_a).point;
         // setup point B at center of rhs and hone to A
         let mut param_b = rhs.hone(&Param::new(0.5, 0.5), &point_a);
         let mut point_b = rhs.plot(&param_b).point;
-        for _ in 0..10 {
+        for _ in 0..20 {
             // hone A to B
             param_a = self.hone(&param_a, &point_b);
             point_a = self.plot(&param_a).point;
@@ -80,7 +80,7 @@ impl Triangle {
             // Two triangles could touch incorrectly at edges but we won't catch that here
             // and allow it to be caught in full crossing with other triangle
             if !param_a.on_edge() || !param_b.on_edge() {
-                return Some(Intersection::Other);
+                return Some((Intersection::Other, point_a, point_b));
             }
         }
         None

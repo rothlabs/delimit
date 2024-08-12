@@ -60,6 +60,7 @@ impl ValidationExport {
         let mut vertex_index = 1;
         let mut validation_index = 9;
         for d in mesh.windows(10).step_by(10) {
+        // for d in mesh.windows(9).step_by(9) {
             out += &format!("v {:.6} {:.6} {:.6}\n", d[0], d[1], d[2]);
             out += &format!("v {:.6} {:.6} {:.6}\n", d[3], d[4], d[5]);
             out += &format!("v {:.6} {:.6} {:.6}\n", d[6], d[7], d[8]);
