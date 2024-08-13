@@ -20,7 +20,7 @@ pub enum Path {
     Base(Key),
     World(Vec<Key>),
     Local(Vec<Key>),
-    Upper(Upper), 
+    Upper(Upper),
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
@@ -29,12 +29,18 @@ pub struct Upper {
     pub keys: Vec<Key>,
 }
 
-impl Upper {
-    pub fn new() -> Self {
+impl Default for Upper {
+    fn default() -> Self {
         Self {
             rank: 0,
             keys: vec![random()],
         }
+    }
+}
+
+impl Upper {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

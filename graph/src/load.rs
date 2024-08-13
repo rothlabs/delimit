@@ -5,7 +5,7 @@ use std::result;
 pub type Result = result::Result<Load, Error>;
 pub type ResultRef<'a> = result::Result<&'a Load, Error>;
 
-/// Terminating value. Used as field values in a node or payload of a leaf. 
+/// Terminating value. Used as field values in a node or payload of a leaf.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Load {

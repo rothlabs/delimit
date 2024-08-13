@@ -11,11 +11,11 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 // pub use serial::SerializeGraph;
+pub use lake::Lake;
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use lake::Lake;
 
 use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
@@ -29,11 +29,11 @@ use std::{
 use std::{error, fmt::Debug};
 
 pub mod adapt;
+pub mod lake;
 pub mod node;
 pub mod react;
 pub mod serial;
 pub mod solve;
-pub mod lake;
 
 mod apex;
 mod bay;
@@ -114,8 +114,8 @@ pub trait ToSerial {
 }
 
 impl<T> ToSerial for T
-where 
-    T: Serialize
+where
+    T: Serialize,
 {
     /// Convert to a string.
     fn serial(&self) -> solve::Result {

@@ -338,17 +338,16 @@ impl<'de> Deserialize<'de> for Node {
 //     Vf64,
 // }
 
-
 // pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-    //     if serial.contains(&self.meta()) {
-    //         return Ok(());
-    //     }
-    //     match self {
-    //         Self::Leaf(leaf) => leaf.serial(serial),
-    //         Self::Ploy(ploy) => ploy.serial(serial),
-    //         _ => Ok(()),
-    //     }
-    // }
+//     if serial.contains(&self.meta()) {
+//         return Ok(());
+//     }
+//     match self {
+//         Self::Leaf(leaf) => leaf.serial(serial),
+//         Self::Ploy(ploy) => ploy.serial(serial),
+//         _ => Ok(()),
+//     }
+// }
 
 // fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
 // where
