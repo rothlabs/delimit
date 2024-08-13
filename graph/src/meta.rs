@@ -29,24 +29,24 @@ pub struct Upper {
     pub keys: Vec<Key>,
 }
 
-impl Default for Upper {
-    fn default() -> Self {
-        Self {
-            rank: 0,
-            keys: vec![random()],
-        }
-    }
-}
-
-impl Upper {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
+
+// impl Default for Upper {
+//     fn default() -> Self {
+//         Self {
+//             rank: 0,
+//             keys: vec![random()],
+//         }
+//     }
+// }
+
+// impl Upper {
+//     pub fn new() -> Self {
+//         Self::default()
+//     }
+// }
 
 // impl Path {
 //     pub fn new() -> Self {
