@@ -1,5 +1,5 @@
 # Mecha
-Mecha (mechatronics) is a geometry processing crate. There are currently three nodes for importing STL files, validating the mesh, and exporting OBJ files with Go/No-Go material to be viewed in software like Blender.
+Mecha (mechatronics) is a geometry processing crate. There are currently three nodes for importing STL files, validating the mesh, and exporting OBJ files with Go/No-Go material to be viewed in software like Blender. See ```mesh/monkey_with_hole.jpg``` to see what the results look like.
 
 ## Documentation 
 Run ```cargo doc -p mecha --open``` to view the documentation.
