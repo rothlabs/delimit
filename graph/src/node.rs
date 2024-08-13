@@ -26,10 +26,7 @@ impl Node {
     }
     pub fn lake(&self) -> lake::Result {
         let mut lake = Lake::new();
-        lake.root(&self)?;
-        for node in &self.stems()? {
-            lake.insert(node)?;
-        }
+        lake.insert("root".into(), &self)?;
         Ok(lake)
     }
     pub fn digest(&self) -> result::Result<u64, Error> {

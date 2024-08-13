@@ -3,27 +3,50 @@ use std::{collections::HashMap, result};
 
 pub type Result = result::Result<Lake, Error>;
 
+/// Collection of serialized nodes. 
+/// Nodes are indexed by hash so they do not repeat.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
-    root: String,
-    serials: HashMap<u64, String>,
+    roots: HashMap<Key, String>,
+    nodes: HashMap<u64, String>,
 }
 
 impl Lake {
     pub fn new() -> Self {
         Self::default()
     }
-    /// Serialize the given node as the root of the lake. 
-    pub fn root(&mut self, node: &Node) -> adapt::Result {
-        self.root = node.serial()?;
+
+    /// Insert graph into lake given root key and node. 
+    pub fn insert(&mut self, key: Key, node: &Node) -> adapt::Result {
+        self.roots.insert(key, node.serial()?);
+        for node in &node.stems()? {
+            self.insert_stem(node)?;
+        }
         adapt_ok()
     }
-    /// Insert a node into the lake as hash-serial pair. 
-    pub fn insert(&mut self, node: &Node) -> adapt::Result {
-        self.serials.insert(node.digest()?, node.serial()?);
+
+    /// Insert stems recursively. 
+    fn insert_stem(&mut self, node: &Node) -> adapt::Result {
+        self.nodes.insert(node.digest()?, node.serial()?);
+        for node in &node.stems()? {
+            self.insert_stem(node)?;
+        }
         adapt_ok()
     }
 }
+
+
+// /// Serialize the given node as the root of the lake. 
+// pub fn root(&mut self, node: &Node) -> adapt::Result {
+//     self.root = node.serial()?;
+//     adapt_ok()
+// }
+// /// Insert a node into the lake as hash-serial pair. 
+// pub fn insert(&mut self, node: &Node) -> adapt::Result {
+//     self.nodes.insert(node.digest()?, node.serial()?);
+//     adapt_ok()
+// }
+
 
 
 // /// Set the root serial. 
