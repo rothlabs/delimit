@@ -57,22 +57,17 @@ impl Validate {
         for (j, tri_a) in triangles.iter().enumerate() {
             // copy position attribute
             mesh.extend(&source[j * 9..(j * 9 + 9)]);
-            let intersects = self.intersects(j, tri_a, &triangles);
+            let intersects = self.intersects(tri_a, &triangles);
             self.push_go_no_go(&mut mesh, intersects);
         }
         mesh
     }
 
     /// Find intersection type hash set by comparing with other triangles
-    fn intersects(
-        &self,
-        j: usize,
-        tri_a: &Triangle,
-        triangles: &[Triangle],
-    ) -> HashSet<Intersection> {
+    fn intersects(&self, tri_a: &Triangle, triangles: &[Triangle]) -> HashSet<Intersection> {
         let mut intersection_set = HashSet::new();
-        for (k, tri_b) in triangles.iter().enumerate() {
-            if j != k {
+        for tri_b in triangles {
+            if tri_a != tri_b {
                 if let Some(intersect) = tri_a.intersect(tri_b, self.tolerance.f64()) {
                     intersection_set.insert(intersect);
                 }
