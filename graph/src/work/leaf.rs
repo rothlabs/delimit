@@ -1,7 +1,7 @@
 use crate::*;
 
 /// Work that holds a load. The most simple work that allows read, write, and copy of the load.
-#[derive(Debug)]
+#[derive(Debug, Hash, Serialize)]
 pub struct Leaf {
     load: Load,
 }
@@ -47,8 +47,12 @@ impl DoReact for Leaf {
 }
 
 impl DoSolve for Leaf {
-    fn do_solve(&mut self, _: Task) -> solve::Result {
-        Ok(Tray::None)
+    fn do_solve(&mut self, task: Task) -> solve::Result {
+        match task {
+            Task::Serial => self.serial(),
+            Task::Hash => self.digest(),
+            _ => no_solver()
+        }
     }
 }
 
@@ -62,48 +66,11 @@ impl Clear for Leaf {
     fn clear(&mut self) {}
 }
 
-impl Serialize for Leaf {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.load.serialize(serializer)
-    }
-}
-
-// impl SerializeGraph for Leaf {
-//     fn serial(&self, serial: &mut Serial) -> serial::Result {
-//         self.load.serial(serial)
+// impl Serialize for Leaf {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.load.serialize(serializer)
 //     }
 // }
-
-// impl<L> DoGrant for Ace<L>
-// where
-//     L: Clone,
-// {
-//     type Load = L;
-//     fn do_grant(&mut self, _: &Back) -> Self::Load {
-//         self.load.clone()
-//     }
-// }
-
-// impl<L> Clear for Ace<L> {
-//     fn clear(&mut self) {}
-// }
-
-// ///////// TODO: replacing FromItem?!?!
-// impl<L> From<L> for Ace<L> {
-//     fn from(load: L) -> Self {
-//         Self { load }
-//     }
-// }
-//             // impl From<String> for Ace<String> {
-//             //     fn from(load: String) -> Self {
-//             //         Self { load: load.clone() }
-//             //     }
-//             // }
-//             impl<'a> From<&'a str> for Ace<String> {
-//                 fn from(load: &'a str) -> Self {
-//                     Self { load: load.into() }
-//                 }
-//             }

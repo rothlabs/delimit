@@ -36,12 +36,12 @@ fn make_doc() -> Node {
 
 #[test]
 fn save_repo() -> result::Result<(), Error> {
-    let path = STORAGE;//.leaf().node();
     let doc = make_doc();
     let lake = doc.lake()?;
     if let Tray::String(serial) = lake.serial()? {
-        fs::write(path, serial)?;
+        fs::write(STORAGE, serial)?;
     }
+    // Err("wow".into())
     Ok(())
 }
 

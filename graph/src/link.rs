@@ -57,7 +57,8 @@ where
             Path::Hash(hash).serialize(serializer)
         } else {
             // The node cannot be serialized so serialize None
-            self.path.serialize(serializer)
+            // self.path.serialize(serializer)
+            panic!("failed to serialize")
         }
     }
 }
@@ -85,15 +86,9 @@ where
     pub fn main(&self) -> node::Result {
         match self.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
-            _ => Err("not Tray::Node".into()),
+            _ => Err("Wrong return type for Task::Main.".into()),
         }
     }
-    // pub fn serial(&self) -> serial::Result {
-    //     match self.solve(Task::Serial)? {
-    //         Tray::String(string) => Ok(string),
-    //         _ => Err("not Tray::String".into()),
-    //     }
-    // }
 }
 
 impl<E> Link<E>

@@ -32,7 +32,7 @@ impl Node {
     pub fn digest(&self) -> result::Result<u64, Error> {
         let hash_result = match self {
             Self::Load(load) => load.digest(),
-            Self::Leaf(leaf) => leaf.digest(),
+            Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
         };
         match hash_result? {
@@ -43,7 +43,7 @@ impl Node {
     pub fn serial(&self) -> serial::Result {
         let serial_result = match self {
             Self::Load(load) => load.serial(),
-            Self::Leaf(leaf) => leaf.serial(),
+            Self::Leaf(leaf) => leaf.solve(Task::Serial),
             Self::Ploy(ploy) => ploy.solve(Task::Serial),
         };
         match serial_result? {
@@ -53,11 +53,10 @@ impl Node {
     }
     pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
         let stems = match self {
-            Self::Load(load) => load.serial(),
-            Self::Leaf(leaf) => leaf.serial(),
-            Self::Ploy(ploy) => ploy.solve(Task::Serial),
+            Self::Ploy(ploy) => ploy.solve(Task::Stems),
+            _ => empty_nodes(),
         };
-        match self.solve(Task::Stems)? {
+        match stems? {
             Tray::Nodes(nodes) => Ok(nodes),
             _ => Err("no stems".into()),
         }
