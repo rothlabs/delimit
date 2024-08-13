@@ -30,15 +30,36 @@ impl Node {
         Ok(lake)
     }
     pub fn digest(&self) -> result::Result<u64, Error> {
-        match self.solve(Task::Hash)? {
+        let hash_result = match self {
+            Self::Load(load) => load.digest(),
+            Self::Leaf(leaf) => leaf.digest(),
+            Self::Ploy(ploy) => ploy.solve(Task::Hash),
+        };
+        match hash_result? {
             Tray::U64(hash) => Ok(hash),
             _ => Err("no hash".into()),
         }
     }
     pub fn serial(&self) -> serial::Result {
-        match self.solve(Task::Serial)? {
+        let serial_result = match self {
+            Self::Load(load) => load.serial(),
+            Self::Leaf(leaf) => leaf.serial(),
+            Self::Ploy(ploy) => ploy.solve(Task::Serial),
+        };
+        match serial_result? {
             Tray::String(string) => Ok(string),
             _ => Err("no serial".into()),
+        }
+    }
+    pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
+        let stems = match self {
+            Self::Load(load) => load.serial(),
+            Self::Leaf(leaf) => leaf.serial(),
+            Self::Ploy(ploy) => ploy.solve(Task::Serial),
+        };
+        match self.solve(Task::Stems)? {
+            Tray::Nodes(nodes) => Ok(nodes),
+            _ => Err("no stems".into()),
         }
     }
     pub fn path(&self) -> Option<Path> {
@@ -46,12 +67,6 @@ impl Node {
             Self::Load(load) => load.path(),
             Self::Leaf(leaf) => leaf.path(),
             Self::Ploy(ploy) => ploy.path(),
-        }
-    }
-    pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
-        match self.solve(Task::Stems)? {
-            Tray::Nodes(nodes) => Ok(nodes),
-            _ => Err("no stems".into()),
         }
     }
     pub fn load(&self) -> load::Result {
@@ -178,7 +193,7 @@ impl Solve for Node {
     fn solve(&self, task: Task) -> solve::Result {
         match self {
             Self::Ploy(ploy) => ploy.solve(task),
-            _ => Err("not a ploy".into()),
+            _ => Err("not a ploy (node solve)".into()),
         }
     }
 }
@@ -187,7 +202,7 @@ impl AdaptInner for Node {
     fn adapt(&self, post: Post) -> adapt::Result {
         match self {
             Self::Ploy(ploy) => ploy.adapt(post),
-            _ => Err("not a ploy".into()),
+            _ => Err("not a ploy (node adapt)".into()),
         }
     }
 }

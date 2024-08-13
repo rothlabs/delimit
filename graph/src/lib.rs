@@ -12,7 +12,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use serial::{DeserializeNode, ToHash, ToSerial};
-pub use solve::{no_solver, DoSolve, IntoTray, Solve, Task, Tray};
+pub use solve::{no_solver, empty_nodes, DoSolve, IntoTray, Solve, Task, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };

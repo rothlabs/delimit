@@ -35,6 +35,25 @@ impl Lake {
     }
 }
 
+impl Adapt for Lake {
+    fn adapt(&mut self, post: Post) -> adapt::Result {
+        match post {
+            Post::Trade(_) => adapt_ok(),
+            _ => no_adapter(post),
+        }
+    }
+}
+
+impl Solve for Lake {
+    fn solve(&self, task: Task) -> solve::Result {
+        match task {
+            Task::Stems => empty_nodes(),
+            Task::Serial => self.serial(),
+            _ => no_solver(),
+        }
+    }
+}
+
 
 // /// Serialize the given node as the root of the lake. 
 // pub fn root(&mut self, node: &Node) -> adapt::Result {

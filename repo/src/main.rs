@@ -17,8 +17,8 @@ use serde::*;
 
 mod config;
 mod deserializer;
-// #[cfg(test)]
-// mod tests;
+#[cfg(test)]
+mod tests;
 
 type Io = TokioIo<TcpStream>;
 

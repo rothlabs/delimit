@@ -26,6 +26,10 @@ pub fn no_solver() -> solve::Result {
     Err("did not solve".into())
 }
 
+pub fn empty_nodes() -> solve::Result {
+    Ok(Tray::Nodes(vec![]))
+}
+
 // pub trait DoSolve {
 //     /// For graph internals to handle solve calls
 //     fn do_solve(&mut self, task: Task, back: &Back) -> Result;
