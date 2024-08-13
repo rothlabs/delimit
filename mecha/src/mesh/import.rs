@@ -1,5 +1,5 @@
 use super::*;
-use regex::Regex;
+use regex::{Captures, Regex};
 use std::fs;
 
 /// STL mesh import.
@@ -33,26 +33,20 @@ impl Import {
         let re = Regex::new(r"vertex (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
         let mut mesh = vec![];
         for caps in re.captures_iter(&data) {
-            mesh.push(
-                caps.get(1)
-                    .ok_or("import failed")?
-                    .as_str()
-                    .parse::<f64>()?,
-            );
-            mesh.push(
-                caps.get(2)
-                    .ok_or("import failed")?
-                    .as_str()
-                    .parse::<f64>()?,
-            );
-            mesh.push(
-                caps.get(3)
-                    .ok_or("import failed")?
-                    .as_str()
-                    .parse::<f64>()?,
-            );
+            mesh.push(self.component(&caps, 1)?);
+            mesh.push(self.component(&caps, 2)?);
+            mesh.push(self.component(&caps, 3)?);
         }
         Ok(mesh.leaf().node().tray())
+    }
+
+    /// X, Y, or Z component from capture groups
+    fn component(&self, caps: &Captures, group_index: usize) -> Result<f64, Error> {
+        Ok(caps
+            .get(group_index)
+            .ok_or("import failed")?
+            .as_str()
+            .parse::<f64>()?)
     }
 }
 
@@ -75,3 +69,22 @@ impl Solve for Import {
         }
     }
 }
+
+// mesh.push(
+//     caps.get(1)
+//         .ok_or("import failed")?
+//         .as_str()
+//         .parse::<f64>()?,
+// );
+// mesh.push(
+//     caps.get(2)
+//         .ok_or("import failed")?
+//         .as_str()
+//         .parse::<f64>()?,
+// );
+// mesh.push(
+//     caps.get(3)
+//         .ok_or("import failed")?
+//         .as_str()
+//         .parse::<f64>()?,
+// );

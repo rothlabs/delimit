@@ -1,4 +1,4 @@
-use std::{f64::EPSILON, ops::*};
+use std::ops::*;
 
 /// 3D Vector
 #[derive(PartialEq, Clone)]

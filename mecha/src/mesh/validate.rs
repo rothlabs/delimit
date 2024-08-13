@@ -54,36 +54,37 @@ impl Validate {
     fn mesh_with_go_no_go(&self, source: &[f64]) -> Vec<f64> {
         let triangles = self.triangles(source);
         let mut mesh = vec![];
-        let mut hit_points = vec![];
         for (j, tri_a) in triangles.iter().enumerate() {
             // copy position attribute
             mesh.extend(&source[j * 9..(j * 9 + 9)]);
-            let intersects = self.intersects(j, tri_a, &triangles, &mut hit_points);
+            let intersects = self.intersects(j, tri_a, &triangles);
             self.push_go_no_go(&mut mesh, intersects);
         }
-        // hit_points
         mesh
     }
 
     /// Find intersection type hash set by comparing with other triangles
-    fn intersects(&self, j: usize, tri_a: &Triangle, triangles: &Vec<Triangle>, hit_points: &mut Vec<f64>) -> HashSet<Intersection> {
-        let mut intersects = HashSet::new();
+    fn intersects(
+        &self,
+        j: usize,
+        tri_a: &Triangle,
+        triangles: &[Triangle],
+    ) -> HashSet<Intersection> {
+        let mut intersection_set = HashSet::new();
         for (k, tri_b) in triangles.iter().enumerate() {
             if j != k {
                 if let Some(intersect) = tri_a.intersect(tri_b, self.tolerance.f64()) {
-                    intersects.insert(intersect.0);
-                    hit_points.extend(&[intersect.1.x, intersect.1.y, intersect.1.z]);
-                    hit_points.extend(&[intersect.2.x, intersect.2.y, intersect.2.z]);
+                    intersection_set.insert(intersect);
                 }
             }
         }
-        intersects
+        intersection_set
     }
 
     /// Push go/no-go attribute element to mesh vector
     fn push_go_no_go(&self, mesh: &mut Vec<f64>, intersects: HashSet<Intersection>) {
         // Push 1.0 (Go) if triangle intersects with only 3 others on the edge and no crossings
-        if intersects.len() == 3 && !intersects.contains(&Intersection::Other) {
+        if intersects.len() == 3 && !intersects.contains(&Intersection::Cross) {
             mesh.push(1.0);
         } else {
             mesh.push(0.0);

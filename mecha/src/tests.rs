@@ -17,7 +17,7 @@ fn cube_mesh() -> Load {
     .load()
 }
 
-/// Blender cube mesh with Go/No-Go attribute interviewed in with XYZ pos attrib
+/// Blender cube mesh with Go/No-Go attribute interweaved in with XYZ pos attrib
 fn cube_mesh_with_validation() -> Load {
     vec![
         1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
@@ -57,13 +57,13 @@ fn import_cube_stl() -> Result<(), Error> {
     Ok(())
 }
 
-// #[test]
-// fn cube_validation() -> Result<(), Error> {
-//     let cube = cube_import();
-//     let validate = Validate::new().mesh(cube).tolerance(TOLERANCE).node();
-//     assert_eq!(validate.load()?, cube_mesh_with_validation());
-//     Ok(())
-// }
+#[test]
+fn cube_validation() -> Result<(), Error> {
+    let cube = cube_import();
+    let validate = Validate::new().mesh(cube).tolerance(TOLERANCE).node();
+    assert_eq!(validate.load()?, cube_mesh_with_validation());
+    Ok(())
+}
 
 #[test]
 fn test_cube() -> Result<(), Error> {
@@ -76,11 +76,21 @@ fn test_cube_overlap() -> Result<(), Error> {
 }
 
 #[test]
-fn test_tilted_cube() -> Result<(), Error> {
-    import_mesh_and_export_validation_mesh("tilted_cube")
+fn test_cube_tilted() -> Result<(), Error> {
+    import_mesh_and_export_validation_mesh("cube_tilted")
 }
 
 #[test]
 fn test_cube_overlap_tilted() -> Result<(), Error> {
     import_mesh_and_export_validation_mesh("cube_overlap_tilted")
+}
+
+#[test]
+fn test_monkey() -> Result<(), Error> {
+    import_mesh_and_export_validation_mesh("monkey")
+}
+
+#[test]
+fn test_monkey_with_hole() -> Result<(), Error> {
+    import_mesh_and_export_validation_mesh("monkey_with_hole")
 }

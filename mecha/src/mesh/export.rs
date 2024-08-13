@@ -19,7 +19,7 @@ usemtl NoGoMat
 pub struct ValidationExport {
     /// Expect file system path of destination directory
     path: Node,
-    /// Expect interviewed attrib array of XYZ Go/No-Go
+    /// Expect interweaved attrib array of XYZ Go/No-Go
     mesh: Node,
 }
 
@@ -59,29 +59,37 @@ impl ValidationExport {
         let mut no_go_out = NO_GO_HEAD.to_owned();
         let mut vertex_index = 1;
         let mut validation_index = 9;
-        for d in mesh.windows(10).step_by(10) {
-        // for d in mesh.windows(9).step_by(9) {
-            out += &format!("v {:.6} {:.6} {:.6}\n", d[0], d[1], d[2]);
-            out += &format!("v {:.6} {:.6} {:.6}\n", d[3], d[4], d[5]);
-            out += &format!("v {:.6} {:.6} {:.6}\n", d[6], d[7], d[8]);
-            let face = &format!(
-                "f {} {} {}\n",
-                vertex_index,
-                vertex_index + 1,
-                vertex_index + 2
-            );
+        for data in mesh.windows(10).step_by(10) {
+            self.push_vertices(&mut out, data);
             if mesh[validation_index] > 0.5 {
-                go_out += face;
+                go_out += &self.push_face(vertex_index);
             } else {
-                no_go_out += face;
+                no_go_out += &self.push_face(vertex_index);
             }
             vertex_index += 3;
             validation_index += 10;
         }
-        out += &go_out;
-        out += &no_go_out;
+        out += &(go_out + &no_go_out);
         fs::write(path, out)?;
         Ok(Tray::None)
+    }
+
+    /// Push three vertices in winding order
+    fn push_vertices(&self, out: &mut String, d: &[f64]) {
+        *out += &format!("v {:.6} {:.6} {:.6}\n", d[0], d[1], d[2]);
+        *out += &format!("v {:.6} {:.6} {:.6}\n", d[3], d[4], d[5]);
+        *out += &format!("v {:.6} {:.6} {:.6}\n", d[6], d[7], d[8]);
+    }
+
+    /// Make face from one vertex index.
+    /// This works because each vertices are pushed in by winding order and each vertex is used once.  
+    fn push_face(&self, vertex_index: usize) -> String {
+        format!(
+            "f {} {} {}\n",
+            vertex_index,
+            vertex_index + 1,
+            vertex_index + 2
+        )
     }
 }
 

@@ -1,11 +1,11 @@
-pub use config::*;
+pub use configure::*;
 pub use export::*;
 pub use import::*;
 pub use validate::*;
 
 use super::*;
 
-mod config;
+mod configure;
 mod export;
 mod import;
 mod validate;
