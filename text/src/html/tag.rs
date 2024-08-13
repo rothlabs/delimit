@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct Tag {
     pub name: Node,
     pub attributes: Vec<Node>,
@@ -54,6 +54,7 @@ impl Solve for Tag {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
+            Task::Hash => self.digest(),
             _ => did_not_solve(),
         }
     }

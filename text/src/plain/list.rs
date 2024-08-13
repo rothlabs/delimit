@@ -1,7 +1,9 @@
+use std::hash::Hash;
+
 use super::*;
 use node::TradeNode;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct List {
     items: Vec<Node>,
     separator: Node,
@@ -69,6 +71,7 @@ impl Solve for List {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
+            Task::Hash => self.digest(),
             _ => did_not_solve(),
         }
     }

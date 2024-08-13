@@ -5,4 +5,5 @@ pub enum Task {
     Export,
     Find(String),
     Serial,
+    Hash,
 }

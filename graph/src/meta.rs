@@ -16,8 +16,8 @@ pub type Key = String;
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 // #[serde(rename_all = "PascalCase")]
 pub enum Path {
-    None,
-    Base(Key),
+    // None,
+    Hash(u64),
     World(Vec<Key>),
     Local(Vec<Key>),
     Upper(Upper),

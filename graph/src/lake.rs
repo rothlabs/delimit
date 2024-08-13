@@ -13,10 +13,12 @@ impl Lake {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Set the root serial
     pub fn root(&mut self, root: String) -> &mut Self {
         self.root = root;
         self
     }
+    
 }
 
 // pub fn new(ploy: impl Into<Node>) -> Result {

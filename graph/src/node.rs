@@ -6,7 +6,7 @@ use std::result;
 pub type Result = result::Result<Node, Error>;
 
 /// Contains a bare load, meta about a link, or the link itself.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Hash)]
 #[serde(untagged)]
 pub enum Node {
     Load(Load),
@@ -29,13 +29,13 @@ impl Node {
         lake.root(self.serial()?);
         Ok(lake)
     }
-    pub fn serial(&self) -> serial::Result {
+    pub fn serial(&self) -> result::Result<String, Error> {
         match self.solve(Task::Serial)? {
             Tray::String(string) => Ok(string),
             _ => Err("not serialized".into()),
         }
     }
-    pub fn path(&self) -> Path {
+    pub fn path(&self) -> Option<Path> {
         match self {
             Self::Load(load) => load.path(),
             Self::Leaf(leaf) => leaf.path(),

@@ -2,6 +2,7 @@ pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post, ToAlter};
 pub use apex::Apex;
 pub use bay::Bay;
 pub use edge::Edge;
+pub use lake::Lake;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{random, Id, Key, Path, ToId};
@@ -10,8 +11,6 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-// pub use serial::SerializeGraph;
-pub use lake::Lake;
 pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -26,7 +25,11 @@ use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
-use std::{error, fmt::Debug};
+use std::{
+    error,
+    fmt::Debug,
+    hash::{DefaultHasher, Hash, Hasher},
+};
 
 pub mod adapt;
 pub mod lake;
@@ -169,7 +172,7 @@ pub trait ToNode {
 
 impl<T> ToNode for T
 where
-    T: 'static + ToAgent + Solve + Adapt + Serialize + Debug + SendSync,
+    T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.agent().ploy().into()
@@ -178,7 +181,7 @@ where
 
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Adapt + Serialize + Debug + SendSync,
+    T: 'static + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()
@@ -235,6 +238,17 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-// pub trait Make {
-//     fn make(&self, back: &Back) -> Self;
-// }
+pub trait ToDigest {
+    fn digest(&self) -> solve::Result;
+}
+
+impl<T> ToDigest for T
+where
+    T: Hash,
+{
+    fn digest(&self) -> solve::Result {
+        let mut state = DefaultHasher::new();
+        self.hash(&mut state);
+        Ok(Tray::U64(state.finish()))
+    }
+}

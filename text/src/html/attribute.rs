@@ -1,6 +1,6 @@
 use crate::html::*;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct Attribute {
     name: Node,
     content: Node,
@@ -52,6 +52,7 @@ impl Solve for Attribute {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
+            Task::Hash => self.digest(),
             _ => did_not_solve(),
         }
     }
