@@ -5,6 +5,7 @@ Mecha (mechatronics) is a geometry processing crate. There are currently three n
 Run ```cargo doc -p mecha --open``` to view the documentation.
 
 ## Testing
+First, you must changed the ```mesh/configure.rs``` so the data paths match your system. Replace ```/home/julian/delimit/``` with your absolute path for both ```TEST_DATA_PATH``` and ```TEST_OUT_PATH```.
 Run ```cargo test``` within the mecha crate to process the test models located in mesh/test_data. Then open the models in Blender to view the results.
 
 ## How it Works

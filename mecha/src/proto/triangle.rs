@@ -25,7 +25,7 @@ impl Triangle {
         if edge.is_some() {
             edge
         } else {
-            self.intersect_other(rhs, tol)
+            self.intersect_cross(rhs, tol)
         }
     }
 
@@ -54,8 +54,8 @@ impl Triangle {
         None
     }
 
-    /// Find any intersection besides edge intersections
-    fn intersect_other(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
+    /// Try to find bad crossing intersection 
+    fn intersect_cross(&self, rhs: &Self, tol: f64) -> Option<Intersection> {
         // setup point A at center of self
         let mut param_a = Param::new(0.5, 0.5);
         let mut point_a = self.plot(&param_a).point;
@@ -73,7 +73,7 @@ impl Triangle {
             point_b = rhs.plot(&param_b).point;
         }
         if (&point_a - &point_b).length() < tol {
-            // Only return Intersection::Crossing if one of the params are between 0 and 1 exclusive.
+            // Only return Intersection::Cross if one of the params are between 0 and 1 exclusive.
             // Two triangles could touch incorrectly at edges but we won't catch that here
             // and allow it to be caught in crossing with other triangle.
             if !param_a.on_edge() || !param_b.on_edge() {

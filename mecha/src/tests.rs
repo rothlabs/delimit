@@ -47,7 +47,6 @@ fn import_mesh_and_export_validation_mesh(name: &str) -> Result<(), Error> {
         .mesh(mesh_out)
         .node()
         .solve(Task::Main)?;
-    // Err("uh".into())
     Ok(())
 }
 

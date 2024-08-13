@@ -69,22 +69,3 @@ impl Solve for Import {
         }
     }
 }
-
-// mesh.push(
-//     caps.get(1)
-//         .ok_or("import failed")?
-//         .as_str()
-//         .parse::<f64>()?,
-// );
-// mesh.push(
-//     caps.get(2)
-//         .ok_or("import failed")?
-//         .as_str()
-//         .parse::<f64>()?,
-// );
-// mesh.push(
-//     caps.get(3)
-//         .ok_or("import failed")?
-//         .as_str()
-//         .parse::<f64>()?,
-// );
