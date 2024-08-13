@@ -1,11 +1,11 @@
-pub use query::{Query, ToQuery};
+// pub use query::{Query, ToQuery};
 pub use task::Task;
 pub use tray::{IntoTray, Tray};
 
 use super::*;
 use std::result;
 
-mod query;
+// mod query;
 mod task;
 mod tray;
 
@@ -22,7 +22,7 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Task) -> Result;
 }
 
-pub fn did_not_solve() -> solve::Result {
+pub fn no_solver() -> solve::Result {
     Err("did not solve".into())
 }
 

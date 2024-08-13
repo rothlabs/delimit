@@ -1,4 +1,4 @@
-pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post, ToAlter};
+pub use adapt::{no_adapter, adapt_ok, Adapt, AdaptInner, Memo, Post, ToAlter};
 pub use apex::Apex;
 pub use bay::Bay;
 pub use edge::Edge;
@@ -11,7 +11,8 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
+pub use serial::{DeserializeNode, ToHash, ToSerial};
+pub use solve::{no_solver, DoSolve, IntoTray, Solve, Task, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
@@ -92,7 +93,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
     write(part.borrow_mut())
 }
 
-/// Edge that grants a load. It can also clone the edge with a new back.
+/// Ploy node super trait. For general engagement without unit type.
 pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
 
 #[cfg(not(feature = "oneThread"))]
@@ -100,30 +101,11 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
-dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + Debug + SendSync {
-    fn deserialize(&self, string: &str) -> Result<Node, Error>;
-}
-
 dyn_clone::clone_trait_object!(Trade);
 /// Trade a node for another. The implmentation should return the same semantic node with different graph qualities.
 pub trait Trade: DynClone + Debug {
     /// Trade a node for another.
     fn trade(&self, node: &Node) -> Node;
-}
-
-pub trait ToSerial {
-    fn serial(&self) -> solve::Result;
-}
-
-impl<T> ToSerial for T
-where
-    T: Serialize,
-{
-    /// Convert to a string.
-    fn serial(&self) -> solve::Result {
-        Ok(Tray::String(serde_json::to_string(self)?))
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -236,19 +218,4 @@ pub trait MakeInner {
 
 pub trait Clear {
     fn clear(&mut self);
-}
-
-pub trait ToDigest {
-    fn digest(&self) -> solve::Result;
-}
-
-impl<T> ToDigest for T
-where
-    T: Hash,
-{
-    fn digest(&self) -> solve::Result {
-        let mut state = DefaultHasher::new();
-        self.hash(&mut state);
-        Ok(Tray::U64(state.finish()))
-    }
 }

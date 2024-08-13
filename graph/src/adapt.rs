@@ -1,5 +1,5 @@
 pub use alter::ToAlter;
-pub use gain::Gain;
+pub use memo::Memo;
 pub use post::Post;
 
 use super::*;
@@ -8,9 +8,9 @@ use std::result;
 pub mod post;
 
 mod alter;
-mod gain;
+mod memo;
 
-pub type Result = result::Result<Gain, Error>;
+pub type Result = result::Result<Memo, Error>;
 
 pub trait Adapt {
     /// Alter a node.
@@ -23,6 +23,10 @@ pub trait AdaptInner {
     fn adapt(&self, post: Post) -> Result;
 }
 
-pub fn did_not_adapt(post: Post) -> adapt::Result {
+pub fn no_adapter(post: Post) -> adapt::Result {
     Err(format!("did not adept: {:?}", post).into())
+}
+
+pub fn adapt_ok() -> adapt::Result {
+    Ok(Memo::None)
 }

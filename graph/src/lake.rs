@@ -6,20 +6,37 @@ pub type Result = result::Result<Lake, Error>;
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
     root: String,
-    serials: HashMap<Key, String>,
+    serials: HashMap<u64, String>,
 }
 
 impl Lake {
     pub fn new() -> Self {
         Self::default()
     }
-    /// Set the root serial
-    pub fn root(&mut self, root: String) -> &mut Self {
-        self.root = root;
-        self
+    /// Serialize the given node as the root of the lake. 
+    pub fn root(&mut self, node: &Node) -> adapt::Result {
+        self.root = node.serial()?;
+        adapt_ok()
     }
-    
+    /// Insert a node into the lake as hash-serial pair. 
+    pub fn insert(&mut self, node: &Node) -> adapt::Result {
+        self.serials.insert(node.digest()?, node.serial()?);
+        adapt_ok()
+    }
 }
+
+
+// /// Set the root serial. 
+// pub fn root(&mut self, root: String) -> &mut Self {
+//     self.root = root;
+//     self
+// }
+
+// /// Insert hash-serial pair 
+// pub fn insert(&mut self, hash: u64, serial: String) -> &mut Self {
+//     self.serials.insert(hash, serial);
+//     self
+// }
 
 // pub fn new(ploy: impl Into<Node>) -> Result {
 //     let mut serials = HashMap::new();

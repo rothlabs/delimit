@@ -34,7 +34,7 @@ impl Element {
         if let Some(close) = &self.close {
             self.close = Some(close.trade(trade));
         }
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         let mut element = List::new();
@@ -65,7 +65,7 @@ impl Adapt for Element {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            _ => no_adapter(post),
         }
     }
 }
@@ -77,7 +77,7 @@ impl Solve for Element {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),
-            _ => did_not_solve(),
+            _ => no_solver(),
         }
     }
 }

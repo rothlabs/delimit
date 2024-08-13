@@ -21,7 +21,7 @@ impl Tag {
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
         self.name = self.name.trade(trade);
         self.attributes = self.attributes.trade(trade);
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         let items = List::new()
@@ -43,7 +43,7 @@ impl Adapt for Tag {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            _ => no_adapter(post),
         }
     }
 }
@@ -55,7 +55,7 @@ impl Solve for Tag {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),
-            _ => did_not_solve(),
+            _ => no_solver(),
         }
     }
 }

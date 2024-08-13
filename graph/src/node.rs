@@ -26,13 +26,22 @@ impl Node {
     }
     pub fn lake(&self) -> lake::Result {
         let mut lake = Lake::new();
-        lake.root(self.serial()?);
+        lake.root(&self)?;
+        for node in &self.stems()? {
+            lake.insert(node)?;
+        }
         Ok(lake)
     }
-    pub fn serial(&self) -> result::Result<String, Error> {
+    pub fn digest(&self) -> result::Result<u64, Error> {
+        match self.solve(Task::Hash)? {
+            Tray::U64(hash) => Ok(hash),
+            _ => Err("no hash".into()),
+        }
+    }
+    pub fn serial(&self) -> serial::Result {
         match self.solve(Task::Serial)? {
             Tray::String(string) => Ok(string),
-            _ => Err("not serialized".into()),
+            _ => Err("no serial".into()),
         }
     }
     pub fn path(&self) -> Option<Path> {
@@ -40,6 +49,12 @@ impl Node {
             Self::Load(load) => load.path(),
             Self::Leaf(leaf) => leaf.path(),
             Self::Ploy(ploy) => ploy.path(),
+        }
+    }
+    pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
+        match self.solve(Task::Stems)? {
+            Tray::Nodes(nodes) => Ok(nodes),
+            _ => Err("no stems".into()),
         }
     }
     pub fn load(&self) -> load::Result {

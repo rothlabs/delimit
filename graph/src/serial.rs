@@ -1,7 +1,41 @@
-// use super::*;
-// use std::result;
+use super::*;
+use std::result;
 
-// pub type Result = result::Result<String, Error>;
+pub type Result = result::Result<String, Error>;
+
+pub trait ToSerial {
+    fn serial(&self) -> solve::Result;
+}
+
+impl<T> ToSerial for T
+where
+    T: Serialize,
+{
+    /// Convert to a string.
+    fn serial(&self) -> solve::Result {
+        Ok(Tray::String(serde_json::to_string(self)?))
+    }
+}
+
+dyn_clone::clone_trait_object!(DeserializeNode);
+pub trait DeserializeNode: DynClone + Debug + SendSync {
+    fn deserialize(&self, string: &str) -> node::Result;
+}
+
+pub trait ToHash {
+    fn digest(&self) -> solve::Result;
+}
+
+impl<T> ToHash for T
+where
+    T: Hash,
+{
+    fn digest(&self) -> solve::Result {
+        let mut state = DefaultHasher::new();
+        self.hash(&mut state);
+        Ok(Tray::U64(state.finish()))
+    }
+}
 
 // pub trait SerializeGraph {
 //     /// Serialize part of the graph.

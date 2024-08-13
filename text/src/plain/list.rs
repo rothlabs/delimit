@@ -32,7 +32,7 @@ impl List {
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
         self.items = self.items.trade(trade);
         self.separator = self.separator.trade(trade);
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
@@ -60,7 +60,7 @@ impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            _ => no_adapter(post),
         }
     }
 }
@@ -72,7 +72,7 @@ impl Solve for List {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),
-            _ => did_not_solve(),
+            _ => no_solver(),
         }
     }
 }

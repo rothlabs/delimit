@@ -21,7 +21,7 @@ impl Attribute {
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
         self.name = self.name.trade(trade);
         self.content = self.content.trade(trade);
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         let node = List::new()
@@ -41,7 +41,7 @@ impl Adapt for Attribute {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            _ => no_adapter(post),
         }
     }
 }
@@ -53,7 +53,7 @@ impl Solve for Attribute {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),
-            _ => did_not_solve(),
+            _ => no_solver(),
         }
     }
 }

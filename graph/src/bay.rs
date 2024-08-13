@@ -34,7 +34,7 @@ impl Bay {
         //     let meta = node.path();
         //     self.nodes.insert(meta.keys[0].clone(), node);
         // }
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn stems(&self) -> solve::Result {
         let stems = self.nodes.values().cloned().collect();
@@ -66,7 +66,7 @@ impl Bay {
         //     }
         // }
         // fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
-        Ok(Gain::None)
+        adapt_ok()
     }
     fn find(&self, _: &str) -> solve::Result {
         // let re = Regex::new(regex)?; //Regex::new(r"(?P<story>Delimit index page)")?;
@@ -85,10 +85,10 @@ impl Bay {
 impl Adapt for Bay {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(_) => Ok(Gain::None),
+            Post::Trade(_) => adapt_ok(),
             Post::Extend(nodes) => self.extend(nodes),
             Post::Import => self.import(),
-            _ => did_not_adapt(post),
+            _ => no_adapter(post),
         }
     }
 }
@@ -99,7 +99,7 @@ impl Solve for Bay {
             Task::Stems => self.stems(),
             Task::Export => self.export(),
             Task::Find(regex) => self.find(&regex),
-            _ => did_not_solve(),
+            _ => no_solver(),
         }
     }
 }
