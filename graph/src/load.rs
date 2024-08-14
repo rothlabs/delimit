@@ -82,8 +82,3 @@ impl Hash for Load {
         }
     }
 }
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Empty {
-    none: u8,
-}
