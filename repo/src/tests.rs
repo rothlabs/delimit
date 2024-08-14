@@ -35,12 +35,9 @@ fn make_doc() -> Node {
 #[test]
 fn save_graph() -> result::Result<(), Error> {
     let lake = make_doc().lake()?;
-    if let Tray::String(serial) = lake.serial()? {
-        fs::write(STORAGE, serial)?;
-        Ok(())
-    } else {
-        Err("did not write to disk")?
-    }
+    let serial = lake.serial()?.string()?;
+    fs::write(STORAGE, serial)?;
+    Ok(())
 }
 
 #[test]
@@ -49,9 +46,11 @@ fn load_graph() -> result::Result<(), Error> {
     let reader = BufReader::new(file);
     let lake: Lake = serde_json::from_reader(reader)?;
     let deserializer = NodeDeserializer::new();
-    // let repo = Bay::new().path(path).deserializer(deserializer).node();
-    // repo.alter().import()?;
-    Ok(())
+    let serial = lake.root("root")?.string()?;
+    let node = deserializer.deserialize(&serial)?;
+    eprintln!("nice: {:?}", node);
+    Err("wow")?
+    // Ok(())
 }
 
 // #[test]

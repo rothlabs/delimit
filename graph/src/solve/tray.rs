@@ -9,6 +9,15 @@ pub enum Tray {
     U64(u64),
 }
 
+impl Tray {
+    pub fn string(&self) -> result::Result<String, Error> {
+        match self {
+            Self::String(string) => Ok(string.clone()),
+            _ => Err("No string.")?,
+        }
+    }
+}
+
 impl From<Node> for Tray {
     fn from(value: Node) -> Self {
         Self::Node(value)

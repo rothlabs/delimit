@@ -33,6 +33,11 @@ impl Lake {
         }
         adapt_ok()
     }
+
+    pub fn root(&self, key: &str) -> solve::Result {
+        let serial = self.roots.get(key).ok_or("Root not in Lake.")?;
+        Ok(Tray::String(serial.clone()))
+    }
 }
 
 // impl Adapt for Lake {
