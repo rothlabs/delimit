@@ -5,6 +5,7 @@ use node::TradeNode;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct List {
+    plain_list: u8,
     items: Vec<Node>,
     separator: Node,
 }

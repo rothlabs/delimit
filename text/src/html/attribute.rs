@@ -2,6 +2,7 @@ use crate::html::*;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct Attribute {
+    html_attribute: u8,
     name: Node,
     content: Node,
 }

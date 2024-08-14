@@ -57,7 +57,7 @@ impl Doc {
         if let Load::String(string) = self.element.node().load()? {
             return Ok(string);
         }
-        Err("not a string".into())
+        Err("not a string")?
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element

@@ -10,7 +10,7 @@ pub type ResultRef<'a> = result::Result<&'a Load, Error>;
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Load {
-    None, //(Empty),
+    None(Empty),
     Path(Path),
     String(String),
     U8(u8),
@@ -82,7 +82,7 @@ impl Hash for Load {
     }
 }
 
-// #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-// pub struct Empty {
-//     n: u8,
-// }
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Empty {
+    n: u8,
+}

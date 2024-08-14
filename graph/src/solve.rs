@@ -1,12 +1,8 @@
-// pub use query::{Query, ToQuery};
-pub use task::Task;
 pub use tray::{IntoTray, Tray};
 
 use super::*;
 use std::result;
 
-// mod query;
-mod task;
 mod tray;
 
 pub type Result = result::Result<Tray, Error>;
@@ -23,14 +19,19 @@ pub trait DoSolve {
 }
 
 pub fn no_solver() -> solve::Result {
-    Err("did not solve".into())
+    Err("did not solve")?
 }
 
 pub fn empty_nodes() -> solve::Result {
     Ok(Tray::Nodes(vec![]))
 }
 
-// pub trait DoSolve {
-//     /// For graph internals to handle solve calls
-//     fn do_solve(&mut self, task: Task, back: &Back) -> Result;
-// }
+pub enum Task {
+    Main,
+    Stems,
+    React,
+    Export,
+    Find(String),
+    Serial,
+    Hash,
+}

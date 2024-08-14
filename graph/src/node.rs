@@ -1,4 +1,5 @@
 use super::*;
+use load::Empty;
 // use serde::de::{MapAccess, Visitor};
 use serde_untagged::UntaggedEnumVisitor;
 use std::result;
@@ -21,12 +22,12 @@ impl Node {
     pub fn main(&self) -> Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
-            _ => Err("not ploy".into()),
+            _ => Err("not ploy")?,
         }
     }
     pub fn lake(&self) -> lake::Result {
         let mut lake = Lake::new();
-        lake.insert("root".into(), &self)?;
+        lake.insert("root".into(), self)?;
         Ok(lake)
     }
     pub fn digest(&self) -> result::Result<u64, Error> {
@@ -37,7 +38,7 @@ impl Node {
         };
         match hash_result? {
             Tray::U64(hash) => Ok(hash),
-            _ => Err("no hash".into()),
+            _ => Err("no hash")?,
         }
     }
     pub fn serial(&self) -> serial::Result {
@@ -48,7 +49,7 @@ impl Node {
         };
         match serial_result? {
             Tray::String(string) => Ok(string),
-            _ => Err("no serial".into()),
+            _ => Err("no serial")?,
         }
     }
     pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
@@ -58,7 +59,7 @@ impl Node {
         };
         match stems? {
             Tray::Nodes(nodes) => Ok(nodes),
-            _ => Err("no stems".into()),
+            _ => Err("no stems")?,
         }
     }
     pub fn path(&self) -> Option<Path> {
@@ -114,7 +115,7 @@ impl Node {
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
         self.read(|load| match load {
             Ok(value) => Ok(read(value)),
-            _ => Err("nothing to read".into()),
+            _ => Err("nothing to read")?,
         })
     }
     pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
@@ -144,7 +145,7 @@ impl Node {
     pub fn string(&self) -> result::Result<String, Error> {
         match self.load() {
             Ok(Load::String(value)) => Ok(value),
-            _ => Err("not a string".into()),
+            _ => Err("not a string")?,
         }
     }
     pub fn u32(&self) -> u32 {
@@ -163,7 +164,7 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::Load(Load::None)
+        Self::Load(Load::None(Empty::default()))
     }
 }
 
@@ -185,24 +186,6 @@ pub trait TradeNode {
 impl TradeNode for Vec<Node> {
     fn trade(&self, base: &dyn Trade) -> Self {
         self.iter().map(|x| x.trade(base)).collect()
-    }
-}
-
-impl Solve for Node {
-    fn solve(&self, task: Task) -> solve::Result {
-        match self {
-            Self::Ploy(ploy) => ploy.solve(task),
-            _ => Err("not a ploy (node solve)".into()),
-        }
-    }
-}
-
-impl AdaptInner for Node {
-    fn adapt(&self, post: Post) -> adapt::Result {
-        match self {
-            Self::Ploy(ploy) => ploy.adapt(post),
-            _ => Err("not a ploy (node adapt)".into()),
-        }
     }
 }
 
@@ -435,25 +418,25 @@ impl<'de> Deserialize<'de> for Node {
 
 // pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
 //     match self {
-//         Self::Meta(_) => Err("not a ploy".into()),
-//         Self::Load(_) => Err("not a ploy".into()),
-//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Meta(_) => Err("not a ploy")?,
+//         Self::Load(_) => Err("not a ploy")?,
+//         Self::Leaf(_) => Err("not a ploy")?,
 //         Self::Ploy(ploy) => Ok(ploy.query().main()?),
 //     }
 // }
 // pub fn solve(&self, task: Task) -> solve::Result {
 //     match self {
-//         Self::Meta(_) => Err("not a ploy".into()),
-//         Self::Load(_) => Err("not a ploy".into()),
-//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Meta(_) => Err("not a ploy")?,
+//         Self::Load(_) => Err("not a ploy")?,
+//         Self::Leaf(_) => Err("not a ploy")?,
 //         Self::Ploy(ploy) => ploy.solve(task),
 //     }
 // }
 // pub fn alter(&self, post: Post) -> adapt::Result {
 //     match self {
-//         Self::Meta(_) => Err("not a ploy".into()),
-//         Self::Load(_) => Err("not a ploy".into()),
-//         Self::Leaf(_) => Err("not a ploy".into()),
+//         Self::Meta(_) => Err("not a ploy")?,
+//         Self::Load(_) => Err("not a ploy")?,
+//         Self::Leaf(_) => Err("not a ploy")?,
 //         Self::Ploy(ploy) => ploy.adapt(post),
 //     }
 // }

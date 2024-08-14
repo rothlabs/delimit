@@ -1,14 +1,9 @@
-pub use alter::ToAlter;
-pub use memo::Memo;
 pub use post::Post;
 
 use super::*;
 use std::result;
 
 pub mod post;
-
-mod alter;
-mod memo;
 
 pub type Result = result::Result<Memo, Error>;
 
@@ -29,4 +24,8 @@ pub fn no_adapter(post: Post) -> adapt::Result {
 
 pub fn adapt_ok() -> adapt::Result {
     Ok(Memo::None)
+}
+
+pub enum Memo {
+    None,
 }

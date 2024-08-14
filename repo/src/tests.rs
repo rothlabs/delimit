@@ -1,11 +1,9 @@
 use super::*;
-// use deserializer::NodeDeserializer;
-use std::{fs, result};
+use deserializer::NodeDeserializer;
+use std::{fs::{self, File}, io::BufReader, result};
 use text::*;
 
 fn make_doc() -> Node {
-    // let path = STORAGE.leaf().node();
-    // let bay = Bay::new().path(path).node();
     let atts = html::attribute_set();
     let mut html = html::Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
@@ -35,15 +33,40 @@ fn make_doc() -> Node {
 }
 
 #[test]
-fn save_repo() -> result::Result<(), Error> {
-    let doc = make_doc();
-    let lake = doc.lake()?;
+fn save_graph() -> result::Result<(), Error> {
+    let lake = make_doc().lake()?;
     if let Tray::String(serial) = lake.serial()? {
         fs::write(STORAGE, serial)?;
+        Ok(())
+    } else {
+        Err("did not write to disk")?
     }
-    // Err("wow".into())
+}
+
+#[test]
+fn load_graph() -> result::Result<(), Error> {
+    let file = File::open(STORAGE)?;
+    let reader = BufReader::new(file);
+    let lake: Lake = serde_json::from_reader(reader)?;
+    let deserializer = NodeDeserializer::new();
+    // let repo = Bay::new().path(path).deserializer(deserializer).node();
+    // repo.alter().import()?;
     Ok(())
 }
+
+// #[test]
+// fn find_node_in_loaded_repo() -> result::Result<(), Error> {
+//     let path = STORAGE.leaf().node();
+//     let deserializer = NodeDeserializer::new();
+//     let repo = Repo::new().path(path).deserializer(deserializer).node();
+//     repo.alter().import()?;
+//     if let Tray::Node(_) = repo.query().find("Delimit index page")? {
+//         Ok(())
+//     } else {
+//         Err("did not find node in loaded repo")?
+//     }
+// }
+
 
 // #[test]
 // fn save_repo() -> result::Result<(), Error> {
@@ -58,23 +81,10 @@ fn save_repo() -> result::Result<(), Error> {
 // }
 
 // #[test]
-// fn load_repo() -> result::Result<(), Error> {
+// fn load_graph() -> result::Result<(), Error> {
 //     let path = STORAGE.leaf().node();
 //     let deserializer = NodeDeserializer::new();
 //     let repo = Bay::new().path(path).deserializer(deserializer).node();
 //     repo.alter().import()?;
 //     Ok(())
-// }
-
-// #[test]
-// fn find_node_in_loaded_repo() -> result::Result<(), Error> {
-//     let path = STORAGE.leaf().node();
-//     let deserializer = NodeDeserializer::new();
-//     let repo = Repo::new().path(path).deserializer(deserializer).node();
-//     repo.alter().import()?;
-//     if let Tray::Node(_) = repo.query().find("Delimit index page")? {
-//         Ok(())
-//     } else {
-//         Err("did not find node in loaded repo".into())
-//     }
 // }

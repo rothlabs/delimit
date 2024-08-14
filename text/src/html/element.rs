@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Hash)]
 pub struct Element {
+    html_element: u8,
     tag: Node,
     pub items: Vec<Node>,
     close: Option<Node>,

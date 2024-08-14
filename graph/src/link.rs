@@ -39,6 +39,9 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Ok(Tray::U64(digest)) = self.solve(Task::Hash) {
             digest.hash(state)
+        } else {
+            // TODO: Remove when sure that this won't be a problem 
+            panic!("failed to hash link")
         }
     }
 }
@@ -56,9 +59,9 @@ where
         } else if let Ok(Tray::U64(hash)) = self.solve(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
-            // The node cannot be serialized so serialize None
+            // TODO: Remove when sure that this won't be a problem 
+            panic!("failed to serialize link")
             // self.path.serialize(serializer)
-            panic!("failed to serialize")
         }
     }
 }
@@ -86,7 +89,7 @@ where
     pub fn main(&self) -> node::Result {
         match self.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
-            _ => Err("Wrong return type for Task::Main.".into()),
+            _ => Err("Wrong return type for Task::Main.")?,
         }
     }
 }

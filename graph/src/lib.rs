@@ -1,4 +1,4 @@
-pub use adapt::{no_adapter, adapt_ok, Adapt, AdaptInner, Memo, Post, ToAlter};
+pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, Memo, Post};
 pub use apex::Apex;
 pub use bay::Bay;
 pub use edge::Edge;
@@ -12,7 +12,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use serial::{DeserializeNode, ToHash, ToSerial};
-pub use solve::{no_solver, empty_nodes, DoSolve, IntoTray, Solve, Task, Tray};
+pub use solve::{empty_nodes, no_solver, DoSolve, IntoTray, Solve, Task, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };

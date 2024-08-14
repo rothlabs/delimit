@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
 pub struct Tag {
+    html_tag: u8,
     pub name: Node,
     pub attributes: Vec<Node>,
 }

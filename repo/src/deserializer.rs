@@ -11,7 +11,7 @@ impl NodeDeserializer {
 }
 
 impl DeserializeNode for NodeDeserializer {
-    fn deserialize(&self, string: &str) -> Result<Node, Error> {
+    fn deserialize(&self, string: &str) -> node::Result {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.node())
     }

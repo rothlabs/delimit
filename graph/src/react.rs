@@ -178,12 +178,3 @@ impl Ring {
         Vec::from_iter(ring.roots)
     }
 }
-
-// if let Some(edge) = self.edge.upgrade() {
-//     read_part(&edge, |edge| edge.id()).hash(state)
-// } else {
-//     random().hash(state)
-// }
-// read_part(&self.edge, |edge: RwLockReadGuard<'_, dyn Update>| edge.back_id().hash(state))
-// self.edge.back_id().hash(state);
-//self.meta.path.hash(state);
