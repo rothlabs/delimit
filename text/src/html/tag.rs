@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
     html_tag: u8,
     pub name: Node,

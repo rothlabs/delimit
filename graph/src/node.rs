@@ -131,7 +131,7 @@ impl Node {
             }
         }
     }
-    
+
     pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
         self.read(|load| match load {
             Ok(value) => Ok(read(value)),

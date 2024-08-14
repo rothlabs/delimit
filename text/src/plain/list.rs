@@ -3,7 +3,7 @@ use std::hash::Hash;
 use super::*;
 use node::TradeNode;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Hash)]
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct List {
     plain_list: u8,
     items: Vec<Node>,
