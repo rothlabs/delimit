@@ -1,7 +1,8 @@
 use crate::html::*;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Attribute {
+    html_attribute: u8,
     name: Node,
     content: Node,
 }
@@ -10,27 +11,28 @@ impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
+    pub fn name(mut self, name: impl Into<Node>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn content(&mut self, content: impl Into<Node>) -> &mut Self {
+    pub fn content(mut self, content: impl Into<Node>) -> Self {
         self.content = content.into();
         self
     }
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.name = self.name.trade(trade);
-        self.content = self.content.trade(trade);
-        Ok(Gain::None)
+        self.name = self.name.deal(trade);
+        self.content = self.content.deal(trade);
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
-        let node = List::new()
+        List::new()
             .push(self.name.at(PLAIN)?)
             .push(r#"=""#)
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
-            .node();
-        Ok(node.tray())
+            .node()
+            .tray()
+            .ok()
     }
     fn stems(&self) -> solve::Result {
         Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
@@ -40,8 +42,8 @@ impl Attribute {
 impl Adapt for Attribute {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            Post::Trade(deal) => self.trade(deal),
+            _ => no_adapter(post),
         }
     }
 }
@@ -52,7 +54,8 @@ impl Solve for Attribute {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
-            _ => did_not_solve(),
+            Task::Hash => self.digest(),
+            _ => no_solver(),
         }
     }
 }

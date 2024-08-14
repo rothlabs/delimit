@@ -1,6 +1,7 @@
 pub use leaf::ToLeaf;
 
 use super::*;
+use std::hash::{Hash, Hasher};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
@@ -27,22 +28,46 @@ pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
-    /// TODO: rename to Path
-    path: Path,
+    path: Option<Path>,
     rank: Option<usize>,
 }
 
-impl<E> Serialize for Link<E> {
+impl<E> Hash for Link<E>
+where
+    Self: Solve,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        if let Ok(Tray::U64(digest)) = self.solve(Task::Hash) {
+            digest.hash(state)
+        } else {
+            // TODO: Remove when sure that this won't be a problem
+            panic!("failed to hash link")
+        }
+    }
+}
+
+impl<E> Serialize for Link<E>
+where
+    Self: Solve,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        self.path.serialize(serializer)
+        if let Some(path) = &self.path {
+            path.serialize(serializer)
+        } else if let Ok(Tray::U64(hash)) = self.solve(Task::Hash) {
+            Path::Hash(hash).serialize(serializer)
+        } else {
+            // TODO: Remove when sure that this won't be a problem
+            panic!("failed to serialize link")
+            // self.path.serialize(serializer)
+        }
     }
 }
 
 impl<E> Link<E> {
-    pub fn path(&self) -> Path {
+    pub fn path(&self) -> Option<Path> {
         self.path.clone()
     }
     pub fn rank(&self) -> Option<usize> {
@@ -64,15 +89,9 @@ where
     pub fn main(&self) -> node::Result {
         match self.solve(Task::Main)? {
             Tray::Node(node) => Ok(node),
-            _ => Err("not Tray::Node".into()),
+            _ => Err("Wrong return type for Task::Main.")?,
         }
     }
-    // pub fn serial(&self) -> serial::Result {
-    //     match self.solve(Task::Serial)? {
-    //         Tray::String(string) => Ok(string),
-    //         _ => Err("not Tray::String".into()),
-    //     }
-    // }
 }
 
 impl<E> Link<E>
@@ -82,7 +101,7 @@ where
     pub fn new(unit: E::Item) -> Self {
         let edge = E::new(unit);
         Self {
-            path: Path::None,
+            path: None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
@@ -99,7 +118,7 @@ where
     pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
         let edge = E::make(make);
         Self {
-            path: Path::None,
+            path: None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),

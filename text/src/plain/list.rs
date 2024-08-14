@@ -1,8 +1,11 @@
-use node::TradeNode;
-use super::*;
+use std::hash::Hash;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+use super::*;
+use node::TradeNode;
+
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct List {
+    plain_list: u8,
     items: Vec<Node>,
     separator: Node,
 }
@@ -11,15 +14,19 @@ impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn separator(&mut self, separator: impl Into<Node>) -> &mut Self {
+    pub fn set_separator(&mut self, separator: impl Into<Node>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(&mut self, items: Vec<impl Into<Node>>) -> &mut Self {
+    pub fn separator(mut self, separator: impl Into<Node>) -> Self {
+        self.separator = separator.into();
+        self
+    }
+    pub fn extend(mut self, items: Vec<impl Into<Node>>) -> Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(&mut self, item: impl Into<Node>) -> &mut Self {
+    pub fn push(mut self, item: impl Into<Node>) -> Self {
         self.items.push(item.into());
         self
     }
@@ -27,10 +34,10 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.items = self.items.trade(trade);
-        self.separator = self.separator.trade(trade);
-        Ok(Gain::None)
+    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+        self.items = self.items.deal(deal);
+        self.separator = self.separator.deal(deal);
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
@@ -57,8 +64,8 @@ impl List {
 impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            Post::Trade(deal) => self.trade(deal),
+            _ => no_adapter(post),
         }
     }
 }
@@ -69,7 +76,8 @@ impl Solve for List {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
-            _ => did_not_solve(),
+            Task::Hash => self.digest(),
+            _ => no_solver(),
         }
     }
 }

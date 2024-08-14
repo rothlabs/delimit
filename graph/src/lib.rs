@@ -1,7 +1,8 @@
-pub use adapt::{did_not_adapt, Adapt, AdaptInner, Gain, Post, ToAlter};
+pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, Memo, Post};
 pub use apex::Apex;
 pub use bay::Bay;
 pub use edge::Edge;
+pub use lake::Lake;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{random, Id, Key, Path, ToId};
@@ -10,12 +11,11 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-// pub use serial::SerializeGraph;
-pub use solve::{did_not_solve, DoSolve, IntoTray, Query, Solve, Task, ToQuery, Tray};
+pub use serial::{DeserializeNode, ToHash, ToSerial};
+pub use solve::{empty_nodes, no_solver, DoSolve, IntoTray, Solve, Task, Tray};
 pub use write::{
     Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use lake::Lake;
 
 use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
@@ -26,14 +26,18 @@ use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
-use std::{error, fmt::Debug};
+use std::{
+    error,
+    fmt::Debug,
+    hash::{DefaultHasher, Hash, Hasher},
+};
 
 pub mod adapt;
+pub mod lake;
 pub mod node;
 pub mod react;
 pub mod serial;
 pub mod solve;
-pub mod lake;
 
 mod apex;
 mod bay;
@@ -44,14 +48,15 @@ mod meta;
 mod work;
 mod write;
 
-/// Graph error
 #[cfg(not(feature = "oneThread"))]
+/// Graph Error
 pub type Error = Box<dyn error::Error + Send + Sync>;
 #[cfg(feature = "oneThread")]
+/// Graph Error
 pub type Error = Box<dyn error::Error>;
 
 #[cfg(not(feature = "oneThread"))]
-const NO_POISON: &str = "the lock should not be poisoned";
+const NO_POISON: &str = "The lock should not be poisoned.";
 
 #[cfg(not(feature = "oneThread"))]
 pub trait SendSync: Send + Sync {}
@@ -89,7 +94,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
     write(part.borrow_mut())
 }
 
-/// Edge that grants a load. It can also clone the edge with a new back.
+/// General engagement of Ploy with erased unit type.
 pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
 
 #[cfg(not(feature = "oneThread"))]
@@ -97,68 +102,51 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
-dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + Debug + SendSync {
-    fn deserialize(&self, string: &str) -> Result<Node, Error>;
-}
-
 dyn_clone::clone_trait_object!(Trade);
-/// Trade a node for another. The implmentation should return the same semantic node with different graph qualities.
+/// Trade a node for another.
+/// The implmentation should return the same semantic node with different graph qualities.
 pub trait Trade: DynClone + Debug {
     /// Trade a node for another.
     fn trade(&self, node: &Node) -> Node;
 }
 
-pub trait ToSerial {
-    fn serial(&self) -> solve::Result;
-}
-
-impl<T> ToSerial for T
-where 
-    T: Serialize
-{
-    /// Convert to a string.
-    fn serial(&self) -> solve::Result {
-        Ok(Tray::String(serde_json::to_string(self)?))
-    }
-}
-
-#[derive(Clone, Debug)]
-struct BackTrader {
-    back: Back,
-}
-
-impl BackTrader {
-    fn new(back: &Back) -> Box<Self> {
-        Box::new(Self { back: back.clone() })
-    }
-}
-
-impl Trade for BackTrader {
-    fn trade(&self, node: &Node) -> Node {
-        node.backed(&self.back)
-    }
-}
-
-pub trait ToAgent
+pub trait IntoAgent
 where
     Self: Sized,
 {
-    fn agent(&self) -> Agent<Self>;
+    fn agent(self) -> Agent<Self>;
 }
 
-impl<T> ToAgent for T
+impl<T> IntoAgent for T
 where
-    T: 'static + Adapt + Solve + Clone + SendSync,
+    T: 'static + Adapt + Solve + SendSync,
 {
-    fn agent(&self) -> Agent<Self> {
+    fn agent(mut self) -> Agent<Self> {
         Agent::make(|back| {
-            let mut unit = self.clone();
-            let trade = BackTrader::new(back);
-            unit.adapt(Post::Trade(trade))
-                .expect("unit must handle Post::Trade");
-            unit
+            self.adapt(Post::Trade(back))
+                .expect("To move into Agent, unit must Adapt with Post::Trade.");
+            self
         })
+    }
+}
+
+pub trait IntoNode {
+    /// Move into `Node`.
+    fn node(self) -> Node;
+}
+
+impl<T> IntoNode for T
+where
+    T: 'static + IntoAgent + Solve + Adapt + Debug + SendSync,
+{
+    fn node(self) -> Node {
+        self.agent().ploy().into()
+    }
+}
+
+impl IntoNode for Leaf {
+    fn node(self) -> Node {
+        self.into()
     }
 }
 
@@ -167,27 +155,12 @@ pub trait ToNode {
     fn node(&self) -> Node;
 }
 
-impl<T> ToNode for T
-where
-    T: 'static + ToAgent + Solve + Adapt + Serialize + Debug + SendSync,
-{
-    fn node(&self) -> Node {
-        self.agent().ploy().into()
-    }
-}
-
 impl<T> ToNode for Agent<T>
 where
-    T: 'static + Solve + Adapt + Serialize + Debug + SendSync,
+    T: 'static + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()
-    }
-}
-
-impl ToNode for Leaf {
-    fn node(&self) -> Node {
-        self.into()
     }
 }
 
@@ -235,6 +208,11 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-// pub trait Make {
-//     fn make(&self, back: &Back) -> Self;
+// impl<T> ToNode for T
+// where
+//     T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+// {
+//     fn node(&self) -> Node {
+//         self.agent().ploy().into()
+//     }
 // }

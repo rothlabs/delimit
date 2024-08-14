@@ -1,17 +1,17 @@
 use super::*;
 
 #[derive(Debug, Clone)]
-pub struct NodeDeserializer;
+pub struct Atlas;
 
-impl NodeDeserializer {
+impl Atlas {
     #[allow(dead_code)]
     pub fn new() -> Box<Self> {
         Box::new(Self)
     }
 }
 
-impl DeserializeNode for NodeDeserializer {
-    fn deserialize(&self, string: &str) -> Result<Node, Error> {
+impl DeserializeNode for Atlas {
+    fn deserialize(&self, string: &str) -> node::Result {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.node())
     }
@@ -28,9 +28,9 @@ enum Part {
 }
 
 impl Part {
-    fn node(&self) -> Node {
+    fn node(self) -> Node {
         match self {
-            Self::GraphLoad(x) => x.leaf().node(),
+            Self::GraphLoad(x) => x.into(),
             Self::TextPlainList(x) => x.node(),
             Self::TextHtmlTag(x) => x.node(),
             Self::TextHtmlAttribute(x) => x.node(),

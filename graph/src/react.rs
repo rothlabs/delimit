@@ -142,6 +142,12 @@ impl Back {
     }
 }
 
+impl Trade for Back {
+    fn trade(&self, node: &Node) -> Node {
+        node.backed(self)
+    }
+}
+
 /// Points to many root edges, each pointing to back of a apex.
 #[derive(Default, Debug)]
 pub struct Ring {
@@ -178,12 +184,3 @@ impl Ring {
         Vec::from_iter(ring.roots)
     }
 }
-
-// if let Some(edge) = self.edge.upgrade() {
-//     read_part(&edge, |edge| edge.id()).hash(state)
-// } else {
-//     random().hash(state)
-// }
-// read_part(&self.edge, |edge: RwLockReadGuard<'_, dyn Update>| edge.back_id().hash(state))
-// self.edge.back_id().hash(state);
-//self.meta.path.hash(state);

@@ -57,7 +57,7 @@ impl Doc {
         if let Load::String(string) = self.element.node().load()? {
             return Ok(string);
         }
-        Err("not a string".into())
+        Err("not a string")?
     }
     pub fn add_str(&mut self, str: &str) -> &mut Self {
         self.element
@@ -108,12 +108,11 @@ impl Doc {
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
         let tag = Tag::new().name(tag_leaf).agent();
-        let mut element = Element::new();
+        let element = Element::new();
         let element = match tag_name {
-            "meta" => &mut element,
+            "meta" => element,
             _ => element.close(tag_leaf),
         }
-        // .repo(&self.repo)
         .tag(tag.ploy())
         .agent();
         Doc {

@@ -16,7 +16,6 @@
     getrandom = {version = "0.2", features = ["js"]}
     # delimit 
         graph = { path = "../../graph", features = ["oneThread"] } 
-        mecha = { path = "../../mecha" } 
         text = { path = "../../text" }
         gpu = { path = "../../gpu" }
 

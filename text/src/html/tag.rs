@@ -1,7 +1,8 @@
 use super::*;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
+    html_tag: u8,
     pub name: Node,
     pub attributes: Vec<Node>,
 }
@@ -10,7 +11,7 @@ impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
+    pub fn name(mut self, name: impl Into<Node>) -> Self {
         self.name = name.into();
         self
     }
@@ -19,9 +20,9 @@ impl Tag {
         self
     }
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.name = self.name.trade(trade);
-        self.attributes = self.attributes.trade(trade);
-        Ok(Gain::None)
+        self.name = self.name.deal(trade);
+        self.attributes = self.attributes.deal(trade);
+        adapt_ok()
     }
     fn main(&self) -> solve::Result {
         let items = List::new()
@@ -42,8 +43,8 @@ impl Tag {
 impl Adapt for Tag {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
-            _ => did_not_adapt(post),
+            Post::Trade(deal) => self.trade(deal),
+            _ => no_adapter(post),
         }
     }
 }
@@ -54,7 +55,8 @@ impl Solve for Tag {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
-            _ => did_not_solve(),
+            Task::Hash => self.digest(),
+            _ => no_solver(),
         }
     }
 }

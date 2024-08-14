@@ -9,18 +9,17 @@ pub trait ToId {
     fn id(&self) -> Id;
 }
 
-/// Path component. Used to lookup a node from a Bay or Lake.
+/// Path component. Used to lookup a node from another node such as Lake or Bay.
 pub type Key = String;
 
 /// Path to node. It stands in place of actual nodes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
-// #[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "lowercase")]
 pub enum Path {
-    None,
-    Base(Key),
+    Hash(u64),
     World(Vec<Key>),
     Local(Vec<Key>),
-    Upper(Upper), 
+    Upper(Upper),
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
@@ -29,63 +28,6 @@ pub struct Upper {
     pub keys: Vec<Key>,
 }
 
-impl Upper {
-    pub fn new() -> Self {
-        Self {
-            rank: 0,
-            keys: vec![random()],
-        }
-    }
-}
-
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 }
-
-// impl Path {
-//     pub fn new() -> Self {
-//         Self::default()
-//     }
-// }
-
-// impl Default for Path {
-//     fn default() -> Self {
-//         Self::None
-//     }
-// }
-
-// impl Default for Path {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
-
-// pub fn id(&self) -> &String {
-//     &self.id
-// }
-// // pub fn string(&self) -> String {
-// //     self.id.clone()
-// // }
-
-// #[derive(Clone, Hash, PartialEq, Serialize, Deserialize, Debug)]
-// pub struct Id(String);
-
-// impl Id {
-//     pub fn new() -> Self {
-//         Self(Alphanumeric.sample_string(&mut rand::thread_rng(), 16))
-//     }
-//     pub fn none() -> Self {
-//         Self("".into())
-//     }
-//     pub fn string(&self) -> &str {
-//         &self.0
-//     }
-// }
-
-// impl Default for Id {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
-
-// impl Eq for Id {}
