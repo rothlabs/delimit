@@ -19,7 +19,7 @@ pub trait AdaptInner {
 }
 
 pub fn no_adapter(post: Post) -> adapt::Result {
-    Err(format!("did not adept: {:?}", post).into())
+    Err(format!("No adapter: {:?}", post))?
 }
 
 pub fn adapt_ok() -> adapt::Result {

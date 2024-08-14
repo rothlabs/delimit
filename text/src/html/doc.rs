@@ -31,16 +31,12 @@ impl Doc {
             tags.insert(tag, tag.leaf().node());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        let mut tag = Tag::new();
-        tag.name(doctype);
-        let tag_agent = tag.agent();
-        let tag_ploy = tag_agent.ploy();
-        
+        let tag = Tag::new().name(doctype).agent();
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(tag_ploy).story(story.into()).agent(),
-            tag: tag_agent,
+            element: Element::new().tag(tag.ploy()).story(story.into()).agent(),
+            tag,
             tag_names: tags,
             attributes: atts.clone(),
             // repo,
@@ -112,12 +108,11 @@ impl Doc {
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
         let tag = Tag::new().name(tag_leaf).agent();
-        let mut element = Element::new();
+        let element = Element::new();
         let element = match tag_name {
-            "meta" => &mut element,
+            "meta" => element,
             _ => element.close(tag_leaf),
         }
-        // .repo(&self.repo)
         .tag(tag.ploy())
         .agent();
         Doc {

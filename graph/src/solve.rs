@@ -19,7 +19,7 @@ pub trait DoSolve {
 }
 
 pub fn no_solver() -> solve::Result {
-    Err("did not solve")?
+    Err("No solver.")?
 }
 
 pub fn empty_nodes() -> solve::Result {

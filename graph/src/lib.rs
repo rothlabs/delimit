@@ -110,37 +110,43 @@ pub trait Trade: DynClone + Debug {
     fn trade(&self, node: &Node) -> Node;
 }
 
-pub trait ToAgent
+pub trait IntoAgent
 where
     Self: Sized,
 {
     fn agent(self) -> Agent<Self>;
 }
 
-impl<'a, T> ToAgent for T
+impl<T> IntoAgent for T
 where
-    T: 'static + Adapt + Solve + Clone + SendSync,
+    T: 'static + Adapt + Solve + SendSync,
 {
     fn agent(mut self) -> Agent<Self> {
         Agent::make(|back| {
             self.adapt(Post::Trade(back))
-                .expect("Unit must handle Post::Trade.");
+                .expect("To move into Agent, unit must Adapt with Post::Trade.");
             self
         })
     }
 }
 
 pub trait IntoNode {
-    /// Move into new `Node`.
+    /// Move into `Node`.
     fn node(self) -> Node;
 }
 
 impl<T> IntoNode for T
 where
-    T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+    T: 'static + IntoAgent + Solve + Adapt + Debug + SendSync,
 {
     fn node(self) -> Node {
         self.agent().ploy().into()
+    }
+}
+
+impl IntoNode for Leaf {
+    fn node(self) -> Node {
+        self.into()
     }
 }
 
@@ -149,27 +155,12 @@ pub trait ToNode {
     fn node(&self) -> Node;
 }
 
-// impl<T> ToNode for T
-// where
-//     T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
-// {
-//     fn node(&self) -> Node {
-//         self.agent().ploy().into()
-//     }
-// }
-
 impl<T> ToNode for Agent<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
 {
     fn node(&self) -> Node {
         self.ploy().into()
-    }
-}
-
-impl ToNode for Leaf {
-    fn node(&self) -> Node {
-        self.into()
     }
 }
 
@@ -216,3 +207,12 @@ pub trait MakeInner {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+// impl<T> ToNode for T
+// where
+//     T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+// {
+//     fn node(&self) -> Node {
+//         self.agent().ploy().into()
+//     }
+// }

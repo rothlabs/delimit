@@ -25,7 +25,7 @@ pub trait DeserializeNode: DynClone + Debug + SendSync {
 }
 
 pub trait ToHash {
-    /// Hash to digest number. 
+    /// Hash to digest number.
     fn digest(&self) -> solve::Result;
 }
 
@@ -33,7 +33,7 @@ impl<T> ToHash for T
 where
     T: Hash,
 {
-    /// Hash to digest number. 
+    /// Hash to digest number.
     fn digest(&self) -> solve::Result {
         let mut state = DefaultHasher::new();
         self.hash(&mut state);

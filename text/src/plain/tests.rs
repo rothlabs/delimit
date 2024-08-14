@@ -32,7 +32,7 @@ fn rebut_from_self() -> Result<(), Error> {
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
     text.write(|pack| {
-        pack.unit.separator(" > ");
+        pack.unit.set_separator(" > ");
     })
     .ok();
     let b = text.solve(Task::Main)?;

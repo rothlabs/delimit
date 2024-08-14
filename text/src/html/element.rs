@@ -13,7 +13,7 @@ impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn tag(&mut self, tag: impl Into<Node>) -> &mut Self {
+    pub fn tag(mut self, tag: impl Into<Node>) -> Self {
         self.tag = tag.into();
         self
     }
@@ -21,11 +21,11 @@ impl Element {
         self.items.push(item.into());
         self
     }
-    pub fn close(&mut self, close: impl Into<Node>) -> &mut Self {
+    pub fn close(mut self, close: impl Into<Node>) -> Self {
         self.close = Some(close.into());
         self
     }
-    pub fn story(&mut self, story: impl Into<Node>) -> &mut Self {
+    pub fn story(mut self, story: impl Into<Node>) -> Self {
         self.story = story.into();
         self
     }
@@ -38,16 +38,17 @@ impl Element {
         adapt_ok()
     }
     fn main(&self) -> solve::Result {
-        let mut element = List::new();
-        element.separator("\n").push(self.tag.at(PLAIN)?);
-        element.extend(self.items.at(PLAIN)?);
+        let mut element = List::new()
+            .separator("\n")
+            .push(self.tag.at(PLAIN)?)
+            .extend(self.items.at(PLAIN)?);
         if let Some(close) = &self.close {
             let close = List::new()
                 .push("</")
                 .push(close.at(PLAIN)?)
                 .push(">")
                 .node();
-            element.push(close);
+            element = element.push(close);
         }
         element.node().tray().ok()
     }

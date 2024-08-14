@@ -14,11 +14,15 @@ impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn separator(&mut self, separator: impl Into<Node>) -> &mut Self {
+    pub fn set_separator(&mut self, separator: impl Into<Node>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(&mut self, items: Vec<impl Into<Node>>) -> &mut Self {
+    pub fn separator(mut self, separator: impl Into<Node>) -> Self {
+        self.separator = separator.into();
+        self
+    }
+    pub fn extend(mut self, items: Vec<impl Into<Node>>) -> Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }

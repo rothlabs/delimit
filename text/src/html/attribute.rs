@@ -11,11 +11,11 @@ impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
+    pub fn name(mut self, name: impl Into<Node>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn content(&mut self, content: impl Into<Node>) -> &mut Self {
+    pub fn content(mut self, content: impl Into<Node>) -> Self {
         self.content = content.into();
         self
     }
@@ -25,10 +25,14 @@ impl Attribute {
         adapt_ok()
     }
     fn main(&self) -> solve::Result {
-        List::new().push(self.name.at(PLAIN)?)
+        List::new()
+            .push(self.name.at(PLAIN)?)
             .push(r#"=""#)
             .push(self.content.at(PLAIN)?)
-            .push(r#"""#).node().tray().ok()
+            .push(r#"""#)
+            .node()
+            .tray()
+            .ok()
     }
     fn stems(&self) -> solve::Result {
         Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))

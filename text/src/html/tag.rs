@@ -11,7 +11,7 @@ impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(&mut self, name: impl Into<Node>) -> &mut Self {
+    pub fn name(mut self, name: impl Into<Node>) -> Self {
         self.name = name.into();
         self
     }
