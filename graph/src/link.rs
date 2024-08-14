@@ -40,7 +40,7 @@ where
         if let Ok(Tray::U64(digest)) = self.solve(Task::Hash) {
             digest.hash(state)
         } else {
-            // TODO: Remove when sure that this won't be a problem 
+            // TODO: Remove when sure that this won't be a problem
             panic!("failed to hash link")
         }
     }
@@ -59,7 +59,7 @@ where
         } else if let Ok(Tray::U64(hash)) = self.solve(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
-            // TODO: Remove when sure that this won't be a problem 
+            // TODO: Remove when sure that this won't be a problem
             panic!("failed to serialize link")
             // self.path.serialize(serializer)
         }

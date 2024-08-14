@@ -1,6 +1,10 @@
 use super::*;
-use deserializer::NodeDeserializer;
-use std::{fs::{self, File}, io::BufReader, result};
+use deserializer::Atlas;
+use std::{
+    fs::{self, File},
+    io::BufReader,
+    result,
+};
 use text::*;
 
 fn make_doc() -> Node {
@@ -44,13 +48,15 @@ fn save_graph() -> result::Result<(), Error> {
 fn load_graph() -> result::Result<(), Error> {
     let file = File::open(STORAGE)?;
     let reader = BufReader::new(file);
-    let lake: Lake = serde_json::from_reader(reader)?;
-    let deserializer = NodeDeserializer::new();
-    let serial = lake.root("root")?.string()?;
-    let node = deserializer.deserialize(&serial)?;
-    eprintln!("nice: {:?}", node);
-    Err("wow")?
-    // Ok(())
+    let mut lake: Lake = serde_json::from_reader(reader)?;
+    lake.atlas(Atlas::new());
+    let node = lake.root("root")?.node()?;
+    node.trade(&lake);
+    // let serial = lake.root("root")?.string()?;
+    // let node = atlas.deserialize(&serial)?;
+    //eprintln!("nice: {:?}", node);
+    //Err("wow")?
+    Ok(())
 }
 
 // #[test]
@@ -65,7 +71,6 @@ fn load_graph() -> result::Result<(), Error> {
 //         Err("did not find node in loaded repo")?
 //     }
 // }
-
 
 // #[test]
 // fn save_repo() -> result::Result<(), Error> {

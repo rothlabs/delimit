@@ -9,7 +9,7 @@ pub trait ToId {
     fn id(&self) -> Id;
 }
 
-/// Path component. Used to lookup a node from a Bay or Lake.
+/// Path component. Used to lookup a node from another node such as Lake or Bay.
 pub type Key = String;
 
 /// Path to node. It stands in place of actual nodes in serial form.

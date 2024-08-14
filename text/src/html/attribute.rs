@@ -20,8 +20,8 @@ impl Attribute {
         self
     }
     fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.name = self.name.trade(trade);
-        self.content = self.content.trade(trade);
+        self.name = self.name.deal(trade);
+        self.content = self.content.deal(trade);
         adapt_ok()
     }
     fn main(&self) -> solve::Result {
@@ -41,7 +41,7 @@ impl Attribute {
 impl Adapt for Attribute {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
+            Post::Trade(deal) => self.trade(deal),
             _ => no_adapter(post),
         }
     }

@@ -1,5 +1,6 @@
 use super::*;
 
+/// Value returned by a successful node solver.
 #[derive(Clone, PartialEq, Debug)]
 pub enum Tray {
     None,
@@ -10,6 +11,18 @@ pub enum Tray {
 }
 
 impl Tray {
+    /// Move Tray into Ok(...)
+    pub fn ok(self) -> solve::Result {
+        Ok(self)
+    }
+    /// Try to get Node from Tray.
+    pub fn node(&self) -> node::Result {
+        match self {
+            Self::Node(node) => Ok(node.clone()),
+            _ => Err("No node.")?,
+        }
+    }
+    /// Try to get String from Tray.
     pub fn string(&self) -> result::Result<String, Error> {
         match self {
             Self::String(string) => Ok(string.clone()),
@@ -31,6 +44,7 @@ impl From<Vec<Node>> for Tray {
 }
 
 pub trait IntoTray {
+    /// Move into Tray.
     fn tray(self) -> Tray;
 }
 

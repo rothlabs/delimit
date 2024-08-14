@@ -30,9 +30,9 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.items = self.items.trade(trade);
-        self.separator = self.separator.trade(trade);
+    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+        self.items = self.items.deal(deal);
+        self.separator = self.separator.deal(deal);
         adapt_ok()
     }
     fn main(&self) -> solve::Result {
@@ -60,7 +60,7 @@ impl List {
 impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
+            Post::Trade(deal) => self.trade(deal),
             _ => no_adapter(post),
         }
     }

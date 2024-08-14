@@ -1,16 +1,16 @@
 use super::*;
 
 #[derive(Debug, Clone)]
-pub struct NodeDeserializer;
+pub struct Atlas;
 
-impl NodeDeserializer {
+impl Atlas {
     #[allow(dead_code)]
     pub fn new() -> Box<Self> {
         Box::new(Self)
     }
 }
 
-impl DeserializeNode for NodeDeserializer {
+impl DeserializeNode for Atlas {
     fn deserialize(&self, string: &str) -> node::Result {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.node())

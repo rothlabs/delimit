@@ -108,22 +108,22 @@ pub trait Trade: DynClone + Debug {
     fn trade(&self, node: &Node) -> Node;
 }
 
-#[derive(Clone, Debug)]
-struct BackTrader {
-    back: Back,
-}
+// #[derive(Clone, Debug)]
+// struct BackTrader {
+//     back: Back,
+// }
 
-impl BackTrader {
-    fn new(back: &Back) -> Box<Self> {
-        Box::new(Self { back: back.clone() })
-    }
-}
+// impl BackTrader {
+//     fn new(back: &Back) -> Box<Self> {
+//         Box::new(Self { back: back.clone() })
+//     }
+// }
 
-impl Trade for BackTrader {
-    fn trade(&self, node: &Node) -> Node {
-        node.backed(&self.back)
-    }
-}
+// impl Trade for BackTrader {
+//     fn trade(&self, node: &Node) -> Node {
+//         node.backed(&self.back)
+//     }
+// }
 
 pub trait ToAgent
 where
@@ -139,8 +139,8 @@ where
     fn agent(&self) -> Agent<Self> {
         Agent::make(|back| {
             let mut unit = self.clone();
-            let trade = BackTrader::new(back);
-            unit.adapt(Post::Trade(trade))
+            //let trade = BackTrader::new(back);
+            unit.adapt(Post::Trade(back)) // Box::new(back.clone())
                 .expect("unit must handle Post::Trade");
             unit
         })

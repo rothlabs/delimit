@@ -9,6 +9,8 @@ pub type Result = result::Result<Lake, Error>;
 pub struct Lake {
     roots: HashMap<Key, String>,
     nodes: HashMap<u64, String>,
+    #[serde(skip)]
+    atlas: Option<Box<dyn DeserializeNode>>,
 }
 
 impl Lake {
@@ -16,9 +18,15 @@ impl Lake {
         Self::default()
     }
 
+    /// Set the atlas for deserializing entries into concrete nodes.
+    pub fn atlas(&mut self, atlas: Box<dyn DeserializeNode>) -> &mut Self {
+        self.atlas = Some(atlas);
+        self
+    }
+
     /// Insert graph into lake given root key and node.
-    pub fn insert(&mut self, key: Key, node: &Node) -> adapt::Result {
-        self.roots.insert(key, node.serial()?);
+    pub fn insert(&mut self, key: impl Into<Key>, node: &Node) -> adapt::Result {
+        self.roots.insert(key.into(), node.serial()?);
         for node in &node.stems()? {
             self.insert_stem(node)?;
         }
@@ -34,11 +42,50 @@ impl Lake {
         adapt_ok()
     }
 
-    pub fn root(&self, key: &str) -> solve::Result {
-        let serial = self.roots.get(key).ok_or("Root not in Lake.")?;
-        Ok(Tray::String(serial.clone()))
+    /// Get a root node by key.
+    pub fn root(&self, key: impl Into<Key>) -> solve::Result {
+        let serial = self.roots.get(&key.into()).ok_or("Root not in Lake.")?;
+        self.atlas
+            .as_ref()
+            .ok_or("No atlas.")?
+            .deserialize(serial)?
+            .tray()
+            .ok()
+    }
+
+    /// Get a node by hash.
+    pub fn get(&self, hash: u64) -> solve::Result {
+        let serial = self.nodes.get(&hash).ok_or("Node not in Lake.")?;
+        self.atlas
+            .as_ref()
+            .ok_or("No atlas.")?
+            .deserialize(serial)?
+            .tray()
+            .ok()
     }
 }
+
+impl Trade for Lake {
+    fn trade(&self, node: &Node) -> Node {
+        if let Node::Load(Load::Path(Path::Hash(hash))) = node {
+            if let Ok(Tray::Node(node)) = self.get(*hash) {
+                return node;
+            }
+        }
+        node.clone()
+    }
+}
+
+// #[derive(Clone, Debug)]
+// struct LakeTrade {
+//     lake: Lake,
+// }
+
+// impl LakeTrade {
+//     fn new(lake: Lake) -> Box<Self> {
+//         Box::new(Self { lake })
+//     }
+// }
 
 // impl Adapt for Lake {
 //     fn adapt(&mut self, post: Post) -> adapt::Result {

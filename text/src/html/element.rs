@@ -29,11 +29,11 @@ impl Element {
         self.story = story.into();
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
-        self.tag = self.tag.trade(trade);
-        self.items = self.items.trade(trade);
+    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+        self.tag = self.tag.deal(deal);
+        self.items = self.items.deal(deal);
         if let Some(close) = &self.close {
-            self.close = Some(close.trade(trade));
+            self.close = Some(close.deal(deal));
         }
         adapt_ok()
     }
@@ -49,8 +49,7 @@ impl Element {
                 .node();
             element.push(close);
         }
-        let element = element.node();
-        Ok(element.tray())
+        element.node().tray().ok()
     }
     fn stems(&self) -> solve::Result {
         let mut nodes = self.items.clone();
@@ -58,14 +57,14 @@ impl Element {
         if let Some(node) = &self.close {
             nodes.push(node.clone());
         }
-        Ok(nodes.tray())
+        nodes.tray().ok()
     }
 }
 
 impl Adapt for Element {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(trade) => self.trade(trade.as_ref()),
+            Post::Trade(deal) => self.trade(deal),
             _ => no_adapter(post),
         }
     }

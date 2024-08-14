@@ -142,6 +142,12 @@ impl Back {
     }
 }
 
+impl Trade for Back {
+    fn trade(&self, node: &Node) -> Node {
+        node.backed(self)
+    }
+}
+
 /// Points to many root edges, each pointing to back of a apex.
 #[derive(Default, Debug)]
 pub struct Ring {

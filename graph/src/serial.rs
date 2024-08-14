@@ -19,6 +19,7 @@ where
 
 dyn_clone::clone_trait_object!(DeserializeNode);
 pub trait DeserializeNode: DynClone + Debug + SendSync {
+    /// Deserialize as a node with concrete unit type.
     fn deserialize(&self, string: &str) -> node::Result;
 }
 
