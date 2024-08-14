@@ -22,7 +22,7 @@ impl List {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(&mut self, item: impl Into<Node>) -> &mut Self {
+    pub fn push(mut self, item: impl Into<Node>) -> Self {
         self.items.push(item.into());
         self
     }

@@ -25,13 +25,10 @@ impl Attribute {
         adapt_ok()
     }
     fn main(&self) -> solve::Result {
-        let node = List::new()
-            .push(self.name.at(PLAIN)?)
+        List::new().push(self.name.at(PLAIN)?)
             .push(r#"=""#)
             .push(self.content.at(PLAIN)?)
-            .push(r#"""#)
-            .node();
-        Ok(node.tray())
+            .push(r#"""#).node().tray().ok()
     }
     fn stems(&self) -> solve::Result {
         Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))

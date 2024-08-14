@@ -1,4 +1,4 @@
-pub use tray::{IntoTray, Tray};
+pub use tray::*;
 
 use super::*;
 use std::result;

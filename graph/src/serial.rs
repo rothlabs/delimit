@@ -4,6 +4,7 @@ use std::result;
 pub type Result = result::Result<String, Error>;
 
 pub trait ToSerial {
+    /// Serialize to string.
     fn serial(&self) -> solve::Result;
 }
 
@@ -11,7 +12,7 @@ impl<T> ToSerial for T
 where
     T: Serialize,
 {
-    /// Convert to a string.
+    /// Serialize to string.
     fn serial(&self) -> solve::Result {
         Ok(Tray::String(serde_json::to_string(self)?))
     }
@@ -19,11 +20,12 @@ where
 
 dyn_clone::clone_trait_object!(DeserializeNode);
 pub trait DeserializeNode: DynClone + Debug + SendSync {
-    /// Deserialize as a node with concrete unit type.
+    /// Deserialize to `Node` with concrete unit type.
     fn deserialize(&self, string: &str) -> node::Result;
 }
 
 pub trait ToHash {
+    /// Hash to digest number. 
     fn digest(&self) -> solve::Result;
 }
 
@@ -31,10 +33,11 @@ impl<T> ToHash for T
 where
     T: Hash,
 {
+    /// Hash to digest number. 
     fn digest(&self) -> solve::Result {
         let mut state = DefaultHasher::new();
         self.hash(&mut state);
-        Ok(Tray::U64(state.finish()))
+        state.finish().tray().ok()
     }
 }
 

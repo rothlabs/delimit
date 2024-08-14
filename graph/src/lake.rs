@@ -42,7 +42,7 @@ impl Lake {
         adapt_ok()
     }
 
-    /// Get a root node by key.
+    /// Get a root node by Key.
     pub fn root(&self, key: impl Into<Key>) -> solve::Result {
         let serial = self.roots.get(&key.into()).ok_or("Root not in Lake.")?;
         self.atlas

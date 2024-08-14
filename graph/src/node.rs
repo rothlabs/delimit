@@ -19,54 +19,49 @@ impl Node {
     pub fn none() -> Self {
         Self::default()
     }
+    /// Run main node function. Will return lower rank node if successful.
     pub fn main(&self) -> Result {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy")?,
         }
     }
+    /// Insert node into new Lake.
     pub fn lake(&self) -> lake::Result {
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
     }
+    /// Get hash digest number of node.
     pub fn digest(&self) -> result::Result<u64, Error> {
-        let hash_result = match self {
+        match self {
             Self::Load(load) => load.digest(),
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
-        };
-        match hash_result? {
-            Tray::U64(hash) => Ok(hash),
-            _ => Err("no hash")?,
-        }
+        }?.u64()
     }
+    /// Get serial string of node.
     pub fn serial(&self) -> serial::Result {
-        let serial_result = match self {
+        match self {
             Self::Load(load) => load.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
             Self::Ploy(ploy) => ploy.solve(Task::Serial),
-        };
-        match serial_result? {
-            Tray::String(string) => Ok(string),
-            _ => Err("no serial")?,
-        }
+        }?.string()
     }
+    /// Get stems of node.
     pub fn stems(&self) -> result::Result<Vec<Node>, Error> {
-        let stems = match self {
+        match self {
             Self::Ploy(ploy) => ploy.solve(Task::Stems),
             _ => empty_nodes(),
-        };
-        match stems? {
-            Tray::Nodes(nodes) => Ok(nodes),
-            _ => Err("no stems")?,
-        }
+        }?.nodes()
     }
+    /// Replace stems according to the Trade deal.
     pub fn trade(&self, deal: &dyn Trade) {
         if let Self::Ploy(ploy) = self {
             ploy.adapt(Post::Trade(deal)).ok();
         }
     }
+    /// Get path associated with node if any.
     pub fn path(&self) -> Option<Path> {
         match self {
             Self::Load(load) => load.path(),
@@ -74,6 +69,7 @@ impl Node {
             Self::Ploy(ploy) => ploy.path(),
         }
     }
+    /// Get payload of node. Will solve to lowest rank if needed.
     pub fn load(&self) -> load::Result {
         match self {
             Self::Load(bare) => Ok(bare.clone()),
@@ -81,9 +77,11 @@ impl Node {
             Self::Ploy(ploy) => ploy.main()?.load(),
         }
     }
+    /// Run trade deal with this node as input.
     pub fn deal(&self, deal: &dyn Trade) -> Self {
         deal.trade(self)
     }
+    /// Get rank of node. Rank 1 nodes produce leaf nodes.
     pub fn rank(&self) -> Option<usize> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
@@ -104,6 +102,7 @@ impl Node {
         }
         Ok(node)
     }
+    /// Read contents of node.
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
             Self::Load(bare) => read(Ok(bare)),

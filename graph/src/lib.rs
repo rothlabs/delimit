@@ -48,14 +48,15 @@ mod meta;
 mod work;
 mod write;
 
-/// Graph error
 #[cfg(not(feature = "oneThread"))]
+/// Graph Error
 pub type Error = Box<dyn error::Error + Send + Sync>;
 #[cfg(feature = "oneThread")]
+/// Graph Error
 pub type Error = Box<dyn error::Error>;
 
 #[cfg(not(feature = "oneThread"))]
-const NO_POISON: &str = "the lock should not be poisoned";
+const NO_POISON: &str = "The lock should not be poisoned.";
 
 #[cfg(not(feature = "oneThread"))]
 pub trait SendSync: Send + Sync {}
@@ -93,7 +94,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
     write(part.borrow_mut())
 }
 
-/// Ploy node super trait. For general engagement without unit type.
+/// General engagement of Ploy with erased unit type.
 pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
 
 #[cfg(not(feature = "oneThread"))]
@@ -102,48 +103,44 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(Trade);
-/// Trade a node for another. The implmentation should return the same semantic node with different graph qualities.
+/// Trade a node for another.
+/// The implmentation should return the same semantic node with different graph qualities.
 pub trait Trade: DynClone + Debug {
     /// Trade a node for another.
     fn trade(&self, node: &Node) -> Node;
 }
 
-// #[derive(Clone, Debug)]
-// struct BackTrader {
-//     back: Back,
-// }
-
-// impl BackTrader {
-//     fn new(back: &Back) -> Box<Self> {
-//         Box::new(Self { back: back.clone() })
-//     }
-// }
-
-// impl Trade for BackTrader {
-//     fn trade(&self, node: &Node) -> Node {
-//         node.backed(&self.back)
-//     }
-// }
-
 pub trait ToAgent
 where
     Self: Sized,
 {
-    fn agent(&self) -> Agent<Self>;
+    fn agent(self) -> Agent<Self>;
 }
 
-impl<T> ToAgent for T
+impl<'a, T> ToAgent for T
 where
     T: 'static + Adapt + Solve + Clone + SendSync,
 {
-    fn agent(&self) -> Agent<Self> {
+    fn agent(mut self) -> Agent<Self> {
         Agent::make(|back| {
-            let mut unit = self.clone();
-            //let trade = BackTrader::new(back);
-            unit.adapt(Post::Trade(back)) // Box::new(back.clone())
-                .expect("unit must handle Post::Trade");
-            unit
+            self.adapt(Post::Trade(back))
+                .expect("Unit must handle Post::Trade.");
+            self
         })
+    }
+}
+
+pub trait IntoNode {
+    /// Move into new `Node`.
+    fn node(self) -> Node;
+}
+
+impl<T> IntoNode for T
+where
+    T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+{
+    fn node(self) -> Node {
+        self.agent().ploy().into()
     }
 }
 
@@ -152,14 +149,14 @@ pub trait ToNode {
     fn node(&self) -> Node;
 }
 
-impl<T> ToNode for T
-where
-    T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
-{
-    fn node(&self) -> Node {
-        self.agent().ploy().into()
-    }
-}
+// impl<T> ToNode for T
+// where
+//     T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+// {
+//     fn node(&self) -> Node {
+//         self.agent().ploy().into()
+//     }
+// }
 
 impl<T> ToNode for Agent<T>
 where

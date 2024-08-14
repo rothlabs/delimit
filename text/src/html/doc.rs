@@ -31,12 +31,16 @@ impl Doc {
             tags.insert(tag, tag.leaf().node());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        let tag = Tag::new().name(doctype).agent();
+        let mut tag = Tag::new();
+        tag.name(doctype);
+        let tag_agent = tag.agent();
+        let tag_ploy = tag_agent.ploy();
+        
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(tag.ploy()).story(story.into()).agent(),
-            tag,
+            element: Element::new().tag(tag_ploy).story(story.into()).agent(),
+            tag: tag_agent,
             tag_names: tags,
             attributes: atts.clone(),
             // repo,

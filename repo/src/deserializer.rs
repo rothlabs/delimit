@@ -28,7 +28,7 @@ enum Part {
 }
 
 impl Part {
-    fn node(&self) -> Node {
+    fn node(self) -> Node {
         match self {
             Self::GraphLoad(x) => x.leaf().node(),
             Self::TextPlainList(x) => x.node(),

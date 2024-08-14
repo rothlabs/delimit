@@ -52,10 +52,7 @@ fn load_graph() -> result::Result<(), Error> {
     lake.atlas(Atlas::new());
     let node = lake.root("root")?.node()?;
     node.trade(&lake);
-    // let serial = lake.root("root")?.string()?;
-    // let node = atlas.deserialize(&serial)?;
-    //eprintln!("nice: {:?}", node);
-    //Err("wow")?
+
     Ok(())
 }
 
