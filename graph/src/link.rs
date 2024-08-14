@@ -1,4 +1,4 @@
-pub use leaf::ToLeaf;
+pub use leaf::*;
 
 use super::*;
 use std::hash::{Hash, Hasher};
@@ -11,17 +11,18 @@ mod leaf;
 #[cfg(test)]
 mod tests;
 
-/// Link to a load. The most simple graph part.
+/// Link to Load.
 pub type Leaf = Link<edge::Leaf>;
 
-/// Link to a unit that grants a load.
+/// Link to domain-specific unit.
 pub type Agent<U> = Link<edge::Agent<U>>;
 
-/// Link that grants a load.
+/// Link to domain-specific unit. 
+/// The unit type is erased. To keep unit type intact, use `Agent` instead. 
 pub type Ploy = Link<Box<dyn Engage>>;
 
-/// Link to an edge that leads to a apex that contains a unit.
-/// Units hold links as source of input used to compute output.
+/// Link to `Edge`, pointing to `Apex` of unit.
+/// Unit fields often contain `Link`, creating a graph pattern.
 #[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]

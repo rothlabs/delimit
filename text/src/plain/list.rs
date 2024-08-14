@@ -1,7 +1,5 @@
 use std::hash::Hash;
-
 use super::*;
-use node::TradeNode;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct List {

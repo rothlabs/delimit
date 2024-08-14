@@ -6,7 +6,7 @@ pub use lake::Lake;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
 pub use load::Load;
 pub use meta::{random, Id, Key, Path, ToId};
-pub use node::{Node, SolveDown, TradeNode};
+pub use node::{Node, EngageNodes};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,

@@ -6,8 +6,8 @@ mod convert;
 
 pub type Result = result::Result<Node, Error>;
 
-/// Contains a bare load, meta about a link, or the link itself.
-#[derive(Debug, Clone, PartialEq, Serialize, Hash)]
+/// Primary graph part. 
+#[derive(Clone, PartialEq, Hash, Serialize, Debug)]
 #[serde(untagged)]
 pub enum Node {
     Load(Load),
@@ -117,6 +117,15 @@ impl Node {
         Ok(node)
     }
 
+    /// New backed node.
+    pub fn backed(&self, back: &Back) -> Self {
+        match self {
+            Self::Load(bare) => Self::Load(bare.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+        }
+    }
+
     /// Read contents of node.
     pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
         match self {
@@ -184,39 +193,22 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::Load(Load::None) // (Empty::default())
+        Self::Load(Load::None)
     }
 }
 
-impl Backed for Node {
-    fn backed(&self, back: &Back) -> Self {
-        match self {
-            Self::Load(bare) => Self::Load(bare.clone()),
-            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
-            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
-        }
-    }
-}
-
-pub trait TradeNode {
-    /// Trade nodes for others via base.
-    fn deal(&self, base: &dyn Trade) -> Self;
-}
-
-impl TradeNode for Vec<Node> {
-    fn deal(&self, base: &dyn Trade) -> Self {
-        self.iter().map(|x| x.deal(base)).collect()
-    }
-}
-
-pub trait SolveDown {
+pub trait EngageNodes {
     /// Solve down to the given graph rank.
     fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error>;
+    /// Replace stems according to the Trade deal.
+    fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
-impl SolveDown for Vec<Node> {
-    /// Solve down to the given graph rank.
+impl EngageNodes for Vec<Node> {
     fn at(&self, rank: usize) -> result::Result<Vec<Node>, Error> {
         self.iter().map(|x| x.at(rank)).collect()
+    }
+    fn deal(&self, deal: &dyn Trade) -> Self {
+        self.iter().map(|x| x.deal(deal)).collect()
     }
 }
