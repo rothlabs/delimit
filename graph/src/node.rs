@@ -1,7 +1,5 @@
 use super::*;
-// use load::Empty;
 use serde::de::{MapAccess, Visitor};
-// use serde_untagged::UntaggedEnumVisitor;
 use std::{fmt, result};
 
 pub type Result = result::Result<Node, Error>;
@@ -299,9 +297,6 @@ impl<'de> Deserialize<'de> for Node {
     where
         D: serde::Deserializer<'de>,
     {
-        // UntaggedEnumVisitor::new()
-        //     .map(|map| map.deserialize().map(Node::Load))
-        //     .deserialize(deserializer)
         deserializer.deserialize_map(NodeVisitor)
     }
 }
@@ -384,97 +379,3 @@ enum NodeType {
     Vf32,
     Vf64,
 }
-
-// pub fn serial(&self, serial: &mut Serial) -> serial::Result {
-//     if serial.contains(&self.meta()) {
-//         return Ok(());
-//     }
-//     match self {
-//         Self::Leaf(leaf) => leaf.serial(serial),
-//         Self::Ploy(ploy) => ploy.serial(serial),
-//         _ => Ok(()),
-//     }
-// }
-
-// fn no_node<S>(serializer: S) -> result::Result<S::Ok, S::Error>
-// where
-//     S: Serializer,
-// {
-//     serializer.serialize_str(&r#"{"n":"n"}"#)
-// }
-
-// impl<'de> Deserialize<'de> for Node {
-//     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
-//     where
-//         D: serde::Deserializer<'de>,
-//     {
-//         const VARIANTS: &[&str] = &["Meta", "Load", "Leaf", "Ploy"];
-//         // deserializer.deserialize_any(visitor)
-//         deserializer.deserialize_enum("Node", VARIANTS, NodeVisitor)
-//     }
-// }
-
-// #[derive(Deserialize)]
-// // #[serde(variant_identifier)]
-// enum NodeIdentifier {
-//     Meta,
-//     Load,
-//     Leaf,
-//     Ploy,
-// }
-
-// struct NodeVisitor;
-
-// impl<'de> Visitor<'de> for NodeVisitor {
-//     type Value = Node;
-
-//     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-//         formatter.write_str("enum node form")
-//     }
-
-//     fn visit_enum<A>(self, data: A) -> result::Result<Node, A::Error>
-//     where
-//         A: de::EnumAccess<'de>,
-//     {
-//         let (identifier, variant) = data.variant()?;
-//         match identifier {
-//             NodeIdentifier::Meta => Ok(Node::Meta(variant.newtype_variant()?)),
-//             NodeIdentifier::Load => Ok(Node::Load(variant.newtype_variant()?)),
-//             NodeIdentifier::Leaf => Ok(Node::Meta(variant.newtype_variant()?)),
-//             NodeIdentifier::Ploy => Ok(Node::Meta(variant.newtype_variant()?)),
-//         }
-//     }
-// }
-
-// match task {
-//     // Task::Main => Ok(Self {
-//     //     rank: self.rank - 1,
-//     //     form: self.form.solve_form(task)?,
-//     // }
-//     // .into()),
-// }
-
-// pub fn solve_form(&self, _: Task) -> result::Result<Form, Error> {
-//     match self {
-//         Self::Meta(_) => Err("not a ploy")?,
-//         Self::Load(_) => Err("not a ploy")?,
-//         Self::Leaf(_) => Err("not a ploy")?,
-//         Self::Ploy(ploy) => Ok(ploy.query().main()?),
-//     }
-// }
-// pub fn solve(&self, task: Task) -> solve::Result {
-//     match self {
-//         Self::Meta(_) => Err("not a ploy")?,
-//         Self::Load(_) => Err("not a ploy")?,
-//         Self::Leaf(_) => Err("not a ploy")?,
-//         Self::Ploy(ploy) => ploy.solve(task),
-//     }
-// }
-// pub fn alter(&self, post: Post) -> adapt::Result {
-//     match self {
-//         Self::Meta(_) => Err("not a ploy")?,
-//         Self::Load(_) => Err("not a ploy")?,
-//         Self::Leaf(_) => Err("not a ploy")?,
-//         Self::Ploy(ploy) => ploy.adapt(post),
-//     }
-// }
