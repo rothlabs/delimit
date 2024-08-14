@@ -39,7 +39,7 @@ impl Solve for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(Tray::None)
+            Ok(Gain::None)
         } else {
             Err(self
                 .gl

@@ -4,7 +4,7 @@ pub use bay::Bay;
 pub use edge::Edge;
 pub use lake::Lake;
 pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
-pub use load::Load;
+pub use tray::Tray;
 pub use meta::{random, Id, Key, Path, ToId};
 pub use node::{Node, EngageNodes};
 pub use react::{
@@ -12,9 +12,9 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use serial::{DeserializeNode, ToHash, ToSerial};
-pub use solve::{empty_nodes, no_solver, DoSolve, IntoTray, Solve, Task, Tray};
+pub use solve::{empty_nodes, no_solver, DoSolve, IntoGain, Solve, Task, Gain};
 pub use write::{
-    Pack, WriteLoad, WriteLoadOut, WriteLoadWork, WriteUnit, WriteUnitOut, WriteUnitWork,
+    Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 
 use dyn_clone::DynClone;
@@ -43,7 +43,7 @@ mod apex;
 mod bay;
 mod edge;
 mod link;
-mod load;
+mod tray;
 mod meta;
 mod work;
 mod write;
@@ -174,19 +174,19 @@ pub trait Read {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
 }
 
-pub trait DoReadLoad {
-    fn do_read_load(&self) -> load::ResultRef;
+pub trait DoReadTray {
+    fn do_read_tray(&self) -> tray::ResultRef;
 }
 
-pub trait ReadLoad {
-    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T;
+pub trait ReadTray {
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T;
 }
 
-pub trait ToLoad {
-    type Load;
-    /// Clone the Load out of the graph part.
-    /// May cause stem nodes to generate the load.
-    fn load(&self) -> Self::Load;
+pub trait ToTray {
+    type Tray;
+    /// Clone the Tray out of the graph part.
+    /// May cause stem nodes to generate the tray.
+    fn tray(&self) -> Self::Tray;
 }
 
 pub trait FromItem {

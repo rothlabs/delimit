@@ -31,12 +31,12 @@ impl Tag {
             .extend(self.attributes.at(PLAIN)?)
             .node();
         let tag = List::new().push("<").push(&items).push(">").node();
-        Ok(tag.tray())
+        Ok(tag.gain())
     }
     fn stems(&self) -> solve::Result {
         let mut nodes = self.attributes.clone();
         nodes.push(self.name.clone());
-        Ok(nodes.tray())
+        Ok(nodes.gain())
     }
 }
 

@@ -35,8 +35,8 @@ fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
 #[test]
 fn basic_doc() -> Result<(), Error> {
     let (_, doc, _, _) = make_doc();
-    let string = doc.load()?;
-    assert_eq!(Load::String(DOC.into()), string);
+    let string = doc.tray()?;
+    assert_eq!(Tray::String(DOC.into()), string);
     Ok(())
 }
 
@@ -55,21 +55,21 @@ fn serialize_basic_doc() -> Result<(), Error> {
 fn mutate_lower_graph_plain() -> Result<(), Error> {
     let (_, doc, _, atts) = make_doc();
     let plain = doc.at(PLAIN)?;
-    let _r = plain.load()?;
-    let _r = doc.load()?;
+    let _r = plain.tray()?;
+    let _r = doc.tray()?;
     atts.get("type")
         .unwrap()
-        .write(|load| {
-            if let Load::String(string) = load {
+        .write(|tray| {
+            if let Tray::String(string) = tray {
                 *string += "_mutated"
             } else {
                 panic!("not a string")
             }
         })
         .ok();
-    //let string = doc.load()?;
-    let string = plain.load()?;
-    assert_eq!(Load::String(MUTATED_ATTRIB.into()), string);
+    //let string = doc.tray()?;
+    let string = plain.tray()?;
+    assert_eq!(Tray::String(MUTATED_ATTRIB.into()), string);
     Ok(())
 }
 
@@ -78,15 +78,15 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
 fn mutate_upper_graph_html() -> Result<(), Error> {
     let (_, doc, head, _) = make_doc();
     let plain = doc.at(PLAIN)?;
-    let _r = plain.load()?;
-    let _r = doc.load()?;
+    let _r = plain.tray()?;
+    let _r = doc.tray()?;
     head.write(|pack| {
         pack.unit.items.remove(0);
     })
     .ok();
-    let string = doc.load()?;
-    //let string = plain.load()?;
-    assert_eq!(Load::String(REMOVED_TITLE.into()), string);
+    let string = doc.tray()?;
+    //let string = plain.tray()?;
+    assert_eq!(Tray::String(REMOVED_TITLE.into()), string);
     Ok(())
 }
 
@@ -161,7 +161,7 @@ Delimit
 //     let plain = doc.grant();
 //     att.write(|unit| *unit += "_mutated");
 //     let ace = plain.grant();
-//     let string = ace.load();
+//     let string = ace.tray();
 //     assert_eq!(MUTATED_ATTRIB, string);
 // }
 
@@ -194,7 +194,7 @@ Delimit
 //             if let Part::Element(html) = &html.part {
 //                 html.read(|unit|{
 //                     if let View::Role(tag) = &unit.tag {
-//                         let string = tag.grant().grant().load();
+//                         let string = tag.grant().grant().tray();
 //                         println!("html element: {string}");
 //                     }
 //                 });
@@ -237,7 +237,7 @@ Delimit
 //                 if let Part::Element(html) = &html.part {
 //                     html.read(|unit|{
 //                         if let View::Role(tag) = &unit.tag {
-//                             let string = tag.grant().grant().load();
+//                             let string = tag.grant().grant().tray();
 //                             println!("html element: {string}");
 //                         }
 //                     });
@@ -245,6 +245,6 @@ Delimit
 //             }
 //         });
 //     }
-//     let string = role.grant().grant().load();
+//     let string = role.grant().grant().tray();
 //     assert_eq!(DOC_MUTATED_TAG, string);
 // }

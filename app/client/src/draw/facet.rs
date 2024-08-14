@@ -19,7 +19,7 @@ impl Facets {
 
 impl Solve for Facets {
     fn solve(&self, _: Task) -> solve::Result {
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }
 

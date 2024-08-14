@@ -15,22 +15,22 @@ pub struct Out<T> {
     pub out: T,
 }
 
-pub trait WriteLoad {
+pub trait WriteTray {
     type Item;
-    /// Front-facing write-to-load.
+    /// Front-facing write-to-tray.
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T>;
 }
 
-pub trait WriteLoadOut {
+pub trait WriteTrayOut {
     type Item;
     /// Write and return the node meta and graph roots of the rebut. Node level.
-    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> Out<T>;
+    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> Out<T>;
 }
 
-pub trait WriteLoadWork {
+pub trait WriteTrayWork {
     type Item;
-    /// Work-level write-to-load.
-    fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T;
+    /// Work-level write-to-tray.
+    fn write_tray_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T;
 }
 
 pub trait WriteUnit {

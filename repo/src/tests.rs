@@ -62,7 +62,7 @@ fn load_graph() -> result::Result<(), Error> {
 //     let deserializer = NodeDeserializer::new();
 //     let repo = Repo::new().path(path).deserializer(deserializer).node();
 //     repo.alter().import()?;
-//     if let Tray::Node(_) = repo.query().find("Delimit index page")? {
+//     if let Gain::Node(_) = repo.query().find("Delimit index page")? {
 //         Ok(())
 //     } else {
 //         Err("did not find node in loaded repo")?

@@ -46,6 +46,6 @@ impl Solve for Canvas {
             self.object.width() as i32,
             self.object.height() as i32,
         );
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }

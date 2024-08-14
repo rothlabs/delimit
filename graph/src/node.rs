@@ -10,7 +10,7 @@ pub type Result = result::Result<Node, Error>;
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
 #[serde(untagged)]
 pub enum Node {
-    Load(Load),
+    Tray(Tray),
     Leaf(Leaf),
     Ploy(Ploy),
 }
@@ -38,7 +38,7 @@ impl Node {
     /// Get hash digest number of node.
     pub fn digest(&self) -> result::Result<u64, Error> {
         match self {
-            Self::Load(load) => load.digest(),
+            Self::Tray(tray) => tray.digest(),
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
         }?
@@ -48,7 +48,7 @@ impl Node {
     /// Get serial string of node.
     pub fn serial(&self) -> serial::Result {
         match self {
-            Self::Load(load) => load.serial(),
+            Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
             Self::Ploy(ploy) => ploy.solve(Task::Serial),
         }?
@@ -74,18 +74,18 @@ impl Node {
     /// Get path associated with node if any.
     pub fn path(&self) -> Option<Path> {
         match self {
-            Self::Load(load) => load.path(),
+            Self::Tray(tray) => tray.path(),
             Self::Leaf(leaf) => leaf.path(),
             Self::Ploy(ploy) => ploy.path(),
         }
     }
 
-    /// Get payload of node. Will solve to lowest rank if needed.
-    pub fn load(&self) -> load::Result {
+    /// Get tray of node. Will solve to lowest rank if needed.
+    pub fn tray(&self) -> tray::Result {
         match self {
-            Self::Load(bare) => Ok(bare.clone()),
-            Self::Leaf(leaf) => Ok(leaf.load()),
-            Self::Ploy(ploy) => ploy.main()?.load(),
+            Self::Tray(bare) => Ok(bare.clone()),
+            Self::Leaf(leaf) => Ok(leaf.tray()),
+            Self::Ploy(ploy) => ploy.main()?.tray(),
         }
     }
 
@@ -120,17 +120,17 @@ impl Node {
     /// New backed node.
     pub fn backed(&self, back: &Back) -> Self {
         match self {
-            Self::Load(bare) => Self::Load(bare.clone()),
+            Self::Tray(bare) => Self::Tray(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
             Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
         }
     }
 
     /// Read contents of node.
-    pub fn read<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+    pub fn read<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
         match self {
-            Self::Load(bare) => read(Ok(bare)),
-            Self::Leaf(leaf) => leaf.read_load(read),
+            Self::Tray(bare) => read(Ok(bare)),
+            Self::Leaf(leaf) => leaf.read_tray(read),
             Self::Ploy(ploy) => {
                 if let Ok(node) = ploy.main() {
                     node.read(read)
@@ -141,51 +141,51 @@ impl Node {
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Load) -> T>(&self, read: F) -> result::Result<T, Error> {
-        self.read(|load| match load {
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> result::Result<T, Error> {
+        self.read(|tray| match tray {
             Ok(value) => Ok(read(value)),
             _ => Err("nothing to read")?,
         })
     }
     pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
-        self.read(|load| match load {
-            Ok(Load::String(value)) => read(value),
+        self.read(|tray| match tray {
+            Ok(Tray::String(value)) => read(value),
             _ => read(&"".into()),
         })
     }
     pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
-        self.read(|load| match load {
-            Ok(Load::Vu8(value)) => read(value),
+        self.read(|tray| match tray {
+            Ok(Tray::Vu8(value)) => read(value),
             _ => read(&vec![]),
         })
     }
     pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
-        self.read(|load| match load {
-            Ok(Load::Vu16(value)) => read(value),
+        self.read(|tray| match tray {
+            Ok(Tray::Vu16(value)) => read(value),
             _ => read(&vec![]),
         })
     }
     pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
-        self.read(|load| match load {
-            Ok(Load::Vf32(value)) => read(value),
+        self.read(|tray| match tray {
+            Ok(Tray::Vf32(value)) => read(value),
             _ => read(&vec![]),
         })
     }
     pub fn string(&self) -> result::Result<String, Error> {
-        match self.load() {
-            Ok(Load::String(value)) => Ok(value),
+        match self.tray() {
+            Ok(Tray::String(value)) => Ok(value),
             _ => Err("not a string")?,
         }
     }
     pub fn u32(&self) -> u32 {
-        match self.load() {
-            Ok(Load::U32(value)) => value,
+        match self.tray() {
+            Ok(Tray::U32(value)) => value,
             _ => 0,
         }
     }
     pub fn i32(&self) -> i32 {
-        match self.load() {
-            Ok(Load::I32(value)) => value,
+        match self.tray() {
+            Ok(Tray::I32(value)) => value,
             _ => 0,
         }
     }
@@ -193,7 +193,7 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Self {
-        Self::Load(Load::None)
+        Self::Tray(Tray::None)
     }
 }
 

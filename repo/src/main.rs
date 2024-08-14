@@ -28,7 +28,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let ace = Leaf::new(Load::I32(0));
+    let ace = Leaf::new(Tray::I32(0));
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
@@ -47,9 +47,9 @@ async fn future(io: Io, ace: Leaf) {
 }
 
 async fn service(_: Request<impl Body>, ace: Leaf) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.write(|load| {
-        if let Load::I32(value) = load {
-            println!("load: {value}");
+    ace.write(|tray| {
+        if let Tray::I32(value) = tray {
+            println!("tray: {value}");
             *value += 1;
         }
     })

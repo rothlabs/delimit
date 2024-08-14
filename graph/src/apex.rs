@@ -59,23 +59,23 @@ where
     }
 }
 
-impl<W> ToLoad for Apex<W>
+impl<W> ToTray for Apex<W>
 where
-    W: ToLoad,
+    W: ToTray,
 {
-    type Load = W::Load;
-    fn load(&self) -> Self::Load {
-        self.work.load()
+    type Tray = W::Tray;
+    fn tray(&self) -> Self::Tray {
+        self.work.tray()
     }
 }
 
-impl<W> WriteLoadOut for Apex<W>
+impl<W> WriteTrayOut for Apex<W>
 where
-    W: WriteLoadWork,
+    W: WriteTrayWork,
 {
     type Item = W::Item;
-    fn write_load_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
-        let out = self.work.write_load_work(write);
+    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
+        let out = self.work.write_tray_work(write);
         let roots = self.ring.rebut_roots();
         write::Out {
             roots,
@@ -117,12 +117,12 @@ where
     }
 }
 
-impl<W> DoReadLoad for Apex<W>
+impl<W> DoReadTray for Apex<W>
 where
-    W: DoReadLoad,
+    W: DoReadTray,
 {
-    fn do_read_load(&self) -> load::ResultRef {
-        self.work.do_read_load()
+    fn do_read_tray(&self) -> tray::ResultRef {
+        self.work.do_read_tray()
     }
 }
 

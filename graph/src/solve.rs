@@ -1,11 +1,11 @@
-pub use tray::*;
+pub use gain::*;
 
 use super::*;
 use std::result;
 
-mod tray;
+mod gain;
 
-pub type Result = result::Result<Tray, Error>;
+pub type Result = result::Result<Gain, Error>;
 
 pub trait Solve {
     /// Solve a task.
@@ -23,7 +23,7 @@ pub fn no_solver() -> solve::Result {
 }
 
 pub fn empty_nodes() -> solve::Result {
-    Ok(Tray::Nodes(vec![]))
+    Ok(Gain::Nodes(vec![]))
 }
 
 pub enum Task {

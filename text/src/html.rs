@@ -23,7 +23,7 @@ mod tests;
 // pub type Pipe = graph::Pipe<Role>;
 
 // /// HTML Role
-// pub type Role = role::Ploy<OldPart, Load>;
+// pub type Role = role::Ploy<OldPart, Tray>;
 
 // #[derive(Clone)]
 // pub enum OldPart {
@@ -35,8 +35,8 @@ mod tests;
 // /// HTML link
 // type Link<U> = Deuce<U>;
 
-// // HTML load
-// type Load = plain::Role;
+// // HTML tray
+// type Tray = plain::Role;
 
 // /// HTML stem view
 // type Stem = plain::view::Ploy<OldPart>;

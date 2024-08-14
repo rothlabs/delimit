@@ -41,7 +41,7 @@ impl Solve for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(Tray::None)
+            Ok(Gain::None)
         } else {
             Err(self
                 .gl

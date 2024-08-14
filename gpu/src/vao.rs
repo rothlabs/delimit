@@ -51,7 +51,7 @@ impl Solve for Vao {
             buffer.read(|unit| unit.bind());
         }
         self.unbind();
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }
 

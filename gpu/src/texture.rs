@@ -63,7 +63,7 @@ impl Solve for Texture {
             }
             Ok(())
         })?;
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }
 

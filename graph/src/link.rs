@@ -11,7 +11,7 @@ mod leaf;
 #[cfg(test)]
 mod tests;
 
-/// Link to Load.
+/// Link to Tray.
 pub type Leaf = Link<edge::Leaf>;
 
 /// Link to domain-specific unit.
@@ -38,7 +38,7 @@ where
     Self: Solve,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        if let Ok(Tray::U64(digest)) = self.solve(Task::Hash) {
+        if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
             digest.hash(state)
         } else {
             // TODO: Remove when sure that this won't be a problem
@@ -57,7 +57,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Tray::U64(hash)) = self.solve(Task::Hash) {
+        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
             // TODO: Remove when sure that this won't be a problem
@@ -89,7 +89,7 @@ where
 {
     pub fn main(&self) -> node::Result {
         match self.solve(Task::Main)? {
-            Tray::Node(node) => Ok(node),
+            Gain::Node(node) => Ok(node),
             _ => Err("Wrong return type for Task::Main.")?,
         }
     }
@@ -131,10 +131,10 @@ where
 
 impl<E> Link<E>
 where
-    E: ToLoad,
+    E: ToTray,
 {
-    pub fn load(&self) -> E::Load {
-        read_part(&self.edge, |edge| edge.load())
+    pub fn tray(&self) -> E::Tray {
+        read_part(&self.edge, |edge| edge.tray())
     }
 }
 
@@ -236,22 +236,22 @@ where
     }
 }
 
-impl<E> ReadLoad for Link<E>
+impl<E> ReadTray for Link<E>
 where
-    E: 'static + ReadLoad + Update + AddRoot,
+    E: 'static + ReadTray + Update + AddRoot,
 {
-    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
         read_part(&self.edge, |edge| {
-            let out = edge.read_load(read);
+            let out = edge.read_tray(read);
             edge.add_root(self.as_root(edge.id()));
             out
         })
     }
 }
 
-impl<E> WriteLoad for Link<E>
+impl<E> WriteTray for Link<E>
 where
-    E: WriteLoad,
+    E: WriteTray,
 {
     type Item = E::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {

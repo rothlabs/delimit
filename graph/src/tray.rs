@@ -3,14 +3,14 @@ use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use std::result;
 
-pub type Result = result::Result<Load, Error>;
-pub type ResultRef<'a> = result::Result<&'a Load, Error>;
+pub type Result = result::Result<Tray, Error>;
+pub type ResultRef<'a> = result::Result<&'a Tray, Error>;
 
 /// Payload value of graph nodes. 
 /// Used as `Leaf` payload and field values of `Agent` and `Ploy`.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Load {
+pub enum Tray {
     None,
     Path(Path),
     String(String),
@@ -36,7 +36,7 @@ pub enum Load {
     Vf64(Vec<f64>),
 }
 
-impl Load {
+impl Tray {
     pub fn path(&self) -> Option<Path> {
         match self {
             Self::Path(path) => Some(path.clone()),
@@ -45,7 +45,7 @@ impl Load {
     }
 }
 
-impl Hash for Load {
+impl Hash for Tray {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self {
             Self::Path(path) => path.hash(state),

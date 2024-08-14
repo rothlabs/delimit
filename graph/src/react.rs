@@ -8,12 +8,12 @@ use std::{collections::HashSet, hash::Hash};
 pub type Result = std::result::Result<(), Error>;
 
 pub trait Rebut {
-    /// Invalidate the load. Call only after write during rebut phase.
+    /// Invalidate the tray. Call only after write during rebut phase.
     fn rebut(&self) -> Ring;
 }
 
 pub trait DoRebut {
-    /// Invalidatd the load at apex level. Call only after write during rebut phase.
+    /// Invalidatd the tray at apex level. Call only after write during rebut phase.
     fn do_rebut(&mut self) -> Ring;
 }
 

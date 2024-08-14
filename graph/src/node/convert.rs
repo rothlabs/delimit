@@ -1,8 +1,8 @@
 use super::*;
 
-impl From<Load> for Node {
-    fn from(value: Load) -> Self {
-        Node::Load(value)
+impl From<Tray> for Node {
+    fn from(value: Tray) -> Self {
+        Node::Tray(value)
     }
 }
 
@@ -40,36 +40,36 @@ impl From<&Node> for Node {
 
 impl From<&str> for Node {
     fn from(value: &str) -> Self {
-        Node::Load(Load::String(value.to_owned()))
+        Node::Tray(Tray::String(value.to_owned()))
     }
 }
 
 impl From<u32> for Node {
     fn from(value: u32) -> Self {
-        Node::Load(Load::U32(value))
+        Node::Tray(Tray::U32(value))
     }
 }
 
 impl From<i32> for Node {
     fn from(value: i32) -> Self {
-        Node::Load(Load::I32(value))
+        Node::Tray(Tray::I32(value))
     }
 }
 
 impl From<Vec<u8>> for Node {
     fn from(value: Vec<u8>) -> Self {
-        Node::Leaf(Leaf::new(Load::Vu8(value)))
+        Node::Leaf(Leaf::new(Tray::Vu8(value)))
     }
 }
 
 impl From<Vec<u16>> for Node {
     fn from(value: Vec<u16>) -> Self {
-        Node::Leaf(Leaf::new(Load::Vu16(value)))
+        Node::Leaf(Leaf::new(Tray::Vu16(value)))
     }
 }
 
 impl From<Vec<f32>> for Node {
     fn from(value: Vec<f32>) -> Self {
-        Node::Leaf(Leaf::new(Load::Vf32(value)))
+        Node::Leaf(Leaf::new(Tray::Vf32(value)))
     }
 }

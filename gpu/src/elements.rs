@@ -49,6 +49,6 @@ impl Solve for Elements {
             );
             vao.unbind();
         });
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }

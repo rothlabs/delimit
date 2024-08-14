@@ -2,12 +2,12 @@ use crate::*;
 
 /// Main Work type.
 /// To be useful, unit should at least impl Solve.
-/// The solved Tray is kept to be return on subsequent solve calls
+/// The solved Gain is kept to be return on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
 pub struct Agent<U> {
     unit: Option<U>,
-    tray: Option<Tray>,
+    gain: Option<Gain>,
 }
 
 impl<U> Default for Agent<U>
@@ -17,7 +17,7 @@ where
     fn default() -> Self {
         Self {
             unit: None,
-            tray: None,
+            gain: None,
         }
     }
 }
@@ -40,7 +40,7 @@ where
     fn new(unit: Self::Item) -> Self {
         Self {
             unit: Some(unit),
-            tray: None,
+            gain: None,
         }
     }
 }
@@ -60,7 +60,7 @@ where
     U: Solve,
 {
     fn clear(&mut self) {
-        self.tray = None;
+        self.gain = None;
     }
 }
 
@@ -78,7 +78,7 @@ where
             unit: self.unit.as_mut().unwrap(),
             back,
         });
-        self.tray = None;
+        self.gain = None;
         out
     }
 }
@@ -99,12 +99,12 @@ where
 {
     fn do_solve(&mut self, task: Task) -> solve::Result {
         if let Task::Main = task {
-            if let Some(tray) = &self.tray {
-                Ok(tray.clone())
+            if let Some(gain) = &self.gain {
+                Ok(gain.clone())
             } else {
-                let tray = self.unit.as_ref().unwrap().solve(task)?;
-                self.tray = Some(tray.clone());
-                Ok(tray)
+                let gain = self.unit.as_ref().unwrap().solve(task)?;
+                self.gain = Some(gain.clone());
+                Ok(gain)
             }
         } else {
             self.unit.as_ref().unwrap().solve(task)

@@ -38,7 +38,7 @@ impl Bay {
     }
     fn stems(&self) -> solve::Result {
         let stems = self.nodes.values().cloned().collect();
-        Ok(Tray::Nodes(stems))
+        Ok(Gain::Nodes(stems))
     }
     fn export(&self) -> solve::Result {
         // let mut serial = Serial::new();
@@ -48,7 +48,7 @@ impl Bay {
         // let path = self.path.string()?;
         // let data = serde_json::to_string(&serial)?;
         // fs::write(path, data)?;
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
     fn import(&mut self) -> adapt::Result {
         // let deserializer = self.deserializer.as_ref().ok_or("missing deserializer")?;
@@ -62,7 +62,7 @@ impl Bay {
         //         self.nodes.insert(id.into(), node);
         //         self.dump += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
         //     } else {
-        //         panic!("failed to load part: {}", part)
+        //         panic!("failed to tray part: {}", part)
         //     }
         // }
         // fs::write("/home/julian/delimit/repo/storage/debug.txt", &self.dump)?;
@@ -77,8 +77,8 @@ impl Bay {
         //     .ok_or("no match")?;
         // let id = caps.get(1).unwrap().as_str();
         // let node = self.nodes.get(id).ok_or("id not found")?.clone();
-        // Ok(Tray::Node(node))
-        Ok(Tray::None)
+        // Ok(Gain::Node(node))
+        Ok(Gain::None)
     }
 }
 
@@ -117,10 +117,10 @@ impl Solve for Bay {
 
 // Task::Cmd(name) => match name.as_str() {
 //     SAVE => self.save(),
-//     _ => Ok(Tray::None),
+//     _ => Ok(Gain::None),
 // },
 // post::Form::Cmd(name) => match name.as_str() {
-//     LOAD => self.load(),
+//     TRAY => self.tray(),
 //     _ => Ok(Report::None),
 // },
 

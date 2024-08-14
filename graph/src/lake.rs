@@ -49,7 +49,7 @@ impl Lake {
             .as_ref()
             .ok_or("No atlas.")?
             .deserialize(serial)?
-            .tray()
+            .gain()
             .ok()
     }
 
@@ -60,15 +60,15 @@ impl Lake {
             .as_ref()
             .ok_or("No atlas.")?
             .deserialize(serial)?
-            .tray()
+            .gain()
             .ok()
     }
 }
 
 impl Trade for Lake {
     fn trade(&self, node: &Node) -> Node {
-        if let Node::Load(Load::Path(Path::Hash(hash))) = node {
-            if let Ok(Tray::Node(node)) = self.get(*hash) {
+        if let Node::Tray(Tray::Path(Path::Hash(hash))) = node {
+            if let Ok(Gain::Node(node)) = self.get(*hash) {
                 return node;
             }
         }

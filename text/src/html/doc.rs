@@ -54,7 +54,7 @@ impl Doc {
         self.element.clone()
     }
     pub fn string(&self) -> Result<String, Error> {
-        if let Load::String(string) = self.element.node().load()? {
+        if let Tray::String(string) = self.element.node().tray()? {
             return Ok(string);
         }
         Err("not a string")?

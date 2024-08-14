@@ -39,7 +39,7 @@ impl List {
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
-            return Ok(Tray::None);
+            return Ok(Gain::None);
         }
         let last = self.items.len() - 1;
         let mut string = String::new();
@@ -50,12 +50,12 @@ impl List {
             }
         });
         self.items[last].read_string(|s| string += s);
-        Ok(string.leaf().node().tray())
+        Ok(string.leaf().node().gain())
     }
     fn stems(&self) -> solve::Result {
         let mut nodes = self.items.clone();
         nodes.push(self.separator.clone());
-        Ok(nodes.tray())
+        Ok(nodes.gain())
     }
 }
 

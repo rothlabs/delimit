@@ -182,8 +182,8 @@ pub fn draw_elements() -> Result<(), Box<dyn Error>> {
 pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas_on_body();
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
-    shader_source.write(|load| {
-        if let Load::String(source) = load {
+    shader_source.write(|tray| {
+        if let Tray::String(source) = tray {
             *source = shader::basic::FRAGMENT_GREEN.to_owned()
         } else {
             panic!("not a string")
@@ -197,8 +197,8 @@ pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
 pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas();
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
-    if let Err(_) = shader_source.write(|load| 
-        if let Load::String(string) = load {
+    if let Err(_) = shader_source.write(|tray| 
+        if let Tray::String(string) = tray {
             *string = "bad shader".to_owned()
         } else {
             panic!("not a string")

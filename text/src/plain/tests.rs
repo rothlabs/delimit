@@ -45,8 +45,8 @@ fn react_from_stem() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
-    ace.write(|load| {
-        if let Load::String(string) = load {
+    ace.write(|tray| {
+        if let Tray::String(string) = tray {
             string.push_str("_mutated");
         } else {
             panic!("was not a string")
@@ -68,8 +68,8 @@ fn no_rebut_after_dropping_stem() -> Result<(), Error> {
     })
     .ok();
     let a = text.solve(Task::Main)?;
-    ace.write(|load| {
-        if let Load::String(string) = load {
+    ace.write(|tray| {
+        if let Tray::String(string) = tray {
             string.push_str("_mutated");
         } else {
             panic!("was not a string")

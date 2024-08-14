@@ -20,7 +20,7 @@ impl DeserializeNode for Atlas {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Part {
-    GraphLoad(graph::Load),
+    GraphTray(graph::Tray),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
     TextHtmlAttribute(text::html::Attribute),
@@ -30,7 +30,7 @@ enum Part {
 impl Part {
     fn node(self) -> Node {
         match self {
-            Self::GraphLoad(x) => x.into(),
+            Self::GraphTray(x) => x.into(),
             Self::TextPlainList(x) => x.node(),
             Self::TextHtmlTag(x) => x.node(),
             Self::TextHtmlAttribute(x) => x.node(),

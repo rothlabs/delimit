@@ -1,42 +1,42 @@
 use crate::*;
 
-/// Work that holds a load. The most simple work that allows read, write, and copy of the load.
+/// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
 #[derive(Debug, Hash)]
 pub struct Leaf {
-    load: Load,
+    tray: Tray,
 }
 
 impl FromItem for Leaf {
-    type Item = Load;
-    fn new(load: Self::Item) -> Self {
-        Self { load }
+    type Item = Tray;
+    fn new(tray: Self::Item) -> Self {
+        Self { tray }
     }
 }
 
-impl ToLoad for Leaf {
-    type Load = Load;
-    fn load(&self) -> Self::Load {
-        self.load.clone()
+impl ToTray for Leaf {
+    type Tray = Tray;
+    fn tray(&self) -> Self::Tray {
+        self.tray.clone()
     }
 }
 
 impl DoRead for Leaf {
-    type Item = Load;
+    type Item = Tray;
     fn do_read(&self) -> &Self::Item {
-        &self.load
+        &self.tray
     }
 }
 
-impl DoReadLoad for Leaf {
-    fn do_read_load(&self) -> load::ResultRef {
-        Ok(&self.load)
+impl DoReadTray for Leaf {
+    fn do_read_tray(&self) -> tray::ResultRef {
+        Ok(&self.tray)
     }
 }
 
-impl WriteLoadWork for Leaf {
-    type Item = Load;
-    fn write_load_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
-        write(&mut self.load)
+impl WriteTrayWork for Leaf {
+    type Item = Tray;
+    fn write_tray_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
+        write(&mut self.tray)
     }
 }
 
@@ -71,6 +71,6 @@ impl Serialize for Leaf {
     where
         S: serde::Serializer,
     {
-        self.load.serialize(serializer)
+        self.tray.serialize(serializer)
     }
 }

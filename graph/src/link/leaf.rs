@@ -8,6 +8,6 @@ pub trait ToLeaf {
 impl ToLeaf for str {
     /// Clone to Leaf.
     fn leaf(&self) -> Leaf {
-        Leaf::new(Load::String(self.into()))
+        Leaf::new(Tray::String(self.into()))
     }
 }

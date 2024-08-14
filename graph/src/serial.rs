@@ -14,7 +14,7 @@ where
 {
     /// Serialize to string.
     fn serial(&self) -> solve::Result {
-        Ok(Tray::String(serde_json::to_string(self)?))
+        Ok(Gain::String(serde_json::to_string(self)?))
     }
 }
 
@@ -37,7 +37,7 @@ where
     fn digest(&self) -> solve::Result {
         let mut state = DefaultHasher::new();
         self.hash(&mut state);
-        state.finish().tray().ok()
+        state.finish().gain().ok()
     }
 }
 

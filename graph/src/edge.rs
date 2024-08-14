@@ -4,10 +4,10 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
-/// Edge to a load.
+/// Edge to a tray.
 pub type Leaf = Edge<apex::Leaf>;
 
-/// Edge to a unit that grants a load.
+/// Edge to a unit that grants a tray.
 pub type Agent<U> = Edge<apex::Agent<U>>;
 
 /// The forward bridge between nodes.
@@ -134,13 +134,13 @@ where
     }
 }
 
-impl<N> ToLoad for Edge<N>
+impl<N> ToTray for Edge<N>
 where
-    N: ToLoad,
+    N: ToTray,
 {
-    type Load = N::Load;
-    fn load(&self) -> Self::Load {
-        read_part(&self.apex, |apex| apex.load())
+    type Tray = N::Tray;
+    fn tray(&self) -> Self::Tray {
+        read_part(&self.apex, |apex| apex.tray())
     }
 }
 
@@ -153,14 +153,14 @@ impl<N> Backed for Edge<N> {
     }
 }
 
-impl<N> WriteLoad for Edge<N>
+impl<N> WriteTray for Edge<N>
 where
-    N: WriteLoadOut,
+    N: WriteTrayOut,
 {
     type Item = N::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
         let write::Out { roots, id, out } =
-            write_part(&self.apex, |mut apex| apex.write_load_out(write));
+            write_part(&self.apex, |mut apex| apex.write_tray_out(write));
         for root in &roots {
             root.react(&id)?;
         }
@@ -193,12 +193,12 @@ where
     }
 }
 
-impl<N> ReadLoad for Edge<N>
+impl<N> ReadTray for Edge<N>
 where
-    N: DoReadLoad,
+    N: DoReadTray,
 {
-    fn read_load<T, F: FnOnce(load::ResultRef) -> T>(&self, read: F) -> T {
-        read_part(&self.apex, |apex| read(apex.do_read_load()))
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
+        read_part(&self.apex, |apex| read(apex.do_read_tray()))
     }
 }
 

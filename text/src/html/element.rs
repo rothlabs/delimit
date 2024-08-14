@@ -50,7 +50,7 @@ impl Element {
                 .node();
             element = element.push(close);
         }
-        element.node().tray().ok()
+        element.node().gain().ok()
     }
     fn stems(&self) -> solve::Result {
         let mut nodes = self.items.clone();
@@ -58,7 +58,7 @@ impl Element {
         if let Some(node) = &self.close {
             nodes.push(node.clone());
         }
-        nodes.tray().ok()
+        nodes.gain().ok()
     }
 }
 

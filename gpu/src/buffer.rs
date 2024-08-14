@@ -39,13 +39,13 @@ impl Solve for Buffer {
         self.array.read_or_error(|array| 
             unsafe {
                 match array {
-                    Load::Vf32(array) => 
+                    Tray::Vf32(array) => 
                     self.gl.buffer_data_with_array_buffer_view(
                         self.target,
                         &Float32Array::view(array.as_slice()),
                         WGLRC::STATIC_DRAW,
                     ),
-                    Load::Vu16(array) => 
+                    Tray::Vu16(array) => 
                     self.gl.buffer_data_with_array_buffer_view(
                         self.target,
                         &Uint16Array::view(array.as_slice()),
@@ -56,6 +56,6 @@ impl Solve for Buffer {
             }
         )?;
         self.unbind();
-        Ok(Tray::None)
+        Ok(Gain::None)
     }
 }

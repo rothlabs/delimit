@@ -31,11 +31,11 @@ impl Attribute {
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
             .node()
-            .tray()
+            .gain()
             .ok()
     }
     fn stems(&self) -> solve::Result {
-        Ok(Tray::Nodes(vec![self.name.clone(), self.content.clone()]))
+        Ok(Gain::Nodes(vec![self.name.clone(), self.content.clone()]))
     }
 }
 
