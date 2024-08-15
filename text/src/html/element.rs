@@ -3,29 +3,29 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Element {
     html_element: u8,
-    tag: Node,
-    pub items: Vec<Node>,
-    close: Option<Node>,
-    story: Node,
+    tag: Apex,
+    pub items: Vec<Apex>,
+    close: Option<Apex>,
+    story: Apex,
 }
 
 impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn tag(mut self, tag: impl Into<Node>) -> Self {
+    pub fn tag(mut self, tag: impl Into<Apex>) -> Self {
         self.tag = tag.into();
         self
     }
-    pub fn item(&mut self, item: impl Into<Node>) -> &mut Self {
+    pub fn item(&mut self, item: impl Into<Apex>) -> &mut Self {
         self.items.push(item.into());
         self
     }
-    pub fn close(mut self, close: impl Into<Node>) -> Self {
+    pub fn close(mut self, close: impl Into<Apex>) -> Self {
         self.close = Some(close.into());
         self
     }
-    pub fn story(mut self, story: impl Into<Node>) -> Self {
+    pub fn story(mut self, story: impl Into<Apex>) -> Self {
         self.story = story.into();
         self
     }
@@ -47,18 +47,18 @@ impl Element {
                 .push("</")
                 .push(close.at(PLAIN)?)
                 .push(">")
-                .node();
+                .apex();
             element = element.push(close);
         }
-        element.node().gain().ok()
+        element.apex().gain().ok()
     }
     fn stems(&self) -> solve::Result {
-        let mut nodes = self.items.clone();
-        nodes.push(self.tag.clone());
-        if let Some(node) = &self.close {
-            nodes.push(node.clone());
+        let mut apexes = self.items.clone();
+        apexes.push(self.tag.clone());
+        if let Some(apex) = &self.close {
+            apexes.push(apex.clone());
         }
-        nodes.gain().ok()
+        apexes.gain().ok()
     }
 }
 

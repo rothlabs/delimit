@@ -1,8 +1,8 @@
 use super::*;
 use web_sys::WebGlVertexArrayObject;
 
-//pub type Result = std::result::Result<Agent<Vao>, VaoBuilderError>; // Box<dyn std::error::Error>
-pub type Attributes = Vec<Agent<VertexAttribute>>;
+//pub type Result = std::result::Result<Node<Vao>, VaoBuilderError>; // Box<dyn std::error::Error>
+pub type Attributes = Vec<Node<VertexAttribute>>;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
@@ -13,13 +13,13 @@ pub struct Vao {
     object: WebGlVertexArrayObject,
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
-    index_buffer: Option<Agent<Buffer>>, // u16
+    index_buffer: Option<Node<Buffer>>, // u16
 }
 
 impl VaoBuilder {
-    pub fn link(&self) -> std::result::Result<Agent<Vao>, VaoBuilderError> {
+    pub fn link(&self) -> std::result::Result<Node<Vao>, VaoBuilderError> {
         let mut vao = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Node::make(|back| {
             vao.attributes = vao.attributes.backed(back);
             if let Some(index_buffer) = vao.index_buffer {
                 vao.index_buffer = Some(index_buffer.backed(back));
@@ -66,7 +66,7 @@ impl Solve for Vao {
 //     let object = gl
 //         .create_vertex_array()
 //         .ok_or("failed to create vertex array object")?;
-//     let link = Agent::make(|back| Self {
+//     let link = Node::make(|back| Self {
 //         gl: gl.clone(),
 //         object,
 //         attributes: attributes.backed(back),
@@ -75,7 +75,7 @@ impl Solve for Vao {
 //     link.act();
 //     Ok(link)
 // }
-// pub fn index_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
+// pub fn index_buffer(&mut self, buffer: Node<Buffer<u16>>) -> &mut Self {
 //     self.index_buffer = Some(buffer);
 //     self
 // }
@@ -85,7 +85,7 @@ impl Solve for Vao {
 //         let object = gl
 //             .create_vertex_array()
 //             .ok_or("failed to create vertex array object")?;
-//         let link = Agent::make(|back| Self {
+//         let link = Node::make(|back| Self {
 //             gl: gl.clone(),
 //             object,
 //             attributes: attributes.backed(back),
@@ -94,7 +94,7 @@ impl Solve for Vao {
 //         link.act();
 //         Ok(link)
 //     }
-//     pub fn index_buffer(&mut self, buffer: Agent<Buffer<u16>>) -> &mut Self {
+//     pub fn index_buffer(&mut self, buffer: Node<Buffer<u16>>) -> &mut Self {
 //         self.index_buffer = Some(buffer);
 //         self
 //     }

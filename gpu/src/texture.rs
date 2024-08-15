@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-pub type Result = std::result::Result<Agent<Texture>, graph::Error>;
+pub type Result = std::result::Result<Node<Texture>, graph::Error>;
 
 #[derive(Builder)]
 #[builder(setter(into))]
@@ -9,13 +9,13 @@ pub struct Texture {
     gl: WGLRC,
     texture: WebGlTexture,
     /// Linear data array of image.
-    array: Node,
+    array: Apex,
     /// Horizontal pixel count.
     #[builder(default)]
-    width: Node,
+    width: Apex,
     /// Vertical pixel count.
     #[builder(default)]
-    height: Node,
+    height: Apex,
 }
 
 impl Texture {
@@ -28,7 +28,7 @@ impl Texture {
 impl TextureBuilder {
     pub fn link(&self) -> Result {
         let mut texture = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Node::make(|back| {
             texture.array = texture.array.backed(back);
             texture.width = texture.width.backed(back);
             texture.height = texture.height.backed(back);

@@ -3,19 +3,19 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
     html_tag: u8,
-    pub name: Node,
-    pub attributes: Vec<Node>,
+    pub name: Apex,
+    pub attributes: Vec<Apex>,
 }
 
 impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(mut self, name: impl Into<Node>) -> Self {
+    pub fn name(mut self, name: impl Into<Apex>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn attribute(&mut self, attribute: impl Into<Node>) -> &mut Self {
+    pub fn attribute(&mut self, attribute: impl Into<Apex>) -> &mut Self {
         self.attributes.push(attribute.into());
         self
     }
@@ -29,14 +29,14 @@ impl Tag {
             .separator(" ")
             .push(self.name.at(PLAIN)?)
             .extend(self.attributes.at(PLAIN)?)
-            .node();
-        let tag = List::new().push("<").push(&items).push(">").node();
+            .apex();
+        let tag = List::new().push("<").push(&items).push(">").apex();
         Ok(tag.gain())
     }
     fn stems(&self) -> solve::Result {
-        let mut nodes = self.attributes.clone();
-        nodes.push(self.name.clone());
-        Ok(nodes.gain())
+        let mut apexes = self.attributes.clone();
+        apexes.push(self.name.clone());
+        Ok(apexes.gain())
     }
 }
 

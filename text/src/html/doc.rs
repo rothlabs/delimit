@@ -8,11 +8,11 @@ pub type AttributeSet = HashMap<&'static str, Leaf>;
 pub struct Doc {
     root: Option<Box<RefCell<Option<Doc>>>>,
     tag_name: &'static str,
-    tag: Agent<Tag>,
-    element: Agent<Element>,
-    tag_names: HashMap<&'static str, Node>,
+    tag: Node<Tag>,
+    element: Node<Element>,
+    tag_names: HashMap<&'static str, Apex>,
     attributes: AttributeSet,
-    // repo: Node,
+    // repo: Apex,
 }
 
 pub fn attribute_set() -> AttributeSet {
@@ -24,37 +24,37 @@ pub fn attribute_set() -> AttributeSet {
 }
 
 impl Doc {
-    pub fn new(atts: &AttributeSet, story: impl Into<Node>) -> Self {
+    pub fn new(atts: &AttributeSet, story: impl Into<Apex>) -> Self {
         // let repo = repo.clone();
         let mut tags = HashMap::new();
         for tag in TAGS {
-            tags.insert(tag, tag.leaf().node());
+            tags.insert(tag, tag.leaf().apex());
         }
         let doctype = tags.get(DOCTYPE).unwrap();
-        let tag = Tag::new().name(doctype).agent();
+        let tag = Tag::new().name(doctype).node();
         Self {
             tag_name: DOCTYPE,
             root: None,
-            element: Element::new().tag(tag.ploy()).story(story.into()).agent(),
+            element: Element::new().tag(tag.ploy()).story(story.into()).node(),
             tag,
             tag_names: tags,
             attributes: atts.clone(),
             // repo,
         }
     }
-    // pub fn story(&mut self, story: impl Into<Node>) -> &mut Self {
+    // pub fn story(&mut self, story: impl Into<Apex>) -> &mut Self {
     //     self.element
     //     self
     // }
-    pub fn node(&self) -> Node {
-        self.element.node()
-        //graph::Agent::make(|back| self.element.backed(back)).ploy()
+    pub fn apex(&self) -> Apex {
+        self.element.apex()
+        //graph::Node::make(|back| self.element.backed(back)).ploy()
     }
-    pub fn link(&self) -> Agent<Element> {
+    pub fn link(&self) -> Node<Element> {
         self.element.clone()
     }
     pub fn string(&self) -> Result<String, Error> {
-        if let Tray::String(string) = self.element.node().tray()? {
+        if let Tray::String(string) = self.element.apex().tray()? {
             return Ok(string);
         }
         Err("not a string")?
@@ -74,7 +74,7 @@ impl Doc {
             .expect("element should have a root")
             .replace(None)
             .unwrap();
-        let element = self.element.node();
+        let element = self.element.apex();
         root.element
             .write(|Pack { unit, back }| {
                 unit.item(element.backed(back));
@@ -95,7 +95,7 @@ impl Doc {
     }
     pub fn attribute(&mut self, name: &str, value: &str) -> &mut Self {
         if let Some(name) = self.attributes.get(name) {
-            let attribute = Attribute::new().name(name).content(value).node();
+            let attribute = Attribute::new().name(name).content(value).apex();
             self.tag
                 .write(|Pack { unit, back }| {
                     unit.attribute(attribute.backed(back));
@@ -107,14 +107,14 @@ impl Doc {
     }
     pub fn stem(self, tag_name: &'static str) -> Self {
         let tag_leaf = self.tag_names.get(tag_name).unwrap();
-        let tag = Tag::new().name(tag_leaf).agent();
+        let tag = Tag::new().name(tag_leaf).node();
         let element = Element::new();
         let element = match tag_name {
             "meta" => element,
             _ => element.close(tag_leaf),
         }
         .tag(tag.ploy())
-        .agent();
+        .node();
         Doc {
             tag_name,
             tag_names: self.tag_names.clone(),

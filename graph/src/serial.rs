@@ -18,10 +18,10 @@ where
     }
 }
 
-dyn_clone::clone_trait_object!(DeserializeNode);
-pub trait DeserializeNode: DynClone + Debug + SendSync {
-    /// Deserialize to `Node` with concrete unit type.
-    fn deserialize(&self, string: &str) -> node::Result;
+dyn_clone::clone_trait_object!(DeserializeApex);
+pub trait DeserializeApex: DynClone + Debug + SendSync {
+    /// Deserialize to `Apex` with concrete unit type.
+    fn deserialize(&self, string: &str) -> apex::Result;
 }
 
 pub trait ToHash {
@@ -70,8 +70,8 @@ where
 //     pub fn contains(&self, meta: &Meta) -> bool {
 //         self.parts.contains_key(&meta.path)
 //     }
-//     pub fn insert(&mut self, meta: &Meta, node: String) {
-//         self.parts.insert(meta.path.clone(), node);
+//     pub fn insert(&mut self, meta: &Meta, apex: String) {
+//         self.parts.insert(meta.path.clone(), apex);
 //     }
 //     pub fn string(&self) -> result::Result<String, serde_json::Error> {
 //         serde_json::to_string(self)

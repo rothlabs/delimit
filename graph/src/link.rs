@@ -11,17 +11,18 @@ mod leaf;
 #[cfg(test)]
 mod tests;
 
-/// Link to Tray.
+/// `Link` to `Tray`.
 pub type Leaf = Link<edge::Leaf>;
 
-/// Link to domain-specific unit.
-pub type Agent<U> = Link<edge::Agent<U>>;
+/// `Link` to domain-specific unit.
+/// The unit type is intact. For type-erased unit, use `Ploy` instead.
+pub type Node<U> = Link<edge::Node<U>>;
 
-/// Link to domain-specific unit. 
-/// The unit type is erased. To keep unit type intact, use `Agent` instead. 
+/// `Link` to domain-specific unit.
+/// The unit type is erased. To keep unit type intact, use `Node` instead.
 pub type Ploy = Link<Box<dyn Engage>>;
 
-/// Link to `Edge`, pointing to `Apex` of unit.
+/// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
 #[derive(Debug)]
 pub struct Link<E> {
@@ -87,9 +88,9 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> node::Result {
+    pub fn main(&self) -> apex::Result {
         match self.solve(Task::Main)? {
-            Gain::Node(node) => Ok(node),
+            Gain::Apex(apex) => Ok(apex),
             _ => Err("Wrong return type for Task::Main.")?,
         }
     }
@@ -220,7 +221,7 @@ where
     }
 }
 
-/// TODO: make reader that does not add a root to the apex.
+/// TODO: make reader that does not add a root to the cusp.
 /// This will allow readers to inspect without rebuting in the future.
 impl<E> Read for Link<E>
 where

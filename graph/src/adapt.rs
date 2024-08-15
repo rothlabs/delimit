@@ -8,7 +8,7 @@ pub mod post;
 pub type Result = result::Result<Memo, Error>;
 
 pub trait Adapt {
-    /// Alter a node.
+    /// Alter a apex.
     /// Useful for inserting, removing, and more.
     fn adapt(&mut self, post: Post) -> Result;
 }

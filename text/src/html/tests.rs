@@ -1,7 +1,7 @@
 use super::*;
 
-fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
-    let repo = Bay::new().node();
+fn make_doc() -> (Apex, Apex, Node<Element>, AttributeSet) {
+    let repo = Bay::new().apex();
     let atts = attribute_set();
     let mut html = Doc::new(&atts, "Delimit index page").html();
     html.attribute("lang", "en");
@@ -28,7 +28,7 @@ fn make_doc() -> (Node, Node, Agent<Element>, AttributeSet) {
     script
         .attribute("src", "/app.js")
         .attribute("type", "module");
-    let doc = script.up_to_doc().node();
+    let doc = script.up_to_doc().apex();
     (repo, doc, head_link, atts)
 }
 

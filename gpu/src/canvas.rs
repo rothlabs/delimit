@@ -7,7 +7,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn link() -> Agent<Self> {
+    pub fn link() -> Node<Self> {
         let document = window().unwrap().document().unwrap();
         let object = document
             .create_element("canvas")
@@ -20,7 +20,7 @@ impl Canvas {
             .unwrap()
             .dyn_into::<WGLRC>()
             .unwrap();
-        Agent::new(Self { object, gl })
+        Node::new(Self { object, gl })
     }
     pub fn gpu(&self) -> Gpu {
         self.gl.clone().into()

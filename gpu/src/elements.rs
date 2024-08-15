@@ -6,22 +6,22 @@ use super::*;
 pub struct Elements {
     gl: WGLRC,
     /// WebGL program
-    program: Agent<Program>,
-    buffer: Agent<Buffer>, // f32
+    program: Node<Program>,
+    buffer: Node<Buffer>, // f32
     /// Vertex array object, collection of buffer attributes.
-    vao: Agent<Vao>,
+    vao: Node<Vao>,
     /// Number of values to draw.
     #[builder(default)]
-    count: Node,
+    count: Apex,
     /// Number of values to skip before drawing.
     #[builder(default)]
-    offset: Node,
+    offset: Apex,
 }
 
 impl ElementsBuilder {
-    pub fn link(&self) -> result::Result<Agent<Elements>, ElementsBuilderError> {
+    pub fn link(&self) -> result::Result<Node<Elements>, ElementsBuilderError> {
         let mut elements = self.build()?;
-        let link = Agent::make(|back| {
+        let link = Node::make(|back| {
             elements.program = elements.program.backed(back);
             elements.buffer = elements.buffer.backed(back);
             elements.vao = elements.vao.backed(back);

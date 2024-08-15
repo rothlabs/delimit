@@ -1,13 +1,13 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-pub type Result = std::result::Result<Agent<Buffer>, graph::Error>;
+pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
 
 pub struct Buffer {
     gl: WGLRC,
     buffer: WebGlBuffer,
     target: u32,
-    array: Node,
+    array: Apex,
 }
 
 impl Buffer {
@@ -20,9 +20,9 @@ impl Buffer {
 }
 
 impl Buffer {
-    pub fn link(gl: &WGLRC, target: u32, array: &Node) -> Result {
+    pub fn link(gl: &WGLRC, target: u32, array: &Apex) -> Result {
         let buffer = gl.create_buffer().ok_or("failed to create buffer")?;
-        let link = Agent::make(|back| Self {
+        let link = Node::make(|back| Self {
             gl: gl.clone(),
             buffer,
             target,

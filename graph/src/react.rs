@@ -13,7 +13,7 @@ pub trait Rebut {
 }
 
 pub trait DoRebut {
-    /// Invalidatd the tray at apex level. Call only after write during rebut phase.
+    /// Invalidatd the tray at cusp level. Call only after write during rebut phase.
     fn do_rebut(&mut self) -> Ring;
 }
 
@@ -28,19 +28,19 @@ pub trait DoReact {
 }
 
 pub trait AddRoot {
-    /// Add a root to a apex `Ring` of roots. Must be called after reading contents
-    /// so that the apex will react if contents change.
+    /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
+    /// so that the cusp will react if contents change.
     fn add_root(&self, root: Root);
 }
 
 pub trait DoAddRoot {
-    /// Add a root to a apex `Ring` of roots. Must be called after reading contents
-    /// so that the apex will react if contents change.
+    /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
+    /// so that the cusp will react if contents change.
     fn do_add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
-    /// Make a copy of the link that includes the provided apex `&Back` on the edge.
+    /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
     fn backed(&self, back: &Back) -> Self;
 }
@@ -62,11 +62,11 @@ pub trait BackedPloy {
 /// For edge that Rebuts a Ring and reacts.
 pub trait Update: Rebut + React + ToId + SendSync {}
 
-/// For apex to rebut a ring and react if the root of the rebut phase.
+/// For cusp to rebut a ring and react if the root of the rebut phase.
 pub trait DoUpdate: DoRebut + DoReact + ToId + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
-/// A Apex holds a Ring of Roots.
+/// A Cusp holds a Ring of Roots.
 #[derive(Clone, Debug)]
 pub struct Root {
     #[cfg(not(feature = "oneThread"))]
@@ -107,35 +107,35 @@ impl Hash for Root {
     }
 }
 
-/// Weakly point to the back of a apex as DoUpdate.
+/// Weakly point to the back of a cusp as DoUpdate.
 #[derive(Clone, Debug)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
-    pub apex: Weak<RwLock<dyn DoUpdate>>,
+    pub cusp: Weak<RwLock<dyn DoUpdate>>,
     #[cfg(feature = "oneThread")]
-    pub apex: Weak<RefCell<dyn DoUpdate>>,
+    pub cusp: Weak<RefCell<dyn DoUpdate>>,
     pub id: Id,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
-    pub fn new(apex: Weak<RwLock<dyn DoUpdate>>, id: Id) -> Self {
-        Self { apex, id }
+    pub fn new(cusp: Weak<RwLock<dyn DoUpdate>>, id: Id) -> Self {
+        Self { cusp, id }
     }
     #[cfg(feature = "oneThread")]
-    pub fn new(apex: Weak<RefCell<dyn DoUpdate>>, id: Id) -> Self {
-        Self { apex, id }
+    pub fn new(cusp: Weak<RefCell<dyn DoUpdate>>, id: Id) -> Self {
+        Self { cusp, id }
     }
     pub fn rebut(&self) -> Ring {
-        if let Some(apex) = self.apex.upgrade() {
-            write_part(&apex, |mut apex| apex.do_rebut())
+        if let Some(cusp) = self.cusp.upgrade() {
+            write_part(&cusp, |mut cusp| cusp.do_rebut())
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
-        if let Some(apex) = self.apex.upgrade() {
-            write_part(&apex, |mut apex| apex.do_react(id))
+        if let Some(cusp) = self.cusp.upgrade() {
+            write_part(&cusp, |mut cusp| cusp.do_react(id))
         } else {
             Ok(())
         }
@@ -143,12 +143,12 @@ impl Back {
 }
 
 impl Trade for Back {
-    fn trade(&self, node: &Node) -> Node {
-        node.backed(self)
+    fn trade(&self, apex: &Apex) -> Apex {
+        apex.backed(self)
     }
 }
 
-/// Points to many root edges, each pointing to back of a apex.
+/// Points to many root edges, each pointing to back of a cusp.
 #[derive(Default, Debug)]
 pub struct Ring {
     roots: HashSet<Root>,

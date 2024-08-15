@@ -1,22 +1,22 @@
 use super::*;
 use web_sys::WebGlProgram;
 
-pub type Result = std::result::Result<Agent<Program>, graph::Error>;
+pub type Result = std::result::Result<Node<Program>, graph::Error>;
 
 /// GPU program based on vertex and fragment shaders.
 pub struct Program {
     program: WebGlProgram,
-    vertex: Agent<Shader>,
-    fragment: Agent<Shader>,
+    vertex: Node<Shader>,
+    fragment: Node<Shader>,
     gl: WGLRC,
 }
 
 impl Program {
-    pub fn link(gl: &WGLRC, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> Result {
+    pub fn link(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
         let program = gl.create_program().ok_or("failed to create program")?;
         vertex.read(|unit| gl.attach_shader(&program, &unit.shader));
         fragment.read(|unit| gl.attach_shader(&program, &unit.shader));
-        let link = Agent::make(|back| Self {
+        let link = Node::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),
             fragment: fragment.backed(back),

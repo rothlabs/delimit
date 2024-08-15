@@ -3,19 +3,19 @@ use crate::html::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Attribute {
     html_attribute: u8,
-    name: Node,
-    content: Node,
+    name: Apex,
+    content: Apex,
 }
 
 impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(mut self, name: impl Into<Node>) -> Self {
+    pub fn name(mut self, name: impl Into<Apex>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn content(mut self, content: impl Into<Node>) -> Self {
+    pub fn content(mut self, content: impl Into<Apex>) -> Self {
         self.content = content.into();
         self
     }
@@ -30,12 +30,12 @@ impl Attribute {
             .push(r#"=""#)
             .push(self.content.at(PLAIN)?)
             .push(r#"""#)
-            .node()
+            .apex()
             .gain()
             .ok()
     }
     fn stems(&self) -> solve::Result {
-        Ok(Gain::Nodes(vec![self.name.clone(), self.content.clone()]))
+        Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
     }
 }
 

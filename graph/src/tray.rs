@@ -6,8 +6,8 @@ use std::result;
 pub type Result = result::Result<Tray, Error>;
 pub type ResultRef<'a> = result::Result<&'a Tray, Error>;
 
-/// Payload value of graph nodes. 
-/// Used as `Leaf` payload and field values of `Agent` and `Ploy`.
+/// Payload value of graph parts.
+/// Used as `Leaf` payload and field values of `Node` and `Ploy`.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Tray {

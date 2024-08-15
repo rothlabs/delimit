@@ -2,7 +2,7 @@ use crate::*;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-/// The unit to be mutated and a node back to create backed links.
+/// The unit to be mutated and a apex back to create backed links.
 /// Packs are provided for write-to-unit closures.
 pub struct Pack<'a, U: 'a> {
     pub unit: &'a mut U,
@@ -23,7 +23,7 @@ pub trait WriteTray {
 
 pub trait WriteTrayOut {
     type Item;
-    /// Write and return the node meta and graph roots of the rebut. Node level.
+    /// Write and return the apex meta and graph roots of the rebut. Apex level.
     fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> Out<T>;
 }
 
@@ -41,8 +41,8 @@ pub trait WriteUnit {
 
 pub trait WriteUnitOut {
     type Unit;
-    /// Write and return the node meta and graph roots of the rebut.
-    /// Takes `&Back` to be included in Pack. Node level.
+    /// Write and return the apex meta and graph roots of the rebut.
+    /// Takes `&Back` to be included in Pack. Apex level.
     fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,

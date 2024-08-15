@@ -1,18 +1,18 @@
 pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, Memo, Post};
-pub use apex::Apex;
+pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
+pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::Lake;
-pub use link::{Agent, Leaf, Link, Ploy, ToLeaf};
-pub use tray::Tray;
+pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
 pub use meta::{random, Id, Key, Path, ToId};
-pub use node::{Node, EngageNodes};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use serial::{DeserializeNode, ToHash, ToSerial};
-pub use solve::{empty_nodes, no_solver, DoSolve, IntoGain, Solve, Task, Gain};
+pub use serial::{DeserializeApex, ToHash, ToSerial};
+pub use solve::{empty_apexes, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
+pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
@@ -33,18 +33,18 @@ use std::{
 };
 
 pub mod adapt;
+pub mod apex;
 pub mod lake;
-pub mod node;
 pub mod react;
 pub mod serial;
 pub mod solve;
 
-mod apex;
 mod bay;
+mod cusp;
 mod edge;
 mod link;
-mod tray;
 mod meta;
+mod tray;
 mod work;
 mod write;
 
@@ -103,63 +103,63 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
 dyn_clone::clone_trait_object!(Trade);
-/// Trade a node for another.
-/// The implmentation should return the same semantic node with different graph qualities.
+/// Trade a apex for another.
+/// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Trade: DynClone + Debug {
-    /// Trade a node for another.
-    fn trade(&self, node: &Node) -> Node;
+    /// Trade a apex for another.
+    fn trade(&self, apex: &Apex) -> Apex;
 }
 
-pub trait IntoAgent
+pub trait IntoNode
 where
     Self: Sized,
 {
-    fn agent(self) -> Agent<Self>;
+    fn node(self) -> Node<Self>;
 }
 
-impl<T> IntoAgent for T
+impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync,
 {
-    fn agent(mut self) -> Agent<Self> {
-        Agent::make(|back| {
+    fn node(mut self) -> Node<Self> {
+        Node::make(|back| {
             self.adapt(Post::Trade(back))
-                .expect("To move into Agent, unit must Adapt with Post::Trade.");
+                .expect("To move into Node, unit must Adapt with Post::Trade.");
             self
         })
     }
 }
 
-pub trait IntoNode {
-    /// Move into `Node`.
-    fn node(self) -> Node;
+pub trait IntoApex {
+    /// Move into `Apex`.
+    fn apex(self) -> Apex;
 }
 
-impl<T> IntoNode for T
+impl<T> IntoApex for T
 where
-    T: 'static + IntoAgent + Solve + Adapt + Debug + SendSync,
+    T: 'static + IntoNode + Solve + Adapt + Debug + SendSync,
 {
-    fn node(self) -> Node {
-        self.agent().ploy().into()
+    fn apex(self) -> Apex {
+        self.node().ploy().into()
     }
 }
 
-impl IntoNode for Leaf {
-    fn node(self) -> Node {
+impl IntoApex for Leaf {
+    fn apex(self) -> Apex {
         self.into()
     }
 }
 
-pub trait ToNode {
-    /// Place inside a Node.
-    fn node(&self) -> Node;
+pub trait ToApex {
+    /// Place inside a Apex.
+    fn apex(&self) -> Apex;
 }
 
-impl<T> ToNode for Agent<T>
+impl<T> ToApex for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
 {
-    fn node(&self) -> Node {
+    fn apex(&self) -> Apex {
         self.ploy().into()
     }
 }
@@ -185,7 +185,7 @@ pub trait ReadTray {
 pub trait ToTray {
     type Tray;
     /// Clone the Tray out of the graph part.
-    /// May cause stem nodes to generate the tray.
+    /// May cause stem apexes to generate the tray.
     fn tray(&self) -> Self::Tray;
 }
 
@@ -208,11 +208,11 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-// impl<T> ToNode for T
+// impl<T> ToApex for T
 // where
-//     T: 'static + ToAgent + Solve + Adapt + Debug + SendSync,
+//     T: 'static + ToNode + Solve + Adapt + Debug + SendSync,
 // {
-//     fn node(&self) -> Node {
-//         self.agent().ploy().into()
+//     fn apex(&self) -> Apex {
+//         self.node().ploy().into()
 //     }
 // }

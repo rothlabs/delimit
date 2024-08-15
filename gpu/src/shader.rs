@@ -6,19 +6,19 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-//pub type Source = Node;
-pub type Result = std::result::Result<Agent<Shader>, graph::Error>;
+//pub type Source = Apex;
+pub type Result = std::result::Result<Node<Shader>, graph::Error>;
 
 pub struct Shader {
     pub gl: WGLRC,
-    pub source: Node,
+    pub source: Apex,
     pub shader: WebGlShader,
 }
 
 impl Shader {
-    pub fn link(gl: &WGLRC, type_: u32, source: &Node) -> Result {
+    pub fn link(gl: &WGLRC, type_: u32, source: &Apex) -> Result {
         let shader = gl.create_shader(type_).ok_or("failed to create shader")?;
-        let link = Agent::make(|back| Self {
+        let link = Node::make(|back| Self {
             gl: gl.clone(),
             source: source.backed(back),
             shader,

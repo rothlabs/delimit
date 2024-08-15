@@ -9,41 +9,41 @@ use std::{
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Bay {
-    /// The nodes can be another bay
-    nodes: HashMap<Key, Node>,
-    path: Node,
+    /// The apexes can be another bay
+    apexes: HashMap<Key, Apex>,
+    path: Apex,
     dump: String,
     #[serde(skip)]
-    deserializer: Option<Box<dyn DeserializeNode>>,
+    deserializer: Option<Box<dyn DeserializeApex>>,
 }
 
 impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn path(&mut self, path: impl Into<Node>) -> &mut Self {
+    pub fn path(&mut self, path: impl Into<Apex>) -> &mut Self {
         self.path = path.into();
         self
     }
-    pub fn deserializer(&mut self, deserial: Box<dyn DeserializeNode>) -> &mut Self {
+    pub fn deserializer(&mut self, deserial: Box<dyn DeserializeApex>) -> &mut Self {
         self.deserializer = Some(deserial);
         self
     }
-    fn extend(&mut self, _: Vec<Node>) -> adapt::Result {
-        // for node in nodes {
-        //     let meta = node.path();
-        //     self.nodes.insert(meta.keys[0].clone(), node);
+    fn extend(&mut self, _: Vec<Apex>) -> adapt::Result {
+        // for apex in apexes {
+        //     let meta = apex.path();
+        //     self.apexes.insert(meta.keys[0].clone(), apex);
         // }
         adapt_ok()
     }
     fn stems(&self) -> solve::Result {
-        let stems = self.nodes.values().cloned().collect();
-        Ok(Gain::Nodes(stems))
+        let stems = self.apexes.values().cloned().collect();
+        Ok(Gain::Apexes(stems))
     }
     fn export(&self) -> solve::Result {
         // let mut serial = Serial::new();
-        // for node in self.nodes.values() {
-        //     node.serial(&mut serial)?;
+        // for apex in self.apexes.values() {
+        //     apex.serial(&mut serial)?;
         // }
         // let path = self.path.string()?;
         // let data = serde_json::to_string(&serial)?;
@@ -58,8 +58,8 @@ impl Bay {
         // let serial: Serial = serde_json::from_reader(reader)?;
         // self.dump = String::new();
         // for (id, part) in &serial.parts {
-        //     if let Ok(node) = deserializer.deserialize(part) {
-        //         self.nodes.insert(id.into(), node);
+        //     if let Ok(apex) = deserializer.deserialize(part) {
+        //         self.apexes.insert(id.into(), apex);
         //         self.dump += &(part.to_owned() + "\n" + "gnid==" + id + "\n");
         //     } else {
         //         panic!("failed to tray part: {}", part)
@@ -76,8 +76,8 @@ impl Bay {
         //     .captures_at(&self.dump, start)
         //     .ok_or("no match")?;
         // let id = caps.get(1).unwrap().as_str();
-        // let node = self.nodes.get(id).ok_or("id not found")?.clone();
-        // Ok(Gain::Node(node))
+        // let apex = self.apexes.get(id).ok_or("id not found")?.clone();
+        // Ok(Gain::Apex(apex))
         Ok(Gain::None)
     }
 }
@@ -86,7 +86,7 @@ impl Adapt for Bay {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(_) => adapt_ok(),
-            Post::Extend(nodes) => self.extend(nodes),
+            Post::Extend(apexes) => self.extend(apexes),
             Post::Import => self.import(),
             _ => no_adapter(post),
         }
@@ -107,7 +107,7 @@ impl Solve for Bay {
 // impl Make for Repo {
 //     fn make(&self, _: &Back) -> Self {
 //         Self {
-//             nodes: self.nodes.clone(),
+//             apexes: self.apexes.clone(),
 //             path: self.path.clone(),
 //             pool: self.pool.clone(),
 //             deserializer: self.deserializer.clone(),
@@ -125,15 +125,15 @@ impl Solve for Bay {
 // },
 
 // let mut debug = String::new();
-// if let Ok(node) = node_result {
-//     self.nodes.insert(id.into(), node);
+// if let Ok(apex) = apex_result {
+//     self.apexes.insert(id.into(), apex);
 //     all.push_str(string);
 //     all.push_str("\n\n");
 // }
-// // if let Err(_) = node_result {
+// // if let Err(_) = apex_result {
 // //     all.push_str(&string);
 // //     all.push_str(&"\n\n");
 // // }
 
-// debug.push_str(&self.nodes.len().to_string());
+// debug.push_str(&self.apexes.len().to_string());
 //         fs::write("/home/julian/delimit/repo/storage/debug.txt", debug)?;

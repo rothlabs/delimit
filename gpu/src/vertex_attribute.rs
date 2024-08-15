@@ -1,31 +1,31 @@
 use super::*;
 
-pub type Result = std::result::Result<Agent<VertexAttribute>, VertexAttributeBuilderError>;
+pub type Result = std::result::Result<Node<VertexAttribute>, VertexAttributeBuilderError>;
 
 /// Tell the GPU how to read from a buffer
 #[derive(Builder)]
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
-    buffer: Agent<Buffer>, // f32
+    buffer: Node<Buffer>, // f32
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
-    index: Node, // u32
+    index: Apex, // u32
     /// Number of components per value
     #[builder(default)]
-    size: Node, //i32
+    size: Apex, //i32
     /// Number of bytes between values
     #[builder(default)]
-    stride: Node, // i32
+    stride: Apex, // i32
     /// Byte offset of first value
     #[builder(default)]
-    offset: Node, // i32
+    offset: Apex, // i32
 }
 
 impl VertexAttributeBuilder { 
     pub fn link(&self) -> Result {
         let mut attrib = self.build()?;
-        Ok(Agent::make(|back| {
+        Ok(Node::make(|back| {
             attrib.buffer = attrib.buffer.backed(back);
             attrib.index = attrib.index.backed(back);
             attrib.size = attrib.size.backed(back);
@@ -69,18 +69,18 @@ impl Solve for VertexAttribute {
 // impl VertexAttributeBuilder {
 //     pub fn link(&self) -> Result {
 //         let mut attrib = self.build()?;
-//         Ok(Agent::make(|back| {
+//         Ok(Node::make(|back| {
 //             attrib.buffer = attrib.buffer.backed(back);
 //             attrib
 //         }))
 
 // impl VertexAttributeBuilder {
-//     pub fn link(&self) -> Agent<VertexAttribute> {
+//     pub fn link(&self) -> Node<VertexAttribute> {
 //         let bldr = self.clone();
 //         if let Ok(att) = self.build() {
-//             Agent::make(|back|
+//             Node::make(|back|
 //         }
-//         Agent::make(|back|
+//         Node::make(|back|
 //             VertexAttribute {
 //                 gl: bldr.gl.unwrap(),
 //                 buffer: bldr.buffer.unwrap().backed(back),
@@ -95,8 +95,8 @@ impl Solve for VertexAttribute {
 
 // impl VertexAttribute {
 //     // <F: FnOnce(&mut Self)> , write: F
-//     pub fn link(wglrc: &WGLRC, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
-//         Agent::make(|back| Self {
+//     pub fn link(wglrc: &WGLRC, buffer: &Node<Buffer<f32>>) -> Node<VertexAttribute> {
+//         Node::make(|back| Self {
 //             gl: wglrc.clone(),
 //             buffer: buffer.backed(back),
 //             index: Value::default(),
@@ -104,8 +104,8 @@ impl Solve for VertexAttribute {
 //             stride: Value::default(),
 //             offset: Value::default(),
 //         })
-//         //agent.write(|pack| write(&mut pack.unit));
-//         //agent
+//         //node.write(|pack| write(&mut pack.unit));
+//         //node
 //     }
 //     pub fn index(&mut self, index: impl Into<Value<u32>>) -> &mut Self {
 //         self.index = index.into();

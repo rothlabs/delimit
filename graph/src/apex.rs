@@ -1,172 +1,214 @@
 use super::*;
+use std::result;
 
-pub type Leaf = Apex<work::Leaf>;
+mod convert;
+mod import;
 
-pub type Agent<U> = Apex<work::Agent<U>>;
+pub type Result = result::Result<Apex, Error>;
 
-/// A apex creates an interactive bridge between root edges and work.
-#[derive(Debug)]
-pub struct Apex<W> {
-    id: Id,
-    ring: Ring,
-    work: W,
-    back: Option<Back>,
+/// Primary graph part.
+#[derive(Clone, PartialEq, Hash, Serialize, Debug)]
+#[serde(untagged)]
+pub enum Apex {
+    Tray(Tray),
+    Leaf(Leaf),
+    Ploy(Ploy),
 }
 
-impl<W> Default for Apex<W>
-where
-    W: Default,
-{
+impl Apex {
+    pub fn none() -> Self {
+        Self::default()
+    }
+
+    /// Run main apex function. Will return lower rank apex if successful.
+    pub fn main(&self) -> Result {
+        match self {
+            Self::Ploy(ploy) => ploy.main(),
+            _ => Err("not ploy")?,
+        }
+    }
+
+    /// Insert apex into new Lake.
+    pub fn lake(&self) -> lake::Result {
+        let mut lake = Lake::new();
+        lake.insert("root", self)?;
+        Ok(lake)
+    }
+
+    /// Get hash digest number of apex.
+    pub fn digest(&self) -> result::Result<u64, Error> {
+        match self {
+            Self::Tray(tray) => tray.digest(),
+            Self::Leaf(leaf) => leaf.solve(Task::Hash),
+            Self::Ploy(ploy) => ploy.solve(Task::Hash),
+        }?
+        .u64()
+    }
+
+    /// Get serial string of apex.
+    pub fn serial(&self) -> serial::Result {
+        match self {
+            Self::Tray(tray) => tray.serial(),
+            Self::Leaf(leaf) => leaf.solve(Task::Serial),
+            Self::Ploy(ploy) => ploy.solve(Task::Serial),
+        }?
+        .string()
+    }
+
+    /// Get stems of apex.
+    pub fn stems(&self) -> result::Result<Vec<Apex>, Error> {
+        match self {
+            Self::Ploy(ploy) => ploy.solve(Task::Stems),
+            _ => empty_apexes(),
+        }?
+        .apexes()
+    }
+
+    /// Replace stems according to the Trade deal.
+    pub fn trade(&self, deal: &dyn Trade) {
+        if let Self::Ploy(ploy) = self {
+            ploy.adapt(Post::Trade(deal)).ok();
+        }
+    }
+
+    /// Get path associated with apex if any.
+    pub fn path(&self) -> Option<Path> {
+        match self {
+            Self::Tray(tray) => tray.path(),
+            Self::Leaf(leaf) => leaf.path(),
+            Self::Ploy(ploy) => ploy.path(),
+        }
+    }
+
+    /// Get tray of apex. Will solve to lowest rank if needed.
+    pub fn tray(&self) -> tray::Result {
+        match self {
+            Self::Tray(bare) => Ok(bare.clone()),
+            Self::Leaf(leaf) => Ok(leaf.tray()),
+            Self::Ploy(ploy) => ploy.main()?.tray(),
+        }
+    }
+
+    /// Run Trade deal with this apex as input.
+    pub fn deal(&self, deal: &dyn Trade) -> Self {
+        deal.trade(self)
+    }
+
+    /// Get rank of apex. Rank 1 apexes produce leaf apexes.
+    pub fn rank(&self) -> Option<usize> {
+        match self {
+            Self::Ploy(ploy) => ploy.rank(),
+            _ => None,
+        }
+    }
+
+    /// Solve down to the given graph rank.
+    pub fn at(&self, target: usize) -> Result {
+        let mut apex = self.clone();
+        let mut rank = apex.rank();
+        while let Some(current) = rank {
+            if current > target {
+                apex = apex.main()?;
+                rank = apex.rank();
+            } else {
+                rank = None;
+            }
+        }
+        Ok(apex)
+    }
+
+    /// New backed apex.
+    pub fn backed(&self, back: &Back) -> Self {
+        match self {
+            Self::Tray(bare) => Self::Tray(bare.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+        }
+    }
+
+    /// Read contents of apex.
+    pub fn read<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
+        match self {
+            Self::Tray(bare) => read(Ok(bare)),
+            Self::Leaf(leaf) => leaf.read_tray(read),
+            Self::Ploy(ploy) => {
+                if let Ok(apex) = ploy.main() {
+                    apex.read(read)
+                } else {
+                    read(Err("failed to read ploy".into()))
+                }
+            }
+        }
+    }
+
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> result::Result<T, Error> {
+        self.read(|tray| match tray {
+            Ok(value) => Ok(read(value)),
+            _ => Err("nothing to read")?,
+        })
+    }
+    pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
+        self.read(|tray| match tray {
+            Ok(Tray::String(value)) => read(value),
+            _ => read(&"".into()),
+        })
+    }
+    pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
+        self.read(|tray| match tray {
+            Ok(Tray::Vu8(value)) => read(value),
+            _ => read(&vec![]),
+        })
+    }
+    pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
+        self.read(|tray| match tray {
+            Ok(Tray::Vu16(value)) => read(value),
+            _ => read(&vec![]),
+        })
+    }
+    pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
+        self.read(|tray| match tray {
+            Ok(Tray::Vf32(value)) => read(value),
+            _ => read(&vec![]),
+        })
+    }
+    pub fn string(&self) -> result::Result<String, Error> {
+        match self.tray() {
+            Ok(Tray::String(value)) => Ok(value),
+            _ => Err("not a string")?,
+        }
+    }
+    pub fn u32(&self) -> u32 {
+        match self.tray() {
+            Ok(Tray::U32(value)) => value,
+            _ => 0,
+        }
+    }
+    pub fn i32(&self) -> i32 {
+        match self.tray() {
+            Ok(Tray::I32(value)) => value,
+            _ => 0,
+        }
+    }
+}
+
+impl Default for Apex {
     fn default() -> Self {
-        Self {
-            id: random(),
-            ring: Ring::new(),
-            work: W::default(),
-            back: None,
-        }
+        Self::Tray(Tray::None)
     }
 }
 
-impl<W> FromItem for Apex<W>
-where
-    W: FromItem,
-{
-    type Item = W::Item;
-    fn new(item: Self::Item) -> Self {
-        Self {
-            id: random(),
-            ring: Ring::new(),
-            work: W::new(item),
-            back: None,
-        }
-    }
+pub trait EngageApexes {
+    /// Solve down to the given graph rank.
+    fn at(&self, rank: usize) -> result::Result<Vec<Apex>, Error>;
+    /// Replace stems according to the Trade deal.
+    fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
-impl<W> ToId for Apex<W> {
-    fn id(&self) -> Id {
-        self.id.clone()
+impl EngageApexes for Vec<Apex> {
+    fn at(&self, rank: usize) -> result::Result<Vec<Apex>, Error> {
+        self.iter().map(|x| x.at(rank)).collect()
     }
-}
-
-impl<W> MakeInner for Apex<W>
-where
-    W: MakeInner,
-{
-    type Unit = W::Unit;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
-        self.back = Some(back.clone());
-        self.work.do_make(make, back);
-    }
-}
-
-impl<W> ToTray for Apex<W>
-where
-    W: ToTray,
-{
-    type Tray = W::Tray;
-    fn tray(&self) -> Self::Tray {
-        self.work.tray()
-    }
-}
-
-impl<W> WriteTrayOut for Apex<W>
-where
-    W: WriteTrayWork,
-{
-    type Item = W::Item;
-    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
-        let out = self.work.write_tray_work(write);
-        let roots = self.ring.rebut_roots();
-        write::Out {
-            roots,
-            out,
-            id: self.id.clone(),
-        }
-    }
-}
-
-impl<W> WriteUnitOut for Apex<W>
-where
-    W: WriteUnitWork,
-{
-    type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &mut self,
-        write: F,
-        //back: &Back,
-    ) -> write::Out<T> {
-        let out = self
-            .work
-            .write_unit_work(write, &self.back.clone().unwrap());
-        let roots = self.ring.rebut_roots();
-        write::Out {
-            roots,
-            out,
-            id: self.id.clone(),
-        }
-    }
-}
-
-impl<W> DoRead for Apex<W>
-where
-    W: DoRead,
-{
-    type Item = W::Item;
-    fn do_read(&self) -> &Self::Item {
-        self.work.do_read()
-    }
-}
-
-impl<W> DoReadTray for Apex<W>
-where
-    W: DoReadTray,
-{
-    fn do_read_tray(&self) -> tray::ResultRef {
-        self.work.do_read_tray()
-    }
-}
-
-impl<W> DoAddRoot for Apex<W> {
-    fn do_add_root(&mut self, root: Root) {
-        self.ring.add_root(root);
-    }
-}
-
-impl<W> DoUpdate for Apex<W> where W: Clear + DoReact + SendSync {}
-
-impl<W> DoRebut for Apex<W>
-where
-    W: Clear,
-{
-    fn do_rebut(&mut self) -> Ring {
-        self.work.clear();
-        self.ring.rebut()
-    }
-}
-
-impl<W> DoReact for Apex<W>
-where
-    W: DoReact,
-{
-    fn do_react(&mut self, id: &Id) -> react::Result {
-        self.work.do_react(id)
-    }
-}
-
-impl<W> DoSolve for Apex<W>
-where
-    W: DoSolve,
-{
-    fn do_solve(&mut self, task: Task) -> solve::Result {
-        self.work.do_solve(task)
-    }
-}
-
-impl<W> Adapt for Apex<W>
-where
-    W: Adapt,
-{
-    fn adapt(&mut self, post: Post) -> adapt::Result {
-        self.work.adapt(post.backed(&self.back.clone().unwrap()))
+    fn deal(&self, deal: &dyn Trade) -> Self {
+        self.iter().map(|x| x.deal(deal)).collect()
     }
 }

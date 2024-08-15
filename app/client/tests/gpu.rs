@@ -21,7 +21,7 @@ pub fn make_canvas_on_body() -> Gpu {
     gpu
 }
 
-pub fn make_basic_program(gpu: &Gpu) -> (Agent<Program>, Leaf) {
+pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf) {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment_source = shader::basic::FRAGMENT_RED.leaf();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
@@ -73,7 +73,7 @@ pub fn make_basic_texture(gpu: &Gpu) -> texture::Result {
     Ok(texture)
 }
 
-pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Leaf), Box<dyn Error>> {
+pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf), Box<dyn Error>> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -90,7 +90,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Agent<Elements>, Leaf), Box<dyn
     Ok((elements, vertex_source))
 }
 
-pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Agent<Elements>, Box<dyn Error>> {
+pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>, Box<dyn Error>> {
     let program = make_tex_program(&gpu)?;
     let buffer = make_vertex_color_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];

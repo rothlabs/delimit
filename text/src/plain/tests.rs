@@ -1,13 +1,13 @@
 use super::*;
 
-fn new_list(ace: &Leaf) -> Agent<List> {
-    List::new().separator(", ").push("str").push(ace).agent()
+fn new_list(ace: &Leaf) -> Node<List> {
+    List::new().separator(", ").push("str").push(ace).node()
 }
 
 #[test]
 fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
-    let text = new_list(&ace).node();
+    let text = new_list(&ace).apex();
     // let mut serial = Serial::new();
     // text.serial(&mut serial)?;
     // let serialized = serial.string()?;
@@ -19,7 +19,7 @@ fn read_from_list() -> Result<(), Error> {
 }
 
 #[test]
-fn solve_same_node_twice() -> Result<(), Error> {
+fn solve_same_apex_twice() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     assert!(text.solve(Task::Main)? == text.solve(Task::Main)?);

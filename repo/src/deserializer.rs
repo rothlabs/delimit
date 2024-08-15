@@ -10,10 +10,10 @@ impl Atlas {
     }
 }
 
-impl DeserializeNode for Atlas {
-    fn deserialize(&self, string: &str) -> node::Result {
+impl DeserializeApex for Atlas {
+    fn deserialize(&self, string: &str) -> apex::Result {
         let part: Part = serde_json::from_str(string)?;
-        Ok(part.node())
+        Ok(part.apex())
     }
 }
 
@@ -28,13 +28,13 @@ enum Part {
 }
 
 impl Part {
-    fn node(self) -> Node {
+    fn apex(self) -> Apex {
         match self {
             Self::GraphTray(x) => x.into(),
-            Self::TextPlainList(x) => x.node(),
-            Self::TextHtmlTag(x) => x.node(),
-            Self::TextHtmlAttribute(x) => x.node(),
-            Self::TextHtmlElement(x) => x.node(),
+            Self::TextPlainList(x) => x.apex(),
+            Self::TextHtmlTag(x) => x.apex(),
+            Self::TextHtmlAttribute(x) => x.apex(),
+            Self::TextHtmlElement(x) => x.apex(),
         }
     }
 }

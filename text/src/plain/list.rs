@@ -1,30 +1,30 @@
-use std::hash::Hash;
 use super::*;
+use std::hash::Hash;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct List {
     plain_list: u8,
-    items: Vec<Node>,
-    separator: Node,
+    items: Vec<Apex>,
+    separator: Apex,
 }
 
 impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn set_separator(&mut self, separator: impl Into<Node>) -> &mut Self {
+    pub fn set_separator(&mut self, separator: impl Into<Apex>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn separator(mut self, separator: impl Into<Node>) -> Self {
+    pub fn separator(mut self, separator: impl Into<Apex>) -> Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(mut self, items: Vec<impl Into<Node>>) -> Self {
+    pub fn extend(mut self, items: Vec<impl Into<Apex>>) -> Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(mut self, item: impl Into<Node>) -> Self {
+    pub fn push(mut self, item: impl Into<Apex>) -> Self {
         self.items.push(item.into());
         self
     }
@@ -50,12 +50,12 @@ impl List {
             }
         });
         self.items[last].read_string(|s| string += s);
-        Ok(string.leaf().node().gain())
+        Ok(string.leaf().apex().gain())
     }
     fn stems(&self) -> solve::Result {
-        let mut nodes = self.items.clone();
-        nodes.push(self.separator.clone());
-        Ok(nodes.gain())
+        let mut apexes = self.items.clone();
+        apexes.push(self.separator.clone());
+        Ok(apexes.gain())
     }
 }
 

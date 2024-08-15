@@ -29,7 +29,7 @@ mod elements;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
-//pub type Array<T> = Node<Vec<T>>;
+//pub type Array<T> = Apex<Vec<T>>;
 
 /// GPU graph maker
 pub struct Gpu {
@@ -43,22 +43,22 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<Node>) -> shader::Result {
+    pub fn vertex_shader(&self, source: impl Into<Apex>) -> shader::Result {
         Shader::link(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Node>) -> shader::Result {
+    pub fn fragment_shader(&self, source: impl Into<Apex>) -> shader::Result {
         Shader::link(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
-    pub fn program(&self, vertex: &Agent<Shader>, fragment: &Agent<Shader>) -> program::Result {
+    pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
         Program::link(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Node>) -> buffer::Result { // f32
+    pub fn buffer(&self, array: impl Into<Apex>) -> buffer::Result { // f32
         Buffer::link(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Node>) -> buffer::Result { // u16
+    pub fn index_buffer(&self, array: impl Into<Apex>) -> buffer::Result { // u16
         Buffer::link(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn vertex_attribute(&self, buffer: &Agent<Buffer>) -> VertexAttributeBuilder { // f32
+    pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder { // f32
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())
@@ -77,7 +77,7 @@ impl Gpu {
     }
     pub fn texture( // <T: Copy>
         &self,
-        array: impl Into<Node>,
+        array: impl Into<Apex>,
     ) -> result::Result<TextureBuilder, Box<dyn Error>> {
         let texture = self.gl.create_texture().ok_or("failed to create texture")?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
@@ -90,7 +90,7 @@ impl Gpu {
     }
     pub fn elements(
         &self,
-        program: &Agent<Program>,
+        program: &Node<Program>,
     ) -> ElementsBuilder {
         ElementsBuilder::default().gl(self.gl.clone()).program(program.clone()).clone()
         // Elements::link(&self.gl, program, buffer, vao)
@@ -116,6 +116,6 @@ impl Gpu {
 }
 
 // <F: FnOnce(&mut VertexAttribute)>
-// pub fn vertex_attribute(&self, buffer: &Agent<Buffer<f32>>) -> Agent<VertexAttribute> {
+// pub fn vertex_attribute(&self, buffer: &Node<Buffer<f32>>) -> Node<VertexAttribute> {
 //     VertexAttribute::link(&self.gl, buffer)
 // }

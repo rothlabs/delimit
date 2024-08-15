@@ -1,12 +1,12 @@
 use super::*;
 use std::result::Result;
 
-/// Value returned by a successful node solver.
+/// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug)]
 pub enum Gain {
     None,
-    Node(Node),
-    Nodes(Vec<Node>),
+    Apex(Apex),
+    Apexes(Vec<Apex>),
     String(String),
     U64(u64),
 }
@@ -16,18 +16,18 @@ impl Gain {
     pub fn ok(self) -> solve::Result {
         Ok(self)
     }
-    /// Get Node from Gain.
-    pub fn node(self) -> Result<Node, Error> {
+    /// Get Apex from Gain.
+    pub fn apex(self) -> Result<Apex, Error> {
         match self {
-            Self::Node(node) => Ok(node),
-            _ => Err(wrong_gain("Node"))?,
+            Self::Apex(apex) => Ok(apex),
+            _ => Err(wrong_gain("Apex"))?,
         }
     }
-    /// Get `Vec<Node>` from Gain.
-    pub fn nodes(self) -> Result<Vec<Node>, Error> {
+    /// Get `Vec<Apex>` from Gain.
+    pub fn apexes(self) -> Result<Vec<Apex>, Error> {
         match self {
-            Self::Nodes(nodes) => Ok(nodes),
-            _ => Err(wrong_gain("Nodes"))?,
+            Self::Apexes(apexes) => Ok(apexes),
+            _ => Err(wrong_gain("Apexes"))?,
         }
     }
     /// Get String from Gain.
@@ -46,15 +46,15 @@ impl Gain {
     }
 }
 
-impl From<Node> for Gain {
-    fn from(value: Node) -> Self {
-        Self::Node(value)
+impl From<Apex> for Gain {
+    fn from(value: Apex) -> Self {
+        Self::Apex(value)
     }
 }
 
-impl From<Vec<Node>> for Gain {
-    fn from(value: Vec<Node>) -> Self {
-        Self::Nodes(value)
+impl From<Vec<Apex>> for Gain {
+    fn from(value: Vec<Apex>) -> Self {
+        Self::Apexes(value)
     }
 }
 

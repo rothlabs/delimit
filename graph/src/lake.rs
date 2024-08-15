@@ -3,14 +3,14 @@ use std::{collections::HashMap, result};
 
 pub type Result = result::Result<Lake, Error>;
 
-/// Collection of serialized nodes.
-/// Nodes are indexed by hash so they do not repeat.
+/// Collection of serialized apexes.
+/// Apexes are indexed by hash so they do not repeat.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
     roots: HashMap<Key, String>,
     nodes: HashMap<u64, String>,
     #[serde(skip)]
-    atlas: Option<Box<dyn DeserializeNode>>,
+    atlas: Option<Box<dyn DeserializeApex>>,
 }
 
 impl Lake {
@@ -18,33 +18,36 @@ impl Lake {
         Self::default()
     }
 
-    /// Set the atlas for deserializing entries into concrete nodes.
-    pub fn atlas(&mut self, atlas: Box<dyn DeserializeNode>) -> &mut Self {
+    /// Set the atlas for deserializing entries into concrete apexes.
+    pub fn atlas(&mut self, atlas: Box<dyn DeserializeApex>) -> &mut Self {
         self.atlas = Some(atlas);
         self
     }
 
-    /// Insert graph into lake given root key and node.
-    pub fn insert(&mut self, key: impl Into<Key>, node: &Node) -> adapt::Result {
-        self.roots.insert(key.into(), node.serial()?);
-        for node in &node.stems()? {
-            self.insert_stem(node)?;
+    /// Insert graph into lake given root key and apex.
+    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
+        self.roots.insert(key.into(), apex.serial()?);
+        for apex in &apex.stems()? {
+            self.insert_stem(apex)?;
         }
         adapt_ok()
     }
 
     /// Insert stems recursively.
-    fn insert_stem(&mut self, node: &Node) -> adapt::Result {
-        self.nodes.insert(node.digest()?, node.serial()?);
-        for node in &node.stems()? {
-            self.insert_stem(node)?;
+    fn insert_stem(&mut self, apex: &Apex) -> adapt::Result {
+        self.nodes.insert(apex.digest()?, apex.serial()?);
+        for apex in &apex.stems()? {
+            self.insert_stem(apex)?;
         }
         adapt_ok()
     }
 
-    /// Get a root node by Key.
+    /// Get a root apex by Key.
     pub fn root(&self, key: impl Into<Key>) -> solve::Result {
-        let serial = self.roots.get(&key.into()).ok_or("Root not in Lake.")?;
+        let serial = self
+            .roots
+            .get(&key.into())
+            .ok_or("Root node not in Lake.")?;
         self.atlas
             .as_ref()
             .ok_or("No atlas.")?
@@ -53,7 +56,7 @@ impl Lake {
             .ok()
     }
 
-    /// Get a node by hash.
+    /// Get a apex by hash.
     pub fn get(&self, hash: u64) -> solve::Result {
         let serial = self.nodes.get(&hash).ok_or("Node not in Lake.")?;
         self.atlas
@@ -66,13 +69,13 @@ impl Lake {
 }
 
 impl Trade for Lake {
-    fn trade(&self, node: &Node) -> Node {
-        if let Node::Tray(Tray::Path(Path::Hash(hash))) = node {
-            if let Ok(Gain::Node(node)) = self.get(*hash) {
-                return node;
+    fn trade(&self, apex: &Apex) -> Apex {
+        if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
+            if let Ok(Gain::Apex(apex)) = self.get(*hash) {
+                return apex;
             }
         }
-        node.clone()
+        apex.clone()
     }
 }
 
@@ -99,21 +102,21 @@ impl Trade for Lake {
 // impl Solve for Lake {
 //     fn solve(&self, task: Task) -> solve::Result {
 //         match task {
-//             Task::Stems => empty_nodes(),
+//             Task::Stems => empty_apexes(),
 //             Task::Serial => self.serial(),
 //             _ => no_solver(),
 //         }
 //     }
 // }
 
-// /// Serialize the given node as the root of the lake.
-// pub fn root(&mut self, node: &Node) -> adapt::Result {
-//     self.root = node.serial()?;
+// /// Serialize the given apex as the root of the lake.
+// pub fn root(&mut self, apex: &Apex) -> adapt::Result {
+//     self.root = apex.serial()?;
 //     adapt_ok()
 // }
-// /// Insert a node into the lake as hash-serial pair.
-// pub fn insert(&mut self, node: &Node) -> adapt::Result {
-//     self.nodes.insert(node.digest()?, node.serial()?);
+// /// Insert a apex into the lake as hash-serial pair.
+// pub fn insert(&mut self, apex: &Apex) -> adapt::Result {
+//     self.apexes.insert(apex.digest()?, apex.serial()?);
 //     adapt_ok()
 // }
 
@@ -129,7 +132,7 @@ impl Trade for Lake {
 //     self
 // }
 
-// pub fn new(ploy: impl Into<Node>) -> Result {
+// pub fn new(ploy: impl Into<Apex>) -> Result {
 //     let mut serials = HashMap::new();
 
 //     Ok(Self {
@@ -142,7 +145,7 @@ impl Trade for Lake {
 //     fn adapt(&mut self, post: Post) -> adapt::Result {
 //         match post {
 //             // Post::Trade(_) => Ok(Gain::None),
-//             // Post::Extend(nodes) => self.extend(nodes),
+//             // Post::Extend(apexes) => self.extend(apexes),
 //             // Post::Import => self.import(),
 //             _ => did_not_adapt(post),
 //         }
