@@ -29,7 +29,7 @@ where
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
-            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Hash)?;
+            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest)?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
@@ -52,7 +52,7 @@ where
     fn do_solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Hash => self.digest(),
+            Task::Digest => self.digest(),
             Task::Serial => self.serial(),
             _ => self.unit.as_ref().ok_or("No unit.")?.solve(task),
         }

@@ -1,10 +1,7 @@
 use super::*;
-use std::result;
 
 mod convert;
 mod import;
-
-pub type Result = result::Result<Apex, Error>;
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -21,7 +18,7 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result {
+    pub fn main(&self) -> Result<Apex, Error> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy")?,
@@ -36,17 +33,17 @@ impl Apex {
     }
 
     /// Get hash digest number of apex.
-    pub fn digest(&self) -> result::Result<u64, Error> {
+    pub fn digest(&self) -> Result<u64, Error> {
         match self {
             Self::Tray(tray) => tray.digest(),
-            Self::Leaf(leaf) => leaf.solve(Task::Hash),
-            Self::Ploy(ploy) => ploy.solve(Task::Hash),
+            Self::Leaf(leaf) => leaf.solve(Task::Digest),
+            Self::Ploy(ploy) => ploy.solve(Task::Digest),
         }?
         .u64()
     }
 
     /// Get serial string of apex.
-    pub fn serial(&self) -> serial::Result {
+    pub fn serial(&self) -> Result<String, Error> {
         match self {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
@@ -56,7 +53,7 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> result::Result<Vec<Apex>, Error> {
+    pub fn stems(&self) -> Result<Vec<Apex>, Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Stems),
             _ => empty_apexes(),
@@ -103,7 +100,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result {
+    pub fn at(&self, target: usize) -> Result<Apex, Error> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -141,7 +138,7 @@ impl Apex {
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> result::Result<T, Error> {
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, Error> {
         self.read(|tray| match tray {
             Ok(value) => Ok(read(value)),
             _ => Err("nothing to read")?,
@@ -171,7 +168,7 @@ impl Apex {
             _ => read(&vec![]),
         })
     }
-    pub fn string(&self) -> result::Result<String, Error> {
+    pub fn string(&self) -> Result<String, Error> {
         match self.tray() {
             Ok(Tray::String(value)) => Ok(value),
             _ => Err("not a string")?,
@@ -199,13 +196,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> result::Result<Vec<Apex>, Error>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, Error>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> result::Result<Vec<Apex>, Error> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, Error> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

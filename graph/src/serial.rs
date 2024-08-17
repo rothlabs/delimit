@@ -1,7 +1,4 @@
 use super::*;
-use std::result;
-
-pub type Result = result::Result<String, Error>;
 
 pub trait ToSerial {
     /// Serialize to string.
@@ -21,7 +18,7 @@ where
 dyn_clone::clone_trait_object!(DeserializeApex);
 pub trait DeserializeApex: DynClone + Debug + SendSync {
     /// Deserialize to `Apex` with concrete unit type.
-    fn deserialize(&self, string: &str) -> apex::Result;
+    fn deserialize(&self, string: &str) -> Result<Apex, Error>;
 }
 
 pub trait ToHash {

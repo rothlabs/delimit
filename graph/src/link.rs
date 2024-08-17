@@ -39,7 +39,7 @@ where
     Self: Solve,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
+        if let Ok(Gain::U64(digest)) = self.solve(Task::Digest) {
             digest.hash(state)
         } else {
             // TODO: Remove when sure that this won't be a problem
@@ -58,7 +58,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
+        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Digest) {
             Path::Hash(hash).serialize(serializer)
         } else {
             // TODO: Remove when sure that this won't be a problem
@@ -88,7 +88,7 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> apex::Result {
+    pub fn main(&self) -> Result<Apex, Error> {
         match self.solve(Task::Main)? {
             Gain::Apex(apex) => Ok(apex),
             _ => Err("Wrong return type for Task::Main.")?,

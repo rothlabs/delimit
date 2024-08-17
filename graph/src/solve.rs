@@ -26,12 +26,16 @@ pub fn empty_apexes() -> solve::Result {
     Ok(Gain::Apexes(vec![]))
 }
 
-pub enum Task {
+pub fn no_gain() -> solve::Result {
+    Ok(Gain::None)
+}
+
+pub enum Task<'a> {
     Main,
     Stems,
     React,
-    Export,
-    Find(String),
     Serial,
-    Hash,
+    Digest,
+    Imports,
+    Get(&'a Key),
 }

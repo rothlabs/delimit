@@ -74,7 +74,7 @@ impl Solve for List {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
-            Task::Hash => self.digest(),
+            Task::Digest => self.digest(),
             _ => no_solver(),
         }
     }

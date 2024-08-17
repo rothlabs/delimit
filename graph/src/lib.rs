@@ -11,7 +11,7 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use serial::{DeserializeApex, ToHash, ToSerial};
-pub use solve::{empty_apexes, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
+pub use solve::{empty_apexes, no_gain, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,

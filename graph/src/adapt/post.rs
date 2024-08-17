@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub enum Post<'a> {
@@ -6,8 +7,9 @@ pub enum Post<'a> {
     Trade(&'a dyn Trade),
     Import,
     Insert(Apex),
-    Extend(Vec<Apex>),
+    Extend(HashMap<Key, Apex>),
     Remove(usize),
+    Paths(Vec<Path>),
 }
 
 impl Backed for Post<'_> {

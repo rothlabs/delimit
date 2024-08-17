@@ -50,7 +50,7 @@ impl DoSolve for Leaf {
     fn do_solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Serial => self.serial(),
-            Task::Hash => self.digest(),
+            Task::Digest => self.digest(),
             _ => no_solver(),
         }
     }

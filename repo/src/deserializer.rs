@@ -11,7 +11,7 @@ impl Atlas {
 }
 
 impl DeserializeApex for Atlas {
-    fn deserialize(&self, string: &str) -> apex::Result {
+    fn deserialize(&self, string: &str) -> Result<Apex, Error> {
         let part: Part = serde_json::from_str(string)?;
         Ok(part.apex())
     }

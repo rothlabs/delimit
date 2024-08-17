@@ -3,8 +3,9 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
     html_tag: u8,
-    pub name: Apex,
-    pub attributes: Vec<Apex>,
+    imports: Vec<Path>,  
+    name: Apex,
+    attributes: Vec<Apex>,
 }
 
 impl Tag {
@@ -30,13 +31,18 @@ impl Tag {
             .push(self.name.at(PLAIN)?)
             .extend(self.attributes.at(PLAIN)?)
             .apex();
-        let tag = List::new().push("<").push(&items).push(">").apex();
-        Ok(tag.gain())
+        List::new()
+            .push("<")
+            .push(&items)
+            .push(">")
+            .apex()
+            .gain()
+            .ok()
     }
     fn stems(&self) -> solve::Result {
         let mut apexes = self.attributes.clone();
         apexes.push(self.name.clone());
-        Ok(apexes.gain())
+        apexes.gain().ok()
     }
 }
 
@@ -55,7 +61,8 @@ impl Solve for Tag {
             Task::Main => self.main(),
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
-            Task::Hash => self.digest(),
+            Task::Digest => self.digest(),
+            // Task::Imports => self.imports.gain(),
             _ => no_solver(),
         }
     }
