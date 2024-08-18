@@ -13,30 +13,18 @@ mod tag;
 #[cfg(test)]
 mod tests;
 
-// pub enum Part {
-//     Tag(Deuce<Tag>),
-//     Attribute(Deuce<Attribute>),
-//     Element(Deuce<Element>),
+pub fn tags() -> Apex {
+    let mut bay = Bay::new();
+    for tag in TAGS {
+        bay.insert(tag, tag.leaf());
+    }
+    bay.apex()
+}
+
+// pub fn attributes() -> Apex {
+//     let mut bay = Bay::new();
+//     for tag in ATTRIBUTES {
+//         bay.insert(tag, tag.leaf());
+//     }
+//     bay.apex()
 // }
-
-// /// HTML Pipe
-// pub type Pipe = graph::Pipe<Role>;
-
-// /// HTML Role
-// pub type Role = role::Ploy<OldPart, Tray>;
-
-// #[derive(Clone)]
-// pub enum OldPart {
-//     Element(Link<Element>),
-//     Tag(Link<Tag>),
-//     Attribute(Link<Attribute>),
-// }
-
-// /// HTML link
-// type Link<U> = Deuce<U>;
-
-// // HTML tray
-// type Tray = plain::Role;
-
-// /// HTML stem view
-// type Stem = plain::view::Ploy<OldPart>;

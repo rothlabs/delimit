@@ -2,6 +2,7 @@ use super::*;
 
 mod convert;
 mod import;
+mod edit;
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -23,6 +24,15 @@ impl Apex {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy")?,
         }
+    }
+
+    /// Get stem by key
+    pub fn get(&self, key: impl Into<Key>) -> Result<Apex, Error> {
+        match self {
+            Self::Ploy(ploy) => ploy.solve(Task::Get(&key.into())),
+            _ => Err("not ploy")?,
+        }?
+        .apex()
     }
 
     /// Insert apex into new Lake.
@@ -65,6 +75,15 @@ impl Apex {
     pub fn trade(&self, deal: &dyn Trade) {
         if let Self::Ploy(ploy) = self {
             ploy.adapt(Post::Trade(deal)).ok();
+        }
+    }
+
+    /// New Apex with Path 
+    pub fn pathed(&self, path: impl Into<Path>) -> Self {
+        match self {
+            Self::Tray(bare) => Self::Tray(bare.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.pathed(path.into())),
+            Self::Ploy(ploy) => Self::Ploy(ploy.pathed(path.into())),
         }
     }
 

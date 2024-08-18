@@ -34,7 +34,7 @@ where
     fn digest(&self) -> solve::Result {
         let mut state = DefaultHasher::new();
         self.hash(&mut state);
-        state.finish().gain().ok()
+        state.finish().gain()
     }
 }
 

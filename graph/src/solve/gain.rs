@@ -7,6 +7,7 @@ pub enum Gain {
     None,
     Apex(Apex),
     Apexes(Vec<Apex>),
+    Imports(Vec<Import>),
     String(String),
     U64(u64),
 }
@@ -64,24 +65,26 @@ impl From<u64> for Gain {
     }
 }
 
+impl From<&Vec<Import>> for Gain {
+    fn from(value: &Vec<Import>) -> Self {
+        Self::Imports(value.clone())
+    }
+}
+
 pub trait IntoGain {
     /// Move into Gain.
-    fn gain(self) -> Gain;
+    fn gain(self) -> solve::Result;
 }
 
 impl<T> IntoGain for T
 where
     T: Into<Gain>,
 {
-    fn gain(self) -> Gain {
-        self.into()
+    fn gain(self) -> solve::Result {
+        Ok(self.into())
     }
 }
 
 fn wrong_gain(variant: &str) -> String {
     "Wrong Gain variant. Expected: ".to_owned() + variant
 }
-
-// pub fn wrong_gain(variant: &str) -> solve::Result {
-//     Err("Wrong Gain variant. Expected: ".to_owned() + variant)?
-// }

@@ -53,7 +53,6 @@ impl Lake {
             .ok_or("No atlas.")?
             .deserialize(serial)?
             .gain()
-            .ok()
     }
 
     /// Get a apex by hash.
@@ -64,7 +63,6 @@ impl Lake {
             .ok_or("No atlas.")?
             .deserialize(serial)?
             .gain()
-            .ok()
     }
 }
 

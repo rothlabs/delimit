@@ -19,15 +19,40 @@ pub enum Path {
     Hash(u64),
     World(Vec<Key>),
     Local(Vec<Key>),
-    Upper(Upper),
+    Upper(Upper<Vec<Key>>),
+}
+
+impl From<&String> for Path {
+    fn from(value: &String) -> Self {
+        Self::Local(vec![value.clone()])
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
-pub struct Upper {
+pub struct Upper<T> {
     rank: usize,
-    pub keys: Vec<Key>,
+    item: T,
 }
 
 pub fn random() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+pub enum Import {
+    World(Node),
+    Local(Node),
+    Upper(Upper<Node>),
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+pub struct Node {
+    key: Key,
+    stem: Vec<Stem>,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+pub enum Stem {
+    Node(Node),
+    Wild,
 }

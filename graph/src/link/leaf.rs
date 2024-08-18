@@ -1,7 +1,7 @@
 use crate::*;
 
 pub trait ToLeaf {
-    /// Clone to Leaf.
+    /// Clone to new Leaf.
     fn leaf(&self) -> Leaf;
 }
 

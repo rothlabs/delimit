@@ -50,12 +50,12 @@ impl List {
             }
         });
         self.items[last].read_string(|s| string += s);
-        Ok(string.leaf().apex().gain())
+        string.leaf().apex().gain()
     }
     fn stems(&self) -> solve::Result {
         let mut apexes = self.items.clone();
         apexes.push(self.separator.clone());
-        Ok(apexes.gain())
+        apexes.gain()
     }
 }
 

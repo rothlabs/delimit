@@ -10,17 +10,20 @@ impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
+    pub fn insert(&mut self, key: impl Into<Key>, apex: impl Into<Apex>) {
+        self.apexes.insert(key.into(), apex.into());
+    }
     fn extend(&mut self, apexes: HashMap<Key, Apex>) -> adapt::Result {
         self.apexes.extend(apexes);
         adapt_ok()
     }
     fn stems(&self) -> solve::Result {
         let stems: Vec<Apex> = self.apexes.values().cloned().collect();
-        stems.gain().ok()
+        stems.gain()
     }
     fn get(&self, key: &Key) -> solve::Result {
         if let Some(apex) = self.apexes.get(key) {
-            apex.clone().gain().ok()
+            apex.pathed(key).gain()
         } else {
             no_gain()
         }

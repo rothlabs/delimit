@@ -1,5 +1,22 @@
 use super::*;
 
+fn index_page() -> Result<Apex, Error> {
+    let tags = tags();
+    let lang = Attribute::new().name("lang").content("en").apex();
+    // let name = tags.get("!DOCTYPE html")?;
+    let name = tags.get("html")?;
+    let tag = Tag::new().name(name).attribute(lang).apex();
+    let html = Element::new().tag(tag).item("Roth Labs").close(name).apex();
+    Ok(html)
+}
+
+#[test]
+fn show_index_page() -> Result<(), Error> {
+    let page = index_page();
+    eprintln!("index page: {:?}", page);
+    Err("check")?
+}
+
 fn make_doc() -> (Apex, Apex, Node<Element>, AttributeSet) {
     let repo = Bay::new().apex();
     let atts = attribute_set();

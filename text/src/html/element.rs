@@ -50,7 +50,7 @@ impl Element {
                 .apex();
             element = element.push(close);
         }
-        element.apex().gain().ok()
+        element.apex().gain()
     }
     fn stems(&self) -> solve::Result {
         let mut apexes = self.items.clone();
@@ -58,7 +58,7 @@ impl Element {
         if let Some(apex) = &self.close {
             apexes.push(apex.clone());
         }
-        apexes.gain().ok()
+        apexes.gain()
     }
 }
 

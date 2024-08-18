@@ -34,6 +34,41 @@ pub struct Link<E> {
     rank: Option<usize>,
 }
 
+impl<E> Link<E> {
+    pub fn pathed(&self, path: Path) -> Self {
+        Self {
+            edge: self.edge.clone(),
+            path: Some(path),
+            rank: self.rank,
+        }
+    }
+    pub fn path(&self) -> Option<Path> {
+        self.path.clone()
+    }
+    pub fn rank(&self) -> Option<usize> {
+        self.rank
+    }
+    pub fn ranked(&self, rank: usize) -> Self {
+        Self {
+            edge: self.edge.clone(),
+            path: self.path.clone(),
+            rank: Some(rank),
+        }
+    }
+}
+
+impl<E> Link<E>
+where
+    Self: Solve,
+{
+    pub fn main(&self) -> Result<Apex, Error> {
+        match self.solve(Task::Main)? {
+            Gain::Apex(apex) => Ok(apex),
+            _ => Err("Wrong return type for Task::Main.")?,
+        }
+    }
+}
+
 impl<E> Hash for Link<E>
 where
     Self: Solve,
@@ -64,34 +99,6 @@ where
             // TODO: Remove when sure that this won't be a problem
             panic!("failed to serialize link")
             // self.path.serialize(serializer)
-        }
-    }
-}
-
-impl<E> Link<E> {
-    pub fn path(&self) -> Option<Path> {
-        self.path.clone()
-    }
-    pub fn rank(&self) -> Option<usize> {
-        self.rank
-    }
-    pub fn ranked(&self, rank: usize) -> Self {
-        Self {
-            edge: self.edge.clone(),
-            path: self.path.clone(),
-            rank: Some(rank),
-        }
-    }
-}
-
-impl<E> Link<E>
-where
-    Self: Solve,
-{
-    pub fn main(&self) -> Result<Apex, Error> {
-        match self.solve(Task::Main)? {
-            Gain::Apex(apex) => Ok(apex),
-            _ => Err("Wrong return type for Task::Main.")?,
         }
     }
 }

@@ -7,6 +7,14 @@ use std::{
 };
 use text::*;
 
+// fn html_index_page() {
+//     let lib = Bay::new().apex();
+//     // for tag in html::TAGS {
+
+//     // }
+//     // lib.extend(apexes)
+// }
+
 fn make_doc() -> Apex {
     let atts = html::attribute_set();
     let mut html = html::Doc::new(&atts, "Delimit index page").html();

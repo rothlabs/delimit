@@ -32,7 +32,6 @@ impl Attribute {
             .push(r#"""#)
             .apex()
             .gain()
-            .ok()
     }
     fn stems(&self) -> solve::Result {
         Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))

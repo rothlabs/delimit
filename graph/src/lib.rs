@@ -5,7 +5,7 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::Lake;
 pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
-pub use meta::{random, Id, Key, Path, ToId};
+pub use meta::{random, Id, Import, Key, Path, ToId};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
