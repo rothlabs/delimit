@@ -17,7 +17,7 @@ impl Element {
         self.tag = tag.into();
         self
     }
-    pub fn item(&mut self, item: impl Into<Apex>) -> &mut Self {
+    pub fn item(mut self, item: impl Into<Apex>) -> Self {
         self.items.push(item.into());
         self
     }

@@ -16,7 +16,7 @@ impl Tag {
         self.name = name.into();
         self
     }
-    pub fn attribute(&mut self, attribute: impl Into<Apex>) -> &mut Self {
+    pub fn attribute(mut self, attribute: impl Into<Apex>) -> Self {
         self.attributes.push(attribute.into());
         self
     }

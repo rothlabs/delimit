@@ -43,6 +43,12 @@ impl Tray {
             _ => None,
         }
     }
+    // pub fn string(self) -> result::Result<String, Error> {
+    //     match self {
+    //         Self::String(string) => Ok(string),
+    //         _ => Err("No string.")?,
+    //     }
+    // }
 }
 
 impl Hash for Tray {

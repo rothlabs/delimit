@@ -1,5 +1,5 @@
 pub use attribute::*;
-pub use doc::*;
+// pub use doc::*;
 pub use element::Element;
 pub use tag::*;
 
@@ -7,7 +7,7 @@ use super::*;
 use graph::*;
 
 mod attribute;
-mod doc;
+// mod doc;
 mod element;
 mod tag;
 #[cfg(test)]

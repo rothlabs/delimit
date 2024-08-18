@@ -1,111 +1,60 @@
 use super::*;
 
-fn index_page() -> Result<Apex, Error> {
+fn doc() -> Result<Apex, Error> {
     let tags = tags();
     let lang = Attribute::new().name("lang").content("en").apex();
     // let name = tags.get("!DOCTYPE html")?;
     let name = tags.get("html")?;
-    let tag = Tag::new().name(name).attribute(lang).apex();
+    let tag = Tag::new().name(&name).attribute(lang).apex();
     let html = Element::new().tag(tag).item("Roth Labs").close(name).apex();
     Ok(html)
 }
 
 #[test]
-fn show_index_page() -> Result<(), Error> {
-    let page = index_page();
-    eprintln!("index page: {:?}", page);
-    Err("check")?
-}
-
-fn make_doc() -> (Apex, Apex, Node<Element>, AttributeSet) {
-    let repo = Bay::new().apex();
-    let atts = attribute_set();
-    let mut html = Doc::new(&atts, "Delimit index page").html();
-    html.attribute("lang", "en");
-    let head = html.head();
-    let head_link = head.link();
-    let mut title = head.title();
-    title.add_str("Delimit");
-    let mut meta = title.root().meta();
-    meta.attribute("charset", "utf-8");
-    meta = meta.root().meta();
-    meta.attribute("name", "viewport")
-        .attribute("content", "width=device-width, initial-scale=1");
-    meta = meta.root().meta();
-    meta.attribute("name", "author")
-        .attribute("content", "Roth Labs LLC");
-    let mut script = meta.root().script();
-    script.attribute("type", "importmap");
-    script.add_str(&r#"{"imports":{"init":"/client.js"}}"#);
-    let mut body = script.up_to_html().body();
-    body.add_str("Delimit");
-    let mut canvas = body.canvas();
-    canvas.attribute("id", "canvas");
-    let mut script = canvas.root().script();
-    script
-        .attribute("src", "/app.js")
-        .attribute("type", "module");
-    let doc = script.up_to_doc().apex();
-    (repo, doc, head_link, atts)
-}
-
-#[test]
-fn basic_doc() -> Result<(), Error> {
-    let (_, doc, _, _) = make_doc();
-    let string = doc.tray()?;
-    assert_eq!(Tray::String(DOC.into()), string);
+fn index_page_gain() -> Result<(), Error> {
+    assert_eq!(DOC, doc()?.string()?);
     Ok(())
 }
 
-#[test]
-fn serialize_basic_doc() -> Result<(), Error> {
-    // let (repo, _, _, _) = make_doc();
-    // let mut serial = Serial::new();
-    // repo.serial(&mut serial)?;
-    // let serialized = serial.string()?;
-    // eprintln!("serial: {}", serialized);
-    Ok(())
-}
+// /// The lower graph (plain) should rebut up to the doc (pipe)
+// #[test]
+// fn mutate_lower_graph_plain() -> Result<(), Error> {
+//     let (_, doc, _, atts) = make_doc();
+//     let plain = doc.at(PLAIN)?;
+//     let _r = plain.tray()?;
+//     let _r = doc.tray()?;
+//     atts.get("type")
+//         .unwrap()
+//         .write(|tray| {
+//             if let Tray::String(string) = tray {
+//                 *string += "_mutated"
+//             } else {
+//                 panic!("not a string")
+//             }
+//         })
+//         .ok();
+//     //let string = doc.tray()?;
+//     let string = plain.tray()?;
+//     assert_eq!(Tray::String(MUTATED_ATTRIB.into()), string);
+//     Ok(())
+// }
 
-/// The lower graph (plain) should rebut up to the doc (pipe)
-#[test]
-fn mutate_lower_graph_plain() -> Result<(), Error> {
-    let (_, doc, _, atts) = make_doc();
-    let plain = doc.at(PLAIN)?;
-    let _r = plain.tray()?;
-    let _r = doc.tray()?;
-    atts.get("type")
-        .unwrap()
-        .write(|tray| {
-            if let Tray::String(string) = tray {
-                *string += "_mutated"
-            } else {
-                panic!("not a string")
-            }
-        })
-        .ok();
-    //let string = doc.tray()?;
-    let string = plain.tray()?;
-    assert_eq!(Tray::String(MUTATED_ATTRIB.into()), string);
-    Ok(())
-}
-
-/// The upper graph (html) should rebut up to the doc (pipe)
-#[test]
-fn mutate_upper_graph_html() -> Result<(), Error> {
-    let (_, doc, head, _) = make_doc();
-    let plain = doc.at(PLAIN)?;
-    let _r = plain.tray()?;
-    let _r = doc.tray()?;
-    head.write(|pack| {
-        pack.unit.items.remove(0);
-    })
-    .ok();
-    let string = doc.tray()?;
-    //let string = plain.tray()?;
-    assert_eq!(Tray::String(REMOVED_TITLE.into()), string);
-    Ok(())
-}
+// /// The upper graph (html) should rebut up to the doc (pipe)
+// #[test]
+// fn mutate_upper_graph_html() -> Result<(), Error> {
+//     let (_, doc, head, _) = make_doc();
+//     let plain = doc.at(PLAIN)?;
+//     let _r = plain.tray()?;
+//     let _r = doc.tray()?;
+//     head.write(|pack| {
+//         pack.unit.items.remove(0);
+//     })
+//     .ok();
+//     let string = doc.tray()?;
+//     //let string = plain.tray()?;
+//     assert_eq!(Tray::String(REMOVED_TITLE.into()), string);
+//     Ok(())
+// }
 
 const DOC: &str = r#"<!DOCTYPE html>
 <html lang="en">
