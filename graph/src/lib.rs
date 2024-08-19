@@ -1,4 +1,4 @@
-pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, Memo, Post};
+pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptOut, AdaptInner, Memo, Post};
 pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -119,7 +119,7 @@ where
 
 impl<T> IntoNode for T
 where
-    T: 'static + Adapt + Solve + SendSync,
+    T: 'static + Adapt + Solve + SendSync + Debug,
 {
     fn node(mut self) -> Node<Self> {
         Node::make(|back| {

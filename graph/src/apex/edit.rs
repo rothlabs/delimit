@@ -22,9 +22,7 @@ impl Apex {
     }
 
     pub fn write_string<T, F: FnOnce(&mut String) -> T>(&self, write: F) -> Result<T, Error> {
-        eprintln!("trying to write leaf string");
         if let Self::Leaf(leaf) = self {
-            eprintln!("it is a leaf");
             leaf.write(|tray| match tray {
                 Tray::String(string) => write(string),
                 _ => write(&mut "".into()),

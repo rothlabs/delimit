@@ -162,12 +162,19 @@ where
     }
 }
 
-impl<W> Adapt for Cusp<W>
+impl<W> AdaptOut for Cusp<W>
 where
-    W: Adapt,
+    W: Adapt + Clear,
 {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
-        self.work
-            .adapt(post.backed(self.back.as_ref().ok_or("No back.")?))
+    fn adapt_out(&mut self, post: Post) -> write::Out<adapt::Result> {
+        self.work.clear();
+        let out = self.work
+            .adapt(post.backed(self.back.as_ref().expect("No back in cusp adapt.")));
+        let roots = self.ring.rebut_roots();
+        write::Out {
+            roots,
+            out,
+            id: self.id.clone(),
+        }
     }
 }

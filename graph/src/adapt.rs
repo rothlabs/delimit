@@ -13,6 +13,12 @@ pub trait Adapt {
     fn adapt(&mut self, post: Post) -> Result;
 }
 
+pub trait AdaptOut {
+    /// Alter a apex.
+    /// Useful for inserting, removing, and more.
+    fn adapt_out(&mut self, post: Post) -> write::Out<Result>;
+}
+
 pub trait AdaptInner {
     /// For graph internals to handle alter calls
     fn adapt(&self, post: Post) -> Result;

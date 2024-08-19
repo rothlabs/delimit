@@ -44,13 +44,15 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
     let plain = page.at(PLAIN)?;
     let _solved = page.string()?;
     let _solved = plain.string()?;
+    let html = plain.stems()?[2].clone();
+    let a = html.main()?;
     // bay.get("script_tag")?.write_string(|string| 
     //     *string += "_mutated"
     // )?;
     // let wow = &plain.stems()?[2].stems()?[2].stems()?[6].stems()?[1].stems()?[2];
     let title = plain.stems()?[2].stems()?[2].stems()?[2].clone();
     title.set_at(1, "Changed")?;
-    assert_eq!(title.string()?, MUTATED_SCRIPT_TAG);
+    assert_eq!(plain.string()?, MUTATED_SCRIPT_TAG);
     Ok(())
 }
 

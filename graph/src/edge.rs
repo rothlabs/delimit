@@ -85,10 +85,15 @@ where
 
 impl<N> AdaptInner for Edge<N>
 where
-    N: 'static + Adapt + DoUpdate,
+    N: 'static + AdaptOut + DoUpdate,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        write_part(&self.cusp, |mut cusp| cusp.adapt(post))
+        let write::Out { roots, id, out } =
+            write_part(&self.cusp, |mut cusp| cusp.adapt_out(post));
+        for root in &roots {
+            root.react(&id)?;
+        }
+        out
     }
 }
 

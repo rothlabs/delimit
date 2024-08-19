@@ -108,7 +108,7 @@ where
 
 impl<U> Clear for Node<U>
 where
-    U: Solve,
+    U: Solve + Debug,
 {
     fn clear(&mut self) {
         self.main = None;
