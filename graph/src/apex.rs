@@ -1,8 +1,8 @@
 use super::*;
 
 mod convert;
-mod import;
 mod edit;
+mod import;
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -35,8 +35,17 @@ impl Apex {
         .apex()
     }
 
+    // /// Get stems
+    // pub fn get(&self, key: impl Into<Key>) -> Result<Apex, Error> {
+    //     match self {
+    //         Self::Ploy(ploy) => ploy.solve(Task::Get(&key.into())),
+    //         _ => Err("not ploy")?,
+    //     }?
+    //     .apex()
+    // }
+
     /// Insert apex into new Lake.
-    pub fn lake(&self) -> lake::Result {
+    pub fn lake(&self) -> Result<Lake, Error> {
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
@@ -78,7 +87,7 @@ impl Apex {
         }
     }
 
-    /// New Apex with Path 
+    /// New Apex with Path
     pub fn pathed(&self, path: impl Into<Path>) -> Self {
         match self {
             Self::Tray(bare) => Self::Tray(bare.clone()),

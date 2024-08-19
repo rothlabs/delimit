@@ -18,8 +18,8 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Task) -> Result;
 }
 
-pub fn no_solver() -> solve::Result {
-    Err("No solver.")?
+pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
+    Err(format!("No solver.\n Task: {:?}\n Unit: {:?}\n", task, unit))?
 }
 
 pub fn empty_apexes() -> solve::Result {
@@ -30,6 +30,7 @@ pub fn no_gain() -> solve::Result {
     Ok(Gain::None)
 }
 
+#[derive(Debug)]
 pub enum Task<'a> {
     Main,
     Stems,
@@ -38,4 +39,5 @@ pub enum Task<'a> {
     Digest,
     Imports,
     Get(&'a Key),
+    // GetVec,
 }

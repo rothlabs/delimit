@@ -59,6 +59,12 @@ impl From<Vec<Apex>> for Gain {
     }
 }
 
+// impl From<&Vec<Apex>> for Gain {
+//     fn from(value: &Vec<Apex>) -> Self {
+//         Self::Apexes(value.clone())
+//     }
+// }
+
 impl From<u64> for Gain {
     fn from(value: u64) -> Self {
         Self::U64(value)

@@ -8,10 +8,6 @@ fn new_list(ace: &Leaf) -> Node<List> {
 fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace).apex();
-    // let mut serial = Serial::new();
-    // text.serial(&mut serial)?;
-    // let serialized = serial.string()?;
-    // eprintln!("serial: {}", serialized);
     text.read_string(|string| {
         assert_eq!(string, "str, ace");
     });
@@ -22,7 +18,7 @@ fn read_from_list() -> Result<(), Error> {
 fn solve_same_apex_twice() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
-    assert!(text.solve(Task::Main)? == text.solve(Task::Main)?);
+    assert!(text.main()? == text.main()?);
     Ok(())
 }
 

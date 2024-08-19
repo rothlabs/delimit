@@ -44,6 +44,12 @@ impl From<&str> for Apex {
     }
 }
 
+impl From<String> for Apex {
+    fn from(value: String) -> Self {
+        Apex::Tray(Tray::String(value))
+    }
+}
+
 impl From<u32> for Apex {
     fn from(value: u32) -> Self {
         Apex::Tray(Tray::U32(value))

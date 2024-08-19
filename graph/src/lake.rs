@@ -1,10 +1,7 @@
 use super::*;
-use std::{collections::HashMap, result};
+use std::collections::HashMap;
 
-pub type Result = result::Result<Lake, Error>;
-
-/// Collection of serialized apexes.
-/// Apexes are indexed by hash so they do not repeat.
+/// Collection of serialized apexes. Indexed by hash.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
     roots: HashMap<Key, String>,
@@ -35,6 +32,9 @@ impl Lake {
 
     /// Insert stems recursively.
     fn insert_stem(&mut self, apex: &Apex) -> adapt::Result {
+        if let Apex::Tray(_) = apex {
+            return adapt_ok()
+        }
         self.nodes.insert(apex.digest()?, apex.serial()?);
         for apex in &apex.stems()? {
             self.insert_stem(apex)?;
@@ -47,7 +47,7 @@ impl Lake {
         let serial = self
             .roots
             .get(&key.into())
-            .ok_or("Root node not in Lake.")?;
+            .ok_or("Root node not found.")?;
         self.atlas
             .as_ref()
             .ok_or("No atlas.")?
@@ -57,7 +57,7 @@ impl Lake {
 
     /// Get a apex by hash.
     pub fn get(&self, hash: u64) -> solve::Result {
-        let serial = self.nodes.get(&hash).ok_or("Node not in Lake.")?;
+        let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
         self.atlas
             .as_ref()
             .ok_or("No atlas.")?

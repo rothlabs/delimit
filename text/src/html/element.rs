@@ -3,34 +3,30 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Element {
     html_element: u8,
-    tag: Apex,
-    pub items: Vec<Apex>,
+    open: Apex,
+    items: Vec<Apex>,
     close: Option<Apex>,
-    story: Apex,
 }
 
 impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn tag(mut self, tag: impl Into<Apex>) -> Self {
-        self.tag = tag.into();
+    pub fn open(mut self, open: impl Into<Apex>) -> Self {
+        self.open = open.into();
         self
     }
     pub fn item(mut self, item: impl Into<Apex>) -> Self {
         self.items.push(item.into());
         self
     }
-    pub fn close(mut self, close: impl Into<Apex>) -> Self {
-        self.close = Some(close.into());
-        self
-    }
-    pub fn story(mut self, story: impl Into<Apex>) -> Self {
-        self.story = story.into();
+    pub fn close(mut self) -> Self {
+        let name = self.open.get("name").expect("No opening tag name.");
+        self.close = Some(name);
         self
     }
     fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
-        self.tag = self.tag.deal(deal);
+        self.open = self.open.deal(deal);
         self.items = self.items.deal(deal);
         if let Some(close) = &self.close {
             self.close = Some(close.deal(deal));
@@ -40,7 +36,7 @@ impl Element {
     fn main(&self) -> solve::Result {
         let mut element = List::new()
             .separator("\n")
-            .push(self.tag.at(PLAIN)?)
+            .push(self.open.at(PLAIN)?)
             .extend(self.items.at(PLAIN)?);
         if let Some(close) = &self.close {
             let close = List::new()
@@ -54,7 +50,7 @@ impl Element {
     }
     fn stems(&self) -> solve::Result {
         let mut apexes = self.items.clone();
-        apexes.push(self.tag.clone());
+        apexes.push(self.open.clone());
         if let Some(apex) = &self.close {
             apexes.push(apex.clone());
         }
@@ -78,7 +74,13 @@ impl Solve for Element {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
-            _ => no_solver(),
+            _ => no_solver(self, task),
         }
     }
 }
+
+// pub fn close(mut self, close: impl Into<Apex>) -> Self {
+//     let wow = self.open.get("name");
+//     self.close = Some(close.into());
+//     self
+// }

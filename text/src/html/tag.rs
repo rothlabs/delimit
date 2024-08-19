@@ -34,8 +34,8 @@ impl Tag {
         List::new().push("<").push(&items).push(">").apex().gain()
     }
     fn stems(&self) -> solve::Result {
-        let mut apexes = self.attributes.clone();
-        apexes.push(self.name.clone());
+        let mut apexes = vec![self.name.clone()];
+        apexes.extend(self.attributes.clone());
         apexes.gain()
     }
 }
@@ -57,7 +57,8 @@ impl Solve for Tag {
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
             Task::Imports => self.imports.gain(),
-            _ => no_solver(),
+            Task::Get(_) => self.name.clone().gain(),
+            _ => no_solver(self, task),
         }
     }
 }

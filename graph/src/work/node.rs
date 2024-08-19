@@ -141,7 +141,7 @@ where
     U: Solve,
 {
     fn do_react(&mut self, _: &Id) -> react::Result {
-        self.unit.as_ref().unwrap().solve(Task::React)?;
+        self.unit.as_ref().unwrap().solve(Task::React).ok();
         Ok(())
     }
 }

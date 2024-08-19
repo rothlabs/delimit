@@ -6,8 +6,9 @@ pub enum Post<'a> {
     /// Trade a apex for another. The implmentation should update graph info and return the same apex semantically.
     Trade(&'a dyn Trade),
     Import,
-    Insert(Apex),
+    Insert(Key, Apex),
     Extend(HashMap<Key, Apex>),
+    SetAt(usize, Apex),
     Remove(usize),
     Paths(Vec<Path>),
 }
@@ -15,7 +16,17 @@ pub enum Post<'a> {
 impl Backed for Post<'_> {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            Post::Insert(apexes) => Post::Insert(apexes.backed(back)),
+            Post::Insert(key, apex) => Post::Insert(key.clone(), apex.backed(back)),
+            Post::Extend(map) => {
+                let mut backed = HashMap::new();
+                for (key, apex) in map.iter() {
+                    backed.insert(key.clone(), apex.backed(back));
+                }
+                Post::Extend(backed)
+            },
+            Post::SetAt(index, apex) => {
+                Post::SetAt(*index, apex.backed(back))
+            }
             _ => self.clone(),
         }
     }

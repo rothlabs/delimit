@@ -51,7 +51,7 @@ impl DoSolve for Leaf {
         match task {
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
-            _ => no_solver(),
+            _ => no_solver(self, task),
         }
     }
 }

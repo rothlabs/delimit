@@ -37,6 +37,10 @@ impl List {
         self.separator = self.separator.deal(deal);
         adapt_ok()
     }
+    fn set_at(&mut self, index: usize, apex: Apex) -> adapt::Result {
+        self.items[index] = apex;
+        adapt_ok()
+    }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
             return Ok(Gain::None);
@@ -53,8 +57,8 @@ impl List {
         string.leaf().apex().gain()
     }
     fn stems(&self) -> solve::Result {
-        let mut apexes = self.items.clone();
-        apexes.push(self.separator.clone());
+        let mut apexes = vec![self.separator.clone()];
+        apexes.extend(self.items.clone());
         apexes.gain()
     }
 }
@@ -63,6 +67,7 @@ impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(deal) => self.trade(deal),
+            Post::SetAt(index, apex) => self.set_at(index, apex),
             _ => no_adapter(post),
         }
     }
@@ -75,7 +80,7 @@ impl Solve for List {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
-            _ => no_solver(),
+            _ => no_solver(self, task),
         }
     }
 }

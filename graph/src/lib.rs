@@ -131,7 +131,7 @@ where
 }
 
 pub trait IntoApex {
-    /// Move into `Apex`.
+    /// Move into `Apex`
     fn apex(self) -> Apex;
 }
 

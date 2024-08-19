@@ -65,10 +65,6 @@ fn load_graph() -> result::Result<(), Error> {
 //     Ok(())
 // }
 
-
-
-
-
 // fn make_doc() -> Apex {
 //     let atts = html::attribute_set();
 //     let mut html = html::Doc::new(&atts, "Delimit index page").html();
