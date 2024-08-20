@@ -88,8 +88,7 @@ where
     N: 'static + AdaptOut + DoUpdate,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        let write::Out { roots, id, out } =
-            write_part(&self.cusp, |mut cusp| cusp.adapt_out(post));
+        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt_out(post));
         for root in &roots {
             root.react(&id)?;
         }

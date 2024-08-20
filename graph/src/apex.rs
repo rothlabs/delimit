@@ -1,8 +1,10 @@
 use super::*;
+use query::*;
 
 mod convert;
 mod edit;
 mod import;
+mod query;
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -27,12 +29,20 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get(&self, key: impl Into<Key>) -> Result<Apex, Error> {
+    pub fn get(&self, query: impl Into<Query>) -> Result<Apex, Error> {
         match self {
-            Self::Ploy(ploy) => ploy.solve(Task::Get(&key.into())),
+            Self::Ploy(ploy) => match query.into() {
+                Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
+                Query::Index(index) => {
+                    if let Some(apex) = ploy.solve(Task::Stems)?.apexes()?.get(index) {
+                        Ok(apex.clone())
+                    } else {
+                        Err("Stem index out of range.")?
+                    }
+                }
+            },
             _ => Err("not ploy")?,
-        }?
-        .apex()
+        }
     }
 
     // /// Get stems

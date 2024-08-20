@@ -1,4 +1,4 @@
-pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptOut, AdaptInner, Memo, Post};
+pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, AdaptOut, Memo, Post};
 pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;

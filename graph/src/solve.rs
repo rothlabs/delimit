@@ -19,7 +19,10 @@ pub trait DoSolve {
 }
 
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
-    Err(format!("No solver.\n Task: {:?}\n Unit: {:?}\n", task, unit))?
+    Err(format!(
+        "No solver.\n Task: {:?}\n Unit: {:?}\n",
+        task, unit
+    ))?
 }
 
 pub fn empty_apexes() -> solve::Result {

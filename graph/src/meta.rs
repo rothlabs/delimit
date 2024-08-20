@@ -22,7 +22,6 @@ pub enum Path {
     Upper(Upper<Vec<Key>>),
 }
 
-
 impl From<&str> for Path {
     fn from(value: &str) -> Self {
         Self::Local(vec![value.to_owned()])

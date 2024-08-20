@@ -33,6 +33,10 @@ impl Element {
         }
         adapt_ok()
     }
+    fn set_at(&mut self, index: usize, apex: Apex) -> adapt::Result {
+        self.items[index] = apex;
+        adapt_ok()
+    }
     fn main(&self) -> solve::Result {
         let mut element = List::new()
             .separator("\n")
@@ -49,8 +53,8 @@ impl Element {
         element.apex().gain()
     }
     fn stems(&self) -> solve::Result {
-        let mut apexes = self.items.clone();
-        apexes.push(self.open.clone());
+        let mut apexes = vec![self.open.clone()];
+        apexes.extend(self.items.clone());
         if let Some(apex) = &self.close {
             apexes.push(apex.clone());
         }
@@ -62,6 +66,7 @@ impl Adapt for Element {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(deal) => self.trade(deal),
+            Post::SetAt(index, apex) => self.set_at(index, apex),
             _ => no_adapter(post),
         }
     }

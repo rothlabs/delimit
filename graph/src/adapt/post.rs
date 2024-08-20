@@ -23,10 +23,8 @@ impl Backed for Post<'_> {
                     backed.insert(key.clone(), apex.backed(back));
                 }
                 Post::Extend(backed)
-            },
-            Post::SetAt(index, apex) => {
-                Post::SetAt(*index, apex.backed(back))
             }
+            Post::SetAt(index, apex) => Post::SetAt(*index, apex.backed(back)),
             _ => self.clone(),
         }
     }

@@ -33,7 +33,7 @@ impl Lake {
     /// Insert stems recursively.
     fn insert_stem(&mut self, apex: &Apex) -> adapt::Result {
         if let Apex::Tray(_) = apex {
-            return adapt_ok()
+            return adapt_ok();
         }
         self.nodes.insert(apex.digest()?, apex.serial()?);
         for apex in &apex.stems()? {
@@ -44,10 +44,7 @@ impl Lake {
 
     /// Get a root apex by Key.
     pub fn root(&self, key: impl Into<Key>) -> solve::Result {
-        let serial = self
-            .roots
-            .get(&key.into())
-            .ok_or("Root node not found.")?;
+        let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
         self.atlas
             .as_ref()
             .ok_or("No atlas.")?

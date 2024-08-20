@@ -1,13 +1,13 @@
 pub use plain::List;
-// pub use html::Element
 
-use serde::{Deserialize, Serialize};
+#[allow(unused_imports)]
 use config::*;
+use serde::{Deserialize, Serialize};
 
 pub mod html;
 pub mod plain;
 
-mod part;
 mod config;
+mod part;
 
 pub const PLAIN: usize = 1;

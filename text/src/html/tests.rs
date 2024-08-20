@@ -1,11 +1,55 @@
-use std::fs;
 use super::*;
+use std::fs;
 
 const PAGE: &str = r#"<!DOCTYPE html>
 <html lang="en">
 <head>
 <title>
 Delimit
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
+const HTML_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+html mutated
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
+const PLAIN_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+plain mutated
 </title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,23 +80,18 @@ fn write_serial_page() -> Result<(), Error> {
     Ok(())
 }
 
-/// The lower graph (plain) should rebut the html page
+/// Lower and upper grapgs are reactive and independent of each other.
 #[test]
-fn mutate_lower_graph_plain() -> Result<(), Error> {
+fn reactive_lower_graph() -> Result<(), Error> {
     let bay = default_bay()?;
-    let page = bay.get("page")?;
-    let plain = page.at(PLAIN)?;
-    let _solved = page.string()?;
-    let _solved = plain.string()?;
-    let html = plain.stems()?[2].clone();
-    let a = html.main()?;
-    // bay.get("script_tag")?.write_string(|string| 
-    //     *string += "_mutated"
-    // )?;
-    // let wow = &plain.stems()?[2].stems()?[2].stems()?[6].stems()?[1].stems()?[2];
-    let title = plain.stems()?[2].stems()?[2].stems()?[2].clone();
-    title.set_at(1, "Changed")?;
-    assert_eq!(plain.string()?, MUTATED_SCRIPT_TAG);
+    let html = bay.get("page")?;
+    let _solved = html.string();
+    let plain = html.at(PLAIN)?;
+    let _solved = plain.string();
+    plain.get(2)?.get(2)?.get(2)?.set(1, "plain mutated")?;
+    bay.get("title")?.set(0, "html mutated")?;
+    assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 
@@ -72,47 +111,6 @@ fn mutate_lower_graph_plain() -> Result<(), Error> {
 //     assert_eq!(Tray::String(REMOVED_TITLE.into()), string);
 //     Ok(())
 // }
-
-const MUTATED_SCRIPT_TAG: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>
-Delimit
-</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="author" content="Roth Labs LLC">
-<script_mutated type="importmap">
-{"imports":{"init":"/client.js"}}
-</script_mutated>
-</head>
-<body>
-Delimit
-<canvas id="canvas">
-</canvas>
-<script_mutated src="/app.js" type="module">
-</script_mutated>
-</body>
-</html>"#;
-
-const REMOVED_TITLE: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="author" content="Roth Labs LLC">
-<script type="importmap">
-{"imports":{"init":"/client.js"}}
-</script>
-</head>
-<body>
-Delimit
-<canvas id="canvas">
-</canvas>
-<script src="/app.js" type="module">
-</script>
-</body>
-</html>"#;
 
 // /// The goal is to get the sub plain graph to react
 // #[test]

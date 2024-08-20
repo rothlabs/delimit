@@ -10,7 +10,7 @@ pub struct Bay {
 impl Hash for Bay {
     fn hash<H: Hasher>(&self, h: &mut H) {
         let mut pairs: Vec<_> = self.apexes.iter().collect();
-        pairs.sort_by_key(|i| i.0);  
+        pairs.sort_by_key(|i| i.0);
         Hash::hash(&pairs, h);
     }
 }

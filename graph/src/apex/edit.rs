@@ -2,6 +2,12 @@ use super::*;
 use std::collections::HashMap;
 
 impl Apex {
+    pub fn set(&self, index: usize, apex: impl Into<Apex>) -> adapt::Result {
+        match self {
+            Self::Ploy(ploy) => ploy.adapt(Post::SetAt(index, apex.into())),
+            _ => Err("No ploy.")?,
+        }
+    }
     pub fn insert(&self, key: impl Into<Key>, apex: impl Into<Apex>) -> adapt::Result {
         match self {
             Self::Ploy(ploy) => ploy.adapt(Post::Insert(key.into(), apex.into())),
@@ -14,13 +20,6 @@ impl Apex {
             _ => Err("No ploy.")?,
         }
     }
-    pub fn set_at(&self, index: usize, apex: impl Into<Apex>) -> adapt::Result {
-        match self {
-            Self::Ploy(ploy) => ploy.adapt(Post::SetAt(index, apex.into())),
-            _ => Err("No ploy.")?,
-        }
-    }
-
     pub fn write_string<T, F: FnOnce(&mut String) -> T>(&self, write: F) -> Result<T, Error> {
         if let Self::Leaf(leaf) = self {
             leaf.write(|tray| match tray {
