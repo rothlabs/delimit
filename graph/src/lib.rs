@@ -28,7 +28,7 @@ use std::{
     rc::Rc,
 };
 use std::{
-    collections::HashMap, error, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}
+    collections::{hash_map::Iter, HashMap}, error, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}
 };
 
 pub mod adapt;
@@ -237,13 +237,16 @@ impl Map {
     pub fn vec(&self) -> Vec<Apex> {
         self.0.values().cloned().collect()
     }
+    pub fn iter(&self) -> Iter<String, Apex> {
+        self.0.iter()
+    } 
 }
 
 impl Hash for Map {
-    fn hash<H: Hasher>(&self, h: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         let mut pairs: Vec<_> = self.0.iter().collect();
         pairs.sort_by_key(|i| i.0);
-        Hash::hash(&pairs, h);
+        Hash::hash(&pairs, state);
     }
 }
 
