@@ -1,18 +1,9 @@
 use super::*;
-use std::collections::HashMap;
 
-#[derive(Default, Serialize, Deserialize, Debug)]
+#[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Bay {
     bay: u8,
-    apexes: HashMap<Key, Apex>,
-}
-
-impl Hash for Bay {
-    fn hash<H: Hasher>(&self, h: &mut H) {
-        let mut pairs: Vec<_> = self.apexes.iter().collect();
-        pairs.sort_by_key(|i| i.0);
-        Hash::hash(&pairs, h);
-    }
+    apexes: Map,
 }
 
 impl Bay {
@@ -23,13 +14,16 @@ impl Bay {
         self.apexes.insert(key.into(), apex.into());
         adapt_ok()
     }
-    fn extend(&mut self, apexes: HashMap<Key, Apex>) -> adapt::Result {
+    fn extend(&mut self, apexes: Map) -> adapt::Result {
         self.apexes.extend(apexes);
         adapt_ok()
     }
+    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+        self.apexes = self.apexes.trade(deal);
+        adapt_ok()
+    }
     fn stems(&self) -> solve::Result {
-        let stems: Vec<Apex> = self.apexes.values().cloned().collect();
-        stems.gain()
+        self.apexes.vec().gain()
     }
     pub fn get(&self, key: &Key) -> solve::Result {
         if let Some(apex) = self.apexes.get(key) {
@@ -43,7 +37,7 @@ impl Bay {
 impl Adapt for Bay {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
-            Post::Trade(_) => adapt_ok(),
+            Post::Trade(deal) => self.trade(deal),
             Post::Insert(key, apex) => self.insert(key, apex),
             Post::Extend(apexes) => self.extend(apexes),
             _ => no_adapter(post),
@@ -57,6 +51,7 @@ impl Solve for Bay {
             Task::Stems => self.stems(),
             Task::Digest => self.digest(),
             Task::Serial => self.serial(),
+            Task::Map => self.apexes.gain(),
             Task::Get(key) => self.get(key),
             _ => no_solver(self, task),
         }

@@ -15,8 +15,8 @@ use tokio::net::{TcpListener, TcpStream};
 use graph::*;
 use serde::*;
 
+mod atlas;
 mod config;
-mod deserializer;
 #[cfg(test)]
 mod tests;
 

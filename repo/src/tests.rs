@@ -1,35 +1,42 @@
 use super::*;
-use deserializer::Atlas;
-use std::{
-    fs::{self, File},
-    io::BufReader,
-    result,
-};
+use atlas::*;
+use std::{fs, io::BufReader};
 use text::*;
 
-fn make_doc() -> Apex {
-    "page".to_owned().leaf().apex()
-}
-
 #[test]
-fn save_graph() -> result::Result<(), Error> {
-    let lake = make_doc().lake()?;
-    let serial = lake.serial()?.string()?;
-    fs::write(STORAGE, serial)?;
-    Ok(())
-}
-
-#[test]
-fn load_graph() -> result::Result<(), Error> {
-    let file = File::open(STORAGE)?;
+fn write_and_read_serial_page() -> Result<(), Error> {
+    let serial = html::default_bay()?.lake()?.serial()?.string()?;
+    let path = STORAGE.to_owned() + "/page.json";
+    fs::write(&path, serial)?;
+    let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
     lake.atlas(Atlas::new());
-    let apex = lake.root("root")?.apex()?;
-    apex.trade(&lake);
-
+    let bay = lake.tree()?;
+    bay.hydrate()?;
+    eprintln!("page: {:?}", bay.get("page")?);
+    assert_eq!(bay.get("page")?.string()?, "test");
     Ok(())
 }
+
+// #[test]
+// fn save_graph() -> result::Result<(), Error> {
+//     let lake = make_doc().lake()?;
+//     let serial = lake.serial()?.string()?;
+//     fs::write(STORAGE, serial)?;
+//     Ok(())
+// }
+
+// #[test]
+// fn load_graph() -> result::Result<(), Error> {
+//     let file = File::open(STORAGE)?;
+//     let reader = BufReader::new(file);
+//     let mut lake: Lake = serde_json::from_reader(reader)?;
+//     lake.atlas(Atlas::new());
+//     let apex = lake.root("root")?.apex()?;
+//     apex.trade(&lake);
+//     Ok(())
+// }
 
 // #[test]
 // fn find_apex_in_loaded_repo() -> result::Result<(), Error> {

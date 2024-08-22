@@ -7,7 +7,7 @@ pub enum Post<'a> {
     Trade(&'a dyn Trade),
     Import,
     Insert(Key, Apex),
-    Extend(HashMap<Key, Apex>),
+    Extend(Map),
     SetAt(usize, Apex),
     Remove(usize),
     Paths(Vec<Path>),
@@ -17,13 +17,7 @@ impl Backed for Post<'_> {
     fn backed(&self, back: &Back) -> Self {
         match self {
             Post::Insert(key, apex) => Post::Insert(key.clone(), apex.backed(back)),
-            Post::Extend(map) => {
-                let mut backed = HashMap::new();
-                for (key, apex) in map.iter() {
-                    backed.insert(key.clone(), apex.backed(back));
-                }
-                Post::Extend(backed)
-            }
+            Post::Extend(map) => Post::Extend(map.trade(back)),
             Post::SetAt(index, apex) => Post::SetAt(*index, apex.backed(back)),
             _ => self.clone(),
         }

@@ -5,7 +5,7 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::Lake;
 pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
-pub use meta::{random, Id, Import, Key, Path, ToId};
+pub use meta::{random, upper_all, world_all, Id, Import, Key, Path, ToId};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
@@ -18,6 +18,7 @@ pub use write::{
 };
 
 use dyn_clone::DynClone;
+use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -27,9 +28,7 @@ use std::{
     rc::Rc,
 };
 use std::{
-    error,
-    fmt::Debug,
-    hash::{DefaultHasher, Hash, Hasher},
+    collections::HashMap, error, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}
 };
 
 pub mod adapt;
@@ -44,6 +43,7 @@ mod cusp;
 mod edge;
 mod link;
 mod meta;
+mod scope;
 mod tray;
 mod work;
 mod write;
@@ -102,10 +102,11 @@ type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]
 type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
 
-dyn_clone::clone_trait_object!(Trade);
+// dyn_clone::clone_trait_object!(Trade);
 /// Trade a apex for another.
 /// The implmentation should return the same semantic apex with different graph qualities.
-pub trait Trade: DynClone + Debug {
+pub trait Trade: Debug {
+    // DynClone +
     /// Trade a apex for another.
     fn trade(&self, apex: &Apex) -> Apex;
 }
@@ -207,6 +208,46 @@ pub trait MakeInner {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+/// Key-Apex map.
+#[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
+pub struct Map(HashMap<Key, Apex>);
+
+impl Map {
+    pub fn insert(&mut self, key: Key, apex: Apex) {
+        self.0.insert(key, apex);
+    }
+    pub fn extend(&mut self, other: Map) {
+        self.0.extend(other.0);
+    }
+    pub fn trade(&self, deal: &dyn Trade) -> Self {
+        let mut map = HashMap::new();
+        for (key, apex) in &self.0 {
+            map.insert(key.clone(), apex.deal(deal));
+        }
+        Map(map)
+    }
+    pub fn get(&self, key: &Key) -> Option<Apex> {
+        if let Some(apex) = self.0.get(key) {
+            Some(apex.pathed(key))
+        } else {
+            None
+        }
+    }
+    pub fn vec(&self) -> Vec<Apex> {
+        self.0.values().cloned().collect()
+    }
+}
+
+impl Hash for Map {
+    fn hash<H: Hasher>(&self, h: &mut H) {
+        let mut pairs: Vec<_> = self.0.iter().collect();
+        pairs.sort_by_key(|i| i.0);
+        Hash::hash(&pairs, h);
+    }
+}
+
+
 
 // impl<T> ToApex for T
 // where

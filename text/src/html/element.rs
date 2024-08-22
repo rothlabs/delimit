@@ -3,6 +3,7 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Element {
     html_element: u8,
+    imports: Vec<Import>,
     open: Apex,
     items: Vec<Apex>,
     close: Option<Apex>,
@@ -11,6 +12,10 @@ pub struct Element {
 impl Element {
     pub fn new() -> Self {
         Self::default()
+    }
+    pub fn import(mut self, import: impl Into<Import>) -> Self {
+        self.imports.push(import.into());
+        self
     }
     pub fn open(mut self, open: impl Into<Apex>) -> Self {
         self.open = open.into();
@@ -79,6 +84,7 @@ impl Solve for Element {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
+            Task::Imports => self.imports.gain(),
             _ => no_solver(self, task),
         }
     }

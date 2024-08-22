@@ -36,8 +36,8 @@ impl From<&String> for Path {
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub struct Upper<T> {
-    rank: usize,
-    item: T,
+    pub rank: usize,
+    pub item: T,
 }
 
 pub fn random() -> String {
@@ -46,9 +46,20 @@ pub fn random() -> String {
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Import {
-    World(Node),
+    World(Stem),
     Local(Node),
-    Upper(Upper<Node>),
+    Upper(Upper<Stem>),
+}
+
+pub fn world_all() -> Import {
+    Import::World(Stem::All)
+}
+
+pub fn upper_all() -> Import {
+    Import::Upper(Upper {
+        rank: 1,
+        item: Stem::All,
+    })
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
@@ -60,5 +71,11 @@ pub struct Node {
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Stem {
     Node(Node),
-    Wild,
+    All,
 }
+
+// impl Import {
+//     pub fn upper_all() -> Self {
+//         Self::Upper(Upper { rank: 1, item: Stem::All })
+//     }
+// }

@@ -1,8 +1,12 @@
+use std::collections::HashMap;
+
 use super::*;
+use hydrate::*;
 use query::*;
 
 mod convert;
 mod edit;
+mod hydrate;
 mod import;
 mod query;
 
@@ -29,10 +33,18 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get(&self, query: impl Into<Query>) -> Result<Apex, Error> {
+    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, Error> {
         match self {
             Self::Ploy(ploy) => match query.into() {
                 Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
+                Query::Keys(keys) => {
+                    let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
+                    if keys.len() > 1 {
+                        apex?.get(&keys[1..])
+                    } else {
+                        apex
+                    }
+                }
                 Query::Index(index) => {
                     if let Some(apex) = ploy.solve(Task::Stems)?.apexes()?.get(index) {
                         Ok(apex.clone())
@@ -45,14 +57,19 @@ impl Apex {
         }
     }
 
-    // /// Get stems
-    // pub fn get(&self, key: impl Into<Key>) -> Result<Apex, Error> {
-    //     match self {
-    //         Self::Ploy(ploy) => ploy.solve(Task::Get(&key.into())),
-    //         _ => Err("not ploy")?,
-    //     }?
-    //     .apex()
-    // }
+    pub fn imports(&self) -> Result<Vec<Import>, Error> {
+        match self {
+            Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
+            _ => Err("Apex::imports: Not Ploy")?,
+        }
+    }
+
+    pub fn map(&self) -> Result<Map, Error> {
+        match self {
+            Self::Ploy(ploy) => ploy.solve(Task::Map)?.map(),
+            _ => Err("Apex::map: Not Ploy")?,
+        }
+    }
 
     /// Insert apex into new Lake.
     pub fn lake(&self) -> Result<Lake, Error> {
@@ -85,7 +102,7 @@ impl Apex {
     pub fn stems(&self) -> Result<Vec<Apex>, Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Stems),
-            _ => empty_apexes(),
+            _ => Err("Apex::all: Not ploy")?,
         }?
         .apexes()
     }

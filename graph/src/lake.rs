@@ -24,7 +24,7 @@ impl Lake {
     /// Insert graph into lake given root key and apex.
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
         self.roots.insert(key.into(), apex.serial()?);
-        for apex in &apex.stems()? {
+        for apex in &apex.stems().ok().unwrap_or(vec![]) {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -36,37 +36,44 @@ impl Lake {
             return adapt_ok();
         }
         self.nodes.insert(apex.digest()?, apex.serial()?);
-        for apex in &apex.stems()? {
+        for apex in &apex.stems().ok().unwrap_or(vec![]) {
             self.insert_stem(apex)?;
         }
         adapt_ok()
     }
 
+    /// Grow a tree from the lake.
+    pub fn tree(&self) -> Result<Apex, Error> {
+        let root = self.root("root")?;
+        self.grow(&root).ok();
+        Ok(root)
+    }
+
+    fn grow(&self, apex: &Apex) -> Result<(), Error> {
+        apex.trade(self);
+        for apex in apex.stems()? {
+            self.grow(&apex).ok();
+        }
+        Ok(())
+    }
+
     /// Get a root apex by Key.
-    pub fn root(&self, key: impl Into<Key>) -> solve::Result {
+    fn root(&self, key: impl Into<Key>) -> Result<Apex, Error> {
         let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
-        self.atlas
-            .as_ref()
-            .ok_or("No atlas.")?
-            .deserialize(serial)?
-            .gain()
+        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
     }
 
     /// Get a apex by hash.
-    pub fn get(&self, hash: u64) -> solve::Result {
+    fn get(&self, hash: u64) -> Result<Apex, Error> {
         let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
-        self.atlas
-            .as_ref()
-            .ok_or("No atlas.")?
-            .deserialize(serial)?
-            .gain()
+        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
     }
 }
 
 impl Trade for Lake {
     fn trade(&self, apex: &Apex) -> Apex {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
-            if let Ok(Gain::Apex(apex)) = self.get(*hash) {
+            if let Ok(apex) = self.get(*hash) {
                 return apex;
             }
         }

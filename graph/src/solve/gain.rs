@@ -1,5 +1,5 @@
 use super::*;
-use std::result::Result;
+use std::{collections::HashMap, result::Result};
 
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug)]
@@ -7,6 +7,7 @@ pub enum Gain {
     None,
     Apex(Apex),
     Apexes(Vec<Apex>),
+    Map(Map),
     Imports(Vec<Import>),
     String(String),
     U64(u64),
@@ -29,6 +30,20 @@ impl Gain {
         match self {
             Self::Apexes(apexes) => Ok(apexes),
             _ => Err(wrong_gain("Apexes"))?,
+        }
+    }
+    /// Get Imports from Gain.
+    pub fn imports(self) -> Result<Vec<Import>, Error> {
+        match self {
+            Self::Imports(imports) => Ok(imports),
+            _ => Err(wrong_gain("Imports"))?,
+        }
+    }
+    /// Get Map from Gain.
+    pub fn map(self) -> Result<Map, Error> {
+        match self {
+            Self::Map(map) => Ok(map),
+            _ => Err(wrong_gain("Map"))?,
         }
     }
     /// Get String from Gain.
@@ -68,6 +83,12 @@ impl From<Vec<Apex>> for Gain {
 impl From<u64> for Gain {
     fn from(value: u64) -> Self {
         Self::U64(value)
+    }
+}
+
+impl From<&Map> for Gain {
+    fn from(value: &Map) -> Self {
+        Self::Map(value.clone())
     }
 }
 

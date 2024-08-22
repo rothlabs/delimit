@@ -42,5 +42,6 @@ pub enum Task<'a> {
     Digest,
     Imports,
     Get(&'a Key),
+    Map,
     // GetVec,
 }

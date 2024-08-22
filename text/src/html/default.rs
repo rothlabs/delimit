@@ -3,9 +3,9 @@ use super::*;
 pub fn default_bay() -> Result<Apex, Error> {
     let mut bay = Bay::new();
 
-    let script = "script".leaf().apex();
-    bay.insert("script_tag", &script)?;
-    let script = script.pathed("script");
+    let title = "Delimit".leaf().apex();
+    bay.insert("title", "Delimit".leaf().apex())?;
+    let title = title.pathed("title");
 
     let lang = Attribute::new().name("lang").content("en").apex();
     bay.insert("html", Tag::new().name("html").attribute(lang).apex())?;
@@ -15,8 +15,8 @@ pub fn default_bay() -> Result<Apex, Error> {
     bay.insert("body", Tag::new().name("body").apex())?;
 
     let tag = Tag::new().name("title").apex();
-    let title = Element::new().open(tag).item("Delimit").close().apex();
-    bay.insert("title", title)?;
+    let title_element = Element::new().open(tag).item(&title).close().apex();
+    bay.insert("title_element", title_element)?;
 
     let charset = Attribute::new().name("charset").content("utf-8").apex();
     bay.insert("charset", Tag::new().name("meta").attribute(charset).apex())?;
@@ -46,7 +46,7 @@ pub fn default_bay() -> Result<Apex, Error> {
     bay.insert("author", author)?;
 
     let att = Attribute::new().name("type").content("importmap").apex();
-    let tag = Tag::new().name(&script).attribute(att).apex();
+    let tag = Tag::new().name("script").attribute(att).apex();
     let raw = serde_json::to_string(&Importmap::default()).unwrap();
     let importmap = Element::new().open(tag).item(raw).close().apex();
     bay.insert("importmap", importmap)?;
@@ -59,7 +59,7 @@ pub fn default_bay() -> Result<Apex, Error> {
     let src = Attribute::new().name("src").content("/app.js").apex();
     let module = Attribute::new().name("type").content("module").apex();
     let tag = Tag::new()
-        .name(script)
+        .name("script")
         .attribute(src)
         .attribute(module)
         .apex();
@@ -76,8 +76,9 @@ pub fn default_bay() -> Result<Apex, Error> {
 
 pub fn page(bay: &Apex) -> Result<Apex, Error> {
     let head = Element::new()
+        .import(world_all())
         .open(bay.get("head")?)
-        .item(bay.get("title")?)
+        .item(bay.get("title_element")?)
         .item(bay.get("charset")?)
         .item(bay.get("viewport")?)
         .item(bay.get("author")?)
@@ -85,13 +86,15 @@ pub fn page(bay: &Apex) -> Result<Apex, Error> {
         .close()
         .apex();
     let body = Element::new()
+        .import(world_all())
         .open(bay.get("body")?)
-        .item("Delimit")
+        .item(bay.get("title")?)
         .item(bay.get("canvas")?)
         .item(bay.get("app")?)
         .close()
         .apex();
     let html = Element::new()
+        .import(world_all())
         .open(bay.get("html")?)
         .item(head)
         .item(body)

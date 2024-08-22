@@ -62,3 +62,18 @@ impl Solve for Tag {
         }
     }
 }
+
+pub const DOCTYPE: &str = "!DOCTYPE html";
+pub const HTML: &str = "html";
+pub const HEAD: &str = "head";
+pub const TITLE: &str = "title";
+pub const META: &str = "meta";
+pub const SCRIPT: &str = "script";
+pub const BODY: &str = "body";
+pub const DIV: &str = "div";
+pub const CANVAS: &str = "canvas";
+pub const H1: &str = "h1";
+
+pub const TAGS: [&str; 10] = [
+    DOCTYPE, HTML, HEAD, TITLE, META, SCRIPT, BODY, DIV, CANVAS, H1,
+];

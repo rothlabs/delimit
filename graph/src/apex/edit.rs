@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::HashMap;
 
 impl Apex {
     pub fn set(&self, index: usize, apex: impl Into<Apex>) -> adapt::Result {
@@ -14,7 +13,7 @@ impl Apex {
             _ => Err("No ploy.")?,
         }
     }
-    pub fn extend(&self, apexes: HashMap<Key, Apex>) -> adapt::Result {
+    pub fn extend(&self, apexes: Map) -> adapt::Result {
         match self {
             Self::Ploy(ploy) => ploy.adapt(Post::Extend(apexes)),
             _ => Err("No ploy.")?,

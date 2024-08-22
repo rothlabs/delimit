@@ -73,23 +73,16 @@ fn default_page() -> Result<(), Error> {
     Ok(())
 }
 
-#[test]
-fn write_serial_page() -> Result<(), Error> {
-    let serial = default_bay()?.lake()?.serial()?.string()?;
-    fs::write(STORAGE.to_owned() + "/html/bay.json", serial)?;
-    Ok(())
-}
-
 /// Lower and upper grapgs are reactive and independent of each other.
 #[test]
 fn reactive_lower_graph() -> Result<(), Error> {
     let bay = default_bay()?;
     let html = bay.get("page")?;
-    let _solved = html.string();
     let plain = html.at(PLAIN)?;
+    let _solved = html.string();
     let _solved = plain.string();
     plain.get(2)?.get(2)?.get(2)?.set(1, "plain mutated")?;
-    bay.get("title")?.set(0, "html mutated")?;
+    bay.get("title_element")?.set(0, "html mutated")?;
     assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
     assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())
