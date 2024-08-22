@@ -1,48 +1,40 @@
 use super::*;
 use std::rc::Rc;
 
-#[derive(Clone, Hash, PartialEq, Debug)]
-pub struct Stem {
-    apex: Apex,
-    scope: Scope,
-}
+// #[derive(Clone, Hash, PartialEq, Debug)]
+// pub struct Stem {
+//     apex: Apex,
+//     scope: Scope,
+// }
 
 #[derive(Default, Clone, PartialEq, Debug)]
 pub struct Scope {
     apex: Apex,
-    stems: HashMap<Key, Stem>,
-    root: Option<Rc<Self>>,
+    path: Vec<Key>,
+    stems: HashMap<Key, Scope>,
+    imports: HashMap<Key, Key>,
 }
 
 impl Scope {
-    pub fn new(apex: &Apex) -> Self {
-        let mut result = Self::default();
-        result.apex = apex.clone();
+    pub fn new(path: Vec<Key>, apex: &Apex) -> Self {
+        let mut scope = Self::default();
+        scope.apex = apex.clone();
         if let Ok(map) = apex.map() {
-            // let mut stems = 
             for (key, apex) in map.iter() {
-                let scope = Self::new(apex);
-                result.stems.insert(key.clone(), Stem {apex: apex.clone(), scope});
+                let mut next_path = path.clone();
+                next_path.push(key.clone());
+                scope.stems.insert(key.clone(), Self::new(next_path, apex));
+                scope.import(apex).ok();
             }
         }
-        let root = Rc::new(result.clone());
-        for item in result.stems {
-            
-        }
-        result
-    }
-    pub fn rooted(root: &Rc<Self>, apex: &Apex) -> Result<Self, Error> {
-        let mut scope = Self::default();
-        scope.root = Some(root.clone());
-        scope.import(apex)?;
-        Ok(scope)
+        scope
     }
     fn import(&mut self, apex: &Apex) -> Result<(), Error> {
         if let Ok(imports) = apex.imports() {
             for import in &imports {
                 match import {
                     Import::World(stem) => {
-                        let scope = world(self.root.as_ref().ok_or("No root of scope.")?)?;
+                        //let scope = world(self.root.as_ref().ok_or("No root of scope.")?)?;
                         match stem {
                             meta::Stem::All => {
                                 self.extend(scope.as_ref());
