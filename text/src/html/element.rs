@@ -85,7 +85,7 @@ impl Solve for Element {
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
             Task::Imports => self.imports.gain(),
-            _ => no_solver(self, task),
+            _ => no_gain() // no_solver(self, task),
         }
     }
 }

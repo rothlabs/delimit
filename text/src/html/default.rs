@@ -1,5 +1,27 @@
 use super::*;
 
+pub const PAGE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+Delimit
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
 pub fn default_bay() -> Result<Apex, Error> {
     let mut bay = Bay::new();
 
@@ -15,7 +37,12 @@ pub fn default_bay() -> Result<Apex, Error> {
     bay.insert("body", Tag::new().name("body").apex())?;
 
     let tag = Tag::new().name("title").apex();
-    let title_element = Element::new().open(tag).item(&title).close().apex();
+    let title_element = Element::new()
+        .import(WORLD_ALL)
+        .open(tag)
+        .item(&title)
+        .close()
+        .apex();
     bay.insert("title_element", title_element)?;
 
     let charset = Attribute::new().name("charset").content("utf-8").apex();
@@ -76,7 +103,7 @@ pub fn default_bay() -> Result<Apex, Error> {
 
 pub fn page(bay: &Apex) -> Result<Apex, Error> {
     let head = Element::new()
-        .import(world_all())
+        .import(WORLD_ALL)
         .open(bay.get("head")?)
         .item(bay.get("title_element")?)
         .item(bay.get("charset")?)
@@ -86,7 +113,7 @@ pub fn page(bay: &Apex) -> Result<Apex, Error> {
         .close()
         .apex();
     let body = Element::new()
-        .import(world_all())
+        .import(WORLD_ALL)
         .open(bay.get("body")?)
         .item(bay.get("title")?)
         .item(bay.get("canvas")?)
@@ -94,7 +121,7 @@ pub fn page(bay: &Apex) -> Result<Apex, Error> {
         .close()
         .apex();
     let html = Element::new()
-        .import(world_all())
+        .import(WORLD_ALL)
         .open(bay.get("html")?)
         .item(head)
         .item(body)

@@ -3,7 +3,7 @@ use web_sys::WebGlTexture;
 
 pub type Result = std::result::Result<Node<Texture>, graph::Error>;
 
-#[derive(Builder)]
+#[derive(Builder, Debug)]
 #[builder(setter(into))]
 pub struct Texture {
     gl: WGLRC,

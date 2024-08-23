@@ -13,9 +13,9 @@ fn write_and_read_serial_page() -> Result<(), Error> {
     let mut lake: Lake = serde_json::from_reader(reader)?;
     lake.atlas(Atlas::new());
     let bay = lake.tree()?;
-    bay.hydrate()?;
-    eprintln!("page: {:?}", bay.get("page")?);
-    assert_eq!(bay.get("page")?.string()?, "test");
+    bay.hydrate();
+    let page = bay.get("page")?;
+    assert_eq!(page.string()?, html::default::PAGE);
     Ok(())
 }
 

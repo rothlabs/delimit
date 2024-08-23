@@ -6,8 +6,9 @@ pub use tag::*;
 use super::*;
 use graph::*;
 
+pub mod default;
+
 mod attribute;
-mod default;
 mod element;
 mod tag;
 #[cfg(test)]

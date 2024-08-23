@@ -5,7 +5,7 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::Lake;
 pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
-pub use meta::{random, upper_all, world_all, Id, Import, Key, Path, ToId};
+pub use meta::{random, upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
@@ -28,7 +28,10 @@ use std::{
     rc::Rc,
 };
 use std::{
-    collections::{hash_map::Iter, HashMap}, error, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}
+    collections::{hash_map::Iter, HashMap},
+    error,
+    fmt::Debug,
+    hash::{DefaultHasher, Hash, Hasher},
 };
 
 pub mod adapt;
@@ -235,11 +238,16 @@ impl Map {
         }
     }
     pub fn vec(&self) -> Vec<Apex> {
-        self.0.values().cloned().collect()
+        let mut out = vec![];
+        for (key, apex) in &self.0 {
+            out.push(apex.pathed(key));
+        }
+        out
+        // self.0.values().cloned().collect()
     }
     pub fn iter(&self) -> Iter<String, Apex> {
         self.0.iter()
-    } 
+    }
 }
 
 impl Hash for Map {
@@ -249,8 +257,6 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
-
-
 
 // impl<T> ToApex for T
 // where

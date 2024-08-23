@@ -1,7 +1,7 @@
 use super::*;
 
 /// Draw elements based on program, buffer, vertex array object (vao), count, and offset.
-#[derive(Builder)]
+#[derive(Builder, Debug)]
 #[builder(setter(into))]
 pub struct Elements {
     gl: WGLRC,

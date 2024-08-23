@@ -6,7 +6,7 @@ pub type Attributes = Vec<Node<VertexAttribute>>;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
-#[derive(Builder)]
+#[derive(Builder, Debug)]
 #[builder(setter(into, strip_option))]
 pub struct Vao {
     gl: WGLRC,

@@ -1,5 +1,5 @@
 use super::*;
-use std::{collections::HashMap, result::Result};
+use std::result::Result;
 
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug)]

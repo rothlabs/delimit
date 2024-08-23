@@ -3,6 +3,7 @@ use web_sys::WebGlBuffer;
 
 pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
 
+#[derive(Debug)]
 pub struct Buffer {
     gl: WGLRC,
     buffer: WebGlBuffer,

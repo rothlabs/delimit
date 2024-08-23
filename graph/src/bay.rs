@@ -3,7 +3,7 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Bay {
     bay: u8,
-    apexes: Map,
+    map: Map,
 }
 
 impl Bay {
@@ -11,22 +11,22 @@ impl Bay {
         Self::default()
     }
     pub fn insert(&mut self, key: impl Into<Key>, apex: impl Into<Apex>) -> adapt::Result {
-        self.apexes.insert(key.into(), apex.into());
+        self.map.insert(key.into(), apex.into());
         adapt_ok()
     }
     fn extend(&mut self, apexes: Map) -> adapt::Result {
-        self.apexes.extend(apexes);
+        self.map.extend(apexes);
         adapt_ok()
     }
     fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
-        self.apexes = self.apexes.trade(deal);
+        self.map = self.map.trade(deal);
         adapt_ok()
     }
     fn stems(&self) -> solve::Result {
-        self.apexes.vec().gain()
+        self.map.vec().gain()
     }
     pub fn get(&self, key: &Key) -> solve::Result {
-        if let Some(apex) = self.apexes.get(key) {
+        if let Some(apex) = self.map.get(key) {
             apex.pathed(key).gain()
         } else {
             no_gain()
@@ -51,9 +51,9 @@ impl Solve for Bay {
             Task::Stems => self.stems(),
             Task::Digest => self.digest(),
             Task::Serial => self.serial(),
-            Task::Map => self.apexes.gain(),
+            Task::Map => self.map.gain(),
             Task::Get(key) => self.get(key),
-            _ => no_solver(self, task),
+            _ => no_gain() // no_solver(self, task),
         }
     }
 }

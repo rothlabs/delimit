@@ -9,6 +9,7 @@ mod tests;
 //pub type Source = Apex;
 pub type Result = std::result::Result<Node<Shader>, graph::Error>;
 
+#[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,
     pub source: Apex,
@@ -39,7 +40,7 @@ impl Solve for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(Gain::None)
+            no_gain()
         } else {
             Err(self
                 .gl

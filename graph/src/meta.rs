@@ -51,9 +51,11 @@ pub enum Import {
     Upper(Upper<Stem>),
 }
 
-pub fn world_all() -> Import {
-    Import::World(Stem::All)
-}
+pub const WORLD_ALL: Import = Import::World(Stem::All);
+
+// pub fn world_all() -> Import {
+//     Import::World(Stem::All)
+// }
 
 pub fn upper_all() -> Import {
     Import::Upper(Upper {

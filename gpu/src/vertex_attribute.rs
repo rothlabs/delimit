@@ -3,7 +3,7 @@ use super::*;
 pub type Result = std::result::Result<Node<VertexAttribute>, VertexAttributeBuilderError>;
 
 /// Tell the GPU how to read from a buffer
-#[derive(Builder)]
+#[derive(Builder, Debug)]
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,

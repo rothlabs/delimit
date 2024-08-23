@@ -4,6 +4,7 @@ use web_sys::WebGlProgram;
 pub type Result = std::result::Result<Node<Program>, graph::Error>;
 
 /// GPU program based on vertex and fragment shaders.
+#[derive(Debug)]
 pub struct Program {
     program: WebGlProgram,
     vertex: Node<Shader>,

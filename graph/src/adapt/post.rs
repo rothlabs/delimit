@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub enum Post<'a> {

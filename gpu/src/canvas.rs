@@ -1,6 +1,7 @@
 use super::*;
 use web_sys::{window, HtmlCanvasElement};
 
+#[derive(Debug)]
 pub struct Canvas {
     object: HtmlCanvasElement,
     gl: WGLRC,
