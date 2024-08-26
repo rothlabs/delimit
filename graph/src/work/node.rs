@@ -6,6 +6,7 @@ use crate::*;
 /// until the unit changes.
 #[derive(Debug)]
 pub struct Node<U> {
+    imports: Vec<Import>,
     unit: Option<U>,
     main: Option<Gain>,
     digest: Option<Gain>,
@@ -65,6 +66,7 @@ where
 {
     fn default() -> Self {
         Self {
+            imports: vec![],
             unit: None,
             main: None,
             digest: None,
@@ -155,6 +157,26 @@ where
     }
 }
 
+// impl<U> From<Snap<U>> for Node<U> 
+// where 
+//     U: Default + Solve + Adapt
+// {
+//     fn from(snap: Snap<U>) -> Self {
+//         // snap.unit.adapt(Post::Trade(()))
+//         Self {
+//             imports: snap.imports,
+//             unit: Some(snap.unit),
+//             ..Self::default()
+//         }
+//     }
+// }
+
+#[derive(Serialize)]
+pub struct Outbound<'a, U> {
+    imports: &'a Vec<Import>,
+    unit: &'a U,
+} 
+
 impl<U> Serialize for Node<U>
 where
     U: Serialize,
@@ -163,6 +185,29 @@ where
     where
         S: serde::Serializer,
     {
-        self.unit.as_ref().unwrap().serialize(serializer)
+        Outbound {
+            imports: &self.imports,
+            unit: &self.unit
+        }.serialize(serializer)
+        // self.unit.as_ref().unwrap().serialize(serializer)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct Snap<U> {
+    imports: Vec<Import>,
+    unit: U,
+} 
+
+impl<U> Snap<U> 
+where 
+    U: IntoApex
+{
+    pub fn apex(self) -> Apex {
+        let apex = self.unit.apex();
+        let wow = self.imports;
+        apex
+        // let link = Link::from(self);
+        // link.ploy()
     }
 }

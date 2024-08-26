@@ -30,6 +30,22 @@ impl<N> ToId for Edge<N> {
     }
 }
 
+// impl<U, N> From<Snap<U>> for Edge<N> 
+// where 
+//     // U: Default + Solve,
+//     Snap<U>: Into<N>,
+// {
+//     fn from(snap: Snap<U>) -> Self {
+//         Self {
+//             back: None,
+//             #[cfg(not(feature = "oneThread"))]
+//             cusp: Arc::new(RwLock::new(snap.into())),
+//             #[cfg(feature = "oneThread")]
+//             cusp: Rc::new(RefCell::new(snap.into())),
+//         }
+//     }
+// }
+
 impl<N> FromItem for Edge<N>
 where
     N: FromItem,

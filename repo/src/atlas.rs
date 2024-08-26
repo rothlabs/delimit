@@ -22,7 +22,7 @@ impl DeserializeApex for Atlas {
 enum Part {
     GraphTray(graph::Tray),
     GraphLeaf(graph::work::Leaf),
-    GraphBay(graph::Bay),
+    GraphBay(Snap<graph::Bay>),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
     TextHtmlAttribute(text::html::Attribute),

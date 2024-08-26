@@ -16,6 +16,7 @@ pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use work::Snap;
 
 use dyn_clone::DynClone;
 use scope::*;

@@ -103,6 +103,23 @@ where
     }
 }
 
+// impl<U, E> From<Snap<U>> for Link<E> 
+// where 
+//     // U: Default + Solve,
+//     Snap<U>: Into<E>,
+// {
+//     fn from(snap: Snap<U>) -> Self {
+//         Self {
+//             path: None,
+//             rank: None,
+//             #[cfg(not(feature = "oneThread"))]
+//             edge: Arc::new(RwLock::new(snap.into())),
+//             #[cfg(feature = "oneThread")]
+//             edge: Rc::new(RefCell::new(snap.into())),
+//         }
+//     }
+// }
+
 impl<E> Link<E>
 where
     E: FromItem,
