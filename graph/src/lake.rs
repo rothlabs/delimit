@@ -24,7 +24,7 @@ impl Lake {
     /// Insert graph into lake given root key and apex.
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
         self.roots.insert(key.into(), apex.serial()?);
-        for apex in &apex.stems().ok().unwrap_or(vec![]) {
+        for apex in &apex.stems().ok().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -36,7 +36,7 @@ impl Lake {
             return adapt_ok();
         }
         self.nodes.insert(apex.digest()?, apex.serial()?);
-        for apex in &apex.stems().ok().unwrap_or(vec![]) {
+        for apex in &apex.stems().ok().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()

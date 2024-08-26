@@ -231,11 +231,7 @@ impl Map {
         Map(map)
     }
     pub fn get(&self, key: &Key) -> Option<Apex> {
-        if let Some(apex) = self.0.get(key) {
-            Some(apex.pathed(key))
-        } else {
-            None
-        }
+        self.0.get(key).map(|apex| apex.pathed(key))
     }
     pub fn vec(&self) -> Vec<Apex> {
         let mut out = vec![];
@@ -265,4 +261,10 @@ impl Hash for Map {
 //     fn apex(&self) -> Apex {
 //         self.node().ploy().into()
 //     }
+// }
+
+// if let Some(apex) = self.0.get(key) {
+//     Some(apex.pathed(key))
+// } else {
+//     None
 // }

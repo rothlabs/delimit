@@ -18,88 +18,54 @@ pub struct Space {
 
 impl Space {
     pub fn new(path: Vec<Key>, apex: &Apex) -> Self {
-        let mut space = Self::default();
-        space.id = rand::random::<u64>();
-        space.apex = apex.clone();
+        let mut space = Self {
+            id: rand::random::<u64>(),
+            apex: apex.clone(),
+            // path: path.clone(),
+            ..Default::default()
+        };
         if let Ok(imports) = apex.imports() {
             space.imports = imports;
         }
-        // if let Ok(map) = apex.map() {
-            if let Ok(stems) = apex.stems() {
-                for next_apex in &stems {
-                    if let Apex::Tray(Tray::Path(_)) = next_apex {
-                        continue;
-                    }
-                    let mut next_path = path.clone();
-                    if let Some(Path::Local(keys)) = next_apex.path() { 
-                        let key = keys.first().expect("No keys in path.");
-                        next_path.push(key.clone());
-                        let next_scope = Self::new(next_path, next_apex);
-                        space.map.insert(key.clone(), next_scope);
-                    } else {
-                        space.vec.push(Self::new(next_path, next_apex));
-                    }
+        if let Ok(stems) = apex.stems() {
+            for next_apex in &stems {
+                if let Apex::Tray(Tray::Path(_)) = next_apex {
+                    continue;
+                }
+                let mut next_path = path.clone();
+                if let Some(Path::Local(keys)) = next_apex.path() {
+                    let key = keys.first().expect("No keys in path.");
+                    next_path.push(key.clone());
+                    let next_scope = Self::new(next_path, next_apex);
+                    space.map.insert(key.clone(), next_scope);
+                } else {
+                    space.vec.push(Self::new(next_path, next_apex));
                 }
             }
-        // }
-            // for (key, next_apex) in map.iter() {
-            //     let mut next_path = path.clone();
-            //     next_path.push(key.clone());
-            //     space
-            //         .map
-            //         .insert(key.clone(), Self::new(next_path, next_apex));
-            // }
-        // } else {
-        //     if let Ok(vec) = apex.stems() {
-        //         for next_apex in &vec {
-        //             space.vec.push(Self::new(path.clone(), next_apex));
-        //         }
-        //     }
-        // }
+        }
         space
     }
     pub fn get(&self, keys: &[Key]) -> Result<Apex, Error> {
         if keys.is_empty() {
             Ok(self.apex.clone())
+        } else if let Some(stem) = self.map.get(&keys[0]) {
+            stem.get(&keys[1..])
         } else {
-            if let Some(stem) = self.map.get(&keys[0]) {
-                stem.get(&keys[1..])
-            } else {
-                Err("Entry not found.")?
-            }
+            Err("Entry not found.")?
         }
     }
 }
 
 impl Trade for Scope<'_> {
     fn trade(&self, apex: &Apex) -> Apex {
-        // let mut world_all = false;
-        // for import in &self.local.imports {
-        //     if let Import::World(stem) = import {
-        //         if let meta::Stem::All = stem {
-        //             world_all = true;
-        //             eprintln!("import world all");
-        //         }
-        //     }
-        // }
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
-            //println!("try path: {:?}", keys);
             if let Ok(apex) = self.local.get(keys) {
                 return apex;
-            } else {
-                if self.local.imports.contains(&WORLD_ALL) {
-                    // println!("try world: {:?}", keys);
-                    if let Ok(apex) = self.world.get(keys) {
-                        //println!("got world: {:?}", keys);
-                        return apex;
-                    }
+            } else if self.local.imports.contains(&WORLD_ALL) {
+                if let Ok(apex) = self.world.get(keys) {
+                    return apex;
                 }
             }
-            // for apex in &self.vec {
-            //     if let Ok(apex) = apex.get(local) {
-            //         return apex;
-            //     }
-            // }
         }
         apex.clone()
     }
@@ -108,12 +74,18 @@ impl Trade for Scope<'_> {
 impl Hash for Space {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state);
-        // self.apex.hash(state);
-        // let mut pairs: Vec<_> = self.stems.iter().collect();
-        // pairs.sort_by_key(|i| i.0);
-        // Hash::hash(&pairs, state);
     }
 }
+
+// let mut world_all = false;
+// for import in &self.local.imports {
+//     if let Import::World(stem) = import {
+//         if let meta::Stem::All = stem {
+//             world_all = true;
+//             eprintln!("import world all");
+//         }
+//     }
+// }
 
 // fn world(scope: &Rc<Space>) -> Result<Rc<Space>, Error> {
 //     if let Some(scope) = &scope.root {

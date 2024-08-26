@@ -3,8 +3,7 @@ use crate::*;
 /// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
 #[derive(Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf {
-    // leaf: u8,
-    tray: Tray,
+    pub tray: Tray,
 }
 
 impl Leaf {

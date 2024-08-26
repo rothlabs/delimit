@@ -10,11 +10,11 @@ impl Apex {
 
     fn saturate(&self, world: &Space, local: &Space) {
         self.trade(&Scope { world, local });
-        for (_, next) in &local.map {
-            next.apex.saturate(world, next);
+        for space in local.map.values() {
+            space.apex.saturate(world, space);
         }
-        for next in &local.vec {
-            next.apex.saturate(world, next);
+        for space in &local.vec {
+            space.apex.saturate(world, space);
         }
     }
 }
