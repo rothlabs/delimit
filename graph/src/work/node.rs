@@ -55,6 +55,7 @@ where
             Task::Main => self.main(),
             Task::Digest => self.digest(),
             Task::Serial => self.serial(),
+            Task::Imports => self.imports.gain(),
             _ => self.unit.as_ref().ok_or("No unit.")?.solve(task),
         }
     }
@@ -90,10 +91,10 @@ where
     U: Adapt + Solve,
 {
     type Unit = U;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: Vec<Import>, back: &Back) {
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: &Vec<Import>, back: &Back) {
         self.unit = Some(unit);
         self.unit.as_mut().unwrap().adapt(Post::Trade(back)).expect("To make Node, unit must Adapt with Post::Trade.");
-        self.imports = imports;
+        self.imports = imports.clone();
     }
 }
 

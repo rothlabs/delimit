@@ -17,10 +17,10 @@ where
 }
 
 
-dyn_clone::clone_trait_object!(DeserializeApex);
-pub trait DeserializeApex: DynClone + Debug + SendSync {
+dyn_clone::clone_trait_object!(DeserializeUnit);
+pub trait DeserializeUnit: DynClone + Debug + SendSync {
     /// Deserialize to `Apex` with concrete unit type.
-    fn deserialize(&self, string: &str) -> Result<Apex, Error>;
+    fn deserialize(&self, string: &str) -> Result<Box<dyn EngageUnit + 'static>, Error>;
 }
 
 pub trait ToHash {

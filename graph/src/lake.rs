@@ -1,7 +1,7 @@
 use super::*;
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct SerialNode {
     imports: Vec<Import>,
     unit: String,
@@ -10,10 +10,10 @@ struct SerialNode {
 /// Collection of serialized apexes. Indexed by hash.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
-    roots: HashMap<Key, String>,
-    nodes: HashMap<u64, String>,
+    roots: HashMap<Key, SerialNode>,
+    nodes: HashMap<u64, SerialNode>,
     #[serde(skip)]
-    atlas: Option<Box<dyn DeserializeApex>>,
+    atlas: Option<Box<dyn DeserializeUnit>>,
 }
 
 impl Lake {
@@ -22,14 +22,18 @@ impl Lake {
     }
 
     /// Set the atlas for deserializing entries into concrete apexes.
-    pub fn atlas(&mut self, atlas: Box<dyn DeserializeApex>) -> &mut Self {
+    pub fn atlas(&mut self, atlas: Box<dyn DeserializeUnit>) -> &mut Self {
         self.atlas = Some(atlas);
         self
     }
 
     /// Insert graph into lake given root key and apex.
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
-        self.roots.insert(key.into(), apex.serial()?);
+        let serial = SerialNode {
+            imports: apex.imports()?,
+            unit: apex.serial()?
+        };
+        self.roots.insert(key.into(), serial);
         for apex in &apex.stems().ok().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
@@ -41,7 +45,11 @@ impl Lake {
         if let Apex::Tray(_) = apex {
             return adapt_ok();
         }
-        self.nodes.insert(apex.digest()?, apex.serial()?);
+        let serial = SerialNode {
+            imports: apex.imports()?,
+            unit: apex.serial()?
+        };
+        self.nodes.insert(apex.digest()?, serial);
         for apex in &apex.stems().ok().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
@@ -66,13 +74,16 @@ impl Lake {
     /// Get a root apex by Key.
     fn root(&self, key: impl Into<Key>) -> Result<Apex, Error> {
         let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
-        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
+        let unit = self.atlas.as_ref().ok_or("No atlas.")?.deserialize(&serial.unit)?;
+        let link = Node::make2(unit, &serial.imports);//.ploy().into()
+        Ok(link.apex())
     }
 
     /// Get a apex by hash.
     fn get(&self, hash: u64) -> Result<Apex, Error> {
         let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
-        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
+        let link = self.atlas.as_ref().ok_or("No atlas.")?.deserialize(&serial.unit)?;
+        Ok(link.apex())
     }
 }
 

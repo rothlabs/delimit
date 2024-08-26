@@ -1,9 +1,9 @@
 use super::*;
 
-#[derive(Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snap<U> {
-    imports: Vec<Import>,
-    unit: U,
+    pub imports: Vec<Import>,
+    pub unit: U,
 } 
 
 impl<U> Snap<U> {
@@ -18,7 +18,7 @@ where
     U: 'static + Adapt + Solve + SendSync + Debug
 {
     pub fn apex(self) -> Apex {
-        Node::make2(self.unit, self.imports).ploy().into()
+        Node::make2(self.unit, &self.imports).ploy().into()
     }
 }
 
@@ -38,5 +38,21 @@ where
             imports: vec![import.into()],
             unit: self
         }
+    }
+}
+
+pub trait IntoSnapWithImports
+where
+    Self: Sized,
+{
+    fn imports(self, imports: Vec<Import>) -> Snap<Self>;
+}
+
+impl<T> IntoSnapWithImports for T
+where
+    T: 'static + Adapt + Solve + SendSync + Debug,
+{
+    fn imports(self, imports: Vec<Import>) -> Snap<Self> {
+        Snap { imports, unit: self }
     }
 }

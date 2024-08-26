@@ -64,7 +64,7 @@ where
     W: MakeInner2
 {
     type Unit = W::Unit;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: Vec<Import>, back: &Back) {
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: &Vec<Import>, back: &Back) {
         self.back = Some(back.clone());
         self.work.make_inner_2(unit, imports, back);
     }

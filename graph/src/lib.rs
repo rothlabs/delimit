@@ -10,13 +10,13 @@ pub use react::{
     AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
     Root, ToPipedPloy, ToPloy, Update,
 };
-pub use serial::{DeserializeApex, ToHash, ToSerial};
+pub use serial::{DeserializeUnit, ToHash, ToSerial};
 pub use solve::{empty_apexes, no_gain, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use snap::{Snap, IntoSnapWithImport};
+pub use snap::{Snap, IntoSnapWithImport, IntoSnapWithImports};
 
 use dyn_clone::DynClone;
 use scope::*;
@@ -101,6 +101,13 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 
 /// General engagement of Ploy with erased unit type.
 pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
+
+pub trait EngageUnit: Solve + Adapt + SendSync + Debug {}
+
+impl<T> EngageUnit for T 
+where 
+    T: Solve + Adapt + SendSync + Debug
+{}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -212,12 +219,12 @@ pub trait MakeInner {
 
 pub trait Make2 {
     type Unit;
-    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self;
+    fn make2(unit: Self::Unit, imports: &Vec<Import>) -> Self;
 }
 
 pub trait MakeInner2 {
     type Unit;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: Vec<Import>, back: &Back);
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: &Vec<Import>, back: &Back);
 }
 
 pub trait Clear {

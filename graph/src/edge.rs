@@ -96,7 +96,7 @@ where
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self {
+    fn make2(unit: Self::Unit, imports: &Vec<Import>) -> Self {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
@@ -305,11 +305,11 @@ impl React for Box<dyn Engage> {
     }
 }
 
-impl Solve for Box<dyn Engage> {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.as_ref().solve(task)
-    }
-}
+// impl Solve for Box<dyn Engage> {
+//     fn solve(&self, task: Task) -> solve::Result {
+//         self.as_ref().solve(task)
+//     }
+// }
 
 impl AdaptInner for Box<dyn Engage> {
     fn adapt(&self, post: Post) -> adapt::Result {
