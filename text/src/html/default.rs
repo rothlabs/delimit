@@ -38,10 +38,10 @@ pub fn default_bay() -> Result<Apex, Error> {
 
     let tag = Tag::new().name("title").apex();
     let title_element = Element::new()
-        .import(WORLD_ALL)
         .open(tag)
         .item(&title)
         .close()
+        .import(WORLD_ALL)
         .apex();
     bay.insert("title_element", title_element)?;
 
@@ -103,7 +103,6 @@ pub fn default_bay() -> Result<Apex, Error> {
 
 pub fn page(bay: &Apex) -> Result<Apex, Error> {
     let head = Element::new()
-        .import(WORLD_ALL)
         .open(bay.get("head")?)
         .item(bay.get("title_element")?)
         .item(bay.get("charset")?)
@@ -111,21 +110,22 @@ pub fn page(bay: &Apex) -> Result<Apex, Error> {
         .item(bay.get("author")?)
         .item(bay.get("importmap")?)
         .close()
+        .import(WORLD_ALL)
         .apex();
     let body = Element::new()
-        .import(WORLD_ALL)
         .open(bay.get("body")?)
         .item(bay.get("title")?)
         .item(bay.get("canvas")?)
         .item(bay.get("app")?)
         .close()
+        .import(WORLD_ALL)
         .apex();
     let html = Element::new()
-        .import(WORLD_ALL)
         .open(bay.get("html")?)
         .item(head)
         .item(body)
         .close()
+        .import(WORLD_ALL)
         .apex();
     let tag = Tag::new().name("!DOCTYPE html").apex();
     let page = Element::new().open(tag).item(html).apex();

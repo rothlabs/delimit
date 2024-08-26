@@ -90,6 +90,33 @@ where
     }
 }
 
+impl<N> Make2 for Edge<N>
+where
+    N: 'static + Default + MakeInner2 + DoUpdate,
+{
+    type Unit = N::Unit;
+    #[cfg(not(feature = "oneThread"))]
+    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self {
+        let cusp = N::default();
+        let id = cusp.id();
+        let cusp = Arc::new(RwLock::new(cusp));
+        let update = cusp.clone() as Arc<RwLock<dyn DoUpdate>>;
+        let back = Back::new(Arc::downgrade(&update), id);
+        write_part(&cusp, |mut cusp| cusp.make_inner_2(unit, imports, &back));
+        Self { cusp, back: None }
+    }
+    #[cfg(feature = "oneThread")]
+    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self {
+        let cusp = N::default();
+        let id = cusp.id();
+        let cusp = Rc::new(RefCell::new(cusp));
+        let update = cusp.clone() as Rc<RefCell<dyn DoUpdate>>;
+        let back = Back::new(Rc::downgrade(&update), id);
+        write_part(&cusp, |mut cusp| cusp.make_inner_2(unit, imports, &back));
+        Self { cusp, back: None }
+    }
+}
+
 impl<N> Solve for Edge<N>
 where
     N: 'static + DoSolve + DoUpdate,

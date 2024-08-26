@@ -1,5 +1,6 @@
 use super::*;
 
+
 pub trait ToSerial {
     /// Serialize to string.
     fn serial(&self) -> solve::Result;
@@ -14,6 +15,7 @@ where
         Ok(Gain::String(serde_json::to_string(self)?))
     }
 }
+
 
 dyn_clone::clone_trait_object!(DeserializeApex);
 pub trait DeserializeApex: DynClone + Debug + SendSync {

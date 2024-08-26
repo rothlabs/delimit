@@ -85,6 +85,18 @@ where
     }
 }
 
+impl<U> MakeInner2 for Node<U>
+where
+    U: Adapt + Solve,
+{
+    type Unit = U;
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: Vec<Import>, back: &Back) {
+        self.unit = Some(unit);
+        self.unit.as_mut().unwrap().adapt(Post::Trade(back)).expect("To make Node, unit must Adapt with Post::Trade.");
+        self.imports = imports;
+    }
+}
+
 impl<U> FromItem for Node<U>
 where
     U: Solve,
@@ -171,43 +183,24 @@ where
 //     }
 // }
 
-#[derive(Serialize)]
-pub struct Outbound<'a, U> {
-    imports: &'a Vec<Import>,
-    unit: &'a U,
-} 
+// #[derive(Serialize)]
+// pub struct Outbound<'a, U> {
+//     imports: &'a Vec<Import>,
+//     unit: &'a U,
+// } 
 
-impl<U> Serialize for Node<U>
-where
-    U: Serialize,
-{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        Outbound {
-            imports: &self.imports,
-            unit: &self.unit
-        }.serialize(serializer)
-        // self.unit.as_ref().unwrap().serialize(serializer)
-    }
-}
-
-#[derive(Deserialize)]
-pub struct Snap<U> {
-    imports: Vec<Import>,
-    unit: U,
-} 
-
-impl<U> Snap<U> 
-where 
-    U: IntoApex
-{
-    pub fn apex(self) -> Apex {
-        let apex = self.unit.apex();
-        let wow = self.imports;
-        apex
-        // let link = Link::from(self);
-        // link.ploy()
-    }
-}
+// impl<U> Serialize for Node<U>
+// where
+//     U: Serialize,
+// {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         Outbound {
+//             imports: &self.imports,
+//             unit: &self.unit
+//         }.serialize(serializer)
+//         // self.unit.as_ref().unwrap().serialize(serializer)
+//     }
+// }

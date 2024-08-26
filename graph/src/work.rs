@@ -1,5 +1,5 @@
 pub use leaf::Leaf;
-pub use node::{Node, Snap};
+pub use node::Node;
 
 mod leaf;
 mod node;

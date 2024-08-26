@@ -156,6 +156,23 @@ where
 
 impl<E> Link<E>
 where
+    E: Make2,
+{
+    pub fn make2(unit: E::Unit, imports: Vec<Import>) -> Self {
+        let edge = E::make2(unit, imports);
+        Self {
+            path: None,
+            rank: None,
+            #[cfg(not(feature = "oneThread"))]
+            edge: Arc::new(RwLock::new(edge)),
+            #[cfg(feature = "oneThread")]
+            edge: Rc::new(RefCell::new(edge)),
+        }
+    }
+}
+
+impl<E> Link<E>
+where
     E: ToTray,
 {
     pub fn tray(&self) -> E::Tray {

@@ -16,7 +16,7 @@ pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use work::Snap;
+pub use snap::{Snap, IntoSnapWithImport};
 
 use dyn_clone::DynClone;
 use scope::*;
@@ -51,6 +51,7 @@ mod meta;
 mod scope;
 mod tray;
 mod write;
+mod snap;
 
 #[cfg(not(feature = "oneThread"))]
 /// Graph Error
@@ -207,6 +208,16 @@ pub trait Make {
 pub trait MakeInner {
     type Unit;
     fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
+}
+
+pub trait Make2 {
+    type Unit;
+    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self;
+}
+
+pub trait MakeInner2 {
+    type Unit;
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: Vec<Import>, back: &Back);
 }
 
 pub trait Clear {

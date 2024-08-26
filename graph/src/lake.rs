@@ -1,6 +1,12 @@
 use super::*;
 use std::collections::HashMap;
 
+#[derive(Serialize, Deserialize)]
+struct SerialNode {
+    imports: Vec<Import>,
+    unit: String,
+} 
+
 /// Collection of serialized apexes. Indexed by hash.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Lake {
