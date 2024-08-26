@@ -22,9 +22,9 @@ impl Bay {
         self.map = self.map.trade(deal);
         adapt_ok()
     }
-    fn stems(&self) -> solve::Result {
-        self.map.vec().gain()
-    }
+    // fn stems(&self) -> solve::Result {
+    //     self.map.vec().gain()
+    // }
     pub fn get(&self, key: &Key) -> solve::Result {
         if let Some(apex) = self.map.get(key) {
             apex.pathed(key).gain()
@@ -48,12 +48,12 @@ impl Adapt for Bay {
 impl Solve for Bay {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
-            Task::Stems => self.stems(),
+            Task::Stems => self.map.vec().gain(),
             Task::Digest => self.digest(),
             Task::Serial => self.serial(),
-            Task::Map => self.map.gain(),
+            // Task::Map => self.map.gain(),
             Task::Get(key) => self.get(key),
-            _ => no_gain() // no_solver(self, task),
+            _ => no_gain(), // no_solver(self, task),
         }
     }
 }

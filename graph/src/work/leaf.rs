@@ -1,9 +1,16 @@
 use crate::*;
 
 /// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
-#[derive(Debug, Hash)]
+#[derive(Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf {
+    // leaf: u8,
     tray: Tray,
+}
+
+impl Leaf {
+    pub fn apex(self) -> Apex {
+        Apex::Leaf(link::Leaf::new(self.tray))
+    }
 }
 
 impl FromItem for Leaf {
@@ -66,11 +73,11 @@ impl Clear for Leaf {
     fn clear(&mut self) {}
 }
 
-impl Serialize for Leaf {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.tray.serialize(serializer)
-    }
-}
+// impl Serialize for Leaf {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.tray.serialize(serializer)
+//     }
+// }

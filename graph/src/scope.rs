@@ -24,21 +24,38 @@ impl Space {
         if let Ok(imports) = apex.imports() {
             space.imports = imports;
         }
-        if let Ok(map) = apex.map() {
-            for (key, next_apex) in map.iter() {
-                let mut next_path = path.clone();
-                next_path.push(key.clone());
-                space
-                    .map
-                    .insert(key.clone(), Self::new(next_path, next_apex));
-            }
-        } else {
-            if let Ok(vec) = apex.stems() {
-                for next_apex in &vec {
-                    space.vec.push(Self::new(path.clone(), next_apex));
+        // if let Ok(map) = apex.map() {
+            if let Ok(stems) = apex.stems() {
+                for next_apex in &stems {
+                    if let Apex::Tray(Tray::Path(_)) = next_apex {
+                        continue;
+                    }
+                    let mut next_path = path.clone();
+                    if let Some(Path::Local(keys)) = next_apex.path() { 
+                        let key = keys.first().expect("No keys in path.");
+                        next_path.push(key.clone());
+                        let next_scope = Self::new(next_path, next_apex);
+                        space.map.insert(key.clone(), next_scope);
+                    } else {
+                        space.vec.push(Self::new(next_path, next_apex));
+                    }
                 }
             }
-        }
+        // }
+            // for (key, next_apex) in map.iter() {
+            //     let mut next_path = path.clone();
+            //     next_path.push(key.clone());
+            //     space
+            //         .map
+            //         .insert(key.clone(), Self::new(next_path, next_apex));
+            // }
+        // } else {
+        //     if let Ok(vec) = apex.stems() {
+        //         for next_apex in &vec {
+        //             space.vec.push(Self::new(path.clone(), next_apex));
+        //         }
+        //     }
+        // }
         space
     }
     pub fn get(&self, keys: &[Key]) -> Result<Apex, Error> {
@@ -66,11 +83,14 @@ impl Trade for Scope<'_> {
         //     }
         // }
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
+            //println!("try path: {:?}", keys);
             if let Ok(apex) = self.local.get(keys) {
                 return apex;
             } else {
                 if self.local.imports.contains(&WORLD_ALL) {
+                    // println!("try world: {:?}", keys);
                     if let Ok(apex) = self.world.get(keys) {
+                        //println!("got world: {:?}", keys);
                         return apex;
                     }
                 }

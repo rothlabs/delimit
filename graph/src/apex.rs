@@ -121,7 +121,7 @@ impl Apex {
     }
 
     /// Get path associated with apex if any.
-    pub fn path(&self) -> Option<Path> {
+    pub fn path(&self) -> Option<&Path> {
         match self {
             Self::Tray(tray) => tray.path(),
             Self::Leaf(leaf) => leaf.path(),

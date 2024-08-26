@@ -42,8 +42,8 @@ impl<E> Link<E> {
             rank: self.rank,
         }
     }
-    pub fn path(&self) -> Option<Path> {
-        self.path.clone()
+    pub fn path(&self) -> Option<&Path> {
+        self.path.as_ref()
     }
     pub fn rank(&self) -> Option<usize> {
         self.rank

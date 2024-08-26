@@ -37,9 +37,9 @@ pub enum Tray {
 }
 
 impl Tray {
-    pub fn path(&self) -> Option<Path> {
+    pub fn path(&self) -> Option<&Path> {
         match self {
-            Self::Path(path) => Some(path.clone()),
+            Self::Path(path) => Some(path),
             _ => None,
         }
     }

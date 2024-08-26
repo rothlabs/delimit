@@ -21,6 +21,7 @@ impl DeserializeApex for Atlas {
 #[serde(untagged)]
 enum Part {
     GraphTray(graph::Tray),
+    GraphLeaf(graph::work::Leaf),
     GraphBay(graph::Bay),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
@@ -32,6 +33,7 @@ impl Part {
     fn apex(self) -> Apex {
         match self {
             Self::GraphTray(x) => x.into(),
+            Self::GraphLeaf(x) => x.apex(),
             Self::GraphBay(x) => x.apex(),
             Self::TextPlainList(x) => x.apex(),
             Self::TextHtmlTag(x) => x.apex(),

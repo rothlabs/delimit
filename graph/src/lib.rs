@@ -40,6 +40,7 @@ pub mod lake;
 pub mod react;
 pub mod serial;
 pub mod solve;
+pub mod work;
 
 mod bay;
 mod cusp;
@@ -48,7 +49,6 @@ mod link;
 mod meta;
 mod scope;
 mod tray;
-mod work;
 mod write;
 
 #[cfg(not(feature = "oneThread"))]

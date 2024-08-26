@@ -26,7 +26,7 @@ pub fn default_bay() -> Result<Apex, Error> {
     let mut bay = Bay::new();
 
     let title = "Delimit".leaf().apex();
-    bay.insert("title", "Delimit".leaf().apex())?;
+    bay.insert("title", title.clone())?;
     let title = title.pathed("title");
 
     let lang = Attribute::new().name("lang").content("en").apex();
