@@ -25,15 +25,6 @@ impl Solve for Box<dyn EngageUnit> {
     }
 }
 
-// impl<T> Solve for T 
-// where 
-//     T: AsRef<dyn Engage>,
-// {
-//     fn solve(&self, task: Task) -> solve::Result {
-//         self.as_ref().solve(task)
-//     }
-// }
-
 pub trait DoSolve {
     /// For graph internals to handle solve calls
     fn do_solve(&mut self, task: Task) -> Result;
@@ -64,5 +55,4 @@ pub enum Task<'a> {
     Imports,
     Get(&'a Key),
     Map,
-    // GetVec,
 }

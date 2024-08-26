@@ -2,9 +2,9 @@ use super::*;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct SerialNode {
-    imports: Vec<Import>,
-    unit: String,
+pub struct SerialNode {
+    pub imports: Vec<Import>,
+    pub unit: String,
 } 
 
 /// Collection of serialized apexes. Indexed by hash.
@@ -30,11 +30,11 @@ impl Lake {
     /// Insert graph into lake given root key and apex.
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
         let serial = SerialNode {
-            imports: apex.imports()?,
+            imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?
         };
         self.roots.insert(key.into(), serial);
-        for apex in &apex.stems().ok().unwrap_or_default() {
+        for apex in &apex.stems().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -46,11 +46,11 @@ impl Lake {
             return adapt_ok();
         }
         let serial = SerialNode {
-            imports: apex.imports()?,
+            imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?
         };
         self.nodes.insert(apex.digest()?, serial);
-        for apex in &apex.stems().ok().unwrap_or_default() {
+        for apex in &apex.stems().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -74,16 +74,16 @@ impl Lake {
     /// Get a root apex by Key.
     fn root(&self, key: impl Into<Key>) -> Result<Apex, Error> {
         let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
-        let unit = self.atlas.as_ref().ok_or("No atlas.")?.deserialize(&serial.unit)?;
-        let link = Node::make2(unit, &serial.imports);//.ploy().into()
-        Ok(link.apex())
+        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
+        //let link = Node::make2(unit, &serial.imports);//.ploy().into()
+        //Ok(link.apex())
     }
 
     /// Get a apex by hash.
     fn get(&self, hash: u64) -> Result<Apex, Error> {
         let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
-        let link = self.atlas.as_ref().ok_or("No atlas.")?.deserialize(&serial.unit)?;
-        Ok(link.apex())
+        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
+        // Ok(link.apex())
     }
 }
 

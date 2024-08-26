@@ -3,7 +3,7 @@ pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
-pub use lake::Lake;
+pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
 pub use meta::{random, upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use react::{

@@ -46,9 +46,16 @@ pub fn random() -> String {
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Import {
+    None,
     World(Stem),
     Local(Node),
     Upper(Upper<Stem>),
+}
+
+impl Default for Import {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 pub const WORLD_ALL: Import = Import::World(Stem::All);

@@ -11,17 +11,17 @@ impl Atlas {
 }
 
 impl DeserializeUnit for Atlas {
-    fn deserialize(&self, string: &str) -> Result<Box<dyn EngageUnit>, Error> {
-        let part: Part = serde_json::from_str(string)?;
-        Ok(part.unit())
+    fn deserialize(&self, serial: &SerialNode) -> Result<Apex, Error> {
+        let part: Part = serde_json::from_str(&serial.unit)?;
+        Ok(part.apex(serial.imports.clone()))
     }
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Part {
-    // GraphTray(graph::Tray),
-    // GraphLeaf(graph::work::Leaf),
+    GraphTray(graph::Tray),
+    GraphLeaf(graph::work::Leaf),
     GraphBay(graph::Bay),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
@@ -30,15 +30,15 @@ enum Part {
 }
 
 impl Part {
-    fn unit(self) -> Box<dyn EngageUnit> {
+    fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
-            // Self::GraphTray(x) => x.into(),
-            // Self::GraphLeaf(x) => x.apex(),
-            Self::GraphBay(x) => Box::new(x),
-            Self::TextPlainList(x) => Box::new(x),
-            Self::TextHtmlTag(x) => Box::new(x),
-            Self::TextHtmlAttribute(x) => Box::new(x),
-            Self::TextHtmlElement(x) => Box::new(x),
+            Self::GraphTray(x) => x.into(),
+            Self::GraphLeaf(x) => x.apex(),
+            Self::GraphBay(x) => x.imports(imports).apex(),
+            Self::TextPlainList(x) => x.imports(imports).apex(),
+            Self::TextHtmlTag(x) => x.imports(imports).apex(),
+            Self::TextHtmlAttribute(x) => x.imports(imports).apex(),
+            Self::TextHtmlElement(x) => x.imports(imports).apex(),
         }
     }
 }
