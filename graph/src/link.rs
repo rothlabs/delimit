@@ -141,7 +141,7 @@ impl<E> Link<E>
 where
     E: Make2,
 {
-    pub fn make2(unit: E::Unit, imports: &Vec<Import>) -> Self {
+    pub fn make2(unit: E::Unit, imports: &[Import]) -> Self {
         let edge = E::make2(unit, imports);
         Self {
             path: None,
@@ -212,11 +212,15 @@ impl<E> Clone for Link<E> {
 impl<E> PartialEq for Link<E> {
     #[cfg(not(feature = "oneThread"))]
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path && self.rank == other.rank
+        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge)
+            && self.path == other.path
+            && self.rank == other.rank
     }
     #[cfg(feature = "oneThread")]
     fn eq(&self, other: &Self) -> bool {
-        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path && self.rank == other.rank
+        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge)
+            && self.path == other.path
+            && self.rank == other.rank
     }
 }
 
@@ -335,8 +339,8 @@ where
     }
 }
 
-// impl<U, E> From<Snap<U>> for Link<E> 
-// where 
+// impl<U, E> From<Snap<U>> for Link<E>
+// where
 //     // U: Default + Solve,
 //     Snap<U>: Into<E>,
 // {

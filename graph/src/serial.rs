@@ -1,6 +1,5 @@
 use super::*;
 
-
 pub trait ToSerial {
     /// Serialize to string.
     fn serial(&self) -> solve::Result;
@@ -15,7 +14,6 @@ where
         serde_json::to_string(self)?.gain()
     }
 }
-
 
 dyn_clone::clone_trait_object!(DeserializeUnit);
 pub trait DeserializeUnit: DynClone + Debug + SendSync {

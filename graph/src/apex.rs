@@ -80,7 +80,7 @@ impl Apex {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
-            _ => Err("Should only call digest on Leaf or Ploy Apex")?
+            _ => Err("Should only call digest on Leaf or Ploy Apex")?,
         }?
         .u64()
     }
@@ -262,9 +262,8 @@ impl EngageApexes for Vec<Apex> {
     }
 }
 
-
 // Self::Tray(tray) => {
-            //     let mut state = DefaultHasher::new();
-            //     tray.hash(&mut state);
-            //     state.finish().gain()
-            // },
+//     let mut state = DefaultHasher::new();
+//     tray.hash(&mut state);
+//     state.finish().gain()
+// },

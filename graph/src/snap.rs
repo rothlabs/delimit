@@ -4,7 +4,7 @@ use super::*;
 pub struct Snap<U> {
     pub imports: Vec<Import>,
     pub unit: U,
-} 
+}
 
 impl<U> Snap<U> {
     pub fn import(mut self, import: impl Into<Import>) -> Self {
@@ -13,9 +13,9 @@ impl<U> Snap<U> {
     }
 }
 
-impl<U> Snap<U> 
-where 
-    U: 'static + Adapt + Solve + SendSync + Debug
+impl<U> Snap<U>
+where
+    U: 'static + Adapt + Solve + SendSync + Debug,
 {
     pub fn apex(self) -> Apex {
         Node::make2(self.unit, &self.imports).ploy().into()
@@ -36,7 +36,7 @@ where
     fn import(self, import: impl Into<Import>) -> Snap<Self> {
         Snap {
             imports: vec![import.into()],
-            unit: self
+            unit: self,
         }
     }
 }
@@ -53,6 +53,9 @@ where
     T: 'static + Adapt + Solve + SendSync + Debug,
 {
     fn imports(self, imports: Vec<Import>) -> Snap<Self> {
-        Snap { imports, unit: self }
+        Snap {
+            imports,
+            unit: self,
+        }
     }
 }

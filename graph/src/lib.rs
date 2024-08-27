@@ -11,12 +11,12 @@ pub use react::{
     Root, ToPipedPloy, ToPloy, Update,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial};
+pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{empty_apexes, no_gain, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use snap::{Snap, IntoSnapWithImport, IntoSnapWithImports};
 
 use dyn_clone::DynClone;
 use scope::*;
@@ -49,9 +49,9 @@ mod edge;
 mod link;
 mod meta;
 mod scope;
+mod snap;
 mod tray;
 mod write;
-mod snap;
 
 #[cfg(not(feature = "oneThread"))]
 /// Graph Error
@@ -177,6 +177,7 @@ pub trait DoRead {
 
 pub trait Read {
     type Item;
+    /// Read the unit of the node.
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
 }
 
@@ -212,12 +213,12 @@ pub trait MakeInner {
 
 pub trait Make2 {
     type Unit;
-    fn make2(unit: Self::Unit, imports: &Vec<Import>) -> Self;
+    fn make2(unit: Self::Unit, imports: &[Import]) -> Self;
 }
 
 pub trait MakeInner2 {
     type Unit;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: &Vec<Import>, back: &Back);
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: &[Import], back: &Back);
 }
 
 pub trait Clear {

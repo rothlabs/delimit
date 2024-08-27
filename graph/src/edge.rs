@@ -30,8 +30,8 @@ impl<N> ToId for Edge<N> {
     }
 }
 
-// impl<U, N> From<Snap<U>> for Edge<N> 
-// where 
+// impl<U, N> From<Snap<U>> for Edge<N>
+// where
 //     // U: Default + Solve,
 //     Snap<U>: Into<N>,
 // {
@@ -96,7 +96,7 @@ where
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make2(unit: Self::Unit, imports: &Vec<Import>) -> Self {
+    fn make2(unit: Self::Unit, imports: &[Import]) -> Self {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
@@ -106,7 +106,7 @@ where
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
-    fn make2(unit: Self::Unit, imports: Vec<Import>) -> Self {
+    fn make2(unit: Self::Unit, imports: &[Import]) -> Self {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));

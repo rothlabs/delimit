@@ -1,6 +1,6 @@
-use std::fmt;
-use serde::de::{MapAccess, Visitor};
 use crate::*;
+use serde::de::{MapAccess, Visitor};
+use std::fmt;
 
 /// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
 #[derive(Debug, Hash)]
@@ -86,9 +86,7 @@ impl DoRebut for Leaf {
 }
 
 impl Clear for Leaf {
-    fn clear(&mut self) {
-
-    }
+    fn clear(&mut self) {}
 }
 
 impl Serialize for Leaf {

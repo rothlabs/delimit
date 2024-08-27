@@ -42,7 +42,7 @@ impl Solve for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(Gain::None)
+            no_gain()
         } else {
             Err(self
                 .gl

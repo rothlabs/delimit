@@ -32,7 +32,11 @@ where
         } else {
             let mut state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
             self.imports.hash(&mut state);
-            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest(&mut state))?;
+            let digest = self
+                .unit
+                .as_ref()
+                .ok_or("No unit.")?
+                .solve(Task::Digest(&mut state))?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
@@ -93,10 +97,14 @@ where
     U: Adapt + Solve,
 {
     type Unit = U;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: &Vec<Import>, back: &Back) {
+    fn make_inner_2(&mut self, unit: Self::Unit, imports: &[Import], back: &Back) {
         self.unit = Some(unit);
-        self.unit.as_mut().unwrap().adapt(Post::Trade(back)).expect("To make Node, unit must Adapt with Post::Trade.");
-        self.imports = imports.clone();
+        self.unit
+            .as_mut()
+            .unwrap()
+            .adapt(Post::Trade(back))
+            .expect("To make Node, unit must Adapt with Post::Trade.");
+        self.imports = imports.to_vec();
     }
 }
 
@@ -172,8 +180,8 @@ where
     }
 }
 
-// impl<U> From<Snap<U>> for Node<U> 
-// where 
+// impl<U> From<Snap<U>> for Node<U>
+// where
 //     U: Default + Solve + Adapt
 // {
 //     fn from(snap: Snap<U>) -> Self {
@@ -190,7 +198,7 @@ where
 // pub struct Outbound<'a, U> {
 //     imports: &'a Vec<Import>,
 //     unit: &'a U,
-// } 
+// }
 
 // impl<U> Serialize for Node<U>
 // where

@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub struct SerialNode {
     pub imports: Vec<Import>,
     pub unit: String,
-} 
+}
 
 /// Collection of serialized apexes. Indexed by hash.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -31,7 +31,7 @@ impl Lake {
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
         let serial = SerialNode {
             imports: apex.imports().unwrap_or_default(),
-            unit: apex.serial()?
+            unit: apex.serial()?,
         };
         self.roots.insert(key.into(), serial);
         for apex in &apex.stems().unwrap_or_default() {
@@ -47,7 +47,7 @@ impl Lake {
         }
         let serial = SerialNode {
             imports: apex.imports().unwrap_or_default(),
-            unit: apex.serial()?
+            unit: apex.serial()?,
         };
         self.nodes.insert(apex.digest()?, serial);
         for apex in &apex.stems().unwrap_or_default() {
