@@ -1,6 +1,7 @@
 use super::*;
 use std::result::Result;
 
+
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
@@ -13,51 +14,61 @@ pub enum Gain {
     U64(u64),
 }
 
+// pub fn wrong_gain(expected: &str, found: Gain) -> solve::Error {
+//     Error::WrongGain { expected: expected.into(), found: found.into() }
+//     //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
+// }
+
 impl Gain {
+    fn expected(&self, expected: &str) -> solve::Error {
+        Error::WrongGain { expected: expected.into(), found: format!("{:?}", self) }
+        //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
+    }
+
     /// Move Gain into Ok(...)
     pub fn ok(self) -> solve::Result {
         Ok(self)
     }
     /// Get Apex from Gain.
-    pub fn apex(self) -> Result<Apex, Error> {
+    pub fn apex(self) -> Result<Apex, solve::Error> {
         match self {
             Self::Apex(apex) => Ok(apex),
-            _ => Err(wrong_gain("Apex"))?,
+            _ => Err(self.expected("Apex"))?
         }
     }
     /// Get `Vec<Apex>` from Gain.
     pub fn apexes(self) -> Result<Vec<Apex>, Error> {
         match self {
             Self::Apexes(apexes) => Ok(apexes),
-            _ => Err(wrong_gain("Apexes"))?,
+            _ => Err(self.expected("Apexes"))?,
         }
     }
     /// Get Imports from Gain.
     pub fn imports(self) -> Result<Vec<Import>, Error> {
         match self {
             Self::Imports(imports) => Ok(imports),
-            _ => Err(wrong_gain("Imports"))?,
+            _ => Err(self.expected("Imports"))?,
         }
     }
     /// Get Map from Gain.
     pub fn map(self) -> Result<Map, Error> {
         match self {
             Self::Map(map) => Ok(map),
-            _ => Err(wrong_gain("Map"))?,
+            _ => Err(self.expected("Map"))?,
         }
     }
     /// Get String from Gain.
     pub fn string(self) -> Result<String, Error> {
         match self {
             Self::String(string) => Ok(string),
-            _ => Err(wrong_gain("String"))?,
+            _ => Err(self.expected("String"))?,
         }
     }
     /// Get u64 from Gain.
     pub fn u64(self) -> Result<u64, Error> {
         match self {
             Self::U64(int) => Ok(int),
-            _ => Err(wrong_gain("u64"))?,
+            _ => Err(self.expected("u64"))?,
         }
     }
 }
@@ -118,6 +129,6 @@ where
     }
 }
 
-fn wrong_gain(variant: &str) -> String {
-    "Wrong Gain variant. Expected: ".to_owned() + variant
-}
+// fn wrong_gain(variant: &str) -> String {
+//     "Wrong Gain variant. Expected: ".to_owned() + variant
+// }

@@ -12,6 +12,8 @@ mod query;
 pub enum Error {
     #[error("not ploy")]
     NotPloy,
+    #[error("not node")]
+    NotNode,
 }
 
 // fn not_ploy() -> Result<(), {
@@ -41,7 +43,7 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, crate::Error> {
+    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, solve::Error> {
         match self {
             Self::Ploy(ploy) => match query.into() {
                 Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
@@ -57,27 +59,27 @@ impl Apex {
                     if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
                         Ok(apex.clone())
                     } else {
-                        Err("Stem index out of range.")?
+                        Err(solve::Error::IndexOutOfBounds(index))
                     }
                 }
             },
-            _ => Err("not ploy")?,
+            _ => Err(Error::NotPloy)?,
         }
     }
 
-    pub fn imports(&self) -> Result<Vec<Import>, crate::Error> {
+    pub fn imports(&self) -> Result<Vec<Import>, solve::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
-            _ => Err("Apex::imports: Not Ploy")?,
+            _ => Err(Error::NotPloy)?,
         }
     }
 
-    pub fn map(&self) -> Result<Map, crate::Error> {
-        match self {
-            Self::Ploy(ploy) => ploy.solve(Task::Map)?.map(),
-            _ => Err("Apex::map: Not Ploy")?,
-        }
-    }
+    // pub fn map(&self) -> Result<Map, solve::Error> {
+    //     match self {
+    //         Self::Ploy(ploy) => ploy.solve(Task::Map)?.map(),
+    //         _ => Err(Error::NotPloy)?,
+    //     }
+    // }
 
     /// Insert apex into new Lake.
     pub fn lake(&self) -> Result<Lake, crate::Error> {
@@ -87,17 +89,17 @@ impl Apex {
     }
 
     /// Get hash digest number of apex.
-    pub fn digest(&self) -> Result<u64, crate::Error> {
+    pub fn digest(&self) -> Result<u64, solve::Error> {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
-            _ => Err("Should only call digest on Leaf or Ploy Apex")?,
+            _ => Err(Error::NotNode)?,
         }?
         .u64()
     }
 
     /// Get serial string of apex.
-    pub fn serial(&self) -> Result<String, crate::Error> {
+    pub fn serial(&self) -> Result<String, solve::Error> {
         match self {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
@@ -107,10 +109,10 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> Result<Vec<Apex>, crate::Error> {
+    pub fn stems(&self) -> Result<Vec<Apex>, solve::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::All),
-            _ => Err("Apex::all: Not ploy")?,
+            _ => Err(Error::NotPloy)?,
         }?
         .apexes()
     }

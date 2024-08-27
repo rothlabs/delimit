@@ -21,7 +21,7 @@ where
         if let Some(main) = &self.main {
             Ok(main.clone())
         } else {
-            let main = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Main)?;
+            let main = self.unit.as_ref().unwrap().solve(Task::Main)?;
             self.main = Some(main.clone());
             Ok(main)
         }
@@ -35,7 +35,7 @@ where
             let digest = self
                 .unit
                 .as_ref()
-                .ok_or("No unit.")?
+                .unwrap()
                 .solve(Task::Digest(&mut state))?;
             self.digest = Some(digest.clone());
             Ok(digest)
@@ -45,7 +45,7 @@ where
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
-            let serial = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Serial)?;
+            let serial = self.unit.as_ref().unwrap().solve(Task::Serial)?;
             self.serial = Some(serial.clone());
             Ok(serial)
         }
@@ -62,7 +62,7 @@ where
             Task::Hash => self.digest(),
             Task::Serial => self.serial(),
             Task::Imports => self.imports.gain(),
-            _ => self.unit.as_ref().ok_or("No unit.")?.solve(task),
+            _ => self.unit.as_ref().unwrap().solve(task),
         }
     }
 }

@@ -37,6 +37,8 @@ pub enum Memo {
 pub enum Error {
     #[error("no adapter")]
     NoAdapter,
+    #[error("solve error")]
+    Solve(#[from] solve::Error),
     #[error("apex error")]
     Apex(#[from] apex::Error),
     #[error("graph error")]
