@@ -2,7 +2,7 @@ use super::*;
 use std::result::Result;
 
 /// Value returned by a successful apex solver.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
     None,
     Apex(Apex),

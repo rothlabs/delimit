@@ -102,13 +102,6 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 /// General engagement of Ploy with erased unit type.
 pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
 
-pub trait EngageUnit: Solve + Adapt + SendSync + Debug {}
-
-impl<T> EngageUnit for T 
-where 
-    T: Solve + Adapt + SendSync + Debug
-{}
-
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
 #[cfg(feature = "oneThread")]

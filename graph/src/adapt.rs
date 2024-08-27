@@ -13,15 +13,6 @@ pub trait Adapt {
     fn adapt(&mut self, post: Post) -> Result;
 }
 
-impl<T> Adapt for T 
-where 
-    T: AsMut<dyn EngageUnit>,
-{
-    fn adapt(&mut self, post: Post) -> Result {
-        self.as_mut().adapt(post)
-    }
-}
-
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.

@@ -103,23 +103,6 @@ where
     }
 }
 
-// impl<U, E> From<Snap<U>> for Link<E> 
-// where 
-//     // U: Default + Solve,
-//     Snap<U>: Into<E>,
-// {
-//     fn from(snap: Snap<U>) -> Self {
-//         Self {
-//             path: None,
-//             rank: None,
-//             #[cfg(not(feature = "oneThread"))]
-//             edge: Arc::new(RwLock::new(snap.into())),
-//             #[cfg(feature = "oneThread")]
-//             edge: Rc::new(RefCell::new(snap.into())),
-//         }
-//     }
-// }
-
 impl<E> Link<E>
 where
     E: FromItem,
@@ -169,17 +152,6 @@ where
             edge: Rc::new(RefCell::new(edge)),
         }
     }
-    // pub fn make3(unit: Box<E::Unit>, imports: Vec<Import>) -> Self {
-    //     let edge = E::make2(*unit, imports);
-    //     Self {
-    //         path: None,
-    //         rank: None,
-    //         #[cfg(not(feature = "oneThread"))]
-    //         edge: Arc::new(RwLock::new(edge)),
-    //         #[cfg(feature = "oneThread")]
-    //         edge: Rc::new(RefCell::new(edge)),
-    //     }
-    // }
 }
 
 impl<E> Link<E>
@@ -240,11 +212,11 @@ impl<E> Clone for Link<E> {
 impl<E> PartialEq for Link<E> {
     #[cfg(not(feature = "oneThread"))]
     fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path
+        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path && self.rank == other.rank
     }
     #[cfg(feature = "oneThread")]
     fn eq(&self, other: &Self) -> bool {
-        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path
+        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge) && self.path == other.path && self.rank == other.rank
     }
 }
 
@@ -362,3 +334,20 @@ where
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
+
+// impl<U, E> From<Snap<U>> for Link<E> 
+// where 
+//     // U: Default + Solve,
+//     Snap<U>: Into<E>,
+// {
+//     fn from(snap: Snap<U>) -> Self {
+//         Self {
+//             path: None,
+//             rank: None,
+//             #[cfg(not(feature = "oneThread"))]
+//             edge: Arc::new(RwLock::new(snap.into())),
+//             #[cfg(feature = "oneThread")]
+//             edge: Rc::new(RefCell::new(snap.into())),
+//         }
+//     }
+// }

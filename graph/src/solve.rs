@@ -19,12 +19,6 @@ impl Solve for Box<dyn Engage> {
     }
 }
 
-impl Solve for Box<dyn EngageUnit> {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.as_ref().solve(task)
-    }
-}
-
 pub trait DoSolve {
     /// For graph internals to handle solve calls
     fn do_solve(&mut self, task: Task) -> Result;

@@ -3,7 +3,6 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
     html_tag: u8,
-    // imports: Vec<Import>,
     name: Apex,
     attributes: Vec<Apex>,
 }
@@ -56,7 +55,6 @@ impl Solve for Tag {
             Task::Stems => self.stems(),
             Task::Serial => self.serial(),
             Task::Digest => self.digest(),
-            // Task::Imports => self.imports.gain(),
             Task::Get(_) => self.name.clone().gain(),
             _ => no_gain(), // no_solver(self, task),
         }
