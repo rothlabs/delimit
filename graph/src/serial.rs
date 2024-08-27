@@ -34,7 +34,6 @@ where
 {
     /// Hash to digest number.
     fn digest(&self, state: &mut Option<Box<dyn Hasher>>) -> solve::Result {
-        // let mut state = DefaultHasher::new();
         self.hash(state.as_mut().unwrap());
         state.as_ref().unwrap().finish().gain()
     }

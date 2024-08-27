@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 use super::*;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]

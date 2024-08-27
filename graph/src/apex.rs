@@ -79,8 +79,9 @@ impl Apex {
     pub fn digest(&self) -> Result<u64, Error> {
         match self {
             Self::Tray(tray) => {
-                let state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
-                tray.digest(&mut Some(state))
+                let mut state = DefaultHasher::new();
+                tray.hash(&mut state);
+                state.finish().gain()
             },
             Self::Leaf(leaf) => leaf.solve(Task::Digest(&mut None)),
             Self::Ploy(ploy) => ploy.solve(Task::Digest(&mut None)),

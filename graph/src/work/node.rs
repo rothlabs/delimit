@@ -27,35 +27,15 @@ where
         }
     }
     fn digest(&mut self) -> solve::Result {
-        // let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest)?.u64()?;
-        // if self.imports.len() > 0 {
-        //     eprintln!("digest and imports: {:?}, {:?}", digest, self.imports);
-        // }
-        // // if digest == 11291120073095819399 || digest == 4586709025272389447 || digest == 4608567207885113395 || digest == 5243514069467196996 {
-        //     // eprintln!("digest and imports: {:?}, {:?}", digest, self.imports);
-        // // }
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
             let mut state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
             self.imports.hash(&mut state);
             let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest(&mut Some(state)))?;
-            // let mut state = DefaultHasher::new();
-            // digest.hash(&mut state);
-            
-            // let gain = state.finish().gain()?;
-            // eprintln!("digest and digest: {:?}, {:?}", digest, gain);
-            // eprintln!("wow: {:?}", wow);
             self.digest = Some(digest.clone());
             Ok(digest)
-            // digest
         }
-        // let mut state = DefaultHasher::new();
-        // crap.hash(&mut state);
-        // self.imports.hash(&mut state);
-        // let gain = state.finish().gain()?;
-        // Ok(gain)
-
     }
     fn serial(&mut self) -> solve::Result {
         if let Some(serial) = &self.serial {
