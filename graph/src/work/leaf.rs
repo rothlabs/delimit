@@ -43,15 +43,15 @@ impl ToTray for Leaf {
     }
 }
 
-impl DoRead for Leaf {
+impl ReadMid for Leaf {
     type Item = Tray;
-    fn do_read(&self) -> &Self::Item {
+    fn read(&self) -> &Self::Item {
         &self.tray
     }
 }
 
-impl DoReadTray for Leaf {
-    fn do_read_tray(&self) -> tray::ResultRef {
+impl ReadTrayMid for Leaf {
+    fn read_tray(&self) -> tray::ResultRef {
         Ok(&self.tray)
     }
 }
@@ -63,8 +63,8 @@ impl WriteTrayWork for Leaf {
     }
 }
 
-impl DoReact for Leaf {
-    fn do_react(&mut self, _: &Id) -> react::Result {
+impl ReactMut for Leaf {
+    fn react(&mut self, _: &Id) -> react::Result {
         Ok(())
     }
 }
@@ -79,14 +79,16 @@ impl DoSolve for Leaf {
     }
 }
 
-impl DoRebut for Leaf {
-    fn do_rebut(&mut self) -> Ring {
+impl RebutMut for Leaf {
+    fn rebut(&mut self) -> Ring {
         Ring::new()
     }
 }
 
 impl Clear for Leaf {
-    fn clear(&mut self) {}
+    fn clear(&mut self) {
+        self.digest = None;
+    }
 }
 
 impl Serialize for Leaf {

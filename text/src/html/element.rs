@@ -54,7 +54,7 @@ impl Element {
         }
         element.apex().gain()
     }
-    fn stems(&self) -> solve::Result {
+    fn all(&self) -> solve::Result {
         let mut apexes = vec![self.open.clone()];
         apexes.extend(self.items.clone());
         if let Some(apex) = &self.close {
@@ -78,16 +78,10 @@ impl Solve for Element {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Stems => self.stems(),
+            Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            _ => no_gain(), // no_solver(self, task),
+            _ => no_solver(self, task),
         }
     }
 }
-
-// pub fn close(mut self, close: impl Into<Apex>) -> Self {
-//     let wow = self.open.get("name");
-//     self.close = Some(close.into());
-//     self
-// }

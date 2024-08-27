@@ -4,12 +4,12 @@ pub type Leaf = Cusp<work::Leaf>;
 
 pub type Node<U> = Cusp<work::Node<U>>;
 
-/// A cusp creates an interactive bridge between root edges and work.
+/// A cusp creates an interactive bridge between root edges and work nodes.
 #[derive(Debug)]
 pub struct Cusp<W> {
     id: Id,
-    ring: Ring,
     work: W,
+    ring: Ring,
     back: Option<Back>,
 }
 
@@ -48,25 +48,25 @@ impl<W> ToId for Cusp<W> {
     }
 }
 
-impl<W> MakeInner for Cusp<W>
+impl<W> MakeMid for Cusp<W>
 where
-    W: MakeInner,
+    W: MakeMid,
 {
     type Unit = W::Unit;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
         self.back = Some(back.clone());
-        self.work.do_make(make, back);
+        self.work.make(make, back);
     }
 }
 
-impl<W> MakeInner2 for Cusp<W>
+impl<W> FromSnapMid for Cusp<W>
 where
-    W: MakeInner2,
+    W: FromSnapMid,
 {
     type Unit = W::Unit;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: &[Import], back: &Back) {
+    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
         self.back = Some(back.clone());
-        self.work.make_inner_2(unit, imports, back);
+        self.work.from_snap(snap, back);
     }
 }
 
@@ -118,49 +118,49 @@ where
     }
 }
 
-impl<W> DoRead for Cusp<W>
+impl<W> ReadMid for Cusp<W>
 where
-    W: DoRead,
+    W: ReadMid,
 {
     type Item = W::Item;
-    fn do_read(&self) -> &Self::Item {
-        self.work.do_read()
+    fn read(&self) -> &Self::Item {
+        self.work.read()
     }
 }
 
-impl<W> DoReadTray for Cusp<W>
+impl<W> ReadTrayMid for Cusp<W>
 where
-    W: DoReadTray,
+    W: ReadTrayMid,
 {
-    fn do_read_tray(&self) -> tray::ResultRef {
-        self.work.do_read_tray()
+    fn read_tray(&self) -> tray::ResultRef {
+        self.work.read_tray()
     }
 }
 
-impl<W> DoAddRoot for Cusp<W> {
-    fn do_add_root(&mut self, root: Root) {
+impl<W> AddRootMut for Cusp<W> {
+    fn add_root(&mut self, root: Root) {
         self.ring.add_root(root);
     }
 }
 
-impl<W> DoUpdate for Cusp<W> where W: Clear + DoReact + SendSync {}
+impl<W> UpdateMid for Cusp<W> where W: Clear + ReactMut + SendSync {}
 
-impl<W> DoRebut for Cusp<W>
+impl<W> RebutMut for Cusp<W>
 where
     W: Clear,
 {
-    fn do_rebut(&mut self) -> Ring {
+    fn rebut(&mut self) -> Ring {
         self.work.clear();
         self.ring.rebut()
     }
 }
 
-impl<W> DoReact for Cusp<W>
+impl<W> ReactMut for Cusp<W>
 where
-    W: DoReact,
+    W: ReactMut,
 {
-    fn do_react(&mut self, id: &Id) -> react::Result {
-        self.work.do_react(id)
+    fn react(&mut self, id: &Id) -> react::Result {
+        self.work.react(id)
     }
 }
 
@@ -177,7 +177,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt_out(&mut self, post: Post) -> write::Out<adapt::Result> {
+    fn adapt(&mut self, post: Post) -> write::Out<adapt::Result> {
         self.work.clear();
         let out = self
             .work

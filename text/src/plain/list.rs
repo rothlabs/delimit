@@ -56,7 +56,7 @@ impl List {
         self.items[last].read_string(|s| string += s);
         string.leaf().apex().gain()
     }
-    fn stems(&self) -> solve::Result {
+    fn all(&self) -> solve::Result {
         let mut apexes = vec![self.separator.clone()];
         apexes.extend(self.items.clone());
         apexes.gain()
@@ -77,10 +77,11 @@ impl Solve for List {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Stems => self.stems(),
+            Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            _ => no_gain(), // no_solver(self, task),
+            // Task::React => solve_ok(),
+            _ => no_solver(self, task),
         }
     }
 }

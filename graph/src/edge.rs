@@ -30,22 +30,6 @@ impl<N> ToId for Edge<N> {
     }
 }
 
-// impl<U, N> From<Snap<U>> for Edge<N>
-// where
-//     // U: Default + Solve,
-//     Snap<U>: Into<N>,
-// {
-//     fn from(snap: Snap<U>) -> Self {
-//         Self {
-//             back: None,
-//             #[cfg(not(feature = "oneThread"))]
-//             cusp: Arc::new(RwLock::new(snap.into())),
-//             #[cfg(feature = "oneThread")]
-//             cusp: Rc::new(RefCell::new(snap.into())),
-//         }
-//     }
-// }
-
 impl<N> FromItem for Edge<N>
 where
     N: FromItem,
@@ -65,7 +49,7 @@ where
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + MakeInner + DoUpdate,
+    N: 'static + Default + MakeMid + UpdateMid,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
@@ -73,9 +57,9 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn DoUpdate>>;
+        let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.do_make(make, &back));
+        write_part(&cusp, |mut cusp| cusp.make(make, &back));
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -83,55 +67,55 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn DoUpdate>>;
+        let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.do_make(make, &back));
+        write_part(&cusp, |mut cusp| cusp.make(make, &back));
         Self { cusp, back: None }
     }
 }
 
-impl<N> Make2 for Edge<N>
+impl<N> FromSnap for Edge<N>
 where
-    N: 'static + Default + MakeInner2 + DoUpdate,
+    N: 'static + Default + FromSnapMid + UpdateMid,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make2(unit: Self::Unit, imports: &[Import]) -> Self {
+    fn from_snap(snap: Snap<Self::Unit>) -> Self {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn DoUpdate>>;
+        let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make_inner_2(unit, imports, &back));
+        write_part(&cusp, |mut cusp| cusp.from_snap(snap, &back));
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
-    fn make2(unit: Self::Unit, imports: &[Import]) -> Self {
+    fn from_snap(snap: Snap<Self::Unit>) -> Self {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn DoUpdate>>;
+        let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make_inner_2(unit, imports, &back));
+        write_part(&cusp, |mut cusp| cusp.from_snap(snap, &back));
         Self { cusp, back: None }
     }
 }
 
 impl<N> Solve for Edge<N>
 where
-    N: 'static + DoSolve + DoUpdate,
+    N: 'static + DoSolve + UpdateMid,
 {
     fn solve(&self, task: Task) -> solve::Result {
         write_part(&self.cusp, |mut cusp| cusp.do_solve(task))
     }
 }
 
-impl<N> AdaptInner for Edge<N>
+impl<N> AdaptMid for Edge<N>
 where
-    N: 'static + AdaptOut + DoUpdate,
+    N: 'static + AdaptOut + UpdateMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt_out(post));
+        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post));
         for root in &roots {
             root.react(&id)?;
         }
@@ -217,7 +201,7 @@ where
 
 impl<N> WriteUnit for Edge<N>
 where
-    N: 'static + WriteUnitOut + DoUpdate,
+    N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
@@ -232,33 +216,33 @@ where
 
 impl<N> Read for Edge<N>
 where
-    N: DoRead,
+    N: ReadMid,
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        read_part(&self.cusp, |cusp| read(cusp.do_read()))
+        read_part(&self.cusp, |cusp| read(cusp.read()))
     }
 }
 
 impl<N> ReadTray for Edge<N>
 where
-    N: DoReadTray,
+    N: ReadTrayMid,
 {
     fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
-        read_part(&self.cusp, |cusp| read(cusp.do_read_tray()))
+        read_part(&self.cusp, |cusp| read(cusp.read_tray()))
     }
 }
 
 impl<N> AddRoot for Edge<N>
 where
-    N: DoAddRoot,
+    N: AddRootMut,
 {
     fn add_root(&self, root: Root) {
-        write_part(&self.cusp, |mut cusp| cusp.do_add_root(root));
+        write_part(&self.cusp, |mut cusp| cusp.add_root(root));
     }
 }
 
-impl<N> Update for Edge<N> where N: SendSync + DoReact {}
+impl<N> Update for Edge<N> where N: SendSync + ReactMut {}
 
 impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {
@@ -272,10 +256,10 @@ impl<N> Rebut for Edge<N> {
 
 impl<N> React for Edge<N>
 where
-    N: DoReact,
+    N: ReactMut,
 {
     fn react(&self, id: &Id) -> react::Result {
-        write_part(&self.cusp, |mut cusp| cusp.do_react(id))
+        write_part(&self.cusp, |mut cusp| cusp.react(id))
     }
 }
 
@@ -305,14 +289,24 @@ impl React for Box<dyn Engage> {
     }
 }
 
-// impl Solve for Box<dyn Engage> {
-//     fn solve(&self, task: Task) -> solve::Result {
-//         self.as_ref().solve(task)
-//     }
-// }
-
-impl AdaptInner for Box<dyn Engage> {
+impl AdaptMid for Box<dyn Engage> {
     fn adapt(&self, post: Post) -> adapt::Result {
         self.as_ref().adapt(post)
     }
 }
+
+// impl<U, N> From<Snap<U>> for Edge<N>
+// where
+//     // U: Default + Solve,
+//     Snap<U>: Into<N>,
+// {
+//     fn from(snap: Snap<U>) -> Self {
+//         Self {
+//             back: None,
+//             #[cfg(not(feature = "oneThread"))]
+//             cusp: Arc::new(RwLock::new(snap.into())),
+//             #[cfg(feature = "oneThread")]
+//             cusp: Rc::new(RefCell::new(snap.into())),
+//         }
+//     }
+// }

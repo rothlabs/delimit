@@ -33,7 +33,7 @@ impl Attribute {
             .apex()
             .gain()
     }
-    fn stems(&self) -> solve::Result {
+    fn all(&self) -> solve::Result {
         Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
     }
 }
@@ -51,10 +51,10 @@ impl Solve for Attribute {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Stems => self.stems(),
+            Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            _ => no_gain(), // no_solver(self, task),
+            _ => no_solver(self, task),
         }
     }
 }

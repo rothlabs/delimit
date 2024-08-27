@@ -1,4 +1,5 @@
 use super::*;
+use std::fmt;
 
 pub trait ToSerial {
     /// Serialize to string.
@@ -23,7 +24,7 @@ pub trait DeserializeUnit: DynClone + Debug + SendSync {
 
 pub trait ToHash {
     /// Hash to digest number.
-    fn digest(&self, state: &mut Box<dyn Hasher>) -> solve::Result;
+    fn digest(&self, state: &mut UnitHasher) -> solve::Result;
 }
 
 impl<T> ToHash for T
@@ -31,11 +32,47 @@ where
     T: Hash,
 {
     /// Hash to digest number.
-    fn digest(&self, state: &mut Box<dyn Hasher>) -> solve::Result {
+    fn digest(&self, state: &mut UnitHasher) -> solve::Result {
         self.hash(state);
         state.finish().gain()
     }
 }
+
+pub struct UnitHasher(Box<dyn Hasher>);
+
+impl Default for UnitHasher {
+    fn default() -> Self {
+        Self(Box::new(DefaultHasher::new()))
+    }
+}
+
+impl Hasher for UnitHasher {
+    fn write(&mut self, bytes: &[u8]) {
+        self.0.write(bytes);
+    }
+    fn finish(&self) -> u64 {
+        self.0.finish()
+    }
+}
+
+impl fmt::Debug for UnitHasher {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("UnitHasher").finish()
+    }
+}
+
+// impl fmt::Display for Task<'_> {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         write!(f, "Task::{}", 0)
+//     }
+// }
+
+// impl Deref for UnitHasher {
+//     type Target = Box<dyn Hasher>;
+//     fn deref(&self) -> &Self::Target {
+//         &self.0
+//     }
+// }
 
 // pub trait SerializeGraph {
 //     /// Serialize part of the graph.

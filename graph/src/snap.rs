@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Snap<U> {
     pub imports: Vec<Import>,
     pub unit: U,
@@ -18,7 +18,7 @@ where
     U: 'static + Adapt + Solve + SendSync + Debug,
 {
     pub fn apex(self) -> Apex {
-        Node::make2(self.unit, &self.imports).ploy().into()
+        Node::from_snap(self).ploy().into()
     }
 }
 

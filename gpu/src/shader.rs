@@ -40,12 +40,12 @@ impl Solve for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            no_gain()
+            solve_ok()
         } else {
             Err(self
                 .gl
                 .get_shader_info_log(&self.shader)
-                .ok_or("failed to get shader info log")?.into())
+                .ok_or("failed to get shader info log")?)?
         }
     }
 }

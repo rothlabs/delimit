@@ -43,7 +43,7 @@ impl Apex {
                     }
                 }
                 Query::Index(index) => {
-                    if let Some(apex) = ploy.solve(Task::Stems)?.apexes()?.get(index) {
+                    if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
                         Ok(apex.clone())
                     } else {
                         Err("Stem index out of range.")?
@@ -98,7 +98,7 @@ impl Apex {
     /// Get stems of apex.
     pub fn stems(&self) -> Result<Vec<Apex>, Error> {
         match self {
-            Self::Ploy(ploy) => ploy.solve(Task::Stems),
+            Self::Ploy(ploy) => ploy.solve(Task::All),
             _ => Err("Apex::all: Not ploy")?,
         }?
         .apexes()

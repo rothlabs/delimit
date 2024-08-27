@@ -24,26 +24,26 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Task) -> Result;
 }
 
-pub fn no_solver(unit: &dyn Debug, _: Task) -> solve::Result {
-    Err(format!("No solver.\n Task: {:?}\n Unit: {:?}\n", 0, unit))?
+pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
+    Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
 }
 
 pub fn empty_apexes() -> solve::Result {
     Ok(Gain::Apexes(vec![]))
 }
 
-pub fn no_gain() -> solve::Result {
+pub fn solve_ok() -> solve::Result {
     Ok(Gain::None)
 }
 
-// #[derive(Debug)]
+#[derive(Debug)]
 pub enum Task<'a> {
     Main,
-    Stems,
+    All,
     React,
     Serial,
     Hash,
-    Digest(&'a mut Box<dyn Hasher>),
+    Digest(&'a mut UnitHasher),
     Imports,
     Get(&'a Key),
     Map,

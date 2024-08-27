@@ -1,11 +1,14 @@
 pub use leaf::*;
 
 use super::*;
-use std::hash::{Hash, Hasher};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 mod leaf;
 #[cfg(test)]
@@ -24,7 +27,7 @@ pub type Ploy = Link<Box<dyn Engage>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
@@ -32,6 +35,12 @@ pub struct Link<E> {
     edge: Rc<RefCell<E>>,
     path: Option<Path>,
     rank: Option<usize>,
+}
+
+impl<E> fmt::Debug for Link<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("Path: {:?}", self.path))
+    }
 }
 
 impl<E> Link<E> {
@@ -139,10 +148,10 @@ where
 
 impl<E> Link<E>
 where
-    E: Make2,
+    E: FromSnap,
 {
-    pub fn make2(unit: E::Unit, imports: &[Import]) -> Self {
-        let edge = E::make2(unit, imports);
+    pub fn from_snap(snap: Snap<E::Unit>) -> Self {
+        let edge = E::from_snap(snap);
         Self {
             path: None,
             rank: None,
@@ -311,9 +320,9 @@ where
     }
 }
 
-impl<E> AdaptInner for Link<E>
+impl<E> AdaptMid for Link<E>
 where
-    E: AdaptInner,
+    E: AdaptMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
         read_part(&self.edge, |edge| edge.adapt(post))

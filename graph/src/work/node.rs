@@ -30,7 +30,7 @@ where
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
-            let mut state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
+            let mut state = UnitHasher::default();
             self.imports.hash(&mut state);
             let digest = self
                 .unit
@@ -82,29 +82,29 @@ where
     }
 }
 
-impl<U> MakeInner for Node<U>
+impl<U> MakeMid for Node<U>
 where
     U: Solve,
 {
     type Unit = U;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
         self.unit = Some(make(back));
     }
 }
 
-impl<U> MakeInner2 for Node<U>
+impl<U> FromSnapMid for Node<U>
 where
     U: Adapt + Solve,
 {
     type Unit = U;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: &[Import], back: &Back) {
-        self.unit = Some(unit);
+    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
+        self.unit = Some(snap.unit);
         self.unit
             .as_mut()
             .unwrap()
             .adapt(Post::Trade(back))
             .expect("To make Node, unit must Adapt with Post::Trade.");
-        self.imports = imports.to_vec();
+        self.imports = snap.imports;
     }
 }
 
@@ -121,12 +121,12 @@ where
     }
 }
 
-impl<U> DoRead for Node<U>
+impl<U> ReadMid for Node<U>
 where
     U: Solve,
 {
     type Item = U;
-    fn do_read(&self) -> &Self::Item {
+    fn read(&self) -> &Self::Item {
         self.unit.as_ref().unwrap()
     }
 }
@@ -161,12 +161,12 @@ where
     }
 }
 
-impl<U> DoReact for Node<U>
+impl<U> ReactMut for Node<U>
 where
     U: Solve,
 {
-    fn do_react(&mut self, _: &Id) -> react::Result {
-        self.unit.as_ref().unwrap().solve(Task::React)?; //.ok();
+    fn react(&mut self, _: &Id) -> react::Result {
+        self.unit.as_ref().unwrap().solve(Task::React)?;
         Ok(())
     }
 }
@@ -179,39 +179,3 @@ where
         self.unit.as_mut().unwrap().adapt(post)
     }
 }
-
-// impl<U> From<Snap<U>> for Node<U>
-// where
-//     U: Default + Solve + Adapt
-// {
-//     fn from(snap: Snap<U>) -> Self {
-//         // snap.unit.adapt(Post::Trade(()))
-//         Self {
-//             imports: snap.imports,
-//             unit: Some(snap.unit),
-//             ..Self::default()
-//         }
-//     }
-// }
-
-// #[derive(Serialize)]
-// pub struct Outbound<'a, U> {
-//     imports: &'a Vec<Import>,
-//     unit: &'a U,
-// }
-
-// impl<U> Serialize for Node<U>
-// where
-//     U: Serialize,
-// {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         Outbound {
-//             imports: &self.imports,
-//             unit: &self.unit
-//         }.serialize(serializer)
-//         // self.unit.as_ref().unwrap().serialize(serializer)
-//     }
-// }

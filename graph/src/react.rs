@@ -12,9 +12,9 @@ pub trait Rebut {
     fn rebut(&self) -> Ring;
 }
 
-pub trait DoRebut {
+pub trait RebutMut {
     /// Invalidatd the tray at cusp level. Call only after write during rebut phase.
-    fn do_rebut(&mut self) -> Ring;
+    fn rebut(&mut self) -> Ring;
 }
 
 pub trait React {
@@ -22,9 +22,9 @@ pub trait React {
     fn react(&self, id: &Id) -> react::Result;
 }
 
-pub trait DoReact {
+pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn do_react(&mut self, id: &Id) -> react::Result;
+    fn react(&mut self, id: &Id) -> react::Result;
 }
 
 pub trait AddRoot {
@@ -33,10 +33,10 @@ pub trait AddRoot {
     fn add_root(&self, root: Root);
 }
 
-pub trait DoAddRoot {
+pub trait AddRootMut {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn do_add_root(&mut self, root: Root);
+    fn add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
@@ -63,7 +63,7 @@ pub trait BackedPloy {
 pub trait Update: Rebut + React + ToId + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
-pub trait DoUpdate: DoRebut + DoReact + ToId + SendSync {}
+pub trait UpdateMid: RebutMut + ReactMut + ToId + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Cusp holds a Ring of Roots.
@@ -111,31 +111,31 @@ impl Hash for Root {
 #[derive(Clone, Debug)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
-    pub cusp: Weak<RwLock<dyn DoUpdate>>,
+    pub cusp: Weak<RwLock<dyn UpdateMid>>,
     #[cfg(feature = "oneThread")]
-    pub cusp: Weak<RefCell<dyn DoUpdate>>,
+    pub cusp: Weak<RefCell<dyn UpdateMid>>,
     pub id: Id,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
-    pub fn new(cusp: Weak<RwLock<dyn DoUpdate>>, id: Id) -> Self {
+    pub fn new(cusp: Weak<RwLock<dyn UpdateMid>>, id: Id) -> Self {
         Self { cusp, id }
     }
     #[cfg(feature = "oneThread")]
-    pub fn new(cusp: Weak<RefCell<dyn DoUpdate>>, id: Id) -> Self {
+    pub fn new(cusp: Weak<RefCell<dyn UpdateMid>>, id: Id) -> Self {
         Self { cusp, id }
     }
     pub fn rebut(&self) -> Ring {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.do_rebut())
+            write_part(&cusp, |mut cusp| cusp.rebut())
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.do_react(id))
+            write_part(&cusp, |mut cusp| cusp.react(id))
         } else {
             Ok(())
         }

@@ -29,7 +29,7 @@ impl Bay {
         if let Some(apex) = self.map.get(key) {
             apex.pathed(key).gain()
         } else {
-            no_gain()
+            solve_ok()
         }
     }
 }
@@ -48,12 +48,13 @@ impl Adapt for Bay {
 impl Solve for Bay {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
-            Task::Stems => self.map.vec().gain(),
+            Task::All => self.map.vec().gain(),
             Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),
             // Task::Map => self.map.gain(),
             Task::Get(key) => self.get(key),
-            _ => no_gain(), // no_solver(self, task),
+            Task::React => solve_ok(),
+            _ => no_solver(self, task),
         }
     }
 }

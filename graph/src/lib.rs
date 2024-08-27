@@ -1,4 +1,4 @@
-pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptInner, AdaptOut, Memo, Post};
+pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptMid, AdaptOut, Memo, Post};
 pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -7,12 +7,12 @@ pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
 pub use meta::{random, upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use react::{
-    AddRoot, Back, Backed, BackedPloy, DoAddRoot, DoReact, DoRebut, DoUpdate, React, Rebut, Ring,
-    Root, ToPipedPloy, ToPloy, Update,
+    AddRoot, AddRootMut, Back, Backed, BackedPloy, React, ReactMut, Rebut, RebutMut, Ring, Root,
+    ToPipedPloy, ToPloy, Update, UpdateMid,
 };
-pub use serial::{DeserializeUnit, ToHash, ToSerial};
+pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{empty_apexes, no_gain, no_solver, DoSolve, Gain, IntoGain, Solve, Task};
+pub use solve::{empty_apexes, no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -100,7 +100,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
 }
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Solve + AdaptInner + BackedPloy + AddRoot + Update + Debug {}
+pub trait Engage: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {}
 
 #[cfg(not(feature = "oneThread"))]
 type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
@@ -170,9 +170,9 @@ where
     }
 }
 
-pub trait DoRead {
+pub trait ReadMid {
     type Item;
-    fn do_read(&self) -> &Self::Item;
+    fn read(&self) -> &Self::Item;
 }
 
 pub trait Read {
@@ -181,12 +181,12 @@ pub trait Read {
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
 }
 
-pub trait DoReadTray {
-    fn do_read_tray(&self) -> tray::ResultRef;
-}
-
 pub trait ReadTray {
     fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T;
+}
+
+pub trait ReadTrayMid {
+    fn read_tray(&self) -> tray::ResultRef;
 }
 
 pub trait ToTray {
@@ -206,19 +206,19 @@ pub trait Make {
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
 
-pub trait MakeInner {
+pub trait MakeMid {
     type Unit;
-    fn do_make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
+    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
 }
 
-pub trait Make2 {
+pub trait FromSnap {
     type Unit;
-    fn make2(unit: Self::Unit, imports: &[Import]) -> Self;
+    fn from_snap(snap: Snap<Self::Unit>) -> Self;
 }
 
-pub trait MakeInner2 {
+pub trait FromSnapMid {
     type Unit;
-    fn make_inner_2(&mut self, unit: Self::Unit, imports: &[Import], back: &Back);
+    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back);
 }
 
 pub trait Clear {
