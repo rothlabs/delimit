@@ -25,7 +25,7 @@ pub trait DeserializeUnit: DynClone + Debug + SendSync {
 
 pub trait ToHash {
     /// Hash to digest number.
-    fn digest(&self) -> solve::Result;
+    fn digest(&self, state: &mut Option<Box<dyn Hasher>>) -> solve::Result;
 }
 
 impl<T> ToHash for T
@@ -33,10 +33,10 @@ where
     T: Hash,
 {
     /// Hash to digest number.
-    fn digest(&self) -> solve::Result {
-        let mut state = DefaultHasher::new();
-        self.hash(&mut state);
-        state.finish().gain()
+    fn digest(&self, state: &mut Option<Box<dyn Hasher>>) -> solve::Result {
+        // let mut state = DefaultHasher::new();
+        self.hash(state.as_mut().unwrap());
+        state.as_ref().unwrap().finish().gain()
     }
 }
 

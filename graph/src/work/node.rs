@@ -34,25 +34,27 @@ where
         // // if digest == 11291120073095819399 || digest == 4586709025272389447 || digest == 4608567207885113395 || digest == 5243514069467196996 {
         //     // eprintln!("digest and imports: {:?}, {:?}", digest, self.imports);
         // // }
-        let crap = if let Some(digest) = &self.digest {
-            digest.clone()
+        if let Some(digest) = &self.digest {
+            Ok(digest.clone())
         } else {
-            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest)?;
+            let mut state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
+            self.imports.hash(&mut state);
+            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest(&mut Some(state)))?;
             // let mut state = DefaultHasher::new();
             // digest.hash(&mut state);
-            // self.imports.hash(&mut state);
+            
             // let gain = state.finish().gain()?;
             // eprintln!("digest and digest: {:?}, {:?}", digest, gain);
             // eprintln!("wow: {:?}", wow);
             self.digest = Some(digest.clone());
-            //Ok(digest)
-            digest
-        };
-        let mut state = DefaultHasher::new();
-        crap.hash(&mut state);
-        self.imports.hash(&mut state);
-        let gain = state.finish().gain()?;
-        Ok(gain)
+            Ok(digest)
+            // digest
+        }
+        // let mut state = DefaultHasher::new();
+        // crap.hash(&mut state);
+        // self.imports.hash(&mut state);
+        // let gain = state.finish().gain()?;
+        // Ok(gain)
 
     }
     fn serial(&mut self) -> solve::Result {
@@ -73,7 +75,7 @@ where
     fn do_solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Digest => self.digest(),
+            Task::Digest(state) => self.digest(),
             Task::Serial => self.serial(),
             Task::Imports => self.imports.gain(),
             _ => self.unit.as_ref().ok_or("No unit.")?.solve(task),

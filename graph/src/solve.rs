@@ -27,7 +27,7 @@ pub trait DoSolve {
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
     Err(format!(
         "No solver.\n Task: {:?}\n Unit: {:?}\n",
-        task, unit
+        0, unit
     ))?
 }
 
@@ -39,13 +39,13 @@ pub fn no_gain() -> solve::Result {
     Ok(Gain::None)
 }
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub enum Task<'a> {
     Main,
     Stems,
     React,
     Serial,
-    Digest,
+    Digest(&'a mut Option<Box<dyn Hasher>>),
     Imports,
     Get(&'a Key),
     Map,

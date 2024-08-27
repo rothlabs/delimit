@@ -49,7 +49,7 @@ impl Solve for Bay {
     fn solve(&self, task: Task) -> solve::Result {
         match task {
             Task::Stems => self.map.vec().gain(),
-            Task::Digest => self.digest(),
+            Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),
             // Task::Map => self.map.gain(),
             Task::Get(key) => self.get(key),

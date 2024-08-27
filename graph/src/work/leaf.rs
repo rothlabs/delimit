@@ -4,11 +4,24 @@ use crate::*;
 #[derive(Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf {
     pub tray: Tray,
+    // digest: Option<Gain>,
 }
 
 impl Leaf {
     pub fn apex(self) -> Apex {
         Apex::Leaf(link::Leaf::new(self.tray))
+    }
+    fn digest(&mut self) -> solve::Result {
+        // if let Some(digest) = &self.digest {
+        //     Ok(digest.clone())
+        // } else {
+            let state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
+            let digest = self.tray.digest(&mut Some(state));
+            //let digest = state.finish().gain()?;
+            // self.digest = Some(digest.clone());
+            digest
+            // digest
+        // }
     }
 }
 
@@ -56,7 +69,7 @@ impl DoSolve for Leaf {
     fn do_solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Serial => self.serial(),
-            Task::Digest => self.digest(),
+            Task::Digest(state) => self.digest(),
             _ => no_solver(self, task),
         }
     }

@@ -78,9 +78,12 @@ impl Apex {
     /// Get hash digest number of apex.
     pub fn digest(&self) -> Result<u64, Error> {
         match self {
-            Self::Tray(tray) => tray.digest(),
-            Self::Leaf(leaf) => leaf.solve(Task::Digest),
-            Self::Ploy(ploy) => ploy.solve(Task::Digest),
+            Self::Tray(tray) => {
+                let state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
+                tray.digest(&mut Some(state))
+            },
+            Self::Leaf(leaf) => leaf.solve(Task::Digest(&mut None)),
+            Self::Ploy(ploy) => ploy.solve(Task::Digest(&mut None)),
         }?
         .u64()
     }
