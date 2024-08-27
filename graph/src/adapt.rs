@@ -1,4 +1,5 @@
 pub use post::Post;
+use thiserror::Error;
 
 use super::*;
 use std::result;
@@ -24,14 +25,25 @@ pub trait AdaptMid {
     fn adapt(&self, post: Post) -> Result;
 }
 
-pub fn no_adapter(post: Post) -> adapt::Result {
-    Err(format!("No adapter: {:?}", post))?
-}
-
 pub fn adapt_ok() -> adapt::Result {
     Ok(Memo::None)
 }
 
 pub enum Memo {
     None,
+}
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("no adapter")]
+    NoAdapter,
+    #[error("apex error")]
+    Apex(#[from] apex::Error),
+    #[error("graph error")]
+    Graph(#[from] crate::Error)
+}
+
+pub fn no_adapter(post: Post) -> adapt::Result {
+    Err(Error::NoAdapter)
+    //Err(format!("No adapter: {:?}", post))?
 }

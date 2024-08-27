@@ -5,7 +5,7 @@ use std::sync::{RwLock, Weak};
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};
 
-pub type Result = std::result::Result<(), Error>;
+pub type Result = std::result::Result<(), adapt::Error>;
 
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.

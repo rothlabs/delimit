@@ -12,8 +12,9 @@
         # serde
             serde = { version = "1.0", features = ["derive"] }
             serde_json = "1.0"
-        # dyn-clone
+        # dtolnay
             dyn-clone = "1.0.17"
+            thiserror = "1.0"
         # rand
             rand = "0.8.5"
 

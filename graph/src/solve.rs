@@ -48,3 +48,16 @@ pub enum Task<'a> {
     Get(&'a Key),
     Map,
 }
+
+// #[derive(Error, Debug)]
+// pub enum AdaptError {
+//     #[error("no adapter")]
+//     NoAdapter,
+//     #[error("no adapter")]
+//     Apex(#[from] ApexError)
+// }
+
+// pub fn no_adapter(post: Post) -> adapt::Result {
+//     Err(AdaptError::NoAdapter)
+//     //Err(format!("No adapter: {:?}", post))?
+// }

@@ -1,11 +1,22 @@
 use super::*;
 use query::*;
+use thiserror::Error;
 
 mod convert;
 mod edit;
 mod hydrate;
 mod import;
 mod query;
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("not ploy")]
+    NotPloy,
+}
+
+// fn not_ploy() -> Result<(), {
+
+// }
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -22,7 +33,7 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result<Apex, Error> {
+    pub fn main(&self) -> Result<Apex, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err("not ploy")?,
@@ -30,7 +41,7 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, Error> {
+    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, crate::Error> {
         match self {
             Self::Ploy(ploy) => match query.into() {
                 Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
@@ -54,14 +65,14 @@ impl Apex {
         }
     }
 
-    pub fn imports(&self) -> Result<Vec<Import>, Error> {
+    pub fn imports(&self) -> Result<Vec<Import>, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
             _ => Err("Apex::imports: Not Ploy")?,
         }
     }
 
-    pub fn map(&self) -> Result<Map, Error> {
+    pub fn map(&self) -> Result<Map, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Map)?.map(),
             _ => Err("Apex::map: Not Ploy")?,
@@ -69,14 +80,14 @@ impl Apex {
     }
 
     /// Insert apex into new Lake.
-    pub fn lake(&self) -> Result<Lake, Error> {
+    pub fn lake(&self) -> Result<Lake, crate::Error> {
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
     }
 
     /// Get hash digest number of apex.
-    pub fn digest(&self) -> Result<u64, Error> {
+    pub fn digest(&self) -> Result<u64, crate::Error> {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
@@ -86,7 +97,7 @@ impl Apex {
     }
 
     /// Get serial string of apex.
-    pub fn serial(&self) -> Result<String, Error> {
+    pub fn serial(&self) -> Result<String, crate::Error> {
         match self {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
@@ -96,7 +107,7 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> Result<Vec<Apex>, Error> {
+    pub fn stems(&self) -> Result<Vec<Apex>, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::All),
             _ => Err("Apex::all: Not ploy")?,
@@ -152,7 +163,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result<Apex, Error> {
+    pub fn at(&self, target: usize) -> Result<Apex, crate::Error> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -190,7 +201,7 @@ impl Apex {
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, Error> {
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, crate::Error> {
         self.read(|tray| match tray {
             Ok(value) => Ok(read(value)),
             _ => Err("nothing to read")?,
@@ -220,7 +231,7 @@ impl Apex {
             _ => read(&vec![]),
         })
     }
-    pub fn string(&self) -> Result<String, Error> {
+    pub fn string(&self) -> Result<String, crate::Error> {
         match self.tray() {
             Ok(Tray::String(value)) => Ok(value),
             _ => Err("not a string")?,
@@ -248,13 +259,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, Error>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, Error> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {
