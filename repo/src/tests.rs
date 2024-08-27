@@ -11,7 +11,7 @@ fn write_and_read_serial_page() -> Result<(), Error> {
     let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
-    lake.atlas(Atlas::new());
+    lake.atlas(Box::new(Atlas::default()));
     let bay = lake.tree()?;
     bay.hydrate();
     let page = bay.get("page")?;

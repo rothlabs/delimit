@@ -32,7 +32,7 @@ where
         } else {
             let mut state = Box::new(DefaultHasher::new()) as Box<dyn Hasher>;
             self.imports.hash(&mut state);
-            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest(&mut Some(state)))?;
+            let digest = self.unit.as_ref().ok_or("No unit.")?.solve(Task::Digest(&mut state))?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
@@ -55,7 +55,7 @@ where
     fn do_solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
-            Task::Digest(state) => self.digest(),
+            Task::Hash => self.digest(),
             Task::Serial => self.serial(),
             Task::Imports => self.imports.gain(),
             _ => self.unit.as_ref().ok_or("No unit.")?.solve(task),

@@ -78,13 +78,9 @@ impl Apex {
     /// Get hash digest number of apex.
     pub fn digest(&self) -> Result<u64, Error> {
         match self {
-            Self::Tray(tray) => {
-                let mut state = DefaultHasher::new();
-                tray.hash(&mut state);
-                state.finish().gain()
-            },
-            Self::Leaf(leaf) => leaf.solve(Task::Digest(&mut None)),
-            Self::Ploy(ploy) => ploy.solve(Task::Digest(&mut None)),
+            Self::Leaf(leaf) => leaf.solve(Task::Hash),
+            Self::Ploy(ploy) => ploy.solve(Task::Hash),
+            _ => Err("Should only call digest on Leaf or Ploy Apex")?
         }?
         .u64()
     }
@@ -265,3 +261,10 @@ impl EngageApexes for Vec<Apex> {
         self.iter().map(|x| x.deal(deal)).collect()
     }
 }
+
+
+// Self::Tray(tray) => {
+            //     let mut state = DefaultHasher::new();
+            //     tray.hash(&mut state);
+            //     state.finish().gain()
+            // },

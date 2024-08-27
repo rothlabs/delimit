@@ -24,7 +24,7 @@ pub trait DoSolve {
     fn do_solve(&mut self, task: Task) -> Result;
 }
 
-pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
+pub fn no_solver(unit: &dyn Debug, _: Task) -> solve::Result {
     Err(format!(
         "No solver.\n Task: {:?}\n Unit: {:?}\n",
         0, unit
@@ -45,7 +45,8 @@ pub enum Task<'a> {
     Stems,
     React,
     Serial,
-    Digest(&'a mut Option<Box<dyn Hasher>>),
+    Hash,
+    Digest(&'a mut Box<dyn Hasher>),
     Imports,
     Get(&'a Key),
     Map,

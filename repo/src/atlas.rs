@@ -1,14 +1,7 @@
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Atlas;
-
-impl Atlas {
-    #[allow(dead_code)]
-    pub fn new() -> Box<Self> {
-        Box::new(Self)
-    }
-}
 
 impl DeserializeUnit for Atlas {
     fn deserialize(&self, serial: &SerialNode) -> Result<Apex, Error> {
@@ -20,9 +13,8 @@ impl DeserializeUnit for Atlas {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Part {
-    GraphTray(graph::Tray),
-    GraphLeaf(graph::work::Leaf),
-    GraphBay(graph::Bay),
+    Leaf(graph::work::Leaf),
+    Bay(graph::Bay),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
     TextHtmlAttribute(text::html::Attribute),
@@ -32,9 +24,8 @@ enum Part {
 impl Part {
     fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
-            Self::GraphTray(x) => x.into(),
-            Self::GraphLeaf(x) => x.apex(),
-            Self::GraphBay(x) => x.imports(imports).apex(),
+            Self::Leaf(x) => x.apex(),
+            Self::Bay(x) => x.imports(imports).apex(),
             Self::TextPlainList(x) => x.imports(imports).apex(),
             Self::TextHtmlTag(x) => x.imports(imports).apex(),
             Self::TextHtmlAttribute(x) => x.imports(imports).apex(),

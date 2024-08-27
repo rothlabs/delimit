@@ -12,7 +12,7 @@ where
 {
     /// Serialize to string.
     fn serial(&self) -> solve::Result {
-        Ok(Gain::String(serde_json::to_string(self)?))
+        serde_json::to_string(self)?.gain()
     }
 }
 
@@ -25,7 +25,7 @@ pub trait DeserializeUnit: DynClone + Debug + SendSync {
 
 pub trait ToHash {
     /// Hash to digest number.
-    fn digest(&self, state: &mut Option<Box<dyn Hasher>>) -> solve::Result;
+    fn digest(&self, state: &mut Box<dyn Hasher>) -> solve::Result;
 }
 
 impl<T> ToHash for T
@@ -33,9 +33,9 @@ where
     T: Hash,
 {
     /// Hash to digest number.
-    fn digest(&self, state: &mut Option<Box<dyn Hasher>>) -> solve::Result {
-        self.hash(state.as_mut().unwrap());
-        state.as_ref().unwrap().finish().gain()
+    fn digest(&self, state: &mut Box<dyn Hasher>) -> solve::Result {
+        self.hash(state);
+        state.finish().gain()
     }
 }
 

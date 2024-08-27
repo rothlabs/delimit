@@ -13,6 +13,7 @@ pub type ResultRef<'a> = result::Result<&'a Tray, Error>;
 pub enum Tray {
     None,
     Path(Path),
+    Bool(bool),
     String(String),
     U8(u8),
     U16(u16),
@@ -43,12 +44,6 @@ impl Tray {
             _ => None,
         }
     }
-    // pub fn string(self) -> result::Result<String, Error> {
-    //     match self {
-    //         Self::String(string) => Ok(string),
-    //         _ => Err("No string.")?,
-    //     }
-    // }
 }
 
 impl Hash for Tray {

@@ -74,7 +74,7 @@ where
     Self: Solve,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        if let Ok(Gain::U64(digest)) = self.solve(Task::Digest(&mut None)) {
+        if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
             digest.hash(state)
         } else {
             // TODO: Remove when sure that this won't be a problem
@@ -93,7 +93,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Digest(&mut None)) {
+        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
             // TODO: Remove when sure that this won't be a problem

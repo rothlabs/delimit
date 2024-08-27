@@ -62,6 +62,12 @@ impl Gain {
     }
 }
 
+impl From<String> for Gain {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
 impl From<Apex> for Gain {
     fn from(value: Apex) -> Self {
         Self::Apex(value)
