@@ -52,6 +52,7 @@ async fn service(_: Request<impl Body>, ace: Leaf) -> Result<Response<Full<Bytes
             println!("tray: {value}");
             *value += 1;
         }
+        Ok(())
     })
     .ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))

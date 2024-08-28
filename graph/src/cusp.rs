@@ -70,15 +70,6 @@ where
     }
 }
 
-impl<W> ToTray for Cusp<W>
-where
-    W: ToTray,
-{
-    fn tray(&self) -> Tray {
-        self.work.tray()
-    }
-}
-
 impl<W> WriteTrayOut for Cusp<W>
 where
     W: WriteTrayWork,
@@ -117,22 +108,13 @@ where
     }
 }
 
-impl<W> ReadMid for Cusp<W>
+impl<W> ToItem for Cusp<W>
 where
-    W: ReadMid,
+    W: ToItem,
 {
     type Item = W::Item;
-    fn read(&self) -> &Self::Item {
-        self.work.read()
-    }
-}
-
-impl<W> ReadTrayMid for Cusp<W>
-where
-    W: ReadTrayMid,
-{
-    fn read_tray(&self) -> tray::RefResult {
-        self.work.read_tray()
+    fn item(&self) -> &Self::Item {
+        self.work.item()
     }
 }
 

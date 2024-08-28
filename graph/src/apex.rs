@@ -1,13 +1,14 @@
 use super::*;
 use query::*;
 use thiserror::Error;
+use view::*;
 
 mod convert;
 mod edit;
 mod hydrate;
 mod import;
 mod query;
-mod reader;
+mod view;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -189,10 +190,10 @@ impl Apex {
     }
 
     /// Read tray of apex.
-    pub fn read<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+    pub fn read<T, F: FnOnce(&Tray) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         match self {
-            Self::Tray(bare) => read(Ok(bare)),
-            Self::Leaf(leaf) => leaf.read_tray(read),
+            Self::Tray(bare) => read(bare),
+            Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
         }
     }
@@ -204,6 +205,10 @@ impl Apex {
             Tray::String(value) => Ok(value),
             _ => Err(wrong_tray("String", tray))?
         }
+    }
+
+    pub fn view(&self) -> View {
+        View {apex: self}
     }
 
     // pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> GraphResult<T> {
@@ -253,7 +258,7 @@ impl Apex {
     // }
 }
 
-fn wrong_tray(expected: &str, found: Tray) -> Error {
+pub fn wrong_tray(expected: &str, found: Tray) -> Error {
     Error::WrongTray { expected: expected.into(), found }
 }
 

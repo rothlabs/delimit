@@ -8,10 +8,10 @@ fn new_list(ace: &Leaf) -> Node<List> {
 fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace).apex();
-    text.read_string(|string| {
-        assert_eq!(string, "str, ace");
-    });
-    Ok(())
+    text.view().string(|string| 
+        Ok(assert_eq!(string, "str, ace"))
+    )//;
+    // Ok(())
 }
 
 #[test]
@@ -29,8 +29,8 @@ fn rebut_from_self() -> Result<(), Error> {
     let a = text.solve(Task::Main)?;
     text.write(|pack| {
         pack.unit.set_separator(" > ");
-    })
-    .ok();
+        Ok(())
+    })?;
     let b = text.solve(Task::Main)?;
     assert!(a != b);
     Ok(())
@@ -44,6 +44,7 @@ fn react_from_stem() -> Result<(), Error> {
     ace.write(|tray| {
         if let Tray::String(string) = tray {
             string.push_str("_mutated");
+            Ok(())
         } else {
             panic!("was not a string")
         }
@@ -61,12 +62,14 @@ fn no_rebut_after_dropping_stem() -> Result<(), Error> {
     let _r = text.solve(Task::Main);
     text.write(|pack| {
         pack.unit.remove(1);
+        Ok(())
     })
     .ok();
     let a = text.solve(Task::Main)?;
     ace.write(|tray| {
         if let Tray::String(string) = tray {
             string.push_str("_mutated");
+            Ok(())
         } else {
             panic!("was not a string")
         }

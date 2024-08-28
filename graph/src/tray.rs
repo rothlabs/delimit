@@ -1,10 +1,9 @@
 use super::*;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};
-use std::result;
 
 // pub type Result = result::Result<Tray, anyhow::Error>;
-pub type RefResult<'a> = result::Result<&'a Tray, Error>;
+// pub type RefResult<'a> = result::Result<&'a Tray, Error>;
 
 /// Payload value of graph parts.
 /// Used as `Leaf` payload and field values of `Node` and `Ploy`.

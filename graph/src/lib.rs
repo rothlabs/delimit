@@ -95,10 +95,10 @@ pub trait SendSync {}
 impl<T> SendSync for T {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> Result<O, Error>>(
+fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> GraphResult<O>>(
     part: &Arc<RwLock<P>>,
     read: F,
-) -> Result<O, Error> {
+) -> GraphResult<O> {
     match part.read() {
         Ok(part) => read(part),
         Err(err) => Err(Error::Read(err.to_string()))
@@ -185,35 +185,15 @@ where
     }
 }
 
-pub trait ReadMid {
+pub trait ToItem {
     type Item;
-    fn read(&self) -> &Self::Item;
+    fn item(&self) -> &Self::Item;
 }
 
 pub trait Read {
     type Item;
-    /// Read the unit of the node.
+    /// Read the payload of the node.
     fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T>;
-}
-
-pub trait ReadTray {
-    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T>;
-}
-
-pub trait ReadTrayMid {
-    fn read_tray(&self) -> tray::RefResult;
-}
-
-pub trait ToTray {
-    /// Clone the Tray out of the graph part.
-    /// May cause stem apexes to generate the tray.
-    fn tray(&self) -> Tray;
-}
-
-pub trait TryTray {
-    /// Clone the Tray out of the graph part.
-    /// May cause stem apexes to generate the tray.
-    fn tray(&self) -> Result<Tray, Error>;
 }
 
 pub trait FromItem {

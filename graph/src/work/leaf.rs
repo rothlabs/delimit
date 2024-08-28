@@ -36,22 +36,10 @@ impl FromItem for Leaf {
     }
 }
 
-impl ToTray for Leaf {
-    fn tray(&self) -> Tray {
-        self.tray.clone()
-    }
-}
-
-impl ReadMid for Leaf {
+impl ToItem for Leaf {
     type Item = Tray;
-    fn read(&self) -> &Self::Item {
+    fn item(&self) -> &Self::Item {
         &self.tray
-    }
-}
-
-impl ReadTrayMid for Leaf {
-    fn read_tray(&self) -> tray::RefResult {
-        Ok(&self.tray)
     }
 }
 

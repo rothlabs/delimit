@@ -121,12 +121,12 @@ where
     }
 }
 
-impl<U> ReadMid for Node<U>
+impl<U> ToItem for Node<U>
 where
     U: Solve,
 {
     type Item = U;
-    fn read(&self) -> &Self::Item {
+    fn item(&self) -> &Self::Item {
         self.unit.as_ref().unwrap()
     }
 }

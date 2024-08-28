@@ -162,10 +162,10 @@ where
 
 impl<E> Link<E>
 where
-    E: TryTray,
+    E: Read<Item = Tray>,
 {
     pub fn tray(&self) -> GraphResult<Tray> {
-        read_part(&self.edge, |edge| edge.tray())
+        read_part(&self.edge, |edge| edge.read(|tray| Ok(tray.clone())))
     }
 }
 
@@ -265,19 +265,6 @@ where
     fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
-            edge.add_root(self.as_root(edge.id()));
-            out
-        })
-    }
-}
-
-impl<E> ReadTray for Link<E>
-where
-    E: 'static + ReadTray + Update + AddRoot,
-{
-    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.edge, |edge| {
-            let out = edge.read_tray(read);
             edge.add_root(self.as_root(edge.id()));
             out
         })

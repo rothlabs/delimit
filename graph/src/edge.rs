@@ -163,15 +163,6 @@ where
     }
 }
 
-impl<N> TryTray for Edge<N>
-where
-    N: ToTray,
-{
-    fn tray(&self) -> Result<Tray, Error> {
-        read_part(&self.cusp, |cusp| Ok(cusp.tray()))
-    }
-}
-
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
@@ -213,20 +204,11 @@ where
 
 impl<N> Read for Edge<N>
 where
-    N: ReadMid,
+    N: ToItem,
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.cusp, |cusp| read(cusp.read()))
-    }
-}
-
-impl<N> ReadTray for Edge<N>
-where
-    N: ReadTrayMid,
-{
-    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.cusp, |cusp| read(cusp.read_tray()))
+        read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }
 
@@ -238,8 +220,6 @@ where
         write_part(&self.cusp, |mut cusp| cusp.add_root(root));
     }
 }
-
-// impl<N> Update for Edge<N> where N: SendSync + ReactMut {}
 
 impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {
@@ -259,4 +239,3 @@ where
         write_part(&self.cusp, |mut cusp| cusp.react(id))
     }
 }
-

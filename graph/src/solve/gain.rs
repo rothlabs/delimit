@@ -1,6 +1,4 @@
 use super::*;
-use std::result::Result;
-
 
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
@@ -24,42 +22,42 @@ impl Gain {
         Ok(self)
     }
     /// Get Apex from Gain.
-    pub fn apex(self) -> Result<Apex, crate::Error> {
+    pub fn apex(self) -> GraphResult<Apex> {
         match self {
             Self::Apex(apex) => Ok(apex),
             _ => Err(self.expected("Apex"))?
         }
     }
     /// Get `Vec<Apex>` from Gain.
-    pub fn apexes(self) -> Result<Vec<Apex>, crate::Error> {
+    pub fn apexes(self) -> GraphResult<Vec<Apex>> {
         match self {
             Self::Apexes(apexes) => Ok(apexes),
             _ => Err(self.expected("Apexes"))?,
         }
     }
     /// Get Imports from Gain.
-    pub fn imports(self) -> Result<Vec<Import>, crate::Error> {
+    pub fn imports(self) -> GraphResult<Vec<Import>> {
         match self {
             Self::Imports(imports) => Ok(imports),
             _ => Err(self.expected("Imports"))?,
         }
     }
     /// Get Map from Gain.
-    pub fn map(self) -> Result<Map, Error> {
+    pub fn map(self) -> GraphResult<Map> {
         match self {
             Self::Map(map) => Ok(map),
             _ => Err(self.expected("Map"))?,
         }
     }
     /// Get String from Gain.
-    pub fn string(self) -> Result<String, crate::Error> {
+    pub fn string(self) -> GraphResult<String> {
         match self {
             Self::String(string) => Ok(string),
             _ => Err(self.expected("String"))?,
         }
     }
     /// Get u64 from Gain.
-    pub fn u64(self) -> Result<u64, crate::Error> {
+    pub fn u64(self) -> GraphResult<u64> {
         match self {
             Self::U64(int) => Ok(int),
             _ => Err(self.expected("u64"))?,
