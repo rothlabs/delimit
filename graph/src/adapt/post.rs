@@ -12,13 +12,14 @@ pub enum Post<'a> {
     Paths(Vec<Path>),
 }
 
-impl Backed for Post<'_> {
-    fn backed(&self, back: &Back) -> Self {
-        match self {
+impl<'a> TryBacked for Post<'a> {
+    type Out = Post<'a>;
+    fn backed(&self, back: &Back) -> std::result::Result<Self::Out, crate::Error> {
+        Ok(match self {
             Post::Insert(key, apex) => Post::Insert(key.clone(), apex.backed(back)),
             Post::Extend(map) => Post::Extend(map.trade(back)),
             Post::SetAt(index, apex) => Post::SetAt(*index, apex.backed(back)),
             _ => self.clone(),
-        }
+        })
     }
 }

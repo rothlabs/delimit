@@ -115,11 +115,11 @@ where
     N: 'static + AdaptOut + UpdateMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post));
+        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post))?;
         for root in &roots {
             root.react(&id)?;
         }
-        out
+        Ok(out)
     }
 }
 

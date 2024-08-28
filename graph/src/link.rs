@@ -329,13 +329,14 @@ where
     }
 }
 
-impl Backed for Ploy {
-    fn backed(&self, back: &Back) -> Self {
-        read_part(&self.edge, |edge| Self {
+impl TryBacked for Ploy {
+    type Out = Ploy;
+    fn backed(&self, back: &Back) -> Result<Self::Out, Error> {
+        read_part(&self.edge, |edge| Ok(Self {
             edge: edge?.backed_ploy(back),
             path: self.path.clone(),
             rank: self.rank,
-        })
+        }))
     }
 }
 

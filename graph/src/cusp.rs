@@ -174,16 +174,17 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt(&mut self, post: Post) -> write::Out<adapt::Result> {
+    fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>, crate::Error> {
         self.work.clear();
+        let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."))?;
         let out = self
             .work
-            .adapt(post.backed(self.back.as_ref().expect("No back in cusp adapt.")));
+            .adapt(post)?;
         let roots = self.ring.rebut_roots();
-        write::Out {
+        Ok(write::Out {
             roots,
             out,
             id: self.id.clone(),
-        }
+        })
     }
 }

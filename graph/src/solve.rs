@@ -53,7 +53,7 @@ pub enum Error {
 }
 
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
-    Err(Error::NoHandler{task: format!("{:?}", task), unit: format!("{:?}", unit)})
+    Err(Error::NoHandler{task: format!("{:?}", task), unit: format!("{:?}", unit)})?
 }
 
 // pub fn wrong_gain(expected: &str, found: &str) -> solve::Result {

@@ -37,8 +37,7 @@ impl FromItem for Leaf {
 }
 
 impl ToTray for Leaf {
-    type Tray = Tray;
-    fn tray(&self) -> Self::Tray {
+    fn tray(&self) -> Tray {
         self.tray.clone()
     }
 }

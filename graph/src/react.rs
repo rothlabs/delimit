@@ -5,7 +5,7 @@ use std::sync::{RwLock, Weak};
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};
 
-pub type Result = std::result::Result<(), adapt::Error>;
+pub type Result = std::result::Result<(), crate::Error>;
 
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
@@ -39,10 +39,17 @@ pub trait AddRootMut {
     fn add_root(&mut self, root: Root);
 }
 
+pub trait TryBacked {
+    type Out;
+    /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
+    /// Must be called to include `&Back` in the rebut phase.
+    fn backed(&self, back: &Back) -> std::result::Result<Self::Out, crate::Error>;
+}
+
 pub trait Backed {
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> Self;//std::result::Result<Self, crate::Error>;
+    fn backed(&self, back: &Back) -> Self;
 }
 
 /// For edge that Rebuts a Ring and reacts.
@@ -67,14 +74,18 @@ pub struct Root {
 impl Root {
     pub fn rebut(&self) -> Ring {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.rebut())
+            // TODO: find way to carry error up through the end of the update.
+            match read_part(&edge, |edge| Ok(edge?.rebut())) {
+                Ok(ring) => ring,
+                Err(_) => Ring::new()
+            }
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.react(id))
+            read_part(&edge, |edge| edge?.react(id))
         } else {
             Ok(())
         }

@@ -181,7 +181,8 @@ impl Apex {
         match self {
             Self::Tray(bare) => Self::Tray(bare.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
-            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+            // TODO: remove unwrap!
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
         }
     }
 

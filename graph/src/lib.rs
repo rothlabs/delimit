@@ -7,7 +7,7 @@ pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use react::{
-    AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root,
+    AddRoot, AddRootMut, Back, Backed, TryBacked, React, ReactMut, Rebut, RebutMut, Ring, Root,
     Update, UpdateMid,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};

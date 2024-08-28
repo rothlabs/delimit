@@ -17,7 +17,7 @@ pub trait Adapt {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, post: Post) -> write::Out<Result>;
+    fn adapt(&mut self, post: Post) -> result::Result<write::Out<Memo>, crate::Error>;
 }
 
 pub trait AdaptMid {
