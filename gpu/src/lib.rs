@@ -10,9 +10,6 @@ pub use anyhow::anyhow;
 use elements::ElementsBuilder;
 use derive_builder::Builder;
 use graph::*;
-// use js_sys::*;
-// use shader::*;
-use std::{error::Error, result};
 use texture::*;
 use vao::*;
 use vertex_attribute::VertexAttributeBuilder;
@@ -30,7 +27,6 @@ mod elements;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
-//pub type Array<T> = Apex<Vec<T>>;
 
 /// GPU graph maker
 pub struct Gpu {
@@ -65,11 +61,11 @@ impl Gpu {
             .buffer(buffer.clone())
             .clone()
     }
-    pub fn vao(&self, attributes: &Attributes) -> result::Result<VaoBuilder, anyhow::Error> {
+    pub fn vao(&self, attributes: &Attributes) -> GraphResult<VaoBuilder> {
         let object = self
             .gl
             .create_vertex_array()
-            .ok_or("failed to create vertex array object")?;
+            .ok_or(anyhow!("failed to create vertex array object"))?;
         Ok(VaoBuilder::default()
             .gl(self.gl.clone())
             .object(object)
@@ -79,7 +75,7 @@ impl Gpu {
     pub fn texture( // <T: Copy>
         &self,
         array: impl Into<Apex>,
-    ) -> result::Result<TextureBuilder, anyhow::Error> { 
+    ) -> GraphResult<TextureBuilder> { 
         let texture = self.gl.create_texture().ok_or(anyhow!("failed to create texture"))?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
         self.default_texture_filters();        

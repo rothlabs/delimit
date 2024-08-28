@@ -32,7 +32,7 @@ impl Elements {
 }
 
 impl ElementsBuilder {
-    pub fn link(&self) -> result::Result<Node<Elements>, ElementsBuilderError> {
+    pub fn link(&self) -> std::result::Result<Node<Elements>, ElementsBuilderError> {
         let mut elements = self.build()?;
         let link = Node::make(|back| {
             elements.program = elements.program.backed(back);
