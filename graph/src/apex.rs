@@ -197,7 +197,7 @@ impl Apex {
         }
     }
 
-    /// Get clone of String from apex tray.
+    /// Clone of String from Apex Tray.
     pub fn string(&self) -> GraphResult<String> {
         let tray = self.tray()?;
         match tray {
