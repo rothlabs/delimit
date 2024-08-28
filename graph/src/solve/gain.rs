@@ -24,21 +24,21 @@ impl Gain {
         Ok(self)
     }
     /// Get Apex from Gain.
-    pub fn apex(self) -> Result<Apex, solve::Error> {
+    pub fn apex(self) -> Result<Apex, crate::Error> {
         match self {
             Self::Apex(apex) => Ok(apex),
             _ => Err(self.expected("Apex"))?
         }
     }
     /// Get `Vec<Apex>` from Gain.
-    pub fn apexes(self) -> Result<Vec<Apex>, Error> {
+    pub fn apexes(self) -> Result<Vec<Apex>, crate::Error> {
         match self {
             Self::Apexes(apexes) => Ok(apexes),
             _ => Err(self.expected("Apexes"))?,
         }
     }
     /// Get Imports from Gain.
-    pub fn imports(self) -> Result<Vec<Import>, Error> {
+    pub fn imports(self) -> Result<Vec<Import>, crate::Error> {
         match self {
             Self::Imports(imports) => Ok(imports),
             _ => Err(self.expected("Imports"))?,
@@ -52,14 +52,14 @@ impl Gain {
         }
     }
     /// Get String from Gain.
-    pub fn string(self) -> Result<String, Error> {
+    pub fn string(self) -> Result<String, crate::Error> {
         match self {
             Self::String(string) => Ok(string),
             _ => Err(self.expected("String"))?,
         }
     }
     /// Get u64 from Gain.
-    pub fn u64(self) -> Result<u64, Error> {
+    pub fn u64(self) -> Result<u64, crate::Error> {
         match self {
             Self::U64(int) => Ok(int),
             _ => Err(self.expected("u64"))?,

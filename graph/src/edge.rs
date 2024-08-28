@@ -163,13 +163,12 @@ where
     }
 }
 
-impl<N> ToTray for Edge<N>
+impl<N> TryTray for Edge<N>
 where
     N: ToTray,
 {
-    type Tray = N::Tray;
-    fn tray(&self) -> Self::Tray {
-        read_part(&self.cusp, |cusp| cusp.tray())
+    fn tray(&self) -> Result<Tray, Error> {
+        read_part(&self.cusp, |cusp| Ok(cusp?.tray()))
     }
 }
 
@@ -187,13 +186,13 @@ where
     N: WriteTrayOut,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write));
         for root in &roots {
             root.react(&id)?;
         }
-        Ok(out)
+        out
     }
 }
 
@@ -202,13 +201,13 @@ where
     N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write));
         for root in &roots {
             root.react(&id)?;
         }
-        Ok(out)
+        out
     }
 }
 
@@ -217,8 +216,8 @@ where
     N: ReadMid,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
-        read_part(&self.cusp, |cusp| read(cusp.read()))
+    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+        read_part(&self.cusp, |cusp| read(cusp?.read()))
     }
 }
 
@@ -226,8 +225,8 @@ impl<N> ReadTray for Edge<N>
 where
     N: ReadTrayMid,
 {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
-        read_part(&self.cusp, |cusp| read(cusp.read_tray()))
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+        read_part(&self.cusp, |cusp| read(cusp?.read_tray()))
     }
 }
 

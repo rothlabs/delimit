@@ -67,10 +67,10 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> Result<Apex, anyhow::Error> {
+    pub fn main(&self) -> Result<Apex, crate::Error> {
         match self.solve(Task::Main)? {
             Gain::Apex(apex) => Ok(apex),
-            _ => Err(anyhow!("Wrong return type for Task::Main.")),
+            _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
 }
@@ -162,10 +162,10 @@ where
 
 impl<E> Link<E>
 where
-    E: ToTray,
+    E: TryTray,
 {
-    pub fn tray(&self) -> E::Tray {
-        read_part(&self.edge, |edge| edge.tray())
+    pub fn tray(&self) -> Result<Tray, Error> {
+        read_part(&self.edge, |edge| edge?.tray())
     }
 }
 
@@ -196,12 +196,12 @@ where
     E: ToPloy,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Ploy {
-        read_part(&self.edge, |edge| Ploy {
-            edge: edge.ploy(),
+    pub fn ploy(&self) -> Result<Ploy, Error> {
+        read_part(&self.edge, |edge| Ok(Ploy {
+            edge: edge?.ploy(),
             path: self.path.clone(),
             rank: self.rank,
-        })
+        }))
     }
 }
 
@@ -262,8 +262,9 @@ where
     E: 'static + Read + Update + AddRoot,
 {
     type Item = E::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T {
+    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
         read_part(&self.edge, |edge| {
+            let edge = edge?;
             let out = edge.read(read);
             edge.add_root(self.as_root(edge.id()));
             out
@@ -275,8 +276,9 @@ impl<E> ReadTray for Link<E>
 where
     E: 'static + ReadTray + Update + AddRoot,
 {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
         read_part(&self.edge, |edge| {
+            let edge = edge?;
             let out = edge.read_tray(read);
             edge.add_root(self.as_root(edge.id()));
             out
@@ -289,8 +291,8 @@ where
     E: WriteTray,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T> {
-        read_part(&self.edge, |edge| edge.write(write))
+    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+        read_part(&self.edge, |edge| edge?.write(write))
     }
 }
 
@@ -299,8 +301,8 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T> {
-        read_part(&self.edge, |edge| edge.write(write))
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+        read_part(&self.edge, |edge| edge?.write(write))
     }
 }
 
@@ -310,9 +312,10 @@ where
 {
     fn solve(&self, task: Task) -> solve::Result {
         read_part(&self.edge, |edge| {
-            let result = edge.solve(task);
+            let edge = edge?;
+            let result = edge.solve(task)?;
             edge.add_root(self.as_root(edge.id()));
-            result
+            Ok(result)
         })
     }
 }
@@ -322,14 +325,14 @@ where
     E: AdaptMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        read_part(&self.edge, |edge| edge.adapt(post))
+        read_part(&self.edge, |edge| edge?.adapt(post))
     }
 }
 
 impl Backed for Ploy {
     fn backed(&self, back: &Back) -> Self {
         read_part(&self.edge, |edge| Self {
-            edge: edge.backed_ploy(back),
+            edge: edge?.backed_ploy(back),
             path: self.path.clone(),
             rank: self.rank,
         })

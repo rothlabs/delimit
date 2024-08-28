@@ -42,7 +42,7 @@ pub trait AddRootMut {
 pub trait Backed {
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> Self;
+    fn backed(&self, back: &Back) -> Self;//std::result::Result<Self, crate::Error>;
 }
 
 /// For edge that Rebuts a Ring and reacts.

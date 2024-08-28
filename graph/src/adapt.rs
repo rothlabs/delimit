@@ -6,7 +6,7 @@ use std::result;
 
 pub mod post;
 
-pub type Result = result::Result<Memo, Error>;
+pub type Result = result::Result<Memo, crate::Error>;
 
 pub trait Adapt {
     /// Alter an apex.
@@ -46,5 +46,5 @@ pub enum Error {
 }
 
 pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
-    Err(Error::NoHandler{post: format!("{:?}", post), unit: format!("{:?}", unit)})
+    Err(Error::NoHandler{post: format!("{:?}", post), unit: format!("{:?}", unit)})?
 }

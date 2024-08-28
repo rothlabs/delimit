@@ -6,7 +6,7 @@ use std::result;
 
 mod gain;
 
-pub type Result = result::Result<Gain, Error>;
+pub type Result = result::Result<Gain, crate::Error>;
 
 pub trait Solve {
     /// Solve a task.

@@ -13,13 +13,9 @@ mod query;
 pub enum Error {
     #[error("not ploy")]
     NotPloy,
-    #[error("not node")]
+    #[error("not ploy or leaf")]
     NotNode,
 }
-
-// fn not_ploy() -> Result<(), {
-
-// }
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
@@ -36,7 +32,7 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result<Apex, anyhow::Error> {
+    pub fn main(&self) -> Result<Apex, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err(Error::NotPloy)?,
@@ -44,7 +40,7 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, solve::Error> {
+    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex, crate::Error> {
         match self {
             Self::Ploy(ploy) => match query.into() {
                 Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
@@ -60,7 +56,7 @@ impl Apex {
                     if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
                         Ok(apex.clone())
                     } else {
-                        Err(solve::Error::IndexOutOfBounds(index))
+                        Err(solve::Error::IndexOutOfBounds(index))?
                     }
                 }
             },
@@ -68,7 +64,7 @@ impl Apex {
         }
     }
 
-    pub fn imports(&self) -> Result<Vec<Import>, solve::Error> {
+    pub fn imports(&self) -> Result<Vec<Import>, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
             _ => Err(Error::NotPloy)?,
@@ -90,7 +86,7 @@ impl Apex {
     }
 
     /// Get hash digest number of apex.
-    pub fn digest(&self) -> Result<u64, solve::Error> {
+    pub fn digest(&self) -> Result<u64, crate::Error> {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
@@ -100,7 +96,7 @@ impl Apex {
     }
 
     /// Get serial string of apex.
-    pub fn serial(&self) -> Result<String, solve::Error> {
+    pub fn serial(&self) -> Result<String, crate::Error> {
         match self {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
@@ -110,7 +106,7 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> Result<Vec<Apex>, solve::Error> {
+    pub fn stems(&self) -> Result<Vec<Apex>, crate::Error> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::All),
             _ => Err(Error::NotPloy)?,
@@ -144,10 +140,10 @@ impl Apex {
     }
 
     /// Get tray of apex. Will solve to lowest rank if needed.
-    pub fn tray(&self) -> tray::Result {
+    pub fn tray(&self) -> Result<Tray, crate::Error> {
         match self {
             Self::Tray(bare) => Ok(bare.clone()),
-            Self::Leaf(leaf) => Ok(leaf.tray()),
+            Self::Leaf(leaf) => leaf.tray(),
             Self::Ploy(ploy) => ploy.main()?.tray(),
         }
     }
@@ -166,7 +162,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result<Apex, anyhow::Error> {
+    pub fn at(&self, target: usize) -> Result<Apex, crate::Error> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -190,7 +186,7 @@ impl Apex {
     }
 
     /// Read contents of apex.
-    pub fn read<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T {
+    pub fn read<T, F: FnOnce(tray::ResultRef) -> Result<T, crate::Error>>(&self, read: F) -> Result<T, crate::Error> {
         match self {
             Self::Tray(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read_tray(read),
@@ -204,36 +200,38 @@ impl Apex {
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, anyhow::Error> {
-        self.read(|tray| match tray {
-            Ok(value) => Ok(read(value)),
-            _ => Err(anyhow!("nothing to read")),
-        })
-    }
-    pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
-        self.read(|tray| match tray {
-            Ok(Tray::String(value)) => read(value),
-            _ => read(&"".into()),
-        })
-    }
-    pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
-        self.read(|tray| match tray {
-            Ok(Tray::Vu8(value)) => read(value),
-            _ => read(&vec![]),
-        })
-    }
-    pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
-        self.read(|tray| match tray {
-            Ok(Tray::Vu16(value)) => read(value),
-            _ => read(&vec![]),
-        })
-    }
-    pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
-        self.read(|tray| match tray {
-            Ok(Tray::Vf32(value)) => read(value),
-            _ => read(&vec![]),
-        })
-    }
+    // pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, crate::Error> {
+    //     self.read(|tray| match tray {
+    //         Ok(value) => Ok(read(value)),
+    //         _ => Err(anyhow!("nothing to read"))?,
+    //     })
+    // }
+
+    // pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
+    //     let wow = self.read(|tray| match tray {
+    //         Ok(Tray::String(value)) => Ok(read(value)),
+    //         _ => Ok(read(&"".into())),
+    //     });
+    //     wow.or_else(Ok(read(&"".into())))
+    // }
+    // pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
+    //     self.read(|tray| match tray {
+    //         Ok(Tray::Vu8(value)) => read(value),
+    //         _ => read(&vec![]),
+    //     })
+    // }
+    // pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
+    //     self.read(|tray| match tray {
+    //         Ok(Tray::Vu16(value)) => read(value),
+    //         _ => read(&vec![]),
+    //     })
+    // }
+    // pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
+    //     self.read(|tray| match tray {
+    //         Ok(Tray::Vf32(value)) => read(value),
+    //         _ => read(&vec![]),
+    //     })
+    // }
     pub fn string(&self) -> Result<String, anyhow::Error> {
         match self.tray() {
             Ok(Tray::String(value)) => Ok(value),
@@ -262,13 +260,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, anyhow::Error>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, anyhow::Error> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

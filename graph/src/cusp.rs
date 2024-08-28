@@ -74,8 +74,7 @@ impl<W> ToTray for Cusp<W>
 where
     W: ToTray,
 {
-    type Tray = W::Tray;
-    fn tray(&self) -> Self::Tray {
+    fn tray(&self) -> Tray {
         self.work.tray()
     }
 }

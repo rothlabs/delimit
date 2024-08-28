@@ -47,6 +47,7 @@ impl List {
         let last = self.items.len() - 1;
         let mut string = String::new();
         self.separator.read_string(|sep| {
+            // or default string!
             for i in 0..last {
                 self.items[i].read_string(|s| string += s);
                 string += sep;

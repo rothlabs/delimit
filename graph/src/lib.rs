@@ -56,8 +56,13 @@ mod write;
 mod ploy;
 mod map;
 
+/// Graph Error
 #[derive(Error, Debug)]
 pub enum Error {
+    #[error("read graph part failed ({0})")]
+    Read(String),
+    #[error("write graph part failed ({0})")]
+    Write(String),
     #[error(transparent)]
     Adapt(#[from] adapt::Error),
     #[error(transparent)]
@@ -88,11 +93,14 @@ pub trait SendSync {}
 impl<T> SendSync for T {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+fn read_part<P: ?Sized, O, F: FnOnce(Result<RwLockReadGuard<P>, Error>) -> Result<O, Error>>(
     part: &Arc<RwLock<P>>,
     read: F,
-) -> O {
-    read(part.read().expect(NO_POISON))
+) -> Result<O, Error> {
+    match part.read() {
+        Ok(part) => read(Ok(part)),
+        Err(err) => read(Err(Error::Read(err.to_string())))
+    }
 }
 
 #[cfg(feature = "oneThread")]
@@ -150,7 +158,7 @@ where
     T: 'static + IntoNode + Solve + Adapt + Debug + SendSync,
 {
     fn apex(self) -> Apex {
-        self.node().ploy().into()
+        self.node().ploy().expect("The freshly made node should not be poisoned.").into()
     }
 }
 
@@ -170,7 +178,8 @@ where
     T: 'static + Solve + Adapt + Debug + SendSync,
 {
     fn apex(&self) -> Apex {
-        self.ploy().into()
+        // TODO: remove unwrap
+        self.ploy().unwrap().into()
     }
 }
 
@@ -182,11 +191,11 @@ pub trait ReadMid {
 pub trait Read {
     type Item;
     /// Read the unit of the node.
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> T;
+    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error>;
 }
 
 pub trait ReadTray {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> T>(&self, read: F) -> T;
+    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error>;
 }
 
 pub trait ReadTrayMid {
@@ -194,10 +203,15 @@ pub trait ReadTrayMid {
 }
 
 pub trait ToTray {
-    type Tray;
     /// Clone the Tray out of the graph part.
     /// May cause stem apexes to generate the tray.
-    fn tray(&self) -> Self::Tray;
+    fn tray(&self) -> Tray;
+}
+
+pub trait TryTray {
+    /// Clone the Tray out of the graph part.
+    /// May cause stem apexes to generate the tray.
+    fn tray(&self) -> Result<Tray, Error>;
 }
 
 pub trait FromItem {

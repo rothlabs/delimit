@@ -1,6 +1,6 @@
 use crate::*;
 
-pub type Result<T> = std::result::Result<T, anyhow::Error>;
+// pub type Result<T> = std::result::Result<T, anyhow::Error>;
 
 /// The unit to be mutated and a apex back to create backed links.
 /// Packs are provided for write-to-unit closures.
@@ -18,7 +18,7 @@ pub struct Out<T> {
 pub trait WriteTray {
     type Item;
     /// Front-facing write-to-tray.
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> write::Result<T>;
+    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error>;
 }
 
 pub trait WriteTrayOut {
@@ -36,7 +36,7 @@ pub trait WriteTrayWork {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> write::Result<T>;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error>;
 }
 
 pub trait WriteUnitOut {
