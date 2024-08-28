@@ -15,7 +15,6 @@ fn write_and_read_serial_page() -> Result<(), graph::Error> {
     let bay = lake.tree()?;
     bay.hydrate();
     let page = bay.get("page")?;
-    // println!("page: {:?}", page);
     assert_eq!(page.string()?, html::default::PAGE);
     Ok(())
 }

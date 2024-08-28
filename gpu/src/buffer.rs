@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
+pub type Result = std::result::Result<Node<Buffer>, anyhow::Error>;
 
 #[derive(Debug)]
 pub struct Buffer {
@@ -22,7 +22,8 @@ impl Buffer {
 
 impl Buffer {
     pub fn link(gl: &WGLRC, target: u32, array: &Apex) -> Result {
-        let buffer = gl.create_buffer().ok_or("failed to create buffer")?;
+        // let buffer = gl.create_buffer().ok_or(graph::Error::Make("failed to create buffer".into()))?;
+        let buffer = gl.create_buffer().ok_or("failed to create buffer".into())?;
         let link = Node::make(|back| Self {
             gl: gl.clone(),
             buffer,

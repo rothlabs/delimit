@@ -1,7 +1,6 @@
 use super::*;
-use std::hash::Hash;
 
-#[derive(Default, Hash, Serialize, Deserialize, Debug)]
+#[derive(Default, Hash, Debug, Serialize, Deserialize)]
 pub struct List {
     plain_list: u8,
     items: Vec<Apex>,
@@ -80,7 +79,7 @@ impl Solve for List {
             Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            // Task::React => solve_ok(),
+            Task::React => solve_ok(),
             _ => no_solver(self, task),
         }
     }

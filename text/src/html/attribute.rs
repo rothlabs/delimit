@@ -1,4 +1,4 @@
-use crate::html::*;
+use super::*;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Attribute {

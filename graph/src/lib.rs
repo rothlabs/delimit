@@ -62,6 +62,8 @@ pub enum Error {
     Solve(#[from] solve::Error),
     #[error(transparent)]
     Apex(#[from] apex::Error),
+    #[error("failed to make node ({0})")]
+    Make(String),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]

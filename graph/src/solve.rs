@@ -59,6 +59,8 @@ pub enum Error {
     #[error(transparent)]
     Serde(#[from] serde_json::Error),
     #[error(transparent)]
+    Anyhow(#[from] anyhow::Error),
+    #[error(transparent)]
     Any(#[from] crate::AnyError),
 }
 
