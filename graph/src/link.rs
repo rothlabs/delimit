@@ -164,8 +164,8 @@ impl<E> Link<E>
 where
     E: TryTray,
 {
-    pub fn tray(&self) -> Result<Tray, Error> {
-        read_part(&self.edge, |edge| edge?.tray())
+    pub fn tray(&self) -> GraphResult<Tray> {
+        read_part(&self.edge, |edge| edge.tray())
     }
 }
 
@@ -196,9 +196,9 @@ where
     E: ToPloy,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy, Error> {
+    pub fn ploy(&self) -> GraphResult<Ploy> {
         read_part(&self.edge, |edge| Ok(Ploy {
-            edge: edge?.ploy(),
+            edge: edge.ploy(),
             path: self.path.clone(),
             rank: self.rank,
         }))
@@ -264,7 +264,6 @@ where
     type Item = E::Item;
     fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| {
-            let edge = edge?;
             let out = edge.read(read);
             edge.add_root(self.as_root(edge.id()));
             out
@@ -278,7 +277,6 @@ where
 {
     fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| {
-            let edge = edge?;
             let out = edge.read_tray(read);
             edge.add_root(self.as_root(edge.id()));
             out
@@ -292,7 +290,7 @@ where
 {
     type Item = E::Item;
     fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
-        read_part(&self.edge, |edge| edge?.write(write))
+        read_part(&self.edge, |edge| edge.write(write))
     }
 }
 
@@ -302,7 +300,7 @@ where
 {
     type Unit = E::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
-        read_part(&self.edge, |edge| edge?.write(write))
+        read_part(&self.edge, |edge| edge.write(write))
     }
 }
 
@@ -312,7 +310,6 @@ where
 {
     fn solve(&self, task: Task) -> solve::Result {
         read_part(&self.edge, |edge| {
-            let edge = edge?;
             let result = edge.solve(task)?;
             edge.add_root(self.as_root(edge.id()));
             Ok(result)
@@ -325,7 +322,7 @@ where
     E: AdaptMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        read_part(&self.edge, |edge| edge?.adapt(post))
+        read_part(&self.edge, |edge| edge.adapt(post))
     }
 }
 
@@ -333,7 +330,7 @@ impl TryBacked for Ploy {
     type Out = Ploy;
     fn backed(&self, back: &Back) -> Result<Self::Out, Error> {
         read_part(&self.edge, |edge| Ok(Self {
-            edge: edge?.backed_ploy(back),
+            edge: edge.backed_ploy(back),
             path: self.path.clone(),
             rank: self.rank,
         }))

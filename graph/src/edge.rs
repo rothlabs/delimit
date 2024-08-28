@@ -168,7 +168,7 @@ where
     N: ToTray,
 {
     fn tray(&self) -> Result<Tray, Error> {
-        read_part(&self.cusp, |cusp| Ok(cusp?.tray()))
+        read_part(&self.cusp, |cusp| Ok(cusp.tray()))
     }
 }
 
@@ -217,7 +217,7 @@ where
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.cusp, |cusp| read(cusp?.read()))
+        read_part(&self.cusp, |cusp| read(cusp.read()))
     }
 }
 
@@ -226,7 +226,7 @@ where
     N: ReadTrayMid,
 {
     fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.cusp, |cusp| read(cusp?.read_tray()))
+        read_part(&self.cusp, |cusp| read(cusp.read_tray()))
     }
 }
 

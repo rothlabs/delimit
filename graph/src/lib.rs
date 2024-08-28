@@ -95,13 +95,13 @@ pub trait SendSync {}
 impl<T> SendSync for T {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(Result<RwLockReadGuard<P>, Error>) -> Result<O, Error>>(
+fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> Result<O, Error>>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O, Error> {
     match part.read() {
-        Ok(part) => read(Ok(part)),
-        Err(err) => read(Err(Error::Read(err.to_string())))
+        Ok(part) => read(part),
+        Err(err) => Err(Error::Read(err.to_string()))
     }
 }
 
