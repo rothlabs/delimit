@@ -37,7 +37,7 @@ impl Buffer {
 impl Solve for Buffer {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.read_or_error(|array| 
+        self.array.read(|array| 
             unsafe {
                 match array {
                     Tray::Vf32(array) => 
@@ -53,7 +53,8 @@ impl Solve for Buffer {
                         WGLRC::STATIC_DRAW,
                     ),
                     _ => ()
-                }
+                };
+                Ok(())
             }
         )?;
         self.unbind();

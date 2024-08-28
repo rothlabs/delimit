@@ -36,7 +36,7 @@ impl ElementsBuilder {
 impl Solve for Elements {
     fn solve(&self, _: Task) -> solve::Result {
         self.program.solve(Task::Main)?;
-        self.program.read(|program| program.use_());
+        self.program.read(|program| Ok(program.use_()));
         self.buffer.solve(Task::Main)?;
         self.vao.solve(Task::Main)?;
         self.vao.read(|vao| {
@@ -48,6 +48,7 @@ impl Solve for Elements {
                 self.offset.i32(),
             );
             vao.unbind();
+            Ok(())
         });
         Ok(Gain::None)
     }

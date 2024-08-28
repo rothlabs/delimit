@@ -45,7 +45,7 @@ impl TextureBuilder {
 impl Solve for Texture {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.read_vu8(|unit| {
+        self.array.view().vu8(|unit| {
             let pixels = unsafe {
                 Uint8Array::view(unit.as_slice())
             };
@@ -63,7 +63,7 @@ impl Solve for Texture {
                 Some(&pixels), // pixels
             ) {
                 let memo = memo.as_string().unwrap_or("unknown error in texture".into());
-                return Err(anyhow!(memo));
+                return Err(anyhow!(memo))?;
             }
             Ok(())
         })?;

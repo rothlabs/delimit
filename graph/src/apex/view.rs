@@ -7,8 +7,14 @@ pub struct View<'a> {
 impl<'a> View<'a> {
     pub fn string<T, F: FnOnce(&String) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         self.apex.read(|tray| match tray {
-            Tray::String(string) => read(string),
+            Tray::String(value) => read(value),
             _ => Err(wrong_tray("String", tray.clone()))?
+        })
+    }
+    pub fn vu8<T, F: FnOnce(&Vec<u8>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+        self.apex.read(|tray| match tray {
+            Tray::Vu8(value) => read(value),
+            _ => Err(wrong_tray("Vec<u8>", tray.clone()))?
         })
     }
 }

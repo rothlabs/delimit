@@ -106,8 +106,12 @@ fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> GraphResult<O>>(
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: F) -> O {
-    read(part.borrow())
+fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> GraphResult<O>>(part: &Rc<RefCell<P>>, read: F) -> GraphResult<O> {
+    match part.try_borrow() {
+        Ok(part) => read(part),
+        Err(err) => Err(Error::Read(err.to_string()))
+    }
+    // read(part.borrow())
 }
 
 #[cfg(not(feature = "oneThread"))]

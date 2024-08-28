@@ -46,15 +46,14 @@ impl List {
         }
         let last = self.items.len() - 1;
         let mut string = String::new();
-        self.separator.view().string(|sep| {
-            // or default string!
+        self.separator.alt().string(|sep| {
             for i in 0..last {
-                self.items[i].view().string(|s| Ok(string += s))?;
+                self.items[i].alt().string(|s| Ok(string += s))?;
                 string += sep;
             }
             Ok(())
         })?;
-        self.items[last].view().string(|s| Ok(string += s))?;
+        self.items[last].alt().string(|s| Ok(string += s))?;
         string.leaf().apex().gain()
     }
     fn all(&self) -> solve::Result {

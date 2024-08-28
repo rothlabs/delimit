@@ -32,7 +32,7 @@ impl Shader {
 impl Solve for Shader {
     fn solve(&self, _: Task) -> solve::Result {
         self.source
-            .read_string(|src| self.gl.shader_source(&self.shader, src));
+            .view().string(|src| Ok(self.gl.shader_source(&self.shader, src)));
         self.gl.compile_shader(&self.shader);
         if self
             .gl

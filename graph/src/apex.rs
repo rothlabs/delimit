@@ -2,6 +2,7 @@ use super::*;
 use query::*;
 use thiserror::Error;
 use view::*;
+use sure::*;
 
 mod convert;
 mod edit;
@@ -9,6 +10,7 @@ mod hydrate;
 mod import;
 mod query;
 mod view;
+mod sure;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -207,8 +209,17 @@ impl Apex {
         }
     }
 
+    /// Make a View for reading Tray variants.
+    /// Use `Apex::alt` to get defaults instead of errors.
     pub fn view(&self) -> View {
         View {apex: self}
+    }
+
+    /// Make a View for reading Tray variants.
+    /// Default values will be provided as needed.
+    /// Use `Apex::view` to get errors instead of defaults.
+    pub fn alt(&self) -> Sure {
+        Sure {apex: self}
     }
 
     // pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> GraphResult<T> {

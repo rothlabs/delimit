@@ -52,6 +52,7 @@ impl Solve for VertexAttribute {
             );
             self.gl.enable_vertex_attrib_array(index);
             buffer.unbind();
+            Ok(())
         });
         Ok(Gain::None)
     }
