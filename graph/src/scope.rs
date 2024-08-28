@@ -46,13 +46,13 @@ impl Space {
         }
         space
     }
-    pub fn get(&self, keys: &[Key]) -> Result<Apex, anyhow::Error> {
+    pub fn get(&self, keys: &[Key]) -> GraphResult<Apex> {
         if keys.is_empty() {
             Ok(self.apex.clone())
         } else if let Some(stem) = self.map.get(&keys[0]) {
             stem.get(&keys[1..])
         } else {
-            Err(anyhow!("Entry not found."))
+            Err(anyhow!("Entry not found."))?
         }
     }
 }

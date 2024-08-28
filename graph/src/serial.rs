@@ -18,7 +18,7 @@ where
 
 pub trait DeserializeUnit: Debug + SendSync {
     /// Deserialize to `Apex` with concrete unit type.
-    fn deserialize(&self, serial_node: &SerialNode) -> Result<Apex, anyhow::Error>;
+    fn deserialize(&self, serial_node: &SerialNode) -> GraphResult<Apex>;
 }
 
 pub trait ToHash {

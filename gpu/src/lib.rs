@@ -65,7 +65,7 @@ impl Gpu {
             .buffer(buffer.clone())
             .clone()
     }
-    pub fn vao(&self, attributes: &Attributes) -> result::Result<VaoBuilder, Box<dyn Error>> {
+    pub fn vao(&self, attributes: &Attributes) -> result::Result<VaoBuilder, anyhow::Error> {
         let object = self
             .gl
             .create_vertex_array()
@@ -79,7 +79,7 @@ impl Gpu {
     pub fn texture( // <T: Copy>
         &self,
         array: impl Into<Apex>,
-    ) -> result::Result<TextureBuilder, anyhow::Error> { // Box<dyn Error>
+    ) -> result::Result<TextureBuilder, anyhow::Error> { 
         let texture = self.gl.create_texture().ok_or(anyhow!("failed to create texture"))?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
         self.default_texture_filters();        

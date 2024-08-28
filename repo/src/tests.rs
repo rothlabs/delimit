@@ -4,7 +4,7 @@ use std::{fs, io::BufReader};
 use text::*;
 
 #[test]
-fn write_and_read_serial_page() -> Result<(), anyhow::Error> {
+fn write_and_read_serial_page() -> GraphResult<()> {
     let serial = html::default_bay()?.lake()?.serial()?.string()?;
     let path = STORAGE.to_owned() + "/page.json";
     fs::write(&path, serial)?;

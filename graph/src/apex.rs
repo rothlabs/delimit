@@ -74,13 +74,6 @@ impl Apex {
         }
     }
 
-    // pub fn map(&self) -> Result<Map, solve::Error> {
-    //     match self {
-    //         Self::Ploy(ploy) => ploy.solve(Task::Map)?.map(),
-    //         _ => Err(Error::NotPloy)?,
-    //     }
-    // }
-
     /// Insert apex into new Lake.
     pub fn lake(&self) -> GraphResult<Lake> {
         let mut lake = Lake::new();
@@ -256,56 +249,3 @@ impl EngageApexes for Vec<Apex> {
         self.iter().map(|x| x.deal(deal)).collect()
     }
 }
-
-// Self::Tray(tray) => {
-//     let mut state = DefaultHasher::new();
-//     tray.hash(&mut state);
-//     state.finish().gain()
-// },
-
-
-    // pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> GraphResult<T> {
-    //     self.read(|tray| match tray {
-    //         Ok(value) => Ok(read(value)),
-    //         _ => Err(anyhow!("nothing to read"))?,
-    //     })
-    // }
-
-    // pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
-    //     let wow = self.read(|tray| match tray {
-    //         Ok(Tray::String(value)) => Ok(read(value)),
-    //         _ => Ok(read(&"".into())),
-    //     });
-    //     wow.or_else(Ok(read(&"".into())))
-    // }
-    // pub fn read_vu8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> T {
-    //     self.read(|tray| match tray {
-    //         Ok(Tray::Vu8(value)) => read(value),
-    //         _ => read(&vec![]),
-    //     })
-    // }
-    // pub fn read_vu16<T, F: FnOnce(&Vec<u16>) -> T>(&self, read: F) -> T {
-    //     self.read(|tray| match tray {
-    //         Ok(Tray::Vu16(value)) => read(value),
-    //         _ => read(&vec![]),
-    //     })
-    // }
-    // pub fn read_vf32<T, F: FnOnce(&Vec<f32>) -> T>(&self, read: F) -> T {
-    //     self.read(|tray| match tray {
-    //         Ok(Tray::Vf32(value)) => read(value),
-    //         _ => read(&vec![]),
-    //     })
-    // }
-    
-    // pub fn u32(&self) -> u32 {
-    //     match self.tray() {
-    //         Ok(Tray::U32(value)) => value,
-    //         _ => 0,
-    //     }
-    // }
-    // pub fn i32(&self) -> i32 {
-    //     match self.tray() {
-    //         Ok(Tray::I32(value)) => value,
-    //         _ => 0,
-    //     }
-    // }

@@ -19,6 +19,8 @@ impl Apex {
             _ => Err(apex::Error::NotPloy)?,
         }
     }
+}
+
     // pub fn write_string<T, F: FnOnce(&mut String) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
     //     if let Self::Leaf(leaf) = self {
     //         leaf.write(|tray| match tray {
@@ -29,4 +31,3 @@ impl Apex {
     //         Err(anyhow!("Not a leaf."))?
     //     }
     // }
-}

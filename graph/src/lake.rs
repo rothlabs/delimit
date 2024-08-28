@@ -74,13 +74,13 @@ impl Lake {
     }
 
     /// Get a root apex by Key.
-    fn root(&self, key: impl Into<Key>) -> Result<Apex, anyhow::Error> {
+    fn root(&self, key: impl Into<Key>) -> GraphResult<Apex> {
         let serial = self.roots.get(&key.into()).ok_or(anyhow!("Root node not found."))?;
         self.atlas.as_ref().ok_or(anyhow!("No atlas."))?.deserialize(serial)
     }
 
     /// Get a apex by hash.
-    fn get(&self, hash: u64) -> Result<Apex, anyhow::Error> {
+    fn get(&self, hash: u64) -> GraphResult<Apex> {
         let serial = self.nodes.get(&hash).ok_or(anyhow!("Node not found."))?;
         self.atlas.as_ref().ok_or(anyhow!("No atlas."))?.deserialize(serial)
     }
