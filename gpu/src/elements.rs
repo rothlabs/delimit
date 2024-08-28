@@ -18,6 +18,19 @@ pub struct Elements {
     offset: Apex,
 }
 
+impl Elements {
+    fn draw(&self, vao: &Vao) {
+        vao.bind();
+        self.gl.draw_elements_with_i32(
+            WGLRC::TRIANGLES,
+            self.count.i32().unwrap_or_default(),
+            WGLRC::UNSIGNED_SHORT,
+            self.offset.i32().unwrap_or_default(),
+        );
+        vao.unbind();
+    }
+}
+
 impl ElementsBuilder {
     pub fn link(&self) -> result::Result<Node<Elements>, ElementsBuilderError> {
         let mut elements = self.build()?;
@@ -36,20 +49,10 @@ impl ElementsBuilder {
 impl Solve for Elements {
     fn solve(&self, _: Task) -> solve::Result {
         self.program.solve(Task::Main)?;
-        self.program.read(|program| Ok(program.use_()));
+        self.program.read(|program| Ok(program?.use_()))?;
         self.buffer.solve(Task::Main)?;
         self.vao.solve(Task::Main)?;
-        self.vao.read(|vao| {
-            vao.bind();
-            self.gl.draw_elements_with_i32(
-                WGLRC::TRIANGLES,
-                self.count.i32(),
-                WGLRC::UNSIGNED_SHORT,
-                self.offset.i32(),
-            );
-            vao.unbind();
-            Ok(())
-        });
-        Ok(Gain::None)
+        self.vao.read(|vao| Ok(self.draw(vao?)))?;
+        solve_ok()
     }
 }

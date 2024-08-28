@@ -9,7 +9,7 @@ fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace).apex();
     text.view().string(|string| 
-        Ok(assert_eq!(string, "str, ace"))
+        Ok(assert_eq!(string?, "str, ace"))
     )//;
     // Ok(())
 }

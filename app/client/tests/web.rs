@@ -5,24 +5,25 @@
 extern crate wasm_bindgen_test;
 use std::error::Error;
 use wasm_bindgen_test::*;
+use graph::GraphResult;
 
 mod gpu;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
-fn make_vertex_shader() {
+fn make_vertex_shader() -> GraphResult<()> {
     gpu::make_vertex_shader()
 }
 
 #[wasm_bindgen_test]
-fn make_fragment_shader() {
-    gpu::make_fragment_shader();
+fn make_fragment_shader() -> GraphResult<()> {
+    gpu::make_fragment_shader()
 }
 
 #[wasm_bindgen_test]
-fn make_program() {
-    gpu::make_program();
+fn make_program() -> GraphResult<()> {
+    gpu::make_program()
 }
 
 #[wasm_bindgen_test]
@@ -32,8 +33,8 @@ fn make_buffer() -> Result<(), Box<dyn Error>> {
 }
 
 #[wasm_bindgen_test]
-fn make_index_buffer() {
-    gpu::make_index_buffer();
+fn make_index_buffer() -> GraphResult<()> {
+    gpu::make_index_buffer()
 }
 
 #[wasm_bindgen_test]

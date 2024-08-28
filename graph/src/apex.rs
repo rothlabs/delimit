@@ -2,7 +2,6 @@ use super::*;
 use query::*;
 use thiserror::Error;
 use view::*;
-use sure::*;
 
 mod convert;
 mod edit;
@@ -10,7 +9,6 @@ mod hydrate;
 mod import;
 mod query;
 mod view;
-mod sure;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -192,15 +190,20 @@ impl Apex {
     }
 
     /// Read tray of apex.
-    pub fn read<T, F: FnOnce(&Tray) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+    pub fn read<T, F: FnOnce(GraphResult<&Tray>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         match self {
-            Self::Tray(bare) => read(bare),
+            Self::Tray(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
         }
     }
 
-    /// Clone of String from Apex Tray.
+    /// Make a View for reading Tray variants.
+    pub fn view(&self) -> View {
+        View {apex: self}
+    }
+
+    /// Clone of String from Apex.
     pub fn string(&self) -> GraphResult<String> {
         let tray = self.tray()?;
         match tray {
@@ -209,18 +212,57 @@ impl Apex {
         }
     }
 
-    /// Make a View for reading Tray variants.
-    /// Use `Apex::alt` to get defaults instead of errors.
-    pub fn view(&self) -> View {
-        View {apex: self}
+    /// u32 from Apex.
+    pub fn u32(&self) -> GraphResult<u32> {
+        let tray = self.tray()?;
+        match tray {
+            Tray::U32(value) => Ok(value),
+            _ => Err(wrong_tray("u32", tray))?
+        }
     }
 
-    /// Make a View for reading Tray variants.
-    /// Default values will be provided as needed.
-    /// Use `Apex::view` to get errors instead of defaults.
-    pub fn alt(&self) -> Sure {
-        Sure {apex: self}
+    /// i32 from Apex.
+    pub fn i32(&self) -> GraphResult<i32> {
+        let tray = self.tray()?;
+        match tray {
+            Tray::I32(value) => Ok(value),
+            _ => Err(wrong_tray("i32", tray))?
+        }
     }
+}
+
+pub fn wrong_tray(expected: &str, found: Tray) -> Error {
+    Error::WrongTray { expected: expected.into(), found }
+}
+
+impl Default for Apex {
+    fn default() -> Self {
+        Self::Tray(Tray::None)
+    }
+}
+
+pub trait EngageApexes {
+    /// Solve down to the given graph rank.
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
+    /// Replace stems according to the Trade deal.
+    fn deal(&self, deal: &dyn Trade) -> Self;
+}
+
+impl EngageApexes for Vec<Apex> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
+        self.iter().map(|x| x.at(rank)).collect()
+    }
+    fn deal(&self, deal: &dyn Trade) -> Self {
+        self.iter().map(|x| x.deal(deal)).collect()
+    }
+}
+
+// Self::Tray(tray) => {
+//     let mut state = DefaultHasher::new();
+//     tray.hash(&mut state);
+//     state.finish().gain()
+// },
+
 
     // pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> GraphResult<T> {
     //     self.read(|tray| match tray {
@@ -267,36 +309,3 @@ impl Apex {
     //         _ => 0,
     //     }
     // }
-}
-
-pub fn wrong_tray(expected: &str, found: Tray) -> Error {
-    Error::WrongTray { expected: expected.into(), found }
-}
-
-impl Default for Apex {
-    fn default() -> Self {
-        Self::Tray(Tray::None)
-    }
-}
-
-pub trait EngageApexes {
-    /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
-    /// Replace stems according to the Trade deal.
-    fn deal(&self, deal: &dyn Trade) -> Self;
-}
-
-impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
-        self.iter().map(|x| x.at(rank)).collect()
-    }
-    fn deal(&self, deal: &dyn Trade) -> Self {
-        self.iter().map(|x| x.deal(deal)).collect()
-    }
-}
-
-// Self::Tray(tray) => {
-//     let mut state = DefaultHasher::new();
-//     tray.hash(&mut state);
-//     state.finish().gain()
-// },

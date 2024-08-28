@@ -39,20 +39,20 @@ impl Solve for Buffer {
         self.bind();
         self.array.read(|array| 
             unsafe {
-                match array {
-                    Tray::Vf32(array) => 
-                    self.gl.buffer_data_with_array_buffer_view(
-                        self.target,
-                        &Float32Array::view(array.as_slice()),
-                        WGLRC::STATIC_DRAW,
-                    ),
+                match array? {
                     Tray::Vu16(array) => 
                     self.gl.buffer_data_with_array_buffer_view(
                         self.target,
                         &Uint16Array::view(array.as_slice()),
                         WGLRC::STATIC_DRAW,
                     ),
-                    _ => ()
+                    Tray::Vf32(array) => 
+                    self.gl.buffer_data_with_array_buffer_view(
+                        self.target,
+                        &Float32Array::view(array.as_slice()),
+                        WGLRC::STATIC_DRAW,
+                    ),
+                    _ => () //return Err(wrong_tray("Vu16", array.clone()))?
                 };
                 Ok(())
             }

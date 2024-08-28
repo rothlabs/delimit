@@ -15,8 +15,8 @@ pub struct Program {
 impl Program {
     pub fn link(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
         let program = gl.create_program().ok_or(anyhow!("failed to create program"))?;
-        vertex.read(|unit| Ok(gl.attach_shader(&program, &unit.shader)));
-        fragment.read(|unit| Ok(gl.attach_shader(&program, &unit.shader)));
+        vertex.read(|unit| Ok(gl.attach_shader(&program, &unit?.shader)))?;
+        fragment.read(|unit| Ok(gl.attach_shader(&program, &unit?.shader)))?;
         let link = Node::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),

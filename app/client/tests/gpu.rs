@@ -6,19 +6,20 @@ use std::error::Error;
 
 // mod gpu_setup;
 
-pub fn make_canvas() -> Gpu {
+pub fn make_canvas() -> GraphResult<Gpu> {
     let canvas = Canvas::link();
-    canvas.read(|unit| unit.gpu())
+    canvas.read(|unit| Ok(unit?.gpu()))
 }
 
-pub fn make_canvas_on_body() -> Gpu {
+pub fn make_canvas_on_body() -> GraphResult<Gpu> {
     let canvas = Canvas::link();
     let gpu = canvas.read(|unit| {
+        let unit = unit?;
         unit.add_to_body();
-        unit.gpu()
-    });
+        Ok(unit.gpu())
+    })?;
     canvas.solve(Task::Main).ok();
-    gpu
+    Ok(gpu)
 }
 
 pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf) {
@@ -119,41 +120,45 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>, Box<dyn
 ////////////////////////////////////// Tests
 //////////////////////////////////////
 
-pub fn make_vertex_shader() {
-    let gpu = make_canvas();
+pub fn make_vertex_shader() -> GraphResult<()> {
+    let gpu = make_canvas()?;
     if let Err(memo) = gpu.vertex_shader(shader::basic::VERTEX) {
         panic!("gpu error: {memo}");
     }
+    Ok(())
 }
 
-pub fn make_fragment_shader() {
-    let gpu = make_canvas();
+pub fn make_fragment_shader() -> GraphResult<()> {
+    let gpu = make_canvas()?;
     if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT_RED) {
         panic!("gpu error: {memo}");
     }
+    Ok(())
 }
 
-pub fn make_program() {
-    let gpu = make_canvas();
+pub fn make_program() -> GraphResult<()> {
+    let gpu = make_canvas()?;
     make_basic_program(&gpu);
+    Ok(())
 }
 
 pub fn make_buffer() -> buffer::Result { // f32
-    let gpu = make_canvas();
+    let gpu = make_canvas()?;
     make_basic_buffer(&gpu)
 }
 
-pub fn make_index_buffer() {
-    let gpu = make_canvas();
+pub fn make_index_buffer() -> GraphResult<()> {
+    let gpu = make_canvas()?;
     let array: Vec<u16> = vec![0, 1, 2];
     let buffer = gpu.index_buffer(array);
     if let Err(memo) = buffer {
         panic!("gpu error: {memo}");
     }
+    Ok(())
 }
 
 pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas();
+    let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
         .index(0_u32)
@@ -165,7 +170,7 @@ pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas();
+    let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer).size(3_i32).link()?;
     gpu.vao(&vec![att])?;
@@ -173,18 +178,19 @@ pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn draw_elements() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas_on_body();
+    let gpu = make_canvas_on_body()?;
     draw_elements_basic(&gpu)?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
 pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas_on_body();
+    let gpu = make_canvas_on_body()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     shader_source.write(|tray| {
         if let Tray::String(source) = tray {
-            *source = shader::basic::FRAGMENT_GREEN.to_owned()
+            *source = shader::basic::FRAGMENT_GREEN.to_owned();
+            Ok(())
         } else {
             panic!("not a string")
         }
@@ -195,11 +201,12 @@ pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
 pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas();
+    let gpu = make_canvas()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     if let Err(_) = shader_source.write(|tray| 
         if let Tray::String(string) = tray {
-            *string = "bad shader".to_owned()
+            *string = "bad shader".to_owned();
+            Ok(())
         } else {
             panic!("not a string")
         }
@@ -211,7 +218,7 @@ pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn draw_elements_textured() -> Result<(), Box<dyn Error>> {
-    let gpu = make_canvas_on_body();
+    let gpu = make_canvas_on_body()?;
     draw_elements_textured_basic(&gpu)?;
     Ok(())
 }

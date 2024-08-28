@@ -36,24 +36,28 @@ impl VertexAttributeBuilder {
     }
 }
 
+impl VertexAttribute {
+    fn set(&self, buffer: &Buffer, index: u32) -> GraphResult<()> {
+        buffer.bind();
+        self.gl.vertex_attrib_pointer_with_i32(
+            index,
+            self.size.i32().unwrap_or_default(),
+            WGLRC::FLOAT,
+            false,
+            self.stride.i32().unwrap_or_default(),
+            self.offset.i32().unwrap_or_default(),
+        );
+        self.gl.enable_vertex_attrib_array(index);
+        buffer.unbind();
+        Ok(())
+    }
+}
+
 impl Solve for VertexAttribute {
     fn solve(&self, _: Task) -> solve::Result {
-        let index = self.index.u32();
+        let index = self.index.u32().unwrap_or_default();
         self.buffer.solve(Task::Main)?;
-        self.buffer.read(|buffer| {
-            buffer.bind();
-            self.gl.vertex_attrib_pointer_with_i32(
-                index,
-                self.size.i32(),
-                WGLRC::FLOAT,
-                false,
-                self.stride.i32(),
-                self.offset.i32(),
-            );
-            self.gl.enable_vertex_attrib_array(index);
-            buffer.unbind();
-            Ok(())
-        });
+        self.buffer.read(|buffer| self.set(buffer?, index))?;
         Ok(Gain::None)
     }
 }

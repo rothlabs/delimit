@@ -75,7 +75,7 @@ impl Root {
     pub fn rebut(&self) -> Ring {
         if let Some(edge) = self.edge.upgrade() {
             // TODO: find way to carry error up through the end of the update.
-            match read_part(&edge, |edge| Ok(edge.rebut())) {
+            match read_part(&edge, |edge| Ok(edge?.rebut())) {
                 Ok(ring) => ring,
                 Err(_) => Ring::new()
             }
@@ -85,7 +85,7 @@ impl Root {
     }
     pub fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.react(id))
+            read_part(&edge, |edge| edge?.react(id))
         } else {
             Ok(())
         }

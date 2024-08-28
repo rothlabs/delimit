@@ -47,7 +47,7 @@ impl Solve for Texture {
         self.bind();
         self.array.view().vu8(|unit| {
             let pixels = unsafe {
-                Uint8Array::view(unit.as_slice())
+                Uint8Array::view(unit?.as_slice())
             };
             // TODO: use PIXEL_UNPACK_ buffer bind and following pbo offset:
             // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
@@ -55,8 +55,8 @@ impl Solve for Texture {
                 WGLRC::TEXTURE_2D, // target
                 0, // level, 
                 WGLRC::RGB as i32, // internalformat, 
-                self.width.i32(), // width 
-                self.height.i32(), // height
+                self.width.i32().unwrap_or_default(), // width 
+                self.height.i32().unwrap_or_default(), // height
                 0, // border, 
                 WGLRC::RGB, // format
                 WGLRC::UNSIGNED_BYTE, // type_

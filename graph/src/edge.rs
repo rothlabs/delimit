@@ -207,8 +207,12 @@ where
     N: ToItem,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.cusp, |cusp| read(cusp.item()))
+    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+        // read_part(&self.cusp, |cusp| read(Ok(cusp?.item())))
+        read_part(&self.cusp, |cusp| match cusp {
+            Ok(cusp) => read(Ok(cusp.item())),
+            Err(err) => read(Err(err)),
+        })
     }
 }
 
