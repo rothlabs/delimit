@@ -19,7 +19,7 @@ impl Apex {
             _ => Err(apex::Error::NotPloy)?,
         }
     }
-    // pub fn write_string<T, F: FnOnce(&mut String) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+    // pub fn write_string<T, F: FnOnce(&mut String) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
     //     if let Self::Leaf(leaf) = self {
     //         leaf.write(|tray| match tray {
     //             Tray::String(string) => write(string),

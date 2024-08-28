@@ -40,7 +40,7 @@ pub enum Task<'a> {
 pub enum Error {
     #[error("no handler (Task: {task}, Unit: {unit})")]
     NoHandler{task: String, unit: String},
-    #[error("wrong gain (expected {expected:?}, found {found:?})")]
+    #[error("wrong gain (expected: {expected:?}, found: {found:?})")]
     WrongGain{expected: String, found: String},
     #[error("index out of bounds: {0}")]
     IndexOutOfBounds(usize),

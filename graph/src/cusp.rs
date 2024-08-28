@@ -131,7 +131,7 @@ impl<W> ReadTrayMid for Cusp<W>
 where
     W: ReadTrayMid,
 {
-    fn read_tray(&self) -> tray::ResultRef {
+    fn read_tray(&self) -> tray::RefResult {
         self.work.read_tray()
     }
 }

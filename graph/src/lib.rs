@@ -33,7 +33,7 @@ use std::{
 use std::{
     collections::{hash_map::Iter, HashMap},
     fmt::Debug,
-    hash::{DefaultHasher, Hash, Hasher},
+    hash::{DefaultHasher, Hash, Hasher}, result,
 };
 
 pub mod adapt;
@@ -55,6 +55,8 @@ mod tray;
 mod write;
 mod ploy;
 mod map;
+
+pub type GraphResult<T> = result::Result<T, Error>;
 
 /// Graph Error
 #[derive(Error, Debug)]
@@ -191,15 +193,15 @@ pub trait ReadMid {
 pub trait Read {
     type Item;
     /// Read the unit of the node.
-    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error>;
+    fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T>;
 }
 
 pub trait ReadTray {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error>;
+    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T>;
 }
 
 pub trait ReadTrayMid {
-    fn read_tray(&self) -> tray::ResultRef;
+    fn read_tray(&self) -> tray::RefResult;
 }
 
 pub trait ToTray {

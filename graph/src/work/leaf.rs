@@ -50,7 +50,7 @@ impl ReadMid for Leaf {
 }
 
 impl ReadTrayMid for Leaf {
-    fn read_tray(&self) -> tray::ResultRef {
+    fn read_tray(&self) -> tray::RefResult {
         Ok(&self.tray)
     }
 }

@@ -18,7 +18,7 @@ pub struct Out<T> {
 pub trait WriteTray {
     type Item;
     /// Front-facing write-to-tray.
-    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error>;
+    fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T>;
 }
 
 pub trait WriteTrayOut {
@@ -36,7 +36,7 @@ pub trait WriteTrayWork {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error>;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T>;
 }
 
 pub trait WriteUnitOut {

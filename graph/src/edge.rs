@@ -186,7 +186,7 @@ where
     N: WriteTrayOut,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write));
         for root in &roots {
@@ -201,7 +201,7 @@ where
     N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write));
         for root in &roots {
@@ -216,7 +216,7 @@ where
     N: ReadMid,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+    fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.cusp, |cusp| read(cusp?.read()))
     }
 }
@@ -225,7 +225,7 @@ impl<N> ReadTray for Edge<N>
 where
     N: ReadTrayMid,
 {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.cusp, |cusp| read(cusp?.read_tray()))
     }
 }

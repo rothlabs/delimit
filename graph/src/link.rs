@@ -262,7 +262,7 @@ where
     E: 'static + Read + Update + AddRoot,
 {
     type Item = E::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+    fn read<T, F: FnOnce(&Self::Item) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| {
             let edge = edge?;
             let out = edge.read(read);
@@ -276,7 +276,7 @@ impl<E> ReadTray for Link<E>
 where
     E: 'static + ReadTray + Update + AddRoot,
 {
-    fn read_tray<T, F: FnOnce(tray::ResultRef) -> Result<T, Error>>(&self, read: F) -> Result<T, Error> {
+    fn read_tray<T, F: FnOnce(tray::RefResult) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| {
             let edge = edge?;
             let out = edge.read_tray(read);
@@ -291,7 +291,7 @@ where
     E: WriteTray,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
@@ -301,7 +301,7 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> Result<T, Error>>(&self, write: F) -> Result<T, Error> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
