@@ -40,7 +40,7 @@ impl Adapt for Bay {
             Post::Trade(deal) => self.trade(deal),
             Post::Insert(key, apex) => self.insert(key, apex),
             Post::Extend(apexes) => self.extend(apexes),
-            _ => no_adapter(post),
+            _ => no_adapter(self, post),
         }
     }
 }

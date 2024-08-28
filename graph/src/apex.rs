@@ -35,10 +35,10 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result<Apex, crate::Error> {
+    pub fn main(&self) -> Result<Apex, crate::AnyError> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
-            _ => Err("not ploy")?,
+            _ => Err(Error::NotPloy)?,
         }
     }
 
@@ -165,7 +165,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result<Apex, crate::Error> {
+    pub fn at(&self, target: usize) -> Result<Apex, crate::AnyError> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -203,7 +203,7 @@ impl Apex {
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, crate::Error> {
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, crate::AnyError> {
         self.read(|tray| match tray {
             Ok(value) => Ok(read(value)),
             _ => Err("nothing to read")?,
@@ -233,7 +233,7 @@ impl Apex {
             _ => read(&vec![]),
         })
     }
-    pub fn string(&self) -> Result<String, crate::Error> {
+    pub fn string(&self) -> Result<String, crate::AnyError> {
         match self.tray() {
             Ok(Tray::String(value)) => Ok(value),
             _ => Err("not a string")?,
@@ -261,13 +261,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::AnyError>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::AnyError> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

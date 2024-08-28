@@ -14,15 +14,9 @@ pub enum Gain {
     U64(u64),
 }
 
-// pub fn wrong_gain(expected: &str, found: Gain) -> solve::Error {
-//     Error::WrongGain { expected: expected.into(), found: found.into() }
-//     //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
-// }
-
 impl Gain {
     fn expected(&self, expected: &str) -> solve::Error {
         Error::WrongGain { expected: expected.into(), found: format!("{:?}", self) }
-        //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
     }
 
     /// Move Gain into Ok(...)

@@ -13,6 +13,7 @@ pub use react::{
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{empty_apexes, no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
+use thiserror::Error;
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -53,12 +54,28 @@ mod snap;
 mod tray;
 mod write;
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error(transparent)]
+    Adapt(#[from] adapt::Error),
+    #[error(transparent)]
+    Solve(#[from] solve::Error),
+    #[error(transparent)]
+    Apex(#[from] apex::Error),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error(transparent)]
+    SerdeJson(#[from] serde_json::Error),
+    #[error(transparent)]
+    Any(#[from] AnyError),
+}
+
 #[cfg(not(feature = "oneThread"))]
 /// Graph Error
-pub type Error = Box<dyn error::Error + Send + Sync>;
+pub type AnyError = Box<dyn error::Error + Send + Sync>;
 #[cfg(feature = "oneThread")]
 /// Graph Error
-pub type Error = Box<dyn error::Error>;
+pub type AnyError = Box<dyn error::Error>;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "The lock should not be poisoned.";

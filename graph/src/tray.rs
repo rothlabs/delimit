@@ -4,7 +4,7 @@ use std::hash::{Hash, Hasher};
 use std::result;
 
 pub type Result = result::Result<Tray, Error>;
-pub type ResultRef<'a> = result::Result<&'a Tray, Error>;
+pub type ResultRef<'a> = result::Result<&'a Tray, AnyError>;
 
 /// Payload value of graph parts.
 /// Used as `Leaf` payload and field values of `Node` and `Ploy`.

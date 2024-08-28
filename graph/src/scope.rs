@@ -45,7 +45,7 @@ impl Space {
         }
         space
     }
-    pub fn get(&self, keys: &[Key]) -> Result<Apex, Error> {
+    pub fn get(&self, keys: &[Key]) -> Result<Apex, crate::AnyError> {
         if keys.is_empty() {
             Ok(self.apex.clone())
         } else if let Some(stem) = self.map.get(&keys[0]) {

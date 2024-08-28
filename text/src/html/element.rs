@@ -69,7 +69,7 @@ impl Adapt for Element {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::SetAt(index, apex) => self.set_at(index, apex),
-            _ => no_adapter(post),
+            _ => no_adapter(self, post),
         }
     }
 }

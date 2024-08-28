@@ -48,28 +48,26 @@ pub enum Task<'a> {
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("No solver. Task: {task}, Unit: {unit}")]
-    NoSolver{task: String, unit: String},
+    #[error("no handler (Task: {task}, Unit: {unit})")]
+    NoHandler{task: String, unit: String},
     #[error("wrong gain (expected {expected:?}, found {found:?})")]
     WrongGain{expected: String, found: String},
     #[error("index out of bounds: {0}")]
     IndexOutOfBounds(usize),
-    #[error("apex error")]
+    #[error(transparent)]
     Apex(#[from] apex::Error),
-    #[error("graph error")]
-    Graph(#[from] crate::Error),
-    #[error("serde error")]
+    #[error(transparent)]
     Serde(#[from] serde_json::Error),
+    #[error(transparent)]
+    Any(#[from] crate::AnyError),
 }
 
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
-    Err(Error::NoSolver{unit: format!("{:?}",unit), task: format!("{:?}",task)})
-    //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
+    Err(Error::NoHandler{task: format!("{:?}", task), unit: format!("{:?}", unit)})
 }
 
 // pub fn wrong_gain(expected: &str, found: &str) -> solve::Result {
 //     Err(Error::WrongGain { expected: expected.into(), found: found.into() })
-//     //Err(format!("No solver. Task: {:?} Unit: {:?}", task, unit))?
 // }
 
 // pub fn no_adapter(post: Post) -> adapt::Result {

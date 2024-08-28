@@ -70,7 +70,7 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> Result<Apex, Error> {
+    pub fn main(&self) -> Result<Apex, crate::AnyError> {
         match self.solve(Task::Main)? {
             Gain::Apex(apex) => Ok(apex),
             _ => Err("Wrong return type for Task::Main.")?,

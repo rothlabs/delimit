@@ -72,7 +72,7 @@ impl Lake {
     }
 
     /// Get a root apex by Key.
-    fn root(&self, key: impl Into<Key>) -> Result<Apex, Error> {
+    fn root(&self, key: impl Into<Key>) -> Result<Apex, crate::AnyError> {
         let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
         self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
         //let link = Node::make2(unit, &serial.imports);//.ploy().into()
@@ -80,7 +80,7 @@ impl Lake {
     }
 
     /// Get a apex by hash.
-    fn get(&self, hash: u64) -> Result<Apex, Error> {
+    fn get(&self, hash: u64) -> Result<Apex, crate::AnyError> {
         let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
         self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
         // Ok(link.apex())

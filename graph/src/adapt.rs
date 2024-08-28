@@ -35,17 +35,16 @@ pub enum Memo {
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("no adapter")]
-    NoAdapter,
-    #[error("solve error")]
+    #[error("no handler (Post: {post}, Unit: {unit})")]
+    NoHandler{post: String, unit: String},
+    #[error(transparent)]
     Solve(#[from] solve::Error),
-    #[error("apex error")]
+    #[error(transparent)]
     Apex(#[from] apex::Error),
-    #[error("graph error")]
-    Graph(#[from] crate::Error)
+    #[error(transparent)]
+    Any(#[from] crate::AnyError)
 }
 
-pub fn no_adapter(post: Post) -> adapt::Result {
-    Err(Error::NoAdapter)
-    //Err(format!("No adapter: {:?}", post))?
+pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
+    Err(Error::NoHandler{post: format!("{:?}", post), unit: format!("{:?}", unit)})
 }
