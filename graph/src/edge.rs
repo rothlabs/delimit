@@ -76,7 +76,7 @@ where
 
 impl<N> FromSnap for Edge<N>
 where
-    N: 'static + Default + FromSnapMid + UpdateMid,
+    N: 'static + Default + WithSnap + UpdateMid,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
@@ -86,7 +86,7 @@ where
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.from_snap(snap, &back));
+        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back));
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -96,7 +96,7 @@ where
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.from_snap(snap, &back));
+        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back));
         Self { cusp, back: None }
     }
 }
@@ -192,7 +192,10 @@ where
     N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(
+        &self,
+        write: F,
+    ) -> GraphResult<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write));
         for root in &roots {
@@ -207,7 +210,10 @@ where
     N: ToItem,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(
+        &self,
+        read: F,
+    ) -> GraphResult<T> {
         // read_part(&self.cusp, |cusp| read(Ok(cusp?.item())))
         read_part(&self.cusp, |cusp| match cusp {
             Ok(cusp) => read(Ok(cusp.item())),

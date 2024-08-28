@@ -21,13 +21,13 @@ impl Apex {
     }
 }
 
-    // pub fn write_string<T, F: FnOnce(&mut String) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
-    //     if let Self::Leaf(leaf) = self {
-    //         leaf.write(|tray| match tray {
-    //             Tray::String(string) => write(string),
-    //             _ => write(&mut "".into()),
-    //         })
-    //     } else {
-    //         Err(anyhow!("Not a leaf."))?
-    //     }
-    // }
+// pub fn write_string<T, F: FnOnce(&mut String) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+//     if let Self::Leaf(leaf) = self {
+//         leaf.write(|tray| match tray {
+//             Tray::String(string) => write(string),
+//             _ => write(&mut "".into()),
+//         })
+//     } else {
+//         Err(anyhow!("Not a leaf."))?
+//     }
+// }

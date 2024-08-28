@@ -14,9 +14,17 @@ pub struct Program {
 
 impl Program {
     pub fn link(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
-        let program = gl.create_program().ok_or(anyhow!("failed to create program"))?;
-        vertex.read(|unit| Ok(gl.attach_shader(&program, &unit?.shader)))?;
-        fragment.read(|unit| Ok(gl.attach_shader(&program, &unit?.shader)))?;
+        let program = gl
+            .create_program()
+            .ok_or(anyhow!("failed to create program"))?;
+        vertex.read(|unit| {
+            gl.attach_shader(&program, &unit?.shader);
+            Ok(())
+        })?;
+        fragment.read(|unit| {
+            gl.attach_shader(&program, &unit?.shader);
+            Ok(())
+        })?;
         let link = Node::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),
@@ -45,8 +53,9 @@ impl Solve for Program {
             solve_ok()
         } else {
             let memo = self
-            .gl
-            .get_program_info_log(&self.program).unwrap_or("failed to get program info log".into());
+                .gl
+                .get_program_info_log(&self.program)
+                .unwrap_or("failed to get program info log".into());
             Err(anyhow!(memo))?
         }
     }

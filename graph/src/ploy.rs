@@ -60,6 +60,6 @@ impl React for Box<dyn Engage> {
 }
 
 // pub trait ToPipedPloy {
-//     /// Copy with unit type erased.  
+//     /// Copy with unit type erased.
 //     fn ploy(&self) -> PloyPointer;
 // }

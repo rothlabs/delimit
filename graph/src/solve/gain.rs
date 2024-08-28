@@ -14,7 +14,10 @@ pub enum Gain {
 
 impl Gain {
     fn expected(&self, expected: &str) -> solve::Error {
-        Error::WrongGain { expected: expected.into(), found: format!("{:?}", self) }
+        Error::WrongGain {
+            expected: expected.into(),
+            found: format!("{:?}", self),
+        }
     }
 
     /// Move Gain into Ok(...)
@@ -25,7 +28,7 @@ impl Gain {
     pub fn apex(self) -> GraphResult<Apex> {
         match self {
             Self::Apex(apex) => Ok(apex),
-            _ => Err(self.expected("Apex"))?
+            _ => Err(self.expected("Apex"))?,
         }
     }
     /// Get `Vec<Apex>` from Gain.

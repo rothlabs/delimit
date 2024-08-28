@@ -17,7 +17,7 @@ pub enum Error {
     #[error("not ploy or leaf")]
     NotNode,
     #[error("wrong tray (expected: {expected:?}, found: {found:?})")]
-    WrongTray{expected: String, found: Tray},
+    WrongTray { expected: String, found: Tray },
 }
 
 /// Primary graph part.
@@ -183,7 +183,10 @@ impl Apex {
     }
 
     /// Read tray of apex.
-    pub fn read<T, F: FnOnce(GraphResult<&Tray>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
+    pub fn read<T, F: FnOnce(GraphResult<&Tray>) -> GraphResult<T>>(
+        &self,
+        read: F,
+    ) -> GraphResult<T> {
         match self {
             Self::Tray(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read(read),
@@ -193,7 +196,7 @@ impl Apex {
 
     /// Make a View for reading Tray variants.
     pub fn view(&self) -> View {
-        View {apex: self}
+        View { apex: self }
     }
 
     /// Clone of String from Apex.
@@ -201,7 +204,7 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::String(value) => Ok(value),
-            _ => Err(wrong_tray("String", tray))?
+            _ => Err(wrong_tray("String", tray))?,
         }
     }
 
@@ -210,7 +213,7 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::U32(value) => Ok(value),
-            _ => Err(wrong_tray("u32", tray))?
+            _ => Err(wrong_tray("u32", tray))?,
         }
     }
 
@@ -219,13 +222,16 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::I32(value) => Ok(value),
-            _ => Err(wrong_tray("i32", tray))?
+            _ => Err(wrong_tray("i32", tray))?,
         }
     }
 }
 
 pub fn wrong_tray(expected: &str, found: Tray) -> Error {
-    Error::WrongTray { expected: expected.into(), found }
+    Error::WrongTray {
+        expected: expected.into(),
+        found,
+    }
 }
 
 impl Default for Apex {

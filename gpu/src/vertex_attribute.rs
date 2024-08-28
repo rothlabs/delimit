@@ -22,7 +22,7 @@ pub struct VertexAttribute {
     offset: Apex, // i32
 }
 
-impl VertexAttributeBuilder { 
+impl VertexAttributeBuilder {
     pub fn link(&self) -> Result {
         let mut attrib = self.build()?;
         Ok(Node::make(|back| {

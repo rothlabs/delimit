@@ -77,7 +77,7 @@ impl Root {
             // TODO: find way to carry error up through the end of the update.
             match read_part(&edge, |edge| Ok(edge?.rebut())) {
                 Ok(ring) => ring,
-                Err(_) => Ring::new()
+                Err(_) => Ring::new(),
             }
         } else {
             Ring::new()

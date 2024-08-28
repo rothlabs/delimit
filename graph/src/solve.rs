@@ -39,9 +39,9 @@ pub enum Task<'a> {
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("no handler (Task: {task}, Unit: {unit})")]
-    NoHandler{task: String, unit: String},
+    NoHandler { task: String, unit: String },
     #[error("wrong gain (expected: {expected:?}, found: {found:?})")]
-    WrongGain{expected: String, found: String},
+    WrongGain { expected: String, found: String },
     #[error("index out of bounds: {0}")]
     IndexOutOfBounds(usize),
     #[error(transparent)]
@@ -53,7 +53,10 @@ pub enum Error {
 }
 
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
-    Err(Error::NoHandler{task: format!("{:?}", task), unit: format!("{:?}", unit)})?
+    Err(Error::NoHandler {
+        task: format!("{:?}", task),
+        unit: format!("{:?}", unit),
+    })?
 }
 
 // pub fn wrong_gain(expected: &str, found: &str) -> solve::Result {

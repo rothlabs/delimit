@@ -1,8 +1,8 @@
 pub use post::Post;
 
-use thiserror::Error;
 use super::*;
 use std::result;
+use thiserror::Error;
 
 pub mod post;
 
@@ -36,15 +36,18 @@ pub fn adapt_ok() -> adapt::Result {
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("no handler (Post: {post}, Unit: {unit})")]
-    NoHandler{post: String, unit: String},
+    NoHandler { post: String, unit: String },
     #[error(transparent)]
     Solve(#[from] solve::Error),
     #[error(transparent)]
     Apex(#[from] apex::Error),
     #[error(transparent)]
-    Any(#[from] anyhow::Error)
+    Any(#[from] anyhow::Error),
 }
 
 pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
-    Err(Error::NoHandler{post: format!("{:?}", post), unit: format!("{:?}", unit)})?
+    Err(Error::NoHandler {
+        post: format!("{:?}", post),
+        unit: format!("{:?}", unit),
+    })?
 }

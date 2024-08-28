@@ -5,9 +5,11 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, ToLeaf};
+pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
+pub use ploy::{BackedPloy, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
-    AddRoot, AddRootMut, Back, Backed, TryBacked, React, ReactMut, Rebut, RebutMut, Ring, Root,
+    AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root, TryBacked,
     Update, UpdateMid,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
@@ -17,10 +19,7 @@ pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
-pub use ploy::{Ploy, ToPloy, BackedPloy, PloyPointer, Engage};
-pub use map::Map;
 
-use thiserror::Error;
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
@@ -33,8 +32,10 @@ use std::{
 use std::{
     collections::{hash_map::Iter, HashMap},
     fmt::Debug,
-    hash::{DefaultHasher, Hash, Hasher}, result,
+    hash::{DefaultHasher, Hash, Hasher},
+    result,
 };
+use thiserror::Error;
 
 pub mod adapt;
 pub mod apex;
@@ -48,13 +49,13 @@ mod bay;
 mod cusp;
 mod edge;
 mod link;
+mod map;
 mod meta;
+mod ploy;
 mod scope;
 mod snap;
 mod tray;
 mod write;
-mod ploy;
-mod map;
 
 pub type GraphResult<T> = result::Result<T, Error>;
 
@@ -101,15 +102,18 @@ fn read_part<P: ?Sized, O, F: FnOnce(GraphResult<RwLockReadGuard<P>>) -> GraphRe
 ) -> GraphResult<O> {
     match part.read() {
         Ok(part) => read(Ok(part)),
-        Err(err) => read(Err(Error::Read(err.to_string())))
+        Err(err) => read(Err(Error::Read(err.to_string()))),
     }
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P: ?Sized, O, F: FnOnce(GraphResult<Ref<P>>) -> GraphResult<O>>(part: &Rc<RefCell<P>>, read: F) -> GraphResult<O> {
+fn read_part<P: ?Sized, O, F: FnOnce(GraphResult<Ref<P>>) -> GraphResult<O>>(
+    part: &Rc<RefCell<P>>,
+    read: F,
+) -> GraphResult<O> {
     match part.try_borrow() {
         Ok(part) => read(Ok(part)),
-        Err(err) => read(Err(Error::Read(err.to_string())))
+        Err(err) => read(Err(Error::Read(err.to_string()))),
     }
     // match part.try_borrow() {
     //     Ok(part) => read(part),
@@ -168,7 +172,10 @@ where
     T: 'static + IntoNode + Solve + Adapt + Debug + SendSync,
 {
     fn apex(self) -> Apex {
-        self.node().ploy().expect("The freshly made node should not be poisoned.").into()
+        self.node()
+            .ploy()
+            .expect("The freshly made node should not be poisoned.")
+            .into()
     }
 }
 
@@ -201,7 +208,10 @@ pub trait ToItem {
 pub trait Read {
     type Item;
     /// Read the payload of the node.
-    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T>;
+    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(
+        &self,
+        read: F,
+    ) -> GraphResult<T>;
 }
 
 pub trait FromItem {
@@ -224,9 +234,9 @@ pub trait FromSnap {
     fn from_snap(snap: Snap<Self::Unit>) -> Self;
 }
 
-pub trait FromSnapMid {
+pub trait WithSnap {
     type Unit;
-    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back);
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back);
 }
 
 pub trait Clear {

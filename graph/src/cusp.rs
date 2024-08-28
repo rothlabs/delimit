@@ -44,7 +44,7 @@ where
 
 impl<W> ToId for Cusp<W> {
     fn id(&self) -> Id {
-        self.id.clone()
+        self.id
     }
 }
 
@@ -59,14 +59,14 @@ where
     }
 }
 
-impl<W> FromSnapMid for Cusp<W>
+impl<W> WithSnap for Cusp<W>
 where
-    W: FromSnapMid,
+    W: WithSnap,
 {
     type Unit = W::Unit;
-    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
         self.back = Some(back.clone());
-        self.work.from_snap(snap, back);
+        self.work.with_snap(snap, back);
     }
 }
 
@@ -81,7 +81,7 @@ where
         write::Out {
             roots,
             out,
-            id: self.id.clone(),
+            id: self.id,
         }
     }
 }
@@ -103,7 +103,7 @@ where
         write::Out {
             roots,
             out,
-            id: self.id.clone(),
+            id: self.id,
         }
     }
 }
@@ -159,14 +159,12 @@ where
     fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>, crate::Error> {
         self.work.clear();
         let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."))?;
-        let out = self
-            .work
-            .adapt(post)?;
+        let out = self.work.adapt(post)?;
         let roots = self.ring.rebut_roots();
         Ok(write::Out {
             roots,
             out,
-            id: self.id.clone(),
+            id: self.id,
         })
     }
 }

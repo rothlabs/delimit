@@ -49,10 +49,16 @@ impl List {
         let empty = String::new();
         let sep = self.separator.string().unwrap_or_default();
         for i in 0..last {
-            self.items[i].view().string(|s| Ok(string += s.unwrap_or(&empty)))?;
+            self.items[i].view().string(|s| {
+                string += s.unwrap_or(&empty);
+                Ok(())
+            })?;
             string += &sep;
         }
-        self.items[last].view().string(|s| Ok(string += s.unwrap_or(&empty)))?;
+        self.items[last].view().string(|s| {
+            string += s.unwrap_or(&empty);
+            Ok(())
+        })?;
         string.leaf().apex().gain()
     }
     fn all(&self) -> solve::Result {

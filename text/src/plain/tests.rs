@@ -8,10 +8,9 @@ fn new_list(ace: &Leaf) -> Node<List> {
 fn read_from_list() -> Result<(), Error> {
     let ace = "ace".leaf();
     let text = new_list(&ace).apex();
-    text.view().string(|string| 
-        Ok(assert_eq!(string?, "str, ace"))
-    )//;
-    // Ok(())
+    text.view()
+        .string(|string| Ok(assert_eq!(string?, "str, ace"))) //;
+                                                              // Ok(())
 }
 
 #[test]

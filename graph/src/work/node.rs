@@ -92,12 +92,12 @@ where
     }
 }
 
-impl<U> FromSnapMid for Node<U>
+impl<U> WithSnap for Node<U>
 where
     U: Adapt + Solve,
 {
     type Unit = U;
-    fn from_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
         self.unit = Some(snap.unit);
         self.unit
             .as_mut()

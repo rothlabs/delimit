@@ -197,11 +197,13 @@ where
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> GraphResult<Ploy> {
-        read_part(&self.edge, |edge| Ok(Ploy {
-            edge: edge?.ploy(),
-            path: self.path.clone(),
-            rank: self.rank,
-        }))
+        read_part(&self.edge, |edge| {
+            Ok(Ploy {
+                edge: edge?.ploy(),
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })
     }
 }
 
@@ -262,17 +264,17 @@ where
     E: 'static + Read + Update + AddRoot,
 {
     type Item = E::Item;
-    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(&self, read: F) -> GraphResult<T> {
-        read_part(&self.edge, |edge| {
-            let out = match edge {
-                Ok(edge) => {
-                    let out = edge.read(read);
-                    edge.add_root(self.as_root(edge.id()));
-                    out
-                },
-                Err(err) => read(Err(err))
-            };
-            out
+    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(
+        &self,
+        read: F,
+    ) -> GraphResult<T> {
+        read_part(&self.edge, |edge| match edge {
+            Ok(edge) => {
+                let out = edge.read(read);
+                edge.add_root(self.as_root(edge.id()));
+                out
+            }
+            Err(err) => read(Err(err)),
         })
     }
 }
@@ -292,7 +294,10 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(
+        &self,
+        write: F,
+    ) -> GraphResult<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
@@ -323,11 +328,13 @@ where
 impl TryBacked for Ploy {
     type Out = Ploy;
     fn backed(&self, back: &Back) -> Result<Self::Out, Error> {
-        read_part(&self.edge, |edge| Ok(Self {
-            edge: edge?.backed_ploy(back),
-            path: self.path.clone(),
-            rank: self.rank,
-        }))
+        read_part(&self.edge, |edge| {
+            Ok(Self {
+                edge: edge?.backed_ploy(back),
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })
     }
 }
 

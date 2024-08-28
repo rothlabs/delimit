@@ -96,7 +96,11 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>, Box<dyn
     let buffer = make_vertex_color_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.index_buffer(array)?;
-    let pos = gpu.vertex_attribute(&buffer).size(3_i32).stride(20_i32).link()?;
+    let pos = gpu
+        .vertex_attribute(&buffer)
+        .size(3_i32)
+        .stride(20_i32)
+        .link()?;
     let uv = gpu
         .vertex_attribute(&buffer)
         .index(1_u32)
@@ -142,7 +146,8 @@ pub fn make_program() -> GraphResult<()> {
     Ok(())
 }
 
-pub fn make_buffer() -> buffer::Result { // f32
+pub fn make_buffer() -> buffer::Result {
+    // f32
     let gpu = make_canvas()?;
     make_basic_buffer(&gpu)
 }
@@ -203,14 +208,14 @@ pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
 pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
-    if let Err(_) = shader_source.write(|tray| 
+    if let Err(_) = shader_source.write(|tray| {
         if let Tray::String(string) = tray {
             *string = "bad shader".to_owned();
             Ok(())
         } else {
             panic!("not a string")
         }
-    ) {
+    }) {
         Ok(())
     } else {
         panic!("this shader write should have caused compile error");

@@ -3,9 +3,9 @@
 #![cfg(target_arch = "wasm32")]
 
 extern crate wasm_bindgen_test;
+use graph::GraphResult;
 use std::error::Error;
 use wasm_bindgen_test::*;
-use graph::GraphResult;
 
 mod gpu;
 

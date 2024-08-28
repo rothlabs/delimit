@@ -1,3 +1,4 @@
+pub use anyhow::anyhow;
 pub use buffer::Buffer;
 pub use canvas::Canvas;
 pub use elements::Elements;
@@ -5,10 +6,9 @@ pub use program::Program;
 pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
-pub use anyhow::anyhow;
 
-use elements::ElementsBuilder;
 use derive_builder::Builder;
+use elements::ElementsBuilder;
 use graph::*;
 use texture::*;
 use vao::*;
@@ -49,13 +49,16 @@ impl Gpu {
     pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
         Program::link(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Apex>) -> buffer::Result { // f32
+    pub fn buffer(&self, array: impl Into<Apex>) -> buffer::Result {
+        // f32
         Buffer::link(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Apex>) -> buffer::Result { // u16
+    pub fn index_buffer(&self, array: impl Into<Apex>) -> buffer::Result {
+        // u16
         Buffer::link(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder { // f32
+    pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
+        // f32
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())
@@ -72,24 +75,28 @@ impl Gpu {
             .attributes(attributes.clone())
             .clone())
     }
-    pub fn texture( // <T: Copy>
+    pub fn texture(
+        // <T: Copy>
         &self,
         array: impl Into<Apex>,
-    ) -> GraphResult<TextureBuilder> { 
-        let texture = self.gl.create_texture().ok_or(anyhow!("failed to create texture"))?;
+    ) -> GraphResult<TextureBuilder> {
+        let texture = self
+            .gl
+            .create_texture()
+            .ok_or(anyhow!("failed to create texture"))?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
-        self.default_texture_filters();        
+        self.default_texture_filters();
         Ok(TextureBuilder::default()
             .gl(self.gl.clone())
             .texture(texture)
             .array(array)
             .clone())
     }
-    pub fn elements(
-        &self,
-        program: &Node<Program>,
-    ) -> ElementsBuilder {
-        ElementsBuilder::default().gl(self.gl.clone()).program(program.clone()).clone()
+    pub fn elements(&self, program: &Node<Program>) -> ElementsBuilder {
+        ElementsBuilder::default()
+            .gl(self.gl.clone())
+            .program(program.clone())
+            .clone()
         // Elements::link(&self.gl, program, buffer, vao)
     }
     fn default_texture_filters(&self) {

@@ -36,7 +36,10 @@ pub trait WriteTrayWork {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T>;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(
+        &self,
+        write: F,
+    ) -> GraphResult<T>;
 }
 
 pub trait WriteUnitOut {

@@ -48,7 +48,10 @@ impl Solve for Vao {
         }
         if let Some(buffer) = &self.index_buffer {
             buffer.solve(Task::Main)?;
-            buffer.read(|unit| Ok(unit?.bind()))?;
+            buffer.read(|unit| {
+                unit?.bind();
+                Ok(())
+            })?;
         }
         self.unbind();
         Ok(Gain::None)
