@@ -1,14 +1,16 @@
+use anyhow::anyhow;
+
 use super::*;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SerialNode {
     pub imports: Vec<Import>,
     pub unit: String,
 }
 
 /// Collection of serialized apexes. Indexed by hash.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Lake {
     roots: HashMap<Key, SerialNode>,
     nodes: HashMap<u64, SerialNode>,
@@ -72,18 +74,15 @@ impl Lake {
     }
 
     /// Get a root apex by Key.
-    fn root(&self, key: impl Into<Key>) -> Result<Apex, crate::AnyError> {
-        let serial = self.roots.get(&key.into()).ok_or("Root node not found.")?;
-        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
-        //let link = Node::make2(unit, &serial.imports);//.ploy().into()
-        //Ok(link.apex())
+    fn root(&self, key: impl Into<Key>) -> Result<Apex, anyhow::Error> {
+        let serial = self.roots.get(&key.into()).ok_or(anyhow!("Root node not found."))?;
+        self.atlas.as_ref().ok_or(anyhow!("No atlas."))?.deserialize(serial)
     }
 
     /// Get a apex by hash.
-    fn get(&self, hash: u64) -> Result<Apex, crate::AnyError> {
-        let serial = self.nodes.get(&hash).ok_or("Node not found.")?;
-        self.atlas.as_ref().ok_or("No atlas.")?.deserialize(serial)
-        // Ok(link.apex())
+    fn get(&self, hash: u64) -> Result<Apex, anyhow::Error> {
+        let serial = self.nodes.get(&hash).ok_or(anyhow!("Node not found."))?;
+        self.atlas.as_ref().ok_or(anyhow!("No atlas."))?.deserialize(serial)
     }
 }
 
@@ -121,7 +120,6 @@ impl Trade for Lake {
 // impl Solve for Lake {
 //     fn solve(&self, task: Task) -> solve::Result {
 //         match task {
-//             Task::Stems => empty_apexes(),
 //             Task::Serial => self.serial(),
 //             _ => no_solver(),
 //         }

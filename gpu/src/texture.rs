@@ -27,15 +27,18 @@ impl Texture {
 
 impl TextureBuilder {
     pub fn link(&self) -> Result {
-        let mut texture = self.build()?;
-        let link = Node::make(|back| {
-            texture.array = texture.array.backed(back);
-            texture.width = texture.width.backed(back);
-            texture.height = texture.height.backed(back);
-            texture
-        });
-        link.solve(Task::Main)?;
-        Ok(link)
+        if let Ok(mut texture) = self.build() {
+            let link = Node::make(|back| {
+                texture.array = texture.array.backed(back);
+                texture.width = texture.width.backed(back);
+                texture.height = texture.height.backed(back);
+                texture
+            });
+            link.solve(Task::Main)?;
+            Ok(link)
+        } else {
+            Err(anyhow!("texture build failed"))?
+        }
     }
 }
 
@@ -59,7 +62,8 @@ impl Solve for Texture {
                 WGLRC::UNSIGNED_BYTE, // type_
                 Some(&pixels), // pixels
             ) {
-                return Err(memo.as_string().unwrap());
+                let memo = memo.as_string().unwrap_or("unknown error in texture".into());
+                return Err(anyhow!(memo));
             }
             Ok(())
         })?;

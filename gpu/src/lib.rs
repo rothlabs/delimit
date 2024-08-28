@@ -1,12 +1,13 @@
 pub use buffer::Buffer;
 pub use canvas::Canvas;
 pub use elements::Elements;
-use elements::ElementsBuilder;
 pub use program::Program;
 pub use shader::Shader;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
+pub use anyhow::anyhow;
 
+use elements::ElementsBuilder;
 use derive_builder::Builder;
 use graph::*;
 // use js_sys::*;
@@ -78,8 +79,8 @@ impl Gpu {
     pub fn texture( // <T: Copy>
         &self,
         array: impl Into<Apex>,
-    ) -> result::Result<TextureBuilder, Box<dyn Error>> {
-        let texture = self.gl.create_texture().ok_or("failed to create texture")?;
+    ) -> result::Result<TextureBuilder, anyhow::Error> { // Box<dyn Error>
+        let texture = self.gl.create_texture().ok_or(anyhow!("failed to create texture"))?;
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
         self.default_texture_filters();        
         Ok(TextureBuilder::default()

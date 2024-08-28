@@ -45,25 +45,13 @@ pub trait Backed {
     fn backed(&self, back: &Back) -> Self;
 }
 
-pub trait ToPloy {
-    /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyEdge;
-}
-
-pub trait ToPipedPloy {
-    /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyEdge;
-}
-
-pub trait BackedPloy {
-    fn backed_ploy(&self, back: &Back) -> PloyEdge;
-}
-
 /// For edge that Rebuts a Ring and reacts.
 pub trait Update: Rebut + React + ToId + SendSync {}
+impl<T> Update for T where T: Rebut + React + ToId + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
 pub trait UpdateMid: RebutMut + ReactMut + ToId + SendSync {}
+impl<T> UpdateMid for T where T: RebutMut + ReactMut + ToId + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Cusp holds a Ring of Roots.

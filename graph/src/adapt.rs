@@ -1,6 +1,6 @@
 pub use post::Post;
-use thiserror::Error;
 
+use thiserror::Error;
 use super::*;
 use std::result;
 
@@ -25,12 +25,12 @@ pub trait AdaptMid {
     fn adapt(&self, post: Post) -> Result;
 }
 
-pub fn adapt_ok() -> adapt::Result {
-    Ok(Memo::None)
-}
-
 pub enum Memo {
     None,
+}
+
+pub fn adapt_ok() -> adapt::Result {
+    Ok(Memo::None)
 }
 
 #[derive(Error, Debug)]
@@ -42,7 +42,7 @@ pub enum Error {
     #[error(transparent)]
     Apex(#[from] apex::Error),
     #[error(transparent)]
-    Any(#[from] crate::AnyError)
+    Any(#[from] anyhow::Error)
 }
 
 pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {

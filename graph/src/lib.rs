@@ -4,22 +4,23 @@ pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::{Lake, SerialNode};
-pub use link::{Leaf, Link, Node, Ploy, ToLeaf};
-pub use meta::{random, upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
+pub use link::{Leaf, Link, Node, ToLeaf};
+pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use react::{
-    AddRoot, AddRootMut, Back, Backed, BackedPloy, React, ReactMut, Rebut, RebutMut, Ring, Root,
-    ToPipedPloy, ToPloy, Update, UpdateMid,
+    AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root,
+    Update, UpdateMid,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{empty_apexes, no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
-use thiserror::Error;
+pub use solve::{no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
+pub use ploy::{Ploy, ToPloy, BackedPloy, PloyPointer, Engage};
+pub use map::Map;
 
-use dyn_clone::DynClone;
+use thiserror::Error;
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
@@ -31,7 +32,6 @@ use std::{
 };
 use std::{
     collections::{hash_map::Iter, HashMap},
-    error,
     fmt::Debug,
     hash::{DefaultHasher, Hash, Hasher},
 };
@@ -53,6 +53,8 @@ mod scope;
 mod snap;
 mod tray;
 mod write;
+mod ploy;
+mod map;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -62,22 +64,15 @@ pub enum Error {
     Solve(#[from] solve::Error),
     #[error(transparent)]
     Apex(#[from] apex::Error),
-    #[error("failed to make node ({0})")]
-    Make(String),
+    // #[error("failed to make node ({0})")]
+    // Make(String),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
-    Any(#[from] AnyError),
+    Any(#[from] anyhow::Error),
 }
-
-#[cfg(not(feature = "oneThread"))]
-/// Graph Error
-pub type AnyError = Box<dyn error::Error + Send + Sync>;
-#[cfg(feature = "oneThread")]
-/// Graph Error
-pub type AnyError = Box<dyn error::Error>;
 
 #[cfg(not(feature = "oneThread"))]
 const NO_POISON: &str = "The lock should not be poisoned.";
@@ -118,19 +113,9 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, wr
     write(part.borrow_mut())
 }
 
-/// General engagement of Ploy with erased unit type.
-pub trait Engage: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {}
-
-#[cfg(not(feature = "oneThread"))]
-type PloyEdge = Arc<RwLock<Box<dyn Engage>>>;
-#[cfg(feature = "oneThread")]
-type PloyEdge = Rc<RefCell<Box<dyn Engage>>>;
-
-// dyn_clone::clone_trait_object!(Trade);
 /// Trade a apex for another.
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Trade: Debug {
-    // DynClone +
     /// Trade a apex for another.
     fn trade(&self, apex: &Apex) -> Apex;
 }
@@ -242,48 +227,6 @@ pub trait FromSnapMid {
 
 pub trait Clear {
     fn clear(&mut self);
-}
-
-/// Key-Apex map.
-#[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub struct Map(HashMap<Key, Apex>);
-
-impl Map {
-    pub fn insert(&mut self, key: Key, apex: Apex) {
-        self.0.insert(key, apex);
-    }
-    pub fn extend(&mut self, other: Map) {
-        self.0.extend(other.0);
-    }
-    pub fn trade(&self, deal: &dyn Trade) -> Self {
-        let mut map = HashMap::new();
-        for (key, apex) in &self.0 {
-            map.insert(key.clone(), apex.deal(deal));
-        }
-        Map(map)
-    }
-    pub fn get(&self, key: &Key) -> Option<Apex> {
-        self.0.get(key).map(|apex| apex.pathed(key))
-    }
-    pub fn vec(&self) -> Vec<Apex> {
-        let mut out = vec![];
-        for (key, apex) in &self.0 {
-            out.push(apex.pathed(key));
-        }
-        out
-        // self.0.values().cloned().collect()
-    }
-    pub fn iter(&self) -> Iter<String, Apex> {
-        self.0.iter()
-    }
-}
-
-impl Hash for Map {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        let mut pairs: Vec<_> = self.0.iter().collect();
-        pairs.sort_by_key(|i| i.0);
-        Hash::hash(&pairs, state);
-    }
 }
 
 // impl<T> ToApex for T

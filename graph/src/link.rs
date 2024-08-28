@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 pub use leaf::*;
 
 use super::*;
@@ -20,10 +21,6 @@ pub type Leaf = Link<edge::Leaf>;
 /// `Link` to domain-specific unit.
 /// The unit type is intact. For type-erased unit, use `Ploy` instead.
 pub type Node<U> = Link<edge::Node<U>>;
-
-/// `Link` to domain-specific unit.
-/// The unit type is erased. To keep unit type intact, use `Node` instead.
-pub type Ploy = Link<Box<dyn Engage>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
@@ -70,10 +67,10 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> Result<Apex, crate::AnyError> {
+    pub fn main(&self) -> Result<Apex, anyhow::Error> {
         match self.solve(Task::Main)? {
             Gain::Apex(apex) => Ok(apex),
-            _ => Err("Wrong return type for Task::Main.")?,
+            _ => Err(anyhow!("Wrong return type for Task::Main.")),
         }
     }
 }
@@ -347,20 +344,3 @@ where
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
-
-// impl<U, E> From<Snap<U>> for Link<E>
-// where
-//     // U: Default + Solve,
-//     Snap<U>: Into<E>,
-// {
-//     fn from(snap: Snap<U>) -> Self {
-//         Self {
-//             path: None,
-//             rank: None,
-//             #[cfg(not(feature = "oneThread"))]
-//             edge: Arc::new(RwLock::new(snap.into())),
-//             #[cfg(feature = "oneThread")]
-//             edge: Rc::new(RefCell::new(snap.into())),
-//         }
-//     }
-// }

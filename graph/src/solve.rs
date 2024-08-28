@@ -14,19 +14,9 @@ pub trait Solve {
     fn solve(&self, task: Task) -> Result;
 }
 
-impl Solve for Box<dyn Engage> {
-    fn solve(&self, task: Task) -> solve::Result {
-        self.as_ref().solve(task)
-    }
-}
-
 pub trait DoSolve {
     /// For graph internals to handle solve calls
     fn do_solve(&mut self, task: Task) -> Result;
-}
-
-pub fn empty_apexes() -> solve::Result {
-    Ok(Gain::Apexes(vec![]))
 }
 
 pub fn solve_ok() -> solve::Result {
@@ -57,11 +47,9 @@ pub enum Error {
     #[error(transparent)]
     Apex(#[from] apex::Error),
     #[error(transparent)]
-    Serde(#[from] serde_json::Error),
+    SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
-    Anyhow(#[from] anyhow::Error),
-    #[error(transparent)]
-    Any(#[from] crate::AnyError),
+    Any(#[from] anyhow::Error),
 }
 
 pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {

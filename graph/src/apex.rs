@@ -1,4 +1,5 @@
 use super::*;
+use anyhow::anyhow;
 use query::*;
 use thiserror::Error;
 
@@ -35,7 +36,7 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result<Apex, crate::AnyError> {
+    pub fn main(&self) -> Result<Apex, anyhow::Error> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err(Error::NotPloy)?,
@@ -165,7 +166,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result<Apex, crate::AnyError> {
+    pub fn at(&self, target: usize) -> Result<Apex, anyhow::Error> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -197,16 +198,16 @@ impl Apex {
                 if let Ok(apex) = ploy.main() {
                     apex.read(read)
                 } else {
-                    read(Err("failed to read ploy".into()))
+                    read(Err(anyhow!("failed to read ploy")))
                 }
             }
         }
     }
 
-    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, crate::AnyError> {
+    pub fn read_or_error<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T, anyhow::Error> {
         self.read(|tray| match tray {
             Ok(value) => Ok(read(value)),
-            _ => Err("nothing to read")?,
+            _ => Err(anyhow!("nothing to read")),
         })
     }
     pub fn read_string<T, F: FnOnce(&String) -> T>(&self, read: F) -> T {
@@ -233,10 +234,10 @@ impl Apex {
             _ => read(&vec![]),
         })
     }
-    pub fn string(&self) -> Result<String, crate::AnyError> {
+    pub fn string(&self) -> Result<String, anyhow::Error> {
         match self.tray() {
             Ok(Tray::String(value)) => Ok(value),
-            _ => Err("not a string")?,
+            _ => Err(anyhow!("not a string")),
         }
     }
     pub fn u32(&self) -> u32 {
@@ -261,13 +262,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::AnyError>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, anyhow::Error>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::AnyError> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>, anyhow::Error> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

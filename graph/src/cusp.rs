@@ -19,7 +19,7 @@ where
 {
     fn default() -> Self {
         Self {
-            id: random(),
+            id: rand::random(),
             ring: Ring::new(),
             work: W::default(),
             back: None,
@@ -34,7 +34,7 @@ where
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
-            id: random(),
+            id: rand::random(),
             ring: Ring::new(),
             work: W::new(item),
             back: None,
@@ -142,8 +142,6 @@ impl<W> AddRootMut for Cusp<W> {
         self.ring.add_root(root);
     }
 }
-
-impl<W> UpdateMid for Cusp<W> where W: Clear + ReactMut + SendSync {}
 
 impl<W> RebutMut for Cusp<W>
 where

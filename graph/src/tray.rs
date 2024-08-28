@@ -3,8 +3,8 @@ use serde::Serialize;
 use std::hash::{Hash, Hasher};
 use std::result;
 
-pub type Result = result::Result<Tray, Error>;
-pub type ResultRef<'a> = result::Result<&'a Tray, AnyError>;
+pub type Result = result::Result<Tray, anyhow::Error>;
+pub type ResultRef<'a> = result::Result<&'a Tray, anyhow::Error>;
 
 /// Payload value of graph parts.
 /// Used as `Leaf` payload and field values of `Node` and `Ploy`.

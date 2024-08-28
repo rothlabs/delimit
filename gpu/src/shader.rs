@@ -18,7 +18,7 @@ pub struct Shader {
 
 impl Shader {
     pub fn link(gl: &WGLRC, type_: u32, source: &Apex) -> Result {
-        let shader = gl.create_shader(type_).ok_or("failed to create shader")?;
+        let shader = gl.create_shader(type_).ok_or(anyhow!("failed to create shader"))?;
         let link = Node::make(|back| Self {
             gl: gl.clone(),
             source: source.backed(back),
@@ -42,10 +42,11 @@ impl Solve for Shader {
         {
             solve_ok()
         } else {
-            Err(self
+            let memo = self
                 .gl
                 .get_shader_info_log(&self.shader)
-                .ok_or("failed to get shader info log")?)?
+                .unwrap_or("failed to get shader info log".into());
+            Err(anyhow!(memo))?
         }
     }
 }

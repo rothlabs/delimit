@@ -23,9 +23,9 @@ pub struct Edge<N> {
 impl<N> ToId for Edge<N> {
     fn id(&self) -> Id {
         if let Some(back) = &self.back {
-            back.id.clone()
+            back.id
         } else {
-            "".into()
+            0
         }
     }
 }
@@ -123,21 +123,19 @@ where
     }
 }
 
-impl<U> Engage for Node<U> where U: 'static + Adapt + Solve + Debug + SendSync {}
-
 impl<U> ToPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> PloyEdge {
+    fn ploy(&self) -> PloyPointer {
         Arc::new(RwLock::new(Box::new(Self {
             back: self.back.clone(),
             cusp: self.cusp.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> PloyEdge {
+    fn ploy(&self) -> PloyPointer {
         Rc::new(RefCell::new(Box::new(Self {
             back: self.back.clone(),
             cusp: self.cusp.clone(),
@@ -150,14 +148,14 @@ where
     U: 'static + Solve + Adapt + Debug + SendSync,
 {
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyEdge {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn backed_ploy(&self, back: &Back) -> PloyEdge {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer {
         Rc::new(RefCell::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -242,7 +240,7 @@ where
     }
 }
 
-impl<N> Update for Edge<N> where N: SendSync + ReactMut {}
+// impl<N> Update for Edge<N> where N: SendSync + ReactMut {}
 
 impl<N> Rebut for Edge<N> {
     fn rebut(&self) -> Ring {
@@ -263,50 +261,3 @@ where
     }
 }
 
-impl AddRoot for Box<dyn Engage> {
-    fn add_root(&self, root: Root) {
-        self.as_ref().add_root(root)
-    }
-}
-
-impl Update for Box<dyn Engage> {}
-
-impl ToId for Box<dyn Engage> {
-    fn id(&self) -> Id {
-        self.as_ref().id()
-    }
-}
-
-impl Rebut for Box<dyn Engage> {
-    fn rebut(&self) -> Ring {
-        self.as_ref().rebut()
-    }
-}
-
-impl React for Box<dyn Engage> {
-    fn react(&self, id: &Id) -> react::Result {
-        self.as_ref().react(id)
-    }
-}
-
-impl AdaptMid for Box<dyn Engage> {
-    fn adapt(&self, post: Post) -> adapt::Result {
-        self.as_ref().adapt(post)
-    }
-}
-
-// impl<U, N> From<Snap<U>> for Edge<N>
-// where
-//     // U: Default + Solve,
-//     Snap<U>: Into<N>,
-// {
-//     fn from(snap: Snap<U>) -> Self {
-//         Self {
-//             back: None,
-//             #[cfg(not(feature = "oneThread"))]
-//             cusp: Arc::new(RwLock::new(snap.into())),
-//             #[cfg(feature = "oneThread")]
-//             cusp: Rc::new(RefCell::new(snap.into())),
-//         }
-//     }
-// }

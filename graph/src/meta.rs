@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use rand::distributions::{Alphanumeric, DistString};
-
 /// Runtime-only ID. Used to easily distinguish between apex instances.
-pub type Id = String;
+pub type Id = u64;
 
 pub trait ToId {
     fn id(&self) -> Id;
@@ -40,10 +38,6 @@ pub struct Upper<T> {
     pub item: T,
 }
 
-pub fn random() -> String {
-    Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
-}
-
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Import {
     None,
@@ -59,10 +53,6 @@ impl Default for Import {
 }
 
 pub const WORLD_ALL: Import = Import::World(Stem::All);
-
-// pub fn world_all() -> Import {
-//     Import::World(Stem::All)
-// }
 
 pub fn upper_all() -> Import {
     Import::Upper(Upper {
@@ -87,4 +77,8 @@ pub enum Stem {
 //     pub fn upper_all() -> Self {
 //         Self::Upper(Upper { rank: 1, item: Stem::All })
 //     }
+// }
+
+// pub fn random() -> String {
+//     Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
 // }

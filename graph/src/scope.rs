@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use super::*;
 
 #[derive(Debug)]
@@ -19,7 +20,7 @@ pub struct Space {
 impl Space {
     pub fn new(path: Vec<Key>, apex: &Apex) -> Self {
         let mut space = Self {
-            id: rand::random::<u64>(),
+            id: rand::random(),
             apex: apex.clone(),
             // path: path.clone(),
             ..Default::default()
@@ -45,13 +46,13 @@ impl Space {
         }
         space
     }
-    pub fn get(&self, keys: &[Key]) -> Result<Apex, crate::AnyError> {
+    pub fn get(&self, keys: &[Key]) -> Result<Apex, anyhow::Error> {
         if keys.is_empty() {
             Ok(self.apex.clone())
         } else if let Some(stem) = self.map.get(&keys[0]) {
             stem.get(&keys[1..])
         } else {
-            Err("Entry not found.")?
+            Err(anyhow!("Entry not found."))
         }
     }
 }
