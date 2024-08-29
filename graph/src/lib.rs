@@ -177,7 +177,7 @@ where
     fn apex(self) -> Apex {
         self.node()
             .ploy()
-            .expect("The freshly made node should not be poisoned.")
+            .expect(IMMEDIATE_ACCESS)
             .into()
     }
 }
@@ -190,16 +190,15 @@ impl IntoApex for Leaf {
 
 pub trait ToApex {
     /// Place inside a Apex.
-    fn apex(&self) -> Apex;
+    fn apex(&self) -> Result<Apex>;
 }
 
 impl<T> ToApex for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
 {
-    fn apex(&self) -> Apex {
-        // TODO: remove unwrap
-        self.ploy().unwrap().into()
+    fn apex(&self) -> Result<Apex> {
+        Ok(Apex::from(self.ploy()?))
     }
 }
 
@@ -229,6 +228,11 @@ pub trait Make {
     type Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
+
+// pub trait MakePloy {
+//     type Unit;
+//     fn make_ploy<F: FnOnce(&Back) -> Self::Unit>(make: F) -> PloyPointer;
+// }
 
 pub trait MakeMid {
     type Unit;

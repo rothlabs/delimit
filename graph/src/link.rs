@@ -145,6 +145,37 @@ where
 
 impl<E> Link<E>
 where
+    E: 'static + Make + Engage,
+{
+    pub fn make_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
+        let edge = E::make(make);
+        Link {
+            path: None,
+            rank: None,
+            #[cfg(not(feature = "oneThread"))]
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
+            #[cfg(feature = "oneThread")]
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage>)),
+        }
+    }
+}
+
+impl<E> Link<E>
+where
+    E: ToPloy,
+{
+    /// Copy the link with unit type erased.  
+    pub fn ploy(&self) -> Result<Ploy> {
+        read_part(&self.edge, |edge| Ploy {
+            edge: edge.ploy(),
+            path: self.path.clone(),
+            rank: self.rank,
+        })
+    }
+}
+
+impl<E> Link<E>
+where
     E: FromSnap,
 {
     pub fn from_snap(snap: Snap<E::Unit>) -> Self {
@@ -188,20 +219,6 @@ where
             edge: Rc::downgrade(&edge),
             id,
         }
-    }
-}
-
-impl<E> Link<E>
-where
-    E: ToPloy,
-{
-    /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy> {
-        read_part(&self.edge, |edge| Ploy {
-            edge: edge.ploy(),
-            path: self.path.clone(),
-            rank: self.rank,
-        })
     }
 }
 

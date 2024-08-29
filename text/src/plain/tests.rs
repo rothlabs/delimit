@@ -7,7 +7,7 @@ fn new_list(ace: &Leaf) -> Node<List> {
 #[test]
 fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
-    let text_node = new_list(&string_leaf).apex();
+    let text_node = new_list(&string_leaf).apex()?;
     text_node
         .view()
         .string(|string| assert_eq!(string, "str, ace"))
