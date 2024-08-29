@@ -276,7 +276,7 @@ where
     E: WriteTray,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(&self, write: F) -> Result<T> {
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> Result<T> {
         read_part(&self.edge, |edge| edge.write(write))?
     }
 }
@@ -286,7 +286,7 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &self,
         write: F,
     ) -> Result<T> {

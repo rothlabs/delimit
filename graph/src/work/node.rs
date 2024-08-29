@@ -147,17 +147,17 @@ where
     U: Solve,
 {
     type Unit = U;
-    fn write_unit_work<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,
     ) -> Result<T> {
-        let out = write(Ok(&mut Pack {
+        let out = write(&mut Pack {
             unit: self.unit.as_mut().unwrap(),
             back,
-        }));
+        });
         self.main = None;
-        out
+        Ok(out)
     }
 }
 

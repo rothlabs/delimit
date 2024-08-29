@@ -75,7 +75,7 @@ where
     W: WriteTrayWork,
 {
     type Item = W::Item;
-    fn write_tray_out<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(
+    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(
         &mut self,
         write: F,
     ) -> Result<write::Out<T>> {
@@ -94,7 +94,7 @@ where
     W: WriteUnitWork,
 {
     type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
     ) -> Result<write::Out<T>> {

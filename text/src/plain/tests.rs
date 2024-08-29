@@ -27,8 +27,7 @@ fn rebut_from_self() -> Result<()> {
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
     text.write(|pack| {
-        pack?.unit.set_separator(" > ");
-        Ok(())
+        pack.unit.set_separator(" > ");
     })?;
     let b = text.solve(Task::Main)?;
     assert!(a != b);
@@ -41,14 +40,12 @@ fn react_from_stem() -> Result<()> {
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
     ace.write(|tray| {
-        if let Tray::String(string) = tray? {
+        if let Tray::String(string) = tray {
             string.push_str("_mutated");
-            Ok(())
         } else {
             panic!("was not a string")
         }
-    })
-    .ok();
+    })?;
     let b = text.solve(Task::Main)?;
     assert!(a != b);
     Ok(())
@@ -60,20 +57,16 @@ fn no_rebut_after_dropping_stem() -> Result<()> {
     let text = new_list(&ace);
     let _r = text.solve(Task::Main);
     text.write(|pack| {
-        pack?.unit.remove(1);
-        Ok(())
-    })
-    .ok();
+        pack.unit.remove(1);
+    })?;
     let a = text.solve(Task::Main)?;
     ace.write(|tray| {
-        if let Tray::String(string) = tray? {
+        if let Tray::String(string) = tray {
             string.push_str("_mutated");
-            Ok(())
         } else {
             panic!("was not a string")
         }
-    })
-    .ok();
+    })?;
     let b = text.solve(Task::Main)?;
     assert!(a == b);
     Ok(())

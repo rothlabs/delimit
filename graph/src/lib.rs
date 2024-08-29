@@ -115,24 +115,24 @@ fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: 
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P: ?Sized, O, F: FnOnce(Result<RwLockWriteGuard<P>>) -> Result<O>>(
+fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     write: F,
 ) -> Result<O> {
     match part.write() {
-        Ok(part) => write(Ok(part)),
-        Err(err) => write(Err(Error::Read(err.to_string()))),
+        Ok(part) => Ok(write(part)),
+        Err(err) => Err(Error::Read(err.to_string())),
     }
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<P: ?Sized, O, F: FnOnce(Result<RefMut<P>>) -> Result<O>>(
+fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
     part: &Rc<RefCell<P>>,
     write: F,
 ) -> Result<O> {
     match part.try_borrow_mut() {
-        Ok(part) => write(Ok(part)),
-        Err(err) => write(Err(Error::Read(err.to_string()))),
+        Ok(part) => Ok(write(part)),
+        Err(err) => Err(Error::Read(err.to_string())),
     }
 }
 

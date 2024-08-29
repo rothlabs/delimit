@@ -18,13 +18,13 @@ pub struct Out<T> {
 pub trait WriteTray {
     type Item;
     /// Front-facing write-to-tray.
-    fn write<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(&self, write: F) -> Result<T>;
+    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> Result<T>;
 }
 
 pub trait WriteTrayOut {
     type Item;
     /// Write and return the apex meta and graph roots of the rebut. Apex level.
-    fn write_tray_out<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(
+    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(
         &mut self,
         write: F,
     ) -> Result<Out<T>>;
@@ -33,7 +33,7 @@ pub trait WriteTrayOut {
 pub trait WriteTrayWork {
     type Item;
     /// Work-level write-to-tray.
-    fn write_tray_work<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(
+    fn write_tray_work<T, F: FnOnce(&mut Self::Item) -> T>(
         &mut self,
         write: F,
     ) -> Result<T>;
@@ -42,7 +42,7 @@ pub trait WriteTrayWork {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &self,
         write: F,
     ) -> Result<T>;
@@ -52,7 +52,7 @@ pub trait WriteUnitOut {
     type Unit;
     /// Write and return the apex meta and graph roots of the rebut.
     /// Takes `&Back` to be included in Pack. Apex level.
-    fn write_unit_out<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         //back: &Back,
@@ -62,7 +62,7 @@ pub trait WriteUnitOut {
 pub trait WriteUnitWork {
     type Unit;
     /// Work-level write-to-unit.
-    fn write_unit_work<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
+    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
         back: &Back,
