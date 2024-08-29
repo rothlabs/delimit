@@ -72,14 +72,14 @@ where
 
 impl<W> WriteTrayOut for Cusp<W>
 where
-    W: WriteTrayWork,
+    W: MutTray,
 {
-    type Item = W::Item;
-    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(
+    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(
         &mut self,
         write: F,
     ) -> Result<write::Out<T>> {
-        let out = self.work.write_tray_work(write)?;
+        //let out = self.work.write_tray_work(write)?;
+        let out = write(self.work.tray());
         let roots = self.ring.rebut_roots();
         Ok(write::Out {
             roots,

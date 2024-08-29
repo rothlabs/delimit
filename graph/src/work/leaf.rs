@@ -43,13 +43,9 @@ impl ToItem for Leaf {
     }
 }
 
-impl WriteTrayWork for Leaf {
-    type Item = Tray;
-    fn write_tray_work<T, F: FnOnce(&mut Self::Item) -> T>(
-        &mut self,
-        write: F,
-    ) -> Result<T> {
-        Ok(write(&mut self.tray))
+impl MutTray for Leaf {
+    fn tray(&mut self) -> &mut Tray {
+        &mut self.tray
     }
 }
 

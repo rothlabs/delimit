@@ -71,5 +71,3 @@ fn no_rebut_after_dropping_stem() -> Result<()> {
     assert!(a == b);
     Ok(())
 }
-
-// ace.write(|string| string.push_str("_mutated")).ok();

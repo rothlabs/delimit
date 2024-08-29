@@ -4,8 +4,6 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
-const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
-
 /// Edge to a tray.
 pub type Leaf = Edge<cusp::Leaf>;
 
@@ -178,8 +176,7 @@ impl<N> WriteTray for Edge<N>
 where
     N: WriteTrayOut,
 {
-    type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> Result<T> {
+    fn write<T, F: FnOnce(&mut Tray) -> T>(&self, write: F) -> Result<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
         for root in &roots {

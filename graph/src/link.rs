@@ -275,8 +275,7 @@ impl<E> WriteTray for Link<E>
 where
     E: WriteTray,
 {
-    type Item = E::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> T>(&self, write: F) -> Result<T> {
+    fn write<T, F: FnOnce(&mut Tray) -> T>(&self, write: F) -> Result<T> {
         read_part(&self.edge, |edge| edge.write(write))?
     }
 }

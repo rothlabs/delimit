@@ -17,7 +17,7 @@ pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
 pub use tray::Tray;
 pub use write::{
-    Pack, WriteTray, WriteTrayOut, WriteTrayWork, WriteUnit, WriteUnitOut, WriteUnitWork,
+    Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 
 use scope::*;
@@ -57,6 +57,8 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
+
+const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
@@ -206,6 +208,10 @@ pub trait ToItem {
     fn item(&self) -> &Self::Item;
 }
 
+pub trait MutTray {
+    fn tray(&mut self) -> &mut Tray;
+}
+
 pub trait Read {
     type Payload;
     /// Read the payload of the graph part.
@@ -213,16 +219,6 @@ pub trait Read {
     where
         F: FnOnce(&Self::Payload) -> T;
 }
-
-// pub trait ReadPart {
-//     type Payload;
-//     /// Read the payload of the graph part.
-//     fn read<T>(&self, reader: &dyn Reader<T, &Self::Payload>) -> Result<T>;
-// }
-
-// pub trait Reader<T, P> {
-//     fn reader(&mut self, payload: &P) -> T;
-// }
 
 pub trait FromItem {
     type Item;
@@ -253,17 +249,12 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
-// impl<T> ToApex for T
-// where
-//     T: 'static + ToNode + Solve + Adapt + Debug + SendSync,
-// {
-//     fn apex(&self) -> Apex {
-//         self.node().ploy().into()
-//     }
+// pub trait ReadPart {
+//     type Payload;
+//     /// Read the payload of the graph part.
+//     fn read<T>(&self, reader: &dyn Reader<T, &Self::Payload>) -> Result<T>;
 // }
 
-// if let Some(apex) = self.0.get(key) {
-//     Some(apex.pathed(key))
-// } else {
-//     None
+// pub trait Reader<T, P> {
+//     fn reader(&mut self, payload: &P) -> T;
 // }

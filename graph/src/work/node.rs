@@ -144,7 +144,7 @@ where
 
 impl<U> WriteUnitWork for Node<U>
 where
-    U: Solve,
+    U: Solve + Debug,
 {
     type Unit = U;
     fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
@@ -156,7 +156,7 @@ where
             unit: self.unit.as_mut().unwrap(),
             back,
         });
-        self.main = None;
+        self.clear();//self.main = None;
         Ok(out)
     }
 }
