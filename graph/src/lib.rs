@@ -165,6 +165,26 @@ where
     }
 }
 
+pub trait IntoPloy
+where
+    Self: Sized,
+{
+    fn ploy(self) -> Ploy;
+}
+
+impl<T> IntoPloy for T
+where
+    T: 'static + Adapt + Solve + SendSync + Debug,
+{
+    fn ploy(mut self) -> Ploy {
+        Link::<edge::Node<T>>::new_ploy(|back| {
+            self.adapt(Post::Trade(back))
+                .expect("To move into Node, unit must Adapt with Post::Trade.");
+            self
+        })
+    }
+}
+
 pub trait IntoApex {
     /// Move into `Apex`
     fn apex(self) -> Apex;
@@ -172,13 +192,10 @@ pub trait IntoApex {
 
 impl<T> IntoApex for T
 where
-    T: 'static + IntoNode + Solve + Adapt + Debug + SendSync,
+    T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
 {
     fn apex(self) -> Apex {
-        self.node()
-            .ploy()
-            .expect(IMMEDIATE_ACCESS)
-            .into()
+        self.ploy().into()
     }
 }
 

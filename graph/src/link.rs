@@ -147,7 +147,7 @@ impl<E> Link<E>
 where
     E: 'static + Make + Engage,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
+    pub fn new_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
         let edge = E::make(make);
         Link {
             path: None,

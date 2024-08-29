@@ -74,33 +74,6 @@ where
     }
 }
 
-// impl<N> MakePloy for Edge<N>
-// where
-//     N: 'static + Default + MakeMid + UpdateMid,
-// {
-//     type Unit = N::Unit;
-//     #[cfg(not(feature = "oneThread"))]
-//     fn make_ploy<F: FnOnce(&Back) -> Self::Unit>(make: F) -> PloyPointer {
-//         let cusp = N::default();
-//         let id = cusp.id();
-//         let cusp = Arc::new(RwLock::new(cusp));
-//         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
-//         let back = Back::new(Arc::downgrade(&update), id);
-//         write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
-//         PloyPointer { cusp, back: None }
-//     }
-//     #[cfg(feature = "oneThread")]
-//     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
-//         let cusp = N::default();
-//         let id = cusp.id();
-//         let cusp = Rc::new(RefCell::new(cusp));
-//         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
-//         let back = Back::new(Rc::downgrade(&update), id);
-//         write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
-//         Self { cusp, back: None }
-//     }
-// }
-
 impl<U> ToPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
