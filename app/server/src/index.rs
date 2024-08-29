@@ -26,7 +26,7 @@ impl Default for Imports {
     }
 }
 
-pub fn index() -> Result<String, Error> {
+pub fn index() -> Result<String> {
     Ok("page".into())
 }
 

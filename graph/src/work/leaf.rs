@@ -45,7 +45,10 @@ impl ToItem for Leaf {
 
 impl WriteTrayWork for Leaf {
     type Item = Tray;
-    fn write_tray_work<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&mut self, write: F) -> GraphResult<T> {
+    fn write_tray_work<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(
+        &mut self,
+        write: F,
+    ) -> Result<T> {
         write(Ok(&mut self.tray))
     }
 }
@@ -79,7 +82,7 @@ impl Clear for Leaf {
 }
 
 impl Serialize for Leaf {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
@@ -88,7 +91,7 @@ impl Serialize for Leaf {
 }
 
 impl<'de> Deserialize<'de> for Leaf {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
@@ -104,7 +107,7 @@ impl<'de> Visitor<'de> for LeafVisitor {
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("enum leaf form")
     }
-    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+    fn visit_map<A>(self, mut map: A) -> std::result::Result<Self::Value, A::Error>
     where
         A: MapAccess<'de>,
     {

@@ -131,9 +131,10 @@ impl Back {
             write_part(&cusp, |cusp| {
                 Ok(match cusp {
                     Ok(mut cusp) => cusp.rebut(),
-                    Err(_) => Ring::new()
+                    Err(_) => Ring::new(),
                 })
-            }).unwrap()
+            })
+            .unwrap()
         } else {
             Ring::new()
         }

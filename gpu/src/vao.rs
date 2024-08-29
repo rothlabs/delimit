@@ -17,8 +17,8 @@ pub struct Vao {
 }
 
 impl VaoBuilder {
-    pub fn link(&self) -> std::result::Result<Node<Vao>, VaoBuilderError> {
-        let mut vao = self.build()?;
+    pub fn link(&self) -> Result<Node<Vao>> {
+        let mut vao = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         let link = Node::make(|back| {
             vao.attributes = vao.attributes.backed(back);
             if let Some(index_buffer) = vao.index_buffer {

@@ -46,7 +46,7 @@ impl Space {
         }
         space
     }
-    pub fn get(&self, keys: &[Key]) -> GraphResult<Apex> {
+    pub fn get(&self, keys: &[Key]) -> Result<Apex> {
         if keys.is_empty() {
             Ok(self.apex.clone())
         } else if let Some(stem) = self.map.get(&keys[0]) {

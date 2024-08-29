@@ -147,11 +147,11 @@ where
     U: Solve,
 {
     type Unit = U;
-    fn write_unit_work<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
+    fn write_unit_work<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
         &mut self,
         write: F,
         back: &Back,
-    ) -> GraphResult<T> {
+    ) -> Result<T> {
         let out = write(Ok(&mut Pack {
             unit: self.unit.as_mut().unwrap(),
             back,

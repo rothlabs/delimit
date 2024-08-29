@@ -35,7 +35,7 @@ impl Apex {
     }
 
     /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> GraphResult<Apex> {
+    pub fn main(&self) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err(Error::NotPloy)?,
@@ -43,7 +43,7 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> GraphResult<Apex> {
+    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => match query.into() {
                 Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
@@ -67,7 +67,7 @@ impl Apex {
         }
     }
 
-    pub fn imports(&self) -> GraphResult<Vec<Import>> {
+    pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
             _ => Err(Error::NotPloy)?,
@@ -75,14 +75,14 @@ impl Apex {
     }
 
     /// Insert apex into new Lake.
-    pub fn lake(&self) -> GraphResult<Lake> {
+    pub fn lake(&self) -> Result<Lake> {
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
     }
 
     /// Get hash digest number of apex.
-    pub fn digest(&self) -> GraphResult<u64> {
+    pub fn digest(&self) -> Result<u64> {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
             Self::Ploy(ploy) => ploy.solve(Task::Hash),
@@ -92,7 +92,7 @@ impl Apex {
     }
 
     /// Get serial string of apex.
-    pub fn serial(&self) -> GraphResult<String> {
+    pub fn serial(&self) -> Result<String> {
         match self {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.solve(Task::Serial),
@@ -102,7 +102,7 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> GraphResult<Vec<Apex>> {
+    pub fn stems(&self) -> Result<Vec<Apex>> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::All),
             _ => Err(Error::NotPloy)?,
@@ -136,7 +136,7 @@ impl Apex {
     }
 
     /// Get tray of apex. Will solve to lowest rank if needed.
-    pub fn tray(&self) -> GraphResult<Tray> {
+    pub fn tray(&self) -> Result<Tray> {
         match self {
             Self::Tray(bare) => Ok(bare.clone()),
             Self::Leaf(leaf) => leaf.tray(),
@@ -158,7 +158,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> GraphResult<Apex> {
+    pub fn at(&self, target: usize) -> Result<Apex> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -183,10 +183,7 @@ impl Apex {
     }
 
     /// Read tray of apex.
-    pub fn read<T, F: FnOnce(GraphResult<&Tray>) -> GraphResult<T>>(
-        &self,
-        read: F,
-    ) -> GraphResult<T> {
+    pub fn read<T, F: FnOnce(Result<&Tray>) -> Result<T>>(&self, read: F) -> Result<T> {
         match self {
             Self::Tray(bare) => read(Ok(bare)),
             Self::Leaf(leaf) => leaf.read(read),
@@ -200,37 +197,37 @@ impl Apex {
     }
 
     /// Clone String from Apex.
-    pub fn string(&self) -> GraphResult<String> {
+    pub fn string(&self) -> Result<String> {
         let tray = self.tray()?;
         match tray {
             Tray::String(value) => Ok(value),
-            _ => Err(wrong_tray("String", tray))?,
+            _ => Err(wrong_tray("String", &tray))?,
         }
     }
 
     /// u32 from Apex.
-    pub fn u32(&self) -> GraphResult<u32> {
+    pub fn u32(&self) -> Result<u32> {
         let tray = self.tray()?;
         match tray {
             Tray::U32(value) => Ok(value),
-            _ => Err(wrong_tray("u32", tray))?,
+            _ => Err(wrong_tray("u32", &tray))?,
         }
     }
 
     /// i32 from Apex.
-    pub fn i32(&self) -> GraphResult<i32> {
+    pub fn i32(&self) -> Result<i32> {
         let tray = self.tray()?;
         match tray {
             Tray::I32(value) => Ok(value),
-            _ => Err(wrong_tray("i32", tray))?,
+            _ => Err(wrong_tray("i32", &tray))?,
         }
     }
 }
 
-pub fn wrong_tray(expected: &str, found: Tray) -> Error {
+pub fn wrong_tray(expected: &str, found: &Tray) -> Error {
     Error::WrongTray {
         expected: expected.into(),
-        found,
+        found: found.clone(),
     }
 }
 
@@ -242,13 +239,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> GraphResult<Vec<Apex>>;
+    fn at(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> GraphResult<Vec<Apex>> {
+    fn at(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

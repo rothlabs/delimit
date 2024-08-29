@@ -1,27 +1,5 @@
 use super::*;
 
-// pub const PAGE: &str = r#"<!DOCTYPE html>
-// <html lang="en">
-// <head>
-// <title>
-// Delimit
-// </title>
-// <meta charset="utf-8">
-// <meta name="viewport" content="width=device-width, initial-scale=1">
-// <meta name="author" content="Roth Labs LLC">
-// <script type="importmap">
-// {"imports":{"init":"/client.js"}}
-// </script>
-// </head>
-// <body>
-// Delimit
-// <canvas id="canvas">
-// </canvas>
-// <script src="/app.js" type="module">
-// </script>
-// </body>
-// </html>"#;
-
 const HTML_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,14 +45,14 @@ Delimit
 </html>"#;
 
 #[test]
-fn default_page() -> Result<(), Error> {
+fn default_page() -> Result<()> {
     assert_eq!(default_bay()?.get("page")?.string()?, PAGE);
     Ok(())
 }
 
 /// Lower and upper grapgs are reactive and independent of each other.
 #[test]
-fn reactive_lower_graph() -> Result<(), Error> {
+fn reactive_lower_graph() -> Result<()> {
     let bay = default_bay()?;
     let html = bay.get("page")?;
     let plain = html.at(PLAIN)?;
@@ -86,6 +64,28 @@ fn reactive_lower_graph() -> Result<(), Error> {
     assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
+
+// pub const PAGE: &str = r#"<!DOCTYPE html>
+// <html lang="en">
+// <head>
+// <title>
+// Delimit
+// </title>
+// <meta charset="utf-8">
+// <meta name="viewport" content="width=device-width, initial-scale=1">
+// <meta name="author" content="Roth Labs LLC">
+// <script type="importmap">
+// {"imports":{"init":"/client.js"}}
+// </script>
+// </head>
+// <body>
+// Delimit
+// <canvas id="canvas">
+// </canvas>
+// <script src="/app.js" type="module">
+// </script>
+// </body>
+// </html>"#;
 
 // /// The upper graph (html) should rebut up to the doc (pipe)
 // #[test]

@@ -64,7 +64,7 @@ impl Gpu {
             .buffer(buffer.clone())
             .clone()
     }
-    pub fn vao(&self, attributes: &Attributes) -> GraphResult<VaoBuilder> {
+    pub fn vao(&self, attributes: &Attributes) -> Result<VaoBuilder> {
         let object = self
             .gl
             .create_vertex_array()
@@ -79,7 +79,7 @@ impl Gpu {
         // <T: Copy>
         &self,
         array: impl Into<Apex>,
-    ) -> GraphResult<TextureBuilder> {
+    ) -> Result<TextureBuilder> {
         let texture = self
             .gl
             .create_texture()

@@ -4,7 +4,7 @@ use super::*;
 pub struct Atlas;
 
 impl DeserializeUnit for Atlas {
-    fn deserialize(&self, serial: &SerialNode) -> GraphResult<Apex> {
+    fn deserialize(&self, serial: &SerialNode) -> graph::Result<Apex> {
         let part: Part = serde_json::from_str(&serial.unit)?;
         Ok(part.apex(serial.imports.clone()))
     }

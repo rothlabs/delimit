@@ -6,29 +6,23 @@ pub struct View<'a> {
 
 impl<'a> View<'a> {
     /// String reader
-    pub fn string<T, F: FnOnce(GraphResult<&String>) -> GraphResult<T>>(
-        &self,
-        read: F,
-    ) -> GraphResult<T> {
+    pub fn string<T, F: FnOnce(Result<&String>) -> Result<T>>(&self, read: F) -> Result<T> {
         self.apex.read(|tray| {
             let tray = tray?;
             match tray {
                 Tray::String(value) => read(Ok(value)),
-                _ => Err(wrong_tray("String", tray.clone()))?,
+                _ => Err(wrong_tray("String", tray))?,
             }
         })
     }
 
     /// Vec<u8> reader
-    pub fn vec_u8<T, F: FnOnce(GraphResult<&Vec<u8>>) -> GraphResult<T>>(
-        &self,
-        read: F,
-    ) -> GraphResult<T> {
+    pub fn vec_u8<T, F: FnOnce(Result<&Vec<u8>>) -> Result<T>>(&self, read: F) -> Result<T> {
         self.apex.read(|tray| {
             let tray = tray?;
             match tray {
                 Tray::Vu8(value) => read(Ok(value)),
-                _ => Err(wrong_tray("Vec<u8>", tray.clone()))?,
+                _ => Err(wrong_tray("Vec<u8>", tray))?,
             }
         })
     }

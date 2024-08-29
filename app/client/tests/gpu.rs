@@ -1,17 +1,18 @@
 use gpu::*;
 use graph::*;
+use texture::Texture;
 // use gpu_setup::draw_basic_elements;
 // use gpu_setup::*;
-use std::error::Error;
+// use std::error::Error;
 
 // mod gpu_setup;
 
-pub fn make_canvas() -> GraphResult<Gpu> {
+pub fn make_canvas() -> Result<Gpu> {
     let canvas = Canvas::link();
     canvas.read(|unit| Ok(unit?.gpu()))
 }
 
-pub fn make_canvas_on_body() -> GraphResult<Gpu> {
+pub fn make_canvas_on_body() -> Result<Gpu> {
     let canvas = Canvas::link();
     let gpu = canvas.read(|unit| {
         let unit = unit?;
@@ -62,7 +63,7 @@ pub fn make_vertex_color_buffer(gpu: &Gpu) -> buffer::Result {
     Ok(buffer)
 }
 
-pub fn make_basic_texture(gpu: &Gpu) -> texture::Result {
+pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
     #[rustfmt::skip]
     let array: Vec<u8> = vec![
         128,128,128,		230,25,75,			60,180,75,			255,225,25,
@@ -74,7 +75,7 @@ pub fn make_basic_texture(gpu: &Gpu) -> texture::Result {
     Ok(texture)
 }
 
-pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf), Box<dyn Error>> {
+pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf)> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -91,7 +92,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf), Box<dyn 
     Ok((elements, vertex_source))
 }
 
-pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>, Box<dyn Error>> {
+pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>> {
     let program = make_tex_program(&gpu)?;
     let buffer = make_vertex_color_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -124,7 +125,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>, Box<dyn
 ////////////////////////////////////// Tests
 //////////////////////////////////////
 
-pub fn make_vertex_shader() -> GraphResult<()> {
+pub fn make_vertex_shader() -> Result<()> {
     let gpu = make_canvas()?;
     if let Err(memo) = gpu.vertex_shader(shader::basic::VERTEX) {
         panic!("gpu error: {memo}");
@@ -132,7 +133,7 @@ pub fn make_vertex_shader() -> GraphResult<()> {
     Ok(())
 }
 
-pub fn make_fragment_shader() -> GraphResult<()> {
+pub fn make_fragment_shader() -> Result<()> {
     let gpu = make_canvas()?;
     if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT_RED) {
         panic!("gpu error: {memo}");
@@ -140,7 +141,7 @@ pub fn make_fragment_shader() -> GraphResult<()> {
     Ok(())
 }
 
-pub fn make_program() -> GraphResult<()> {
+pub fn make_program() -> Result<()> {
     let gpu = make_canvas()?;
     make_basic_program(&gpu);
     Ok(())
@@ -152,7 +153,7 @@ pub fn make_buffer() -> buffer::Result {
     make_basic_buffer(&gpu)
 }
 
-pub fn make_index_buffer() -> GraphResult<()> {
+pub fn make_index_buffer() -> Result<()> {
     let gpu = make_canvas()?;
     let array: Vec<u16> = vec![0, 1, 2];
     let buffer = gpu.index_buffer(array);
@@ -162,7 +163,7 @@ pub fn make_index_buffer() -> GraphResult<()> {
     Ok(())
 }
 
-pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
+pub fn make_vertex_attribute() -> Result<()> {
     let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
@@ -174,7 +175,7 @@ pub fn make_vertex_attribute() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
+pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer).size(3_i32).link()?;
@@ -182,14 +183,14 @@ pub fn make_vertex_array_object() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn draw_elements() -> Result<(), Box<dyn Error>> {
+pub fn draw_elements() -> Result<()> {
     let gpu = make_canvas_on_body()?;
     draw_elements_basic(&gpu)?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
-pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
+pub fn elements_react_to_shader_source() -> Result<()> {
     let gpu = make_canvas_on_body()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     shader_source.write(|tray| {
@@ -205,7 +206,7 @@ pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
-pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
+pub fn shader_source_error() -> Result<()> {
     let gpu = make_canvas()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     if let Err(_) = shader_source.write(|tray| {
@@ -222,7 +223,7 @@ pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
     }
 }
 
-pub fn draw_elements_textured() -> Result<(), Box<dyn Error>> {
+pub fn draw_elements_textured() -> Result<()> {
     let gpu = make_canvas_on_body()?;
     draw_elements_textured_basic(&gpu)?;
     Ok(())

@@ -62,9 +62,10 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
         write_part(&cusp, |cusp| {
-            cusp.expect(IMMEDIATE_ACCESS).make(make, &back); 
+            cusp.expect(IMMEDIATE_ACCESS).make(make, &back);
             Ok(())
-        }).expect(IMMEDIATE_ACCESS);
+        })
+        .expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -75,9 +76,10 @@ where
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
         write_part(&cusp, |cusp| {
-            cusp.expect(IMMEDIATE_ACCESS).make(make, &back); 
+            cusp.expect(IMMEDIATE_ACCESS).make(make, &back);
             Ok(())
-        }).expect(IMMEDIATE_ACCESS);
+        })
+        .expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
 }
@@ -95,9 +97,10 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
         write_part(&cusp, |cusp| {
-            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back); 
+            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back);
             Ok(())
-        }).expect(IMMEDIATE_ACCESS);
+        })
+        .expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -108,9 +111,10 @@ where
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
         write_part(&cusp, |cusp| {
-            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back); 
+            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back);
             Ok(())
-        }).expect(IMMEDIATE_ACCESS);
+        })
+        .expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
 }
@@ -191,7 +195,7 @@ where
     N: WriteTrayOut,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(&self, write: F) -> Result<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |cusp| cusp?.write_tray_out(write))?;
         for root in &roots {
@@ -206,10 +210,10 @@ where
     N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
+    fn write<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
         &self,
         write: F,
-    ) -> GraphResult<T> {
+    ) -> Result<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |cusp| cusp?.write_unit_out(write))?;
         for root in &roots {
@@ -223,11 +227,8 @@ impl<N> Read for Edge<N>
 where
     N: ToItem,
 {
-    type Item = N::Item;
-    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(
-        &self,
-        read: F,
-    ) -> GraphResult<T> {
+    type Payload = N::Item;
+    fn read<T, F: FnOnce(Result<&Self::Payload>) -> Result<T>>(&self, read: F) -> Result<T> {
         // read_part(&self.cusp, |cusp| read(Ok(cusp?.item())))
         read_part(&self.cusp, |cusp| match cusp {
             Ok(cusp) => read(Ok(cusp.item())),
@@ -242,7 +243,11 @@ where
 {
     fn add_root(&self, root: Root) {
         // TODO: propagate error up
-        write_part(&self.cusp, |cusp| {cusp?.add_root(root); Ok(())}).ok();
+        write_part(&self.cusp, |cusp| {
+            cusp?.add_root(root);
+            Ok(())
+        })
+        .ok();
     }
 }
 

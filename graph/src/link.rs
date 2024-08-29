@@ -67,7 +67,7 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> Result<Apex, crate::Error> {
+    pub fn main(&self) -> Result<Apex> {
         match self.solve(Task::Main)? {
             Gain::Apex(apex) => Ok(apex),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
@@ -93,7 +93,7 @@ impl<E> Serialize for Link<E>
 where
     Self: Solve,
 {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
@@ -162,9 +162,9 @@ where
 
 impl<E> Link<E>
 where
-    E: Read<Item = Tray>,
+    E: Read<Payload = Tray>,
 {
-    pub fn tray(&self) -> GraphResult<Tray> {
+    pub fn tray(&self) -> Result<Tray> {
         read_part(&self.edge, |edge| edge?.read(|tray| tray.cloned()))
     }
 }
@@ -196,7 +196,7 @@ where
     E: ToPloy,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> GraphResult<Ploy> {
+    pub fn ploy(&self) -> Result<Ploy> {
         read_part(&self.edge, |edge| {
             Ok(Ploy {
                 edge: edge?.ploy(),
@@ -263,11 +263,8 @@ impl<E> Read for Link<E>
 where
     E: 'static + Read + Update + AddRoot,
 {
-    type Item = E::Item;
-    fn read<T, F: FnOnce(GraphResult<&Self::Item>) -> GraphResult<T>>(
-        &self,
-        read: F,
-    ) -> GraphResult<T> {
+    type Payload = E::Payload;
+    fn read<T, F: FnOnce(Result<&Self::Payload>) -> Result<T>>(&self, read: F) -> Result<T> {
         read_part(&self.edge, |edge| match edge {
             Ok(edge) => {
                 let out = edge.read(read);
@@ -284,7 +281,7 @@ where
     E: WriteTray,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(&self, write: F) -> Result<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
@@ -294,10 +291,10 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
+    fn write<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
         &self,
         write: F,
-    ) -> GraphResult<T> {
+    ) -> Result<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
@@ -327,7 +324,7 @@ where
 
 impl TryBacked for Ploy {
     type Out = Ploy;
-    fn backed(&self, back: &Back) -> Result<Self::Out, Error> {
+    fn backed(&self, back: &Back) -> Result<Self::Out> {
         read_part(&self.edge, |edge| {
             Ok(Self {
                 edge: edge?.backed_ploy(back),

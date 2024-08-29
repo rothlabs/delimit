@@ -5,15 +5,16 @@ fn new_list(ace: &Leaf) -> Node<List> {
 }
 
 #[test]
-fn read_from_list() -> Result<(), Error> {
+fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
     let text_node = new_list(&string_leaf).apex();
-    text_node.view()
+    text_node
+        .view()
         .string(|string| Ok(assert_eq!(string?, "str, ace")))
 }
 
 #[test]
-fn solve_same_apex_twice() -> Result<(), Error> {
+fn solve_same_apex_twice() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     assert!(text.main()? == text.main()?);
@@ -21,7 +22,7 @@ fn solve_same_apex_twice() -> Result<(), Error> {
 }
 
 #[test]
-fn rebut_from_self() -> Result<(), Error> {
+fn rebut_from_self() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
@@ -35,7 +36,7 @@ fn rebut_from_self() -> Result<(), Error> {
 }
 
 #[test]
-fn react_from_stem() -> Result<(), Error> {
+fn react_from_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     let a = text.solve(Task::Main)?;
@@ -54,7 +55,7 @@ fn react_from_stem() -> Result<(), Error> {
 }
 
 #[test]
-fn no_rebut_after_dropping_stem() -> Result<(), Error> {
+fn no_rebut_after_dropping_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace);
     let _r = text.solve(Task::Main);

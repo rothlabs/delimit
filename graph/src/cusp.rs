@@ -75,14 +75,17 @@ where
     W: WriteTrayWork,
 {
     type Item = W::Item;
-    fn write_tray_out<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&mut self, write: F) -> GraphResult<write::Out<T>> {
+    fn write_tray_out<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(
+        &mut self,
+        write: F,
+    ) -> Result<write::Out<T>> {
         let out = self.work.write_tray_work(write)?;
         let roots = self.ring.rebut_roots();
         Ok(write::Out {
-                    roots,
-                    out,
-                    id: self.id,
-                })
+            roots,
+            out,
+            id: self.id,
+        })
     }
 }
 
@@ -91,19 +94,19 @@ where
     W: WriteUnitWork,
 {
     type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
+    fn write_unit_out<T, F: FnOnce(Result<&mut Pack<Self::Unit>>) -> Result<T>>(
         &mut self,
         write: F,
-    ) -> GraphResult<write::Out<T>> {
+    ) -> Result<write::Out<T>> {
         let out = self
             .work
             .write_unit_work(write, &self.back.clone().unwrap())?;
         let roots = self.ring.rebut_roots();
         Ok(write::Out {
-                    roots,
-                    out,
-                    id: self.id,
-                })
+            roots,
+            out,
+            id: self.id,
+        })
     }
 }
 
@@ -155,7 +158,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>, crate::Error> {
+    fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>> {
         self.work.clear();
         let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."))?;
         let out = self.work.adapt(post)?;

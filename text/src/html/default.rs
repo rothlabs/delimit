@@ -22,7 +22,7 @@ Delimit
 </body>
 </html>"#;
 
-pub fn default_bay() -> Result<Apex, Error> {
+pub fn default_bay() -> Result<Apex> {
     let mut bay = Bay::new();
 
     let title = "Delimit".leaf().apex();
@@ -101,7 +101,7 @@ pub fn default_bay() -> Result<Apex, Error> {
     Ok(root)
 }
 
-pub fn page(bay: &Apex) -> Result<Apex, Error> {
+pub fn page(bay: &Apex) -> Result<Apex> {
     let head = Element::new()
         .open(bay.get("head")?)
         .item(bay.get("title_element")?)

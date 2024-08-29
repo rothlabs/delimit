@@ -1,6 +1,6 @@
 use super::*;
 
-pub type Result = std::result::Result<Node<VertexAttribute>, VertexAttributeBuilderError>;
+// type BuilderResult = std::result::Result<Node<VertexAttribute>, VertexAttributeBuilderError>;
 
 /// Tell the GPU how to read from a buffer
 #[derive(Builder, Debug)]
@@ -23,8 +23,8 @@ pub struct VertexAttribute {
 }
 
 impl VertexAttributeBuilder {
-    pub fn link(&self) -> Result {
-        let mut attrib = self.build()?;
+    pub fn link(&self) -> Result<Node<VertexAttribute>> {
+        let mut attrib = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         Ok(Node::make(|back| {
             attrib.buffer = attrib.buffer.backed(back);
             attrib.index = attrib.index.backed(back);
@@ -37,7 +37,7 @@ impl VertexAttributeBuilder {
 }
 
 impl VertexAttribute {
-    fn set(&self, buffer: &Buffer, index: u32) -> GraphResult<()> {
+    fn set(&self, buffer: &Buffer, index: u32) -> Result<()> {
         buffer.bind();
         self.gl.vertex_attrib_pointer_with_i32(
             index,

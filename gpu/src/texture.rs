@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-pub type Result = std::result::Result<Node<Texture>, graph::Error>;
+// type BuilderResult = std::result::Result<Node<Texture>, TextureBuilderError>;
 
 #[derive(Builder, Debug)]
 #[builder(setter(into))]
@@ -26,7 +26,7 @@ impl Texture {
 }
 
 impl TextureBuilder {
-    pub fn link(&self) -> Result {
+    pub fn link(&self) -> Result<Node<Texture>> {
         if let Ok(mut texture) = self.build() {
             let link = Node::make(|back| {
                 texture.array = texture.array.backed(back);

@@ -59,13 +59,13 @@ impl Lake {
     }
 
     /// Grow a tree from the lake.
-    pub fn tree(&self) -> Result<Apex, Error> {
+    pub fn tree(&self) -> Result<Apex> {
         let root = self.root("root")?;
         self.grow(&root).ok();
         Ok(root)
     }
 
-    fn grow(&self, apex: &Apex) -> Result<(), Error> {
+    fn grow(&self, apex: &Apex) -> Result<()> {
         apex.trade(self);
         for apex in apex.stems()? {
             self.grow(&apex).ok();
@@ -74,7 +74,7 @@ impl Lake {
     }
 
     /// Get a root apex by Key.
-    fn root(&self, key: impl Into<Key>) -> GraphResult<Apex> {
+    fn root(&self, key: impl Into<Key>) -> Result<Apex> {
         let serial = self
             .roots
             .get(&key.into())
@@ -86,7 +86,7 @@ impl Lake {
     }
 
     /// Get a apex by hash.
-    fn get(&self, hash: u64) -> GraphResult<Apex> {
+    fn get(&self, hash: u64) -> Result<Apex> {
         let serial = self.nodes.get(&hash).ok_or(anyhow!("Node not found."))?;
         self.atlas
             .as_ref()

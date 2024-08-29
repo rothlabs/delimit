@@ -1,8 +1,5 @@
 pub use config::STORAGE;
 
-use std::convert::Infallible;
-use std::net::SocketAddr;
-
 use bytes::Bytes;
 use http_body_util::Full;
 use hyper::body::Body;
@@ -10,10 +7,12 @@ use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
+use serde::*;
+use std::convert::Infallible;
+use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
 
-use graph::*;
-use serde::*;
+use graph::{self, serial::*, snap::*, write::*, Apex, Import, Leaf, SerialNode, Tray};
 
 mod atlas;
 mod config;
@@ -23,7 +22,8 @@ mod tests;
 type Io = TokioIo<TcpStream>;
 
 #[tokio::main] // #[tokio::main(flavor = "current_thread")]
-pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn main() -> graph::Result<()> {
+    // Result<(), Box<dyn std::error::Error + Send + Sync>>
     pretty_env_logger::init();
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;

@@ -61,7 +61,7 @@ impl List {
     }
 }
 
-fn push_str(base: &mut String, string: GraphResult<&String>) -> GraphResult<()> {
+fn push_str(base: &mut String, string: Result<&String>) -> Result<()> {
     base.push_str(string.unwrap_or(&"".into()));
     Ok(())
 }

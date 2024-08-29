@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn read_ace_string() -> GraphResult<()> {
+fn read_ace_string() -> Result<()> {
     let string = "I'm a ace string!";
     let leaf = string.leaf(); //Ace::new(string.to_owned());
     leaf.read(|tray| match tray? {

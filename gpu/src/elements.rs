@@ -1,4 +1,5 @@
 use super::*;
+// std::result::Result<Node<Elements>, ElementsBuilderError>
 
 /// Draw elements based on program, buffer, vertex array object (vao), count, and offset.
 #[derive(Builder, Debug)]
@@ -19,8 +20,8 @@ pub struct Elements {
 }
 
 impl ElementsBuilder {
-    pub fn link(&self) -> std::result::Result<Node<Elements>, ElementsBuilderError> {
-        let mut elements = self.build()?;
+    pub fn link(&self) -> Result<Node<Elements>> {
+        let mut elements = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         let link = Node::make(|back| {
             elements.program = elements.program.backed(back);
             elements.buffer = elements.buffer.backed(back);
@@ -34,7 +35,7 @@ impl ElementsBuilder {
 }
 
 impl Elements {
-    fn draw(&self, vao: &Vao) -> GraphResult<()> {
+    fn draw(&self, vao: &Vao) -> Result<()> {
         vao.bind();
         self.gl.draw_elements_with_i32(
             WGLRC::TRIANGLES,

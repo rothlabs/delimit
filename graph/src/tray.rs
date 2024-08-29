@@ -43,6 +43,12 @@ impl Tray {
             _ => None,
         }
     }
+    pub fn wrong_variant(&self, expected: &str) -> apex::Error {
+        apex::Error::WrongTray {
+            expected: expected.into(),
+            found: self.clone(),
+        }
+    }
 }
 
 impl Hash for Tray {
