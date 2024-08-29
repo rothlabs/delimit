@@ -5,6 +5,7 @@ pub struct View<'a> {
 }
 
 impl<'a> View<'a> {
+    /// String reader
     pub fn string<T, F: FnOnce(GraphResult<&String>) -> GraphResult<T>>(
         &self,
         read: F,
@@ -17,7 +18,9 @@ impl<'a> View<'a> {
             }
         })
     }
-    pub fn vu8<T, F: FnOnce(GraphResult<&Vec<u8>>) -> GraphResult<T>>(
+
+    /// Vec<u8> reader
+    pub fn vec_u8<T, F: FnOnce(GraphResult<&Vec<u8>>) -> GraphResult<T>>(
         &self,
         read: F,
     ) -> GraphResult<T> {

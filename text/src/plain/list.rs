@@ -42,30 +42,28 @@ impl List {
     }
     fn main(&self) -> solve::Result {
         if self.items.is_empty() {
-            return Ok(Gain::None);
+            return solve_ok();
         }
         let last = self.items.len() - 1;
-        let mut string = String::new();
-        let empty = String::new();
-        let sep = self.separator.string().unwrap_or_default();
+        let mut base = String::new();
+        let separator = self.separator.string().unwrap_or_default();
         for i in 0..last {
-            self.items[i].view().string(|s| {
-                string += s.unwrap_or(&empty);
-                Ok(())
-            })?;
-            string += &sep;
+            self.items[i].view().string(|x| push_str(&mut base, x))?;
+            base += &separator;
         }
-        self.items[last].view().string(|s| {
-            string += s.unwrap_or(&empty);
-            Ok(())
-        })?;
-        string.leaf().apex().gain()
+        self.items[last].view().string(|x| push_str(&mut base, x))?;
+        base.leaf().apex().gain()
     }
     fn all(&self) -> solve::Result {
         let mut apexes = vec![self.separator.clone()];
         apexes.extend(self.items.clone());
         apexes.gain()
     }
+}
+
+fn push_str(base: &mut String, string: GraphResult<&String>) -> GraphResult<()> {
+    base.push_str(string.unwrap_or(&"".into()));
+    Ok(())
 }
 
 impl Adapt for List {
@@ -90,3 +88,16 @@ impl Solve for List {
         }
     }
 }
+
+// let separator = self.separator.string().unwrap_or_default();
+//         for i in 0..last {
+//             self.items[i].view().string(|s| {
+//                 string += s.unwrap_or(&"".into());
+//                 Ok(())
+//             })?;
+//             string += &separator;
+//         }
+//         self.items[last].view().string(|s| {
+//             string += s.unwrap_or(&"".into());
+//             Ok(())
+//         })?;

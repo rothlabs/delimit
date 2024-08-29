@@ -1,5 +1,5 @@
 pub use adapt::{adapt_ok, no_adapter, Adapt, AdaptMid, AdaptOut, Memo, Post};
-pub use apex::{Apex, EngageApexes};
+pub use apex::{wrong_tray, Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
@@ -115,11 +115,6 @@ fn read_part<P: ?Sized, O, F: FnOnce(GraphResult<Ref<P>>) -> GraphResult<O>>(
         Ok(part) => read(Ok(part)),
         Err(err) => read(Err(Error::Read(err.to_string()))),
     }
-    // match part.try_borrow() {
-    //     Ok(part) => read(part),
-    //     Err(err) => Err(Error::Read(err.to_string()))
-    // }
-    // read(part.borrow())
 }
 
 #[cfg(not(feature = "oneThread"))]

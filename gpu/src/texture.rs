@@ -45,7 +45,7 @@ impl TextureBuilder {
 impl Solve for Texture {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.view().vu8(|unit| {
+        self.array.view().vec_u8(|unit| {
             let pixels = unsafe {
                 Uint8Array::view(unit?.as_slice())
             };

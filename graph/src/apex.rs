@@ -199,7 +199,7 @@ impl Apex {
         View { apex: self }
     }
 
-    /// Clone of String from Apex.
+    /// Clone String from Apex.
     pub fn string(&self) -> GraphResult<String> {
         let tray = self.tray()?;
         match tray {

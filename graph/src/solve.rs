@@ -58,12 +58,3 @@ pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
         unit: format!("{:?}", unit),
     })?
 }
-
-// pub fn wrong_gain(expected: &str, found: &str) -> solve::Result {
-//     Err(Error::WrongGain { expected: expected.into(), found: found.into() })
-// }
-
-// pub fn no_adapter(post: Post) -> adapt::Result {
-//     Err(AdaptError::NoAdapter)
-//     //Err(format!("No adapter: {:?}", post))?
-// }

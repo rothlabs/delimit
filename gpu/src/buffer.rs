@@ -39,8 +39,9 @@ impl Buffer {
 impl Solve for Buffer {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.read(|array| unsafe {
-            match array? {
+        self.array.read(|tray| unsafe {
+            let tray = tray?;
+            match tray {
                 Tray::Vu16(array) => self.gl.buffer_data_with_array_buffer_view(
                     self.target,
                     &Uint16Array::view(array.as_slice()),
@@ -51,11 +52,11 @@ impl Solve for Buffer {
                     &Float32Array::view(array.as_slice()),
                     WGLRC::STATIC_DRAW,
                 ),
-                _ => (), //return Err(wrong_tray("Vu16", array.clone()))?
+                _ => return Err(wrong_tray("Vec<u16> or Vec<f32>", tray.clone()))?,
             };
             Ok(())
         })?;
         self.unbind();
-        Ok(Gain::None)
+        solve_ok()
     }
 }
