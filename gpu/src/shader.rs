@@ -33,10 +33,9 @@ impl Shader {
 
 impl Solve for Shader {
     fn solve(&self, _: Task) -> solve::Result {
-        self.source.view().string(|src| {
-            self.gl.shader_source(&self.shader, src?);
-            Ok(())
-        })?;
+        self.source
+            .view()
+            .string(|src| self.gl.shader_source(&self.shader, src))?;
         self.gl.compile_shader(&self.shader);
         if self
             .gl

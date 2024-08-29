@@ -96,24 +96,21 @@ pub trait SendSync {}
 impl<T> SendSync for T {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(Result<RwLockReadGuard<P>>) -> Result<O>>(
+fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O> {
     match part.read() {
-        Ok(part) => read(Ok(part)),
-        Err(err) => read(Err(Error::Read(err.to_string()))),
+        Ok(part) => Ok(read(part)),
+        Err(err) => Err(Error::Read(err.to_string())),
     }
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P: ?Sized, O, F: FnOnce(Result<Ref<P>>) -> Result<O>>(
-    part: &Rc<RefCell<P>>,
-    read: F,
-) -> Result<O> {
+fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: F) -> Result<O> {
     match part.try_borrow() {
-        Ok(part) => read(Ok(part)),
-        Err(err) => read(Err(Error::Read(err.to_string()))),
+        Ok(part) => Ok(read(part)),
+        Err(err) => Err(Error::Read(err.to_string())),
     }
 }
 
@@ -214,7 +211,7 @@ pub trait Read {
     /// Read the payload of the graph part.
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
-        F: FnOnce(Result<&Self::Payload>) -> Result<T>;
+        F: FnOnce(&Self::Payload) -> T;
 }
 
 // pub trait ReadPart {
@@ -225,14 +222,6 @@ pub trait Read {
 
 // pub trait Reader<T, P> {
 //     fn reader(&mut self, payload: &P) -> T;
-// }
-
-// pub trait Read {
-//     type Payload;
-//     /// Read the payload of the graph part.
-//     fn read<T, F>(&self, read: F) -> graph::Result<T>
-//     where
-//         F: FnOnce(&Self::Payload) -> T;
 // }
 
 pub trait FromItem {

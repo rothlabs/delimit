@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
+// pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
 
 #[derive(Debug)]
 pub struct Buffer {
@@ -12,16 +12,7 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn bind(&self) {
-        self.gl.bind_buffer(self.target, Some(&self.buffer));
-    }
-    pub fn unbind(&self) {
-        self.gl.bind_buffer(self.target, None);
-    }
-}
-
-impl Buffer {
-    pub fn link(gl: &WGLRC, target: u32, array: &Apex) -> Result {
+    pub fn link(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
         let buffer = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;
@@ -34,28 +25,38 @@ impl Buffer {
         link.solve(Task::Main)?;
         Ok(link)
     }
+    pub fn bind(&self) {
+        self.gl.bind_buffer(self.target, Some(&self.buffer));
+    }
+    pub fn unbind(&self) {
+        self.gl.bind_buffer(self.target, None);
+    }
+    fn set(&self, tray: &Tray) -> Result<()> {
+        match tray {
+            Tray::Vu16(array) => unsafe {
+                self.gl.buffer_data_with_array_buffer_view(
+                    self.target,
+                    &Uint16Array::view(array.as_slice()),
+                    WGLRC::STATIC_DRAW,
+                )
+            },
+            Tray::Vf32(array) => unsafe {
+                self.gl.buffer_data_with_array_buffer_view(
+                    self.target,
+                    &Float32Array::view(array.as_slice()),
+                    WGLRC::STATIC_DRAW,
+                )
+            },
+            tray => return Err(tray.wrong_variant("Vec<u16> or Vec<f32>"))?,
+        };
+        Ok(())
+    }
 }
 
 impl Solve for Buffer {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.read(|tray| unsafe {
-            let tray = tray?;
-            match tray {
-                Tray::Vu16(array) => self.gl.buffer_data_with_array_buffer_view(
-                    self.target,
-                    &Uint16Array::view(array.as_slice()),
-                    WGLRC::STATIC_DRAW,
-                ),
-                Tray::Vf32(array) => self.gl.buffer_data_with_array_buffer_view(
-                    self.target,
-                    &Float32Array::view(array.as_slice()),
-                    WGLRC::STATIC_DRAW,
-                ),
-                _ => return Err(wrong_tray("Vec<u16> or Vec<f32>", tray.clone()))?,
-            };
-            Ok(())
-        })?;
+        self.array.read(|tray| self.set(tray))??;
         self.unbind();
         solve_ok()
     }

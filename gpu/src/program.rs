@@ -17,14 +17,8 @@ impl Program {
         let program = gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;
-        vertex.read(|unit| {
-            gl.attach_shader(&program, &unit?.shader);
-            Ok(())
-        })?;
-        fragment.read(|unit| {
-            gl.attach_shader(&program, &unit?.shader);
-            Ok(())
-        })?;
+        vertex.read(|unit| gl.attach_shader(&program, &unit.shader))?;
+        fragment.read(|unit| gl.attach_shader(&program, &unit.shader))?;
         let link = Node::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),

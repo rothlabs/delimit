@@ -165,7 +165,7 @@ where
     E: Read<Payload = Tray>,
 {
     pub fn tray(&self) -> Result<Tray> {
-        read_part(&self.edge, |edge| edge?.read(|tray| tray.cloned()))
+        read_part(&self.edge, |edge| edge.read(|tray| tray.clone()))?
     }
 }
 
@@ -197,12 +197,10 @@ where
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Result<Ploy> {
-        read_part(&self.edge, |edge| {
-            Ok(Ploy {
-                edge: edge?.ploy(),
-                path: self.path.clone(),
-                rank: self.rank,
-            })
+        read_part(&self.edge, |edge| Ploy {
+            edge: edge.ploy(),
+            path: self.path.clone(),
+            rank: self.rank,
         })
     }
 }
@@ -259,20 +257,17 @@ where
 
 /// TODO: make reader that does not add a root to the cusp.
 /// This will allow readers to inspect without rebuting in the future.
-impl<E> Read for Link<E>
+impl<E> Link<E> 
 where
     E: 'static + Read + Update + AddRoot,
 {
-    type Payload = E::Payload;
-    fn read<T, F: FnOnce(Result<&Self::Payload>) -> Result<T>>(&self, read: F) -> Result<T> {
-        read_part(&self.edge, |edge| match edge {
-            Ok(edge) => {
-                let out = edge.read(read);
-                edge.add_root(self.as_root(edge.id()));
-                out
-            }
-            Err(err) => read(Err(err)),
-        })
+    /// Read payload of Link.
+    pub fn read<T, F: FnOnce(&E::Payload) -> T>(&self, read: F) -> Result<T> {
+        read_part(&self.edge, |edge| {
+            let out = edge.read(read);
+            edge.add_root(self.as_root(edge.id()));
+            out
+        })?
     }
 }
 
@@ -282,7 +277,7 @@ where
 {
     type Item = E::Item;
     fn write<T, F: FnOnce(Result<&mut Self::Item>) -> Result<T>>(&self, write: F) -> Result<T> {
-        read_part(&self.edge, |edge| edge?.write(write))
+        read_part(&self.edge, |edge| edge.write(write))?
     }
 }
 
@@ -295,7 +290,7 @@ where
         &self,
         write: F,
     ) -> Result<T> {
-        read_part(&self.edge, |edge| edge?.write(write))
+        read_part(&self.edge, |edge| edge.write(write))?
     }
 }
 
@@ -305,11 +300,10 @@ where
 {
     fn solve(&self, task: Task) -> solve::Result {
         read_part(&self.edge, |edge| {
-            let edge = edge?;
-            let result = edge.solve(task)?;
+            let result = edge.solve(task);
             edge.add_root(self.as_root(edge.id()));
-            Ok(result)
-        })
+            result
+        })?
     }
 }
 
@@ -318,19 +312,17 @@ where
     E: AdaptMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        read_part(&self.edge, |edge| edge?.adapt(post))
+        read_part(&self.edge, |edge| edge.adapt(post))?
     }
 }
 
 impl TryBacked for Ploy {
     type Out = Ploy;
     fn backed(&self, back: &Back) -> Result<Self::Out> {
-        read_part(&self.edge, |edge| {
-            Ok(Self {
-                edge: edge?.backed_ploy(back),
-                path: self.path.clone(),
-                rank: self.rank,
-            })
+        read_part(&self.edge, |edge| Self {
+            edge: edge.backed_ploy(back),
+            path: self.path.clone(),
+            rank: self.rank,
         })
     }
 }

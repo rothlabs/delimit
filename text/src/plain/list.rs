@@ -48,10 +48,10 @@ impl List {
         let mut base = String::new();
         let separator = self.separator.string().unwrap_or_default();
         for i in 0..last {
-            self.items[i].view().string(|x| push_str(&mut base, x))?;
+            self.items[i].view().string(|x| base += x)?;
             base += &separator;
         }
-        self.items[last].view().string(|x| push_str(&mut base, x))?;
+        self.items[last].view().string(|x| base += x)?;
         base.leaf().apex().gain()
     }
     fn all(&self) -> solve::Result {
@@ -61,10 +61,10 @@ impl List {
     }
 }
 
-fn push_str(base: &mut String, string: Result<&String>) -> Result<()> {
-    base.push_str(string.unwrap_or(&"".into()));
-    Ok(())
-}
+// fn push_str(base: &mut String, string: &String) -> Result<()> {
+//     base.push_str(string.unwrap_or(&"".into()));
+//     Ok(())
+// }
 
 impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {

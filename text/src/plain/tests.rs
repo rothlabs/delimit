@@ -10,7 +10,7 @@ fn read_from_list() -> Result<()> {
     let text_node = new_list(&string_leaf).apex();
     text_node
         .view()
-        .string(|string| Ok(assert_eq!(string?, "str, ace")))
+        .string(|string| assert_eq!(string, "str, ace"))
 }
 
 #[test]

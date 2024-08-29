@@ -183,9 +183,9 @@ impl Apex {
     }
 
     /// Read tray of apex.
-    pub fn read<T, F: FnOnce(Result<&Tray>) -> Result<T>>(&self, read: F) -> Result<T> {
+    pub fn read<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T> {
         match self {
-            Self::Tray(bare) => read(Ok(bare)),
+            Self::Tray(bare) => Ok(read(bare)),
             Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
         }

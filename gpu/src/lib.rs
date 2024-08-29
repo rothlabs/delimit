@@ -49,11 +49,11 @@ impl Gpu {
     pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
         Program::link(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Apex>) -> buffer::Result {
+    pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // f32
         Buffer::link(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Apex>) -> buffer::Result {
+    pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // u16
         Buffer::link(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }

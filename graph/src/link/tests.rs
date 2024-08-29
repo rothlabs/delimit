@@ -4,8 +4,8 @@ use super::*;
 fn read_ace_string() -> Result<()> {
     let string = "I'm a ace string!";
     let leaf = string.leaf(); //Ace::new(string.to_owned());
-    leaf.read(|tray| match tray? {
-        Tray::String(s) => Ok(assert_eq!(s, string)),
+    leaf.read(|tray| match tray {
+        Tray::String(s) => assert_eq!(s, string),
         _ => panic!("not a string"),
     })?;
     Ok(())

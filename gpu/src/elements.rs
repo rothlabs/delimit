@@ -51,13 +51,10 @@ impl Elements {
 impl Solve for Elements {
     fn solve(&self, _: Task) -> solve::Result {
         self.program.solve(Task::Main)?;
-        self.program.read(|program| {
-            program?.use_();
-            Ok(())
-        })?;
+        self.program.read(|program| program.use_())?;
         self.buffer.solve(Task::Main)?;
         self.vao.solve(Task::Main)?;
-        self.vao.read(|vao| self.draw(vao?))?;
+        self.vao.read(|vao| self.draw(vao))??;
         solve_ok()
     }
 }

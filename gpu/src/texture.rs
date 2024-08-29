@@ -18,13 +18,6 @@ pub struct Texture {
     height: Apex,
 }
 
-impl Texture {
-    pub fn bind(&self) {
-        // self.gl.active_texture(WGLRC::TEXTURE0);
-        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.texture));
-    }
-}
-
 impl TextureBuilder {
     pub fn link(&self) -> Result<Node<Texture>> {
         if let Ok(mut texture) = self.build() {
@@ -42,32 +35,43 @@ impl TextureBuilder {
     }
 }
 
+impl Texture {
+    pub fn bind(&self) {
+        // self.gl.active_texture(WGLRC::TEXTURE0);
+        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.texture));
+    }
+    fn set(&self, array: &Vec<u8>) -> Result<()> {
+        let pixels = unsafe { Uint8Array::view(array.as_slice()) };
+        // TODO: use PIXEL_UNPACK_ buffer bind and following pbo offset:
+        // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
+        if let Err(memo) = self
+            .gl
+            .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(
+                WGLRC::TEXTURE_2D,                     // target
+                0,                                     // level,
+                WGLRC::RGB as i32,                     // internalformat,
+                self.width.i32().unwrap_or_default(),  // width
+                self.height.i32().unwrap_or_default(), // height
+                0,                                     // border,
+                WGLRC::RGB,                            // format
+                WGLRC::UNSIGNED_BYTE,                  // type_
+                Some(&pixels),                         // pixels
+            )
+        {
+            let memo = memo
+                .as_string()
+                .unwrap_or("unknown error in texture".into());
+            return Err(anyhow!(memo))?;
+        }
+        Ok(())
+    }
+}
+
 impl Solve for Texture {
     fn solve(&self, _: Task) -> solve::Result {
         self.bind();
-        self.array.view().vec_u8(|unit| {
-            let pixels = unsafe {
-                Uint8Array::view(unit?.as_slice())
-            };
-            // TODO: use PIXEL_UNPACK_ buffer bind and following pbo offset:
-            // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
-            if let Err(memo) = self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(
-                WGLRC::TEXTURE_2D, // target
-                0, // level, 
-                WGLRC::RGB as i32, // internalformat, 
-                self.width.i32().unwrap_or_default(), // width 
-                self.height.i32().unwrap_or_default(), // height
-                0, // border, 
-                WGLRC::RGB, // format
-                WGLRC::UNSIGNED_BYTE, // type_
-                Some(&pixels), // pixels
-            ) {
-                let memo = memo.as_string().unwrap_or("unknown error in texture".into());
-                return Err(anyhow!(memo))?;
-            }
-            Ok(())
-        })?;
-        Ok(Gain::None)
+        self.array.view().vec_u8(|array| self.set(array))??;
+        solve_ok()
     }
 }
 

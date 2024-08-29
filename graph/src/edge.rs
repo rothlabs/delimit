@@ -228,12 +228,8 @@ where
     N: ToItem,
 {
     type Payload = N::Item;
-    fn read<T, F: FnOnce(Result<&Self::Payload>) -> Result<T>>(&self, read: F) -> Result<T> {
-        // read_part(&self.cusp, |cusp| read(Ok(cusp?.item())))
-        read_part(&self.cusp, |cusp| match cusp {
-            Ok(cusp) => read(Ok(cusp.item())),
-            Err(err) => read(Err(err)),
-        })
+    fn read<T, F: FnOnce(&Self::Payload) -> T>(&self, read: F) -> Result<T> {
+        read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }
 

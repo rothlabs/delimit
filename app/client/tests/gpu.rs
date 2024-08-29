@@ -9,15 +9,14 @@ use texture::Texture;
 
 pub fn make_canvas() -> Result<Gpu> {
     let canvas = Canvas::link();
-    canvas.read(|unit| Ok(unit?.gpu()))
+    canvas.read(|unit| unit.gpu())
 }
 
 pub fn make_canvas_on_body() -> Result<Gpu> {
     let canvas = Canvas::link();
     let gpu = canvas.read(|unit| {
-        let unit = unit?;
         unit.add_to_body();
-        Ok(unit.gpu())
+        unit.gpu()
     })?;
     canvas.solve(Task::Main).ok();
     Ok(gpu)
@@ -40,7 +39,7 @@ pub fn make_tex_program(gpu: &Gpu) -> program::Result {
     gpu.program(&vertex, &fragment)
 }
 
-pub fn make_basic_buffer(gpu: &Gpu) -> buffer::Result {
+pub fn make_basic_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         0.,  0.,  0.,
@@ -51,7 +50,7 @@ pub fn make_basic_buffer(gpu: &Gpu) -> buffer::Result {
     Ok(buffer)
 }
 
-pub fn make_vertex_color_buffer(gpu: &Gpu) -> buffer::Result {
+pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         // xyz             // uv
@@ -147,7 +146,7 @@ pub fn make_program() -> Result<()> {
     Ok(())
 }
 
-pub fn make_buffer() -> buffer::Result {
+pub fn make_buffer() -> Result<Node<Buffer>> {
     // f32
     let gpu = make_canvas()?;
     make_basic_buffer(&gpu)
