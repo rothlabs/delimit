@@ -127,14 +127,20 @@ impl Back {
     }
     pub fn rebut(&self) -> Ring {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.rebut())
+            // TODO: propagate error up
+            write_part(&cusp, |cusp| {
+                Ok(match cusp {
+                    Ok(mut cusp) => cusp.rebut(),
+                    Err(_) => Ring::new()
+                })
+            }).unwrap()
         } else {
             Ring::new()
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.react(id))
+            write_part(&cusp, |cusp| cusp?.react(id))
         } else {
             Ok(())
         }

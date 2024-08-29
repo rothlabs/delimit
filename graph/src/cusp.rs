@@ -75,14 +75,14 @@ where
     W: WriteTrayWork,
 {
     type Item = W::Item;
-    fn write_tray_out<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> write::Out<T> {
-        let out = self.work.write_tray_work(write);
+    fn write_tray_out<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&mut self, write: F) -> GraphResult<write::Out<T>> {
+        let out = self.work.write_tray_work(write)?;
         let roots = self.ring.rebut_roots();
-        write::Out {
-            roots,
-            out,
-            id: self.id,
-        }
+        Ok(write::Out {
+                    roots,
+                    out,
+                    id: self.id,
+                })
     }
 }
 
@@ -91,20 +91,19 @@ where
     W: WriteUnitWork,
 {
     type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
+    fn write_unit_out<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
         &mut self,
         write: F,
-        //back: &Back,
-    ) -> write::Out<T> {
+    ) -> GraphResult<write::Out<T>> {
         let out = self
             .work
-            .write_unit_work(write, &self.back.clone().unwrap());
+            .write_unit_work(write, &self.back.clone().unwrap())?;
         let roots = self.ring.rebut_roots();
-        write::Out {
-            roots,
-            out,
-            id: self.id,
-        }
+        Ok(write::Out {
+                    roots,
+                    out,
+                    id: self.id,
+                })
     }
 }
 

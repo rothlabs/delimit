@@ -193,7 +193,7 @@ pub fn elements_react_to_shader_source() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas_on_body()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     shader_source.write(|tray| {
-        if let Tray::String(source) = tray {
+        if let Tray::String(source) = tray? {
             *source = shader::basic::FRAGMENT_GREEN.to_owned();
             Ok(())
         } else {
@@ -209,7 +209,7 @@ pub fn shader_source_error() -> Result<(), Box<dyn Error>> {
     let gpu = make_canvas()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
     if let Err(_) = shader_source.write(|tray| {
-        if let Tray::String(string) = tray {
+        if let Tray::String(string) = tray? {
             *string = "bad shader".to_owned();
             Ok(())
         } else {

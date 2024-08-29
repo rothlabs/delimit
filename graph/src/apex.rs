@@ -242,13 +242,13 @@ impl Default for Apex {
 
 pub trait EngageApexes {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error>;
+    fn at(&self, rank: usize) -> GraphResult<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
     fn deal(&self, deal: &dyn Trade) -> Self;
 }
 
 impl EngageApexes for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>, crate::Error> {
+    fn at(&self, rank: usize) -> GraphResult<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
     fn deal(&self, deal: &dyn Trade) -> Self {

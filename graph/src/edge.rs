@@ -4,6 +4,8 @@ use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
+const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
+
 /// Edge to a tray.
 pub type Leaf = Edge<cusp::Leaf>;
 
@@ -59,7 +61,10 @@ where
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back));
+        write_part(&cusp, |cusp| {
+            cusp.expect(IMMEDIATE_ACCESS).make(make, &back); 
+            Ok(())
+        }).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -69,7 +74,10 @@ where
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back));
+        write_part(&cusp, |cusp| {
+            cusp.expect(IMMEDIATE_ACCESS).make(make, &back); 
+            Ok(())
+        }).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
 }
@@ -86,7 +94,10 @@ where
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back));
+        write_part(&cusp, |cusp| {
+            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back); 
+            Ok(())
+        }).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
     #[cfg(feature = "oneThread")]
@@ -96,7 +107,10 @@ where
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back));
+        write_part(&cusp, |cusp| {
+            cusp.expect(IMMEDIATE_ACCESS).with_snap(snap, &back); 
+            Ok(())
+        }).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
     }
 }
@@ -106,7 +120,7 @@ where
     N: 'static + DoSolve + UpdateMid,
 {
     fn solve(&self, task: Task) -> solve::Result {
-        write_part(&self.cusp, |mut cusp| cusp.do_solve(task))
+        write_part(&self.cusp, |cusp| cusp?.do_solve(task))
     }
 }
 
@@ -115,7 +129,7 @@ where
     N: 'static + AdaptOut + UpdateMid,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
-        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post))?;
+        let write::Out { roots, id, out } = write_part(&self.cusp, |cusp| cusp?.adapt(post))?;
         for root in &roots {
             root.react(&id)?;
         }
@@ -177,13 +191,13 @@ where
     N: WriteTrayOut,
 {
     type Item = N::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         let write::Out { roots, id, out } =
-            write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write));
+            write_part(&self.cusp, |cusp| cusp?.write_tray_out(write))?;
         for root in &roots {
             root.react(&id)?;
         }
-        out
+        Ok(out)
     }
 }
 
@@ -192,16 +206,16 @@ where
     N: 'static + WriteUnitOut + UpdateMid,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(
+    fn write<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
         &self,
         write: F,
     ) -> GraphResult<T> {
         let write::Out { roots, id, out } =
-            write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write));
+            write_part(&self.cusp, |cusp| cusp?.write_unit_out(write))?;
         for root in &roots {
             root.react(&id)?;
         }
-        out
+        Ok(out)
     }
 }
 
@@ -227,7 +241,8 @@ where
     N: AddRootMut,
 {
     fn add_root(&self, root: Root) {
-        write_part(&self.cusp, |mut cusp| cusp.add_root(root));
+        // TODO: propagate error up
+        write_part(&self.cusp, |cusp| {cusp?.add_root(root); Ok(())}).ok();
     }
 }
 
@@ -246,6 +261,6 @@ where
     N: ReactMut,
 {
     fn react(&self, id: &Id) -> react::Result {
-        write_part(&self.cusp, |mut cusp| cusp.react(id))
+        write_part(&self.cusp, |cusp| cusp?.react(id))
     }
 }

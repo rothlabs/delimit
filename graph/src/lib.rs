@@ -72,8 +72,6 @@ pub enum Error {
     Solve(#[from] solve::Error),
     #[error(transparent)]
     Apex(#[from] apex::Error),
-    // #[error("failed to make node ({0})")]
-    // Make(String),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
@@ -118,16 +116,22 @@ fn read_part<P: ?Sized, O, F: FnOnce(GraphResult<Ref<P>>) -> GraphResult<O>>(
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
+fn write_part<P: ?Sized, O, F: FnOnce(GraphResult<RwLockWriteGuard<P>>) -> GraphResult<O>>(
     part: &Arc<RwLock<P>>,
     write: F,
-) -> O {
-    write(part.write().expect(NO_POISON))
+) -> GraphResult<O> {
+    match part.write() {
+        Ok(part) => write(Ok(part)),
+        Err(err) => write(Err(Error::Read(err.to_string()))),
+    }
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(part: &Rc<RefCell<P>>, write: F) -> O {
-    write(part.borrow_mut())
+fn write_part<P: ?Sized, O, F: FnOnce(GraphResult<RefMut<P>>) -> GraphResult<O>>(part: &Rc<RefCell<P>>, write: F) -> GraphResult<O> {
+    match part.try_borrow_mut() {
+        Ok(part) => write(Ok(part)),
+        Err(err) => write(Err(Error::Read(err.to_string()))),
+    }
 }
 
 /// Trade a apex for another.

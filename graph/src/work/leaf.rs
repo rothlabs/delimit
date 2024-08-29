@@ -45,8 +45,8 @@ impl ToItem for Leaf {
 
 impl WriteTrayWork for Leaf {
     type Item = Tray;
-    fn write_tray_work<T, F: FnOnce(&mut Self::Item) -> T>(&mut self, write: F) -> T {
-        write(&mut self.tray)
+    fn write_tray_work<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&mut self, write: F) -> GraphResult<T> {
+        write(Ok(&mut self.tray))
     }
 }
 

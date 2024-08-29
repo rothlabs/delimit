@@ -284,7 +284,7 @@ where
     E: WriteTray,
 {
     type Item = E::Item;
-    fn write<T, F: FnOnce(&mut Self::Item) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
+    fn write<T, F: FnOnce(GraphResult<&mut Self::Item>) -> GraphResult<T>>(&self, write: F) -> GraphResult<T> {
         read_part(&self.edge, |edge| edge?.write(write))
     }
 }
@@ -294,7 +294,7 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> GraphResult<T>>(
+    fn write<T, F: FnOnce(GraphResult<&mut Pack<Self::Unit>>) -> GraphResult<T>>(
         &self,
         write: F,
     ) -> GraphResult<T> {
