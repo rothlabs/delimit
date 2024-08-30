@@ -199,7 +199,7 @@ where
 
 impl<E> Link<E>
 where
-    E: Read<Payload = Tray>,
+    E: Read<Item = Tray>,
 {
     pub fn tray(&self) -> Result<Tray> {
         read_part(&self.edge, |edge| edge.read(|tray| tray.clone()))?
@@ -285,7 +285,7 @@ where
     E: 'static + Read + Update + AddRoot,
 {
     /// Read payload of Link.
-    pub fn read<T, F: FnOnce(&E::Payload) -> T>(&self, read: F) -> Result<T> {
+    pub fn read<T, F: FnOnce(&E::Item) -> T>(&self, read: F) -> Result<T> {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
             edge.add_root(self.as_root(edge.id()));

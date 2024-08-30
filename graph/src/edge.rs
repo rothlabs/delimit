@@ -208,8 +208,8 @@ impl<N> Read for Edge<N>
 where
     N: ToItem,
 {
-    type Payload = N::Item;
-    fn read<T, F: FnOnce(&Self::Payload) -> T>(&self, read: F) -> Result<T> {
+    type Item = N::Item;
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
         read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }

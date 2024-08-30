@@ -54,17 +54,10 @@ impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
         let index = self.index.u32().unwrap_or_default();
         self.buffer.act()?;
-        self.buffer.read(|buffer| self.set(buffer, index))?;
-        Ok(())
+        self.buffer.read(|buffer| self.set(buffer, index))
     }
 }
 
-// impl React for VertexAttribute {
-//     fn react(&self, _: &Meta) -> react::Result {
-//         self.act();
-//         Ok(())
-//     }
-// }
 
 // self.gl.vertex_attrib_pointer_with_f64(indx, size, type_, normalized, stride, offset)
 

@@ -229,11 +229,21 @@ pub trait MutTray {
 }
 
 pub trait Read {
-    type Payload;
+    type Item;
     /// Read the payload of the graph part.
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
-        F: FnOnce(&Self::Payload) -> T;
+        F: FnOnce(&Self::Item) -> T;
+}
+
+pub trait ReadGraph<Item, T> {
+    fn read(self, item: Item) -> T;
+}
+
+impl<Item, T, F: FnOnce(Item) -> T> ReadGraph<Item, T> for F {
+    fn read(self, item: Item) -> T {
+        self(item)
+    }
 }
 
 pub trait FromItem {
