@@ -179,7 +179,7 @@ where
     fn ploy(mut self) -> Ploy {
         Node::make_ploy(|back| {
             self.adapt(Post::Trade(back))
-                .expect("To move into Node, unit must Adapt with Post::Trade.");
+                .expect("To move into Ploy, unit must Adapt with Post::Trade.");
             self
         })
     }
@@ -256,11 +256,6 @@ pub trait Make {
     fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
 }
 
-// pub trait MakePloy {
-//     type Unit;
-//     fn make_ploy<F: FnOnce(&Back) -> Self::Unit>(make: F) -> PloyPointer;
-// }
-
 pub trait MakeMid {
     type Unit;
     fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
@@ -279,13 +274,3 @@ pub trait WithSnap {
 pub trait Clear {
     fn clear(&mut self);
 }
-
-// pub trait ReadPart {
-//     type Payload;
-//     /// Read the payload of the graph part.
-//     fn read<T>(&self, reader: &dyn Reader<T, &Self::Payload>) -> Result<T>;
-// }
-
-// pub trait Reader<T, P> {
-//     fn reader(&mut self, payload: &P) -> T;
-// }

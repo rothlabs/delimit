@@ -61,11 +61,6 @@ impl List {
     }
 }
 
-// fn push_str(base: &mut String, string: &String) -> Result<()> {
-//     base.push_str(string.unwrap_or(&"".into()));
-//     Ok(())
-// }
-
 impl Adapt for List {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
@@ -88,16 +83,3 @@ impl Solve for List {
         }
     }
 }
-
-// let separator = self.separator.string().unwrap_or_default();
-//         for i in 0..last {
-//             self.items[i].view().string(|s| {
-//                 string += s.unwrap_or(&"".into());
-//                 Ok(())
-//             })?;
-//             string += &separator;
-//         }
-//         self.items[last].view().string(|s| {
-//             string += s.unwrap_or(&"".into());
-//             Ok(())
-//         })?;
