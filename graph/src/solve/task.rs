@@ -14,12 +14,18 @@ pub enum Task<'a> {
     Map,
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("no handler (Task: {task}, Unit: {unit})")]
+    NoHandler { task: String, unit: String },
+}
+
 impl Task<'_> {
-    /// Return solve::Error::NoHandler
-    pub fn no_solver(&self, unit: &dyn Debug) -> solve::Result {
-        Err(Error::NoHandler {
+    /// Emit `NoHandler` error.
+    pub fn no_handler(&self, unit: &dyn Debug) -> solve::Result {
+        Err(solve::Error::from(Error::NoHandler {
             task: format!("{:?}", self),
             unit: format!("{:?}", unit),
-        })?
+        }))?
     }
 }

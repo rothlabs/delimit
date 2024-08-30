@@ -1,11 +1,5 @@
 use super::*;
 
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
-    WrongVariant { expected: String, found: Gain },
-}
-
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
@@ -18,14 +12,20 @@ pub enum Gain {
     U64(u64),
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
+    WrongVariant { expected: String, found: Gain },
+}
+
 impl Gain {
+    /// Emit `WrongVariant` error.
     fn wrong_variant(&self, expected: &str) -> solve::Error {
         Error::WrongVariant {
             expected: expected.into(),
             found: self.clone(),
         }.into()
     }
-
     /// Move Gain into Ok(...)
     pub fn ok(self) -> solve::Result {
         Ok(self)
@@ -92,12 +92,6 @@ impl From<Vec<Apex>> for Gain {
     }
 }
 
-// impl From<&Vec<Apex>> for Gain {
-//     fn from(value: &Vec<Apex>) -> Self {
-//         Self::Apexes(value.clone())
-//     }
-// }
-
 impl From<u64> for Gain {
     fn from(value: u64) -> Self {
         Self::U64(value)
@@ -129,7 +123,3 @@ where
         Ok(self.into())
     }
 }
-
-// fn wrong_gain(variant: &str) -> String {
-//     "Wrong Gain variant. Expected: ".to_owned() + variant
-// }

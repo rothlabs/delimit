@@ -66,7 +66,7 @@ impl Adapt for List {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::SetAt(index, apex) => self.set_at(index, apex),
-            _ => self.no_adapter(post),
+            _ => post.no_handler(self),
         }
     }
 }
@@ -79,7 +79,7 @@ impl Solve for List {
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),
-            _ => self.no_solver(task),
+            _ => task.no_handler(self),
         }
     }
 }

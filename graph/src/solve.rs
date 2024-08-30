@@ -39,8 +39,8 @@ pub fn solve_ok() -> solve::Result {
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("no handler (Task: {task}, Unit: {unit})")]
-    NoHandler { task: String, unit: String },
+    #[error(transparent)]
+    Task(#[from] task::Error),
     #[error(transparent)]
     Gain(#[from] gain::Error),
     #[error(transparent)]
@@ -51,16 +51,4 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
-}
-
-pub trait NoSolver {
-    /// Return solve::Error::NoHandler
-    fn no_solver(&self, task: Task) -> solve::Result;
-}
-
-impl<T: Solve + Debug> NoSolver for T {
-    /// Return solve::Error::NoHandler
-    fn no_solver(&self, task: Task) -> solve::Result {
-        task.no_solver(self)
-    }
 }

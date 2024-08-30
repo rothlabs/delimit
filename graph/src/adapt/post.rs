@@ -11,13 +11,19 @@ pub enum Post<'a> {
     // Remove(usize),
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("no handler (Post: {post}, Unit: {unit})")]
+    NoHandler { post: String, unit: String },
+}
+
 impl Post<'_> {
-    /// Return adapt::Error::NoHandler
-    pub fn no_adapter(&self, unit: &dyn Debug) -> adapt::Result {
-        Err(adapt::Error::NoHandler {
+    /// Emit `NoHandler` error.
+    pub fn no_handler(&self, unit: &dyn Debug) -> adapt::Result {
+        Err(adapt::Error::from(Error::NoHandler {
             post: format!("{:?}", self),
             unit: format!("{:?}", unit),
-        })?
+        }))?
     }
 }
 

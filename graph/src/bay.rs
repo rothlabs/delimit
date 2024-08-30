@@ -37,7 +37,7 @@ impl Adapt for Bay {
             Post::Trade(deal) => self.trade(deal),
             Post::Insert(aim, apex) => self.insert(aim, apex),
             Post::Extend(map) => self.extend(map),
-            _ => self.no_adapter(post),
+            _ => post.no_handler(self),
         }
     }
 }
@@ -50,7 +50,7 @@ impl Solve for Bay {
             Task::Serial => self.serial(),
             Task::Get(key) => self.get(key),
             Task::React => solve_ok(),
-            _ => self.no_solver(task),
+            _ => task.no_handler(self),
         }
     }
 }

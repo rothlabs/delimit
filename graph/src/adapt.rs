@@ -35,8 +35,8 @@ pub fn adapt_ok() -> adapt::Result {
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("no handler (Post: {post}, Unit: {unit})")]
-    NoHandler { post: String, unit: String },
+    #[error(transparent)]
+    Post(#[from] post::Error),
     #[error(transparent)]
     Aim(#[from] aim::Error),
     #[error(transparent)]
@@ -46,22 +46,3 @@ pub enum Error {
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
-
-pub trait NoAdapter {
-    /// Return adapt::Error::NoHandler
-    fn no_adapter(&self, post: Post) -> adapt::Result;
-}
-
-impl<T: Adapt + Debug> NoAdapter for T {
-    /// Return adapt::Error::NoHandler
-    fn no_adapter(&self, post: Post) -> adapt::Result {
-        post.no_adapter(self)
-    }
-}
-
-// pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
-//     Err(Error::NoHandler {
-//         post: format!("{:?}", post),
-//         unit: format!("{:?}", unit),
-//     })?
-// }

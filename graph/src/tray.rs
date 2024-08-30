@@ -2,12 +2,6 @@ use super::*;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};
 
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
-    WrongVariant { expected: String, found: Tray },
-}
-
 /// Payload value of graph parts.
 /// Used as `Leaf` payload and field values of `Node` and `Ploy`.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -37,6 +31,12 @@ pub enum Tray {
     Vi64(Vec<i64>),
     Vf32(Vec<f32>),
     Vf64(Vec<f64>),
+}
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
+    WrongVariant { expected: String, found: Tray },
 }
 
 impl Tray {

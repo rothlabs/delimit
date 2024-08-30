@@ -1,4 +1,4 @@
-pub use adapt::{adapt_ok, NoAdapter, Adapt, AdaptMid, AdaptOut, Memo, Post};
+pub use adapt::{adapt_ok, Adapt, AdaptMid, AdaptOut, Memo, Post};
 pub use apex::{wrong_tray, Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -14,7 +14,7 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act, NoSolver};
+pub use solve::{solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,
