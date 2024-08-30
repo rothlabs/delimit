@@ -123,10 +123,10 @@ where
 
 impl<N> Solve for Edge<N>
 where
-    N: 'static + DoSolve + UpdateMut,
+    N: 'static + SolveMut + UpdateMut,
 {
     fn solve(&self, task: Task) -> solve::Result {
-        write_part(&self.cusp, |mut cusp| cusp.do_solve(task))?
+        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
 }
 

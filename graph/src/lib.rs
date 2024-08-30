@@ -14,7 +14,7 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task, Act};
+pub use solve::{no_solver, solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,

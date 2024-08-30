@@ -1,6 +1,6 @@
 pub use gain::*;
-use thiserror::Error;
 
+use thiserror::Error;
 use super::*;
 use std::result;
 
@@ -14,9 +14,21 @@ pub trait Solve {
     fn solve(&self, task: Task) -> Result;
 }
 
-pub trait DoSolve {
+pub trait SolveMut {
     /// For graph internals to handle solve calls
-    fn do_solve(&mut self, task: Task) -> Result;
+    fn solve(&mut self, task: Task) -> Result;
+}
+
+pub trait Act {
+    /// Perform an external action. 
+    fn act(&self) -> crate::Result<()>;
+}
+
+impl<T: Act> Solve for T {
+    fn solve(&self, _: Task) -> Result {
+        self.act()?;
+        solve_ok()
+    }
 }
 
 pub fn solve_ok() -> solve::Result {
@@ -58,16 +70,4 @@ pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
         task: format!("{:?}", task),
         unit: format!("{:?}", unit),
     })?
-}
-
-impl<T: Act> Solve for T {
-    fn solve(&self, _: Task) -> Result {
-        self.act()?;
-        solve_ok()
-    }
-}
-
-pub trait Act {
-    /// Perform an external action. 
-    fn act(&self) -> crate::Result<()>;
 }

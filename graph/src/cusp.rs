@@ -145,12 +145,12 @@ where
     }
 }
 
-impl<W> DoSolve for Cusp<W>
+impl<W> SolveMut for Cusp<W>
 where
-    W: DoSolve,
+    W: SolveMut,
 {
-    fn do_solve(&mut self, task: Task) -> solve::Result {
-        self.work.do_solve(task)
+    fn solve(&mut self, task: Task) -> solve::Result {
+        self.work.solve(task)
     }
 }
 

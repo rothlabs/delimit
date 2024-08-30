@@ -52,11 +52,11 @@ where
     }
 }
 
-impl<U> DoSolve for Node<U>
+impl<U> SolveMut for Node<U>
 where
     U: Solve,
 {
-    fn do_solve(&mut self, task: Task) -> solve::Result {
+    fn solve(&mut self, task: Task) -> solve::Result {
         match task {
             Task::Main => self.main(),
             Task::Hash => self.digest(),
