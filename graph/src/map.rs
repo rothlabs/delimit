@@ -46,3 +46,9 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
+
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+pub enum Fit {
+    Apex(Apex),
+    Apexes(Vec<Apex>)
+}
