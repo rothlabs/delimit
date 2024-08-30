@@ -43,7 +43,7 @@ impl Adapt for Tag {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(deal) => self.trade(deal),
-            _ => no_adapter(self, post),
+            _ => self.no_adapter(post),
         }
     }
 }

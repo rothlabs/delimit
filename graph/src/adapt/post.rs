@@ -11,6 +11,16 @@ pub enum Post<'a> {
     // Remove(usize),
 }
 
+impl Post<'_> {
+    /// Return adapt::Error::NoHandler
+    pub fn no_adapter(&self, unit: &dyn Debug) -> adapt::Result {
+        Err(adapt::Error::NoHandler {
+            post: format!("{:?}", self),
+            unit: format!("{:?}", unit),
+        })?
+    }
+}
+
 impl<'a> Backed for Post<'a> {
     fn backed(&self, back: &Back) -> Self {
         match self {

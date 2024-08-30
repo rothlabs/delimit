@@ -66,7 +66,7 @@ impl Adapt for List {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::SetAt(index, apex) => self.set_at(index, apex),
-            _ => no_adapter(self, post),
+            _ => self.no_adapter(post),
         }
     }
 }

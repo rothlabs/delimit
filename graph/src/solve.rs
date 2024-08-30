@@ -1,10 +1,12 @@
 pub use gain::*;
+pub use task::*;
 
 use thiserror::Error;
 use super::*;
 use std::result;
 
 mod gain;
+mod task;
 
 pub type Result = result::Result<Gain, crate::Error>;
 
@@ -49,30 +51,6 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
-}
-
-#[derive(Debug)]
-pub enum Task<'a> {
-    None,
-    Main,
-    All,
-    React,
-    Serial,
-    Hash,
-    Digest(&'a mut UnitHasher),
-    Imports,
-    Get(&'a Key),
-    Map,
-}
-
-impl Task<'_> {
-    /// Return solve::Error::NoHandler
-    pub fn no_solver(&self, unit: &dyn Debug) -> solve::Result {
-        Err(Error::NoHandler {
-            task: format!("{:?}", self),
-            unit: format!("{:?}", unit),
-        })?
-    }
 }
 
 pub trait NoSolver {

@@ -47,9 +47,21 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
-    Err(Error::NoHandler {
-        post: format!("{:?}", post),
-        unit: format!("{:?}", unit),
-    })?
+pub trait NoAdapter {
+    /// Return adapt::Error::NoHandler
+    fn no_adapter(&self, post: Post) -> adapt::Result;
 }
+
+impl<T: Adapt + Debug> NoAdapter for T {
+    /// Return adapt::Error::NoHandler
+    fn no_adapter(&self, post: Post) -> adapt::Result {
+        post.no_adapter(self)
+    }
+}
+
+// pub fn no_adapter(unit: &dyn Debug, post: Post) -> adapt::Result {
+//     Err(Error::NoHandler {
+//         post: format!("{:?}", post),
+//         unit: format!("{:?}", unit),
+//     })?
+// }
