@@ -19,19 +19,16 @@ pub struct Texture {
 }
 
 impl TextureBuilder {
-    pub fn link(&self) -> Result<Node<Texture>> {
-        if let Ok(mut texture) = self.build() {
-            let link = Node::make(|back| {
-                texture.array = texture.array.backed(back);
-                texture.width = texture.width.backed(back);
-                texture.height = texture.height.backed(back);
-                texture
-            });
-            link.solve(Task::Main)?;
-            Ok(link)
-        } else {
-            Err(anyhow!("texture build failed"))?
-        }
+    pub fn make(&self) -> Result<Node<Texture>> {
+        let mut texture = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
+        let node = Node::make(|back| {
+            texture.array = texture.array.backed(back);
+            texture.width = texture.width.backed(back);
+            texture.height = texture.height.backed(back);
+            texture
+        });
+        node.act()?;
+        Ok(node)
     }
 }
 
@@ -67,11 +64,10 @@ impl Texture {
     }
 }
 
-impl Solve for Texture {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for Texture {
+    fn act(&self) -> Result<()> {
         self.bind();
-        self.array.view().vec_u8(|array| self.set(array))??;
-        solve_ok()
+        self.array.view().vec_u8(|array| self.set(array))?
     }
 }
 

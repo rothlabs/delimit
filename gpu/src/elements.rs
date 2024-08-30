@@ -1,5 +1,4 @@
 use super::*;
-// std::result::Result<Node<Elements>, ElementsBuilderError>
 
 /// Draw elements based on program, buffer, vertex array object (vao), count, and offset.
 #[derive(Builder, Debug)]
@@ -20,9 +19,9 @@ pub struct Elements {
 }
 
 impl ElementsBuilder {
-    pub fn link(&self) -> Result<Node<Elements>> {
+    pub fn make(&self) -> Result<Node<Elements>> {
         let mut elements = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        let link = Node::make(|back| {
+        let node = Node::make(|back| {
             elements.program = elements.program.backed(back);
             elements.buffer = elements.buffer.backed(back);
             elements.vao = elements.vao.backed(back);
@@ -30,12 +29,12 @@ impl ElementsBuilder {
             elements.offset = elements.offset.backed(back);
             elements
         });
-        Ok(link)
+        Ok(node)
     }
 }
 
 impl Elements {
-    fn draw(&self, vao: &Vao) -> Result<()> {
+    fn draw(&self, vao: &Vao) {
         vao.bind();
         self.gl.draw_elements_with_i32(
             WGLRC::TRIANGLES,
@@ -44,17 +43,15 @@ impl Elements {
             self.offset.i32().unwrap_or_default(),
         );
         vao.unbind();
-        Ok(())
     }
 }
 
-impl Solve for Elements {
-    fn solve(&self, _: Task) -> solve::Result {
-        self.program.solve(Task::Main)?;
+impl Act for Elements {
+    fn act(&self) -> Result<()> {
+        self.program.act()?;
         self.program.read(|program| program.use_())?;
-        self.buffer.solve(Task::Main)?;
-        self.vao.solve(Task::Main)?;
-        self.vao.read(|vao| self.draw(vao))??;
-        solve_ok()
+        self.buffer.act()?;
+        self.vao.act()?;
+        self.vao.read(|vao| self.draw(vao))
     }
 }

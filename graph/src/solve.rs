@@ -25,6 +25,7 @@ pub fn solve_ok() -> solve::Result {
 
 #[derive(Debug)]
 pub enum Task<'a> {
+    None,
     Main,
     All,
     React,
@@ -57,4 +58,16 @@ pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
         task: format!("{:?}", task),
         unit: format!("{:?}", unit),
     })?
+}
+
+impl<T: Act> Solve for T {
+    fn solve(&self, _: Task) -> Result {
+        self.act()?;
+        solve_ok()
+    }
+}
+
+pub trait Act {
+    /// Perform an external action. 
+    fn act(&self) -> crate::Result<()>;
 }

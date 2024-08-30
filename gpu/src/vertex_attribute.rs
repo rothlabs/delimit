@@ -1,29 +1,27 @@
 use super::*;
 
-// type BuilderResult = std::result::Result<Node<VertexAttribute>, VertexAttributeBuilderError>;
-
 /// Tell the GPU how to read from a buffer
 #[derive(Builder, Debug)]
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
-    buffer: Node<Buffer>, // f32
+    buffer: Node<Buffer>,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
-    index: Apex, // u32
+    index: Apex,
     /// Number of components per value
     #[builder(default)]
-    size: Apex, //i32
+    size: Apex,
     /// Number of bytes between values
     #[builder(default)]
-    stride: Apex, // i32
+    stride: Apex,
     /// Byte offset of first value
     #[builder(default)]
-    offset: Apex, // i32
+    offset: Apex,
 }
 
 impl VertexAttributeBuilder {
-    pub fn link(&self) -> Result<Node<VertexAttribute>> {
+    pub fn make(&self) -> Result<Node<VertexAttribute>> {
         let mut attrib = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         Ok(Node::make(|back| {
             attrib.buffer = attrib.buffer.backed(back);
@@ -52,12 +50,12 @@ impl VertexAttribute {
     }
 }
 
-impl Solve for VertexAttribute {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for VertexAttribute {
+    fn act(&self) -> Result<()> {
         let index = self.index.u32().unwrap_or_default();
-        self.buffer.solve(Task::Main)?;
+        self.buffer.act()?;
         self.buffer.read(|buffer| self.set(buffer, index))?;
-        solve_ok()
+        Ok(())
     }
 }
 

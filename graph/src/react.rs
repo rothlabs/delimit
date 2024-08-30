@@ -57,8 +57,8 @@ pub trait Update: Rebut + React + ToId + SendSync {}
 impl<T> Update for T where T: Rebut + React + ToId + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
-pub trait UpdateMid: RebutMut + ReactMut + ToId + SendSync {}
-impl<T> UpdateMid for T where T: RebutMut + ReactMut + ToId + SendSync {}
+pub trait UpdateMut: RebutMut + ReactMut + ToId + SendSync {}
+impl<T> UpdateMut for T where T: RebutMut + ReactMut + ToId + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Cusp holds a Ring of Roots.
@@ -106,23 +106,23 @@ impl Hash for Root {
     }
 }
 
-/// Weakly point to the back of a cusp as DoUpdate.
+/// Weakly point to the back of a cusp as UpdateMid.
 #[derive(Clone, Debug)]
 pub struct Back {
     #[cfg(not(feature = "oneThread"))]
-    pub cusp: Weak<RwLock<dyn UpdateMid>>,
+    pub cusp: Weak<RwLock<dyn UpdateMut>>,
     #[cfg(feature = "oneThread")]
-    pub cusp: Weak<RefCell<dyn UpdateMid>>,
+    pub cusp: Weak<RefCell<dyn UpdateMut>>,
     pub id: Id,
 }
 
 impl Back {
     #[cfg(not(feature = "oneThread"))]
-    pub fn new(cusp: Weak<RwLock<dyn UpdateMid>>, id: Id) -> Self {
+    pub fn new(cusp: Weak<RwLock<dyn UpdateMut>>, id: Id) -> Self {
         Self { cusp, id }
     }
     #[cfg(feature = "oneThread")]
-    pub fn new(cusp: Weak<RefCell<dyn UpdateMid>>, id: Id) -> Self {
+    pub fn new(cusp: Weak<RefCell<dyn UpdateMut>>, id: Id) -> Self {
         Self { cusp, id }
     }
     pub fn rebut(&self) -> Ring {

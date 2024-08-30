@@ -49,7 +49,7 @@ where
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + MakeMid + UpdateMid,
+    N: 'static + Default + MakeMid + UpdateMut,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
@@ -57,7 +57,7 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
+        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
@@ -67,7 +67,7 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
+        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
         write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
@@ -96,7 +96,7 @@ where
 
 impl<N> FromSnap for Edge<N>
 where
-    N: 'static + Default + WithSnap + UpdateMid,
+    N: 'static + Default + WithSnap + UpdateMut,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
@@ -104,7 +104,7 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn UpdateMid>>;
+        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
@@ -114,7 +114,7 @@ where
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn UpdateMid>>;
+        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
         write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         Self { cusp, back: None }
@@ -123,7 +123,7 @@ where
 
 impl<N> Solve for Edge<N>
 where
-    N: 'static + DoSolve + UpdateMid,
+    N: 'static + DoSolve + UpdateMut,
 {
     fn solve(&self, task: Task) -> solve::Result {
         write_part(&self.cusp, |mut cusp| cusp.do_solve(task))?
@@ -132,7 +132,7 @@ where
 
 impl<N> AdaptMid for Edge<N>
 where
-    N: 'static + AdaptOut + UpdateMid,
+    N: 'static + AdaptOut + UpdateMut,
 {
     fn adapt(&self, post: Post) -> adapt::Result {
         let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post))??;
@@ -188,7 +188,7 @@ where
 
 impl<N> WriteUnit for Edge<N>
 where
-    N: 'static + WriteUnitOut + UpdateMid,
+    N: 'static + WriteUnitOut + UpdateMut,
 {
     type Unit = N::Unit;
     fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(

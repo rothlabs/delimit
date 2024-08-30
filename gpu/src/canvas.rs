@@ -8,7 +8,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn link() -> Node<Self> {
+    pub fn new() -> Node<Self> {
         let document = window().unwrap().document().unwrap();
         let object = document
             .create_element("canvas")
@@ -38,8 +38,8 @@ impl Canvas {
     }
 }
 
-impl Solve for Canvas {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for Canvas {
+    fn act(&self) -> Result<()> {
         self.fit_size();
         self.gl.viewport(
             0,
@@ -47,6 +47,6 @@ impl Solve for Canvas {
             self.object.width() as i32,
             self.object.height() as i32,
         );
-        solve_ok()
+        Ok(())
     }
 }

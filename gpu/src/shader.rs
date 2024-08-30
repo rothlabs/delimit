@@ -17,22 +17,22 @@ pub struct Shader {
 }
 
 impl Shader {
-    pub fn link(gl: &WGLRC, type_: u32, source: &Apex) -> Result {
+    pub fn make(gl: &WGLRC, type_: u32, source: &Apex) -> Result {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
-        let link = Node::make(|back| Self {
+        let node = Node::make(|back| Self {
             gl: gl.clone(),
             source: source.backed(back),
             shader,
         });
-        link.solve(Task::Main)?;
-        Ok(link)
+        node.act()?;
+        Ok(node)
     }
 }
 
-impl Solve for Shader {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for Shader {
+    fn act(&self) -> graph::Result<()> {
         self.source
             .view()
             .string(|src| self.gl.shader_source(&self.shader, src))?;
@@ -43,7 +43,7 @@ impl Solve for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            solve_ok()
+            Ok(())
         } else {
             let memo = self
                 .gl

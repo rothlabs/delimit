@@ -160,7 +160,7 @@ where
 {
     fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>> {
         self.work.clear();
-        let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."))?;
+        let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."));
         let out = self.work.adapt(post)?;
         let roots = self.ring.rebut_roots();
         Ok(write::Out {

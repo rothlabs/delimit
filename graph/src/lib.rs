@@ -10,11 +10,11 @@ pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use ploy::{BackedPloy, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
     AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root, TryBacked,
-    Update, UpdateMid,
+    Update, UpdateMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task};
+pub use solve::{no_solver, solve_ok, DoSolve, Gain, IntoGain, Solve, Task, Act};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,
@@ -177,7 +177,7 @@ where
     T: 'static + Adapt + Solve + SendSync + Debug,
 {
     fn ploy(mut self) -> Ploy {
-        Link::<edge::Node<T>>::new_ploy(|back| {
+        Node::make_ploy(|back| {
             self.adapt(Post::Trade(back))
                 .expect("To move into Node, unit must Adapt with Post::Trade.");
             self

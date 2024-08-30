@@ -1,8 +1,6 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-// pub type Result = std::result::Result<Node<Buffer>, graph::Error>;
-
 #[derive(Debug)]
 pub struct Buffer {
     gl: WGLRC,
@@ -12,18 +10,18 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn link(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
+    pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
         let buffer = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;
-        let link = Node::make(|back| Self {
+        let node = Node::make(|back| Self {
             gl: gl.clone(),
             buffer,
             target,
             array: array.backed(back),
         });
-        link.solve(Task::Main)?;
-        Ok(link)
+        node.act()?;
+        Ok(node)
     }
     pub fn bind(&self) {
         self.gl.bind_buffer(self.target, Some(&self.buffer));
@@ -53,11 +51,11 @@ impl Buffer {
     }
 }
 
-impl Solve for Buffer {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for Buffer {
+    fn act(&self) -> graph::Result<()> {
         self.bind();
         self.array.read(|tray| self.set(tray))??;
         self.unbind();
-        solve_ok()
+        Ok(())
     }
 }

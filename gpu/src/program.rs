@@ -13,30 +13,30 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn link(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
+    pub fn make(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
         let program = gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;
         vertex.read(|unit| gl.attach_shader(&program, &unit.shader))?;
         fragment.read(|unit| gl.attach_shader(&program, &unit.shader))?;
-        let link = Node::make(|back| Self {
+        let node = Node::make(|back| Self {
             gl: gl.clone(),
             vertex: vertex.backed(back),
             fragment: fragment.backed(back),
             program,
         });
-        link.solve(Task::Main)?;
-        Ok(link)
+        node.act()?;
+        Ok(node)
     }
     pub fn use_(&self) {
         self.gl.use_program(Some(&self.program));
     }
 }
 
-impl Solve for Program {
-    fn solve(&self, _: Task) -> solve::Result {
-        self.vertex.solve(Task::Main)?;
-        self.fragment.solve(Task::Main)?;
+impl Act for Program {
+    fn act(&self) -> graph::Result<()> {
+        self.vertex.act()?;
+        self.fragment.act()?;
         self.gl.link_program(&self.program);
         if self
             .gl
@@ -44,7 +44,7 @@ impl Solve for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            solve_ok()
+            Ok(())
         } else {
             let memo = self
                 .gl

@@ -17,17 +17,17 @@ pub struct Vao {
 }
 
 impl VaoBuilder {
-    pub fn link(&self) -> Result<Node<Vao>> {
+    pub fn make(&self) -> Result<Node<Vao>> {
         let mut vao = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        let link = Node::make(|back| {
+        let node = Node::make(|back| {
             vao.attributes = vao.attributes.backed(back);
             if let Some(index_buffer) = vao.index_buffer {
                 vao.index_buffer = Some(index_buffer.backed(back));
             }
             vao
         });
-        link.solve(Task::Main).ok();
-        Ok(link)
+        node.act().ok();
+        Ok(node)
     }
 }
 
@@ -40,18 +40,18 @@ impl Vao {
     }
 }
 
-impl Solve for Vao {
-    fn solve(&self, _: Task) -> solve::Result {
+impl Act for Vao {
+    fn act(&self) -> Result<()> {
         self.bind();
         for attribute in &self.attributes {
-            attribute.solve(Task::Main)?;
+            attribute.act()?;
         }
         if let Some(buffer) = &self.index_buffer {
-            buffer.solve(Task::Main)?;
+            buffer.act()?;
             buffer.read(|unit| unit.bind())?;
         }
         self.unbind();
-        solve_ok()
+        Ok(())
     }
 }
 

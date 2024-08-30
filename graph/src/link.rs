@@ -73,6 +73,12 @@ where
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
+    pub fn act(&self) -> Result<()> {
+        match self.solve(Task::None) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err),
+        }
+    }
 }
 
 impl<E> Hash for Link<E>
@@ -147,7 +153,7 @@ impl<E> Link<E>
 where
     E: 'static + Make + Engage,
 {
-    pub fn new_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
+    pub fn make_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
         let edge = E::make(make);
         Link {
             path: None,
@@ -176,17 +182,17 @@ where
 
 impl<E> Link<E>
 where
-    E: FromSnap,
+    E: 'static + FromSnap + Engage,
 {
-    pub fn from_snap(snap: Snap<E::Unit>) -> Self {
+    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy {
         let edge = E::from_snap(snap);
-        Self {
+        Link {
             path: None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(edge)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(edge)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage>)),
         }
     }
 }

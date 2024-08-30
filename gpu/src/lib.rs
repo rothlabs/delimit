@@ -41,21 +41,21 @@ impl From<WGLRC> for Gpu {
 
 impl Gpu {
     pub fn vertex_shader(&self, source: impl Into<Apex>) -> shader::Result {
-        Shader::link(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
+        Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
     pub fn fragment_shader(&self, source: impl Into<Apex>) -> shader::Result {
-        Shader::link(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
+        Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
-        Program::link(&self.gl, vertex, fragment)
+        Program::make(&self.gl, vertex, fragment)
     }
     pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // f32
-        Buffer::link(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
+        Buffer::make(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
     pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // u16
-        Buffer::link(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
+        Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
     pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
         // f32

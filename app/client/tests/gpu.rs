@@ -8,12 +8,12 @@ use texture::Texture;
 // mod gpu_setup;
 
 pub fn make_canvas() -> Result<Gpu> {
-    let canvas = Canvas::link();
+    let canvas = Canvas::new();
     canvas.read(|unit| unit.gpu())
 }
 
 pub fn make_canvas_on_body() -> Result<Gpu> {
-    let canvas = Canvas::link();
+    let canvas = Canvas::new();
     let gpu = canvas.read(|unit| {
         unit.add_to_body();
         unit.gpu()
@@ -70,7 +70,7 @@ pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
         240,50,230,			188,246,12,			250,190,190,		0,128,128,
         230,190,255,		154,99,36,			255,250,200,		0,0,0,
     ];
-    let texture = gpu.texture(array)?.width(4_i32).height(4_i32).link()?;
+    let texture = gpu.texture(array)?.width(4_i32).height(4_i32).make()?;
     Ok(texture)
 }
 
@@ -79,14 +79,14 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf)> {
     let buffer = make_basic_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.index_buffer(array)?;
-    let att = gpu.vertex_attribute(&buffer).size(3_i32).link()?;
-    let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).link()?;
+    let att = gpu.vertex_attribute(&buffer).size(3_i32).make()?;
+    let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).make()?;
     let elements = gpu
         .elements(&program)
         .buffer(buffer)
         .vao(vao)
         .count(3_i32)
-        .link()?;
+        .make()?;
     elements.solve(Task::Main)?;
     Ok((elements, vertex_source))
 }
@@ -100,22 +100,22 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>> {
         .vertex_attribute(&buffer)
         .size(3_i32)
         .stride(20_i32)
-        .link()?;
+        .make()?;
     let uv = gpu
         .vertex_attribute(&buffer)
         .index(1_u32)
         .size(2_i32)
         .stride(20_i32)
         .offset(12_i32)
-        .link()?;
-    let vao = gpu.vao(&vec![pos, uv])?.index_buffer(index_buffer).link()?;
+        .make()?;
+    let vao = gpu.vao(&vec![pos, uv])?.index_buffer(index_buffer).make()?;
     let _ = make_basic_texture(&gpu)?;
     let elements = gpu
         .elements(&program)
         .buffer(buffer)
         .vao(vao)
         .count(3_i32)
-        .link()?;
+        .make()?;
     elements.solve(Task::Main)?;
     Ok(elements)
 }
@@ -170,14 +170,14 @@ pub fn make_vertex_attribute() -> Result<()> {
         .size(3_i32)
         .stride(0_i32)
         .offset(0_i32)
-        .link()?;
+        .make()?;
     Ok(())
 }
 
 pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
-    let att = gpu.vertex_attribute(&buffer).size(3_i32).link()?;
+    let att = gpu.vertex_attribute(&buffer).size(3_i32).make()?;
     gpu.vao(&vec![att])?;
     Ok(())
 }

@@ -19,7 +19,7 @@ where
 {
     pub fn apex(self) -> Apex {
         // TODO: make ploy directly so Edge does not need to be read imediately
-        Node::from_snap(self).ploy().unwrap().into()
+        Node::make_ploy_from_snap(self).into()
     }
 }
 
