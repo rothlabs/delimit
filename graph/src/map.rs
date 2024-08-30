@@ -5,8 +5,13 @@ use super::*;
 pub struct Map(HashMap<Key, Apex>);
 
 impl Map {
-    pub fn insert(&mut self, key: Key, apex: Apex) {
-        self.0.insert(key, apex);
+    pub fn insert(&mut self, aim: Aim, apex: Apex) -> adapt::Result {
+        if let Aim::Key(key) = aim {
+            self.0.insert(key, apex);
+            adapt_ok()
+        } else {
+            Err(adapt::Error::from(aim.wrong_variant("Key")))?
+        }
     }
     pub fn extend(&mut self, other: Map) {
         self.0.extend(other.0);

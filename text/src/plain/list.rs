@@ -79,7 +79,7 @@ impl Solve for List {
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),
-            _ => no_solver(self, task),
+            _ => self.no_solver(task),
         }
     }
 }

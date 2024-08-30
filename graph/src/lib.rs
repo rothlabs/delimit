@@ -14,13 +14,14 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{no_solver, solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act};
+pub use solve::{solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act, NoSolver};
 pub use tray::Tray;
 pub use write::{
     Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,
 };
 
 use scope::*;
+use aim::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -57,6 +58,7 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
+mod aim;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
@@ -70,6 +72,8 @@ pub enum Error {
     Read(String),
     #[error("write graph part failed ({0})")]
     Write(String),
+    #[error(transparent)]
+    Tray(#[from] tray::Error),
     #[error(transparent)]
     Adapt(#[from] adapt::Error),
     #[error(transparent)]

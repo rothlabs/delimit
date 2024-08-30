@@ -1,5 +1,4 @@
 use super::*;
-use query::*;
 use thiserror::Error;
 use view::*;
 
@@ -7,7 +6,6 @@ mod convert;
 mod edit;
 mod hydrate;
 mod import;
-mod query;
 mod view;
 
 #[derive(Error, Debug)]
@@ -43,11 +41,11 @@ impl Apex {
     }
 
     /// Get stem by key
-    pub fn get<'a>(&self, query: impl Into<Query<'a>>) -> Result<Apex> {
+    pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
         match self {
-            Self::Ploy(ploy) => match query.into() {
-                Query::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
-                Query::Keys(keys) => {
+            Self::Ploy(ploy) => match aim.into() {
+                Aim::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
+                Aim::Keys(keys) => {
                     let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
                     if keys.len() > 1 {
                         apex?.get(&keys[1..])
@@ -55,11 +53,11 @@ impl Apex {
                         apex
                     }
                 }
-                Query::Index(index) => {
+                Aim::Index(index) => {
                     if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
                         Ok(apex.clone())
                     } else {
-                        Err(solve::Error::IndexOutOfBounds(index))?
+                        Err(solve::Error::from(aim::Error::IndexOutOfBounds(index)))?
                     }
                 }
             },

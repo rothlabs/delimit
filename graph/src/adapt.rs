@@ -38,6 +38,8 @@ pub enum Error {
     #[error("no handler (Post: {post}, Unit: {unit})")]
     NoHandler { post: String, unit: String },
     #[error(transparent)]
+    Aim(#[from] aim::Error),
+    #[error(transparent)]
     Solve(#[from] solve::Error),
     #[error(transparent)]
     Apex(#[from] apex::Error),

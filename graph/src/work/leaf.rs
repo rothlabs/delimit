@@ -60,7 +60,7 @@ impl SolveMut for Leaf {
         match task {
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),
-            _ => no_solver(self, task),
+            _ => task.no_solver(self),
         }
     }
 }

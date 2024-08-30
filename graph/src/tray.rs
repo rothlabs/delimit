@@ -2,8 +2,11 @@ use super::*;
 use serde::Serialize;
 use std::hash::{Hash, Hasher};
 
-// pub type Result = result::Result<Tray, anyhow::Error>;
-// pub type RefResult<'a> = result::Result<&'a Tray, Error>;
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
+    WrongVariant { expected: String, found: Tray },
+}
 
 /// Payload value of graph parts.
 /// Used as `Leaf` payload and field values of `Node` and `Ploy`.
@@ -37,16 +40,16 @@ pub enum Tray {
 }
 
 impl Tray {
+    pub fn wrong_variant(&self, expected: &str) -> Error {
+        Error::WrongVariant {
+            expected: expected.into(),
+            found: self.clone(),
+        }
+    }
     pub fn path(&self) -> Option<&Path> {
         match self {
             Self::Path(path) => Some(path),
             _ => None,
-        }
-    }
-    pub fn wrong_variant(&self, expected: &str) -> apex::Error {
-        apex::Error::WrongTray {
-            expected: expected.into(),
-            found: self.clone(),
         }
     }
 }

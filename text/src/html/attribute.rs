@@ -54,7 +54,7 @@ impl Solve for Attribute {
             Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            _ => no_solver(self, task),
+            _ => self.no_solver(task),
         }
     }
 }

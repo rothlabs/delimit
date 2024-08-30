@@ -35,6 +35,22 @@ pub fn solve_ok() -> solve::Result {
     Ok(Gain::None)
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("no handler (Task: {task}, Unit: {unit})")]
+    NoHandler { task: String, unit: String },
+    #[error(transparent)]
+    Gain(#[from] gain::Error),
+    #[error(transparent)]
+    Aim(#[from] aim::Error),
+    #[error(transparent)]
+    Apex(#[from] apex::Error),
+    #[error(transparent)]
+    SerdeJson(#[from] serde_json::Error),
+    #[error(transparent)]
+    Any(#[from] anyhow::Error),
+}
+
 #[derive(Debug)]
 pub enum Task<'a> {
     None,
@@ -49,25 +65,24 @@ pub enum Task<'a> {
     Map,
 }
 
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("no handler (Task: {task}, Unit: {unit})")]
-    NoHandler { task: String, unit: String },
-    #[error("wrong gain (expected: {expected:?}, found: {found:?})")]
-    WrongGain { expected: String, found: String },
-    #[error("index out of bounds: {0}")]
-    IndexOutOfBounds(usize),
-    #[error(transparent)]
-    Apex(#[from] apex::Error),
-    #[error(transparent)]
-    SerdeJson(#[from] serde_json::Error),
-    #[error(transparent)]
-    Any(#[from] anyhow::Error),
+impl Task<'_> {
+    /// Return solve::Error::NoHandler
+    pub fn no_solver(&self, unit: &dyn Debug) -> solve::Result {
+        Err(Error::NoHandler {
+            task: format!("{:?}", self),
+            unit: format!("{:?}", unit),
+        })?
+    }
 }
 
-pub fn no_solver(unit: &dyn Debug, task: Task) -> solve::Result {
-    Err(Error::NoHandler {
-        task: format!("{:?}", task),
-        unit: format!("{:?}", unit),
-    })?
+pub trait NoSolver {
+    /// Return solve::Error::NoHandler
+    fn no_solver(&self, task: Task) -> solve::Result;
+}
+
+impl<T: Solve + Debug> NoSolver for T {
+    /// Return solve::Error::NoHandler
+    fn no_solver(&self, task: Task) -> solve::Result {
+        task.no_solver(self)
+    }
 }

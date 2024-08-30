@@ -1,5 +1,11 @@
 use super::*;
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
+    WrongVariant { expected: String, found: Gain },
+}
+
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
@@ -13,11 +19,11 @@ pub enum Gain {
 }
 
 impl Gain {
-    fn expected(&self, expected: &str) -> solve::Error {
-        Error::WrongGain {
+    fn wrong_variant(&self, expected: &str) -> solve::Error {
+        Error::WrongVariant {
             expected: expected.into(),
-            found: format!("{:?}", self),
-        }
+            found: self.clone(),
+        }.into()
     }
 
     /// Move Gain into Ok(...)
@@ -28,42 +34,42 @@ impl Gain {
     pub fn apex(self) -> crate::Result<Apex> {
         match self {
             Self::Apex(apex) => Ok(apex),
-            _ => Err(self.expected("Apex"))?,
+            _ => Err(self.wrong_variant("Apex"))?,
         }
     }
     /// Get `Vec<Apex>` from Gain.
     pub fn apexes(self) -> crate::Result<Vec<Apex>> {
         match self {
             Self::Apexes(apexes) => Ok(apexes),
-            _ => Err(self.expected("Apexes"))?,
+            _ => Err(self.wrong_variant("Apexes"))?,
         }
     }
     /// Get Imports from Gain.
     pub fn imports(self) -> crate::Result<Vec<Import>> {
         match self {
             Self::Imports(imports) => Ok(imports),
-            _ => Err(self.expected("Imports"))?,
+            _ => Err(self.wrong_variant("Imports"))?,
         }
     }
     /// Get Map from Gain.
     pub fn map(self) -> crate::Result<Map> {
         match self {
             Self::Map(map) => Ok(map),
-            _ => Err(self.expected("Map"))?,
+            _ => Err(self.wrong_variant("Map"))?,
         }
     }
     /// Get String from Gain.
     pub fn string(self) -> crate::Result<String> {
         match self {
             Self::String(string) => Ok(string),
-            _ => Err(self.expected("String"))?,
+            _ => Err(self.wrong_variant("String"))?,
         }
     }
     /// Get u64 from Gain.
     pub fn u64(self) -> crate::Result<u64> {
         match self {
             Self::U64(int) => Ok(int),
-            _ => Err(self.expected("u64"))?,
+            _ => Err(self.wrong_variant("u64"))?,
         }
     }
 }

@@ -10,8 +10,8 @@ impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert(&mut self, key: impl Into<Key>, apex: impl Into<Apex>) -> adapt::Result {
-        self.map.insert(key.into(), apex.into());
+    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> adapt::Result {
+        self.map.insert(aim.into(), apex.into())?;
         adapt_ok()
     }
     fn extend(&mut self, apexes: Map) -> adapt::Result {
@@ -35,7 +35,7 @@ impl Adapt for Bay {
     fn adapt(&mut self, post: Post) -> adapt::Result {
         match post {
             Post::Trade(deal) => self.trade(deal),
-            Post::Insert(key, apex) => self.insert(key, apex),
+            Post::Insert(aim, apex) => self.insert(aim, apex),
             Post::Extend(map) => self.extend(map),
             _ => no_adapter(self, post),
         }
@@ -50,7 +50,7 @@ impl Solve for Bay {
             Task::Serial => self.serial(),
             Task::Get(key) => self.get(key),
             Task::React => solve_ok(),
-            _ => no_solver(self, task),
+            _ => self.no_solver(task),
         }
     }
 }

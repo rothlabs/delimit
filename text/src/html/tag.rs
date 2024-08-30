@@ -56,7 +56,7 @@ impl Solve for Tag {
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::Get(_) => self.name.clone().gain(),
-            _ => no_solver(self, task),
+            _ => self.no_solver(task),
         }
     }
 }
