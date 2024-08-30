@@ -16,7 +16,7 @@ impl Leaf {
     pub fn apex(self) -> Apex {
         Apex::Leaf(link::Leaf::new(self.tray))
     }
-    fn digest(&mut self) -> solve::Result {
+    fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {
             digest.gain()
         } else {
@@ -56,7 +56,7 @@ impl ReactMut for Leaf {
 }
 
 impl SolveMut for Leaf {
-    fn solve(&mut self, task: Task) -> solve::Result {
+    fn solve(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),

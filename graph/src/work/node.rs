@@ -17,7 +17,7 @@ impl<U> Node<U>
 where
     U: Solve,
 {
-    fn main(&mut self) -> solve::Result {
+    fn main(&mut self) -> Result<Gain> {
         if let Some(main) = &self.main {
             Ok(main.clone())
         } else {
@@ -26,7 +26,7 @@ where
             Ok(main)
         }
     }
-    fn digest(&mut self) -> solve::Result {
+    fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
@@ -41,7 +41,7 @@ where
             Ok(digest)
         }
     }
-    fn serial(&mut self) -> solve::Result {
+    fn serial(&mut self) -> Result<Gain> {
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
@@ -56,7 +56,7 @@ impl<U> SolveMut for Node<U>
 where
     U: Solve,
 {
-    fn solve(&mut self, task: Task) -> solve::Result {
+    fn solve(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
             Task::Hash => self.digest(),
@@ -156,7 +156,7 @@ where
             unit: self.unit.as_mut().unwrap(),
             back,
         });
-        self.clear();//self.main = None;
+        self.clear(); //self.main = None;
         Ok(out)
     }
 }
@@ -175,7 +175,7 @@ impl<U> Adapt for Node<U>
 where
     U: Adapt,
 {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         self.unit.as_mut().unwrap().adapt(post)
     }
 }

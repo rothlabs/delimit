@@ -5,7 +5,7 @@ use super::*;
 pub struct Map(HashMap<Key, Apex>);
 
 impl Map {
-    pub fn insert(&mut self, aim: Aim, apex: Apex) -> adapt::Result {
+    pub fn insert(&mut self, aim: Aim, apex: Apex) -> Result<Memo> {
         if let Aim::Key(key) = aim {
             self.0.insert(key, apex);
             adapt_ok()

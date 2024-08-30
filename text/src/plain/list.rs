@@ -31,16 +31,16 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+    fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
         self.items = self.items.deal(deal);
         self.separator = self.separator.deal(deal);
         adapt_ok()
     }
-    fn set_at(&mut self, index: usize, apex: Apex) -> adapt::Result {
+    fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
         self.items[index] = apex;
         adapt_ok()
     }
-    fn main(&self) -> solve::Result {
+    fn main(&self) -> Result<Gain> {
         if self.items.is_empty() {
             return solve_ok();
         }
@@ -54,7 +54,7 @@ impl List {
         self.items[last].view().string(|x| base += x)?;
         base.leaf().apex().gain()
     }
-    fn all(&self) -> solve::Result {
+    fn all(&self) -> Result<Gain> {
         let mut apexes = vec![self.separator.clone()];
         apexes.extend(self.items.clone());
         apexes.gain()
@@ -62,7 +62,7 @@ impl List {
 }
 
 impl Adapt for List {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::SetAt(index, apex) => self.set_at(index, apex),
@@ -72,7 +72,7 @@ impl Adapt for List {
 }
 
 impl Solve for List {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
             Task::All => self.all(),

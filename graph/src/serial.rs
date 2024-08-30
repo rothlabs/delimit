@@ -3,7 +3,7 @@ use std::fmt;
 
 pub trait ToSerial {
     /// Serialize to string.
-    fn serial(&self) -> solve::Result;
+    fn serial(&self) -> Result<Gain>;
 }
 
 impl<T> ToSerial for T
@@ -11,7 +11,7 @@ where
     T: Serialize,
 {
     /// Serialize to string.
-    fn serial(&self) -> solve::Result {
+    fn serial(&self) -> Result<Gain> {
         serde_json::to_string(self)?.gain()
     }
 }
@@ -23,7 +23,7 @@ pub trait DeserializeUnit: Debug + SendSync {
 
 pub trait ToHash {
     /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> solve::Result;
+    fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;
 }
 
 impl<T> ToHash for T
@@ -31,7 +31,7 @@ where
     T: Hash,
 {
     /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> solve::Result {
+    fn digest(&self, state: &mut UnitHasher) -> Result<Gain> {
         self.hash(state);
         state.finish().gain()
     }

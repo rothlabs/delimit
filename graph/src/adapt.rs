@@ -1,36 +1,14 @@
 pub use post::Post;
 
 use super::*;
-use std::result;
 use thiserror::Error;
 
 pub mod post;
 
-pub type Result = result::Result<Memo, crate::Error>;
-
 pub trait Adapt {
     /// Alter an apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, post: Post) -> Result;
-}
-
-pub trait AdaptOut {
-    /// Alter a apex.
-    /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, post: Post) -> result::Result<write::Out<Memo>, crate::Error>;
-}
-
-pub trait AdaptMid {
-    /// For graph internals to handle alter calls
-    fn adapt(&self, post: Post) -> Result;
-}
-
-pub enum Memo {
-    None,
-}
-
-pub fn adapt_ok() -> adapt::Result {
-    Ok(Memo::None)
+    fn adapt(&mut self, post: Post) -> Result<Memo>;
 }
 
 #[derive(Error, Debug)]
@@ -45,4 +23,23 @@ pub enum Error {
     Apex(#[from] apex::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
+}
+
+pub enum Memo {
+    None,
+}
+
+pub fn adapt_ok() -> Result<Memo> {
+    Ok(Memo::None)
+}
+
+pub trait AdaptOut {
+    /// Alter a apex.
+    /// Useful for inserting, removing, and more.
+    fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>>;
+}
+
+pub trait AdaptMid {
+    /// For graph internals to handle alter calls
+    fn adapt(&self, post: Post) -> Result<Memo>;
 }

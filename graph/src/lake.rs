@@ -30,7 +30,7 @@ impl Lake {
     }
 
     /// Insert graph into lake given root key and apex.
-    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> adapt::Result {
+    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> Result<Memo> {
         let serial = SerialNode {
             imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?,
@@ -43,7 +43,7 @@ impl Lake {
     }
 
     /// Insert stems recursively.
-    fn insert_stem(&mut self, apex: &Apex) -> adapt::Result {
+    fn insert_stem(&mut self, apex: &Apex) -> Result<Memo> {
         if let Apex::Tray(_) = apex {
             return adapt_ok();
         }
@@ -118,7 +118,7 @@ impl Trade for Lake {
 // }
 
 // impl Adapt for Lake {
-//     fn adapt(&mut self, post: Post) -> adapt::Result {
+//     fn adapt(&mut self, post: Post) -> Result<Memo> {
 //         match post {
 //             Post::Trade(_) => adapt_ok(),
 //             _ => no_adapter(post),
@@ -127,7 +127,7 @@ impl Trade for Lake {
 // }
 
 // impl Solve for Lake {
-//     fn solve(&self, task: Task) -> solve::Result {
+//     fn solve(&self, task: Task) -> Result<Gain> {
 //         match task {
 //             Task::Serial => self.serial(),
 //             _ => no_solver(),
@@ -136,12 +136,12 @@ impl Trade for Lake {
 // }
 
 // /// Serialize the given apex as the root of the lake.
-// pub fn root(&mut self, apex: &Apex) -> adapt::Result {
+// pub fn root(&mut self, apex: &Apex) -> Result<Memo> {
 //     self.root = apex.serial()?;
 //     adapt_ok()
 // }
 // /// Insert a apex into the lake as hash-serial pair.
-// pub fn insert(&mut self, apex: &Apex) -> adapt::Result {
+// pub fn insert(&mut self, apex: &Apex) -> Result<Memo> {
 //     self.apexes.insert(apex.digest()?, apex.serial()?);
 //     adapt_ok()
 // }
@@ -168,7 +168,7 @@ impl Trade for Lake {
 // }
 
 // impl Adapt for Lake {
-//     fn adapt(&mut self, post: Post) -> adapt::Result {
+//     fn adapt(&mut self, post: Post) -> Result<Memo> {
 //         match post {
 //             // Post::Trade(_) => Ok(Gain::None),
 //             // Post::Extend(apexes) => self.extend(apexes),
@@ -179,7 +179,7 @@ impl Trade for Lake {
 // }
 
 // impl Solve for Lake {
-//     fn solve(&self, task: Task) -> solve::Result {
+//     fn solve(&self, task: Task) -> Result<Gain> {
 //         match task {
 //             // Task::Stems => self.stems(),
 //             // Task::Export => self.export(),

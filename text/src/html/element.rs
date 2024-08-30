@@ -25,7 +25,7 @@ impl Element {
         self.close = Some(name);
         self
     }
-    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+    fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
         self.open = self.open.deal(deal);
         self.items = self.items.deal(deal);
         if let Some(close) = &self.close {
@@ -33,11 +33,11 @@ impl Element {
         }
         adapt_ok()
     }
-    fn set_at(&mut self, index: usize, apex: Apex) -> adapt::Result {
+    fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
         self.items[index] = apex;
         adapt_ok()
     }
-    fn main(&self) -> solve::Result {
+    fn main(&self) -> Result<Gain> {
         let mut element = List::new()
             .separator("\n")
             .push(self.open.at(PLAIN)?)
@@ -52,7 +52,7 @@ impl Element {
         }
         element.apex().gain()
     }
-    fn all(&self) -> solve::Result {
+    fn all(&self) -> Result<Gain> {
         let mut apexes = vec![self.open.clone()];
         apexes.extend(self.items.clone());
         if let Some(apex) = &self.close {
@@ -63,7 +63,7 @@ impl Element {
 }
 
 impl Adapt for Element {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::SetAt(index, apex) => self.set_at(index, apex),
@@ -73,7 +73,7 @@ impl Adapt for Element {
 }
 
 impl Solve for Element {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
             Task::All => self.all(),

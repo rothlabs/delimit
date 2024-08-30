@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::hash::{Hash, Hasher};
 
 /// Payload value of graph parts.
-/// Used as `Leaf` payload and field values of `Node` and `Ploy`.
+/// Used as payload of `Leaf` and field values of `Node` and `Ploy`.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Tray {

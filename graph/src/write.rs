@@ -22,19 +22,13 @@ pub trait WriteTray {
 
 pub trait WriteTrayOut {
     /// Write and return the apex meta and graph roots of the rebut. Apex level.
-    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(
-        &mut self,
-        write: F,
-    ) -> Result<Out<T>>;
+    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(&mut self, write: F) -> Result<Out<T>>;
 }
 
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &self,
-        write: F,
-    ) -> Result<T>;
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T>;
 }
 
 pub trait WriteUnitOut {

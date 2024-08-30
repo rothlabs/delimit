@@ -19,12 +19,12 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+    fn trade(&mut self, trade: &dyn Trade) -> Result<Memo> {
         self.name = self.name.deal(trade);
         self.content = self.content.deal(trade);
         adapt_ok()
     }
-    fn main(&self) -> solve::Result {
+    fn main(&self) -> Result<Gain> {
         List::new()
             .push(self.name.at(PLAIN)?)
             .push(r#"=""#)
@@ -33,13 +33,13 @@ impl Attribute {
             .apex()
             .gain()
     }
-    fn all(&self) -> solve::Result {
+    fn all(&self) -> Result<Gain> {
         Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
     }
 }
 
 impl Adapt for Attribute {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         match post {
             Post::Trade(deal) => self.trade(deal),
             _ => post.no_handler(self),
@@ -48,7 +48,7 @@ impl Adapt for Attribute {
 }
 
 impl Solve for Attribute {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
             Task::All => self.all(),

@@ -47,11 +47,12 @@ async fn future(io: Io, ace: Leaf) {
 }
 
 async fn service(_: Request<impl Body>, ace: Leaf) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.write(|tray| 
+    ace.write(|tray| {
         if let Tray::I32(value) = tray {
             println!("tray: {value}");
             *value += 1;
         }
-    ).ok();
+    })
+    .ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
 }

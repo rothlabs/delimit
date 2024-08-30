@@ -19,12 +19,12 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> adapt::Result {
+    fn trade(&mut self, trade: &dyn Trade) -> Result<Memo> {
         self.name = self.name.deal(trade);
         self.attributes = self.attributes.deal(trade);
         adapt_ok()
     }
-    fn main(&self) -> solve::Result {
+    fn main(&self) -> Result<Gain> {
         let items = List::new()
             .separator(" ")
             .push(self.name.at(PLAIN)?)
@@ -32,7 +32,7 @@ impl Tag {
             .apex();
         List::new().push("<").push(&items).push(">").apex().gain()
     }
-    fn all(&self) -> solve::Result {
+    fn all(&self) -> Result<Gain> {
         let mut apexes = vec![self.name.clone()];
         apexes.extend(self.attributes.clone());
         apexes.gain()
@@ -40,7 +40,7 @@ impl Tag {
 }
 
 impl Adapt for Tag {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         match post {
             Post::Trade(deal) => self.trade(deal),
             _ => post.no_handler(self),
@@ -49,7 +49,7 @@ impl Adapt for Tag {
 }
 
 impl Solve for Tag {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
             Task::All => self.all(),

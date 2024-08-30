@@ -125,7 +125,7 @@ impl<N> Solve for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
 {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
 }
@@ -134,7 +134,7 @@ impl<N> AdaptMid for Edge<N>
 where
     N: 'static + AdaptOut + UpdateMut,
 {
-    fn adapt(&self, post: Post) -> adapt::Result {
+    fn adapt(&self, post: Post) -> Result<Memo> {
         let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post))??;
         for root in &roots {
             root.react(&id)?;
@@ -191,10 +191,7 @@ where
     N: 'static + WriteUnitOut + UpdateMut,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &self,
-        write: F,
-    ) -> Result<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         for root in &roots {

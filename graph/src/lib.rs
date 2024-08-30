@@ -14,14 +14,12 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{solve_ok, SolveMut, Gain, IntoGain, Solve, Task, Act};
+pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
-pub use write::{
-    Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork,
-};
+pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
-use scope::*;
 use aim::*;
+use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -47,6 +45,7 @@ pub mod solve;
 pub mod work;
 pub mod write;
 
+mod aim;
 mod bay;
 mod cusp;
 mod edge;
@@ -58,7 +57,6 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
-mod aim;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 

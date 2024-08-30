@@ -24,13 +24,13 @@ pub trait BackedPloy {
 }
 
 impl AdaptMid for Box<dyn Engage> {
-    fn adapt(&self, post: Post) -> adapt::Result {
+    fn adapt(&self, post: Post) -> Result<Memo> {
         self.as_ref().adapt(post)
     }
 }
 
 impl Solve for Box<dyn Engage> {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         self.as_ref().solve(task)
     }
 }

@@ -18,7 +18,7 @@ impl Facets {
 }
 
 impl Solve for Facets {
-    fn solve(&self, _: Task) -> solve::Result {
+    fn solve(&self, _: Task) -> Result<Gain> {
         Ok(Gain::None)
     }
 }

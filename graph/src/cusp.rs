@@ -74,10 +74,7 @@ impl<W> WriteTrayOut for Cusp<W>
 where
     W: MutTray,
 {
-    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(
-        &mut self,
-        write: F,
-    ) -> Result<write::Out<T>> {
+    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(&mut self, write: F) -> Result<write::Out<T>> {
         //let out = self.work.write_tray_work(write)?;
         let out = write(self.work.tray());
         let roots = self.ring.rebut_roots();
@@ -149,7 +146,7 @@ impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut,
 {
-    fn solve(&mut self, task: Task) -> solve::Result {
+    fn solve(&mut self, task: Task) -> Result<Gain> {
         self.work.solve(task)
     }
 }

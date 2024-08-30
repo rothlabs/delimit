@@ -19,7 +19,7 @@ pub enum Error {
 
 impl Post<'_> {
     /// Emit `NoHandler` error.
-    pub fn no_handler(&self, unit: &dyn Debug) -> adapt::Result {
+    pub fn no_handler(&self, unit: &dyn Debug) -> Result<Memo> {
         Err(adapt::Error::from(Error::NoHandler {
             post: format!("{:?}", self),
             unit: format!("{:?}", unit),

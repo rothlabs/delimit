@@ -24,10 +24,11 @@ impl Gain {
         Error::WrongVariant {
             expected: expected.into(),
             found: self.clone(),
-        }.into()
+        }
+        .into()
     }
     /// Move Gain into Ok(...)
-    pub fn ok(self) -> solve::Result {
+    pub fn ok(self) -> Result<Gain> {
         Ok(self)
     }
     /// Get Apex from Gain.
@@ -112,14 +113,14 @@ impl From<&Vec<Import>> for Gain {
 
 pub trait IntoGain {
     /// Move into Gain.
-    fn gain(self) -> solve::Result;
+    fn gain(self) -> Result<Gain>;
 }
 
 impl<T> IntoGain for T
 where
     T: Into<Gain>,
 {
-    fn gain(self) -> solve::Result {
+    fn gain(self) -> Result<Gain> {
         Ok(self.into())
     }
 }

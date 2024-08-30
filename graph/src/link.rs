@@ -280,7 +280,7 @@ where
 
 /// TODO: make reader that does not add a root to the cusp.
 /// This will allow readers to inspect without rebuting in the future.
-impl<E> Link<E> 
+impl<E> Link<E>
 where
     E: 'static + Read + Update + AddRoot,
 {
@@ -308,10 +308,7 @@ where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &self,
-        write: F,
-    ) -> Result<T> {
+    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T> {
         read_part(&self.edge, |edge| edge.write(write))?
     }
 }
@@ -320,7 +317,7 @@ impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
 {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
             edge.add_root(self.as_root(edge.id()));
@@ -333,7 +330,7 @@ impl<E> AdaptMid for Link<E>
 where
     E: AdaptMid,
 {
-    fn adapt(&self, post: Post) -> adapt::Result {
+    fn adapt(&self, post: Post) -> Result<Memo> {
         read_part(&self.edge, |edge| edge.adapt(post))?
     }
 }

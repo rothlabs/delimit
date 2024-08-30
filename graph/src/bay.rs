@@ -10,19 +10,19 @@ impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> adapt::Result {
+    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<Memo> {
         self.map.insert(aim.into(), apex.into())?;
         adapt_ok()
     }
-    fn extend(&mut self, apexes: Map) -> adapt::Result {
+    fn extend(&mut self, apexes: Map) -> Result<Memo> {
         self.map.extend(apexes);
         adapt_ok()
     }
-    fn trade(&mut self, deal: &dyn Trade) -> adapt::Result {
+    fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
         self.map = self.map.trade(deal);
         adapt_ok()
     }
-    pub fn get(&self, key: &Key) -> solve::Result {
+    pub fn get(&self, key: &Key) -> Result<Gain> {
         if let Some(apex) = self.map.get(key) {
             apex.pathed(key).gain()
         } else {
@@ -32,7 +32,7 @@ impl Bay {
 }
 
 impl Adapt for Bay {
-    fn adapt(&mut self, post: Post) -> adapt::Result {
+    fn adapt(&mut self, post: Post) -> Result<Memo> {
         match post {
             Post::Trade(deal) => self.trade(deal),
             Post::Insert(aim, apex) => self.insert(aim, apex),
@@ -43,7 +43,7 @@ impl Adapt for Bay {
 }
 
 impl Solve for Bay {
-    fn solve(&self, task: Task) -> solve::Result {
+    fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::All => self.map.vec().gain(),
             Task::Digest(state) => self.digest(state),
