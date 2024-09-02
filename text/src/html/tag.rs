@@ -19,11 +19,6 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> Result<Memo> {
-        self.name = self.name.deal(trade);
-        self.attributes = self.attributes.deal(trade);
-        adapt_ok()
-    }
     fn main(&self) -> Result<Gain> {
         let items = List::new()
             .separator(" ")
@@ -32,25 +27,13 @@ impl Tag {
             .apex();
         List::new().push("<").push(&items).push(">").apex().gain()
     }
-    // fn all(&self) -> Result<Gain> {
-    //     let mut apexes = vec![self.name.clone()];
-    //     apexes.extend(self.attributes.clone());
-    //     apexes.gain()
-    // }
-    fn map(&self) -> Result<Gain> {
-        let mut map = Map::new();
-        map.insert("name", &self.name)?;
-        map.insert("attributes", &self.attributes)?;
-        map.gain()
-    }
 }
 
 impl Adapt for Tag {
-    fn adapt(&mut self, post: Post) -> Result<Memo> {
-        match post {
-            Post::Trade(deal) => self.trade(deal),
-            _ => post.no_handler(self),
-        }
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        self.name.deal("name", deal)?;
+        self.attributes.deal("attributes", deal)?;
+        adapt_ok()
     }
 }
 
@@ -58,11 +41,8 @@ impl Solve for Tag {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            // Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::Map => self.map(),
-            // Task::Get(_) => self.name.clone().gain(),
             _ => task.no_handler(self),
         }
     }

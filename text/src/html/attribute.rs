@@ -19,11 +19,6 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    fn trade(&mut self, trade: &dyn Trade) -> Result<Memo> {
-        self.name = self.name.deal(trade);
-        self.content = self.content.deal(trade);
-        adapt_ok()
-    }
     fn main(&self) -> Result<Gain> {
         List::new()
             .push(self.name.at(PLAIN)?)
@@ -33,23 +28,13 @@ impl Attribute {
             .apex()
             .gain()
     }
-    // fn all(&self) -> Result<Gain> {
-    //     Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
-    // }
-    fn map(&self) -> Result<Gain> {
-        let mut map = Map::new();
-        map.insert("name", &self.name)?;
-        map.insert("content", &self.content)?;
-        map.gain()
-    }
 }
 
 impl Adapt for Attribute {
-    fn adapt(&mut self, post: Post) -> Result<Memo> {
-        match post {
-            Post::Trade(deal) => self.trade(deal),
-            _ => post.no_handler(self),
-        }
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        self.name.deal("name", deal)?;
+        self.content.deal("content", deal)?;
+        adapt_ok()
     }
 }
 
@@ -57,7 +42,6 @@ impl Solve for Attribute {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             _ => task.no_handler(self),

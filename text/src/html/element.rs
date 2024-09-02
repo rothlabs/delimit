@@ -25,14 +25,6 @@ impl Element {
         self.close = Some(name);
         self
     }
-    fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-        self.open = self.open.deal(deal);
-        self.items = self.items.deal(deal);
-        if let Some(close) = &self.close {
-            self.close = Some(close.deal(deal));
-        }
-        adapt_ok()
-    }
     fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
         self.items[index] = apex;
         adapt_ok()
@@ -52,24 +44,16 @@ impl Element {
         }
         element.apex().gain()
     }
-    fn map(&self) -> Result<Gain> {
-        let mut map = Map::new();
-        map.insert("open", &self.open)?;
-        map.insert("items", &self.items)?;
-        if let Some(apex) = &self.close {
-            map.insert("close", apex)?;
-        }
-        map.gain()
-    }
 }
 
 impl Adapt for Element {
-    fn adapt(&mut self, post: Post) -> Result<Memo> {
-        match post {
-            Post::Trade(deal) => self.trade(deal),
-            Post::SetAt(index, apex) => self.set_at(index, apex),
-            _ => post.no_handler(self),
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        self.open.deal("open", deal)?;
+        self.items.deal("items", deal)?;
+        if let Some(close) = &mut self.close {
+            close.deal("close", deal)?;
         }
+        adapt_ok()
     }
 }
 
@@ -77,8 +61,6 @@ impl Solve for Element {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            // Task::All => self.all(),
-            Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             _ => task.no_handler(self),

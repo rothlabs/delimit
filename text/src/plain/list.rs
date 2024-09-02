@@ -63,7 +63,7 @@ impl List {
 }
 
 impl Adapt for List {
-    fn adapt(&mut self, deal: &impl Deal) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
         self.items.deal("items", deal)?;
         self.separator.deal("separator", deal)?;
         adapt_ok()
