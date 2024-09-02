@@ -102,7 +102,7 @@ where
         self.unit
             .as_mut()
             .unwrap()
-            .adapt(Post::Trade(back))
+            .adapt(&mut back.clone())
             .expect("To make Node, unit must Adapt with Post::Trade.");
         self.imports = snap.imports;
     }
@@ -175,7 +175,7 @@ impl<U> Adapt for Node<U>
 where
     U: Adapt,
 {
-    fn adapt(&mut self, post: Post) -> Result<Memo> {
-        self.unit.as_mut().unwrap().adapt(post)
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        self.unit.as_mut().unwrap().adapt(deal)
     }
 }

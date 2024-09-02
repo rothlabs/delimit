@@ -9,7 +9,7 @@ impl Apex {
     }
 
     fn saturate(&self, world: &Space, local: &Space) {
-        self.trade(&Scope { world, local });
+        self.trade(&mut Scope { world, local });
         for space in local.map.values() {
             space.apex.saturate(world, space);
         }

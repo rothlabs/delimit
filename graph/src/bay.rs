@@ -10,8 +10,8 @@ impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, fit: impl Into<Fit>) -> Result<Memo> {
-        self.map.insert(aim, fit)?;
+    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<Memo> {
+        self.map.insert(aim, apex)?;
         adapt_ok()
     }
     fn extend(&mut self, apexes: Map) -> Result<Memo> {
@@ -32,8 +32,8 @@ impl Bay {
 }
 
 impl Adapt for Bay {
-    fn adapt<D: Trade>(&mut self, deal: &mut D) -> Result<Memo> {
-        self.map.deal("map", deal)?;
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        self.map.deal(deal)?;
         adapt_ok()
     }
 }

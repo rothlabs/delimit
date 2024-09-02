@@ -12,7 +12,7 @@ pub trait Deal {
 pub trait Adapt {
     /// Alter an apex.
     /// Useful for inserting, removing, and more.
-    fn adapt<D: Trade>(&mut self, deal: &mut D) -> Result<Memo>;
+    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo>;
 }
 
 #[derive(Error, Debug)]
@@ -40,10 +40,10 @@ pub fn adapt_ok() -> Result<Memo> {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, post: Post) -> Result<write::Out<Memo>>;
+    fn adapt(&mut self, deal: &mut dyn Trade)-> Result<write::Out<Memo>>;
 }
 
 pub trait AdaptMid {
     /// For graph internals to handle alter calls
-    fn adapt(&self, post: Post) -> Result<Memo>;
+    fn adapt(&self, deal: &mut dyn Trade) -> Result<Memo>;
 }

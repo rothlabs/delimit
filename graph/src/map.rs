@@ -1,17 +1,19 @@
+use std::collections::hash_map::{IterMut, Values};
+
 use super::*;
 
 /// Key-Fit map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub struct Map(HashMap<Key, Fit>);
+pub struct Map(pub HashMap<Key, Apex>);
 
 impl Map {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, fit: impl Into<Fit>) -> Result<Memo> {
+    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<Memo> {
         match aim.into() {
             Aim::Key(key) => {
-                self.0.insert(key, fit.into());
+                self.0.insert(key, apex.into());
                 adapt_ok()
             }
             aim => Err(adapt::Error::from(aim.wrong_variant("Key")))?
@@ -36,19 +38,32 @@ impl Map {
     // }
     // TODO: use aim instead of key (move aim logic from Apex to Map)
     pub fn get(&self, key: &Key) -> Option<Apex> {
-        self.0.get(key).map(|fit| Some(fit.first()?.pathed(key)))?
+        self.0.get(key).map(|apex| Some(apex.pathed(key)))?
     }
-    pub fn all(&self) -> Vec<Apex> {
-        let mut out = vec![];
-        for fit in self.0.values() {
-            out.extend(fit.all());
-        }
-        out
-        // self.0.values().cloned().collect()
-    }
-    // pub fn iter(&self) -> Iter<String, Apex> {
-    //     self.0.iter()
+    // pub fn all(&self) -> Vec<Apex> {
+    //     let mut out = vec![];
+    //     for apex in self.0.values() {
+    //         out.push(apex.clone());
+    //     }
+    //     out
+    //     // self.0.values().cloned().collect()
     // }
+    pub fn values(&self) -> Values<String, Apex> {
+        self.0.values()
+    }
+    pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
+        self.0.iter_mut()
+    }
+    pub fn deal(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+        deal.trade_map(self)
+    }
+    pub fn backed(&mut self, back: &Back) -> Self {
+        let mut map = Map::new();
+        for (aim, apex) in &self.0 {
+            map.insert(aim, apex.backed(back));
+        }
+        map
+    }
 }
 
 impl Hash for Map {

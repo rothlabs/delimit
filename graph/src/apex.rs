@@ -110,15 +110,19 @@ impl Apex {
     /// Get stems of apex.
     pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
-            Self::Ploy(ploy) => Ok(ploy.solve(Task::Map)?.map()?.all()),
+            Self::Ploy(ploy) => {
+                let mut all = All{apexes:vec![]};
+                ploy.adapt(&mut all)?;
+                Ok(all.apexes)
+            },
             _ => Err(Error::NotPloy)?,
         }
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn trade(&self, deal: &dyn Trade) {
+    pub fn trade(&self, deal: &mut dyn Trade) {
         if let Self::Ploy(ploy) = self {
-            ploy.adapt(Post::Trade(deal)).ok();
+            ploy.adapt(deal).ok();
         }
     }
 
@@ -150,7 +154,7 @@ impl Apex {
     }
 
     /// Run Trade deal with this apex as input.
-    pub fn deal(&mut self, key: &str, deal: &dyn Trade) -> Result<Memo> {
+    pub fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo> {
         deal.trade(key, self)
     }
 
@@ -271,14 +275,14 @@ pub trait EngageApexes {
     /// Solve down to the given graph rank.
     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
-    fn deal(&mut self, key: &str, deal: &impl Trade) -> Result<Memo>;
+    fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo>;
 }
 
 impl EngageApexes for Vec<Apex> {
     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
-    fn deal(&mut self, key: &str, deal: &impl Trade) -> Result<Memo> {
+    fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo> {
         deal.trade_vec(key, self)
     }
 }
@@ -298,3 +302,23 @@ impl EngageApexes for Vec<Apex> {
 //         self.iter().map(|x| x.deal(deal)).collect()
 //     }
 // }
+
+#[derive(Debug)]
+struct All {
+    apexes: Vec<Apex>,
+}
+
+impl Trade for All {
+    fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
+        self.apexes.push(apex.clone());
+        adapt_ok()
+    }
+    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+        self.apexes.extend(apexes.clone());
+        adapt_ok()
+    }
+    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+        self.apexes.extend(map.values().cloned());
+        adapt_ok()
+    }
+}

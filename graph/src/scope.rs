@@ -1,12 +1,6 @@
 use super::*;
 use anyhow::anyhow;
 
-#[derive(Debug)]
-pub struct Scope<'a> {
-    pub world: &'a Space,
-    pub local: &'a Space,
-}
-
 #[derive(Default, Debug)]
 pub struct Space {
     id: u64,
@@ -57,18 +51,42 @@ impl Space {
     }
 }
 
-impl Trade for Scope<'_> {
-    fn trade(&self, apex: &Apex) -> Apex {
+#[derive(Debug)]
+pub struct Scope<'a> {
+    pub world: &'a Space,
+    pub local: &'a Space,
+}
+
+impl Scope<'_> {
+    pub fn main_trade(&self, apex: &mut Apex) {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
-            if let Ok(apex) = self.local.get(keys) {
-                return apex;
+            if let Ok(new_apex) = self.local.get(keys) {
+                *apex = new_apex;
             } else if self.local.imports.contains(&WORLD_ALL) {
-                if let Ok(apex) = self.world.get(keys) {
-                    return apex;
+                if let Ok(new_apex) = self.world.get(keys) {
+                    *apex = new_apex;
                 }
             }
         }
-        apex.clone()
+    }
+}
+
+impl Trade for Scope<'_> {
+    fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
+        self.main_trade(apex);
+        adapt_ok()
+    }
+    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+        for apex in apexes {
+            self.main_trade(apex);
+        }
+        adapt_ok()
+    }
+    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+        for (_, apex) in map.iter_mut() {
+            self.main_trade(apex);
+        }
+        adapt_ok()
     }
 }
 

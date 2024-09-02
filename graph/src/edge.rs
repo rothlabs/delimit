@@ -134,8 +134,8 @@ impl<N> AdaptMid for Edge<N>
 where
     N: 'static + AdaptOut + UpdateMut,
 {
-    fn adapt(&self, post: Post) -> Result<Memo> {
-        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(post))??;
+    fn adapt(&self, deal: &mut dyn Trade) -> Result<Memo> {
+        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         for root in &roots {
             root.react(&id)?;
         }

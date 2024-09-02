@@ -143,10 +143,17 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// Trade a apex for another.
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Trade: Debug {
+    fn back(&mut self, _: &Back) {}
     /// Trade a apex for another.
-    fn trade(&self, key: &str, apex: &mut Apex) -> Result<Memo>;
-    fn trade_vec(&self, key: &str, apexes: &mut Vec<Apex>) -> Result<Memo>;
-    fn trade_map(&self, key: &str, map: &mut Map) -> Result<Memo>;
+    fn trade(&mut self, key: &str, apex: &mut Apex) -> Result<Memo>{
+        adapt_ok()
+    }
+    fn trade_vec(&mut self, key: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+        adapt_ok()
+    }
+    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+        adapt_ok()
+    }
 }
 
 pub trait IntoNode
@@ -162,7 +169,8 @@ where
 {
     fn node(mut self) -> Node<Self> {
         Node::make(|back| {
-            self.adapt(Post::Trade(back))
+            // self.adapt(Post::Trade(back))
+            self.adapt(&mut back.clone())
                 .expect("To move into Node, unit must Adapt with Post::Trade.");
             self
         })
@@ -182,7 +190,7 @@ where
 {
     fn ploy(mut self) -> Ploy {
         Node::make_ploy(|back| {
-            self.adapt(Post::Trade(back))
+            self.adapt(&mut back.clone())
                 .expect("To move into Ploy, unit must Adapt with Post::Trade.");
             self
         })

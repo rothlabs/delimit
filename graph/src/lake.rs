@@ -59,13 +59,13 @@ impl Lake {
     }
 
     /// Grow a tree from the lake.
-    pub fn tree(&self) -> Result<Apex> {
+    pub fn tree(&mut self) -> Result<Apex> {
         let root = self.root("root")?;
         self.grow(&root).ok();
         Ok(root)
     }
 
-    fn grow(&self, apex: &Apex) -> Result<()> {
+    fn grow(&mut self, apex: &Apex) -> Result<()> {
         apex.trade(self);
         for apex in apex.all()? {
             self.grow(&apex).ok();
@@ -94,7 +94,7 @@ impl Lake {
             .deserialize(serial)
     }
 
-    fn trade(&self, apex: &mut Apex) -> Result<Memo> {
+    fn main_trade(&self, apex: &mut Apex) -> Result<Memo> {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
                 *apex = rhs;
@@ -105,12 +105,21 @@ impl Lake {
 }
 
 impl Trade for Lake {
-    fn trade(&self, _: &str, apex: &mut Apex) -> Result<Memo> {
-        self.trade(apex)
+    fn back(&mut self, _: &Back) {
+        
     }
-    fn trade_vec(&self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+    fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
+        self.main_trade(apex)
+    }
+    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
         for apex in apexes {
-            self.trade(apex)?;
+            self.main_trade(apex)?;
+        }
+        adapt_ok()
+    }
+    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+        for (_, apex) in map.iter_mut() {
+            self.main_trade(apex)?;
         }
         adapt_ok()
     }

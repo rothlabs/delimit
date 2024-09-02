@@ -31,7 +31,7 @@ impl<'a> Backed for Post<'a> {
     fn backed(&self, back: &Back) -> Self {
         match self {
             Post::Insert(key, fit) => Post::Insert(key.clone(), fit.backed(back)),
-            Post::Extend(map) => Post::Extend(map.trade(back)),
+            // Post::Extend(map) => Post::Extend(map.trade(back)),
             Post::SetAt(index, apex) => Post::SetAt(*index, apex.backed(back)),
             _ => self.clone(),
         }
