@@ -93,16 +93,26 @@ impl Lake {
             .ok_or(anyhow!("No atlas."))?
             .deserialize(serial)
     }
+
+    fn trade(&self, apex: &mut Apex) -> Result<Memo> {
+        if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
+            if let Ok(rhs) = self.get(*hash) {
+                *apex = rhs;
+            }
+        }
+        adapt_ok()
+    }
 }
 
 impl Trade for Lake {
-    fn trade(&self, apex: &Apex) -> Apex {
-        if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
-            if let Ok(apex) = self.get(*hash) {
-                return apex;
-            }
+    fn trade(&self, _: &str, apex: &mut Apex) -> Result<Memo> {
+        self.trade(apex)
+    }
+    fn trade_vec(&self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+        for apex in apexes {
+            self.trade(apex)?;
         }
-        apex.clone()
+        adapt_ok()
     }
 }
 

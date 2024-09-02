@@ -31,11 +31,6 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-        self.items = self.items.deal(deal);
-        self.separator = self.separator.deal(deal);
-        adapt_ok()
-    }
     fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
         self.items[index] = apex;
         adapt_ok()
@@ -59,21 +54,19 @@ impl List {
     //     apexes.extend(self.items.clone());
     //     apexes.gain()
     // }
-    fn map(&self) -> Result<Gain> {
-        let mut map = Map::new();
-        map.insert("items", &self.items);
-        map.insert("separator", &self.separator);
-        map.gain()
-    }
+    // fn map(&self) -> Result<Gain> {
+    //     let mut map = Map::new();
+    //     map.insert("items", &self.items);
+    //     map.insert("separator", &self.separator);
+    //     map.gain()
+    // }
 }
 
 impl Adapt for List {
-    fn adapt(&mut self, post: Post) -> Result<Memo> {
-        match post {
-            Post::Trade(deal) => self.trade(deal),
-            Post::SetAt(index, apex) => self.set_at(index, apex),
-            _ => post.no_handler(self),
-        }
+    fn adapt(&mut self, deal: &impl Deal) -> Result<Memo> {
+        self.items.deal("items", deal)?;
+        self.separator.deal("separator", deal)?;
+        adapt_ok()
     }
 }
 
@@ -81,7 +74,7 @@ impl Solve for List {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::Map => self.map(),
+            // Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),
@@ -89,3 +82,19 @@ impl Solve for List {
         }
     }
 }
+
+// impl Adapt for List {
+//     fn adapt(&mut self, post: Post) -> Result<Memo> {
+//         match post {
+//             Post::Trade(deal) => self.trade(deal),
+//             Post::SetAt(index, apex) => self.set_at(index, apex),
+//             _ => post.no_handler(self),
+//         }
+//     }
+// }
+
+    // fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
+    //     self.items = self.items.deal(deal);
+    //     self.separator = self.separator.deal(deal);
+    //     adapt_ok()
+    // }

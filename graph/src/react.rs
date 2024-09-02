@@ -142,9 +142,14 @@ impl Back {
     }
 }
 
-impl Trade for Back {
-    fn trade(&self, apex: &Apex) -> Apex {
-        apex.backed(self)
+impl Trade for Back { 
+    fn trade(&self, _: &str, apex: &mut Apex) -> crate::Result<Memo> {
+        *apex = apex.backed(self);
+        adapt_ok()
+    }
+    fn trade_vec(&self, _: &str, apexes: &mut Vec<Apex>) -> crate::Result<Memo> {
+        *apexes = apexes.backed(self);
+        adapt_ok()
     }
 }
 

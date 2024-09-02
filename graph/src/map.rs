@@ -26,14 +26,14 @@ impl Map {
     pub fn extend(&mut self, other: Map) {
         self.0.extend(other.0);
     }
-    pub fn trade(&self, deal: &dyn Trade) -> Self {
-        let mut map = HashMap::new();
-        for (key, fit) in &self.0 {
-            //self.0.entry(key.clone()).or_insert(fit.trade(deal));
-            map.insert(key.clone(), fit.trade(deal));
-        }
-        Map(map)
-    }
+    // pub fn trade(&self, deal: &dyn Trade) -> Self {
+    //     let mut map = HashMap::new();
+    //     for (key, fit) in &self.0 {
+    //         //self.0.entry(key.clone()).or_insert(fit.trade(deal));
+    //         map.insert(key.clone(), fit.trade(deal));
+    //     }
+    //     Map(map)
+    // }
     // TODO: use aim instead of key (move aim logic from Apex to Map)
     pub fn get(&self, key: &Key) -> Option<Apex> {
         self.0.get(key).map(|fit| Some(fit.first()?.pathed(key)))?
@@ -78,12 +78,12 @@ impl Fit {
             Self::Apexes(apexes) => apexes.first(),
         }
     }
-    fn trade(&self, deal: &dyn Trade) -> Self {
-        match self {
-            Self::Apex(apex) => Self::Apex(apex.deal(deal)),
-            Self::Apexes(apexes) => Self::Apexes(apexes.deal(deal)),
-        }
-    }
+    // fn trade(&self, deal: &dyn Trade) -> Self {
+    //     match self {
+    //         Self::Apex(apex) => Self::Apex(apex.deal(deal)),
+    //         Self::Apexes(apexes) => Self::Apexes(apexes.deal(deal)),
+    //     }
+    // }
     pub fn backed(&self, back: &Back) -> Self {
         match self {
             Self::Apex(apex) => Self::Apex(apex.backed(back)),

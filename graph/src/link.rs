@@ -34,6 +34,14 @@ pub struct Link<E> {
     rank: Option<usize>,
 }
 
+impl Ploy {
+    pub fn echo(&mut self, other: Self) {
+        self.edge = other.edge;
+        self.path = other.path;
+        self.rank = other.rank;
+    }
+}
+
 impl<E> fmt::Debug for Link<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("Path: {:?}", self.path))

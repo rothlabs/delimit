@@ -150,9 +150,22 @@ impl Apex {
     }
 
     /// Run Trade deal with this apex as input.
-    pub fn deal(&self, deal: &dyn Trade) -> Self {
-        deal.trade(self)
+    pub fn deal(&mut self, key: &str, deal: &dyn Trade) -> Result<Memo> {
+        deal.trade(key, self)
     }
+
+    // pub fn echo(&mut self, other: Self) -> Result<()> {
+    //     match self {
+    //         Self::Tray(tray) => {
+    //             match other {
+    //                 Self::Tray(tray_r) => *tray = tray_r,
+    //                 _ => return Err(anyhow!("could not echo apex"))?
+    //             }
+    //         }
+            
+    //     }
+    //     Ok(())
+    // }
 
     /// Get rank of apex. Rank 1 apexes produce leaf apexes.
     pub fn rank(&self) -> Option<usize> {
@@ -258,14 +271,30 @@ pub trait EngageApexes {
     /// Solve down to the given graph rank.
     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
-    fn deal(&self, deal: &dyn Trade) -> Self;
+    fn deal(&mut self, key: &str, deal: &impl Trade) -> Result<Memo>;
 }
 
 impl EngageApexes for Vec<Apex> {
     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
-    fn deal(&self, deal: &dyn Trade) -> Self {
-        self.iter().map(|x| x.deal(deal)).collect()
+    fn deal(&mut self, key: &str, deal: &impl Trade) -> Result<Memo> {
+        deal.trade_vec(key, self)
     }
 }
+
+// pub trait EngageApexes {
+//     /// Solve down to the given graph rank.
+//     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
+//     /// Replace stems according to the Trade deal.
+//     fn deal(&self, deal: &dyn Trade) -> Self;
+// }
+
+// impl EngageApexes for Vec<Apex> {
+//     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
+//         self.iter().map(|x| x.at(rank)).collect()
+//     }
+//     fn deal(&self, deal: &dyn Trade) -> Self {
+//         self.iter().map(|x| x.deal(deal)).collect()
+//     }
+// }

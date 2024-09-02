@@ -144,7 +144,9 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Trade: Debug {
     /// Trade a apex for another.
-    fn trade(&self, apex: &Apex) -> Apex;
+    fn trade(&self, key: &str, apex: &mut Apex) -> Result<Memo>;
+    fn trade_vec(&self, key: &str, apexes: &mut Vec<Apex>) -> Result<Memo>;
+    fn trade_map(&self, key: &str, map: &mut Map) -> Result<Memo>;
 }
 
 pub trait IntoNode

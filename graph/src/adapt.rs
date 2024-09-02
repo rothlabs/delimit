@@ -5,10 +5,14 @@ use thiserror::Error;
 
 pub mod post;
 
+pub trait Deal {
+    fn deal(&mut self, name: &str) -> Result<Memo>;
+}
+
 pub trait Adapt {
     /// Alter an apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, post: Post) -> Result<Memo>;
+    fn adapt<D: Trade>(&mut self, deal: &mut D) -> Result<Memo>;
 }
 
 #[derive(Error, Debug)]
