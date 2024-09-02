@@ -16,6 +16,9 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let bay = lake.tree()?;
     bay.hydrate();
     let page = bay.get("page")?;
+    eprintln!("before .string, {:?}", page);
+    let wow = page.string()?;
+    eprintln!("after .string");
     assert_eq!(page.string()?, html::default::PAGE);
     Ok(())
 }

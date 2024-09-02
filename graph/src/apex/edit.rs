@@ -7,9 +7,9 @@ impl Apex {
             _ => Err(apex::Error::NotPloy)?,
         }
     }
-    pub fn insert(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<Memo> {
+    pub fn insert(&self, aim: impl Into<Aim<'static>>, fit: impl Into<Fit>) -> Result<Memo> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(Post::Insert(aim.into(), apex.into())),
+            Self::Ploy(ploy) => ploy.adapt(Post::Insert(aim.into(), fit.into())),
             _ => Err(apex::Error::NotPloy)?,
         }
     }

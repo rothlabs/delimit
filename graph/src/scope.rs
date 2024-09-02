@@ -28,7 +28,7 @@ impl Space {
         if let Ok(imports) = apex.imports() {
             space.imports = imports;
         }
-        if let Ok(stems) = apex.stems() {
+        if let Ok(stems) = apex.all() {
             for next_apex in &stems {
                 if let Apex::Tray(Tray::Path(_)) = next_apex {
                     continue;

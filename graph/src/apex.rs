@@ -1,4 +1,5 @@
 use super::*;
+use anyhow::anyhow;
 use thiserror::Error;
 use view::*;
 
@@ -44,7 +45,14 @@ impl Apex {
     pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => match aim.into() {
-                Aim::Key(key) => ploy.solve(Task::Get(&key))?.apex(),
+                Aim::Key(key) => {
+                    let map = ploy.solve(Task::Map)?.map()?;
+                    if let Some(apex) = map.get(&key) {
+                        Ok(apex)
+                    } else {
+                        Err(anyhow!("key not in map: {}", key))?
+                    }
+                },
                 Aim::Keys(keys) => {
                     let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
                     if keys.len() > 1 {
@@ -100,12 +108,11 @@ impl Apex {
     }
 
     /// Get stems of apex.
-    pub fn stems(&self) -> Result<Vec<Apex>> {
+    pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
-            Self::Ploy(ploy) => ploy.solve(Task::All),
+            Self::Ploy(ploy) => Ok(ploy.solve(Task::Map)?.map()?.all()),
             _ => Err(Error::NotPloy)?,
-        }?
-        .apexes()
+        }
     }
 
     /// Replace stems according to the Trade deal.
@@ -170,15 +177,15 @@ impl Apex {
         Ok(apex)
     }
 
-    /// New backed apex.
-    pub fn backed(&self, back: &Back) -> Self {
-        match self {
-            Self::Tray(bare) => Self::Tray(bare.clone()),
-            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
-            // TODO: remove unwrap!
-            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
-        }
-    }
+    // /// New backed apex.
+    // pub fn backed(&self, back: &Back) -> Self {
+    //     match self {
+    //         Self::Tray(bare) => Self::Tray(bare.clone()),
+    //         Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+    //         // TODO: remove unwrap!
+    //         Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
+    //     }
+    // }
 
     /// Read tray of apex.
     pub fn read<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T> {
@@ -199,7 +206,7 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::String(value) => Ok(value),
-            _ => Err(wrong_tray("String", &tray))?,
+            _ => Err(tray.wrong_variant("String"))?,
         }
     }
 
@@ -218,6 +225,18 @@ impl Apex {
         match tray {
             Tray::I32(value) => Ok(value),
             _ => Err(wrong_tray("i32", &tray))?,
+        }
+    }
+}
+
+impl Backed for Apex {
+    /// New backed apex.
+    fn backed(&self, back: &Back) -> Self {
+        match self {
+            Self::Tray(bare) => Self::Tray(bare.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            // TODO: remove unwrap!
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
         }
     }
 }

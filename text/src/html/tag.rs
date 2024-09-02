@@ -32,10 +32,16 @@ impl Tag {
             .apex();
         List::new().push("<").push(&items).push(">").apex().gain()
     }
-    fn all(&self) -> Result<Gain> {
-        let mut apexes = vec![self.name.clone()];
-        apexes.extend(self.attributes.clone());
-        apexes.gain()
+    // fn all(&self) -> Result<Gain> {
+    //     let mut apexes = vec![self.name.clone()];
+    //     apexes.extend(self.attributes.clone());
+    //     apexes.gain()
+    // }
+    fn map(&self) -> Result<Gain> {
+        let mut map = Map::new();
+        map.insert("name", &self.name)?;
+        map.insert("attributes", &self.attributes)?;
+        map.gain()
     }
 }
 
@@ -52,10 +58,11 @@ impl Solve for Tag {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::All => self.all(),
+            // Task::All => self.all(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::Get(_) => self.name.clone().gain(),
+            Task::Map => self.map(),
+            // Task::Get(_) => self.name.clone().gain(),
             _ => task.no_handler(self),
         }
     }

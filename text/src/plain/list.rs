@@ -54,10 +54,16 @@ impl List {
         self.items[last].view().string(|x| base += x)?;
         base.leaf().apex().gain()
     }
-    fn all(&self) -> Result<Gain> {
-        let mut apexes = vec![self.separator.clone()];
-        apexes.extend(self.items.clone());
-        apexes.gain()
+    // fn all(&self) -> Result<Gain> {
+    //     let mut apexes = vec![self.separator.clone()];
+    //     apexes.extend(self.items.clone());
+    //     apexes.gain()
+    // }
+    fn map(&self) -> Result<Gain> {
+        let mut map = Map::new();
+        map.insert("items", &self.items);
+        map.insert("separator", &self.separator);
+        map.gain()
     }
 }
 
@@ -75,7 +81,7 @@ impl Solve for List {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::All => self.all(),
+            Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),

@@ -99,6 +99,12 @@ impl From<u64> for Gain {
     }
 }
 
+impl From<Map> for Gain {
+    fn from(value: Map) -> Self {
+        Self::Map(value)
+    }
+}
+
 impl From<&Map> for Gain {
     fn from(value: &Map) -> Self {
         Self::Map(value.clone())

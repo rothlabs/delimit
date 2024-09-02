@@ -5,7 +5,7 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, ToLeaf};
-pub use map::Map;
+pub use map::{Map, Fit};
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use ploy::{BackedPloy, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{

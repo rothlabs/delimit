@@ -52,13 +52,14 @@ impl Element {
         }
         element.apex().gain()
     }
-    fn all(&self) -> Result<Gain> {
-        let mut apexes = vec![self.open.clone()];
-        apexes.extend(self.items.clone());
+    fn map(&self) -> Result<Gain> {
+        let mut map = Map::new();
+        map.insert("open", &self.open)?;
+        map.insert("items", &self.items)?;
         if let Some(apex) = &self.close {
-            apexes.push(apex.clone());
+            map.insert("close", apex)?;
         }
-        apexes.gain()
+        map.gain()
     }
 }
 
@@ -76,10 +77,20 @@ impl Solve for Element {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::All => self.all(),
+            // Task::All => self.all(),
+            Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             _ => task.no_handler(self),
         }
     }
 }
+
+// fn all(&self) -> Result<Gain> {
+//     let mut apexes = vec![self.open.clone()];
+//     apexes.extend(self.items.clone());
+//     if let Some(apex) = &self.close {
+//         apexes.push(apex.clone());
+//     }
+//     apexes.gain()
+// }

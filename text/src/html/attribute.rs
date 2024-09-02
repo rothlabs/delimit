@@ -33,8 +33,14 @@ impl Attribute {
             .apex()
             .gain()
     }
-    fn all(&self) -> Result<Gain> {
-        Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
+    // fn all(&self) -> Result<Gain> {
+    //     Ok(Gain::Apexes(vec![self.name.clone(), self.content.clone()]))
+    // }
+    fn map(&self) -> Result<Gain> {
+        let mut map = Map::new();
+        map.insert("name", &self.name)?;
+        map.insert("content", &self.content)?;
+        map.gain()
     }
 }
 
@@ -51,7 +57,7 @@ impl Solve for Attribute {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Main => self.main(),
-            Task::All => self.all(),
+            Task::Map => self.map(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             _ => task.no_handler(self),

@@ -36,7 +36,7 @@ impl Lake {
             unit: apex.serial()?,
         };
         self.roots.insert(key.into(), serial);
-        for apex in &apex.stems().unwrap_or_default() {
+        for apex in &apex.all().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -52,7 +52,7 @@ impl Lake {
             unit: apex.serial()?,
         };
         self.nodes.insert(apex.digest()?, serial);
-        for apex in &apex.stems().unwrap_or_default() {
+        for apex in &apex.all().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
         adapt_ok()
@@ -67,7 +67,7 @@ impl Lake {
 
     fn grow(&self, apex: &Apex) -> Result<()> {
         apex.trade(self);
-        for apex in apex.stems()? {
+        for apex in apex.all()? {
             self.grow(&apex).ok();
         }
         Ok(())
