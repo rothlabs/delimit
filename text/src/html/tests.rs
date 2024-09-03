@@ -12,13 +12,10 @@ fn reactive_lower_graph() -> Result<()> {
     let bay = default_bay()?;
     let html = bay.get("page")?;
     let plain = html.down(PLAIN)?;
-    // eprintln!("plain: {:?}", plain.get(1)?.get(1)?.rank());
     let _solved = html.string();
     let _solved = plain.string();
     bay.get("title_element")?.set(0, "html mutated")?;
-    // html.get(0)?.get(0)?.get(0)?.set(0, "html mutated")?;
     assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
-    // eprintln!("plain.get(1)?.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.get(1)?.string());
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
     assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())

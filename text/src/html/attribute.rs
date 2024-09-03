@@ -41,6 +41,7 @@ impl Adapt for Attribute {
 impl Solve for Attribute {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
+            Task::Rank => 2.gain(),
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),

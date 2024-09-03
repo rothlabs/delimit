@@ -56,6 +56,7 @@ impl Adapt for Element {
 impl Solve for Element {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
+            Task::Rank => 2.gain(),
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),

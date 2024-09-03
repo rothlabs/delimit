@@ -5,4 +5,4 @@ use serde::{Deserialize, Serialize};
 pub mod html;
 pub mod plain;
 
-pub const PLAIN: usize = 1;
+pub const PLAIN: u64 = 1;

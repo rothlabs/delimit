@@ -58,6 +58,7 @@ impl Adapt for List {
 impl Solve for List {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
+            Task::Rank => 1.gain(),
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),

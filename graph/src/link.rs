@@ -24,23 +24,22 @@ pub type Node<U> = Link<edge::Node<U>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     path: Option<Path>,
-    rank: Option<usize>,
+    rank: Option<u64>,
 }
 
 
-// impl<E> fmt::Debug for Link<E> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         f.write_fmt(format_args!("Path: {:?}", self.path))?;
-//         f.write_fmt(format_args!("Path: {:?}", 0))
-//     }
-// }
+impl<E> fmt::Debug for Link<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("Path: {:?}", self.path))
+    }
+}
 
 impl<E> Link<E> {
     pub fn pathed(&self, path: Path) -> Self {
@@ -53,19 +52,19 @@ impl<E> Link<E> {
     pub fn path(&self) -> Option<&Path> {
         self.path.as_ref()
     }
-    pub fn rank(&self) -> Option<usize> {
+    pub fn rank(&self) -> Option<u64> {
         self.rank
     }
-    pub fn set_rank(&mut self, rank: usize) {
-        self.rank = Some(rank);
-    }
-    pub fn ranked(&self, rank: usize) -> Self {
-        Self {
-            edge: self.edge.clone(),
-            path: self.path.clone(),
-            rank: Some(rank),
-        }
-    }
+    // pub fn set_rank(&mut self, rank: usize) {
+    //     self.rank = Some(rank);
+    // }
+    // pub fn ranked(&self, rank: usize) -> Self {
+    //     Self {
+    //         edge: self.edge.clone(),
+    //         path: self.path.clone(),
+    //         rank: Some(rank),
+    //     }
+    // }
 }
 
 impl<E> Link<E>
@@ -82,6 +81,19 @@ where
         match self.solve(Task::None) {
             Ok(_) => Ok(()),
             Err(err) => Err(err),
+        }
+    }
+    pub fn ranked(&self) -> Self {
+        let rank = if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        };
+        eprintln!("rank: {rank:?}");
+        Self {
+            edge: self.edge.clone(),
+            path: self.path.clone(),
+            rank
         }
     }
 }

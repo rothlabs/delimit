@@ -1,5 +1,4 @@
 use super::*;
-use std::fmt;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]

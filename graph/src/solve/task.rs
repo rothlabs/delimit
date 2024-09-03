@@ -12,6 +12,7 @@ pub enum Task<'a> {
     Imports,
     Get(&'a Key),
     Map,
+    Rank,
 }
 
 #[derive(Error, Debug)]

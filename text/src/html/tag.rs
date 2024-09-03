@@ -40,6 +40,7 @@ impl Adapt for Tag {
 impl Solve for Tag {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
+            Task::Rank => 2.gain(),
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),

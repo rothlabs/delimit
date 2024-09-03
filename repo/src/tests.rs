@@ -15,28 +15,13 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     lake.atlas(Box::new(Atlas::default()));
     let bay = lake.tree()?;
     bay.hydrate()?;
-    let mut page = bay.get("page")?;
-    assert_eq!(page.string()?, html::default::PAGE);
-    page.set_rank()?;
-    // let mut wow = page.get(0)?;
-
-    // eprintln!("page part rank: {:?}", page.get(0)?.rank());
-
-    // // bay.get("title_element")?.set(0, "html mutated")?;
-    // page.get(0)?.get(0)?.get(0)?.set(0, "html mutated")?;
-    // assert_eq!(page.string()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
-
-    let mut plain = page.down(PLAIN)?;
-    // eprintln!("plain: {:?}", plain.get(1)?);
-    plain.set_rank()?;
-    plain.get(1)?.get(1)?.get(1)?.set(0, "plain mutated")?;
+    let html = bay.get("page")?;
+    assert_eq!(html.string()?, html::default::PAGE);
+    let plain = html.down(PLAIN)?;
+    bay.get("title_element")?.set(0, "html mutated")?;
+    assert_eq!(html.string()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
+    plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
     assert_eq!(plain.string()?, html::default::PLAIN_PAGE_WITH_MUTATED_TITLE);
-    // eprintln!("plain rank: {:?}", plain.rank());
-    // eprintln!("plain.get(1)?: {:?}", plain.get(1)?.rank());
-    // eprintln!("plain.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.rank());
-    // eprintln!("plain.get(1)?.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.get(1)?.string());
-    
-    
     Ok(())
 }
 

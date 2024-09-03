@@ -135,25 +135,25 @@ impl Apex {
         }
     }
 
-    pub fn set_rank(&mut self) -> Result<()> {
-        match self {
-            Self::Ploy(ploy) => {
-                let apex = ploy.main()?;
-                ploy.set_rank(apex.find_rank(1)?);
-                // ploy.clear
-                Ok(())
-            },
-            _ => Ok(())
-        }
-    }
+    // pub fn set_rank(&mut self) -> Result<()> {
+    //     match self {
+    //         Self::Ploy(ploy) => {
+    //             let apex = ploy.main()?;
+    //             ploy.set_rank(apex.find_rank(1)?);
+    //             // ploy.clear
+    //             Ok(())
+    //         },
+    //         _ => Ok(())
+    //     }
+    // }
 
-    pub fn find_rank(&self, rank: usize) -> Result<usize> {
-        match self {
-            Self::Leaf(_) => Ok(rank),
-            Self::Ploy(ploy) => ploy.main()?.find_rank(rank + 1),
-            _ => Err(anyhow!("tried to find rank for tray"))?
-        }
-    }
+    // pub fn find_rank(&self, rank: usize) -> Result<usize> {
+    //     match self {
+    //         Self::Leaf(_) => Ok(rank),
+    //         Self::Ploy(ploy) => ploy.main()?.find_rank(rank + 1),
+    //         _ => Err(anyhow!("tried to find rank for tray"))?
+    //     }
+    // }
 
     /// Run Trade deal with this apex as input.
     pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
@@ -161,7 +161,7 @@ impl Apex {
     }
 
     /// Get rank of apex. Rank 1 apexes produce leaf apexes.
-    pub fn rank(&self) -> Option<usize> {
+    pub fn rank(&self) -> Option<u64> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
             _ => None,
@@ -169,7 +169,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn down(&self, target: usize) -> Result<Apex> {
+    pub fn down(&self, target: u64) -> Result<Apex> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -252,13 +252,13 @@ impl Default for Apex {
 
 pub trait EngageApexes<'a> {
     /// Solve down to the given graph rank.
-    fn down(&self, rank: usize) -> Result<Vec<Apex>>;
+    fn down(&self, rank: u64) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
 impl<'a> EngageApexes<'a> for Vec<Apex> {
-    fn down(&self, rank: usize) -> Result<Vec<Apex>> {
+    fn down(&self, rank: u64) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {

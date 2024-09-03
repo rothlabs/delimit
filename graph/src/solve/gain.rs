@@ -10,6 +10,7 @@ pub enum Gain {
     Imports(Vec<Import>),
     String(String),
     U64(u64),
+    // Usize(usize),
 }
 
 #[derive(Error, Debug)]
@@ -98,6 +99,12 @@ impl From<u64> for Gain {
         Self::U64(value)
     }
 }
+
+// impl From<usize> for Gain {
+//     fn from(value: usize) -> Self {
+//         Self::Usize(value)
+//     }
+// }
 
 impl From<Map> for Gain {
     fn from(value: Map) -> Self {
