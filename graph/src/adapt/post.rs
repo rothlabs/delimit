@@ -4,7 +4,7 @@ use super::*;
 pub enum Post<'a> {
     /// Trade a apex for another. The implmentation should update graph info and return the same apex semantically.
     Trade(&'a dyn Deal),
-    Insert(Aim<'a>, Fit),
+    // Insert(Aim<'a>, Fit),
     Extend(Map),
     SetAt(usize, Apex),
     // Replace(),
@@ -30,7 +30,7 @@ impl Post<'_> {
 impl<'a> Backed for Post<'a> {
     fn backed(&self, back: &Back) -> Self {
         match self {
-            Post::Insert(key, fit) => Post::Insert(key.clone(), fit.backed(back)),
+            // Post::Insert(key, fit) => Post::Insert(key.clone(), fit.backed(back)),
             // Post::Extend(map) => Post::Extend(map.trade(back)),
             Post::SetAt(index, apex) => Post::SetAt(*index, apex.backed(back)),
             _ => self.clone(),

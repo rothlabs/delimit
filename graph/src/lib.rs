@@ -5,7 +5,7 @@ pub use cusp::Cusp;
 pub use edge::Edge;
 pub use lake::{Lake, SerialNode};
 pub use link::{Leaf, Link, Node, ToLeaf};
-pub use map::{Map, Fit};
+pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use ploy::{BackedPloy, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
@@ -29,7 +29,7 @@ use std::{
     rc::Rc,
 };
 use std::{
-    collections::{hash_map::Iter, HashMap},
+    collections::HashMap,
     fmt::Debug,
     hash::{DefaultHasher, Hash, Hasher},
 };
@@ -143,15 +143,15 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// Trade a apex for another.
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Deal: Debug {
-    fn back(&mut self, back: &Back) {}
+    fn back(&mut self, _: &Back) {}
     /// Trade a apex for another.
-    fn one(&mut self, key: &str, apex: &mut Apex) -> Result<()>{
+    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()>{
         Ok(())
     }
-    fn vec(&mut self, key: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+    fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {
         Ok(())
     }
-    fn map(&mut self, map: &mut Map) -> Result<()> {
+    fn map(&mut self, _: &mut Map) -> Result<()> {
         Ok(())
     }
 }

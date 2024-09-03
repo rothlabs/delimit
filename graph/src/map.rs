@@ -1,7 +1,4 @@
 use std::collections::hash_map::{IterMut, Values};
-
-use anyhow::anyhow;
-
 use super::*;
 
 /// Key-Fit map.
@@ -80,56 +77,5 @@ impl Hash for Map {
         let mut pairs: Vec<_> = self.0.iter().collect();
         pairs.sort_by_key(|i| i.0);
         Hash::hash(&pairs, state);
-    }
-}
-
-#[derive(Clone, PartialEq, Hash, Debug, Serialize, Deserialize)]
-pub enum Fit {
-    Apex(Apex),
-    Apexes(Vec<Apex>)
-}
-
-impl Fit { 
-    fn all(&self) -> Vec<Apex> {
-        match self {
-            Self::Apex(apex) => vec![apex.clone()],
-            Self::Apexes(apexes) => apexes.clone()
-        }
-    }
-    fn first(&self) -> Option<&Apex> {
-        match self {
-            Self::Apex(apex) => Some(apex),
-            Self::Apexes(apexes) => apexes.first(),
-        }
-    }
-    // fn trade(&self, deal: &dyn Trade) -> Self {
-    //     match self {
-    //         Self::Apex(apex) => Self::Apex(apex.deal(deal)),
-    //         Self::Apexes(apexes) => Self::Apexes(apexes.deal(deal)),
-    //     }
-    // }
-    pub fn backed(&self, back: &Back) -> Self {
-        match self {
-            Self::Apex(apex) => Self::Apex(apex.backed(back)),
-            Self::Apexes(apexes) => Self::Apexes(apexes.backed(back)),
-        }
-    }
-}
-
-impl From<Apex> for Fit {
-    fn from(value: Apex) -> Self {
-        Self::Apex(value)
-    }
-}
-
-impl From<&Apex> for Fit {
-    fn from(value: &Apex) -> Self {
-        Self::Apex(value.clone())
-    }
-}
-
-impl From<&Vec<Apex>> for Fit {
-    fn from(value: &Vec<Apex>) -> Self {
-        Self::Apexes(value.clone())
     }
 }
