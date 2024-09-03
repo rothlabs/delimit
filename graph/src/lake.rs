@@ -16,6 +16,8 @@ pub struct Lake {
     nodes: HashMap<u64, SerialNode>,
     #[serde(skip)]
     atlas: Option<Box<dyn DeserializeUnit>>,
+    #[serde(skip)]
+    back: Option<Back>
 }
 
 impl Lake {
@@ -66,7 +68,7 @@ impl Lake {
     }
 
     fn grow(&mut self, apex: &Apex) -> Result<()> {
-        apex.trade(self);
+        apex.adapt(self)?;
         for apex in apex.all()? {
             self.grow(&apex).ok();
         }
@@ -97,7 +99,7 @@ impl Lake {
     fn main_trade(&self, apex: &mut Apex) -> Result<()> {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
-                *apex = rhs;
+                *apex = rhs.backed(self.back.as_ref().expect("lake must have back"));
             }
         }
         Ok(())
@@ -105,8 +107,9 @@ impl Lake {
 }
 
 impl Deal for Lake {
-    fn back(&mut self, _: &Back) {
-        eprintln!("lake deal back");
+    fn back(&mut self, back: &Back) {
+        // eprintln!("lake deal back");
+        self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.main_trade(apex)
@@ -205,5 +208,26 @@ impl Deal for Lake {
 //             // Task::Find(regex) => self.find(&regex),
 //             _ => did_not_solve(),
 //         }
+//     }
+// }
+
+
+
+
+// struct OptionBack(Option<Back>);
+
+// impl Serialize for OptionBack {
+//     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         serializer.serialize_none()
+//     }
+// }
+
+// impl Deserialize for OptionBack {
+//     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+//         where
+//             D: serde::Deserializer<'de> {
+//         deserializer.deserialize_option(none)
 //     }
 // }

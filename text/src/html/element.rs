@@ -59,6 +59,7 @@ impl Solve for Element {
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
+            Task::React => solve_ok(),
             _ => task.no_handler(self),
         }
     }

@@ -55,16 +55,17 @@ impl Space {
 pub struct Scope<'a> {
     pub world: &'a Space,
     pub local: &'a Space,
+    pub back: Option<Back>,
 }
 
 impl Scope<'_> {
     pub fn main_trade(&self, apex: &mut Apex) {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
             if let Ok(new_apex) = self.local.get(keys) {
-                *apex = new_apex;
+                *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(new_apex) = self.world.get(keys) {
-                    *apex = new_apex;
+                    *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
                 }
             }
         }
@@ -72,8 +73,8 @@ impl Scope<'_> {
 }
 
 impl Deal for Scope<'_> {
-    fn back(&mut self, _: &Back) {
-        eprintln!("scope deal back");
+    fn back(&mut self, back: &Back) {
+        self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.main_trade(apex);

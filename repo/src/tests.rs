@@ -14,7 +14,7 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let mut lake: Lake = serde_json::from_reader(reader)?;
     lake.atlas(Box::new(Atlas::default()));
     let bay = lake.tree()?;
-    bay.hydrate();
+    bay.hydrate()?;
     let page = bay.get("page")?;
     eprintln!("before .string, {:?}", page);
     let wow = page.string()?;

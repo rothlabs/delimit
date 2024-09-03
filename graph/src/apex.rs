@@ -133,10 +133,11 @@ impl Apex {
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn trade(&self, deal: &mut dyn Deal) {
+    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
         if let Self::Ploy(ploy) = self {
-            ploy.adapt(deal).ok();
+            ploy.adapt(deal)?;
         }
+        adapt_ok()
     }
 
     /// New Apex with Path

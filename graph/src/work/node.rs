@@ -166,7 +166,6 @@ where
     U: Solve,
 {
     fn react(&mut self, _: &Id) -> react::Result {
-        eprintln!("trying to react");
         self.unit.as_ref().unwrap().solve(Task::React)?;
         Ok(())
     }
