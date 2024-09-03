@@ -28,12 +28,12 @@ impl Element {
     fn main(&self) -> Result<Gain> {
         let mut element = List::new()
             .separator("\n")
-            .push(self.open.at(PLAIN)?)
+            .push(self.open.down(PLAIN)?)
             .extend(self.items.at(PLAIN)?);
         if let Some(close) = &self.close {
             let close = List::new()
                 .push("</")
-                .push(close.at(PLAIN)?)
+                .push(close.down(PLAIN)?)
                 .push(">")
                 .apex();
             element = element.push(close);
@@ -59,22 +59,7 @@ impl Solve for Element {
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            // Task::React => solve_ok(),
             _ => task.no_handler(self),
         }
     }
 }
-
-// fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
-//     self.items[index] = apex;
-//     adapt_ok()
-// }
-
-// fn all(&self) -> Result<Gain> {
-//     let mut apexes = vec![self.open.clone()];
-//     apexes.extend(self.items.clone());
-//     if let Some(apex) = &self.close {
-//         apexes.push(apex.clone());
-//     }
-//     apexes.gain()
-// }

@@ -21,9 +21,9 @@ impl Attribute {
     }
     fn main(&self) -> Result<Gain> {
         List::new()
-            .push(self.name.at(PLAIN)?)
+            .push(self.name.down(PLAIN)?)
             .push(r#"=""#)
-            .push(self.content.at(PLAIN)?)
+            .push(self.content.down(PLAIN)?)
             .push(r#"""#)
             .apex()
             .gain()

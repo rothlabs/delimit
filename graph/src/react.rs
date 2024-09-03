@@ -77,7 +77,7 @@ impl Root {
             // TODO: find way to carry error up through the end of the update.
             match read_part(&edge, |edge| edge.rebut()) {
                 Ok(ring) => ring,
-                Err(_) => Ring::new(),
+                Err(_) => panic!("root rebut failed")// Ring::new(),
             }
         } else {
             Ring::new()
@@ -87,6 +87,7 @@ impl Root {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.react(id))?
         } else {
+            // panic!("root react failed");
             Ok(())
         }
     }
@@ -137,6 +138,7 @@ impl Back {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.react(id))?
         } else {
+            // panic!("back react failed");
             Ok(())
         }
     }

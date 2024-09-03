@@ -336,10 +336,14 @@ where
 
 impl<E> AdaptMid for Link<E>
 where
-    E: AdaptMid,
+    E: 'static + AdaptMid + AddRoot + Update,
 {
     fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
-        read_part(&self.edge, |edge| edge.adapt(deal))?
+        read_part(&self.edge, |edge| {
+            let result = edge.adapt(deal);
+            edge.add_root(self.as_root(edge.id()));
+            result
+        })?
     }
 }
 

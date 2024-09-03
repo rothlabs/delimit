@@ -193,7 +193,7 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn at(&self, target: usize) -> Result<Apex> {
+    pub fn down(&self, target: usize) -> Result<Apex> {
         let mut apex = self.clone();
         let mut rank = apex.rank();
         while let Some(current) = rank {
@@ -293,7 +293,7 @@ pub trait EngageApexes<'a> {
 
 impl<'a> EngageApexes<'a> for Vec<Apex> {
     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
-        self.iter().map(|x| x.at(rank)).collect()
+        self.iter().map(|x| x.down(rank)).collect()
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.vec(key, self)
@@ -322,6 +322,9 @@ struct All {
 }
 
 impl Deal for All {
+    fn back(&mut self, _: &Back) {
+        eprintln!("deal all back");
+    }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.apexes.push(apex.clone());
         Ok(())

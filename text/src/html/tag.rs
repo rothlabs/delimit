@@ -22,7 +22,7 @@ impl Tag {
     fn main(&self) -> Result<Gain> {
         let items = List::new()
             .separator(" ")
-            .push(self.name.at(PLAIN)?)
+            .push(self.name.down(PLAIN)?)
             .extend(self.attributes.at(PLAIN)?)
             .apex();
         List::new().push("<").push(&items).push(">").apex().gain()
