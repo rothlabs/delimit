@@ -104,7 +104,7 @@ impl Lake {
     }
 }
 
-impl Trade for Lake {
+impl Deal<'_> for Lake {
     fn back(&mut self, _: &Back) {
         
     }

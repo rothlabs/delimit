@@ -27,7 +27,7 @@ struct Set<'a> {
     apex: &'a Apex,
 }
 
-impl Trade for Set<'_> {
+impl<'a> Deal<'a> for Set<'a> {
     fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
         match self.aim {
             Aim::Index(i) => apexes[*i] = self.apex.clone(),
@@ -43,7 +43,7 @@ struct Insert<'a> {
     apex: &'a Apex,
 }
 
-impl Trade for Insert<'_> {
+impl Deal<'_> for Insert<'_> {
     fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
         map.insert(self.aim.clone(), self.apex.clone())
     }

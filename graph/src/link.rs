@@ -338,7 +338,7 @@ impl<E> AdaptMid for Link<E>
 where
     E: AdaptMid,
 {
-    fn adapt(&self, deal: &mut dyn Trade) -> Result<Memo> {
+    fn adapt<'a>(&self, deal: &'a mut dyn Deal<'a>) -> Result<Memo> {
         read_part(&self.edge, |edge| edge.adapt(deal))?
     }
 }

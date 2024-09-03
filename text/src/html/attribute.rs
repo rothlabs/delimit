@@ -31,7 +31,7 @@ impl Attribute {
 }
 
 impl Adapt for Attribute {
-    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
         self.name.deal("name", deal)?;
         self.content.deal("content", deal)?;
         adapt_ok()

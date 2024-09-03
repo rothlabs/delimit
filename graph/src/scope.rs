@@ -71,7 +71,7 @@ impl Scope<'_> {
     }
 }
 
-impl Trade for Scope<'_> {
+impl Deal<'_> for Scope<'_> {
     fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
         self.main_trade(apex);
         adapt_ok()

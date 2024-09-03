@@ -16,7 +16,7 @@ impl Map {
                 self.0.insert(key, apex.into());
                 adapt_ok()
             }
-            aim => Err(adapt::Error::from(aim.wrong_variant("Key")))?
+            aim => Err(aim.wrong_variant("Key"))?
         }
         // if let Aim::Key(key) = aim.into() {
         //     self.0.insert(key, Fit::Apex(apex));
@@ -54,7 +54,7 @@ impl Map {
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }
-    pub fn deal(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+    pub fn deal(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
         deal.trade_map(self)
     }
     pub fn backed(&mut self, back: &Back) -> Self {

@@ -142,7 +142,7 @@ impl Back {
     }
 }
 
-impl Trade for Back { 
+impl Deal<'_> for Back { 
     fn trade(&mut self, _: &str, apex: &mut Apex) -> crate::Result<Memo> {
         *apex = apex.backed(self);
         adapt_ok()

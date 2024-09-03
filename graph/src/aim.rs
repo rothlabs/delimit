@@ -16,11 +16,11 @@ pub enum Aim<'a> {
 }
 
 impl Aim<'_> {
-    pub fn wrong_variant(&self, expected: &str) -> Error {
-        Error::WrongVariant {
+    pub fn wrong_variant(&self, expected: &str) -> adapt::Error {
+        adapt::Error::from(Error::WrongVariant {
             expected: expected.into(),
             found: format!("{:?}", self),
-        }
+        })
     }
 }
 

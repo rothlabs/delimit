@@ -5,14 +5,10 @@ use thiserror::Error;
 
 pub mod post;
 
-pub trait Deal {
-    fn deal(&mut self, name: &str) -> Result<Memo>;
-}
-
 pub trait Adapt {
     /// Alter an apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo>;
+    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>) -> Result<Memo>;
 }
 
 #[derive(Error, Debug)]
@@ -40,10 +36,10 @@ pub fn adapt_ok() -> Result<Memo> {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Trade)-> Result<write::Out<Memo>>;
+    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>)-> Result<write::Out<Memo>>;
 }
 
 pub trait AdaptMid {
     /// For graph internals to handle alter calls
-    fn adapt(&self, deal: &mut dyn Trade) -> Result<Memo>;
+    fn adapt<'a>(&'a self, deal: &'a mut dyn Deal<'a>) -> Result<Memo>;
 }

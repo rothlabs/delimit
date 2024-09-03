@@ -3,7 +3,7 @@ use super::*;
 #[derive(Clone, Debug)]
 pub enum Post<'a> {
     /// Trade a apex for another. The implmentation should update graph info and return the same apex semantically.
-    Trade(&'a dyn Trade),
+    Trade(&'a dyn Deal<'a>),
     Insert(Aim<'a>, Fit),
     Extend(Map),
     SetAt(usize, Apex),

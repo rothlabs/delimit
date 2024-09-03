@@ -32,7 +32,7 @@ impl Bay {
 }
 
 impl Adapt for Bay {
-    fn adapt(&mut self, deal: &mut dyn Trade) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
         self.map.deal(deal)?;
         adapt_ok()
     }

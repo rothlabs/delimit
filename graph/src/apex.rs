@@ -8,6 +8,7 @@ mod edit;
 mod hydrate;
 mod import;
 mod view;
+mod get;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -120,7 +121,7 @@ impl Apex {
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn trade(&self, deal: &mut dyn Trade) {
+    pub fn trade<'a> (&'a self, deal: &'a mut dyn Deal<'a>) {
         if let Self::Ploy(ploy) = self {
             ploy.adapt(deal).ok();
         }
@@ -154,7 +155,7 @@ impl Apex {
     }
 
     /// Run Trade deal with this apex as input.
-    pub fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo> {
+    pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<Memo> {
         deal.trade(key, self)
     }
 
@@ -271,18 +272,18 @@ impl Default for Apex {
     }
 }
 
-pub trait EngageApexes {
+pub trait EngageApexes<'a> {
     /// Solve down to the given graph rank.
     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
-    fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo>;
+    fn deal(&'a mut self, key: &str, deal: &mut dyn Deal<'a>) -> Result<Memo>;
 }
 
-impl EngageApexes for Vec<Apex> {
+impl<'a> EngageApexes<'a> for Vec<Apex> {
     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
-    fn deal(&mut self, key: &str, deal: &mut dyn Trade) -> Result<Memo> {
+    fn deal(&'a mut self, key: &str, deal: &mut dyn Deal<'a>) -> Result<Memo> {
         deal.trade_vec(key, self)
     }
 }
@@ -308,7 +309,7 @@ struct All {
     apexes: Vec<Apex>,
 }
 
-impl Trade for All {
+impl<'a> Deal<'a> for All {
     fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
         self.apexes.push(apex.clone());
         adapt_ok()
