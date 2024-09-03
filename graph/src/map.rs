@@ -1,5 +1,5 @@
 use super::*;
-use std::collections::hash_map::{IterMut, Values};
+use std::collections::hash_map::IterMut;
 
 /// Key-Fit map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -46,17 +46,17 @@ impl Map {
     //     }
     //     //self.0.get(key).map(|apex| Some(apex.pathed(key)))?
     // }
-    // pub fn all(&self) -> Vec<Apex> {
-    //     let mut out = vec![];
-    //     for apex in self.0.values() {
-    //         out.push(apex.clone());
-    //     }
-    //     out
-    //     // self.0.values().cloned().collect()
-    // }
-    pub fn values(&self) -> Values<String, Apex> {
-        self.0.values()
+    pub fn all(&self) -> Vec<Apex> {
+        let mut out = vec![];
+        for (key, apex) in &self.0 {
+            out.push(apex.pathed(key));
+        }
+        out
+        // self.0.values().cloned().collect()
     }
+    // pub fn values(&self) -> Values<String, Apex> {
+    //     self.0.values()
+    // }
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }

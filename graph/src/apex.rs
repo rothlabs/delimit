@@ -307,9 +307,9 @@ struct All {
 }
 
 impl Deal for All {
-    fn back(&mut self, _: &Back) {
-        eprintln!("deal all back");
-    }
+    // fn back(&mut self, _: &Back) {
+    //     eprintln!("deal all back");
+    // }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.apexes.push(apex.clone());
         Ok(())
@@ -319,7 +319,8 @@ impl Deal for All {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        self.apexes.extend(map.values().cloned());
+        //self.apexes.extend(map.values().cloned());
+        self.apexes.extend(map.all());
         Ok(())
     }
 }

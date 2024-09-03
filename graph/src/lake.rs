@@ -17,7 +17,7 @@ pub struct Lake {
     #[serde(skip)]
     atlas: Option<Box<dyn DeserializeUnit>>,
     #[serde(skip)]
-    back: Option<Back>
+    back: Option<Back>,
 }
 
 impl Lake {
@@ -63,6 +63,7 @@ impl Lake {
     /// Grow a tree from the lake.
     pub fn tree(&mut self) -> Result<Apex> {
         let root = self.root("root")?;
+        eprintln!("time to grow");
         self.grow(&root).ok();
         Ok(root)
     }
@@ -100,8 +101,10 @@ impl Lake {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
                 *apex = rhs.backed(self.back.as_ref().expect("lake must have back"));
+                return Ok(());
             }
         }
+        *apex = apex.backed(self.back.as_ref().expect("lake must have back"));
         Ok(())
     }
 }
@@ -210,9 +213,6 @@ impl Deal for Lake {
 //         }
 //     }
 // }
-
-
-
 
 // struct OptionBack(Option<Back>);
 

@@ -10,7 +10,11 @@ impl Apex {
     }
 
     fn saturate(&self, world: &Space, local: &Space) -> Result<Memo> {
-        self.adapt(&mut Scope { world, local, back: None })?;
+        self.adapt(&mut Scope {
+            world,
+            local,
+            back: None,
+        })?;
         for space in local.map.values() {
             space.apex.saturate(world, space)?;
         }

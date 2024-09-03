@@ -9,6 +9,7 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let serial = html::default_bay()?.lake()?.serial()?.string()?;
     let path = STORAGE.to_owned() + "/page.json";
     fs::write(&path, serial)?;
+    eprintln!("done writing");
     let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
@@ -16,9 +17,9 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let bay = lake.tree()?;
     bay.hydrate()?;
     let page = bay.get("page")?;
-    eprintln!("before .string, {:?}", page);
-    let wow = page.string()?;
-    eprintln!("after .string");
+    // eprintln!("before .string, {:?}", page);
+    // let wow = page.string()?;
+    // eprintln!("after .string");
     assert_eq!(page.string()?, html::default::PAGE);
     Ok(())
 }

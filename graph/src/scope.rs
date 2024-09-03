@@ -29,11 +29,13 @@ impl Space {
                 }
                 let mut next_path = path.clone();
                 if let Some(Path::Local(keys)) = next_apex.path() {
+                    eprintln!("adding to map");
                     let key = keys.first().expect("No keys in path.");
                     next_path.push(key.clone());
                     let next_scope = Self::new(next_path, next_apex);
                     space.map.insert(key.clone(), next_scope);
                 } else {
+                    eprintln!("adding to vec");
                     space.vec.push(Self::new(next_path, next_apex));
                 }
             }
@@ -63,12 +65,15 @@ impl Scope<'_> {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
             if let Ok(new_apex) = self.local.get(keys) {
                 *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
+                return;
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(new_apex) = self.world.get(keys) {
                     *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
+                    return;
                 }
             }
         }
+        *apex = apex.backed(self.back.as_ref().expect("scope must have back"));
     }
 }
 
