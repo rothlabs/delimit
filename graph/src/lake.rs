@@ -106,7 +106,7 @@ impl Lake {
 
 impl Deal for Lake {
     fn back(&mut self, _: &Back) {
-        
+        eprintln!("lake deal back");
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.main_trade(apex)

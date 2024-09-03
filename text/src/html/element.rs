@@ -25,10 +25,6 @@ impl Element {
         self.close = Some(name);
         self
     }
-    fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
-        self.items[index] = apex;
-        adapt_ok()
-    }
     fn main(&self) -> Result<Gain> {
         let mut element = List::new()
             .separator("\n")
@@ -63,10 +59,16 @@ impl Solve for Element {
             Task::Main => self.main(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
+            // Task::React => solve_ok(),
             _ => task.no_handler(self),
         }
     }
 }
+
+// fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
+//     self.items[index] = apex;
+//     adapt_ok()
+// }
 
 // fn all(&self) -> Result<Gain> {
 //     let mut apexes = vec![self.open.clone()];

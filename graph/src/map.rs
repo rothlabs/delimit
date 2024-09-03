@@ -1,5 +1,7 @@
 use std::collections::hash_map::{IterMut, Values};
 
+use anyhow::anyhow;
+
 use super::*;
 
 /// Key-Fit map.
@@ -38,8 +40,15 @@ impl Map {
     // }
     // TODO: use aim instead of key (move aim logic from Apex to Map)
     pub fn get(&self, key: &Key) -> Option<Apex> {
-        self.0.get(key).map(|apex| Some(apex.pathed(key)))?
+        self.0.get(key).map(|apex| apex.pathed(key))
     }
+    // pub fn get(&self, key: &Key) -> Result<Apex> {
+    //     match self.0.get(key) {
+    //         Some(apex) => Ok(apex.clone()),
+    //         None => Err(anyhow!("key-apex not in map"))?
+    //     }
+    //     //self.0.get(key).map(|apex| Some(apex.pathed(key)))?
+    // }
     // pub fn all(&self) -> Vec<Apex> {
     //     let mut out = vec![];
     //     for apex in self.0.values() {
@@ -57,12 +66,12 @@ impl Map {
     pub fn deal(&mut self, deal: &mut dyn Deal) -> Result<()> {
         deal.map(self)
     }
-    pub fn backed(&mut self, back: &Back) -> Self {
+    pub fn backed(&mut self, back: &Back) -> Result<Self> {
         let mut map = Map::new();
         for (aim, apex) in &self.0 {
-            map.insert(aim, apex.backed(back));
+            map.insert(aim, apex.backed(back))?;
         }
-        map
+        Ok(map)
     }
 }
 

@@ -152,7 +152,7 @@ impl Deal for Back {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> crate::Result<()> {
-        *map = map.backed(self);
+        *map = map.backed(self)?;
         Ok(())
     }
 }

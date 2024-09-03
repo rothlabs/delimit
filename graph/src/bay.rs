@@ -14,20 +14,9 @@ impl Bay {
         self.map.insert(aim, apex)?;
         adapt_ok()
     }
-    fn extend(&mut self, apexes: Map) -> Result<Memo> {
-        self.map.extend(apexes);
-        adapt_ok()
-    }
-    // fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-    //     self.map = self.map.trade(deal);
+    // fn extend(&mut self, apexes: Map) -> Result<Memo> {
+    //     self.map.extend(apexes);
     //     adapt_ok()
-    // }
-    // pub fn get(&self, key: &Key) -> Result<Gain> {
-    //     if let Some(apex) = self.map.get(key) {
-    //         apex.pathed(key).gain()
-    //     } else {
-    //         solve_ok()
-    //     }
     // }
 }
 
@@ -41,16 +30,25 @@ impl Adapt for Bay {
 impl Solve for Bay {
     fn solve(&self, task: Task) -> Result<Gain> {
         match task {
-            // Task::All => self.map.vec().gain(),
-            Task::Map => (&self.map).gain(),
             Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),
-            // Task::Get(key) => self.get(key),
             Task::React => solve_ok(),
             _ => task.no_handler(self),
         }
     }
 }
+
+    // fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
+    //     self.map = self.map.trade(deal);
+    //     adapt_ok()
+    // }
+    // pub fn get(&self, key: &Key) -> Result<Gain> {
+    //     if let Some(apex) = self.map.get(key) {
+    //         apex.pathed(key).gain()
+    //     } else {
+    //         solve_ok()
+    //     }
+    // }
 
 // impl Adapt for Bay {
 //     fn adapt(&mut self, post: Post) -> Result<Memo> {

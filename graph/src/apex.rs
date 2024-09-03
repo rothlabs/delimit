@@ -2,6 +2,7 @@ use super::*;
 use anyhow::anyhow;
 use thiserror::Error;
 use view::*;
+use get::*;
 
 mod convert;
 mod edit;
@@ -42,37 +43,48 @@ impl Apex {
         }
     }
 
-    /// Get stem by key
     pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
         match self {
-            Self::Ploy(ploy) => match aim.into() {
-                Aim::Key(key) => {
-                    let map = ploy.solve(Task::Map)?.map()?;
-                    if let Some(apex) = map.get(&key) {
-                        Ok(apex)
-                    } else {
-                        Err(anyhow!("key not in map: {}", key))?
-                    }
-                },
-                Aim::Keys(keys) => {
-                    let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
-                    if keys.len() > 1 {
-                        apex?.get(&keys[1..])
-                    } else {
-                        apex
-                    }
-                }
-                Aim::Index(index) => {
-                    if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
-                        Ok(apex.clone())
-                    } else {
-                        Err(solve::Error::from(aim::Error::IndexOutOfBounds(index)))?
-                    }
-                }
+            Self::Ploy(ploy) => {
+                let mut get = Get::new(aim.into());
+                ploy.adapt(&mut get)?;
+                get.apex()
             },
             _ => Err(Error::NotPloy)?,
         }
     }
+
+    /// Get stem by key
+    // pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
+    //     match self {
+    //         Self::Ploy(ploy) => match aim.into() {
+    //             Aim::Key(key) => {
+    //                 let map = ploy.solve(Task::Map)?.map()?;
+    //                 if let Some(apex) = map.get(&key) {
+    //                     Ok(apex)
+    //                 } else {
+    //                     Err(anyhow!("key not in map: {}", key))?
+    //                 }
+    //             },
+    //             Aim::Keys(keys) => {
+    //                 let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
+    //                 if keys.len() > 1 {
+    //                     apex?.get(&keys[1..])
+    //                 } else {
+    //                     apex
+    //                 }
+    //             }
+    //             Aim::Index(index) => {
+    //                 if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
+    //                     Ok(apex.clone())
+    //                 } else {
+    //                     Err(solve::Error::from(aim::Error::IndexOutOfBounds(index)))?
+    //                 }
+    //             }
+    //         },
+    //         _ => Err(Error::NotPloy)?,
+    //     }
+    // }
 
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {

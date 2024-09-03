@@ -72,6 +72,9 @@ impl Scope<'_> {
 }
 
 impl Deal for Scope<'_> {
+    fn back(&mut self, back: &Back) {
+        eprintln!("scope deal back");
+    }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.main_trade(apex);
         Ok(())

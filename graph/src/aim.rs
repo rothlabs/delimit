@@ -1,11 +1,12 @@
+use anyhow::anyhow;
 use super::*;
 
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("wrong variant (expected: {expected}, found: {found})")]
-    WrongVariant { expected: String, found: String },
-    #[error("index out of bounds: {0}")]
-    IndexOutOfBounds(usize),
+    WrongVariant{ expected: String, found: String },
+    #[error("index out of bounds: (length: {length}, index: {index})")]
+    IndexOutOfBounds{length: usize, index: usize },
 }
 
 #[derive(Clone, Debug)]
@@ -17,10 +18,17 @@ pub enum Aim<'a> {
 
 impl Aim<'_> {
     pub fn wrong_variant(&self, expected: &str) -> adapt::Error {
-        adapt::Error::from(Error::WrongVariant {
+        Error::WrongVariant {
             expected: expected.into(),
             found: format!("{:?}", self),
-        })
+        }.into()
+    }
+    pub fn index_out_of_bounds(&self, length: usize) -> adapt::Error {
+        if let Self::Index(i) = self {
+            Error::IndexOutOfBounds{length, index: *i}.into()
+        } else {
+            anyhow!("Wrong Aim for IndexOutOfBounds!").into()
+        }
     }
 }
 
