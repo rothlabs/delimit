@@ -20,16 +20,16 @@ impl Element {
         self.items.push(item.into());
         self
     }
-    pub fn close(mut self) -> Self {
-        let name = self.open.get("name").expect("No opening tag name.");
+    pub fn close(mut self) -> Result<Self> {
+        let name = self.open.get("name")?;
         self.close = Some(name);
-        self
+        Ok(self)
     }
     fn main(&self) -> Result<Gain> {
         let mut element = List::new()
             .separator("\n")
             .push(self.open.down(PLAIN)?)
-            .extend(self.items.at(PLAIN)?);
+            .extend(self.items.down(PLAIN)?);
         if let Some(close) = &self.close {
             let close = List::new()
                 .push("</")

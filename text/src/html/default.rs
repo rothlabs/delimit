@@ -40,7 +40,7 @@ pub fn default_bay() -> Result<Apex> {
     let title_element = Element::new()
         .open(tag)
         .item(&title)
-        .close()
+        .close()?
         .import(WORLD_ALL)
         .apex();
     bay.insert("title_element", title_element)?;
@@ -75,12 +75,12 @@ pub fn default_bay() -> Result<Apex> {
     let att = Attribute::new().name("type").content("importmap").apex();
     let tag = Tag::new().name("script").attribute(att).apex();
     let raw = serde_json::to_string(&Importmap::default()).unwrap();
-    let importmap = Element::new().open(tag).item(raw).close().apex();
+    let importmap = Element::new().open(tag).item(raw).close()?.apex();
     bay.insert("importmap", importmap)?;
 
     let att = Attribute::new().name("id").content("canvas").apex();
     let tag = Tag::new().name("canvas").attribute(att).apex();
-    let canvas = Element::new().open(tag).close().apex();
+    let canvas = Element::new().open(tag).close()?.apex();
     bay.insert("canvas", canvas)?;
 
     let src = Attribute::new().name("src").content("/app.js").apex();
@@ -90,7 +90,7 @@ pub fn default_bay() -> Result<Apex> {
         .attribute(src)
         .attribute(module)
         .apex();
-    let app = Element::new().open(tag).close().apex();
+    let app = Element::new().open(tag).close()?.apex();
     bay.insert("app", app)?;
 
     let root = bay.apex();
@@ -109,7 +109,7 @@ pub fn page(bay: &Apex) -> Result<Apex> {
         .item(bay.get("viewport")?)
         .item(bay.get("author")?)
         .item(bay.get("importmap")?)
-        .close()
+        .close()?
         .import(WORLD_ALL)
         .apex();
     let body = Element::new()
@@ -117,14 +117,14 @@ pub fn page(bay: &Apex) -> Result<Apex> {
         .item(bay.get("title")?)
         .item(bay.get("canvas")?)
         .item(bay.get("app")?)
-        .close()
+        .close()?
         .import(WORLD_ALL)
         .apex();
     let html = Element::new()
         .open(bay.get("html")?)
         .item(head)
         .item(body)
-        .close()
+        .close()?
         .import(WORLD_ALL)
         .apex();
     let tag = Tag::new().name("!DOCTYPE html").apex();

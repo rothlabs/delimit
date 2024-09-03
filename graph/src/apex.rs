@@ -286,35 +286,19 @@ impl Default for Apex {
 
 pub trait EngageApexes<'a> {
     /// Solve down to the given graph rank.
-    fn at(&self, rank: usize) -> Result<Vec<Apex>>;
+    fn down(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
 impl<'a> EngageApexes<'a> for Vec<Apex> {
-    fn at(&self, rank: usize) -> Result<Vec<Apex>> {
+    fn down(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.vec(key, self)
     }
 }
-
-// pub trait EngageApexes {
-//     /// Solve down to the given graph rank.
-//     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
-//     /// Replace stems according to the Trade deal.
-//     fn deal(&self, deal: &dyn Trade) -> Self;
-// }
-
-// impl EngageApexes for Vec<Apex> {
-//     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
-//         self.iter().map(|x| x.at(rank)).collect()
-//     }
-//     fn deal(&self, deal: &dyn Trade) -> Self {
-//         self.iter().map(|x| x.deal(deal)).collect()
-//     }
-// }
 
 #[derive(Debug)]
 struct All {
@@ -338,3 +322,20 @@ impl Deal for All {
         Ok(())
     }
 }
+
+
+// pub trait EngageApexes {
+//     /// Solve down to the given graph rank.
+//     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
+//     /// Replace stems according to the Trade deal.
+//     fn deal(&self, deal: &dyn Trade) -> Self;
+// }
+
+// impl EngageApexes for Vec<Apex> {
+//     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
+//         self.iter().map(|x| x.at(rank)).collect()
+//     }
+//     fn deal(&self, deal: &dyn Trade) -> Self {
+//         self.iter().map(|x| x.deal(deal)).collect()
+//     }
+// }
