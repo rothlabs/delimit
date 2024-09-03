@@ -1,13 +1,13 @@
 use super::*;
 
 impl Apex {
-    pub fn set(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<Memo> {
+    pub fn set(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim.into(), &apex.into())),
             _ => Err(apex::Error::NotPloy)?,
         }
     }
-    pub fn insert(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<Memo> {
+    pub fn insert(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim.into(), &apex.into())),
             _ => Err(apex::Error::NotPloy)?,

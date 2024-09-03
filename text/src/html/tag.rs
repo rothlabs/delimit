@@ -30,10 +30,10 @@ impl Tag {
 }
 
 impl Adapt for Tag {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.name.deal("name", deal)?;
         self.attributes.deal("attributes", deal)?;
-        adapt_ok()
+        Ok(())
     }
 }
 

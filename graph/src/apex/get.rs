@@ -31,7 +31,7 @@ impl<'a> Deal for Get<'a> {
                 }
                 Ok(())
             }
-            _ => Err(self.aim.wrong_variant("Key"))?,
+            _ => Ok(()) // Err(self.aim.wrong_variant("Key"))?,
         }
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {

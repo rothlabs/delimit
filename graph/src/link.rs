@@ -24,7 +24,7 @@ pub type Node<U> = Link<edge::Node<U>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
-// #[derive(Debug)]
+#[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
@@ -34,19 +34,13 @@ pub struct Link<E> {
     rank: Option<usize>,
 }
 
-impl Ploy {
-    pub fn echo(&mut self, other: Self) {
-        self.edge = other.edge;
-        self.path = other.path;
-        self.rank = other.rank;
-    }
-}
 
-impl<E> fmt::Debug for Link<E> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("Path: {:?}", self.path))
-    }
-}
+// impl<E> fmt::Debug for Link<E> {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         f.write_fmt(format_args!("Path: {:?}", self.path))?;
+//         f.write_fmt(format_args!("Path: {:?}", 0))
+//     }
+// }
 
 impl<E> Link<E> {
     pub fn pathed(&self, path: Path) -> Self {
@@ -61,6 +55,9 @@ impl<E> Link<E> {
     }
     pub fn rank(&self) -> Option<usize> {
         self.rank
+    }
+    pub fn set_rank(&mut self, rank: usize) {
+        self.rank = Some(rank);
     }
     pub fn ranked(&self, rank: usize) -> Self {
         Self {
@@ -111,6 +108,9 @@ where
     where
         S: serde::Serializer,
     {
+        // self.rank.serialize(serializer);
+        // serializer.serialize_f
+        // let mut s = serializer.serialize_struct("Link", 3)?;
         if let Some(path) = &self.path {
             path.serialize(serializer)
         } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
@@ -338,7 +338,7 @@ impl<E> AdaptMid for Link<E>
 where
     E: 'static + AdaptMid + AddRoot + Update,
 {
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
             let result = edge.adapt(deal);
             edge.add_root(self.as_root(edge.id()));

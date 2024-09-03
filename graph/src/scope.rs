@@ -29,13 +29,11 @@ impl Space {
                 }
                 let mut next_path = path.clone();
                 if let Some(Path::Local(keys)) = next_apex.path() {
-                    eprintln!("adding to map");
                     let key = keys.first().expect("No keys in path.");
                     next_path.push(key.clone());
                     let next_scope = Self::new(next_path, next_apex);
                     space.map.insert(key.clone(), next_scope);
                 } else {
-                    eprintln!("adding to vec");
                     space.vec.push(Self::new(next_path, next_apex));
                 }
             }
@@ -73,7 +71,7 @@ impl Scope<'_> {
                 }
             }
         }
-        *apex = apex.backed(self.back.as_ref().expect("scope must have back"));
+        *apex = apex.backed(self.back.as_ref().expect("lake must have back"));
     }
 }
 

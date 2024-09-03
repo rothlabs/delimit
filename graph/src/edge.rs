@@ -1,4 +1,5 @@
 use super::*;
+use std::fmt;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
 #[cfg(feature = "oneThread")]
@@ -19,6 +20,13 @@ pub struct Edge<N> {
     #[cfg(feature = "oneThread")]
     pub cusp: Rc<RefCell<N>>,
 }
+
+// impl<C> fmt::Debug for Edge<C> {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         f.write_fmt(format_args!("Cusp: {:?}", self.cusp))
+//     }
+// }
+
 
 impl<N> ToId for Edge<N> {
     fn id(&self) -> Id {
@@ -134,7 +142,7 @@ impl<N> AdaptMid for Edge<N>
 where
     N: 'static + AdaptOut + UpdateMut,
 {
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         for root in &roots {
             root.react(&id)?;

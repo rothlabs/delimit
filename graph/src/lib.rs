@@ -1,4 +1,4 @@
-pub use adapt::{adapt_ok, Adapt, AdaptMid, AdaptOut, Memo, Post};
+pub use adapt::{Adapt, AdaptMid, AdaptOut};
 pub use apex::{wrong_tray, Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;

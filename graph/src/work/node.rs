@@ -166,6 +166,7 @@ where
     U: Solve,
 {
     fn react(&mut self, _: &Id) -> react::Result {
+        // eprintln!("try to react");
         self.unit.as_ref().unwrap().solve(Task::React)?;
         Ok(())
     }
@@ -175,7 +176,7 @@ impl<U> Adapt for Node<U>
 where
     U: Adapt,
 {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.as_mut().unwrap().adapt(deal)
     }
 }

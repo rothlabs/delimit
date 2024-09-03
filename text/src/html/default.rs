@@ -1,27 +1,5 @@
 use super::*;
 
-pub const PAGE: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>
-Delimit
-</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="author" content="Roth Labs LLC">
-<script type="importmap">
-{"imports":{"init":"/client.js"}}
-</script>
-</head>
-<body>
-Delimit
-<canvas id="canvas">
-</canvas>
-<script src="/app.js" type="module">
-</script>
-</body>
-</html>"#;
-
 pub fn default_bay() -> Result<Apex> {
     let mut bay = Bay::new();
 
@@ -149,3 +127,69 @@ impl Default for Imports {
         }
     }
 }
+
+pub const PAGE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+Delimit
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
+pub const HTML_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+html mutated
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;
+
+pub const PLAIN_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>
+plain mutated
+</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Roth Labs LLC">
+<script type="importmap">
+{"imports":{"init":"/client.js"}}
+</script>
+</head>
+<body>
+Delimit
+<canvas id="canvas">
+</canvas>
+<script src="/app.js" type="module">
+</script>
+</body>
+</html>"#;

@@ -1,49 +1,5 @@
 use super::*;
 
-const HTML_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>
-html mutated
-</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="author" content="Roth Labs LLC">
-<script type="importmap">
-{"imports":{"init":"/client.js"}}
-</script>
-</head>
-<body>
-Delimit
-<canvas id="canvas">
-</canvas>
-<script src="/app.js" type="module">
-</script>
-</body>
-</html>"#;
-
-const PLAIN_PAGE_WITH_MUTATED_TITLE: &str = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>
-plain mutated
-</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="author" content="Roth Labs LLC">
-<script type="importmap">
-{"imports":{"init":"/client.js"}}
-</script>
-</head>
-<body>
-Delimit
-<canvas id="canvas">
-</canvas>
-<script src="/app.js" type="module">
-</script>
-</body>
-</html>"#;
-
 #[test]
 fn default_page() -> Result<()> {
     assert_eq!(default_bay()?.get("page")?.string()?, PAGE);
@@ -56,10 +12,13 @@ fn reactive_lower_graph() -> Result<()> {
     let bay = default_bay()?;
     let html = bay.get("page")?;
     let plain = html.down(PLAIN)?;
+    // eprintln!("plain: {:?}", plain.get(1)?.get(1)?.rank());
     let _solved = html.string();
     let _solved = plain.string();
     bay.get("title_element")?.set(0, "html mutated")?;
+    // html.get(0)?.get(0)?.get(0)?.set(0, "html mutated")?;
     assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
+    // eprintln!("plain.get(1)?.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.get(1)?.string());
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
     assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())

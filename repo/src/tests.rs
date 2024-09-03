@@ -9,18 +9,34 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let serial = html::default_bay()?.lake()?.serial()?.string()?;
     let path = STORAGE.to_owned() + "/page.json";
     fs::write(&path, serial)?;
-    eprintln!("done writing");
     let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
     lake.atlas(Box::new(Atlas::default()));
     let bay = lake.tree()?;
     bay.hydrate()?;
-    let page = bay.get("page")?;
-    // eprintln!("before .string, {:?}", page);
-    // let wow = page.string()?;
-    // eprintln!("after .string");
+    let mut page = bay.get("page")?;
     assert_eq!(page.string()?, html::default::PAGE);
+    page.set_rank()?;
+    // let mut wow = page.get(0)?;
+
+    // eprintln!("page part rank: {:?}", page.get(0)?.rank());
+
+    // // bay.get("title_element")?.set(0, "html mutated")?;
+    // page.get(0)?.get(0)?.get(0)?.set(0, "html mutated")?;
+    // assert_eq!(page.string()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
+
+    let mut plain = page.down(PLAIN)?;
+    // eprintln!("plain: {:?}", plain.get(1)?);
+    plain.set_rank()?;
+    plain.get(1)?.get(1)?.get(1)?.set(0, "plain mutated")?;
+    assert_eq!(plain.string()?, html::default::PLAIN_PAGE_WITH_MUTATED_TITLE);
+    // eprintln!("plain rank: {:?}", plain.rank());
+    // eprintln!("plain.get(1)?: {:?}", plain.get(1)?.rank());
+    // eprintln!("plain.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.rank());
+    // eprintln!("plain.get(1)?.get(1)?.get(1)?: {:?}", plain.get(1)?.get(1)?.get(1)?.string());
+    
+    
     Ok(())
 }
 

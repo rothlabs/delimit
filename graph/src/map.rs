@@ -17,46 +17,18 @@ impl Map {
             }
             aim => Err(aim.wrong_variant("Key"))?,
         }
-        // if let Aim::Key(key) = aim.into() {
-        //     self.0.insert(key, Fit::Apex(apex));
-        //     adapt_ok()
-        // } else {
-        //     Err(adapt::Error::from(aim.into().wrong_variant("Key")))?
-        // }
     }
-    pub fn extend(&mut self, other: Map) {
-        self.0.extend(other.0);
-    }
-    // pub fn trade(&self, deal: &dyn Trade) -> Self {
-    //     let mut map = HashMap::new();
-    //     for (key, fit) in &self.0 {
-    //         //self.0.entry(key.clone()).or_insert(fit.trade(deal));
-    //         map.insert(key.clone(), fit.trade(deal));
-    //     }
-    //     Map(map)
-    // }
     // TODO: use aim instead of key (move aim logic from Apex to Map)
     pub fn get(&self, key: &Key) -> Option<Apex> {
         self.0.get(key).map(|apex| apex.pathed(key))
     }
-    // pub fn get(&self, key: &Key) -> Result<Apex> {
-    //     match self.0.get(key) {
-    //         Some(apex) => Ok(apex.clone()),
-    //         None => Err(anyhow!("key-apex not in map"))?
-    //     }
-    //     //self.0.get(key).map(|apex| Some(apex.pathed(key)))?
-    // }
     pub fn all(&self) -> Vec<Apex> {
         let mut out = vec![];
         for (key, apex) in &self.0 {
             out.push(apex.pathed(key));
         }
         out
-        // self.0.values().cloned().collect()
     }
-    // pub fn values(&self) -> Values<String, Apex> {
-    //     self.0.values()
-    // }
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }
@@ -79,3 +51,7 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
+
+    // pub fn values(&self) -> Values<String, Apex> {
+    //     self.0.values()
+    // }

@@ -54,38 +54,6 @@ impl Apex {
         }
     }
 
-    /// Get stem by key
-    // pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
-    //     match self {
-    //         Self::Ploy(ploy) => match aim.into() {
-    //             Aim::Key(key) => {
-    //                 let map = ploy.solve(Task::Map)?.map()?;
-    //                 if let Some(apex) = map.get(&key) {
-    //                     Ok(apex)
-    //                 } else {
-    //                     Err(anyhow!("key not in map: {}", key))?
-    //                 }
-    //             },
-    //             Aim::Keys(keys) => {
-    //                 let apex = ploy.solve(Task::Get(&keys[0]))?.apex();
-    //                 if keys.len() > 1 {
-    //                     apex?.get(&keys[1..])
-    //                 } else {
-    //                     apex
-    //                 }
-    //             }
-    //             Aim::Index(index) => {
-    //                 if let Some(apex) = ploy.solve(Task::All)?.apexes()?.get(index) {
-    //                     Ok(apex.clone())
-    //                 } else {
-    //                     Err(solve::Error::from(aim::Error::IndexOutOfBounds(index)))?
-    //                 }
-    //             }
-    //         },
-    //         _ => Err(Error::NotPloy)?,
-    //     }
-    // }
-
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
             Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
@@ -133,11 +101,11 @@ impl Apex {
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
+    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         if let Self::Ploy(ploy) = self {
             ploy.adapt(deal)?;
         }
-        adapt_ok()
+        Ok(())
     }
 
     /// New Apex with Path
@@ -167,23 +135,30 @@ impl Apex {
         }
     }
 
+    pub fn set_rank(&mut self) -> Result<()> {
+        match self {
+            Self::Ploy(ploy) => {
+                let apex = ploy.main()?;
+                ploy.set_rank(apex.find_rank(1)?);
+                // ploy.clear
+                Ok(())
+            },
+            _ => Ok(())
+        }
+    }
+
+    pub fn find_rank(&self, rank: usize) -> Result<usize> {
+        match self {
+            Self::Leaf(_) => Ok(rank),
+            Self::Ploy(ploy) => ploy.main()?.find_rank(rank + 1),
+            _ => Err(anyhow!("tried to find rank for tray"))?
+        }
+    }
+
     /// Run Trade deal with this apex as input.
     pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.one(key, self)
     }
-
-    // pub fn echo(&mut self, other: Self) -> Result<()> {
-    //     match self {
-    //         Self::Tray(tray) => {
-    //             match other {
-    //                 Self::Tray(tray_r) => *tray = tray_r,
-    //                 _ => return Err(anyhow!("could not echo apex"))?
-    //             }
-    //         }
-
-    //     }
-    //     Ok(())
-    // }
 
     /// Get rank of apex. Rank 1 apexes produce leaf apexes.
     pub fn rank(&self) -> Option<usize> {
@@ -207,16 +182,6 @@ impl Apex {
         }
         Ok(apex)
     }
-
-    // /// New backed apex.
-    // pub fn backed(&self, back: &Back) -> Self {
-    //     match self {
-    //         Self::Tray(bare) => Self::Tray(bare.clone()),
-    //         Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
-    //         // TODO: remove unwrap!
-    //         Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
-    //     }
-    // }
 
     /// Read tray of apex.
     pub fn read<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T> {
@@ -307,9 +272,6 @@ struct All {
 }
 
 impl Deal for All {
-    // fn back(&mut self, _: &Back) {
-    //     eprintln!("deal all back");
-    // }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.apexes.push(apex.clone());
         Ok(())
@@ -319,24 +281,7 @@ impl Deal for All {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        //self.apexes.extend(map.values().cloned());
         self.apexes.extend(map.all());
         Ok(())
     }
 }
-
-// pub trait EngageApexes {
-//     /// Solve down to the given graph rank.
-//     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
-//     /// Replace stems according to the Trade deal.
-//     fn deal(&self, deal: &dyn Trade) -> Self;
-// }
-
-// impl EngageApexes for Vec<Apex> {
-//     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
-//         self.iter().map(|x| x.at(rank)).collect()
-//     }
-//     fn deal(&self, deal: &dyn Trade) -> Self {
-//         self.iter().map(|x| x.deal(deal)).collect()
-//     }
-// }

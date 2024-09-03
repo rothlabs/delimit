@@ -32,7 +32,7 @@ impl Lake {
     }
 
     /// Insert graph into lake given root key and apex.
-    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> Result<Memo> {
+    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> Result<()> {
         let serial = SerialNode {
             imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?,
@@ -41,13 +41,13 @@ impl Lake {
         for apex in &apex.all().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
-        adapt_ok()
+        Ok(())
     }
 
     /// Insert stems recursively.
-    fn insert_stem(&mut self, apex: &Apex) -> Result<Memo> {
+    fn insert_stem(&mut self, apex: &Apex) -> Result<()> {
         if let Apex::Tray(_) = apex {
-            return adapt_ok();
+            return Ok(());
         }
         let serial = SerialNode {
             imports: apex.imports().unwrap_or_default(),
@@ -57,13 +57,12 @@ impl Lake {
         for apex in &apex.all().unwrap_or_default() {
             self.insert_stem(apex)?;
         }
-        adapt_ok()
+        Ok(())
     }
 
     /// Grow a tree from the lake.
     pub fn tree(&mut self) -> Result<Apex> {
         let root = self.root("root")?;
-        eprintln!("time to grow");
         self.grow(&root).ok();
         Ok(root)
     }
@@ -111,7 +110,6 @@ impl Lake {
 
 impl Deal for Lake {
     fn back(&mut self, back: &Back) {
-        // eprintln!("lake deal back");
         self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
@@ -124,6 +122,9 @@ impl Deal for Lake {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
+        // for apex in &mut map.all() {
+        //     self.main_trade(apex)?;
+        // }
         for (_, apex) in map.iter_mut() {
             self.main_trade(apex)?;
         }
