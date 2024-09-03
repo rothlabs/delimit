@@ -121,7 +121,7 @@ impl Apex {
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn trade<'a> (&'a self, deal: &'a mut dyn Deal<'a>) {
+    pub fn trade(&self, deal: &mut dyn Deal) {
         if let Self::Ploy(ploy) = self {
             ploy.adapt(deal).ok();
         }
@@ -155,8 +155,8 @@ impl Apex {
     }
 
     /// Run Trade deal with this apex as input.
-    pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<Memo> {
-        deal.trade(key, self)
+    pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.one(key, self)
     }
 
     // pub fn echo(&mut self, other: Self) -> Result<()> {
@@ -276,15 +276,15 @@ pub trait EngageApexes<'a> {
     /// Solve down to the given graph rank.
     fn at(&self, rank: usize) -> Result<Vec<Apex>>;
     /// Replace stems according to the Trade deal.
-    fn deal(&'a mut self, key: &str, deal: &mut dyn Deal<'a>) -> Result<Memo>;
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
 impl<'a> EngageApexes<'a> for Vec<Apex> {
     fn at(&self, rank: usize) -> Result<Vec<Apex>> {
         self.iter().map(|x| x.at(rank)).collect()
     }
-    fn deal(&'a mut self, key: &str, deal: &mut dyn Deal<'a>) -> Result<Memo> {
-        deal.trade_vec(key, self)
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.vec(key, self)
     }
 }
 
@@ -309,17 +309,17 @@ struct All {
     apexes: Vec<Apex>,
 }
 
-impl<'a> Deal<'a> for All {
-    fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
+impl Deal for All {
+    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.apexes.push(apex.clone());
-        adapt_ok()
+        Ok(())
     }
-    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         self.apexes.extend(apexes.clone());
-        adapt_ok()
+        Ok(())
     }
-    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+    fn map(&mut self, map: &mut Map) -> Result<()> {
         self.apexes.extend(map.values().cloned());
-        adapt_ok()
+        Ok(())
     }
 }

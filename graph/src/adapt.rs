@@ -8,7 +8,7 @@ pub mod post;
 pub trait Adapt {
     /// Alter an apex.
     /// Useful for inserting, removing, and more.
-    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>) -> Result<Memo>;
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo>;
 }
 
 #[derive(Error, Debug)]
@@ -36,10 +36,10 @@ pub fn adapt_ok() -> Result<Memo> {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>)-> Result<write::Out<Memo>>;
+    fn adapt(&mut self, deal: &mut dyn Deal)-> Result<write::Out<Memo>>;
 }
 
 pub trait AdaptMid {
     /// For graph internals to handle alter calls
-    fn adapt<'a>(&'a self, deal: &'a mut dyn Deal<'a>) -> Result<Memo>;
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo>;
 }

@@ -47,7 +47,7 @@ impl Element {
 }
 
 impl Adapt for Element {
-    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
         self.open.deal("open", deal)?;
         self.items.deal("items", deal)?;
         if let Some(close) = &mut self.close {

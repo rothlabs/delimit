@@ -10,11 +10,11 @@ impl Map {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<Memo> {
+    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<()> {
         match aim.into() {
             Aim::Key(key) => {
                 self.0.insert(key, apex.into());
-                adapt_ok()
+                Ok(())
             }
             aim => Err(aim.wrong_variant("Key"))?
         }
@@ -54,8 +54,8 @@ impl Map {
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }
-    pub fn deal(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
-        deal.trade_map(self)
+    pub fn deal(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        deal.map(self)
     }
     pub fn backed(&mut self, back: &Back) -> Self {
         let mut map = Map::new();

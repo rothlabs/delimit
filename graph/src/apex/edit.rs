@@ -27,13 +27,15 @@ struct Set<'a> {
     apex: &'a Apex,
 }
 
-impl<'a> Deal<'a> for Set<'a> {
-    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+impl Deal for Set<'_> {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         match self.aim {
-            Aim::Index(i) => apexes[*i] = self.apex.clone(),
-            _ => return Err(anyhow!("wrong aim in Trade for Set"))?
+            Aim::Index(i) => {
+                apexes[*i] = self.apex.clone();
+                Ok(())
+            },
+            _ => Err(self.aim.wrong_variant("Index"))?
         }
-        adapt_ok()
     }
 }
 
@@ -43,8 +45,8 @@ struct Insert<'a> {
     apex: &'a Apex,
 }
 
-impl Deal<'_> for Insert<'_> {
-    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+impl Deal for Insert<'_> {
+    fn map(&mut self, map: &mut Map) -> Result<()> {
         map.insert(self.aim.clone(), self.apex.clone())
     }
 }

@@ -155,7 +155,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt<'a>(&'a mut self, deal: &'a mut dyn Deal<'a>)-> Result<write::Out<Memo>> {
+    fn adapt(&mut self, deal: &mut dyn Deal)-> Result<write::Out<Memo>> {
         self.work.clear();
         //let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."));
         deal.back(self.back.as_ref().expect("No back in cusp adapt."));

@@ -31,7 +31,7 @@ pub trait BackedPloy {
 }
 
 impl AdaptMid for Box<dyn Engage> {
-    fn adapt<'a>(&self, deal: &'a mut dyn Deal<'a>) -> Result<Memo> {
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
         self.as_ref().adapt(deal)
     }
 }

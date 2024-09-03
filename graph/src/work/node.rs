@@ -175,7 +175,7 @@ impl<U> Adapt for Node<U>
 where
     U: Adapt,
 {
-    fn adapt<'a>(&mut self, deal: &'a mut dyn Deal<'a>) -> Result<Memo> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Memo> {
         self.unit.as_mut().unwrap().adapt(deal)
     }
 }

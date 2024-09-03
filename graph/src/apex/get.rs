@@ -3,17 +3,26 @@ use super::*;
 #[derive(Debug)]
 struct Get<'a> {
     aim: &'a Aim<'a>,
-    apex: Option<&'a Apex>,
+    apex: Option<Apex>,
 }
 
-impl<'a> Deal<'a> for Get<'a> {
-    fn trade_vec(&mut self, _: &str, apexes: &'a mut Vec<Apex>) -> Result<Memo> {
+impl<'a> Deal for Get<'a> {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         match self.aim {
             Aim::Index(i) => {
-                self.apex = Some(&apexes[*i]);
-                adapt_ok()
+                self.apex = Some(apexes[*i].clone());
+                Ok(())
             },
             _ => Err(self.aim.wrong_variant("Index"))?
+        }
+    }
+    fn map(&mut self, map: &mut Map) -> Result<()> {
+        match self.aim {
+            Aim::Key(key) => {
+                self.apex = Some(map.get(key)?.clone());
+                Ok(())
+            },
+            _ => Err(self.aim.wrong_variant("Key"))?
         }
     }
 }

@@ -142,18 +142,18 @@ impl Back {
     }
 }
 
-impl Deal<'_> for Back { 
-    fn trade(&mut self, _: &str, apex: &mut Apex) -> crate::Result<Memo> {
+impl Deal for Back { 
+    fn one(&mut self, _: &str, apex: &mut Apex) -> crate::Result<()> {
         *apex = apex.backed(self);
-        adapt_ok()
+        Ok(())
     }
-    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> crate::Result<Memo> {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> crate::Result<()> {
         *apexes = apexes.backed(self);
-        adapt_ok()
+        Ok(())
     }
-    fn trade_map(&mut self, map: &mut Map) -> crate::Result<Memo> {
+    fn map(&mut self, map: &mut Map) -> crate::Result<()> {
         *map = map.backed(self);
-        adapt_ok()
+        Ok(())
     }
 }
 

@@ -71,22 +71,22 @@ impl Scope<'_> {
     }
 }
 
-impl Deal<'_> for Scope<'_> {
-    fn trade(&mut self, _: &str, apex: &mut Apex) -> Result<Memo> {
+impl Deal for Scope<'_> {
+    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
         self.main_trade(apex);
-        adapt_ok()
+        Ok(())
     }
-    fn trade_vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<Memo> {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         for apex in apexes {
             self.main_trade(apex);
         }
-        adapt_ok()
+        Ok(())
     }
-    fn trade_map(&mut self, map: &mut Map) -> Result<Memo> {
+    fn map(&mut self, map: &mut Map) -> Result<()> {
         for (_, apex) in map.iter_mut() {
             self.main_trade(apex);
         }
-        adapt_ok()
+        Ok(())
     }
 }
 

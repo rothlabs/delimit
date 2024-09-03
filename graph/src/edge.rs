@@ -134,7 +134,7 @@ impl<N> AdaptMid for Edge<N>
 where
     N: 'static + AdaptOut + UpdateMut,
 {
-    fn adapt<'a>(&'a self, deal: &'a mut dyn Deal<'a>) -> Result<Memo> {
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<Memo> {
         let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         for root in &roots {
             root.react(&id)?;
