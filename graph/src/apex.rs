@@ -1,15 +1,15 @@
 use super::*;
 use anyhow::anyhow;
+use get::*;
 use thiserror::Error;
 use view::*;
-use get::*;
 
 mod convert;
 mod edit;
+mod get;
 mod hydrate;
 mod import;
 mod view;
-mod get;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -49,7 +49,7 @@ impl Apex {
                 let mut get = Get::new(aim.into());
                 ploy.adapt(&mut get)?;
                 get.apex()
-            },
+            }
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -124,10 +124,10 @@ impl Apex {
     pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
             Self::Ploy(ploy) => {
-                let mut all = All{apexes:vec![]};
+                let mut all = All { apexes: vec![] };
                 ploy.adapt(&mut all)?;
                 Ok(all.apexes)
-            },
+            }
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -179,7 +179,7 @@ impl Apex {
     //                 _ => return Err(anyhow!("could not echo apex"))?
     //             }
     //         }
-            
+
     //     }
     //     Ok(())
     // }
@@ -322,7 +322,6 @@ impl Deal for All {
         Ok(())
     }
 }
-
 
 // pub trait EngageApexes {
 //     /// Solve down to the given graph rank.

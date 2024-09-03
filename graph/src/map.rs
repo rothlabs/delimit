@@ -1,5 +1,5 @@
-use std::collections::hash_map::{IterMut, Values};
 use super::*;
+use std::collections::hash_map::{IterMut, Values};
 
 /// Key-Fit map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -15,7 +15,7 @@ impl Map {
                 self.0.insert(key, apex.into());
                 Ok(())
             }
-            aim => Err(aim.wrong_variant("Key"))?
+            aim => Err(aim.wrong_variant("Key"))?,
         }
         // if let Aim::Key(key) = aim.into() {
         //     self.0.insert(key, Fit::Apex(apex));

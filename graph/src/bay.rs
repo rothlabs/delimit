@@ -38,17 +38,17 @@ impl Solve for Bay {
     }
 }
 
-    // fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-    //     self.map = self.map.trade(deal);
-    //     adapt_ok()
-    // }
-    // pub fn get(&self, key: &Key) -> Result<Gain> {
-    //     if let Some(apex) = self.map.get(key) {
-    //         apex.pathed(key).gain()
-    //     } else {
-    //         solve_ok()
-    //     }
-    // }
+// fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
+//     self.map = self.map.trade(deal);
+//     adapt_ok()
+// }
+// pub fn get(&self, key: &Key) -> Result<Gain> {
+//     if let Some(apex) = self.map.get(key) {
+//         apex.pathed(key).gain()
+//     } else {
+//         solve_ok()
+//     }
+// }
 
 // impl Adapt for Bay {
 //     fn adapt(&mut self, post: Post) -> Result<Memo> {

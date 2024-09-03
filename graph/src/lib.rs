@@ -145,7 +145,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 pub trait Deal: Debug {
     fn back(&mut self, _: &Back) {}
     /// Trade a apex for another.
-    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()>{
+    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
         Ok(())
     }
     fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {

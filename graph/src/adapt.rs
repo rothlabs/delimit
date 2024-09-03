@@ -36,7 +36,7 @@ pub fn adapt_ok() -> Result<Memo> {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Deal)-> Result<write::Out<Memo>>;
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<write::Out<Memo>>;
 }
 
 pub trait AdaptMid {

@@ -1,45 +1,27 @@
-// use super::*;
-// use atlas::*;
-// use graph::Lake;
-// use std::{fs, io::BufReader};
-// use text::*;
+use super::*;
+use atlas::*;
+use graph::Lake;
+use std::{fs, io::BufReader};
+use text::*;
 
-// #[test]
-// fn write_and_read_serial_page() -> graph::Result<()> {
-//     let serial = html::default_bay()?.lake()?.serial()?.string()?;
-//     let path = STORAGE.to_owned() + "/page.json";
-//     fs::write(&path, serial)?;
-//     let file = fs::File::open(path)?;
-//     let reader = BufReader::new(file);
-//     let mut lake: Lake = serde_json::from_reader(reader)?;
-//     lake.atlas(Box::new(Atlas::default()));
-//     let bay = lake.tree()?;
-//     bay.hydrate();
-//     let page = bay.get("page")?;
-//     eprintln!("before .string, {:?}", page);
-//     let wow = page.string()?;
-//     eprintln!("after .string");
-//     assert_eq!(page.string()?, html::default::PAGE);
-//     Ok(())
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#[test]
+fn write_and_read_serial_page() -> graph::Result<()> {
+    let serial = html::default_bay()?.lake()?.serial()?.string()?;
+    let path = STORAGE.to_owned() + "/page.json";
+    fs::write(&path, serial)?;
+    let file = fs::File::open(path)?;
+    let reader = BufReader::new(file);
+    let mut lake: Lake = serde_json::from_reader(reader)?;
+    lake.atlas(Box::new(Atlas::default()));
+    let bay = lake.tree()?;
+    bay.hydrate();
+    let page = bay.get("page")?;
+    eprintln!("before .string, {:?}", page);
+    let wow = page.string()?;
+    eprintln!("after .string");
+    assert_eq!(page.string()?, html::default::PAGE);
+    Ok(())
+}
 
 // #[test]
 // fn save_graph() -> result::Result<(), Error> {

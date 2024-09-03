@@ -67,24 +67,22 @@ impl Solve for List {
     }
 }
 
-    // fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
-    //     self.items[index] = apex;
-    //     adapt_ok()
-    // }
+// fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
+//     self.items[index] = apex;
+//     adapt_ok()
+// }
 
-        // fn all(&self) -> Result<Gain> {
-    //     let mut apexes = vec![self.separator.clone()];
-    //     apexes.extend(self.items.clone());
-    //     apexes.gain()
-    // }
-    // fn map(&self) -> Result<Gain> {
-    //     let mut map = Map::new();
-    //     map.insert("items", &self.items);
-    //     map.insert("separator", &self.separator);
-    //     map.gain()
-    // }
-
-
+// fn all(&self) -> Result<Gain> {
+//     let mut apexes = vec![self.separator.clone()];
+//     apexes.extend(self.items.clone());
+//     apexes.gain()
+// }
+// fn map(&self) -> Result<Gain> {
+//     let mut map = Map::new();
+//     map.insert("items", &self.items);
+//     map.insert("separator", &self.separator);
+//     map.gain()
+// }
 
 // impl Adapt for List {
 //     fn adapt(&mut self, post: Post) -> Result<Memo> {
@@ -96,8 +94,8 @@ impl Solve for List {
 //     }
 // }
 
-    // fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-    //     self.items = self.items.deal(deal);
-    //     self.separator = self.separator.deal(deal);
-    //     adapt_ok()
-    // }
+// fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
+//     self.items = self.items.deal(deal);
+//     self.separator = self.separator.deal(deal);
+//     adapt_ok()
+// }

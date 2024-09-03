@@ -77,7 +77,7 @@ impl Root {
             // TODO: find way to carry error up through the end of the update.
             match read_part(&edge, |edge| edge.rebut()) {
                 Ok(ring) => ring,
-                Err(_) => panic!("root rebut failed")// Ring::new(),
+                Err(_) => panic!("root rebut failed"), // Ring::new(),
             }
         } else {
             Ring::new()
@@ -144,7 +144,7 @@ impl Back {
     }
 }
 
-impl Deal for Back { 
+impl Deal for Back {
     fn one(&mut self, _: &str, apex: &mut Apex) -> crate::Result<()> {
         *apex = apex.backed(self);
         Ok(())

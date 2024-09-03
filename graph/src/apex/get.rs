@@ -8,10 +8,7 @@ pub struct Get<'a> {
 
 impl<'a> Get<'a> {
     pub fn new(aim: Aim<'a>) -> Self {
-        Self {
-            aim,
-            apex: None
-        }
+        Self { aim, apex: None }
     }
     pub fn apex(self) -> Result<Apex> {
         if let Some(apex) = self.apex {
@@ -33,8 +30,8 @@ impl<'a> Deal for Get<'a> {
                     self.apex = Some(apex.clone());
                 }
                 Ok(())
-            },
-            _ => Err(self.aim.wrong_variant("Key"))?
+            }
+            _ => Err(self.aim.wrong_variant("Key"))?,
         }
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
@@ -49,8 +46,8 @@ impl<'a> Deal for Get<'a> {
                 } else {
                     Err(self.aim.index_out_of_bounds(i))?
                 }
-            },
-            _ => Err(self.aim.wrong_variant("Index"))?
+            }
+            _ => Err(self.aim.wrong_variant("Index"))?,
         }
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
@@ -61,8 +58,8 @@ impl<'a> Deal for Get<'a> {
             Aim::Key(key) => {
                 self.apex = map.get(key);
                 Ok(())
-            },
-            _ => Err(self.aim.wrong_variant("Key"))?
+            }
+            _ => Err(self.aim.wrong_variant("Key"))?,
         }
     }
 }

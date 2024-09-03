@@ -33,7 +33,7 @@ impl<'a> Set<'a> {
         Self {
             aim,
             apex,
-            back: None
+            back: None,
         }
     }
 }
@@ -46,10 +46,12 @@ impl Deal for Set<'_> {
         match self.aim {
             Aim::Index(i) => {
                 // apexes[i] = self.apex.clone();
-                apexes[i] = self.apex.backed(self.back.as_ref().expect("no back in set!"));
+                apexes[i] = self
+                    .apex
+                    .backed(self.back.as_ref().expect("no back in set!"));
                 Ok(())
-            },
-            _ => Err(self.aim.wrong_variant("Index"))?
+            }
+            _ => Err(self.aim.wrong_variant("Index"))?,
         }
     }
 }
@@ -66,7 +68,7 @@ impl<'a> Insert<'a> {
         Self {
             aim,
             apex,
-            back: None
+            back: None,
         }
     }
 }
@@ -77,6 +79,10 @@ impl<'a> Deal for Insert<'a> {
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         // map.insert(self.aim.clone(), self.apex.clone())
-        map.insert(self.aim.clone(), self.apex.backed(self.back.as_ref().expect("no back in insert!")))
+        map.insert(
+            self.aim.clone(),
+            self.apex
+                .backed(self.back.as_ref().expect("no back in insert!")),
+        )
     }
 }
