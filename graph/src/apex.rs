@@ -129,7 +129,7 @@ impl Apex {
     /// Get tray of apex. Will solve to lowest rank if needed.
     pub fn tray(&self) -> Result<Tray> {
         match self {
-            Self::Tray(bare) => Ok(bare.clone()),
+            Self::Tray(tray) => Ok(tray.clone()),
             Self::Leaf(leaf) => leaf.tray(),
             Self::Ploy(ploy) => ploy.main()?.tray(),
         }

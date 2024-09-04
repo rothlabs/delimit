@@ -8,7 +8,6 @@ impl Apex {
         self.saturate(&space, &space)?;
         Ok(())
     }
-
     fn saturate(&self, world: &Space, local: &Space) -> Result<()> {
         self.adapt(&mut Scope {
             world,

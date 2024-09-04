@@ -3,7 +3,7 @@ pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
-pub use lake::{Lake, SerialNode};
+pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
@@ -70,6 +70,8 @@ pub enum Error {
     Read(String),
     #[error("write graph part failed ({0})")]
     Write(String),
+    #[error("no back: {0}")]
+    NoBack(String),
     #[error(transparent)]
     Tray(#[from] tray::Error),
     #[error(transparent)]
@@ -84,6 +86,10 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
+}
+
+pub fn no_back(source: &str) -> Result<()> {
+    Err(Error::NoBack(source.into()))
 }
 
 #[cfg(not(feature = "oneThread"))]

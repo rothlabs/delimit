@@ -4,11 +4,11 @@ use anyhow::anyhow;
 #[derive(Default, Debug)]
 pub struct Space {
     id: u64,
-    pub apex: Apex,
-    // path: Vec<Key>,
     imports: Vec<Import>,
+    pub apex: Apex,
     pub map: HashMap<Key, Space>,
     pub vec: Vec<Space>,
+    // path: Vec<Key>,
 }
 
 impl Space {
@@ -59,20 +59,20 @@ pub struct Scope<'a> {
 }
 
 impl Scope<'_> {
-    pub fn main_deal(&self, apex: &mut Apex) -> Result<()> {
+    pub fn deal(&self, apex: &mut Apex) -> Result<()> {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
             if let Ok(rhs) = self.local.get(keys) {
                 if let Some(back) = self.back.as_ref() {
                     *apex = rhs.backed(back);
                 } else {
-                    return Err(anyhow!("scope not backed!"))?;
+                    return no_back("Scope");
                 }
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(rhs) = self.world.get(keys) {
                     if let Some(back) = self.back.as_ref() {
                         *apex = rhs.backed(back);
                     } else {
-                        return Err(anyhow!("scope not backed!"))?;
+                        return no_back("Scope");
                     }
                 }
             }
@@ -86,18 +86,18 @@ impl Deal for Scope<'_> {
         self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.main_deal(apex)?;
+        self.deal(apex)?;
         Ok(())
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         for apex in apexes {
-            self.main_deal(apex)?;
+            self.deal(apex)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         for (_, apex) in map.iter_mut() {
-            self.main_deal(apex)?;
+            self.deal(apex)?;
         }
         Ok(())
     }
@@ -108,6 +108,8 @@ impl Hash for Space {
         self.id.hash(state);
     }
 }
+
+
 
 // let mut world_all = false;
 // for import in &self.local.imports {

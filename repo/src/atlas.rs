@@ -4,15 +4,16 @@ use super::*;
 pub struct Atlas;
 
 impl DeserializeUnit for Atlas {
-    fn deserialize(&self, serial: &SerialNode) -> graph::Result<Apex> {
-        let part: Part = serde_json::from_str(&serial.unit)?;
-        Ok(part.apex(serial.imports.clone()))
+    fn deserialize(&self, serial: &Serial) -> graph::Result<Apex> {
+        let unit: Unit = serde_json::from_str(&serial.unit)?;
+        let imports = serial.imports.clone();
+        Ok(unit.apex(imports))
     }
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum Part {
+enum Unit {
     Leaf(graph::work::Leaf),
     Bay(graph::Bay),
     TextPlainList(text::plain::List),
@@ -21,7 +22,7 @@ enum Part {
     TextHtmlElement(text::html::Element),
 }
 
-impl Part {
+impl Unit {
     fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
             Self::Leaf(x) => x.apex(),

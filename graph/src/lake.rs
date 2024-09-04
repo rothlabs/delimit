@@ -4,16 +4,16 @@ use super::*;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SerialNode {
+pub struct Serial {
     pub imports: Vec<Import>,
     pub unit: String,
 }
 
-/// Collection of serialized apexes. Indexed by hash.
+/// Collection of serialized apexes, indexed by hash.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Lake {
-    roots: HashMap<Key, SerialNode>,
-    nodes: HashMap<u64, SerialNode>,
+    roots: HashMap<Key, Serial>,
+    nodes: HashMap<u64, Serial>,
     #[serde(skip)]
     atlas: Option<Box<dyn DeserializeUnit>>,
     #[serde(skip)]
@@ -33,7 +33,7 @@ impl Lake {
 
     /// Insert graph into lake given root key and apex.
     pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> Result<()> {
-        let serial = SerialNode {
+        let serial = Serial {
             imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?,
         };
@@ -49,7 +49,7 @@ impl Lake {
         if let Apex::Tray(_) = apex {
             return Ok(());
         }
-        let serial = SerialNode {
+        let serial = Serial {
             imports: apex.imports().unwrap_or_default(),
             unit: apex.serial()?,
         };
@@ -96,10 +96,15 @@ impl Lake {
             .deserialize(serial)
     }
 
-    fn main_trade(&self, apex: &mut Apex) -> Result<()> {
+    /// Swap hash-apex for deserialized apex
+    fn deal(&self, apex: &mut Apex) -> Result<()> {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
-                *apex = rhs.backed(self.back.as_ref().expect("lake must have back"));
+                if let Some(back) = self.back.as_ref() {
+                    *apex = rhs.backed(back);
+                } else {
+                    return no_back("Lake");
+                }
             }
         }
         Ok(())
@@ -111,20 +116,17 @@ impl Deal for Lake {
         self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.main_trade(apex)
+        self.deal(apex)
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         for apex in apexes {
-            self.main_trade(apex)?;
+            self.deal(apex)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        // for apex in &mut map.all() {
-        //     self.main_trade(apex)?;
-        // }
         for (_, apex) in map.iter_mut() {
-            self.main_trade(apex)?;
+            self.deal(apex)?;
         }
         Ok(())
     }
