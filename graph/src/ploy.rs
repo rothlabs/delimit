@@ -48,7 +48,7 @@ impl ToId for Box<dyn Engage> {
 }
 
 impl Rebut for Box<dyn Engage> {
-    fn rebut(&self) -> Ring {
+    fn rebut(&self) -> Result<Ring> {
         self.as_ref().rebut()
     }
 }

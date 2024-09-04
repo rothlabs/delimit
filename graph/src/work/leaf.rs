@@ -66,8 +66,8 @@ impl SolveMut for Leaf {
 }
 
 impl RebutMut for Leaf {
-    fn rebut(&mut self) -> Ring {
-        Ring::new()
+    fn rebut(&mut self) -> Result<Ring> {
+        Ok(Ring::new())
     }
 }
 

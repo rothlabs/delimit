@@ -18,7 +18,6 @@ impl Map {
             aim => Err(aim.wrong_variant("Key"))?,
         }
     }
-    // TODO: use aim instead of key (move aim logic from Apex to Map)
     pub fn get(&self, key: &Key) -> Option<Apex> {
         self.0.get(key).map(|apex| apex.pathed(key))
     }

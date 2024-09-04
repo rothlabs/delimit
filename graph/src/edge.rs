@@ -223,11 +223,11 @@ where
 }
 
 impl<N> Rebut for Edge<N> {
-    fn rebut(&self) -> Ring {
+    fn rebut(&self) -> Result<Ring> {
         if let Some(back) = &self.back {
             back.rebut()
         } else {
-            Ring::new()
+            Ok(Ring::new())
         }
     }
 }

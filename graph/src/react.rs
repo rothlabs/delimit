@@ -9,12 +9,12 @@ pub type Result = std::result::Result<(), crate::Error>;
 
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
-    fn rebut(&self) -> Ring;
+    fn rebut(&self) -> crate::Result<Ring>;
 }
 
 pub trait RebutMut {
     /// Invalidatd the tray at cusp level. Call only after write during rebut phase.
-    fn rebut(&mut self) -> Ring;
+    fn rebut(&mut self) -> crate::Result<Ring>;
 }
 
 pub trait React {
@@ -72,22 +72,17 @@ pub struct Root {
 }
 
 impl Root {
-    pub fn rebut(&self) -> Ring {
+    pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
-            // TODO: find way to carry error up through the end of the update.
-            match read_part(&edge, |edge| edge.rebut()) {
-                Ok(ring) => ring,
-                Err(_) => panic!("root rebut failed"), // Ring::new(),
-            }
+            read_part(&edge, |edge| edge.rebut())?
         } else {
-            Ring::new()
+            Ok(Ring::new())
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.react(id))?
         } else {
-            // panic!("root react failed");
             Ok(())
         }
     }
@@ -126,12 +121,11 @@ impl Back {
     pub fn new(cusp: Weak<RefCell<dyn UpdateMut>>, id: Id) -> Self {
         Self { cusp, id }
     }
-    pub fn rebut(&self) -> Ring {
+    pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
-            // TODO: propagate error up and remove unwrap!!
-            write_part(&cusp, |mut cusp| cusp.rebut()).unwrap()
+            write_part(&cusp, |mut cusp| cusp.rebut())?
         } else {
-            Ring::new()
+            Ok(Ring::new())
         }
     }
     pub fn react(&self, id: &Id) -> react::Result {
@@ -173,10 +167,10 @@ impl Ring {
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
-    pub fn rebut(&mut self) -> Ring {
+    pub fn rebut(&mut self) -> crate::Result<Ring> {
         let mut result = Ring::new();
         for root in &self.roots {
-            let ring = root.rebut();
+            let ring = root.rebut()?;
             if ring.roots.is_empty() {
                 result.roots.insert(root.clone());
             } else {
@@ -184,14 +178,14 @@ impl Ring {
             }
         }
         self.roots.clear();
-        result
+        Ok(result)
     }
-    pub fn rebut_roots(&mut self) -> Vec<Root> {
+    pub fn rebut_roots(&mut self) -> crate::Result<Vec<Root>> {
         let mut ring = Ring::new();
         for root in &self.roots {
-            ring.roots.extend(root.rebut().roots);
+            ring.roots.extend(root.rebut()?.roots);
         }
         self.roots.clear();
-        Vec::from_iter(ring.roots)
+        Ok(Vec::from_iter(ring.roots))
     }
 }

@@ -79,7 +79,7 @@ where
     fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(&mut self, write: F) -> Result<write::Out<T>> {
         //let out = self.work.write_tray_work(write)?;
         let out = write(self.work.tray());
-        let roots = self.ring.rebut_roots();
+        let roots = self.ring.rebut_roots()?;
         Ok(write::Out {
             roots,
             out,
@@ -100,7 +100,7 @@ where
         let out = self
             .work
             .write_unit_work(write, &self.back.clone().unwrap())?;
-        let roots = self.ring.rebut_roots();
+        let roots = self.ring.rebut_roots()?;
         Ok(write::Out {
             roots,
             out,
@@ -129,7 +129,7 @@ impl<W> RebutMut for Cusp<W>
 where
     W: Clear,
 {
-    fn rebut(&mut self) -> Ring {
+    fn rebut(&mut self) -> Result<Ring> {
         self.work.clear();
         self.ring.rebut()
     }
@@ -166,7 +166,7 @@ where
         }
         self.work.adapt(deal)?;
         let roots = if deal.wrote() {
-            self.ring.rebut_roots()
+            self.ring.rebut_roots()?
         } else {
             vec![]
         };
