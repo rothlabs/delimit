@@ -1,5 +1,50 @@
 use super::*;
 
+impl Apex {
+    /// Get one apex. 
+    pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
+        match self {
+            Self::Ploy(ploy) => {
+                let mut get = Get::new(aim.into());
+                ploy.adapt(&mut get)?;
+                get.apex()
+            }
+            _ => Err(Error::NotPloy)?,
+        }
+    }
+    /// Get vector of all apexes.
+    pub fn all(&self) -> Result<Vec<Apex>> {
+        match self {
+            Self::Ploy(ploy) => {
+                let mut all = All { apexes: vec![] };
+                ploy.adapt(&mut all)?;
+                Ok(all.apexes)
+            }
+            _ => Err(Error::NotPloy)?,
+        }
+    }
+}
+
+#[derive(Debug)]
+struct All {
+    apexes: Vec<Apex>,
+}
+
+impl Deal for All {
+    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
+        self.apexes.push(apex.clone());
+        Ok(())
+    }
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+        self.apexes.extend(apexes.clone());
+        Ok(())
+    }
+    fn map(&mut self, map: &mut Map) -> Result<()> {
+        self.apexes.extend(map.all());
+        Ok(())
+    }
+}
+
 #[derive(Debug)]
 pub struct Get<'a> {
     aim: Aim<'a>,
