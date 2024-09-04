@@ -38,7 +38,7 @@ impl Map {
     pub fn backed(&mut self, back: &Back) -> Result<Self> {
         let mut map = Map::new();
         for (aim, apex) in &self.0 {
-            map.insert(aim, apex.backed(back))?;
+            map.insert(aim, apex.backed(back)?)?;
         }
         Ok(map)
     }

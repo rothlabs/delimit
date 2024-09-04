@@ -63,14 +63,14 @@ impl Scope<'_> {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
             if let Ok(rhs) = self.local.get(keys) {
                 if let Some(back) = self.back.as_ref() {
-                    *apex = rhs.backed(back);
+                    *apex = rhs.backed(back)?;
                 } else {
                     return no_back("Scope");
                 }
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(rhs) = self.world.get(keys) {
                     if let Some(back) = self.back.as_ref() {
-                        *apex = rhs.backed(back);
+                        *apex = rhs.backed(back)?;
                     } else {
                         return no_back("Scope");
                     }

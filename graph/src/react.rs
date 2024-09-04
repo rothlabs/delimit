@@ -146,11 +146,11 @@ impl Back {
 
 impl Deal for Back {
     fn one(&mut self, _: &str, apex: &mut Apex) -> crate::Result<()> {
-        *apex = apex.backed(self);
+        *apex = apex.backed(self)?;
         Ok(())
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> crate::Result<()> {
-        *apexes = apexes.backed(self);
+        *apexes = apexes.backed(self)?;
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> crate::Result<()> {

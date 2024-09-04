@@ -101,7 +101,7 @@ impl Lake {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
                 if let Some(back) = self.back.as_ref() {
-                    *apex = rhs.backed(back);
+                    *apex = rhs.backed(back)?;
                 } else {
                     return no_back("Lake");
                 }

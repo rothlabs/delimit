@@ -225,14 +225,15 @@ impl Apex {
     }
 }
 
-impl Backed for Apex {
+impl TryBacked for Apex {
+    type Out = Self;
     /// New backed apex.
-    fn backed(&self, back: &Back) -> Self {
+    fn backed(&self, back: &Back) -> Result<Self> {
         match self {
-            Self::Tray(bare) => Self::Tray(bare.clone()),
-            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            Self::Tray(bare) => Ok(Self::Tray(bare.clone())),
+            Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
             // TODO: remove unwrap!
-            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back).unwrap()),
+            Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
         }
     }
 }

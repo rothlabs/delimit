@@ -271,27 +271,35 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> Backed for Link<E>
+impl<E> TryBacked for Link<E>
 where
     E: Backed,
 {
+    type Out = Self;
     #[cfg(not(feature = "oneThread"))]
-    fn backed(&self, back: &Back) -> Self {
-        let edge = self.edge.read().expect(NO_POISON);
-        Self {
+    fn backed(&self, back: &Back) -> Result<Self> {
+        let edge = match self.edge.read() {
+            Ok(edge) => edge,
+            Err(err) => return Err(crate::Error::Read(err.to_string()))?
+        };
+        Ok(Self {
             edge: Arc::new(RwLock::new(edge.backed(back))),
             path: self.path.clone(),
             rank: self.rank,
-        }
+        })
     }
     #[cfg(feature = "oneThread")]
-    fn backed(&self, back: &Back) -> Self {
-        let edge = self.edge.borrow();
-        Self {
+    fn backed(&self, back: &Back) -> Result<Self> {
+        let edge = match self.edge.try_borrow() {
+            Ok(edge) => edge,
+            Err(err) => return Err(crate::Error::Read(err.to_string()))?
+        };
+        // let edge = self.edge.borrow();
+        Ok(Self {
             edge: Rc::new(RefCell::new(edge.backed(back))),
             path: self.path.clone(),
             rank: self.rank,
-        }
+        })
     }
 }
 
@@ -367,11 +375,21 @@ impl TryBacked for Ploy {
     }
 }
 
-impl<T> Backed for Vec<T>
+impl<T> TryBacked for Vec<T>
 where
-    T: Backed,
+    T: TryBacked<Out = T>,
 {
-    fn backed(&self, back: &Back) -> Self {
-        self.iter().map(|link| link.backed(back)).collect()
+    type Out = Self;
+    fn backed(&self, back: &Back) -> Result<Self> {
+        self.iter().map(|link| Ok(link.backed(back)?)).collect()
     }
 }
+
+// impl<T> Backed for Vec<T>
+// where
+//     T: Backed,
+// {
+//     fn backed(&self, back: &Back) -> Self {
+//         self.iter().map(|link| link.backed(back)).collect()
+//     }
+// }

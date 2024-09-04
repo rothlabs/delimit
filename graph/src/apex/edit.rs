@@ -48,7 +48,7 @@ impl Deal for Set<'_> {
                 // apexes[i] = self.apex.clone();
                 apexes[i] = self
                     .apex
-                    .backed(self.back.as_ref().expect("no back in set!"));
+                    .backed(self.back.as_ref().expect("no back in set!"))?;
                 Ok(())
             }
             _ => Err(self.aim.wrong_variant("Index"))?,
@@ -82,7 +82,7 @@ impl<'a> Deal for Insert<'a> {
         map.insert(
             self.aim.clone(),
             self.apex
-                .backed(self.back.as_ref().expect("no back in insert!")),
+                .backed(self.back.as_ref().expect("no back in insert!"))?,
         )
     }
 }

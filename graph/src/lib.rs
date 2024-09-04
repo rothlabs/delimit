@@ -92,8 +92,8 @@ pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
 }
 
-#[cfg(not(feature = "oneThread"))]
-const NO_POISON: &str = "The lock should not be poisoned.";
+// #[cfg(not(feature = "oneThread"))]
+// const NO_POISON: &str = "The lock should not be poisoned.";
 
 #[cfg(not(feature = "oneThread"))]
 pub trait SendSync: Send + Sync {}
