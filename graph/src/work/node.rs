@@ -87,7 +87,11 @@ where
     U: Solve,
 {
     type Unit = U;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<Option<u64>> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+        &mut self,
+        make: F,
+        back: &Back,
+    ) -> Result<Option<u64>> {
         self.unit = Some(make(back)?);
         Ok(if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
             Some(rank)

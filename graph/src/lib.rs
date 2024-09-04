@@ -292,12 +292,18 @@ pub trait Make {
 
 pub trait MakeMid {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<Option<u64>>;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+        &mut self,
+        make: F,
+        back: &Back,
+    ) -> Result<Option<u64>>;
 }
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) where Self: Sized;
+    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>)
+    where
+        Self: Sized;
 }
 
 pub trait WithSnap {

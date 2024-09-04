@@ -359,7 +359,6 @@ where
     }
 }
 
-
 // pub fn ranked(&self) -> Self {
 //     let rank = if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
 //         Some(rank)

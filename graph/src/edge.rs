@@ -49,7 +49,7 @@ where
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + MakeMid + UpdateMut,// + SolveMut,
+    N: 'static + Default + MakeMid + UpdateMut, // + SolveMut,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
@@ -106,7 +106,8 @@ where
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+        let rank =
+            write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         (Self { cusp, back: None }, rank)
     }
     #[cfg(feature = "oneThread")]
@@ -116,7 +117,8 @@ where
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+        let rank =
+            write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         (Self { cusp, back: None }, rank)
     }
 }
