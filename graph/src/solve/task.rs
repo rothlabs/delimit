@@ -2,14 +2,15 @@ use super::*;
 
 #[derive(Debug)]
 pub enum Task<'a> {
-    None,
+    // for units
     Main,
     Rank,
     Serial,
     Digest(&'a mut UnitHasher),
-    Hash,
     React,
-    // TODO: make imports separate trait
+    // for graph internals
+    None,
+    Hash,
     Imports,
 }
 

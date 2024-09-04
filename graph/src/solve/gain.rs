@@ -3,11 +3,12 @@ use super::*;
 /// Value returned by a successful apex solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
+    // for units
     None,
     Apex(Apex),
     String(String),
     U64(u64),
-    // TODO: make part of seperate trait
+    // for graph internals
     Imports(Vec<Import>),
 }
 

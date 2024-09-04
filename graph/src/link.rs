@@ -271,7 +271,6 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-/// TODO: make method to make new link with cloned edge without Back!
 impl<E> Backed for Link<E>
 where
     E: Backed,
