@@ -60,7 +60,7 @@ impl Deal for Set<'_> {
         map.insert(
             self.aim.clone(),
             self.apex
-                .backed(self.back.as_ref().expect("no back in insert!")),
+                .backed(self.back.as_ref().expect("no back in insert!"))?,
         )
     }
 }
