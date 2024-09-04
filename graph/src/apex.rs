@@ -1,14 +1,13 @@
 use super::*;
 use anyhow::anyhow;
-use get::*;
 use thiserror::Error;
 use view::*;
 
 mod convert;
-mod edit;
+mod set;
 mod get;
 mod hydrate;
-mod import;
+mod deserialize;
 mod view;
 
 #[derive(Error, Debug)]
@@ -17,8 +16,6 @@ pub enum Error {
     NotPloy,
     #[error("not ploy or leaf")]
     NotNode,
-    // #[error(transparent)]
-    // Tray(#[from] tray::Error),
 }
 
 /// Primary graph part.
@@ -39,17 +36,6 @@ impl Apex {
     pub fn main(&self) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
-            _ => Err(Error::NotPloy)?,
-        }
-    }
-
-    pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
-        match self {
-            Self::Ploy(ploy) => {
-                let mut get = Get::new(aim.into());
-                ploy.adapt(&mut get)?;
-                get.apex()
-            }
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -88,18 +74,6 @@ impl Apex {
         .string()
     }
 
-    /// Get stems of apex.
-    pub fn all(&self) -> Result<Vec<Apex>> {
-        match self {
-            Self::Ploy(ploy) => {
-                let mut all = All { apexes: vec![] };
-                ploy.adapt(&mut all)?;
-                Ok(all.apexes)
-            }
-            _ => Err(Error::NotPloy)?,
-        }
-    }
-
     /// Replace stems according to the Trade deal.
     pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         if let Self::Ploy(ploy) = self {
@@ -134,26 +108,6 @@ impl Apex {
             Self::Ploy(ploy) => ploy.main()?.tray(),
         }
     }
-
-    // pub fn set_rank(&mut self) -> Result<()> {
-    //     match self {
-    //         Self::Ploy(ploy) => {
-    //             let apex = ploy.main()?;
-    //             ploy.set_rank(apex.find_rank(1)?);
-    //             // ploy.clear
-    //             Ok(())
-    //         },
-    //         _ => Ok(())
-    //     }
-    // }
-
-    // pub fn find_rank(&self, rank: usize) -> Result<usize> {
-    //     match self {
-    //         Self::Leaf(_) => Ok(rank),
-    //         Self::Ploy(ploy) => ploy.main()?.find_rank(rank + 1),
-    //         _ => Err(anyhow!("tried to find rank for tray"))?
-    //     }
-    // }
 
     /// Run Trade deal with this apex as input.
     pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
@@ -237,13 +191,6 @@ impl Backed for Apex {
     }
 }
 
-// pub fn wrong_tray(expected: &str, found: &Tray) -> Error {
-//     Error::WrongTray {
-//         expected: expected.into(),
-//         found: found.clone(),
-//     }
-// }
-
 impl Default for Apex {
     fn default() -> Self {
         Self::Tray(Tray::None)
@@ -263,25 +210,5 @@ impl<'a> EngageApexes<'a> for Vec<Apex> {
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.vec(key, self)
-    }
-}
-
-#[derive(Debug)]
-struct All {
-    apexes: Vec<Apex>,
-}
-
-impl Deal for All {
-    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.apexes.push(apex.clone());
-        Ok(())
-    }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        self.apexes.extend(apexes.clone());
-        Ok(())
-    }
-    fn map(&mut self, map: &mut Map) -> Result<()> {
-        self.apexes.extend(map.all());
-        Ok(())
     }
 }
