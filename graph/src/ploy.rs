@@ -14,8 +14,6 @@ pub trait Engage: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {}
 
 impl<T> Engage for T where T: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {}
 
-
-
 pub trait ToPloy {
     /// Copy with unit type erased.  
     fn ploy(&self) -> PloyPointer;

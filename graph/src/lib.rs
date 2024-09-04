@@ -1,5 +1,5 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
-pub use apex::{wrong_tray, Apex, EngageApexes};
+pub use apex::{Apex, EngageApexes};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
@@ -144,7 +144,6 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Deal: Debug {
     fn back(&mut self, _: &Back) {}
-    /// Trade a apex for another.
     fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
         Ok(())
     }

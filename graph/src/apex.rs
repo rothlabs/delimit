@@ -17,8 +17,8 @@ pub enum Error {
     NotPloy,
     #[error("not ploy or leaf")]
     NotNode,
-    #[error("wrong tray (expected: {expected:?}, found: {found:?})")]
-    WrongTray { expected: String, found: Tray },
+    // #[error(transparent)]
+    // Tray(#[from] tray::Error),
 }
 
 /// Primary graph part.
@@ -211,7 +211,7 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::U32(value) => Ok(value),
-            _ => Err(wrong_tray("u32", &tray))?,
+            _ => Err(tray.wrong_variant("u32"))?,
         }
     }
 
@@ -220,7 +220,7 @@ impl Apex {
         let tray = self.tray()?;
         match tray {
             Tray::I32(value) => Ok(value),
-            _ => Err(wrong_tray("i32", &tray))?,
+            _ => Err(tray.wrong_variant("i32"))?,
         }
     }
 }
@@ -237,12 +237,12 @@ impl Backed for Apex {
     }
 }
 
-pub fn wrong_tray(expected: &str, found: &Tray) -> Error {
-    Error::WrongTray {
-        expected: expected.into(),
-        found: found.clone(),
-    }
-}
+// pub fn wrong_tray(expected: &str, found: &Tray) -> Error {
+//     Error::WrongTray {
+//         expected: expected.into(),
+//         found: found.clone(),
+//     }
+// }
 
 impl Default for Apex {
     fn default() -> Self {

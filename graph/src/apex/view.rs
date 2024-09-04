@@ -9,7 +9,7 @@ impl<'a> View<'a> {
     pub fn string<T, F: FnOnce(&String) -> T>(&self, read: F) -> Result<T> {
         self.apex.read(|tray| match tray {
             Tray::String(value) => Ok(read(value)),
-            _ => Err(wrong_tray("String", tray))?,
+            _ => Err(tray.wrong_variant("String"))?,
         })?
     }
 
@@ -17,7 +17,7 @@ impl<'a> View<'a> {
     pub fn vec_u8<T, F: FnOnce(&Vec<u8>) -> T>(&self, read: F) -> Result<T> {
         self.apex.read(|tray| match tray {
             Tray::Vu8(value) => Ok(read(value)),
-            _ => Err(wrong_tray("Vec<Vu8>", tray))?,
+            _ => Err(tray.wrong_variant("Vec<Vu8>"))?,
         })?
     }
 }

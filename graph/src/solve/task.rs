@@ -4,15 +4,13 @@ use super::*;
 pub enum Task<'a> {
     None,
     Main,
-    All,
-    React,
-    Serial,
-    Hash,
-    Digest(&'a mut UnitHasher),
-    Imports,
-    Get(&'a Key),
-    Map,
     Rank,
+    Serial,
+    Digest(&'a mut UnitHasher),
+    Hash,
+    React,
+    // TODO: make imports separate trait
+    Imports,
 }
 
 #[derive(Error, Debug)]

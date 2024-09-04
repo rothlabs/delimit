@@ -24,7 +24,7 @@ enum Part {
 impl Part {
     fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
-            Self::Leaf(x) => {eprintln!("leaf: {x:?}"); x.apex()},
+            Self::Leaf(x) => x.apex(),
             Self::Bay(x) => x.imports(imports).apex(),
             Self::TextPlainList(x) => x.imports(imports).apex(),
             Self::TextHtmlTag(x) => x.imports(imports).apex(),

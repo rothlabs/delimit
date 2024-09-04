@@ -73,11 +73,11 @@ impl From<Vec<f32>> for Apex {
     }
 }
 
-        // // TODO: find way to not query the apex to get rank!
-        // let rank = match ploy.main() {
-        //     Ok(apex) => match apex.rank() {
-        //         Some(rank) => rank + 1,
-        //         None => 1,
-        //     },
-        //     _ => 0,
-        // };
+// // TODO: find way to not query the apex to get rank!
+// let rank = match ploy.main() {
+//     Ok(apex) => match apex.rank() {
+//         Some(rank) => rank + 1,
+//         None => 1,
+//     },
+//     _ => 0,
+// };

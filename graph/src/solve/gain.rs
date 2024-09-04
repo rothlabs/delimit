@@ -4,13 +4,13 @@ use super::*;
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
     None,
-    Apex(Apex),
-    Apexes(Vec<Apex>),
+    One(Apex),
+    Vec(Vec<Apex>),
     Map(Map),
-    Imports(Vec<Import>),
     String(String),
     U64(u64),
-    // Usize(usize),
+    // TODO: make part of seperate trait
+    Imports(Vec<Import>),
 }
 
 #[derive(Error, Debug)]
@@ -35,14 +35,14 @@ impl Gain {
     /// Get Apex from Gain.
     pub fn apex(self) -> crate::Result<Apex> {
         match self {
-            Self::Apex(apex) => Ok(apex),
+            Self::One(apex) => Ok(apex),
             _ => Err(self.wrong_variant("Apex"))?,
         }
     }
     /// Get `Vec<Apex>` from Gain.
     pub fn apexes(self) -> crate::Result<Vec<Apex>> {
         match self {
-            Self::Apexes(apexes) => Ok(apexes),
+            Self::Vec(apexes) => Ok(apexes),
             _ => Err(self.wrong_variant("Apexes"))?,
         }
     }
@@ -84,13 +84,13 @@ impl From<String> for Gain {
 
 impl From<Apex> for Gain {
     fn from(value: Apex) -> Self {
-        Self::Apex(value)
+        Self::One(value)
     }
 }
 
 impl From<Vec<Apex>> for Gain {
     fn from(value: Vec<Apex>) -> Self {
-        Self::Apexes(value)
+        Self::Vec(value)
     }
 }
 

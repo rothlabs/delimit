@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+
 use super::*;
 
 pub type Leaf = Cusp<work::Leaf>;
@@ -157,13 +159,17 @@ where
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<write::Out<()>> {
         self.work.clear();
-        //let post = post.backed(self.back.as_ref().expect("No back in cusp adapt."));
-        deal.back(self.back.as_ref().expect("No back in cusp adapt."));
-        let out = self.work.adapt(deal)?;
+        if let Some(back) = self.back.as_ref() {
+            deal.back(back);
+        } else {
+            return Err(anyhow!("No back in cusp adapt."))?;
+        }
+        self.work.adapt(deal)?;
         let roots = self.ring.rebut_roots();
         Ok(write::Out {
             roots,
-            out,
+            // TODO: remove out
+            out: (),
             id: self.id,
         })
     }

@@ -34,7 +34,6 @@ pub struct Link<E> {
     rank: Option<u64>,
 }
 
-
 impl<E> fmt::Debug for Link<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("Path: {:?}", self.path))
@@ -73,7 +72,7 @@ where
 {
     pub fn main(&self) -> Result<Apex> {
         match self.solve(Task::Main)? {
-            Gain::Apex(apex) => Ok(apex),
+            Gain::One(apex) => Ok(apex),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
@@ -89,11 +88,10 @@ where
         } else {
             None
         };
-        eprintln!("rank: {rank:?}");
         Self {
             edge: self.edge.clone(),
             path: self.path.clone(),
-            rank
+            rank,
         }
     }
 }

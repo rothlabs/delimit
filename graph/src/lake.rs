@@ -100,10 +100,8 @@ impl Lake {
         if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
             if let Ok(rhs) = self.get(*hash) {
                 *apex = rhs.backed(self.back.as_ref().expect("lake must have back"));
-                return Ok(());
             }
         }
-        *apex = apex.backed(self.back.as_ref().expect("lake must have back"));
         Ok(())
     }
 }

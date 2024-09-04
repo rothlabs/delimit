@@ -59,19 +59,25 @@ pub struct Scope<'a> {
 }
 
 impl Scope<'_> {
-    pub fn main_trade(&self, apex: &mut Apex) {
+    pub fn main_deal(&self, apex: &mut Apex) -> Result<()> {
         if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
-            if let Ok(new_apex) = self.local.get(keys) {
-                *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
-                return;
+            if let Ok(rhs) = self.local.get(keys) {
+                if let Some(back) = self.back.as_ref() {
+                    *apex = rhs.backed(back);
+                } else {
+                    return Err(anyhow!("scope not backed!"))?;
+                }
             } else if self.local.imports.contains(&WORLD_ALL) {
-                if let Ok(new_apex) = self.world.get(keys) {
-                    *apex = new_apex.backed(self.back.as_ref().expect("scope must have back"));
-                    return;
+                if let Ok(rhs) = self.world.get(keys) {
+                    if let Some(back) = self.back.as_ref() {
+                        *apex = rhs.backed(back);
+                    } else {
+                        return Err(anyhow!("scope not backed!"))?;
+                    }
                 }
             }
         }
-        *apex = apex.backed(self.back.as_ref().expect("lake must have back"));
+        Ok(())
     }
 }
 
@@ -80,18 +86,18 @@ impl Deal for Scope<'_> {
         self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.main_trade(apex);
+        self.main_deal(apex)?;
         Ok(())
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         for apex in apexes {
-            self.main_trade(apex);
+            self.main_deal(apex)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         for (_, apex) in map.iter_mut() {
-            self.main_trade(apex);
+            self.main_deal(apex)?;
         }
         Ok(())
     }

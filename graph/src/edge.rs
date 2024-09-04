@@ -26,7 +26,6 @@ pub struct Edge<N> {
 //     }
 // }
 
-
 impl<N> ToId for Edge<N> {
     fn id(&self) -> Id {
         if let Some(back) = &self.back {
