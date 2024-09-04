@@ -4,9 +4,7 @@ use super::*;
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
     None,
-    One(Apex),
-    Vec(Vec<Apex>),
-    Map(Map),
+    Apex(Apex),
     String(String),
     U64(u64),
     // TODO: make part of seperate trait
@@ -35,15 +33,8 @@ impl Gain {
     /// Get Apex from Gain.
     pub fn apex(self) -> crate::Result<Apex> {
         match self {
-            Self::One(apex) => Ok(apex),
+            Self::Apex(apex) => Ok(apex),
             _ => Err(self.wrong_variant("Apex"))?,
-        }
-    }
-    /// Get `Vec<Apex>` from Gain.
-    pub fn apexes(self) -> crate::Result<Vec<Apex>> {
-        match self {
-            Self::Vec(apexes) => Ok(apexes),
-            _ => Err(self.wrong_variant("Apexes"))?,
         }
     }
     /// Get Imports from Gain.
@@ -51,13 +42,6 @@ impl Gain {
         match self {
             Self::Imports(imports) => Ok(imports),
             _ => Err(self.wrong_variant("Imports"))?,
-        }
-    }
-    /// Get Map from Gain.
-    pub fn map(self) -> crate::Result<Map> {
-        match self {
-            Self::Map(map) => Ok(map),
-            _ => Err(self.wrong_variant("Map"))?,
         }
     }
     /// Get String from Gain.
@@ -84,37 +68,13 @@ impl From<String> for Gain {
 
 impl From<Apex> for Gain {
     fn from(value: Apex) -> Self {
-        Self::One(value)
-    }
-}
-
-impl From<Vec<Apex>> for Gain {
-    fn from(value: Vec<Apex>) -> Self {
-        Self::Vec(value)
+        Self::Apex(value)
     }
 }
 
 impl From<u64> for Gain {
     fn from(value: u64) -> Self {
         Self::U64(value)
-    }
-}
-
-// impl From<usize> for Gain {
-//     fn from(value: usize) -> Self {
-//         Self::Usize(value)
-//     }
-// }
-
-impl From<Map> for Gain {
-    fn from(value: Map) -> Self {
-        Self::Map(value)
-    }
-}
-
-impl From<&Map> for Gain {
-    fn from(value: &Map) -> Self {
-        Self::Map(value.clone())
     }
 }
 

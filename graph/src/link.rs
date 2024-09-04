@@ -72,7 +72,7 @@ where
 {
     pub fn main(&self) -> Result<Apex> {
         match self.solve(Task::Main)? {
-            Gain::One(apex) => Ok(apex),
+            Gain::Apex(apex) => Ok(apex),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }

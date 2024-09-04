@@ -20,12 +20,6 @@ pub struct Edge<N> {
     pub cusp: Rc<RefCell<N>>,
 }
 
-// impl<C> fmt::Debug for Edge<C> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         f.write_fmt(format_args!("Cusp: {:?}", self.cusp))
-//     }
-// }
-
 impl<N> ToId for Edge<N> {
     fn id(&self) -> Id {
         if let Some(back) = &self.back {
