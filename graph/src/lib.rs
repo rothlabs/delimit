@@ -150,9 +150,13 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Deal: Debug {
     // Did the deal read the unit?
-    fn read(&self) -> bool {false}
+    fn read(&self) -> bool {
+        false
+    }
     /// Did the deal mutate the unit?
-    fn wrote(&self) -> bool {false}
+    fn wrote(&self) -> bool {
+        false
+    }
     /// Set back of deal.
     fn back(&mut self, _: &Back) {}
     /// Handle one apex.
@@ -173,21 +177,18 @@ pub trait IntoNode
 where
     Self: Sized,
 {
-    fn node(self) -> Node<Self>;
+    fn node(self) -> Result<Node<Self>>;
 }
 
 impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
 {
-    // TODO: remove expect and unwrap
-    fn node(mut self) -> Node<Self> {
+    fn node(mut self) -> Result<Node<Self>> {
         Node::make(|back| {
-            // self.adapt(Post::Trade(back))
-            self.adapt(&mut back.clone())
-                .expect("To move into Node, unit must Adapt with Post::Trade.");
+            self.adapt(&mut back.clone())?;
             Ok(self)
-        }).unwrap()
+        })
     }
 }
 
@@ -284,22 +285,24 @@ pub trait FromItem {
 
 pub trait Make {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> where Self: Sized;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)>
+    where
+        Self: Sized;
 }
 
 pub trait MakeMid {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()>;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<Option<u64>>;
 }
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> Self;
+    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) where Self: Sized;
 }
 
 pub trait WithSnap {
     type Unit;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back);
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
 }
 
 pub trait Clear {

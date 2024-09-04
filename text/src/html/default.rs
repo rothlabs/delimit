@@ -24,7 +24,10 @@ pub fn default_bay() -> Result<Apex> {
     bay.insert("title_element", title_element)?;
 
     let charset = Attribute::new().name("charset").content("utf-8").apex()?;
-    bay.insert("charset", Tag::new().name("meta").attribute(charset).apex()?)?;
+    bay.insert(
+        "charset",
+        Tag::new().name("meta").attribute(charset).apex()?,
+    )?;
 
     let name = Attribute::new().name("name").content("viewport").apex()?;
     let content = Attribute::new()

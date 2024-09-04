@@ -4,10 +4,10 @@ use thiserror::Error;
 use view::*;
 
 mod convert;
-mod set;
+mod deserialize;
 mod get;
 mod hydrate;
-mod deserialize;
+mod set;
 mod view;
 
 #[derive(Error, Debug)]

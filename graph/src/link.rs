@@ -54,16 +54,6 @@ impl<E> Link<E> {
     pub fn rank(&self) -> Option<u64> {
         self.rank
     }
-    // pub fn set_rank(&mut self, rank: usize) {
-    //     self.rank = Some(rank);
-    // }
-    // pub fn ranked(&self, rank: usize) -> Self {
-    //     Self {
-    //         edge: self.edge.clone(),
-    //         path: self.path.clone(),
-    //         rank: Some(rank),
-    //     }
-    // }
 }
 
 impl<E> Link<E>
@@ -80,18 +70,6 @@ where
         match self.solve(Task::None) {
             Ok(_) => Ok(()),
             Err(err) => Err(err),
-        }
-    }
-    pub fn ranked(&self) -> Self {
-        let rank = if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
-            Some(rank)
-        } else {
-            None
-        };
-        Self {
-            edge: self.edge.clone(),
-            path: self.path.clone(),
-            rank,
         }
     }
 }
@@ -155,10 +133,10 @@ where
     E: Make,
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
-        let edge = E::make(make)?;
+        let (edge, rank) = E::make(make)?;
         Ok(Self {
             path: None,
-            rank: None,
+            rank,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
@@ -172,10 +150,10 @@ where
     E: 'static + Make + Engage,
 {
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy> {
-        let edge = E::make(make)?;
+        let (edge, rank) = E::make(make)?;
         Ok(Link {
             path: None,
-            rank: None,
+            rank,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
             #[cfg(feature = "oneThread")]
@@ -203,10 +181,10 @@ where
     E: 'static + FromSnap + Engage,
 {
     pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy {
-        let edge = E::from_snap(snap);
+        let (edge, rank) = E::from_snap(snap);
         Link {
             path: None,
-            rank: None,
+            rank,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
             #[cfg(feature = "oneThread")]
@@ -280,7 +258,7 @@ where
     fn backed(&self, back: &Back) -> Result<Self> {
         let edge = match self.edge.read() {
             Ok(edge) => edge,
-            Err(err) => return Err(crate::Error::Read(err.to_string()))?
+            Err(err) => return Err(crate::Error::Read(err.to_string()))?,
         };
         Ok(Self {
             edge: Arc::new(RwLock::new(edge.backed(back))),
@@ -292,7 +270,7 @@ where
     fn backed(&self, back: &Back) -> Result<Self> {
         let edge = match self.edge.try_borrow() {
             Ok(edge) => edge,
-            Err(err) => return Err(crate::Error::Read(err.to_string()))?
+            Err(err) => return Err(crate::Error::Read(err.to_string()))?,
         };
         // let edge = self.edge.borrow();
         Ok(Self {
@@ -383,15 +361,20 @@ where
 {
     type Out = Self;
     fn backed(&self, back: &Back) -> Result<Self> {
-        self.iter().map(|link| Ok(link.backed(back)?)).collect()
+        self.iter().map(|link| link.backed(back)).collect()
     }
 }
 
-// impl<T> Backed for Vec<T>
-// where
-//     T: Backed,
-// {
-//     fn backed(&self, back: &Back) -> Self {
-//         self.iter().map(|link| link.backed(back)).collect()
+
+// pub fn ranked(&self) -> Self {
+//     let rank = if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+//         Some(rank)
+//     } else {
+//         None
+//     };
+//     Self {
+//         edge: self.edge.clone(),
+//         path: self.path.clone(),
+//         rank,
 //     }
 // }

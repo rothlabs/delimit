@@ -109,8 +109,6 @@ impl Hash for Space {
     }
 }
 
-
-
 // let mut world_all = false;
 // for import in &self.local.imports {
 //     if let Import::World(stem) = import {

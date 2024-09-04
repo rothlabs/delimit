@@ -14,8 +14,7 @@ impl From<Leaf> for Apex {
 
 impl From<Ploy> for Apex {
     fn from(ploy: Ploy) -> Self {
-        // TODO: find way to get rank during creation of ploy or node?
-        Apex::Ploy(ploy.ranked())
+        Apex::Ploy(ploy)
     }
 }
 
@@ -72,12 +71,3 @@ impl From<Vec<f32>> for Apex {
         Apex::Leaf(Leaf::new(Tray::Vf32(value)))
     }
 }
-
-// // TODO: find way to not query the apex to get rank!
-// let rank = match ploy.main() {
-//     Ok(apex) => match apex.rank() {
-//         Some(rank) => rank + 1,
-//         None => 1,
-//     },
-//     _ => 0,
-// };

@@ -55,10 +55,9 @@ where
     W: MakeMid,
 {
     type Unit = W::Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<Option<u64>> {
         self.back = Some(back.clone());
-        self.work.make(make, back)?;
-        Ok(())
+        self.work.make(make, back)
     }
 }
 
@@ -67,9 +66,9 @@ where
     W: WithSnap,
 {
     type Unit = W::Unit;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
         self.back = Some(back.clone());
-        self.work.with_snap(snap, back);
+        self.work.with_snap(snap, back)
     }
 }
 

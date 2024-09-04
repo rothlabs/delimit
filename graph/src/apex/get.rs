@@ -1,7 +1,7 @@
 use super::*;
 
 impl Apex {
-    /// Get one apex. 
+    /// Get one apex.
     pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => {

@@ -49,28 +49,28 @@ where
 
 impl<N> Make for Edge<N>
 where
-    N: 'static + Default + MakeMid + UpdateMut,
+    N: 'static + Default + MakeMid + UpdateMut,// + SolveMut,
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back))??;//.expect(IMMEDIATE_ACCESS);
-        Ok(Self { cusp, back: None })
+        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??; //.expect(IMMEDIATE_ACCESS);
+        Ok((Self { cusp, back: None }, rank))
     }
     #[cfg(feature = "oneThread")]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back))??;//.expect(IMMEDIATE_ACCESS);
-        Ok(Self { cusp, back: None })
+        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??; //.expect(IMMEDIATE_ACCESS);
+        Ok((Self { cusp, back: None }, rank))
     }
 }
 
@@ -100,24 +100,24 @@ where
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn from_snap(snap: Snap<Self::Unit>) -> Self {
+    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
-        Self { cusp, back: None }
+        let rank = write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+        (Self { cusp, back: None }, rank)
     }
     #[cfg(feature = "oneThread")]
-    fn from_snap(snap: Snap<Self::Unit>) -> Self {
+    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
-        Self { cusp, back: None }
+        let rank = write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+        (Self { cusp, back: None }, rank)
     }
 }
 

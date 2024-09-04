@@ -87,9 +87,13 @@ where
     U: Solve,
 {
     type Unit = U;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<Option<u64>> {
         self.unit = Some(make(back)?);
-        Ok(())
+        Ok(if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        })
     }
 }
 
@@ -98,7 +102,7 @@ where
     U: Adapt + Solve,
 {
     type Unit = U;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) {
+    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
         self.unit = Some(snap.unit);
         self.unit
             .as_mut()
@@ -106,6 +110,11 @@ where
             .adapt(&mut back.clone())
             .expect("To make Node, unit must Adapt with Post::Trade.");
         self.imports = snap.imports;
+        if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        }
     }
 }
 

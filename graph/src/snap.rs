@@ -18,7 +18,6 @@ where
     U: 'static + Adapt + Solve + SendSync + Debug,
 {
     pub fn apex(self) -> Apex {
-        // TODO: make ploy directly so Edge does not need to be read imediately
         Node::make_ploy_from_snap(self).into()
     }
 }
