@@ -36,7 +36,7 @@ impl Solve for Box<dyn Engage> {
 }
 
 impl AddRoot for Box<dyn Engage> {
-    fn add_root(&self, root: Root) {
+    fn add_root(&self, root: Root) -> Result<()> {
         self.as_ref().add_root(root)
     }
 }

@@ -96,9 +96,6 @@ where
     where
         S: serde::Serializer,
     {
-        // self.rank.serialize(serializer);
-        // serializer.serialize_f
-        // let mut s = serializer.serialize_struct("Link", 3)?;
         if let Some(path) = &self.path {
             path.serialize(serializer)
         } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
@@ -106,7 +103,6 @@ where
         } else {
             // TODO: Remove when sure that this won't be a problem
             panic!("failed to serialize link")
-            // self.path.serialize(serializer)
         }
     }
 }
@@ -281,8 +277,6 @@ where
     }
 }
 
-/// TODO: make reader that does not add a root to the cusp.
-/// This will allow readers to inspect without rebuting in the future.
 impl<E> Link<E>
 where
     E: 'static + Read + Update + AddRoot,
@@ -291,7 +285,7 @@ where
     pub fn read<T, F: FnOnce(&E::Item) -> T>(&self, read: F) -> Result<T> {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
-            edge.add_root(self.as_root(edge.id()));
+            edge.add_root(self.as_root(edge.id()))?;
             out
         })?
     }
@@ -323,7 +317,7 @@ where
     fn solve(&self, task: Task) -> Result<Gain> {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
-            edge.add_root(self.as_root(edge.id()));
+            edge.add_root(self.as_root(edge.id()))?;
             result
         })?
     }
@@ -337,7 +331,7 @@ where
         read_part(&self.edge, |edge| {
             let result = edge.adapt(deal);
             if deal.read() {
-                edge.add_root(self.as_root(edge.id()));
+                edge.add_root(self.as_root(edge.id()))?;
             }
             result
         })?

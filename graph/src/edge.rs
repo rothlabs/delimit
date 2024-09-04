@@ -217,9 +217,8 @@ impl<N> AddRoot for Edge<N>
 where
     N: AddRootMut,
 {
-    fn add_root(&self, root: Root) {
-        // TODO: propagate error up
-        write_part(&self.cusp, |mut cusp| cusp.add_root(root)).ok();
+    fn add_root(&self, root: Root) -> Result<()> {
+        write_part(&self.cusp, |mut cusp| cusp.add_root(root))
     }
 }
 

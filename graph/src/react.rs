@@ -30,7 +30,7 @@ pub trait ReactMut {
 pub trait AddRoot {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn add_root(&self, root: Root);
+    fn add_root(&self, root: Root) -> crate::Result<()>;
 }
 
 pub trait AddRootMut {
