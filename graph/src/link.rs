@@ -358,7 +358,9 @@ where
     fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
             let result = edge.adapt(deal);
-            edge.add_root(self.as_root(edge.id()));
+            if deal.read() {
+                edge.add_root(self.as_root(edge.id()));
+            }
             result
         })?
     }

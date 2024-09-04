@@ -14,10 +14,10 @@ fn reactive_lower_graph() -> Result<()> {
     let plain = html.down(PLAIN)?;
     let _solved = html.string();
     let _solved = plain.string();
-    bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
     assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
+    bay.get("title_element")?.set(0, "html mutated")?;
+    assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 

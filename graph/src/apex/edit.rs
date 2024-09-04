@@ -26,6 +26,7 @@ struct Set<'a> {
     aim: Aim<'a>,
     apex: &'a Apex,
     back: Option<Back>,
+    wrote: bool,
 }
 
 impl<'a> Set<'a> {
@@ -34,21 +35,25 @@ impl<'a> Set<'a> {
             aim,
             apex,
             back: None,
+            wrote: false,
         }
     }
 }
 
 impl Deal for Set<'_> {
+    fn wrote(&self) -> bool {
+        self.wrote
+    }
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
         match self.aim {
             Aim::Index(i) => {
-                // apexes[i] = self.apex.clone();
                 apexes[i] = self
                     .apex
                     .backed(self.back.as_ref().expect("no back in set!"))?;
+                self.wrote = true;
                 Ok(())
             }
             _ => Err(self.aim.wrong_variant("Index"))?,
@@ -61,6 +66,7 @@ struct Insert<'a> {
     aim: Aim<'a>,
     apex: &'a Apex,
     back: Option<Back>,
+    wrote: bool,
 }
 
 impl<'a> Insert<'a> {
@@ -69,20 +75,25 @@ impl<'a> Insert<'a> {
             aim,
             apex,
             back: None,
+            wrote: false,
         }
     }
 }
 
 impl<'a> Deal for Insert<'a> {
+    fn wrote(&self) -> bool {
+        self.wrote
+    }
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        // map.insert(self.aim.clone(), self.apex.clone())
         map.insert(
             self.aim.clone(),
             self.apex
                 .backed(self.back.as_ref().expect("no back in insert!"))?,
-        )
+        )?;
+        self.wrote = true;
+        Ok(())
     }
 }

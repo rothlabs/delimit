@@ -166,7 +166,12 @@ where
             return Err(anyhow!("No back in cusp adapt."))?;
         }
         self.work.adapt(deal)?;
-        let roots = self.ring.rebut_roots();
+        // let roots = self.ring.rebut_roots();
+        let roots = if deal.wrote() {
+            self.ring.rebut_roots()
+        } else {
+            vec![]
+        };
         Ok(write::Out {
             roots,
             // TODO: remove out

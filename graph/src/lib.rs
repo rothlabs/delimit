@@ -149,13 +149,21 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 /// Trade a apex for another.
 /// The implmentation should return the same semantic apex with different graph qualities.
 pub trait Deal: Debug {
+    // Did the deal read the unit?
+    fn read(&self) -> bool {false}
+    /// Did the deal mutate the unit?
+    fn wrote(&self) -> bool {false}
+    /// Set back of deal.
     fn back(&mut self, _: &Back) {}
+    /// Handle one apex.
     fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
         Ok(())
     }
+    /// Handle vector of apexes.
     fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {
         Ok(())
     }
+    /// Handle map of apexes.
     fn map(&mut self, _: &mut Map) -> Result<()> {
         Ok(())
     }
