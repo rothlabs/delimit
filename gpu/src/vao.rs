@@ -20,12 +20,12 @@ impl VaoBuilder {
     pub fn make(&self) -> Result<Node<Vao>> {
         let mut vao = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         let node = Node::make(|back| {
-            vao.attributes = vao.attributes.backed(back);
+            vao.attributes = vao.attributes.backed(back)?;
             if let Some(index_buffer) = vao.index_buffer {
-                vao.index_buffer = Some(index_buffer.backed(back));
+                vao.index_buffer = Some(index_buffer.backed(back)?);
             }
-            vao
-        });
+            Ok(vao)
+        })?;
         node.act().ok();
         Ok(node)
     }

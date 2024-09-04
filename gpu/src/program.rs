@@ -19,12 +19,15 @@ impl Program {
             .ok_or(anyhow!("failed to create program"))?;
         vertex.read(|unit| gl.attach_shader(&program, &unit.shader))?;
         fragment.read(|unit| gl.attach_shader(&program, &unit.shader))?;
-        let node = Node::make(|back| Self {
-            gl: gl.clone(),
-            vertex: vertex.backed(back),
-            fragment: fragment.backed(back),
-            program,
-        });
+        let node = Node::make(|back| {
+            let program = Self {
+                gl: gl.clone(),
+                vertex: vertex.backed(back)?,
+                fragment: fragment.backed(back)?,
+                program,
+            };
+            Ok(program)
+        })?;
         node.act()?;
         Ok(node)
     }

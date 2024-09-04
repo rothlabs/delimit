@@ -21,15 +21,14 @@ pub struct Elements {
 impl ElementsBuilder {
     pub fn make(&self) -> Result<Node<Elements>> {
         let mut elements = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        let node = Node::make(|back| {
-            elements.program = elements.program.backed(back);
-            elements.buffer = elements.buffer.backed(back);
-            elements.vao = elements.vao.backed(back);
-            elements.count = elements.count.backed(back);
-            elements.offset = elements.offset.backed(back);
-            elements
-        });
-        Ok(node)
+        Node::make(|back| {
+            elements.program = elements.program.backed(back)?;
+            elements.buffer = elements.buffer.backed(back)?;
+            elements.vao = elements.vao.backed(back)?;
+            elements.count = elements.count.backed(back)?;
+            elements.offset = elements.offset.backed(back)?;
+            Ok(elements)
+        })
     }
 }
 

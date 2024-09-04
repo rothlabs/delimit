@@ -7,14 +7,14 @@ pub fn default_bay() -> Result<Apex> {
     bay.insert("title", title.clone())?;
     let title = title.pathed("title");
 
-    let lang = Attribute::new().name("lang").content("en").apex();
-    bay.insert("html", Tag::new().name("html").attribute(lang).apex())?;
+    let lang = Attribute::new().name("lang").content("en").apex()?;
+    bay.insert("html", Tag::new().name("html").attribute(lang).apex()?)?;
 
-    bay.insert("head", Tag::new().name("head").apex())?;
+    bay.insert("head", Tag::new().name("head").apex()?)?;
 
-    bay.insert("body", Tag::new().name("body").apex())?;
+    bay.insert("body", Tag::new().name("body").apex()?)?;
 
-    let tag = Tag::new().name("title").apex();
+    let tag = Tag::new().name("title").apex()?;
     let title_element = Element::new()
         .open(tag)
         .item(&title)
@@ -23,55 +23,55 @@ pub fn default_bay() -> Result<Apex> {
         .apex();
     bay.insert("title_element", title_element)?;
 
-    let charset = Attribute::new().name("charset").content("utf-8").apex();
-    bay.insert("charset", Tag::new().name("meta").attribute(charset).apex())?;
+    let charset = Attribute::new().name("charset").content("utf-8").apex()?;
+    bay.insert("charset", Tag::new().name("meta").attribute(charset).apex()?)?;
 
-    let name = Attribute::new().name("name").content("viewport").apex();
+    let name = Attribute::new().name("name").content("viewport").apex()?;
     let content = Attribute::new()
         .name("content")
         .content("width=device-width, initial-scale=1")
-        .apex();
+        .apex()?;
     let viewport = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .apex();
+        .apex()?;
     bay.insert("viewport", viewport)?;
 
-    let name = Attribute::new().name("name").content("author").apex();
+    let name = Attribute::new().name("name").content("author").apex()?;
     let content = Attribute::new()
         .name("content")
         .content("Roth Labs LLC")
-        .apex();
+        .apex()?;
     let author = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .apex();
+        .apex()?;
     bay.insert("author", author)?;
 
-    let att = Attribute::new().name("type").content("importmap").apex();
-    let tag = Tag::new().name("script").attribute(att).apex();
-    let raw = serde_json::to_string(&Importmap::default()).unwrap();
-    let importmap = Element::new().open(tag).item(raw).close()?.apex();
+    let att = Attribute::new().name("type").content("importmap").apex()?;
+    let tag = Tag::new().name("script").attribute(att).apex()?;
+    let raw = serde_json::to_string(&Importmap::default())?;
+    let importmap = Element::new().open(tag).item(raw).close()?.apex()?;
     bay.insert("importmap", importmap)?;
 
-    let att = Attribute::new().name("id").content("canvas").apex();
-    let tag = Tag::new().name("canvas").attribute(att).apex();
-    let canvas = Element::new().open(tag).close()?.apex();
+    let att = Attribute::new().name("id").content("canvas").apex()?;
+    let tag = Tag::new().name("canvas").attribute(att).apex()?;
+    let canvas = Element::new().open(tag).close()?.apex()?;
     bay.insert("canvas", canvas)?;
 
-    let src = Attribute::new().name("src").content("/app.js").apex();
-    let module = Attribute::new().name("type").content("module").apex();
+    let src = Attribute::new().name("src").content("/app.js").apex()?;
+    let module = Attribute::new().name("type").content("module").apex()?;
     let tag = Tag::new()
         .name("script")
         .attribute(src)
         .attribute(module)
-        .apex();
-    let app = Element::new().open(tag).close()?.apex();
+        .apex()?;
+    let app = Element::new().open(tag).close()?.apex()?;
     bay.insert("app", app)?;
 
-    let root = bay.apex();
+    let root = bay.apex()?;
 
     let page = page(&root)?;
     root.insert("page", page)?;
@@ -105,8 +105,8 @@ pub fn page(bay: &Apex) -> Result<Apex> {
         .close()?
         .import(WORLD_ALL)
         .apex();
-    let tag = Tag::new().name("!DOCTYPE html").apex();
-    let page = Element::new().open(tag).item(html).apex();
+    let tag = Tag::new().name("!DOCTYPE html").apex()?;
+    let page = Element::new().open(tag).item(html).apex()?;
     Ok(page)
 }
 

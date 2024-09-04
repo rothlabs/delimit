@@ -22,11 +22,11 @@ impl TextureBuilder {
     pub fn make(&self) -> Result<Node<Texture>> {
         let mut texture = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
         let node = Node::make(|back| {
-            texture.array = texture.array.backed(back);
-            texture.width = texture.width.backed(back);
-            texture.height = texture.height.backed(back);
-            texture
-        });
+            texture.array = texture.array.backed(back)?;
+            texture.width = texture.width.backed(back)?;
+            texture.height = texture.height.backed(back)?;
+            Ok(texture)
+        })?;
         node.act()?;
         Ok(node)
     }

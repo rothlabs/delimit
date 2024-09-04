@@ -25,7 +25,7 @@ impl Attribute {
             .push(r#"=""#)
             .push(self.content.down(PLAIN)?)
             .push(r#"""#)
-            .apex()
+            .apex()?
             .gain()
     }
 }

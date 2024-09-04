@@ -87,8 +87,9 @@ where
     U: Solve,
 {
     type Unit = U;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
-        self.unit = Some(make(back));
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()> {
+        self.unit = Some(make(back)?);
+        Ok(())
     }
 }
 

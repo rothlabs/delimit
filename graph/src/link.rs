@@ -154,16 +154,16 @@ impl<E> Link<E>
 where
     E: Make,
 {
-    pub fn make<F: FnOnce(&Back) -> E::Unit>(make: F) -> Self {
-        let edge = E::make(make);
-        Self {
+    pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
+        let edge = E::make(make)?;
+        Ok(Self {
             path: None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(edge)),
-        }
+        })
     }
 }
 
@@ -171,16 +171,16 @@ impl<E> Link<E>
 where
     E: 'static + Make + Engage,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> E::Unit>(make: F) -> Ploy {
-        let edge = E::make(make);
-        Link {
+    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy> {
+        let edge = E::make(make)?;
+        Ok(Link {
             path: None,
             rank: None,
             #[cfg(not(feature = "oneThread"))]
             edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage>)),
-        }
+        })
     }
 }
 

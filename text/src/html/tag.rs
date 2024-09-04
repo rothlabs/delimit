@@ -24,8 +24,8 @@ impl Tag {
             .separator(" ")
             .push(self.name.down(PLAIN)?)
             .extend(self.attributes.down(PLAIN)?)
-            .apex();
-        List::new().push("<").push(&items).push(">").apex().gain()
+            .apex()?;
+        List::new().push("<").push(&items).push(">").apex()?.gain()
     }
 }
 

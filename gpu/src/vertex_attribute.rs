@@ -23,14 +23,14 @@ pub struct VertexAttribute {
 impl VertexAttributeBuilder {
     pub fn make(&self) -> Result<Node<VertexAttribute>> {
         let mut attrib = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        Ok(Node::make(|back| {
+        Node::make(|back| {
             attrib.buffer = attrib.buffer.backed(back)?;
-            attrib.index = attrib.index.backed(back);
-            attrib.size = attrib.size.backed(back);
-            attrib.stride = attrib.stride.backed(back);
-            attrib.offset = attrib.offset.backed(back);
-            attrib
-        }))
+            attrib.index = attrib.index.backed(back)?;
+            attrib.size = attrib.size.backed(back)?;
+            attrib.stride = attrib.stride.backed(back)?;
+            attrib.offset = attrib.offset.backed(back)?;
+            Ok(attrib)
+        })
     }
 }
 

@@ -35,10 +35,10 @@ impl Element {
                 .push("</")
                 .push(close.down(PLAIN)?)
                 .push(">")
-                .apex();
+                .apex()?;
             element = element.push(close);
         }
-        element.apex().gain()
+        element.apex()?.gain()
     }
 }
 

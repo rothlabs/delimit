@@ -21,11 +21,14 @@ impl Shader {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
-        let node = Node::make(|back| Self {
-            gl: gl.clone(),
-            source: source.backed(back),
-            shader,
-        });
+        let node = Node::make(|back| {
+            let unit = Self {
+                gl: gl.clone(),
+                source: source.backed(back)?,
+                shader,
+            };
+            Ok(unit)
+        })?;
         node.act()?;
         Ok(node)
     }

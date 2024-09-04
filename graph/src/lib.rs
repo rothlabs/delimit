@@ -172,13 +172,14 @@ impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
 {
+    // TODO: remove expect and unwrap
     fn node(mut self) -> Node<Self> {
         Node::make(|back| {
             // self.adapt(Post::Trade(back))
             self.adapt(&mut back.clone())
                 .expect("To move into Node, unit must Adapt with Post::Trade.");
-            self
-        })
+            Ok(self)
+        }).unwrap()
     }
 }
 
@@ -186,37 +187,42 @@ pub trait IntoPloy
 where
     Self: Sized,
 {
-    fn ploy(self) -> Ploy;
+    fn ploy(self) -> Result<Ploy>;
 }
 
 impl<T> IntoPloy for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
 {
-    fn ploy(mut self) -> Ploy {
+    fn ploy(mut self) -> Result<Ploy> {
         Node::make_ploy(|back| {
             self.adapt(&mut back.clone())
                 .expect("To move into Ploy, unit must Adapt with Post::Trade.");
-            self
+            Ok(self)
         })
     }
 }
 
 pub trait IntoApex {
     /// Move into `Apex`
-    fn apex(self) -> Apex;
+    fn apex(self) -> Result<Apex>;
 }
 
 impl<T> IntoApex for T
 where
     T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
 {
-    fn apex(self) -> Apex {
-        self.ploy().into()
+    fn apex(self) -> Result<Apex> {
+        Ok(self.ploy()?.into())
     }
 }
 
-impl IntoApex for Leaf {
+pub trait LeafIntoApex {
+    /// Move into `Apex`
+    fn apex(self) -> Apex;
+}
+
+impl LeafIntoApex for Leaf {
     fn apex(self) -> Apex {
         self.into()
     }
@@ -270,12 +276,12 @@ pub trait FromItem {
 
 pub trait Make {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> where Self: Sized;
 }
 
 pub trait MakeMid {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back);
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()>;
 }
 
 pub trait FromSnap {

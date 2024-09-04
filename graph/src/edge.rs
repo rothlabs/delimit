@@ -53,24 +53,24 @@ where
 {
     type Unit = N::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
-        Self { cusp, back: None }
+        write_part(&cusp, |mut cusp| cusp.make(make, &back))??;//.expect(IMMEDIATE_ACCESS);
+        Ok(Self { cusp, back: None })
     }
     #[cfg(feature = "oneThread")]
-    fn make<F: FnOnce(&Back) -> Self::Unit>(make: F) -> Self {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<Self> {
         let cusp = N::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        write_part(&cusp, |mut cusp| cusp.make(make, &back)).expect(IMMEDIATE_ACCESS);
-        Self { cusp, back: None }
+        write_part(&cusp, |mut cusp| cusp.make(make, &back))??;//.expect(IMMEDIATE_ACCESS);
+        Ok(Self { cusp, back: None })
     }
 }
 

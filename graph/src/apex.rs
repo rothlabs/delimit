@@ -232,18 +232,10 @@ impl TryBacked for Apex {
         match self {
             Self::Tray(bare) => Ok(Self::Tray(bare.clone())),
             Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
-            // TODO: remove unwrap!
             Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
         }
     }
 }
-
-// pub fn wrong_tray(expected: &str, found: &Tray) -> Error {
-//     Error::WrongTray {
-//         expected: expected.into(),
-//         found: found.clone(),
-//     }
-// }
 
 impl Default for Apex {
     fn default() -> Self {

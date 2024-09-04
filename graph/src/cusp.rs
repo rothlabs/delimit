@@ -55,9 +55,10 @@ where
     W: MakeMid,
 {
     type Unit = W::Unit;
-    fn make<F: FnOnce(&Back) -> Self::Unit>(&mut self, make: F, back: &Back) {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, back: &Back) -> Result<()> {
         self.back = Some(back.clone());
-        self.work.make(make, back);
+        self.work.make(make, back)?;
+        Ok(())
     }
 }
 
