@@ -77,10 +77,11 @@ where
 impl<U> ToPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
+    Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
 {
-    type Out = U::Out;
+    type Out = <U as Solve>::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> PloyPointer<U::Out> {
+    fn ploy(&self) -> PloyPointer<Self::Out> {
         Arc::new(RwLock::new(Box::new(Self {
             back: self.back.clone(),
             cusp: self.cusp.clone(),
@@ -128,7 +129,8 @@ impl<N> Solve for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
 {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = N::Out;
+    fn solve(&self, task: Task) -> Result<Gain<N::Out>> {
         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
 }
@@ -151,9 +153,11 @@ where
 impl<U> BackedPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
+    Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
 {
+    type Out = U::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<U::Out> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),

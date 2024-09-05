@@ -1,13 +1,14 @@
 use crate::*;
 
-pub trait ToLeaf {
+pub trait ToLeaf<T> {
     /// Clone to new Leaf.
-    fn leaf(&self) -> Leaf;
+    fn leaf(&self) -> Leaf<T>;
 }
 
-impl ToLeaf for str {
+impl ToLeaf<String> for str {
     /// Clone to Leaf.
-    fn leaf(&self) -> Leaf {
-        Leaf::new(Tray::String(self.into()))
+    fn leaf(&self) -> Leaf<String> {
+        Leaf::new(self.to_owned())
+        // Leaf::new(Tray::String(self.into()))
     }
 }
