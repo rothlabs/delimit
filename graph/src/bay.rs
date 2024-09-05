@@ -11,13 +11,9 @@ impl Bay {
         Self::default()
     }
     pub fn insert(&mut self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
-        self.map.insert(aim, apex)?;
+        self.map.insert(aim, apex.into())?;
         Ok(())
     }
-    // fn extend(&mut self, apexes: Map) -> Result<Memo> {
-    //     self.map.extend(apexes);
-    //     adapt_ok()
-    // }
 }
 
 impl Adapt for Bay {
@@ -37,26 +33,3 @@ impl Solve for Bay {
         }
     }
 }
-
-// fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-//     self.map = self.map.trade(deal);
-//     adapt_ok()
-// }
-// pub fn get(&self, key: &Key) -> Result<Gain> {
-//     if let Some(apex) = self.map.get(key) {
-//         apex.pathed(key).gain()
-//     } else {
-//         solve_ok()
-//     }
-// }
-
-// impl Adapt for Bay {
-//     fn adapt(&mut self, post: Post) -> Result<Memo> {
-//         match post {
-//             Post::Trade(deal) => self.trade(deal),
-//             Post::Insert(aim, apex) => self.map.insert(aim, apex),
-//             Post::Extend(map) => self.extend(map),
-//             _ => post.no_handler(self),
-//         }
-//     }
-// }

@@ -29,12 +29,16 @@ impl Apex {
 pub struct Get {
     aim: Aim,
     apex: Option<Apex>,
-    errors: Vec<aim::Error>
+    errors: Vec<aim::Error>,
 }
 
 impl Get {
     pub fn new(aim: Aim) -> Self {
-        Self { aim, apex: None, errors: vec![] }
+        Self {
+            aim,
+            apex: None,
+            errors: vec![],
+        }
     }
     pub fn apex(self) -> Result<Apex> {
         if let Some(apex) = self.apex {
@@ -51,10 +55,11 @@ impl Deal for Get {
             return Ok(());
         }
         match &self.aim {
-            Aim::Key(rhs) => 
+            Aim::Key(rhs) => {
                 if key == rhs {
                     self.apex = Some(apex.clone());
-                },
+                }
+            }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
         Ok(())

@@ -9,10 +9,10 @@ impl Map {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert(&mut self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
-        match aim.into() {
+    pub fn insert(&mut self, aim: impl Into<Aim>, apex: Apex) -> Result<()> {
+        match &aim.into() {
             Aim::Key(key) => {
-                self.0.insert(key, apex.into());
+                self.0.insert(key.clone(), apex);
                 Ok(())
             }
             aim => Err(aim.wrong_variant("Key"))?,
@@ -50,7 +50,3 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
-
-// pub fn values(&self) -> Values<String, Apex> {
-//     self.0.values()
-// }

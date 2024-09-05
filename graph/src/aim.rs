@@ -33,6 +33,12 @@ impl Aim {
     }
 }
 
+impl From<&Aim> for Aim {
+    fn from(aim: &Aim) -> Self {
+        aim.clone()
+    }
+}
+
 impl From<&str> for Aim {
     fn from(value: &str) -> Self {
         Self::Key(value.into())

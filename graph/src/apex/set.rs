@@ -4,14 +4,14 @@ impl Apex {
     /// Set one apex.
     pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim.into(), apex.into())),
+            Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim, apex)),
             _ => Err(apex::Error::NotPloy)?,
         }
     }
     // Insert one apex
     pub fn insert(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim.into(), apex.into())),
+            Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim, apex)),
             _ => Err(apex::Error::NotPloy)?,
         }
     }
@@ -26,10 +26,10 @@ struct Set {
 }
 
 impl Set {
-    fn new(aim: Aim, apex: Apex) -> Self {
+    fn new(aim: impl Into<Aim>, apex: impl Into<Apex>) -> Self {
         Self {
-            aim,
-            apex,
+            aim: aim.into(),
+            apex: apex.into(),
             back: None,
             wrote: false,
         }
@@ -56,11 +56,10 @@ impl Deal for Set {
         } else {
             no_back("Set")
         }
-        
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(self.aim.clone(), self.apex.backed(back)?)
+            map.insert(&self.aim, self.apex.backed(back)?)
         } else {
             no_back("Set")
         }
@@ -76,10 +75,10 @@ struct Insert {
 }
 
 impl Insert {
-    fn new(aim: Aim, apex: Apex) -> Self {
+    fn new(aim: impl Into<Aim>, apex: impl Into<Apex>) -> Self {
         Self {
-            aim,
-            apex,
+            aim: aim.into(),
+            apex: apex.into(),
             back: None,
             wrote: false,
         }
@@ -95,12 +94,7 @@ impl Deal for Insert {
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(
-                self.aim.clone(),
-                self.apex.backed(back)?,
-            )?;
-            self.wrote = true;
-            Ok(())
+            map.insert(&self.aim, self.apex.backed(back)?)
         } else {
             no_back("Insert")
         }
