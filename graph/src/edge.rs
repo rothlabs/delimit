@@ -137,13 +137,13 @@ where
     N: 'static + AdaptOut + UpdateMut,
 {
     fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
-        let write::Out { roots, id, out } = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
+        let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         if deal.wrote() {
             for root in &roots {
                 root.react(&id)?;
             }
         }
-        Ok(out)
+        Ok(())
     }
 }
 

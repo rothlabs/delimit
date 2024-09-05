@@ -132,7 +132,6 @@ impl Back {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.react(id))?
         } else {
-            // panic!("back react failed");
             Ok(())
         }
     }
@@ -160,7 +159,6 @@ pub struct Ring {
 }
 
 impl Ring {
-    // TODO: make method to remove reactors with dropped edges
     pub fn new() -> Self {
         Self::default()
     }

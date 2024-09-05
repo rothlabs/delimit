@@ -34,7 +34,7 @@ pub enum Error {
 pub trait AdaptOut {
     /// Alter a apex.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<write::Out<()>>;
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Vec<Root>, u64)>;
 }
 
 pub trait AdaptMid {

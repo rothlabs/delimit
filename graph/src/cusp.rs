@@ -161,7 +161,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<write::Out<()>> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Vec<Root>, u64)> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
             deal.back(back);
@@ -174,11 +174,6 @@ where
         } else {
             vec![]
         };
-        Ok(write::Out {
-            roots,
-            // TODO: remove out
-            out: (),
-            id: self.id,
-        })
+        Ok((roots, self.id))
     }
 }
