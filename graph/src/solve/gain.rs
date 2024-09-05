@@ -2,10 +2,10 @@ use super::*;
 
 /// Value returned by a successful hub solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
-pub enum Gain {
+pub enum Gain<T> {
     // for units
     None,
-    Hub(Hub),
+    Hub(Hub<T>),
     String(String),
     U64(u64),
     // for graph internals
@@ -15,24 +15,26 @@ pub enum Gain {
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
-    WrongVariant { expected: String, found: Gain },
+    WrongVariant { expected: String, found: String },
 }
 
-impl Gain {
+impl<T> Gain<T> 
+where T: Debug
+{
     /// Emit `WrongVariant` error.
     fn wrong_variant(&self, expected: &str) -> solve::Error {
         Error::WrongVariant {
             expected: expected.into(),
-            found: self.clone(),
+            found: format!("{:?}", self),
         }
         .into()
     }
     /// Move Gain into Ok(...)
-    pub fn ok(self) -> Result<Gain> {
+    pub fn ok(self) -> Result<Gain<T>> {
         Ok(self)
     }
     /// Get Hub from Gain.
-    pub fn hub(self) -> crate::Result<Hub> {
+    pub fn hub(self) -> crate::Result<Hub<T>> {
         match self {
             Self::Hub(hub) => Ok(hub),
             _ => Err(self.wrong_variant("Hub"))?,
@@ -61,40 +63,40 @@ impl Gain {
     }
 }
 
-impl From<String> for Gain {
+impl<T> From<String> for Gain<T> {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl From<Hub> for Gain {
-    fn from(value: Hub) -> Self {
+impl<T> From<Hub<T>> for Gain<T> {
+    fn from(value: Hub<T>) -> Self {
         Self::Hub(value)
     }
 }
 
-impl From<u64> for Gain {
+impl<T> From<u64> for Gain<T> {
     fn from(value: u64) -> Self {
         Self::U64(value)
     }
 }
 
-impl From<&Vec<Import>> for Gain {
+impl<T> From<&Vec<Import>> for Gain<T> {
     fn from(value: &Vec<Import>) -> Self {
         Self::Imports(value.clone())
     }
 }
 
-pub trait IntoGain {
+pub trait IntoGain<T> {
     /// Move into Gain.
-    fn gain(self) -> Result<Gain>;
+    fn gain(self) -> Result<Gain<T>>;
 }
 
-impl<T> IntoGain for T
+impl<G, T> IntoGain<T> for G
 where
-    T: Into<Gain>,
+    G: Into<Gain<T>>,
 {
-    fn gain(self) -> Result<Gain> {
+    fn gain(self) -> Result<Gain<T>> {
         Ok(self.into())
     }
 }

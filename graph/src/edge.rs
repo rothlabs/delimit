@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 use std::{cell::RefCell, rc::Rc};
 
 /// Edge to a tray.
-pub type Leaf = Edge<cusp::Leaf>;
+pub type Leaf<T> = Edge<cusp::Leaf<T>>;
 
 /// Edge to a unit that grants a tray.
 pub type Node<U> = Edge<cusp::Node<U>>;
@@ -176,11 +176,11 @@ impl<N> Backed for Edge<N> {
     }
 }
 
-impl<N> WriteTray for Edge<N>
+impl<N, T> WriteTray<T> for Edge<N>
 where
-    N: WriteTrayOut,
+    N: WriteTrayOut<T>,
 {
-    fn write<T, F: FnOnce(&mut Tray) -> T>(&self, write: F) -> Result<T> {
+    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
         for root in &roots {

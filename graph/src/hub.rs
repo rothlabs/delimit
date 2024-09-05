@@ -22,13 +22,13 @@ pub enum Error {
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
 #[serde(untagged)]
-pub enum Hub {
-    Tray(Tray),
-    Leaf(Leaf),
-    Ploy(Ploy),
+pub enum Hub<T> {
+    Tray(T),
+    Leaf(Leaf<T>),
+    Ploy(Ploy<T>),
 }
 
-impl Hub {
+impl<T> Hub<T> {
     pub fn none() -> Self {
         Self::default()
     }

@@ -22,7 +22,7 @@ pub enum Error {
 
 impl Task<'_> {
     /// Emit `NoHandler` error.
-    pub fn no_handler(&self, unit: &dyn Debug) -> Result<Gain> {
+    pub fn no_handler<T>(&self, unit: &dyn Debug) -> Result<Gain<T>> {
         Err(solve::Error::from(Error::NoHandler {
             task: format!("{:?}", self),
             unit: format!("{:?}", unit),

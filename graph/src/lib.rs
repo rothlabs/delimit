@@ -258,8 +258,8 @@ pub trait ToItem {
     fn item(&self) -> &Self::Item;
 }
 
-pub trait MutTray {
-    fn tray(&mut self) -> &mut Tray;
+pub trait MutTray<T> {
+    fn tray(&mut self) -> &mut T;
 }
 
 pub trait Read {

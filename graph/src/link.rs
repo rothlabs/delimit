@@ -16,7 +16,7 @@ mod leaf;
 mod tests;
 
 /// `Link` to `Tray`.
-pub type Leaf = Link<edge::Leaf>;
+pub type Leaf<T> = Link<edge::Leaf<T>>;
 
 /// `Link` to domain-specific unit.
 /// The unit type is intact. For type-erased unit, use `Ploy` instead.
@@ -56,11 +56,11 @@ impl<E> Link<E> {
     }
 }
 
-impl<E> Link<E>
+impl<E: Solve> Link<E>
 where
-    Self: Solve,
+    Self: Solve<Out = E::Out>,
 {
-    pub fn main(&self) -> Result<Hub> {
+    pub fn main(&self) -> Result<Hub<E::Out>> {
         match self.solve(Task::Main)? {
             Gain::Hub(hub) => Ok(hub),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,

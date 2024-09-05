@@ -10,9 +10,10 @@ mod task;
 // pub type Result = result::Result<Gain, crate::Error>;
 
 pub trait Solve {
+    type Out;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self, task: Task) -> Result<Gain>;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Out>>;
 }
 
 #[derive(Error, Debug)]
@@ -31,7 +32,7 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn solve_ok() -> Result<Gain> {
+pub fn solve_ok<T>() -> Result<Gain<T>> {
     Ok(Gain::None)
 }
 
@@ -40,14 +41,16 @@ pub trait Act {
     fn act(&self) -> Result<()>;
 }
 
-impl<T: Act> Solve for T {
-    fn solve(&self, _: Task) -> Result<Gain> {
+impl<A: Act> Solve for A {
+    type Out = ();
+    fn solve(&self, _: Task) -> Result<Gain<()>> {
         self.act()?;
         solve_ok()
     }
 }
 
 pub trait SolveMut {
+    type Out;
     /// For graph internals to handle solve calls
-    fn solve(&mut self, task: Task) -> Result<Gain>;
+    fn solve(&mut self, task: Task) -> Result<Gain<Self::Out>>;
 }

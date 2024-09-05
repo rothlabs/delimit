@@ -15,14 +15,14 @@ pub struct Out<T> {
     pub out: T,
 }
 
-pub trait WriteTray {
+pub trait WriteTray<T> {
     /// Front-facing write-to-tray.
-    fn write<T, F: FnOnce(&mut Tray) -> T>(&self, write: F) -> Result<T>;
+    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>;
 }
 
-pub trait WriteTrayOut {
+pub trait WriteTrayOut<T> {
     /// Write and return the hub meta and graph roots of the rebut. Hub level.
-    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(&mut self, write: F) -> Result<Out<T>>;
+    fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
 }
 
 pub trait WriteUnit {

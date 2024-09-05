@@ -2,7 +2,7 @@ use anyhow::anyhow;
 
 use super::*;
 
-pub type Leaf = Cusp<work::Leaf>;
+pub type Leaf<T> = Cusp<work::Leaf<T>>;
 
 pub type Node<U> = Cusp<work::Node<U>>;
 
@@ -76,11 +76,11 @@ where
     }
 }
 
-impl<W> WriteTrayOut for Cusp<W>
+impl<W, T> WriteTrayOut<T> for Cusp<W>
 where
-    W: MutTray,
+    W: MutTray<T>,
 {
-    fn write_tray_out<T, F: FnOnce(&mut Tray) -> T>(&mut self, write: F) -> Result<write::Out<T>> {
+    fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<write::Out<O>> {
         let out = write(self.work.tray());
         let roots = self.ring.rebut_roots()?;
         Ok(write::Out {
