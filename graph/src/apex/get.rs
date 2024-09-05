@@ -2,7 +2,7 @@ use super::*;
 
 impl Apex {
     /// Get one apex.
-    pub fn get<'a>(&self, aim: impl Into<Aim<'a>>) -> Result<Apex> {
+    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => {
                 let mut get = Get::new(aim.into());
@@ -46,13 +46,13 @@ impl Deal for All {
 }
 
 #[derive(Debug)]
-pub struct Get<'a> {
-    aim: Aim<'a>,
+pub struct Get {
+    aim: Aim,
     apex: Option<Apex>,
 }
 
-impl<'a> Get<'a> {
-    pub fn new(aim: Aim<'a>) -> Self {
+impl Get {
+    pub fn new(aim: Aim) -> Self {
         Self { aim, apex: None }
     }
     pub fn apex(self) -> Result<Apex> {
@@ -64,7 +64,7 @@ impl<'a> Get<'a> {
     }
 }
 
-impl<'a> Deal for Get<'a> {
+impl Deal for Get {
     fn one(&mut self, key: &str, apex: &mut Apex) -> Result<()> {
         if self.apex.is_some() {
             return Ok(());

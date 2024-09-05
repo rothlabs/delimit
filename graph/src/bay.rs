@@ -10,7 +10,7 @@ impl Bay {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert<'a>(&mut self, aim: impl Into<Aim<'a>>, apex: impl Into<Apex>) -> Result<()> {
+    pub fn insert(&mut self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         self.map.insert(aim, apex)?;
         Ok(())
     }

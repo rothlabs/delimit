@@ -10,13 +10,12 @@ pub enum Error {
 }
 
 #[derive(Clone, Debug)]
-pub enum Aim<'a> {
+pub enum Aim {
     Key(Key),
-    Keys(&'a [Key]),
     Index(usize),
 }
 
-impl Aim<'_> {
+impl Aim {
     pub fn wrong_variant(&self, expected: &str) -> adapt::Error {
         Error::WrongVariant {
             expected: expected.into(),
@@ -33,31 +32,31 @@ impl Aim<'_> {
     }
 }
 
-impl From<&str> for Aim<'_> {
+impl From<&str> for Aim {
     fn from(value: &str) -> Self {
         Self::Key(value.into())
     }
 }
 
-impl From<&String> for Aim<'_> {
+impl From<&String> for Aim {
     fn from(value: &String) -> Self {
         Self::Key(value.clone())
     }
 }
 
-impl<'a> From<&'a [Key]> for Aim<'a> {
-    fn from(value: &'a [Key]) -> Self {
-        Self::Keys(value)
-    }
-}
+// impl<'a> From<&'a [Key]> for Aim<'a> {
+//     fn from(value: &'a [Key]) -> Self {
+//         Self::Keys(value)
+//     }
+// }
 
-impl<'a> From<&'a Vec<Key>> for Aim<'a> {
-    fn from(value: &'a Vec<Key>) -> Self {
-        Self::Keys(value)
-    }
-}
+// impl<'a> From<&'a Vec<Key>> for Aim<'a> {
+//     fn from(value: &'a Vec<Key>) -> Self {
+//         Self::Keys(value)
+//     }
+// }
 
-impl From<usize> for Aim<'_> {
+impl From<usize> for Aim {
     fn from(value: usize) -> Self {
         Self::Index(value)
     }

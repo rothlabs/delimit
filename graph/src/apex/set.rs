@@ -2,14 +2,14 @@ use super::*;
 
 impl Apex {
     /// Set one apex.
-    pub fn set(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<()> {
+    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim.into(), &apex.into())),
             _ => Err(apex::Error::NotPloy)?,
         }
     }
     // Insert one apex
-    pub fn insert(&self, aim: impl Into<Aim<'static>>, apex: impl Into<Apex>) -> Result<()> {
+    pub fn insert(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim.into(), &apex.into())),
             _ => Err(apex::Error::NotPloy)?,
@@ -19,7 +19,7 @@ impl Apex {
 
 #[derive(Debug)]
 struct Set<'a> {
-    aim: Aim<'a>,
+    aim: Aim,
     apex: &'a Apex,
     // TODO: find way to hold ref to back
     back: Option<Back>,
@@ -27,7 +27,7 @@ struct Set<'a> {
 }
 
 impl<'a> Set<'a> {
-    fn new(aim: Aim<'a>, apex: &'a Apex) -> Self {
+    fn new(aim: Aim, apex: &'a Apex) -> Self {
         Self {
             aim,
             apex,
@@ -67,14 +67,14 @@ impl Deal for Set<'_> {
 
 #[derive(Debug)]
 struct Insert<'a> {
-    aim: Aim<'a>,
+    aim: Aim,
     apex: &'a Apex,
     back: Option<Back>,
     wrote: bool,
 }
 
 impl<'a> Insert<'a> {
-    fn new(aim: Aim<'a>, apex: &'a Apex) -> Self {
+    fn new(aim: Aim, apex: &'a Apex) -> Self {
         Self {
             aim,
             apex,
