@@ -1,5 +1,4 @@
 use super::*;
-use anyhow::anyhow;
 use thiserror::Error;
 use view::*;
 
@@ -16,6 +15,8 @@ pub enum Error {
     NotPloy,
     #[error("not ploy or leaf")]
     NotNode,
+    #[error("not found: ({0:?})")]
+    NotFound(Vec<aim::Error>),
 }
 
 /// Primary graph part.

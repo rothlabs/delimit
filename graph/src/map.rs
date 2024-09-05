@@ -1,7 +1,7 @@
 use super::*;
 use std::collections::hash_map::IterMut;
 
-/// Key-Fit map.
+/// Key-Apex map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Map(pub HashMap<Key, Apex>);
 

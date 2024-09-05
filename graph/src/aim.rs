@@ -7,6 +7,8 @@ pub enum Error {
     WrongVariant { expected: String, found: String },
     #[error("index out of bounds: (length: {length}, index: {index})")]
     IndexOutOfBounds { length: usize, index: usize },
+    #[error(transparent)]
+    Any(#[from] anyhow::Error),
 }
 
 #[derive(Clone, Debug)]
@@ -16,18 +18,17 @@ pub enum Aim {
 }
 
 impl Aim {
-    pub fn wrong_variant(&self, expected: &str) -> adapt::Error {
+    pub fn wrong_variant(&self, expected: &str) -> Error {
         Error::WrongVariant {
             expected: expected.into(),
             found: format!("{:?}", self),
         }
-        .into()
     }
-    pub fn index_out_of_bounds(&self, length: usize) -> adapt::Error {
+    pub fn index_out_of_bounds(&self, length: usize) -> Error {
         if let Self::Index(i) = self {
-            Error::IndexOutOfBounds { length, index: *i }.into()
+            Error::IndexOutOfBounds { length, index: *i }
         } else {
-            anyhow!("Wrong Aim for IndexOutOfBounds!").into()
+            anyhow!("Wrong Aim variant for IndexOutOfBounds!").into()
         }
     }
 }
@@ -44,6 +45,12 @@ impl From<&String> for Aim {
     }
 }
 
+impl From<usize> for Aim {
+    fn from(value: usize) -> Self {
+        Self::Index(value)
+    }
+}
+
 // impl<'a> From<&'a [Key]> for Aim<'a> {
 //     fn from(value: &'a [Key]) -> Self {
 //         Self::Keys(value)
@@ -55,9 +62,3 @@ impl From<&String> for Aim {
 //         Self::Keys(value)
 //     }
 // }
-
-impl From<usize> for Aim {
-    fn from(value: usize) -> Self {
-        Self::Index(value)
-    }
-}

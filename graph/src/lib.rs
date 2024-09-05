@@ -70,6 +70,8 @@ pub enum Error {
     Read(String),
     #[error("write graph part failed ({0})")]
     Write(String),
+    #[error(transparent)]
+    Aim(#[from] aim::Error),
     #[error("no back: {0}")]
     NoBack(String),
     #[error(transparent)]
