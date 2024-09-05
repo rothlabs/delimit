@@ -14,18 +14,18 @@ mod tag;
 #[cfg(test)]
 mod tests;
 
-// pub fn tags() -> Apex {
+// pub fn tags() -> Hub {
 //     let mut bay = Bay::new();
 //     for tag in TAGS {
 //         bay.insert(tag, tag.leaf());
 //     }
-//     bay.apex()
+//     bay.hub()
 // }
 
-// pub fn attributes() -> Apex {
+// pub fn attributes() -> Hub {
 //     let mut bay = Bay::new();
 //     for tag in ATTRIBUTES {
 //         bay.insert(tag, tag.leaf());
 //     }
-//     bay.apex()
+//     bay.hub()
 // }

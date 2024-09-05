@@ -11,7 +11,7 @@ mod task;
 
 pub trait Solve {
     /// Solve a task.
-    /// The apex will run computations or return existing results.
+    /// The hub will run computations or return existing results.
     fn solve(&self, task: Task) -> Result<Gain>;
 }
 
@@ -24,7 +24,7 @@ pub enum Error {
     #[error(transparent)]
     Aim(#[from] aim::Error),
     #[error(transparent)]
-    Apex(#[from] apex::Error),
+    Hub(#[from] hub::Error),
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]

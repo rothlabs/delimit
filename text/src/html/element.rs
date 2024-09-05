@@ -3,20 +3,20 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Element {
     html_element: u8,
-    open: Apex,
-    items: Vec<Apex>,
-    close: Option<Apex>,
+    open: Hub,
+    items: Vec<Hub>,
+    close: Option<Hub>,
 }
 
 impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn open(mut self, open: impl Into<Apex>) -> Self {
+    pub fn open(mut self, open: impl Into<Hub>) -> Self {
         self.open = open.into();
         self
     }
-    pub fn item(mut self, item: impl Into<Apex>) -> Self {
+    pub fn item(mut self, item: impl Into<Hub>) -> Self {
         self.items.push(item.into());
         self
     }
@@ -35,10 +35,10 @@ impl Element {
                 .push("</")
                 .push(close.down(PLAIN)?)
                 .push(">")
-                .apex()?;
+                .hub()?;
             element = element.push(close);
         }
-        element.apex()?.gain()
+        element.hub()?.gain()
     }
 }
 

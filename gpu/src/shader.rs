@@ -6,18 +6,18 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-//pub type Source = Apex;
+//pub type Source = Hub;
 pub type Result = std::result::Result<Node<Shader>, graph::Error>;
 
 #[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,
-    pub source: Apex,
+    pub source: Hub,
     pub shader: WebGlShader,
 }
 
 impl Shader {
-    pub fn make(gl: &WGLRC, type_: u32, source: &Apex) -> Result {
+    pub fn make(gl: &WGLRC, type_: u32, source: &Hub) -> Result {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;

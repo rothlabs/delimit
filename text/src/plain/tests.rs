@@ -7,14 +7,14 @@ fn new_list(ace: &Leaf) -> Result<Node<List>> {
 #[test]
 fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
-    let text_node = new_list(&string_leaf)?.apex()?;
+    let text_node = new_list(&string_leaf)?.hub()?;
     text_node
         .view()
         .string(|string| assert_eq!(string, "str, ace"))
 }
 
 #[test]
-fn solve_same_apex_twice() -> Result<()> {
+fn solve_same_hub_twice() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
     assert!(text.main()? == text.main()?);

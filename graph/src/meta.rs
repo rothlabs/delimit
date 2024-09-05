@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-/// Runtime-only ID. Used to easily distinguish between apex instances.
+/// Runtime-only ID. Used to easily distinguish between hub instances.
 pub type Id = u64;
 
 pub trait ToId {
     fn id(&self) -> Id;
 }
 
-/// Path component. Used to lookup a apex from another apex such as Lake or Bay.
+/// Path component. Used to lookup a hub from another hub such as Lake or Bay.
 pub type Key = String;
 
-/// Path to apex. It stands in place of actual apexes in serial form.
+/// Path to hub. It stands in place of actual hubes in serial form.
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Path {

@@ -8,16 +8,16 @@ pub struct VertexAttribute {
     buffer: Node<Buffer>,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
-    index: Apex,
+    index: Hub,
     /// Number of components per value
     #[builder(default)]
-    size: Apex,
+    size: Hub,
     /// Number of bytes between values
     #[builder(default)]
-    stride: Apex,
+    stride: Hub,
     /// Byte offset of first value
     #[builder(default)]
-    offset: Apex,
+    offset: Hub,
 }
 
 impl VertexAttributeBuilder {

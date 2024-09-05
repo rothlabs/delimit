@@ -13,8 +13,8 @@ impl Leaf {
     pub fn new(tray: Tray) -> Self {
         Self { tray, digest: None }
     }
-    pub fn apex(self) -> Apex {
-        Apex::Leaf(link::Leaf::new(self.tray))
+    pub fn hub(self) -> Hub {
+        Hub::Leaf(link::Leaf::new(self.tray))
     }
     fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {

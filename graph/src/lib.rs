@@ -1,5 +1,5 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
-pub use apex::{Apex, EngageApexes};
+pub use hub::{Hub, EngageHubes};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
@@ -36,7 +36,7 @@ use std::{
 use thiserror::Error;
 
 pub mod adapt;
-pub mod apex;
+pub mod hub;
 pub mod lake;
 pub mod react;
 pub mod serial;
@@ -81,7 +81,7 @@ pub enum Error {
     #[error(transparent)]
     Solve(#[from] solve::Error),
     #[error(transparent)]
-    Apex(#[from] apex::Error),
+    Hub(#[from] hub::Error),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
@@ -148,8 +148,8 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
     }
 }
 
-/// Trade a apex for another.
-/// The implmentation should return the same semantic apex with different graph qualities.
+/// Trade a hub for another.
+/// The implmentation should return the same semantic hub with different graph qualities.
 pub trait Deal: Debug {
     // Did the deal read the unit?
     fn read(&self) -> bool {
@@ -161,15 +161,15 @@ pub trait Deal: Debug {
     }
     /// Set back of deal.
     fn back(&mut self, _: &Back) {}
-    /// Handle one apex.
-    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
+    /// Handle one hub.
+    fn one(&mut self, _: &str, _: &mut Hub) -> Result<()> {
         Ok(())
     }
-    /// Handle vector of apexes.
-    fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {
+    /// Handle vector of hubes.
+    fn vec(&mut self, _: &str, _: &mut Vec<Hub>) -> Result<()> {
         Ok(())
     }
-    /// Handle map of apexes.
+    /// Handle map of hubes.
     fn map(&mut self, _: &mut Map) -> Result<()> {
         Ok(())
     }
@@ -214,42 +214,42 @@ where
     }
 }
 
-pub trait IntoApex {
-    /// Move into `Apex`
-    fn apex(self) -> Result<Apex>;
+pub trait IntoHub {
+    /// Move into `Hub`
+    fn hub(self) -> Result<Hub>;
 }
 
-impl<T> IntoApex for T
+impl<T> IntoHub for T
 where
     T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
 {
-    fn apex(self) -> Result<Apex> {
+    fn hub(self) -> Result<Hub> {
         Ok(self.ploy()?.into())
     }
 }
 
-pub trait LeafIntoApex {
-    /// Move into `Apex`
-    fn apex(self) -> Apex;
+pub trait LeafIntoHub {
+    /// Move into `Hub`
+    fn hub(self) -> Hub;
 }
 
-impl LeafIntoApex for Leaf {
-    fn apex(self) -> Apex {
+impl LeafIntoHub for Leaf {
+    fn hub(self) -> Hub {
         self.into()
     }
 }
 
-pub trait ToApex {
-    /// Place inside a Apex.
-    fn apex(&self) -> Result<Apex>;
+pub trait ToHub {
+    /// Place inside a Hub.
+    fn hub(&self) -> Result<Hub>;
 }
 
-impl<T> ToApex for Node<T>
+impl<T> ToHub for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
 {
-    fn apex(&self) -> Result<Apex> {
-        Ok(Apex::from(self.ploy()?))
+    fn hub(&self) -> Result<Hub> {
+        Ok(Hub::from(self.ploy()?))
     }
 }
 

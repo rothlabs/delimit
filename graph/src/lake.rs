@@ -9,7 +9,7 @@ pub struct Serial {
     pub unit: String,
 }
 
-/// Collection of serialized apexes, indexed by hash.
+/// Collection of serialized hubes, indexed by hash.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Lake {
     roots: HashMap<Key, Serial>,
@@ -25,58 +25,58 @@ impl Lake {
         Self::default()
     }
 
-    /// Set the atlas for deserializing entries into concrete apexes.
+    /// Set the atlas for deserializing entries into concrete hubes.
     pub fn atlas(&mut self, atlas: Box<dyn DeserializeUnit>) -> &mut Self {
         self.atlas = Some(atlas);
         self
     }
 
-    /// Insert graph into lake given root key and apex.
-    pub fn insert(&mut self, key: impl Into<Key>, apex: &Apex) -> Result<()> {
+    /// Insert graph into lake given root key and hub.
+    pub fn insert(&mut self, key: impl Into<Key>, hub: &Hub) -> Result<()> {
         let serial = Serial {
-            imports: apex.imports().unwrap_or_default(),
-            unit: apex.serial()?,
+            imports: hub.imports().unwrap_or_default(),
+            unit: hub.serial()?,
         };
         self.roots.insert(key.into(), serial);
-        for apex in &apex.all().unwrap_or_default() {
-            self.insert_stem(apex)?;
+        for hub in &hub.all().unwrap_or_default() {
+            self.insert_stem(hub)?;
         }
         Ok(())
     }
 
     /// Insert stems recursively.
-    fn insert_stem(&mut self, apex: &Apex) -> Result<()> {
-        if let Apex::Tray(_) = apex {
+    fn insert_stem(&mut self, hub: &Hub) -> Result<()> {
+        if let Hub::Tray(_) = hub {
             return Ok(());
         }
         let serial = Serial {
-            imports: apex.imports().unwrap_or_default(),
-            unit: apex.serial()?,
+            imports: hub.imports().unwrap_or_default(),
+            unit: hub.serial()?,
         };
-        self.nodes.insert(apex.digest()?, serial);
-        for apex in &apex.all().unwrap_or_default() {
-            self.insert_stem(apex)?;
+        self.nodes.insert(hub.digest()?, serial);
+        for hub in &hub.all().unwrap_or_default() {
+            self.insert_stem(hub)?;
         }
         Ok(())
     }
 
     /// Grow a tree from the lake.
-    pub fn tree(&mut self) -> Result<Apex> {
+    pub fn tree(&mut self) -> Result<Hub> {
         let root = self.root("root")?;
         self.grow(&root).ok();
         Ok(root)
     }
 
-    fn grow(&mut self, apex: &Apex) -> Result<()> {
-        apex.adapt(self)?;
-        for apex in apex.all()? {
-            self.grow(&apex).ok();
+    fn grow(&mut self, hub: &Hub) -> Result<()> {
+        hub.adapt(self)?;
+        for hub in hub.all()? {
+            self.grow(&hub).ok();
         }
         Ok(())
     }
 
-    /// Get a root apex by Key.
-    fn root(&self, key: impl Into<Key>) -> Result<Apex> {
+    /// Get a root hub by Key.
+    fn root(&self, key: impl Into<Key>) -> Result<Hub> {
         let serial = self
             .roots
             .get(&key.into())
@@ -87,8 +87,8 @@ impl Lake {
             .deserialize(serial)
     }
 
-    /// Get a apex by hash.
-    fn get(&self, hash: u64) -> Result<Apex> {
+    /// Get a hub by hash.
+    fn get(&self, hash: u64) -> Result<Hub> {
         let serial = self.nodes.get(&hash).ok_or(anyhow!("Node not found."))?;
         self.atlas
             .as_ref()
@@ -96,12 +96,12 @@ impl Lake {
             .deserialize(serial)
     }
 
-    /// Swap hash-apex for deserialized apex
-    fn deal(&self, apex: &mut Apex) -> Result<()> {
-        if let Apex::Tray(Tray::Path(Path::Hash(hash))) = apex {
+    /// Swap hash-hub for deserialized hub
+    fn deal(&self, hub: &mut Hub) -> Result<()> {
+        if let Hub::Tray(Tray::Path(Path::Hash(hash))) = hub {
             if let Ok(rhs) = self.get(*hash) {
                 if let Some(back) = self.back.as_ref() {
-                    *apex = rhs.backed(back)?;
+                    *hub = rhs.backed(back)?;
                 } else {
                     return no_back("Lake");
                 }
@@ -115,18 +115,18 @@ impl Deal for Lake {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.deal(apex)
+    fn one(&mut self, _: &str, hub: &mut Hub) -> Result<()> {
+        self.deal(hub)
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        for apex in apexes {
-            self.deal(apex)?;
+    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
+        for hub in hubes {
+            self.deal(hub)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        for (_, apex) in map.iter_mut() {
-            self.deal(apex)?;
+        for (_, hub) in map.iter_mut() {
+            self.deal(hub)?;
         }
         Ok(())
     }
@@ -161,14 +161,14 @@ impl Deal for Lake {
 //     }
 // }
 
-// /// Serialize the given apex as the root of the lake.
-// pub fn root(&mut self, apex: &Apex) -> Result<Memo> {
-//     self.root = apex.serial()?;
+// /// Serialize the given hub as the root of the lake.
+// pub fn root(&mut self, hub: &Hub) -> Result<Memo> {
+//     self.root = hub.serial()?;
 //     adapt_ok()
 // }
-// /// Insert a apex into the lake as hash-serial pair.
-// pub fn insert(&mut self, apex: &Apex) -> Result<Memo> {
-//     self.apexes.insert(apex.digest()?, apex.serial()?);
+// /// Insert a hub into the lake as hash-serial pair.
+// pub fn insert(&mut self, hub: &Hub) -> Result<Memo> {
+//     self.hubes.insert(hub.digest()?, hub.serial()?);
 //     adapt_ok()
 // }
 
@@ -184,7 +184,7 @@ impl Deal for Lake {
 //     self
 // }
 
-// pub fn new(ploy: impl Into<Apex>) -> Result {
+// pub fn new(ploy: impl Into<Hub>) -> Result {
 //     let mut serials = HashMap::new();
 
 //     Ok(Self {
@@ -197,7 +197,7 @@ impl Deal for Lake {
 //     fn adapt(&mut self, post: Post) -> Result<Memo> {
 //         match post {
 //             // Post::Trade(_) => Ok(Gain::None),
-//             // Post::Extend(apexes) => self.extend(apexes),
+//             // Post::Extend(hubes) => self.extend(hubes),
 //             // Post::Import => self.import(),
 //             _ => did_not_adapt(post),
 //         }

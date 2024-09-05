@@ -1,11 +1,11 @@
 use super::*;
 
-/// Value returned by a successful apex solver.
+/// Value returned by a successful hub solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
 pub enum Gain {
     // for units
     None,
-    Apex(Apex),
+    Hub(Hub),
     String(String),
     U64(u64),
     // for graph internals
@@ -31,11 +31,11 @@ impl Gain {
     pub fn ok(self) -> Result<Gain> {
         Ok(self)
     }
-    /// Get Apex from Gain.
-    pub fn apex(self) -> crate::Result<Apex> {
+    /// Get Hub from Gain.
+    pub fn hub(self) -> crate::Result<Hub> {
         match self {
-            Self::Apex(apex) => Ok(apex),
-            _ => Err(self.wrong_variant("Apex"))?,
+            Self::Hub(hub) => Ok(hub),
+            _ => Err(self.wrong_variant("Hub"))?,
         }
     }
     /// Get Imports from Gain.
@@ -67,9 +67,9 @@ impl From<String> for Gain {
     }
 }
 
-impl From<Apex> for Gain {
-    fn from(value: Apex) -> Self {
-        Self::Apex(value)
+impl From<Hub> for Gain {
+    fn from(value: Hub) -> Self {
+        Self::Hub(value)
     }
 }
 

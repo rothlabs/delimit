@@ -42,21 +42,21 @@ fn write_and_read_serial_page() -> graph::Result<()> {
 //     let reader = BufReader::new(file);
 //     let mut lake: Lake = serde_json::from_reader(reader)?;
 //     lake.atlas(Atlas::new());
-//     let apex = lake.root("root")?.apex()?;
-//     apex.trade(&lake);
+//     let hub = lake.root("root")?.hub()?;
+//     hub.trade(&lake);
 //     Ok(())
 // }
 
 // #[test]
-// fn find_apex_in_loaded_repo() -> result::Result<(), Error> {
-//     let path = STORAGE.leaf().apex();
-//     let deserializer = ApexDeserializer::new();
-//     let repo = Repo::new().path(path).deserializer(deserializer).apex();
+// fn find_hub_in_loaded_repo() -> result::Result<(), Error> {
+//     let path = STORAGE.leaf().hub();
+//     let deserializer = HubDeserializer::new();
+//     let repo = Repo::new().path(path).deserializer(deserializer).hub();
 //     repo.alter().import()?;
-//     if let Gain::Apex(_) = repo.query().find("Delimit index page")? {
+//     if let Gain::Hub(_) = repo.query().find("Delimit index page")? {
 //         Ok(())
 //     } else {
-//         Err("did not find apex in loaded repo")?
+//         Err("did not find hub in loaded repo")?
 //     }
 // }
 
@@ -64,24 +64,24 @@ fn write_and_read_serial_page() -> graph::Result<()> {
 // fn save_repo() -> result::Result<(), Error> {
 //     let (bay, doc) = make_doc();
 //     let plain = doc.at(PLAIN)?;
-//     let mut apexes = vec![plain.clone()]; // doc.clone(),
-//                                          // apexes.extend(doc.query().deep_stems()?);
-//     apexes.extend(plain.query().deep_stems()?);
-//     bay.alter().extend(apexes)?;
+//     let mut hubes = vec![plain.clone()]; // doc.clone(),
+//                                          // hubes.extend(doc.query().deep_stems()?);
+//     hubes.extend(plain.query().deep_stems()?);
+//     bay.alter().extend(hubes)?;
 //     bay.query().export()?;
 //     Ok(())
 // }
 
 // #[test]
 // fn load_graph() -> result::Result<(), Error> {
-//     let path = STORAGE.leaf().apex();
-//     let deserializer = ApexDeserializer::new();
-//     let repo = Bay::new().path(path).deserializer(deserializer).apex();
+//     let path = STORAGE.leaf().hub();
+//     let deserializer = HubDeserializer::new();
+//     let repo = Bay::new().path(path).deserializer(deserializer).hub();
 //     repo.alter().import()?;
 //     Ok(())
 // }
 
-// fn make_doc() -> Apex {
+// fn make_doc() -> Hub {
 //     let atts = html::attribute_set();
 //     let mut html = html::Doc::new(&atts, "Delimit index page").html();
 //     html.attribute("lang", "en");
@@ -106,6 +106,6 @@ fn write_and_read_serial_page() -> graph::Result<()> {
 //     script
 //         .attribute("src", "/app.js")
 //         .attribute("type", "module");
-//     let doc = script.up_to_doc().apex();
+//     let doc = script.up_to_doc().hub();
 //     doc
 // }

@@ -6,11 +6,11 @@ pub struct Buffer {
     gl: WGLRC,
     buffer: WebGlBuffer,
     target: u32,
-    array: Apex,
+    array: Hub,
 }
 
 impl Buffer {
-    pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
+    pub fn make(gl: &WGLRC, target: u32, array: &Hub) -> Result<Node<Buffer>> {
         let buffer = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;

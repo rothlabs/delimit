@@ -3,27 +3,27 @@ use super::*;
 #[derive(Default, Hash, Debug, Serialize, Deserialize)]
 pub struct List {
     plain_list: u8,
-    items: Vec<Apex>,
-    separator: Apex,
+    items: Vec<Hub>,
+    separator: Hub,
 }
 
 impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn set_separator(&mut self, separator: impl Into<Apex>) -> &mut Self {
+    pub fn set_separator(&mut self, separator: impl Into<Hub>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn separator(mut self, separator: impl Into<Apex>) -> Self {
+    pub fn separator(mut self, separator: impl Into<Hub>) -> Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(mut self, items: Vec<impl Into<Apex>>) -> Self {
+    pub fn extend(mut self, items: Vec<impl Into<Hub>>) -> Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(mut self, item: impl Into<Apex>) -> Self {
+    pub fn push(mut self, item: impl Into<Hub>) -> Self {
         self.items.push(item.into());
         self
     }
@@ -43,7 +43,7 @@ impl List {
             base += &separator;
         }
         self.items[last].view().string(|x| base += x)?;
-        base.leaf().apex().gain()
+        base.leaf().hub().gain()
     }
 }
 
@@ -68,15 +68,15 @@ impl Solve for List {
     }
 }
 
-// fn set_at(&mut self, index: usize, apex: Apex) -> Result<Memo> {
-//     self.items[index] = apex;
+// fn set_at(&mut self, index: usize, hub: Hub) -> Result<Memo> {
+//     self.items[index] = hub;
 //     adapt_ok()
 // }
 
 // fn all(&self) -> Result<Gain> {
-//     let mut apexes = vec![self.separator.clone()];
-//     apexes.extend(self.items.clone());
-//     apexes.gain()
+//     let mut hubes = vec![self.separator.clone()];
+//     hubes.extend(self.items.clone());
+//     hubes.gain()
 // }
 // fn map(&self) -> Result<Gain> {
 //     let mut map = Map::new();
@@ -89,7 +89,7 @@ impl Solve for List {
 //     fn adapt(&mut self, post: Post) -> Result<Memo> {
 //         match post {
 //             Post::Trade(deal) => self.trade(deal),
-//             Post::SetAt(index, apex) => self.set_at(index, apex),
+//             Post::SetAt(index, hub) => self.set_at(index, hub),
 //             _ => post.no_handler(self),
 //         }
 //     }

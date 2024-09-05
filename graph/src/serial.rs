@@ -17,8 +17,8 @@ where
 }
 
 pub trait DeserializeUnit: Debug + SendSync {
-    /// Deserialize to `Apex` with concrete unit type.
-    fn deserialize(&self, serial_node: &Serial) -> Result<Apex>;
+    /// Deserialize to `Hub` with concrete unit type.
+    fn deserialize(&self, serial_node: &Serial) -> Result<Hub>;
 }
 
 pub trait ToHash {
@@ -102,8 +102,8 @@ impl fmt::Debug for UnitHasher {
 //     pub fn contains(&self, meta: &Meta) -> bool {
 //         self.parts.contains_key(&meta.path)
 //     }
-//     pub fn insert(&mut self, meta: &Meta, apex: String) {
-//         self.parts.insert(meta.path.clone(), apex);
+//     pub fn insert(&mut self, meta: &Meta, hub: String) {
+//         self.parts.insert(meta.path.clone(), hub);
 //     }
 //     pub fn string(&self) -> result::Result<String, serde_json::Error> {
 //         serde_json::to_string(self)

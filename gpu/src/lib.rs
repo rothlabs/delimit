@@ -40,20 +40,20 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<Apex>) -> shader::Result {
+    pub fn vertex_shader(&self, source: impl Into<Hub>) -> shader::Result {
         Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Apex>) -> shader::Result {
+    pub fn fragment_shader(&self, source: impl Into<Hub>) -> shader::Result {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
         Program::make(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
+    pub fn buffer(&self, array: impl Into<Hub>) -> Result<Node<Buffer>> {
         // f32
         Buffer::make(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
+    pub fn index_buffer(&self, array: impl Into<Hub>) -> Result<Node<Buffer>> {
         // u16
         Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
@@ -78,7 +78,7 @@ impl Gpu {
     pub fn texture(
         // <T: Copy>
         &self,
-        array: impl Into<Apex>,
+        array: impl Into<Hub>,
     ) -> Result<TextureBuilder> {
         let texture = self
             .gl

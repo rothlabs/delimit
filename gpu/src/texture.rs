@@ -9,13 +9,13 @@ pub struct Texture {
     gl: WGLRC,
     texture: WebGlTexture,
     /// Linear data array of image.
-    array: Apex,
+    array: Hub,
     /// Horizontal pixel count.
     #[builder(default)]
-    width: Apex,
+    width: Hub,
     /// Vertical pixel count.
     #[builder(default)]
-    height: Apex,
+    height: Hub,
 }
 
 impl TextureBuilder {

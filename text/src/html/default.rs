@@ -1,80 +1,80 @@
 use super::*;
 
-pub fn default_bay() -> Result<Apex> {
+pub fn default_bay() -> Result<Hub> {
     let mut bay = Bay::new();
 
-    let title = "Delimit".leaf().apex();
+    let title = "Delimit".leaf().hub();
     bay.insert("title", title.clone())?;
     let title = title.pathed("title");
 
-    let lang = Attribute::new().name("lang").content("en").apex()?;
-    bay.insert("html", Tag::new().name("html").attribute(lang).apex()?)?;
+    let lang = Attribute::new().name("lang").content("en").hub()?;
+    bay.insert("html", Tag::new().name("html").attribute(lang).hub()?)?;
 
-    bay.insert("head", Tag::new().name("head").apex()?)?;
+    bay.insert("head", Tag::new().name("head").hub()?)?;
 
-    bay.insert("body", Tag::new().name("body").apex()?)?;
+    bay.insert("body", Tag::new().name("body").hub()?)?;
 
-    let tag = Tag::new().name("title").apex()?;
+    let tag = Tag::new().name("title").hub()?;
     let title_element = Element::new()
         .open(tag)
         .item(&title)
         .close()?
         .import(WORLD_ALL)
-        .apex();
+        .hub();
     bay.insert("title_element", title_element)?;
 
-    let charset = Attribute::new().name("charset").content("utf-8").apex()?;
+    let charset = Attribute::new().name("charset").content("utf-8").hub()?;
     bay.insert(
         "charset",
-        Tag::new().name("meta").attribute(charset).apex()?,
+        Tag::new().name("meta").attribute(charset).hub()?,
     )?;
 
-    let name = Attribute::new().name("name").content("viewport").apex()?;
+    let name = Attribute::new().name("name").content("viewport").hub()?;
     let content = Attribute::new()
         .name("content")
         .content("width=device-width, initial-scale=1")
-        .apex()?;
+        .hub()?;
     let viewport = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .apex()?;
+        .hub()?;
     bay.insert("viewport", viewport)?;
 
-    let name = Attribute::new().name("name").content("author").apex()?;
+    let name = Attribute::new().name("name").content("author").hub()?;
     let content = Attribute::new()
         .name("content")
         .content("Roth Labs LLC")
-        .apex()?;
+        .hub()?;
     let author = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .apex()?;
+        .hub()?;
     bay.insert("author", author)?;
 
-    let att = Attribute::new().name("type").content("importmap").apex()?;
-    let tag = Tag::new().name("script").attribute(att).apex()?;
+    let att = Attribute::new().name("type").content("importmap").hub()?;
+    let tag = Tag::new().name("script").attribute(att).hub()?;
     let raw = serde_json::to_string(&Importmap::default())?;
-    let importmap = Element::new().open(tag).item(raw).close()?.apex()?;
+    let importmap = Element::new().open(tag).item(raw).close()?.hub()?;
     bay.insert("importmap", importmap)?;
 
-    let att = Attribute::new().name("id").content("canvas").apex()?;
-    let tag = Tag::new().name("canvas").attribute(att).apex()?;
-    let canvas = Element::new().open(tag).close()?.apex()?;
+    let att = Attribute::new().name("id").content("canvas").hub()?;
+    let tag = Tag::new().name("canvas").attribute(att).hub()?;
+    let canvas = Element::new().open(tag).close()?.hub()?;
     bay.insert("canvas", canvas)?;
 
-    let src = Attribute::new().name("src").content("/app.js").apex()?;
-    let module = Attribute::new().name("type").content("module").apex()?;
+    let src = Attribute::new().name("src").content("/app.js").hub()?;
+    let module = Attribute::new().name("type").content("module").hub()?;
     let tag = Tag::new()
         .name("script")
         .attribute(src)
         .attribute(module)
-        .apex()?;
-    let app = Element::new().open(tag).close()?.apex()?;
+        .hub()?;
+    let app = Element::new().open(tag).close()?.hub()?;
     bay.insert("app", app)?;
 
-    let root = bay.apex()?;
+    let root = bay.hub()?;
 
     let page = page(&root)?;
     root.insert("page", page)?;
@@ -82,7 +82,7 @@ pub fn default_bay() -> Result<Apex> {
     Ok(root)
 }
 
-pub fn page(bay: &Apex) -> Result<Apex> {
+pub fn page(bay: &Hub) -> Result<Hub> {
     let head = Element::new()
         .open(bay.get("head")?)
         .item(bay.get("title_element")?)
@@ -92,7 +92,7 @@ pub fn page(bay: &Apex) -> Result<Apex> {
         .item(bay.get("importmap")?)
         .close()?
         .import(WORLD_ALL)
-        .apex();
+        .hub();
     let body = Element::new()
         .open(bay.get("body")?)
         .item(bay.get("title")?)
@@ -100,16 +100,16 @@ pub fn page(bay: &Apex) -> Result<Apex> {
         .item(bay.get("app")?)
         .close()?
         .import(WORLD_ALL)
-        .apex();
+        .hub();
     let html = Element::new()
         .open(bay.get("html")?)
         .item(head)
         .item(body)
         .close()?
         .import(WORLD_ALL)
-        .apex();
-    let tag = Tag::new().name("!DOCTYPE html").apex()?;
-    let page = Element::new().open(tag).item(html).apex()?;
+        .hub();
+    let tag = Tag::new().name("!DOCTYPE html").hub()?;
+    let page = Element::new().open(tag).item(html).hub()?;
     Ok(page)
 }
 

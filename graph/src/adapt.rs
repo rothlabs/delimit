@@ -6,7 +6,7 @@ use thiserror::Error;
 // pub mod post;
 
 pub trait Adapt {
-    /// Alter an apex.
+    /// Alter an hub.
     /// Useful for inserting, removing, and more.
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()>;
 }
@@ -18,7 +18,7 @@ pub enum Error {
     #[error(transparent)]
     Solve(#[from] solve::Error),
     #[error(transparent)]
-    Apex(#[from] apex::Error),
+    Hub(#[from] hub::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
@@ -32,7 +32,7 @@ pub enum Error {
 // }
 
 pub trait AdaptOut {
-    /// Alter a apex.
+    /// Alter a hub.
     /// Useful for inserting, removing, and more.
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Vec<Root>, u64)>;
 }

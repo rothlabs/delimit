@@ -22,19 +22,19 @@ pub enum Error {
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)]
 #[serde(untagged)]
-pub enum Apex {
+pub enum Hub {
     Tray(Tray),
     Leaf(Leaf),
     Ploy(Ploy),
 }
 
-impl Apex {
+impl Hub {
     pub fn none() -> Self {
         Self::default()
     }
 
-    /// Run main apex function. Will return lower rank apex if successful.
-    pub fn main(&self) -> Result<Apex> {
+    /// Run main hub function. Will return lower rank hub if successful.
+    pub fn main(&self) -> Result<Hub> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err(Error::NotPloy)?,
@@ -48,14 +48,14 @@ impl Apex {
         }
     }
 
-    /// Insert apex into new Lake.
+    /// Insert hub into new Lake.
     pub fn lake(&self) -> Result<Lake> {
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
     }
 
-    /// Get hash digest number of apex.
+    /// Get hash digest number of hub.
     pub fn digest(&self) -> Result<u64> {
         match self {
             Self::Leaf(leaf) => leaf.solve(Task::Hash),
@@ -65,7 +65,7 @@ impl Apex {
         .u64()
     }
 
-    /// Get serial string of apex.
+    /// Get serial string of hub.
     pub fn serial(&self) -> Result<String> {
         match self {
             Self::Tray(tray) => tray.serial(),
@@ -83,7 +83,7 @@ impl Apex {
         Ok(())
     }
 
-    /// New Apex with Path
+    /// New Hub with Path
     pub fn pathed(&self, path: impl Into<Path>) -> Self {
         match self {
             Self::Tray(bare) => Self::Tray(bare.clone()),
@@ -92,7 +92,7 @@ impl Apex {
         }
     }
 
-    /// Get path associated with apex if any.
+    /// Get path associated with hub if any.
     pub fn path(&self) -> Option<&Path> {
         match self {
             Self::Tray(tray) => tray.path(),
@@ -101,7 +101,7 @@ impl Apex {
         }
     }
 
-    /// Get tray of apex. Will solve to lowest rank if needed.
+    /// Get tray of hub. Will solve to lowest rank if needed.
     pub fn tray(&self) -> Result<Tray> {
         match self {
             Self::Tray(tray) => Ok(tray.clone()),
@@ -110,12 +110,12 @@ impl Apex {
         }
     }
 
-    /// Run Trade deal with this apex as input.
+    /// Run Trade deal with this hub as input.
     pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.one(key, self)
     }
 
-    /// Get rank of apex. Rank 1 apexes produce leaf apexes.
+    /// Get rank of hub. Rank 1 hubes produce leaf hubes.
     pub fn rank(&self) -> Option<u64> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
@@ -124,21 +124,21 @@ impl Apex {
     }
 
     /// Solve down to the given graph rank.
-    pub fn down(&self, target: u64) -> Result<Apex> {
-        let mut apex = self.clone();
-        let mut rank = apex.rank();
+    pub fn down(&self, target: u64) -> Result<Hub> {
+        let mut hub = self.clone();
+        let mut rank = hub.rank();
         while let Some(current) = rank {
             if current > target {
-                apex = apex.main()?;
-                rank = apex.rank();
+                hub = hub.main()?;
+                rank = hub.rank();
             } else {
                 rank = None;
             }
         }
-        Ok(apex)
+        Ok(hub)
     }
 
-    /// Read tray of apex.
+    /// Read tray of hub.
     pub fn read<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T> {
         match self {
             Self::Tray(bare) => Ok(read(bare)),
@@ -149,10 +149,10 @@ impl Apex {
 
     /// Make a View for reading Tray variants.
     pub fn view(&self) -> View {
-        View { apex: self }
+        View { hub: self }
     }
 
-    /// Clone String from Apex.
+    /// Clone String from Hub.
     pub fn string(&self) -> Result<String> {
         let tray = self.tray()?;
         match tray {
@@ -161,7 +161,7 @@ impl Apex {
         }
     }
 
-    /// u32 from Apex.
+    /// u32 from Hub.
     pub fn u32(&self) -> Result<u32> {
         let tray = self.tray()?;
         match tray {
@@ -170,7 +170,7 @@ impl Apex {
         }
     }
 
-    /// i32 from Apex.
+    /// i32 from Hub.
     pub fn i32(&self) -> Result<i32> {
         let tray = self.tray()?;
         match tray {
@@ -180,9 +180,9 @@ impl Apex {
     }
 }
 
-impl TryBacked for Apex {
+impl TryBacked for Hub {
     type Out = Self;
-    /// New backed apex.
+    /// New backed hub.
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
             Self::Tray(bare) => Ok(Self::Tray(bare.clone())),
@@ -192,21 +192,21 @@ impl TryBacked for Apex {
     }
 }
 
-impl Default for Apex {
+impl Default for Hub {
     fn default() -> Self {
         Self::Tray(Tray::None)
     }
 }
 
-pub trait EngageApexes<'a> {
+pub trait EngageHubes<'a> {
     /// Solve down to the given graph rank.
-    fn down(&self, rank: u64) -> Result<Vec<Apex>>;
+    fn down(&self, rank: u64) -> Result<Vec<Hub>>;
     /// Replace stems according to the Trade deal.
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
-impl<'a> EngageApexes<'a> for Vec<Apex> {
-    fn down(&self, rank: u64) -> Result<Vec<Apex>> {
+impl<'a> EngageHubes<'a> for Vec<Hub> {
+    fn down(&self, rank: u64) -> Result<Vec<Hub>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {

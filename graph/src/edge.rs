@@ -10,7 +10,7 @@ pub type Leaf = Edge<cusp::Leaf>;
 /// Edge to a unit that grants a tray.
 pub type Node<U> = Edge<cusp::Node<U>>;
 
-/// The forward bridge between apexes.
+/// The forward bridge between hubes.
 #[derive(Debug)]
 pub struct Edge<N> {
     pub back: Option<Back>,

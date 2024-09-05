@@ -12,7 +12,7 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
 
-use graph::{self, serial::*, snap::*, write::*, Apex, Import, Leaf, Serial, Tray};
+use graph::{self, serial::*, snap::*, write::*, Hub, Import, Leaf, Serial, Tray};
 
 mod atlas;
 mod config;

@@ -1,6 +1,6 @@
 use super::*;
 
-impl Apex {
+impl Hub {
     /// Build node connections in tree. A tree is a graph where each node has one root.
     /// This method traverses the tree to build additional connections using a name space system.
     pub fn hydrate(&self) -> Result<()> {
@@ -15,10 +15,10 @@ impl Apex {
             back: None,
         })?;
         for space in local.map.values() {
-            space.apex.saturate(world, space)?;
+            space.hub.saturate(world, space)?;
         }
         for space in &local.vec {
-            space.apex.saturate(world, space)?;
+            space.hub.saturate(world, space)?;
         }
         Ok(())
     }

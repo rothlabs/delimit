@@ -12,10 +12,10 @@ pub struct Elements {
     vao: Node<Vao>,
     /// Number of values to draw.
     #[builder(default)]
-    count: Apex,
+    count: Hub,
     /// Number of values to skip before drawing.
     #[builder(default)]
-    offset: Apex,
+    offset: Hub,
 }
 
 impl ElementsBuilder {

@@ -5,44 +5,44 @@ use anyhow::anyhow;
 pub struct Space {
     id: u64,
     imports: Vec<Import>,
-    pub apex: Apex,
+    pub hub: Hub,
     pub map: HashMap<Key, Space>,
     pub vec: Vec<Space>,
     // path: Vec<Key>,
 }
 
 impl Space {
-    pub fn new(path: Vec<Key>, apex: &Apex) -> Self {
+    pub fn new(path: Vec<Key>, hub: &Hub) -> Self {
         let mut space = Self {
             id: rand::random(),
-            apex: apex.clone(),
+            hub: hub.clone(),
             // path: path.clone(),
             ..Default::default()
         };
-        if let Ok(imports) = apex.imports() {
+        if let Ok(imports) = hub.imports() {
             space.imports = imports;
         }
-        if let Ok(stems) = apex.all() {
-            for next_apex in &stems {
-                if let Apex::Tray(Tray::Path(_)) = next_apex {
+        if let Ok(stems) = hub.all() {
+            for next_hub in &stems {
+                if let Hub::Tray(Tray::Path(_)) = next_hub {
                     continue;
                 }
                 let mut next_path = path.clone();
-                if let Some(Path::Local(keys)) = next_apex.path() {
+                if let Some(Path::Local(keys)) = next_hub.path() {
                     let key = keys.first().expect("No keys in path.");
                     next_path.push(key.clone());
-                    let next_scope = Self::new(next_path, next_apex);
+                    let next_scope = Self::new(next_path, next_hub);
                     space.map.insert(key.clone(), next_scope);
                 } else {
-                    space.vec.push(Self::new(next_path, next_apex));
+                    space.vec.push(Self::new(next_path, next_hub));
                 }
             }
         }
         space
     }
-    pub fn get(&self, keys: &[Key]) -> Result<Apex> {
+    pub fn get(&self, keys: &[Key]) -> Result<Hub> {
         if keys.is_empty() {
-            Ok(self.apex.clone())
+            Ok(self.hub.clone())
         } else if let Some(stem) = self.map.get(&keys[0]) {
             stem.get(&keys[1..])
         } else {
@@ -59,18 +59,18 @@ pub struct Scope<'a> {
 }
 
 impl Scope<'_> {
-    pub fn deal(&self, apex: &mut Apex) -> Result<()> {
-        if let Apex::Tray(Tray::Path(Path::Local(keys))) = apex {
+    pub fn deal(&self, hub: &mut Hub) -> Result<()> {
+        if let Hub::Tray(Tray::Path(Path::Local(keys))) = hub {
             if let Ok(rhs) = self.local.get(keys) {
                 if let Some(back) = self.back.as_ref() {
-                    *apex = rhs.backed(back)?;
+                    *hub = rhs.backed(back)?;
                 } else {
                     return no_back("Scope");
                 }
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(rhs) = self.world.get(keys) {
                     if let Some(back) = self.back.as_ref() {
-                        *apex = rhs.backed(back)?;
+                        *hub = rhs.backed(back)?;
                     } else {
                         return no_back("Scope");
                     }
@@ -85,19 +85,19 @@ impl Deal for Scope<'_> {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.deal(apex)?;
+    fn one(&mut self, _: &str, hub: &mut Hub) -> Result<()> {
+        self.deal(hub)?;
         Ok(())
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        for apex in apexes {
-            self.deal(apex)?;
+    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
+        for hub in hubes {
+            self.deal(hub)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        for (_, apex) in map.iter_mut() {
-            self.deal(apex)?;
+        for (_, hub) in map.iter_mut() {
+            self.deal(hub)?;
         }
         Ok(())
     }
@@ -127,8 +127,8 @@ impl Hash for Space {
 //     }
 // }
 
-// fn import(&mut self, apex: &Apex) -> Result<(), Error> {
-//     if let Ok(imports) = apex.imports() {
+// fn import(&mut self, hub: &Hub) -> Result<(), Error> {
+//     if let Ok(imports) = hub.imports() {
 //         for import in &imports {
 //             match import {
 //                 Import::World(stem) => {
@@ -159,7 +159,7 @@ impl Hash for Space {
 // }
 // fn extend(&mut self, scope: &Space) {
 //     // self.vec.extend(scope.vec.clone());
-//     self.apexes.extend(scope.apexes.clone());
+//     self.hubes.extend(scope.hubes.clone());
 // }
 // fn upper(&self, rank: usize) -> Result<Rc<Self>, Error> {
 //     let scope = self.root.as_ref().ok_or("No root of scope.")?;

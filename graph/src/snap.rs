@@ -17,7 +17,7 @@ impl<U> Snap<U>
 where
     U: 'static + Adapt + Solve + SendSync + Debug,
 {
-    pub fn apex(self) -> Apex {
+    pub fn hub(self) -> Hub {
         Node::make_ploy_from_snap(self).into()
     }
 }

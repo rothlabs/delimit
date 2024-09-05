@@ -3,19 +3,19 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Attribute {
     html_attribute: u8,
-    name: Apex,
-    content: Apex,
+    name: Hub,
+    content: Hub,
 }
 
 impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(mut self, name: impl Into<Apex>) -> Self {
+    pub fn name(mut self, name: impl Into<Hub>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn content(mut self, content: impl Into<Apex>) -> Self {
+    pub fn content(mut self, content: impl Into<Hub>) -> Self {
         self.content = content.into();
         self
     }
@@ -25,7 +25,7 @@ impl Attribute {
             .push(r#"=""#)
             .push(self.content.down(PLAIN)?)
             .push(r#"""#)
-            .apex()?
+            .hub()?
             .gain()
     }
 }

@@ -1,24 +1,24 @@
 use super::*;
 
-impl Apex {
-    /// Get one apex.
-    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
+impl Hub {
+    /// Get one hub.
+    pub fn get(&self, aim: impl Into<Aim>) -> Result<Hub> {
         match self {
             Self::Ploy(ploy) => {
                 let mut get = Get::new(aim.into());
                 ploy.adapt(&mut get)?;
-                get.apex()
+                get.hub()
             }
             _ => Err(Error::NotPloy)?,
         }
     }
-    /// Get vector of all apexes.
-    pub fn all(&self) -> Result<Vec<Apex>> {
+    /// Get vector of all hubes.
+    pub fn all(&self) -> Result<Vec<Hub>> {
         match self {
             Self::Ploy(ploy) => {
-                let mut all = All { apexes: vec![] };
+                let mut all = All { hubes: vec![] };
                 ploy.adapt(&mut all)?;
-                Ok(all.apexes)
+                Ok(all.hubes)
             }
             _ => Err(Error::NotPloy)?,
         }
@@ -28,7 +28,7 @@ impl Apex {
 #[derive(Debug)]
 pub struct Get {
     aim: Aim,
-    apex: Option<Apex>,
+    hub: Option<Hub>,
     errors: Vec<aim::Error>,
 }
 
@@ -36,44 +36,44 @@ impl Get {
     pub fn new(aim: Aim) -> Self {
         Self {
             aim,
-            apex: None,
+            hub: None,
             errors: vec![],
         }
     }
-    pub fn apex(self) -> Result<Apex> {
-        if let Some(apex) = self.apex {
-            Ok(apex)
+    pub fn hub(self) -> Result<Hub> {
+        if let Some(hub) = self.hub {
+            Ok(hub)
         } else {
-            Err(apex::Error::NotFound(self.errors))?
+            Err(hub::Error::NotFound(self.errors))?
         }
     }
 }
 
 impl Deal for Get {
-    fn one(&mut self, key: &str, apex: &mut Apex) -> Result<()> {
-        if self.apex.is_some() {
+    fn one(&mut self, key: &str, hub: &mut Hub) -> Result<()> {
+        if self.hub.is_some() {
             return Ok(());
         }
         match &self.aim {
             Aim::Key(rhs) => {
                 if key == rhs {
-                    self.apex = Some(apex.clone());
+                    self.hub = Some(hub.clone());
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
         Ok(())
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        if self.apex.is_some() {
+    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
+        if self.hub.is_some() {
             return Ok(());
         }
         match self.aim {
             Aim::Index(i) => {
-                if i < apexes.len() {
-                    self.apex = Some(apexes[i].clone());
+                if i < hubes.len() {
+                    self.hub = Some(hubes[i].clone());
                 } else {
-                    self.errors.push(self.aim.index_out_of_bounds(apexes.len()));
+                    self.errors.push(self.aim.index_out_of_bounds(hubes.len()));
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Index")),
@@ -81,12 +81,12 @@ impl Deal for Get {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        if self.apex.is_some() {
+        if self.hub.is_some() {
             return Ok(());
         }
         match &self.aim {
             Aim::Key(key) => {
-                self.apex = map.get(key);
+                self.hub = map.get(key);
             }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
@@ -96,20 +96,20 @@ impl Deal for Get {
 
 #[derive(Debug)]
 struct All {
-    apexes: Vec<Apex>,
+    hubes: Vec<Hub>,
 }
 
 impl Deal for All {
-    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.apexes.push(apex.clone());
+    fn one(&mut self, _: &str, hub: &mut Hub) -> Result<()> {
+        self.hubes.push(hub.clone());
         Ok(())
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        self.apexes.extend(apexes.clone());
+    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
+        self.hubes.extend(hubes.clone());
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        self.apexes.extend(map.all());
+        self.hubes.extend(map.all());
         Ok(())
     }
 }

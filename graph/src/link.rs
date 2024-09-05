@@ -60,9 +60,9 @@ impl<E> Link<E>
 where
     Self: Solve,
 {
-    pub fn main(&self) -> Result<Apex> {
+    pub fn main(&self) -> Result<Hub> {
         match self.solve(Task::Main)? {
-            Gain::Apex(apex) => Ok(apex),
+            Gain::Hub(hub) => Ok(hub),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
