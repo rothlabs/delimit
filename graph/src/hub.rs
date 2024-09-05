@@ -1,13 +1,13 @@
 use super::*;
 use thiserror::Error;
-use view::*;
+// use view::*;
 
 mod convert;
 mod deserialize;
 mod get;
 mod hydrate;
 mod set;
-mod view;
+// mod view;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -20,21 +20,27 @@ pub enum Error {
 }
 
 /// Primary graph part.
-#[derive(Clone, PartialEq, Hash, Serialize, Debug)]
-#[serde(untagged)]
-pub enum Hub<T> {
-    Tray(T),
+#[derive(Clone, PartialEq, Hash, Debug)] // Serialize
+// #[serde(untagged)]
+pub enum Hub<T> 
+where 
+    T: 'static + Payload
+{
+    Tray(Tray<T>),
     Leaf(Leaf<T>),
     Ploy(Ploy<T>),
 }
 
-impl<T> Hub<T> {
+impl<T> Hub<T> 
+where 
+    T: Payload
+{
     pub fn none() -> Self {
         Self::default()
     }
 
     /// Run main hub function. Will return lower rank hub if successful.
-    pub fn main(&self) -> Result<Hub> {
+    pub fn main(&self) -> Result<Hub<T>> {
         match self {
             Self::Ploy(ploy) => ploy.main(),
             _ => Err(Error::NotPloy)?,
@@ -86,7 +92,7 @@ impl<T> Hub<T> {
     /// New Hub with Path
     pub fn pathed(&self, path: impl Into<Path>) -> Self {
         match self {
-            Self::Tray(bare) => Self::Tray(bare.clone()),
+            Self::Tray(tray) => Self::Tray(tray.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.pathed(path.into())),
             Self::Ploy(ploy) => Self::Ploy(ploy.pathed(path.into())),
         }
@@ -102,7 +108,7 @@ impl<T> Hub<T> {
     }
 
     /// Get tray of hub. Will solve to lowest rank if needed.
-    pub fn tray(&self) -> Result<Tray> {
+    pub fn tray(&self) -> Result<Tray<T>> {
         match self {
             Self::Tray(tray) => Ok(tray.clone()),
             Self::Leaf(leaf) => leaf.tray(),

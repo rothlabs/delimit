@@ -9,7 +9,10 @@ pub struct Leaf<T> {
     digest: Option<u64>,
 }
 
-impl<T> Leaf<T> {
+impl<T> Leaf<T> 
+where 
+    T: Payload
+{
     pub fn new(tray: T) -> Self {
         Self { tray, digest: None }
     }
@@ -60,7 +63,7 @@ impl<T> ReactMut for Leaf<T> {
 
 impl<T> SolveMut for Leaf<T> 
 where 
-    T: Hash + Serialize + Debug
+    T: Payload, //Hash + Serialize + Debug + SendSync,//Hash + Serialize + Debug
 {
     type Out = T;
     fn solve(&mut self, task: Task) -> Result<Gain<T>> {

@@ -17,6 +17,7 @@ pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use apex::Apex;
 
 use aim::*;
 use scope::*;
@@ -57,6 +58,7 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
+mod apex;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
@@ -106,6 +108,9 @@ impl<T: Send + Sync> SendSync for T {}
 pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
+
+pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(

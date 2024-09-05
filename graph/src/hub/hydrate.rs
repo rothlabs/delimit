@@ -1,6 +1,9 @@
 use super::*;
 
-impl Hub {
+impl<T> Hub<T> 
+where 
+    T: Payload
+{
     /// Build node connections in tree. A tree is a graph where each node has one root.
     /// This method traverses the tree to build additional connections using a name space system.
     pub fn hydrate(&self) -> Result<()> {

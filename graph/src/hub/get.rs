@@ -1,8 +1,11 @@
 use super::*;
 
-impl Hub {
+impl<T> Hub<T> 
+where 
+    T: Payload
+{
     /// Get one hub.
-    pub fn get(&self, aim: impl Into<Aim>) -> Result<Hub> {
+    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
         match self {
             Self::Ploy(ploy) => {
                 let mut get = Get::new(aim.into());
@@ -13,12 +16,12 @@ impl Hub {
         }
     }
     /// Get vector of all hubes.
-    pub fn all(&self) -> Result<Vec<Hub>> {
+    pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
             Self::Ploy(ploy) => {
-                let mut all = All { hubes: vec![] };
+                let mut all = All { apexes: vec![] };
                 ploy.adapt(&mut all)?;
-                Ok(all.hubes)
+                Ok(all.apexes)
             }
             _ => Err(Error::NotPloy)?,
         }
@@ -28,7 +31,7 @@ impl Hub {
 #[derive(Debug)]
 pub struct Get {
     aim: Aim,
-    hub: Option<Hub>,
+    apex: Option<Apex>,
     errors: Vec<aim::Error>,
 }
 
@@ -36,12 +39,12 @@ impl Get {
     pub fn new(aim: Aim) -> Self {
         Self {
             aim,
-            hub: None,
+            apex: None,
             errors: vec![],
         }
     }
-    pub fn hub(self) -> Result<Hub> {
-        if let Some(hub) = self.hub {
+    pub fn hub(self) -> Result<Apex> {
+        if let Some(hub) = self.apex {
             Ok(hub)
         } else {
             Err(hub::Error::NotFound(self.errors))?
@@ -50,30 +53,30 @@ impl Get {
 }
 
 impl Deal for Get {
-    fn one(&mut self, key: &str, hub: &mut Hub) -> Result<()> {
-        if self.hub.is_some() {
+    fn one(&mut self, key: &str, apex: &mut Apex) -> Result<()> {
+        if self.apex.is_some() {
             return Ok(());
         }
         match &self.aim {
             Aim::Key(rhs) => {
                 if key == rhs {
-                    self.hub = Some(hub.clone());
+                    self.apex = Some(apex.clone());
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
         Ok(())
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
-        if self.hub.is_some() {
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+        if self.apex.is_some() {
             return Ok(());
         }
         match self.aim {
             Aim::Index(i) => {
-                if i < hubes.len() {
-                    self.hub = Some(hubes[i].clone());
+                if i < apexes.len() {
+                    self.apex = Some(apexes[i].clone());
                 } else {
-                    self.errors.push(self.aim.index_out_of_bounds(hubes.len()));
+                    self.errors.push(self.aim.index_out_of_bounds(apexes.len()));
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Index")),
@@ -81,12 +84,12 @@ impl Deal for Get {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        if self.hub.is_some() {
+        if self.apex.is_some() {
             return Ok(());
         }
         match &self.aim {
             Aim::Key(key) => {
-                self.hub = map.get(key);
+                self.apex = map.get(key);
             }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
@@ -96,20 +99,20 @@ impl Deal for Get {
 
 #[derive(Debug)]
 struct All {
-    hubes: Vec<Hub>,
+    apexes: Vec<Apex>,
 }
 
 impl Deal for All {
-    fn one(&mut self, _: &str, hub: &mut Hub) -> Result<()> {
-        self.hubes.push(hub.clone());
+    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
+        self.apexes.push(apex.clone());
         Ok(())
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
-        self.hubes.extend(hubes.clone());
+    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+        self.apexes.extend(apexes.clone());
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        self.hubes.extend(map.all());
+        self.apexes.extend(map.all());
         Ok(())
     }
 }

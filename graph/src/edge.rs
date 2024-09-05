@@ -128,6 +128,7 @@ where
 impl<N> Solve for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
+    //N::Out: 'static + Debug + SendSync
 {
     type Out = N::Out;
     fn solve(&self, task: Task) -> Result<Gain<N::Out>> {

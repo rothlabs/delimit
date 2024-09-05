@@ -1,15 +1,18 @@
 use super::*;
 
-impl Hub {
+impl<T> Hub<T> 
+where 
+    T: Payload
+{
     /// Set one hub.
-    pub fn set(&self, aim: impl Into<Aim>, hub: impl Into<Hub>) -> Result<()> {
+    pub fn set(&self, aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim, hub)),
             _ => Err(hub::Error::NotPloy)?,
         }
     }
     // Insert one hub
-    pub fn insert(&self, aim: impl Into<Aim>, hub: impl Into<Hub>) -> Result<()> {
+    pub fn insert(&self, aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim, hub)),
             _ => Err(hub::Error::NotPloy)?,
@@ -18,15 +21,21 @@ impl Hub {
 }
 
 #[derive(Debug)]
-struct Set {
+struct Set<T> 
+where 
+    T: 'static + Payload
+{
     aim: Aim,
-    hub: Hub,
+    hub: Hub<T>,
     back: Option<Back>,
     wrote: bool,
 }
 
-impl Set {
-    fn new(aim: impl Into<Aim>, hub: impl Into<Hub>) -> Self {
+impl<T> Set<T> 
+where 
+    T: Payload
+{
+    fn new(aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Self {
         Self {
             aim: aim.into(),
             hub: hub.into(),
@@ -36,14 +45,17 @@ impl Set {
     }
 }
 
-impl Deal for Set {
+impl<T> Deal for Set<T> 
+where 
+    T: Payload
+{
     fn wrote(&self) -> bool {
         self.wrote
     }
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
+    fn vec(&mut self, _: &str, hubes: &mut Vec<Apex>) -> Result<()> {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {

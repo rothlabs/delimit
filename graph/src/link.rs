@@ -61,6 +61,7 @@ impl<E, T> Link<E, T> {
 impl<E, T> Link<E, T>
 where
     Self: Solve<Out = T>,
+    T: Payload
 {
     pub fn main(&self) -> Result<Hub<T>> {
         match self.solve(Task::Main)? {
@@ -322,10 +323,11 @@ where
 
 impl<E, T> Solve for Link<E, T>
 where
+    //T: 'static + Debug + SendSync, // Hash + Serialize + 
     E: 'static + Solve<Out = T> + AddRoot + Update,
 {
     type Out = T;
-    fn solve(&self, task: Task) -> Result<Gain<T>> {
+    fn solve(&self, task: Task) -> Result<Gain<Self::Out>> {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
             edge.add_root(self.as_root(edge.id()))?;

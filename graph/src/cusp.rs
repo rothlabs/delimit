@@ -150,6 +150,7 @@ where
 impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut,
+    //W::Out: 'static + Debug + SendSync
 {
     type Out = W::Out;
     fn solve(&mut self, task: Task) -> Result<Gain<W::Out>> {
