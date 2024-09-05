@@ -8,7 +8,7 @@ use std::sync::{Arc, RwLock};
 use std::{cell::RefCell, rc::Rc};
 use std::{
     fmt,
-    hash::{Hash, Hasher},
+    hash::{Hash, Hasher}, marker::PhantomData,
 };
 
 mod leaf;
@@ -16,36 +16,38 @@ mod leaf;
 mod tests;
 
 /// `Link` to `Tray`.
-pub type Leaf<T> = Link<edge::Leaf<T>>;
+pub type Leaf<T> = Link<edge::Leaf<T>, T>;
 
 /// `Link` to domain-specific unit.
 /// The unit type is intact. For type-erased unit, use `Ploy` instead.
-pub type Node<U> = Link<edge::Node<U>>;
+pub type Node<U> = Link<edge::Node<U>, ()>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
 // #[derive(Debug)]
-pub struct Link<E> {
+pub struct Link<E, T> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
     path: Option<Path>,
     rank: Option<u64>,
+    out: PhantomData<T>
 }
 
-impl<E> fmt::Debug for Link<E> {
+impl<E, T> fmt::Debug for Link<E, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("Path: {:?}", self.path))
     }
 }
 
-impl<E> Link<E> {
+impl<E, T> Link<E, T> {
     pub fn pathed(&self, path: Path) -> Self {
         Self {
             edge: self.edge.clone(),
             path: Some(path),
             rank: self.rank,
+            out: PhantomData::default(),
         }
     }
     pub fn path(&self) -> Option<&Path> {
@@ -56,11 +58,11 @@ impl<E> Link<E> {
     }
 }
 
-impl<E: Solve> Link<E>
+impl<E, T> Link<E, T>
 where
-    Self: Solve<Out = E::Out>,
+    Self: Solve<Out = T>,
 {
-    pub fn main(&self) -> Result<Hub<E::Out>> {
+    pub fn main(&self) -> Result<Hub<T>> {
         match self.solve(Task::Main)? {
             Gain::Hub(hub) => Ok(hub),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
@@ -74,7 +76,7 @@ where
     }
 }
 
-impl<E> Hash for Link<E>
+impl<E, T> Hash for Link<E, T>
 where
     Self: Solve,
 {
@@ -88,7 +90,7 @@ where
     }
 }
 
-impl<E> Serialize for Link<E>
+impl<E, T> Serialize for Link<E, T>
 where
     Self: Solve,
 {
@@ -107,7 +109,7 @@ where
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
     E: FromItem,
 {
@@ -120,11 +122,12 @@ where
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(edge)),
+            out: PhantomData::default()
         }
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
     E: Make,
 {
@@ -137,68 +140,73 @@ where
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(edge)),
+            out: PhantomData::default(),
         })
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
-    E: 'static + Make + Engage,
+    E: 'static + Make + Engage<T>,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy> {
+    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<T>> {
         let (edge, rank) = E::make(make)?;
         Ok(Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<T>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            out: PhantomData::default()
         })
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
-    E: ToPloy,
+    E: ToPloy<Out = T>,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy> {
+    pub fn ploy(&self) -> Result<Ploy<T>> {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             path: self.path.clone(),
             rank: self.rank,
+            out: PhantomData::default(),
         })
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
-    E: 'static + FromSnap + Engage,
+    E: 'static + FromSnap + Engage<T>,
 {
-    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy {
+    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<T> {
         let (edge, rank) = E::from_snap(snap);
         Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<T>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            out: PhantomData::default(),
         }
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
-    E: Read<Item = Tray>,
+    E: Read<Item = T>,
+    T: Clone,
 {
-    pub fn tray(&self) -> Result<Tray> {
+    pub fn tray(&self) -> Result<T> {
         read_part(&self.edge, |edge| edge.read(|tray| tray.clone()))?
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
     E: 'static + Update,
 {
@@ -220,17 +228,18 @@ where
     }
 }
 
-impl<E> Clone for Link<E> {
+impl<E, T> Clone for Link<E, T> {
     fn clone(&self) -> Self {
         Self {
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
+            out: self.out.clone(),
         }
     }
 }
 
-impl<E> PartialEq for Link<E> {
+impl<E, T> PartialEq for Link<E, T> {
     #[cfg(not(feature = "oneThread"))]
     fn eq(&self, other: &Self) -> bool {
         Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge)
@@ -245,7 +254,7 @@ impl<E> PartialEq for Link<E> {
     }
 }
 
-impl<E> TryBacked for Link<E>
+impl<E, T> TryBacked for Link<E, T>
 where
     E: Backed,
 {
@@ -260,6 +269,7 @@ where
             edge: Arc::new(RwLock::new(edge.backed(back))),
             path: self.path.clone(),
             rank: self.rank,
+            out: self.out.clone()
         })
     }
     #[cfg(feature = "oneThread")]
@@ -277,12 +287,12 @@ where
     }
 }
 
-impl<E> Link<E>
+impl<E, T> Link<E, T>
 where
     E: 'static + Read + Update + AddRoot,
 {
     /// Read payload of Link.
-    pub fn read<T, F: FnOnce(&E::Item) -> T>(&self, read: F) -> Result<T> {
+    pub fn read<O, F: FnOnce(&E::Item) -> O>(&self, read: F) -> Result<O> {
         read_part(&self.edge, |edge| {
             let out = edge.read(read);
             edge.add_root(self.as_root(edge.id()))?;
@@ -291,30 +301,31 @@ where
     }
 }
 
-impl<E> WriteTray for Link<E>
+impl<E, T> WriteTray<T> for Link<E, T>
 where
-    E: WriteTray,
+    E: WriteTray<T>,
 {
-    fn write<T, F: FnOnce(&mut Tray) -> T>(&self, write: F) -> Result<T> {
+    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         read_part(&self.edge, |edge| edge.write(write))?
     }
 }
 
-impl<E> WriteUnit for Link<E>
+impl<E, T> WriteUnit for Link<E, T>
 where
     E: WriteUnit,
 {
     type Unit = E::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T> {
+    fn write<O, F: FnOnce(&mut Pack<Self::Unit>) -> O>(&self, write: F) -> Result<O> {
         read_part(&self.edge, |edge| edge.write(write))?
     }
 }
 
-impl<E> Solve for Link<E>
+impl<E, T> Solve for Link<E, T>
 where
-    E: 'static + Solve + AddRoot + Update,
+    E: 'static + Solve<Out = T> + AddRoot + Update,
 {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = T;
+    fn solve(&self, task: Task) -> Result<Gain<T>> {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);
             edge.add_root(self.as_root(edge.id()))?;
@@ -323,7 +334,7 @@ where
     }
 }
 
-impl<E> AdaptMid for Link<E>
+impl<E, T> AdaptMid for Link<E, T>
 where
     E: 'static + AdaptMid + AddRoot + Update,
 {
@@ -338,13 +349,14 @@ where
     }
 }
 
-impl TryBacked for Ploy {
-    type Out = Ploy;
+impl<T> TryBacked for Ploy<T> {
+    type Out = Ploy<T>;
     fn backed(&self, back: &Back) -> Result<Self::Out> {
         read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
             path: self.path.clone(),
             rank: self.rank,
+            out: self.out.clone(),
         })
     }
 }

@@ -78,8 +78,9 @@ impl<U> ToPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
 {
+    type Out = U::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> PloyPointer {
+    fn ploy(&self) -> PloyPointer<U::Out> {
         Arc::new(RwLock::new(Box::new(Self {
             back: self.back.clone(),
             cusp: self.cusp.clone(),

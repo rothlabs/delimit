@@ -2,7 +2,7 @@ use super::*;
 
 /// `Link` to domain-specific unit.
 /// The unit type is erased. To keep unit type intact, use `Node` instead.
-pub type Ploy<T> = Link<Box<dyn Engage<Out = T>>>;
+pub type Ploy<T> = Link<Box<dyn Engage<T>>, T>;
 
 #[cfg(not(feature = "oneThread"))]
 pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<T>>>>;
@@ -10,13 +10,9 @@ pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<T>>>>;
 pub type PloyPointer = Rc<RefCell<Box<dyn Engage>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {
-    type Out;
-}
+pub trait Engage<T>: Solve<Out = T> + AdaptMid + BackedPloy<Out = T> + AddRoot + Update + Debug {}
 
-impl<E> Engage for E where E: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {
-    type Out = <E as Solve>::Out;
-}
+impl<E, T> Engage<T> for E where E: Solve<Out = T> + AdaptMid + BackedPloy<Out = T> + AddRoot + Update + Debug {}
 
 pub trait ToPloy {
     type Out;

@@ -19,7 +19,7 @@ impl<T> Leaf<T> {
 }
 
 impl<T: Hash> Leaf<T> {
-    fn digest(&mut self) -> Result<Gain> {
+    fn digest(&mut self) -> Result<Gain<T>> {
         if let Some(digest) = &self.digest {
             digest.gain()
         } else {
@@ -62,7 +62,8 @@ impl<T> SolveMut for Leaf<T>
 where 
     T: Hash + Serialize + Debug
 {
-    fn solve(&mut self, task: Task) -> Result<Gain> {
+    type Out = T;
+    fn solve(&mut self, task: Task) -> Result<Gain<T>> {
         match task {
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),

@@ -5,19 +5,20 @@ use crate::*;
 /// The solved Gain is kept to be returned on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
-pub struct Node<U> {
+pub struct Node<U: Solve> {
     imports: Vec<Import>,
     unit: Option<U>,
-    main: Option<Gain>,
-    digest: Option<Gain>,
-    serial: Option<Gain>,
+    main: Option<Gain<U::Out>>,
+    digest: Option<Gain<U::Out>>,
+    serial: Option<Gain<U::Out>>,
 }
 
 impl<U> Node<U>
 where
     U: Solve,
+    U::Out: Clone,
 {
-    fn main(&mut self) -> Result<Gain> {
+    fn main(&mut self) -> Result<Gain<U::Out>> {
         if let Some(main) = &self.main {
             Ok(main.clone())
         } else {
@@ -26,7 +27,7 @@ where
             Ok(main)
         }
     }
-    fn digest(&mut self) -> Result<Gain> {
+    fn digest(&mut self) -> Result<Gain<U::Out>> {
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
@@ -41,7 +42,7 @@ where
             Ok(digest)
         }
     }
-    fn serial(&mut self) -> Result<Gain> {
+    fn serial(&mut self) -> Result<Gain<U::Out>> {
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
@@ -55,8 +56,10 @@ where
 impl<U> SolveMut for Node<U>
 where
     U: Solve,
+    U::Out: Clone,
 {
-    fn solve(&mut self, task: Task) -> Result<Gain> {
+    type Out = U::Out;
+    fn solve(&mut self, task: Task) -> Result<Gain<U::Out>> {
         match task {
             Task::Main => self.main(),
             Task::Hash => self.digest(),
@@ -85,6 +88,7 @@ where
 impl<U> MakeMid for Node<U>
 where
     U: Solve,
+    U::Out: Clone
 {
     type Unit = U;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
@@ -104,6 +108,7 @@ where
 impl<U> WithSnap for Node<U>
 where
     U: Adapt + Solve,
+    U::Out: Clone
 {
     type Unit = U;
     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
@@ -187,7 +192,8 @@ where
 
 impl<U> Adapt for Node<U>
 where
-    U: Adapt,
+    U: Adapt + Solve,
+    // U::Out: Clone
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.as_mut().unwrap().adapt(deal)
