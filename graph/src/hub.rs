@@ -1,4 +1,5 @@
 use super::*;
+use anyhow::anyhow;
 use thiserror::Error;
 // use view::*;
 
@@ -145,54 +146,44 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<O, F: FnOnce(&Tray<T>) -> O>(&self, read: F) -> Result<O> {
+    pub fn read<O, F: FnOnce(&T) -> O>(&self, read: F) -> Result<O> {
         match self {
-            Self::Tray(tray) => Ok(read(tray)),
+            Self::Tray(tray) => {
+                if let Tray::Item(item) = tray {
+                    Ok(read(item))
+                } else {
+                    Err(tray.wrong_variant("Item"))?
+                }
+            },
             Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
-            // _ => panic!("crap")
         }
     }
 
-    /// Make a View for reading Tray variants.
-    pub fn view(&self) -> View {
-        View { hub: self }
-    }
+    // /// Make a View for reading Tray variants.
+    // pub fn view(&self) -> View {
+    //     View { hub: self }
+    // }
 
     /// Clone String from Hub.
-    pub fn string(&self) -> Result<String> {
+    pub fn item(&self) -> Result<T> {
         let tray = self.tray()?;
         match tray {
-            Tray::String(value) => Ok(value),
-            _ => Err(tray.wrong_variant("String"))?,
-        }
-    }
-
-    /// u32 from Hub.
-    pub fn u32(&self) -> Result<u32> {
-        let tray = self.tray()?;
-        match tray {
-            Tray::U32(value) => Ok(value),
-            _ => Err(tray.wrong_variant("u32"))?,
-        }
-    }
-
-    /// i32 from Hub.
-    pub fn i32(&self) -> Result<i32> {
-        let tray = self.tray()?;
-        match tray {
-            Tray::I32(value) => Ok(value),
-            _ => Err(tray.wrong_variant("i32"))?,
+            Tray::Item(item) => Ok(item),
+            _ => Err(tray.wrong_variant("Item"))?,
         }
     }
 }
 
-impl TryBacked for Hub {
+impl<T> TryBacked for Hub<T> 
+where 
+    T: Payload
+{
     type Out = Self;
     /// New backed hub.
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
-            Self::Tray(bare) => Ok(Self::Tray(bare.clone())),
+            Self::Tray(tray) => Ok(Self::Tray(tray.clone())),
             Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
             Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
         }
@@ -208,15 +199,21 @@ where
     }
 }
 
-pub trait EngageHubes<'a> {
+pub trait EngageHubes<'a, T> 
+where 
+    T: Payload
+{
     /// Solve down to the given graph rank.
-    fn down(&self, rank: u64) -> Result<Vec<Hub>>;
+    fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
     /// Replace stems according to the Trade deal.
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
-impl<'a> EngageHubes<'a> for Vec<Hub> {
-    fn down(&self, rank: u64) -> Result<Vec<Hub>> {
+impl<'a, T> EngageHubes<'a, T> for Vec<Hub<T>> 
+where 
+    T: Payload
+{
+    fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {

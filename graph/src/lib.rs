@@ -167,11 +167,11 @@ pub trait Deal: Debug {
     /// Set back of deal.
     fn back(&mut self, _: &Back) {}
     /// Handle one hub.
-    fn one(&mut self, _: &str, _: &mut Hub) -> Result<()> {
+    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
         Ok(())
     }
     /// Handle vector of hubes.
-    fn vec(&mut self, _: &str, _: &mut Vec<Hub>) -> Result<()> {
+    fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {
         Ok(())
     }
     /// Handle map of hubes.
@@ -182,7 +182,7 @@ pub trait Deal: Debug {
 
 pub trait IntoNode
 where
-    Self: Sized,
+    Self: Sized,// + Act,
 {
     fn node(self) -> Result<Node<Self>>;
 }
@@ -190,6 +190,7 @@ where
 impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
+    T::Out: Payload
 {
     fn node(mut self) -> Result<Node<Self>> {
         Node::make(|back| {
