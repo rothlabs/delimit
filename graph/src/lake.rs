@@ -32,7 +32,7 @@ impl Lake {
     }
 
     /// Insert graph into lake given root key and hub.
-    pub fn insert(&mut self, key: impl Into<Key>, hub: &Hub) -> Result<()> {
+    pub fn insert<T: Payload>(&mut self, key: impl Into<Key>, hub: &Hub<T>) -> Result<()> {
         let serial = Serial {
             imports: hub.imports().unwrap_or_default(),
             unit: hub.serial()?,
@@ -45,7 +45,7 @@ impl Lake {
     }
 
     /// Insert stems recursively.
-    fn insert_stem(&mut self, hub: &Hub) -> Result<()> {
+    fn insert_stem<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
         if let Hub::Tray(_) = hub {
             return Ok(());
         }

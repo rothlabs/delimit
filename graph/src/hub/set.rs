@@ -5,50 +5,41 @@ where
     T: Payload
 {
     /// Set one hub.
-    pub fn set(&self, aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Result<()> {
+    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim, hub)),
+            Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim, apex)),
             _ => Err(hub::Error::NotPloy)?,
         }
     }
     // Insert one hub
-    pub fn insert(&self, aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Result<()> {
+    pub fn insert(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim, hub)),
+            Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim, apex)),
             _ => Err(hub::Error::NotPloy)?,
         }
     }
 }
 
 #[derive(Debug)]
-struct Set<T> 
-where 
-    T: 'static + Payload
-{
+struct Set {
     aim: Aim,
-    apex: Hub<T>,
+    apex: Apex,
     back: Option<Back>,
     wrote: bool,
 }
 
-impl<T> Set<T> 
-where 
-    T: Payload
-{
-    fn new(aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Self {
+impl Set {
+    fn new(aim: impl Into<Aim>, apex: impl Into<Apex>) -> Self {
         Self {
             aim: aim.into(),
-            hub: hub.into(),
+            apex: apex.into(),
             back: None,
             wrote: false,
         }
     }
 }
 
-impl<T> Deal for Set<T> 
-where 
-    T: Payload
-{
+impl Deal for Set {
     fn wrote(&self) -> bool {
         self.wrote
     }
@@ -59,8 +50,7 @@ where
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {
-                    //hubes[i] = self.hub.backed(back)?;
-                    views[i].set(apex);
+                    views[i].set(self.apex.backed(back)?);
                     self.wrote = true;
                     Ok(())
                 }
@@ -72,7 +62,7 @@ where
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(&self.aim, self.hub.backed(back)?)
+            map.insert(&self.aim, self.apex.backed(back)?)
         } else {
             no_back("Set")
         }
@@ -80,34 +70,25 @@ where
 }
 
 #[derive(Debug)]
-struct Insert<T>
-where 
-T: 'static + Payload
-{
+struct Insert {
     aim: Aim,
-    hub: Hub<T>,
+    apex: Apex,
     back: Option<Back>,
     wrote: bool,
 }
 
-impl<T> Insert<T> 
-where 
-    T: Payload
-{
-    fn new(aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Self {
+impl Insert {
+    fn new(aim: impl Into<Aim>, apex: impl Into<Apex>) -> Self {
         Self {
             aim: aim.into(),
-            hub: hub.into(),
+            apex: apex.into(),
             back: None,
             wrote: false,
         }
     }
 }
 
-impl<T> Deal for Insert<T> 
-where 
-    T: Payload
-{
+impl Deal for Insert {
     fn wrote(&self) -> bool {
         self.wrote
     }
@@ -116,7 +97,7 @@ where
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(&self.aim, self.hub.backed(back)?)
+            map.insert(&self.aim, self.apex.backed(back)?)
         } else {
             no_back("Insert")
         }
