@@ -326,13 +326,14 @@ where
 impl<E, T> Solve for Link<E, T>
 where
     //T: 'static + Debug + SendSync, // Hash + Serialize + 
-    E: 'static + Solve<Out = T> + AddRoot + Update,
+    // E: 'static + Solve<Out = T> + AddRoot + Update,
+    E: 'static + SolvePloy<Out = T> + AddRoot + Update,
     T: Payload
 {
     type Out = T;
     fn solve(&self, task: Task) -> Result<Gain<Self::Out>> {
         read_part(&self.edge, |edge| {
-            let result = edge.solve(task);
+            let result = edge.solve_ploy(task);
             edge.add_root(self.as_root(edge.id()))?;
             result
         })?

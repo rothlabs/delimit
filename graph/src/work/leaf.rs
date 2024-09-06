@@ -90,6 +90,12 @@ impl<T> Clear for Leaf<T> {
     }
 }
 
+impl<T> Adapt for Leaf<T> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        Ok(())
+    }
+}
+
 impl<T: Serialize> Serialize for Leaf<T> {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where

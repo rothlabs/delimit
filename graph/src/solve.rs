@@ -32,7 +32,10 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn solve_ok<T>() -> Result<Gain<T>> {
+pub fn solve_ok<T>() -> Result<Gain<T>> 
+where 
+    T: Payload
+{
     Ok(Gain::None)
 }
 
@@ -50,7 +53,7 @@ impl<A: Act> Solve for A {
 }
 
 pub trait SolveMut {
-    type Out;
+    type Out: Payload;
     /// For graph internals to handle solve calls
     fn solve(&mut self, task: Task) -> Result<Gain<Self::Out>>;
 }
