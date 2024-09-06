@@ -26,7 +26,7 @@ where
     T: 'static + Payload
 {
     aim: Aim,
-    hub: Hub<T>,
+    apex: Hub<T>,
     back: Option<Back>,
     wrote: bool,
 }
@@ -55,11 +55,12 @@ where
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Apex>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> Result<()> {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {
-                    hubes[i] = self.hub.backed(back)?;
+                    //hubes[i] = self.hub.backed(back)?;
+                    views[i].set(apex);
                     self.wrote = true;
                     Ok(())
                 }

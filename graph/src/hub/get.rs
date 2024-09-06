@@ -53,30 +53,30 @@ impl Get {
 }
 
 impl Deal for Get {
-    fn one(&mut self, key: &str, apex: &mut Apex) -> Result<()> {
+    fn one<'a>(&mut self, key: &str, view: View<'a>) -> Result<()> {
         if self.apex.is_some() {
             return Ok(());
         }
         match &self.aim {
             Aim::Key(rhs) => {
                 if key == rhs {
-                    self.apex = Some(apex.clone());
+                    self.apex = Some(view.apex());
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Key")),
         }
         Ok(())
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, views: Vec<View<'a>>) -> Result<()> {
         if self.apex.is_some() {
             return Ok(());
         }
         match self.aim {
             Aim::Index(i) => {
-                if i < apexes.len() {
-                    self.apex = Some(apexes[i].clone());
+                if i < views.len() {
+                    self.apex = Some(views[i].apex());
                 } else {
-                    self.errors.push(self.aim.index_out_of_bounds(apexes.len()));
+                    self.errors.push(self.aim.index_out_of_bounds(views.len()));
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Index")),
@@ -103,16 +103,30 @@ struct All {
 }
 
 impl Deal for All {
-    fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-        self.apexes.push(apex.clone());
+    fn one<'a>(&mut self, _: &str, view: View<'a>) -> Result<()> {
+        self.apexes.push(view.apex());
         Ok(())
     }
-    fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-        self.apexes.extend(apexes.clone());
+    fn vec<'a>(&mut self, _: &str, views: Vec<View<'a>>) -> Result<()> {
+        for view in views {
+            self.apexes.push(view.apex())
+        }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         self.apexes.extend(map.all());
         Ok(())
     }
+    // fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
+    //     self.apexes.push(apex.clone());
+    //     Ok(())
+    // }
+    // fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
+    //     self.apexes.extend(apexes.clone());
+    //     Ok(())
+    // }
+    // fn map(&mut self, map: &mut Map) -> Result<()> {
+    //     self.apexes.extend(map.all());
+    //     Ok(())
+    // }
 }

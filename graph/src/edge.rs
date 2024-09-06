@@ -157,9 +157,9 @@ where
     N:  AdaptOut + AddRootMut + Debug,
     N::Out: Payload
 {
-    type Out = N::Out;
+    type Pay = N::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out> {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Pay> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -172,7 +172,7 @@ where
             cusp: self.cusp.clone(),
         })))
     }
-    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Out>> {
+    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Pay>> {
         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
 }

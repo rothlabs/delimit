@@ -40,10 +40,10 @@ pub trait AddRootMut {
 }
 
 pub trait TryBacked {
-    type Out;
+    type NewSelf;
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> std::result::Result<Self::Out, crate::Error>;
+    fn backed(&self, back: &Back) -> crate::Result<Self::NewSelf>;
 }
 
 pub trait Backed {

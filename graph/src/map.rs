@@ -3,32 +3,32 @@ use std::collections::hash_map::IterMut;
 
 /// Key-Hub map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub struct Map(pub HashMap<Key, Hub>);
+pub struct Map(pub HashMap<Key, Apex>);
 
 impl Map {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn insert(&mut self, aim: impl Into<Aim>, hub: Hub) -> Result<()> {
+    pub fn insert(&mut self, aim: impl Into<Aim>, apex: Apex) -> Result<()> {
         match &aim.into() {
             Aim::Key(key) => {
-                self.0.insert(key.clone(), hub);
+                self.0.insert(key.clone(), apex);
                 Ok(())
             }
             aim => Err(aim.wrong_variant("Key"))?,
         }
     }
-    pub fn get(&self, key: &Key) -> Option<Hub> {
-        self.0.get(key).map(|hub| hub.pathed(key))
+    pub fn get(&self, key: &Key) -> Option<Apex> {
+        self.0.get(key).map(|apex| apex.pathed(key))
     }
-    pub fn all(&self) -> Vec<Hub> {
+    pub fn all(&self) -> Vec<Apex> {
         let mut out = vec![];
-        for (key, hub) in &self.0 {
-            out.push(hub.pathed(key));
+        for (key, apex) in &self.0 {
+            out.push(apex.pathed(key));
         }
         out
     }
-    pub fn iter_mut(&mut self) -> IterMut<Key, Hub> {
+    pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }
     pub fn deal(&mut self, deal: &mut dyn Deal) -> Result<()> {
@@ -36,8 +36,8 @@ impl Map {
     }
     pub fn backed(&mut self, back: &Back) -> Result<Self> {
         let mut map = Map::new();
-        for (aim, hub) in &self.0 {
-            map.insert(aim, hub.backed(back)?)?;
+        for (aim, apex) in &self.0 {
+            map.insert(aim, apex.backed(back)?)?;
         }
         Ok(map)
     }

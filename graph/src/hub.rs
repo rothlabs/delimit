@@ -21,7 +21,7 @@ pub enum Error {
 }
 
 /// Primary graph part.
-#[derive(Clone, PartialEq, Hash, Debug)] // Serialize
+#[derive(Clone, PartialEq, Hash, Serialize, Debug)] 
 // #[serde(untagged)]
 pub enum Hub<T> 
 where 
@@ -117,10 +117,10 @@ where
         }
     }
 
-    /// Run Trade deal with this hub as input.
-    pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-        deal.one(key, self)
-    }
+    // /// Run Trade deal with this hub as input.
+    // pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+    //     deal.one(key, self)
+    // }
 
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
     pub fn rank(&self) -> Option<u64> {
@@ -179,7 +179,7 @@ impl<T> TryBacked for Hub<T>
 where 
     T: Payload
 {
-    type Out = Self;
+    type NewSelf = Self;
     /// New backed hub.
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
@@ -205,8 +205,8 @@ where
 {
     /// Solve down to the given graph rank.
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
-    /// Replace stems according to the Trade deal.
-    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
+    // Replace stems according to the Trade deal.
+    // fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
 impl<'a, T> EngageHubes<'a, T> for Vec<Hub<T>> 
@@ -216,7 +216,7 @@ where
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
-    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-        deal.vec(key, self)
-    }
+    // fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+    //     deal.vec(key, self)
+    // }
 }

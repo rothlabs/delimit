@@ -32,6 +32,12 @@ impl From<&String> for Path {
     }
 }
 
+impl From<String> for Path {
+    fn from(value: String) -> Self {
+        Self::Local(vec![value])
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub struct Upper<T> {
     pub rank: usize,

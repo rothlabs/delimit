@@ -17,7 +17,7 @@ pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
-pub use apex::Apex;
+pub use apex::{Apex, View};
 
 use aim::*;
 use scope::*;
@@ -167,11 +167,11 @@ pub trait Deal: Debug {
     /// Set back of deal.
     fn back(&mut self, _: &Back) {}
     /// Handle one hub.
-    fn one(&mut self, _: &str, _: &mut Apex) -> Result<()> {
+    fn one<'a>(&mut self, _: &str, _: View<'a>) -> Result<()> {
         Ok(())
     }
     /// Handle vector of hubes.
-    fn vec(&mut self, _: &str, _: &mut Vec<Apex>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, _: Vec<View<'a>>) -> Result<()> {
         Ok(())
     }
     /// Handle map of hubes.
@@ -182,7 +182,8 @@ pub trait Deal: Debug {
 
 pub trait IntoNode
 where
-    Self: Sized,// + Act,
+    Self: Solve + Sized,
+    Self::Out: Payload
 {
     fn node(self) -> Result<Node<Self>>;
 }
@@ -202,16 +203,17 @@ where
 
 pub trait IntoPloy
 where
-    Self: Sized,
+    Self: Solve + Sized,
 {
-    fn ploy(self) -> Result<Ploy>;
+    fn ploy(self) -> Result<Ploy<Self::Out>>;
 }
 
 impl<T> IntoPloy for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
+    T::Out: Payload
 {
-    fn ploy(mut self) -> Result<Ploy> {
+    fn ploy(mut self) -> Result<Ploy<T::Out>> {
         Node::make_ploy(|back| {
             self.adapt(&mut back.clone())
                 .expect("To move into Ploy, unit must Adapt with Post::Trade.");
@@ -221,40 +223,47 @@ where
 }
 
 pub trait IntoHub {
+    type Out: Payload;
     /// Move into `Hub`
-    fn hub(self) -> Result<Hub>;
+    fn hub(self) -> Result<Hub<Self::Out>>;
 }
 
 impl<T> IntoHub for T
 where
     T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
+    T::Out: Payload
 {
-    fn hub(self) -> Result<Hub> {
+    type Out = T::Out;
+    fn hub(self) -> Result<Hub<Self::Out>> {
         Ok(self.ploy()?.into())
     }
 }
 
-pub trait LeafIntoHub {
+pub trait LeafIntoHub<T: Payload> {
+    //type Out: Payload;
     /// Move into `Hub`
-    fn hub(self) -> Hub;
+    fn hub(self) -> Hub<T>;
 }
 
-impl LeafIntoHub for Leaf {
-    fn hub(self) -> Hub {
+impl<T: Payload> LeafIntoHub<T> for Leaf<T> {
+    fn hub(self) -> Hub<T> {
         self.into()
     }
 }
 
 pub trait ToHub {
+    type Pay: Payload;
     /// Place inside a Hub.
-    fn hub(&self) -> Result<Hub>;
+    fn hub(&self) -> Result<Hub<Self::Pay>>;
 }
 
 impl<T> ToHub for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
+    T::Out: Payload
 {
-    fn hub(&self) -> Result<Hub> {
+    type Pay = T::Out;
+    fn hub(&self) -> Result<Hub<Self::Pay>> {
         Ok(Hub::from(self.ploy()?))
     }
 }
@@ -322,3 +331,14 @@ pub trait WithSnap {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+// pub trait Pathed {
+//     fn pathed(&self, path: &Path) -> Self;
+// }
+
+// impl<T: Pathed> Pathed for Vec<T> 
+// {
+//     fn pathed(&self, path: &Path) -> Self {
+//         self.iter().map(|x| x.pathed(path)).collect()
+//     }
+// }

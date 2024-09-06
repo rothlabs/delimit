@@ -16,6 +16,7 @@ pub struct Out<T> {
 }
 
 pub trait WriteTray<T> {
+    // type Item;
     /// Front-facing write-to-tray.
     fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>;
 }
