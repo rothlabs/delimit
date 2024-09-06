@@ -150,15 +150,17 @@ where
 
 impl<E, T> Link<E, T>
 where
-    E: 'static + Make + Engage<T>,
+    E: 'static + Make + Engage,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<T>> {
+    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Out>> {
         let (edge, rank) = E::make(make)?;
+        // let wow = edge.backed_ploy(back);
+        // let wow = Box::new(edge);
         Ok(Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, BackedOut = E::Out>>)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
             out: PhantomData::default()
@@ -168,7 +170,7 @@ where
 
 impl<E, T> Link<E, T>
 where
-    E: ToPloy<Out = T>,
+    E: ToPloy<ToPloyOut = T>,
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Result<Ploy<T>> {
@@ -183,15 +185,15 @@ where
 
 impl<E, T> Link<E, T>
 where
-    E: 'static + FromSnap + Engage<T>,
+    E: 'static + FromSnap + Engage,
 {
-    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<T> {
+    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Out> {
         let (edge, rank) = E::from_snap(snap);
         Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, BackedOut = E::Out>>)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
             out: PhantomData::default(),
