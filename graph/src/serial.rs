@@ -3,35 +3,35 @@ use std::fmt;
 
 pub trait ToSerial {
     /// Serialize to string.
-    fn serial(&self) -> Result<Gain>;
+    fn serial<T: Payload>(&self) -> Result<Gain<T>>;
 }
 
-impl<T> ToSerial for T
+impl<S> ToSerial for S
 where
-    T: Serialize,
+    S: Serialize,
 {
     /// Serialize to string.
-    fn serial(&self) -> Result<Gain> {
+    fn serial<T: Payload>(&self) -> Result<Gain<T>> {
         serde_json::to_string(self)?.gain()
     }
 }
 
 pub trait DeserializeUnit: Debug + SendSync {
     /// Deserialize to `Hub` with concrete unit type.
-    fn deserialize(&self, serial_node: &Serial) -> Result<Hub>;
+    fn deserialize(&self, serial_node: &Serial) -> Result<Apex>;
 }
 
 pub trait ToHash {
     /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;
+    fn digest<T: Payload>(&self, state: &mut UnitHasher) -> Result<Gain<T>>;
 }
 
-impl<T> ToHash for T
+impl<H> ToHash for H
 where
-    T: Hash,
+    H: Hash,
 {
     /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> Result<Gain> {
+    fn digest<T: Payload>(&self, state: &mut UnitHasher) -> Result<Gain<T>> {
         self.hash(state);
         state.finish().gain()
     }

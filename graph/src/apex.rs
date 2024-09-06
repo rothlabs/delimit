@@ -6,6 +6,27 @@ pub enum Apex {
     U8(Hub<u8>),
 }
 
+impl Apex {
+    pub fn pathed(&self, path: impl Into<Path>) -> Self {
+        match self {
+            Self::String(x) => Self::String(x.pathed(path)),
+            Self::U8(x) => Self::U8(x.pathed(path)),
+        }
+    }
+    pub fn insert_in_lake(&self, lake: &mut Lake) -> Result<()> {
+        match self {
+            Self::String(x) => lake.insert_stem(x),
+            Self::U8(x) => lake.insert_stem(x),
+        }
+    }
+    pub fn grow_from_lake(&self, lake: &mut Lake) -> Result<()> {
+        match self {
+            Self::String(x) => lake.grow(x),
+            Self::U8(x) => lake.grow(x),
+        }
+    }
+}
+
 impl TryBacked for Apex {
     type NewSelf = Self;
     fn backed(&self, back: &Back) -> Result<Self::NewSelf> {
@@ -14,15 +35,6 @@ impl TryBacked for Apex {
             Self::U8(x) => Self::U8(x.backed(back)?),
         };
         Ok(apex)
-    }
-}
-
-impl Apex {
-    pub fn pathed(&self, path: impl Into<Path>) -> Self {
-        match self {
-            Self::String(x) => Self::String(x.pathed(path)),
-            Self::U8(x) => Self::U8(x.pathed(path)),
-        }
     }
 }
 
@@ -44,6 +56,21 @@ impl View<'_> {
             Self::U8(x) => if let Apex::U8(y) = apex {*x = y;},
         };
         Ok(())
+    }
+    pub fn tray_hash(&self) -> Option<u64> {
+        match self {
+            Self::String(x) => x.tray_hash(),
+            Self::U8(x) => x.tray_hash(),
+        }
+    }
+}
+
+impl<'a> From<&'a mut Apex> for View<'a> {
+    fn from(value: &'a mut Apex) -> Self {
+        match value {
+            Apex::String(x) => View::String(x),
+            Apex::U8(x) => View::U8(x),
+        }
     }
 }
 

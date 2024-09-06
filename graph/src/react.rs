@@ -138,12 +138,16 @@ impl Back {
 }
 
 impl Deal for Back {
-    fn one(&mut self, _: &str, hub: &mut Hub) -> crate::Result<()> {
-        *hub = hub.backed(self)?;
+    fn one<'a>(&mut self, _: &str, view: View<'a>) -> crate::Result<()> {
+        let apex = view.apex();
+        view.set(apex.backed(self)?);
         Ok(())
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> crate::Result<()> {
-        *hubes = hubes.backed(self)?;
+    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> crate::Result<()> {
+        for view in views {
+            let apex = view.apex();
+            view.set(apex.backed(self)?);
+        }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> crate::Result<()> {

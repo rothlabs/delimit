@@ -38,14 +38,14 @@ impl Lake {
             unit: hub.serial()?,
         };
         self.roots.insert(key.into(), serial);
-        for hub in &hub.all().unwrap_or_default() {
-            self.insert_stem(hub)?;
+        for apex in &hub.all().unwrap_or_default() {
+            apex.insert_in_lake(self)?;
         }
         Ok(())
     }
 
     /// Insert stems recursively.
-    fn insert_stem<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
+    pub fn insert_stem<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
         if let Hub::Tray(_) = hub {
             return Ok(());
         }
@@ -54,29 +54,29 @@ impl Lake {
             unit: hub.serial()?,
         };
         self.nodes.insert(hub.digest()?, serial);
-        for hub in &hub.all().unwrap_or_default() {
-            self.insert_stem(hub)?;
+        for apex in &hub.all().unwrap_or_default() {
+            apex.insert_in_lake(self)?;
         }
         Ok(())
     }
 
     /// Grow a tree from the lake.
-    pub fn tree(&mut self) -> Result<Hub> {
+    pub fn tree(&mut self) -> Result<Apex> {
         let root = self.root("root")?;
-        self.grow(&root).ok();
+        root.grow_from_lake(self).ok();
         Ok(root)
     }
 
-    fn grow(&mut self, hub: &Hub) -> Result<()> {
+    pub fn grow<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
         hub.adapt(self)?;
-        for hub in hub.all()? {
-            self.grow(&hub).ok();
+        for apex in hub.all()? {
+            apex.grow_from_lake(self).ok();
         }
         Ok(())
     }
 
     /// Get a root hub by Key.
-    fn root(&self, key: impl Into<Key>) -> Result<Hub> {
+    fn root(&self, key: impl Into<Key>) -> Result<Apex> {
         let serial = self
             .roots
             .get(&key.into())
@@ -88,7 +88,7 @@ impl Lake {
     }
 
     /// Get a hub by hash.
-    fn get(&self, hash: u64) -> Result<Hub> {
+    fn get(&self, hash: u64) -> Result<Apex> {
         let serial = self.nodes.get(&hash).ok_or(anyhow!("Node not found."))?;
         self.atlas
             .as_ref()
@@ -97,11 +97,12 @@ impl Lake {
     }
 
     /// Swap hash-hub for deserialized hub
-    fn deal(&self, hub: &mut Hub) -> Result<()> {
-        if let Hub::Tray(Tray::Path(Path::Hash(hash))) = hub {
-            if let Ok(rhs) = self.get(*hash) {
+    fn deal<'a>(&self, view: impl Into<View<'a>>) -> Result<()> {
+        let view: View<'a> = view.into();
+        if let Some(hash) = view.tray_hash() {
+            if let Ok(rhs) = self.get(hash) {
                 if let Some(back) = self.back.as_ref() {
-                    *hub = rhs.backed(back)?;
+                    view.set(rhs.backed(back)?);
                 } else {
                     return no_back("Lake");
                 }
@@ -115,18 +116,18 @@ impl Deal for Lake {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn one(&mut self, _: &str, hub: &mut Hub) -> Result<()> {
-        self.deal(hub)
+    fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
+        self.deal(view)
     }
-    fn vec(&mut self, _: &str, hubes: &mut Vec<Hub>) -> Result<()> {
-        for hub in hubes {
-            self.deal(hub)?;
+    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> Result<()> {
+        for view in views {
+            self.deal(view)?;
         }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        for (_, hub) in map.iter_mut() {
-            self.deal(hub)?;
+        for (_, apex) in map.iter_mut() {
+            self.deal(apex)?;
         }
         Ok(())
     }

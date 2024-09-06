@@ -2,7 +2,7 @@ use super::*;
 
 /// `Link` to domain-specific unit.
 /// The unit type is erased. To keep unit type intact, use `Node` instead.
-pub type Ploy<T> = Link<Box<dyn Engage<Pay = T>>, T>;
+pub type Ploy<T> = Link<Box<dyn Engage<Pay = T>>>;
 
 #[cfg(not(feature = "oneThread"))]
 pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Pay = T>>>>;

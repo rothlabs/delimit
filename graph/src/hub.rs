@@ -62,6 +62,14 @@ where
         Ok(lake)
     }
 
+    pub fn tray_hash(&self) -> Option<u64> {
+        if let Hub::Tray(Tray::Path(Path::Hash(hash))) = self {
+            Some(*hash)
+        } else {
+            None
+        }
+    }
+
     /// Get hash digest number of hub.
     pub fn digest(&self) -> Result<u64> {
         match self {
