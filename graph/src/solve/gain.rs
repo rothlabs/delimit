@@ -2,7 +2,10 @@ use super::*;
 
 /// Value returned by a successful hub solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
-pub enum Gain<T> {
+pub enum Gain<T> 
+where 
+    T: 'static + Payload
+{
     // for units
     None,
     Hub(Hub<T>),
@@ -19,7 +22,7 @@ pub enum Error {
 }
 
 impl<T> Gain<T> 
-where T: Debug
+where T: Payload
 {
     /// Emit `WrongVariant` error.
     fn wrong_variant(&self, expected: &str) -> solve::Error {
@@ -63,31 +66,31 @@ where T: Debug
     }
 }
 
-impl<T> From<String> for Gain<T> {
+impl<T: Payload> From<String> for Gain<T> {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl<T> From<Hub<T>> for Gain<T> {
+impl<T: Payload> From<Hub<T>> for Gain<T> {
     fn from(value: Hub<T>) -> Self {
         Self::Hub(value)
     }
 }
 
-impl<T> From<u64> for Gain<T> {
+impl<T: Payload> From<u64> for Gain<T> {
     fn from(value: u64) -> Self {
         Self::U64(value)
     }
 }
 
-impl<T> From<&Vec<Import>> for Gain<T> {
+impl<T: Payload> From<&Vec<Import>> for Gain<T> {
     fn from(value: &Vec<Import>) -> Self {
         Self::Imports(value.clone())
     }
 }
 
-pub trait IntoGain<T> {
+pub trait IntoGain<T: Payload> {
     /// Move into Gain.
     fn gain(self) -> Result<Gain<T>>;
 }
@@ -95,6 +98,7 @@ pub trait IntoGain<T> {
 impl<G, T> IntoGain<T> for G
 where
     G: Into<Gain<T>>,
+    T: 'static + Payload
 {
     fn gain(self) -> Result<Gain<T>> {
         Ok(self.into())

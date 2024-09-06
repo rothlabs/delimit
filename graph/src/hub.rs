@@ -130,7 +130,7 @@ where
     }
 
     /// Solve down to the given graph rank.
-    pub fn down(&self, target: u64) -> Result<Hub> {
+    pub fn down(&self, target: u64) -> Result<Hub<T>> {
         let mut hub = self.clone();
         let mut rank = hub.rank();
         while let Some(current) = rank {
@@ -145,11 +145,12 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<T, F: FnOnce(&Tray) -> T>(&self, read: F) -> Result<T> {
+    pub fn read<O, F: FnOnce(&Tray<T>) -> O>(&self, read: F) -> Result<O> {
         match self {
-            Self::Tray(bare) => Ok(read(bare)),
+            Self::Tray(tray) => Ok(read(tray)),
             Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
+            // _ => panic!("crap")
         }
     }
 
@@ -198,7 +199,10 @@ impl TryBacked for Hub {
     }
 }
 
-impl Default for Hub {
+impl<T> Default for Hub<T> 
+where 
+    T: Payload
+{
     fn default() -> Self {
         Self::Tray(Tray::None)
     }

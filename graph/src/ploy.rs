@@ -31,7 +31,10 @@ impl<T> AdaptMid for Box<dyn Engage<T>> {
     }
 }
 
-impl<T> Solve for Box<dyn Engage<T>> {
+impl<T> Solve for Box<dyn Engage<T>> 
+where 
+    T: Payload
+{
     type Out = T;
     fn solve(&self, task: Task) -> Result<Gain<T>> {
         self.as_ref().solve(task)

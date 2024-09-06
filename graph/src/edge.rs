@@ -77,9 +77,9 @@ where
 impl<U> ToPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
-    Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
+    U::Out: Payload,
 {
-    type Out = <U as Solve>::Out;
+    type Out = U::Out;
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyPointer<Self::Out> {
         Arc::new(RwLock::new(Box::new(Self {
@@ -128,7 +128,7 @@ where
 impl<N> Solve for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
-    //N::Out: 'static + Debug + SendSync
+    N::Out: Payload
 {
     type Out = N::Out;
     fn solve(&self, task: Task) -> Result<Gain<N::Out>> {
@@ -154,11 +154,12 @@ where
 impl<U> BackedPloy for Node<U>
 where
     U: 'static + Solve + Adapt + Debug + SendSync,
-    Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
+    U::Out: Payload
+    // Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
 {
     type Out = U::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<U::Out> {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),

@@ -21,7 +21,10 @@ where
     }
 }
 
-impl<T: Hash> Leaf<T> {
+impl<T> Leaf<T> 
+where 
+    T: Payload
+{
     fn digest(&mut self) -> Result<Gain<T>> {
         if let Some(digest) = &self.digest {
             digest.gain()

@@ -5,7 +5,10 @@ use crate::*;
 /// The solved Gain is kept to be returned on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
-pub struct Node<U: Solve> {
+pub struct Node<U: Solve> 
+where 
+    U::Out: 'static + Payload
+{
     imports: Vec<Import>,
     unit: Option<U>,
     main: Option<Gain<U::Out>>,
@@ -16,7 +19,7 @@ pub struct Node<U: Solve> {
 impl<U> Node<U>
 where
     U: Solve,
-    U::Out: Clone,
+    U::Out: Payload,
 {
     fn main(&mut self) -> Result<Gain<U::Out>> {
         if let Some(main) = &self.main {
@@ -56,7 +59,7 @@ where
 impl<U> SolveMut for Node<U>
 where
     U: Solve,
-    U::Out: Clone,
+    U::Out: Payload,
 {
     type Out = U::Out;
     fn solve(&mut self, task: Task) -> Result<Gain<U::Out>> {
@@ -73,6 +76,7 @@ where
 impl<U> Default for Node<U>
 where
     U: Solve,
+    U::Out: Payload,
 {
     fn default() -> Self {
         Self {
@@ -88,7 +92,7 @@ where
 impl<U> MakeMid for Node<U>
 where
     U: Solve,
-    U::Out: Clone
+    U::Out: Payload
 {
     type Unit = U;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
@@ -108,7 +112,7 @@ where
 impl<U> WithSnap for Node<U>
 where
     U: Adapt + Solve,
-    U::Out: Clone
+    U::Out: Payload
 {
     type Unit = U;
     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
@@ -130,6 +134,7 @@ where
 impl<U> FromItem for Node<U>
 where
     U: Solve,
+    U::Out: Payload
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -143,6 +148,7 @@ where
 impl<U> ToItem for Node<U>
 where
     U: Solve,
+    U::Out: Payload
 {
     type Item = U;
     fn item(&self) -> &Self::Item {
@@ -152,7 +158,8 @@ where
 
 impl<U> Clear for Node<U>
 where
-    U: Solve + Debug,
+    U: Solve,
+    U::Out: Payload
 {
     fn clear(&mut self) {
         self.main = None;
@@ -163,7 +170,8 @@ where
 
 impl<U> WriteUnitWork for Node<U>
 where
-    U: Solve + Debug,
+    U: Solve,
+    U::Out: Payload
 {
     type Unit = U;
     fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
@@ -183,6 +191,7 @@ where
 impl<U> ReactMut for Node<U>
 where
     U: Solve,
+    U::Out: Payload
 {
     fn react(&mut self, _: &Id) -> react::Result {
         self.unit.as_ref().unwrap().solve(Task::React)?;
@@ -193,7 +202,7 @@ where
 impl<U> Adapt for Node<U>
 where
     U: Adapt + Solve,
-    // U::Out: Clone
+    U::Out: Payload
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.as_mut().unwrap().adapt(deal)

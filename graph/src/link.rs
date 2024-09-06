@@ -61,7 +61,7 @@ impl<E, T> Link<E, T> {
 impl<E, T> Link<E, T>
 where
     Self: Solve<Out = T>,
-    T: Payload
+    T: 'static + Payload
 {
     pub fn main(&self) -> Result<Hub<T>> {
         match self.solve(Task::Main)? {
@@ -79,7 +79,8 @@ where
 
 impl<E, T> Hash for Link<E, T>
 where
-    Self: Solve,
+    Self: Solve<Out = T>,
+    T: 'static + Payload
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
@@ -93,7 +94,8 @@ where
 
 impl<E, T> Serialize for Link<E, T>
 where
-    Self: Solve,
+    Self: Solve<Out = T>,
+    T: 'static + Payload
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -200,10 +202,10 @@ where
 impl<E, T> Link<E, T>
 where
     E: Read<Item = T>,
-    T: Clone,
+    T: Payload,
 {
-    pub fn tray(&self) -> Result<T> {
-        read_part(&self.edge, |edge| edge.read(|tray| tray.clone()))?
+    pub fn tray(&self) -> Result<Tray<T>> {
+        read_part(&self.edge, |edge| edge.read(|tray| Tray::Item(tray.clone())))?
     }
 }
 
@@ -325,6 +327,7 @@ impl<E, T> Solve for Link<E, T>
 where
     //T: 'static + Debug + SendSync, // Hash + Serialize + 
     E: 'static + Solve<Out = T> + AddRoot + Update,
+    T: Payload
 {
     type Out = T;
     fn solve(&self, task: Task) -> Result<Gain<Self::Out>> {
