@@ -117,16 +117,4 @@ impl Deal for All {
         self.apexes.extend(map.all());
         Ok(())
     }
-    // fn one(&mut self, _: &str, apex: &mut Apex) -> Result<()> {
-    //     self.apexes.push(apex.clone());
-    //     Ok(())
-    // }
-    // fn vec(&mut self, _: &str, apexes: &mut Vec<Apex>) -> Result<()> {
-    //     self.apexes.extend(apexes.clone());
-    //     Ok(())
-    // }
-    // fn map(&mut self, map: &mut Map) -> Result<()> {
-    //     self.apexes.extend(map.all());
-    //     Ok(())
-    // }
 }
