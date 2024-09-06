@@ -160,7 +160,7 @@ where
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, BackedOut = E::Out>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, Out = E::Out>>)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
             out: PhantomData::default()
@@ -193,7 +193,7 @@ where
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, BackedOut = E::Out>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, Out = E::Out>>)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
             out: PhantomData::default(),

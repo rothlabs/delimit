@@ -2,20 +2,20 @@ use super::*;
 
 /// `Link` to domain-specific unit.
 /// The unit type is erased. To keep unit type intact, use `Node` instead.
-pub type Ploy<T> = Link<Box<dyn Engage<Out = T, BackedOut = T>>, T>;
+pub type Ploy<T> = Link<Box<dyn Engage<Out = T>>, T>;
 
 #[cfg(not(feature = "oneThread"))]
-pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Out = T, BackedOut = T>>>>;
+pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Out = T>>>>;
 #[cfg(feature = "oneThread")]
 pub type PloyPointer = Rc<RefCell<Box<dyn Engage>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug {
+pub trait Engage: AdaptMid + SolvePloy + AddRoot + Update + Debug {
     // type Wow;
 }
 
 impl<E> Engage for E where 
-    E: Solve + AdaptMid + BackedPloy + AddRoot + Update + Debug,
+    E: AdaptMid + SolvePloy + AddRoot + Update + Debug,
     // <E as BackedPloy>::PloyOut: Solve::Out,
 {
     // type Wow = <E as Solve>::Out;
@@ -27,19 +27,19 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyPointer<Self::ToPloyOut>;
 }
 
-pub trait BackedPloy {
-    type BackedOut;
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::BackedOut>;
+pub trait SolvePloy {
+    type Out;
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out>;
 }
 
 
-impl<T> AdaptMid for Box<dyn Engage<Out = T, BackedOut = T>> {
+impl<T> AdaptMid for Box<dyn Engage<Out = T>> {
     fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         self.as_ref().adapt(deal)
     }
 }
 
-impl<T> Solve for Box<dyn Engage<Out = T, BackedOut = T>> 
+impl<T> Solve for Box<dyn Engage<Out = T>> 
 where 
     T: Payload
 {
@@ -49,25 +49,25 @@ where
     }
 }
 
-impl<T> AddRoot for Box<dyn Engage<Out = T, BackedOut = T>> {
+impl<T> AddRoot for Box<dyn Engage<Out = T>> {
     fn add_root(&self, root: Root) -> Result<()> {
         self.as_ref().add_root(root)
     }
 }
 
-impl<T> ToId for Box<dyn Engage<Out = T, BackedOut = T>> {
+impl<T> ToId for Box<dyn Engage<Out = T>> {
     fn id(&self) -> Id {
         self.as_ref().id()
     }
 }
 
-impl<T> Rebut for Box<dyn Engage<Out = T, BackedOut = T>> {
+impl<T> Rebut for Box<dyn Engage<Out = T>> {
     fn rebut(&self) -> Result<Ring> {
         self.as_ref().rebut()
     }
 }
 
-impl<T> React for Box<dyn Engage<Out = T, BackedOut = T>> {
+impl<T> React for Box<dyn Engage<Out = T>> {
     fn react(&self, id: &Id) -> react::Result {
         self.as_ref().react(id)
     }

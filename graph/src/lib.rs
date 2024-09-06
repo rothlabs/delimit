@@ -7,7 +7,7 @@ pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{BackedPloy, Engage, Ploy, PloyPointer, ToPloy};
+pub use ploy::{SolvePloy, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
     AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root, TryBacked,
     Update, UpdateMut,

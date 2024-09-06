@@ -151,15 +151,14 @@ where
     }
 }
 
-impl<U> BackedPloy for Node<U>
+impl<N> SolvePloy for Edge<N>
 where
-    U: 'static + Solve + Adapt + Debug + SendSync,
-    U::Out: Payload
-    // Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
+    N: 'static + SolveMut + UpdateMut,
+    N:  AdaptOut + AddRootMut + Debug
 {
-    type BackedOut = U::Out;
+    type Out = N::Out;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::BackedOut> {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -172,7 +171,33 @@ where
             cusp: self.cusp.clone(),
         })))
     }
+    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Out>> {
+        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+    }
 }
+
+// impl<U> BackedPloy for Node<U>
+// where
+//     U: 'static + Solve + Adapt + Debug + SendSync,
+//     U::Out: Payload
+//     // Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
+// {
+//     type BackedOut = U::Out;
+//     #[cfg(not(feature = "oneThread"))]
+//     fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::BackedOut> {
+//         Arc::new(RwLock::new(Box::new(Self {
+//             back: Some(back.clone()),
+//             cusp: self.cusp.clone(),
+//         })))
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn backed_ploy(&self, back: &Back) -> PloyPointer {
+//         Rc::new(RefCell::new(Box::new(Self {
+//             back: Some(back.clone()),
+//             cusp: self.cusp.clone(),
+//         })))
+//     }
+// }
 
 impl<N> Backed for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
