@@ -125,16 +125,16 @@ where
     }
 }
 
-impl<N> Solve for Edge<N>
-where
-    N: 'static + SolveMut + UpdateMut,
-    N::Out: Payload
-{
-    type Out = N::Out;
-    fn solve(&self, task: Task) -> Result<Gain<N::Out>> {
-        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
-    }
-}
+// impl<N> Solve for Edge<N>
+// where
+//     N: 'static + SolveMut + UpdateMut,
+//     N::Out: Payload
+// {
+//     type Out = N::Out;
+//     fn solve(&self, task: Task) -> Result<Gain<N::Out>> {
+//         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+//     }
+// }
 
 impl<N> AdaptMid for Edge<N>
 where
@@ -154,7 +154,8 @@ where
 impl<N> SolvePloy for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
-    N:  AdaptOut + AddRootMut + Debug
+    N:  AdaptOut + AddRootMut + Debug,
+    N::Out: Payload
 {
     type Out = N::Out;
     #[cfg(not(feature = "oneThread"))]

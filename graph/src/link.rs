@@ -154,15 +154,13 @@ where
 {
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Out>> {
         let (edge, rank) = E::make(make)?;
-        // let wow = edge.backed_ploy(back);
-        // let wow = Box::new(edge);
         Ok(Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, Out = E::Out>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Out = E::Out>>)),
             out: PhantomData::default()
         })
     }
@@ -193,9 +191,9 @@ where
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out, Out = E::Out>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Out = E::Out>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<T>>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Out = E::Out>>)),
             out: PhantomData::default(),
         }
     }
@@ -356,7 +354,10 @@ where
     }
 }
 
-impl<T> TryBacked for Ploy<T> {
+impl<T> TryBacked for Ploy<T> 
+where 
+    T: Payload
+{
     type Out = Ploy<T>;
     fn backed(&self, back: &Back) -> Result<Self::Out> {
         read_part(&self.edge, |edge| Self {

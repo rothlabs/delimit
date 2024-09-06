@@ -79,15 +79,21 @@ where
 }
 
 #[derive(Debug)]
-struct Insert {
+struct Insert<T>
+where 
+T: 'static + Payload
+{
     aim: Aim,
-    hub: Hub,
+    hub: Hub<T>,
     back: Option<Back>,
     wrote: bool,
 }
 
-impl Insert {
-    fn new(aim: impl Into<Aim>, hub: impl Into<Hub>) -> Self {
+impl<T> Insert<T> 
+where 
+    T: Payload
+{
+    fn new(aim: impl Into<Aim>, hub: impl Into<Hub<T>>) -> Self {
         Self {
             aim: aim.into(),
             hub: hub.into(),
@@ -97,7 +103,10 @@ impl Insert {
     }
 }
 
-impl Deal for Insert {
+impl<T> Deal for Insert<T> 
+where 
+    T: Payload
+{
     fn wrote(&self) -> bool {
         self.wrote
     }

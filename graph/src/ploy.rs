@@ -28,8 +28,9 @@ pub trait ToPloy {
 }
 
 pub trait SolvePloy {
-    type Out;
+    type Out: Payload;
     fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out>;
+    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Out>>; //  where <Self as solve::Solve>::Out: Payload
 }
 
 
@@ -39,15 +40,28 @@ impl<T> AdaptMid for Box<dyn Engage<Out = T>> {
     }
 }
 
-impl<T> Solve for Box<dyn Engage<Out = T>> 
+impl<T> SolvePloy for Box<dyn Engage<Out = T>> 
 where 
     T: Payload
 {
     type Out = T;
-    fn solve(&self, task: Task) -> Result<Gain<T>> {
-        self.as_ref().solve(task)
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Out> {
+        self.as_ref().backed_ploy(back)
+    }
+    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Out>> {
+        self.as_ref().solve_ploy(task)
     }
 }
+
+// impl<T> Solve for Box<dyn Engage<Out = T>> 
+// where 
+//     T: Payload
+// {
+//     type Out = T;
+//     fn solve(&self, task: Task) -> Result<Gain<T>> {
+//         self.as_ref().solve(task)
+//     }
+// }
 
 impl<T> AddRoot for Box<dyn Engage<Out = T>> {
     fn add_root(&self, root: Root) -> Result<()> {

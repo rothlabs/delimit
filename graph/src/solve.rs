@@ -13,7 +13,7 @@ pub trait Solve {
     type Out;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self, task: Task) -> Result<Gain<Self::Out>>;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Out>> where <Self as solve::Solve>::Out: Payload;
 }
 
 #[derive(Error, Debug)]
