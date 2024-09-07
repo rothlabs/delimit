@@ -6,7 +6,7 @@ use text::*;
 
 #[test]
 fn write_and_read_serial_page() -> graph::Result<()> {
-    let serial = html::default_bay()?.lake()?.serial()?.string()?;
+    let serial = html::default_bay()?.lake()?.serial()?;
     let path = STORAGE.to_owned() + "/page.json";
     fs::write(&path, serial)?;
     let file = fs::File::open(path)?;
@@ -15,18 +15,27 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     lake.atlas(Box::new(Atlas::default()));
     let bay = lake.tree()?;
     bay.hydrate()?;
-    let html = bay.get("page")?;
-    assert_eq!(html.string()?, html::default::PAGE);
+    let html = bay.get("page")?.string()?;
+    assert_eq!(html.item()?, html::default::PAGE);
     let plain = html.down(PLAIN)?;
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.string()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(html.item()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
     assert_eq!(
-        plain.string()?,
+        plain.item()?,
         html::default::PLAIN_PAGE_WITH_MUTATED_TITLE
     );
     Ok(())
 }
+
+
+
+
+
+
+
+
+
 
 // #[test]
 // fn save_graph() -> result::Result<(), Error> {

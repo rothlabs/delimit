@@ -25,6 +25,11 @@ impl Lake {
         Self::default()
     }
 
+    pub fn serial(&self) -> Result<String> {
+        let serial = serde_json::to_string(self)?;
+        Ok(serial)
+    }
+
     /// Set the atlas for deserializing entries into concrete hubes.
     pub fn atlas(&mut self, atlas: Box<dyn DeserializeUnit>) -> &mut Self {
         self.atlas = Some(atlas);

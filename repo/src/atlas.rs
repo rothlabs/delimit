@@ -14,7 +14,7 @@ impl DeserializeUnit for Atlas {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Unit {
-    Leaf(graph::work::Leaf),
+    // Leaf(graph::work::Leaf<String>),
     Bay(graph::Bay),
     TextPlainList(text::plain::List),
     TextHtmlTag(text::html::Tag),
@@ -25,12 +25,12 @@ enum Unit {
 impl Unit {
     fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
-            Self::Leaf(x) => x.hub(),
-            Self::Bay(x) => x.imports(imports).hub(),
-            Self::TextPlainList(x) => x.imports(imports).hub(),
-            Self::TextHtmlTag(x) => x.imports(imports).hub(),
-            Self::TextHtmlAttribute(x) => x.imports(imports).hub(),
-            Self::TextHtmlElement(x) => x.imports(imports).hub(),
+            // Self::Leaf(x) => x.hub(),
+            Self::Bay(x) => x.imports(imports).hub().into(),
+            Self::TextPlainList(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlTag(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlAttribute(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlElement(x) => x.imports(imports).hub().into(),
         }
     }
 }

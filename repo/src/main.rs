@@ -28,7 +28,7 @@ pub async fn main() -> graph::Result<()> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let ace = Leaf::new(Tray::I32(0));
+    let ace = Leaf::new(0_u8);
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
@@ -37,7 +37,7 @@ pub async fn main() -> graph::Result<()> {
     }
 }
 
-async fn future(io: Io, ace: Leaf) {
+async fn future(io: Io, ace: Leaf<u8>) {
     let result = http1::Builder::new()
         .serve_connection(io, service_fn(|req| service(req, ace.clone())))
         .await;
@@ -46,12 +46,10 @@ async fn future(io: Io, ace: Leaf) {
     }
 }
 
-async fn service(_: Request<impl Body>, ace: Leaf) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.write(|tray| {
-        if let Tray::I32(value) = tray {
-            println!("tray: {value}");
-            *value += 1;
-        }
+async fn service(_: Request<impl Body>, ace: Leaf<u8>) -> Result<Response<Full<Bytes>>, Infallible> {
+    ace.write(|value| {
+        println!("value: {value}");
+        *value += 1;
     })
     .ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
