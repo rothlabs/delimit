@@ -21,7 +21,7 @@ pub enum Error {
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Hash, Serialize, Debug)] 
-// #[serde(untagged)]
+#[serde(untagged)]
 pub enum Hub<T> 
 where 
     T: 'static + Payload

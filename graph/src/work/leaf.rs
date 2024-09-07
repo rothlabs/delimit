@@ -3,9 +3,10 @@ use serde::de::{MapAccess, Visitor};
 use std::fmt;
 
 /// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
-#[derive(Debug, Hash)]
+#[derive(Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf<T> {
-    tray: T,
+    value: T,
+    #[serde(skip)]
     digest: Option<u64>,
 }
 
@@ -14,10 +15,10 @@ where
     T: Payload
 {
     pub fn new(tray: T) -> Self {
-        Self { tray, digest: None }
+        Self { value: tray, digest: None }
     }
     pub fn hub(self) -> Hub<T> {
-        Hub::Leaf(link::Leaf::new(self.tray))
+        Hub::Leaf(link::Leaf::new(self.value))
     }
 }
 
@@ -30,7 +31,7 @@ where
             digest.gain()
         } else {
             let mut state = DefaultHasher::new();
-            self.tray.hash(&mut state);
+            self.value.hash(&mut state);
             let digest = state.finish();
             self.digest = Some(digest);
             digest.gain()
@@ -41,20 +42,20 @@ where
 impl<T> FromItem for Leaf<T> {
     type Item = T;
     fn new(tray: Self::Item) -> Self {
-        Self { tray, digest: None }
+        Self { value: tray, digest: None }
     }
 }
 
 impl<T> ToItem for Leaf<T> {
     type Item = T;
     fn item(&self) -> &Self::Item {
-        &self.tray
+        &self.value
     }
 }
 
 impl<T> MutTray<T> for Leaf<T> {
     fn tray(&mut self) -> &mut T {
-        &mut self.tray
+        &mut self.value
     }
 }
 
@@ -96,14 +97,14 @@ impl<T> Adapt for Leaf<T> {
     }
 }
 
-impl<T: Serialize> Serialize for Leaf<T> {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        self.tray.serialize(serializer)
-    }
-}
+// impl<T: Serialize> Serialize for Leaf<T> {
+//     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         self.value.serialize(serializer)
+//     }
+// }
 
 // impl<'de, T> Deserialize<'de> for Leaf<T> {
 //     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
@@ -158,29 +159,29 @@ impl<T: Serialize> Serialize for Leaf<T> {
 //     }
 // }
 
-// #[derive(Deserialize)]
-// #[serde(rename_all = "lowercase")]
-// enum DataType {
-//     String,
-//     Bool,
-//     U8,
-//     U16,
-//     U32,
-//     U64,
-//     I8,
-//     I16,
-//     I32,
-//     I64,
-//     F32,
-//     F64,
-//     Vu8,
-//     Vu16,
-//     Vu32,
-//     Vu64,
-//     Vi8,
-//     Vi16,
-//     Vi32,
-//     Vi64,
-//     Vf32,
-//     Vf64,
-// }
+#[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum DataType {
+    String,
+    Bool,
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64,
+    Vu8,
+    Vu16,
+    Vu32,
+    Vu64,
+    Vi8,
+    Vi16,
+    Vi32,
+    Vi64,
+    Vf32,
+    Vf64,
+}

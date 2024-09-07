@@ -27,3 +27,9 @@ impl From<Hub<String>> for Apex {
         Apex::String(value)
     }
 }
+
+impl From<Leaf<String>> for Apex {
+    fn from(value: Leaf<String>) -> Self {
+        Apex::String(value.into())
+    }
+}
