@@ -1,6 +1,7 @@
 use super::*;
 
 mod convert;
+mod variant;
 
 #[derive(Clone, PartialEq, Hash, Serialize, Deserialize, Debug)]
 pub enum Apex {
@@ -15,6 +16,18 @@ impl Default for Apex {
 }
 
 impl Apex {
+    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
+        match self {
+            Self::String(x) => x.get(aim),
+            Self::U8(x) => x.get(aim)
+        }
+    }
+    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
+        match self {
+            Self::String(x) => x.set(aim, apex),
+            Self::U8(x) => x.set(aim, apex)
+        }
+    }
     pub fn hydrate(&self) -> Result<()> {
         let space = Space::new(vec![], self);
         self.saturate(&space, &space)?;

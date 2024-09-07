@@ -46,7 +46,7 @@ impl Deal for Set {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {

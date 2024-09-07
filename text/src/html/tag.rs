@@ -3,23 +3,23 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Tag {
     html_tag: u8,
-    name: Hub,
-    attributes: Vec<Hub>,
+    name: Hub<String>,
+    attributes: Vec<Hub<String>>,
 }
 
 impl Tag {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(mut self, name: impl Into<Hub>) -> Self {
+    pub fn name(mut self, name: impl Into<Hub<String>>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn attribute(mut self, attribute: impl Into<Hub>) -> Self {
+    pub fn attribute(mut self, attribute: impl Into<Hub<String>>) -> Self {
         self.attributes.push(attribute.into());
         self
     }
-    fn main(&self) -> Result<Gain> {
+    fn main(&self) -> Result<Gain<String>> {
         let items = List::new()
             .separator(" ")
             .push(self.name.down(PLAIN)?)
@@ -38,7 +38,8 @@ impl Adapt for Tag {
 }
 
 impl Solve for Tag {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = String;
+    fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
             Task::Main => self.main(),

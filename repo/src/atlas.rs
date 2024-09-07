@@ -4,10 +4,10 @@ use super::*;
 pub struct Atlas;
 
 impl DeserializeUnit for Atlas {
-    fn deserialize(&self, serial: &Serial) -> graph::Result<Hub> {
+    fn deserialize(&self, serial: &Serial) -> graph::Result<Apex> {
         let unit: Unit = serde_json::from_str(&serial.unit)?;
         let imports = serial.imports.clone();
-        Ok(unit.hub(imports))
+        Ok(unit.apex(imports))
     }
 }
 
@@ -23,7 +23,7 @@ enum Unit {
 }
 
 impl Unit {
-    fn hub(self, imports: Vec<Import>) -> Hub {
+    fn apex(self, imports: Vec<Import>) -> Apex {
         match self {
             Self::Leaf(x) => x.hub(),
             Self::Bay(x) => x.imports(imports).hub(),

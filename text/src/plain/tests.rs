@@ -1,6 +1,6 @@
 use super::*;
 
-fn new_list(ace: &Leaf) -> Result<Node<List>> {
+fn new_list(ace: &Leaf<String>) -> Result<Node<List>> {
     List::new().separator(", ").push("str").push(ace).node()
 }
 
@@ -8,9 +8,7 @@ fn new_list(ace: &Leaf) -> Result<Node<List>> {
 fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
     let text_node = new_list(&string_leaf)?.hub()?;
-    text_node
-        .view()
-        .string(|string| assert_eq!(string, "str, ace"))
+    text_node.read(|string| assert_eq!(string, "str, ace"))
 }
 
 #[test]
@@ -39,13 +37,7 @@ fn react_from_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
     let a = text.solve(Task::Main)?;
-    ace.write(|tray| {
-        if let Tray::String(string) = tray {
-            string.push_str("_mutated");
-        } else {
-            panic!("was not a string")
-        }
-    })?;
+    ace.write(|str| str.push_str("_mutated"))?;
     let b = text.solve(Task::Main)?;
     assert!(a != b);
     Ok(())
@@ -60,13 +52,7 @@ fn no_rebut_after_dropping_stem() -> Result<()> {
         pack.unit.remove(1);
     })?;
     let a = text.solve(Task::Main)?;
-    ace.write(|tray| {
-        if let Tray::String(string) = tray {
-            string.push_str("_mutated");
-        } else {
-            panic!("was not a string")
-        }
-    })?;
+    ace.write(|str| str.push_str("_mutated"))?;
     let b = text.solve(Task::Main)?;
     assert!(a == b);
     Ok(())

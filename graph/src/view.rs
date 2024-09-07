@@ -15,17 +15,18 @@ impl View<'_> {
             Self::U8(x) => Apex::U8((*x).clone()),
         }
     }
-    pub fn set(self, apex: Apex) -> Result<()> {
-        let mut ok = false;
+    pub fn set(self, apex: Apex) -> Result<Self> {
         match self {
-            Self::String(x) => if let Apex::String(y) = apex {*x = y; ok = true;},
-            Self::U8(x) => if let Apex::U8(y) = apex {*x = y; ok = true;},
+            Self::String(x) => if let Apex::String(y) = apex {
+                *x = y;
+                return Ok(Self::String(x));
+            },
+            Self::U8(x) => if let Apex::U8(y) = apex {
+                *x = y; 
+                return Ok(Self::U8(x));
+            },
         };
-        if ok {
-            Ok(())
-        } else {
-            Err(anyhow!("view set failed"))?
-        }
+        Err(anyhow!("view and apex types do not match"))?
     }
     pub fn tray_hash(&self) -> Option<u64> {
         match self {

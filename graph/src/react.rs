@@ -143,8 +143,9 @@ impl Deal for Back {
         view.set(apex.backed(self)?);
         Ok(())
     }
-    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> crate::Result<()> {
-        for view in views {
+    fn vec<'a>(&mut self, _: &str, view: ViewVec) -> crate::Result<()> {
+        // TODO: make ViewVec::back to replace this
+        for view in view.views() {
             let apex = view.apex();
             view.set(apex.backed(self)?);
         }

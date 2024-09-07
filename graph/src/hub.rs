@@ -1,3 +1,5 @@
+pub use deal::*;
+
 use super::*;
 use thiserror::Error;
 

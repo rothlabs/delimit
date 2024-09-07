@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn default_page() -> Result<()> {
-    assert_eq!(default_bay()?.get("page")?.string()?, PAGE);
+    assert_eq!(default_bay()?.get("page")?.string()?.item()?, PAGE);
     Ok(())
 }
 
@@ -10,14 +10,14 @@ fn default_page() -> Result<()> {
 #[test]
 fn reactive_lower_graph() -> Result<()> {
     let bay = default_bay()?;
-    let html = bay.get("page")?;
+    let html = bay.get("page")?.string()?;
     let plain = html.down(PLAIN)?;
-    let _solved = html.string();
-    let _solved = plain.string();
+    let _solved = html.item();
+    let _solved = plain.item();
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
-    assert_eq!(plain.string()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(plain.item()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.string()?, HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(html.item()?, HTML_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 

@@ -3,29 +3,29 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Element {
     html_element: u8,
-    open: Hub,
-    items: Vec<Hub>,
-    close: Option<Hub>,
+    open: Hub<String>,
+    items: Vec<Hub<String>>,
+    close: Option<Hub<String>>,
 }
 
 impl Element {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn open(mut self, open: impl Into<Hub>) -> Self {
+    pub fn open(mut self, open: impl Into<Hub<String>>) -> Self {
         self.open = open.into();
         self
     }
-    pub fn item(mut self, item: impl Into<Hub>) -> Self {
+    pub fn item(mut self, item: impl Into<Hub<String>>) -> Self {
         self.items.push(item.into());
         self
     }
     pub fn close(mut self) -> Result<Self> {
-        let name = self.open.get("name")?;
+        let name = self.open.get("name")?.string()?;
         self.close = Some(name);
         Ok(self)
     }
-    fn main(&self) -> Result<Gain> {
+    fn main(&self) -> Result<Gain<String>> {
         let mut element = List::new()
             .separator("\n")
             .push(self.open.down(PLAIN)?)
@@ -54,7 +54,8 @@ impl Adapt for Element {
 }
 
 impl Solve for Element {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = String;
+    fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
             Task::Main => self.main(),

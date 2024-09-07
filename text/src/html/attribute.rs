@@ -3,23 +3,23 @@ use super::*;
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
 pub struct Attribute {
     html_attribute: u8,
-    name: Hub,
-    content: Hub,
+    name: Hub<String>,
+    content: Hub<String>,
 }
 
 impl Attribute {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn name(mut self, name: impl Into<Hub>) -> Self {
+    pub fn name(mut self, name: impl Into<Hub<String>>) -> Self {
         self.name = name.into();
         self
     }
-    pub fn content(mut self, content: impl Into<Hub>) -> Self {
+    pub fn content(mut self, content: impl Into<Hub<String>>) -> Self {
         self.content = content.into();
         self
     }
-    fn main(&self) -> Result<Gain> {
+    fn main(&self) -> Result<Gain<String>> {
         List::new()
             .push(self.name.down(PLAIN)?)
             .push(r#"=""#)
@@ -39,7 +39,8 @@ impl Adapt for Attribute {
 }
 
 impl Solve for Attribute {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = String;
+    fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
             Task::Main => self.main(),

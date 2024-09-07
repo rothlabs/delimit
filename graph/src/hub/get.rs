@@ -67,7 +67,7 @@ impl Deal for Get {
         }
         Ok(())
     }
-    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         if self.apex.is_some() {
             return Ok(());
         }
@@ -78,11 +78,6 @@ impl Deal for Get {
                 } else {
                     self.errors.push(self.aim.index_out_of_bounds(view.len()));
                 }
-                // if i < view.len() {
-                //     self.apex = Some(view.apex(i));
-                // } else {
-                //     self.errors.push(self.aim.index_out_of_bounds(view.len()));
-                // }
             }
             _ => self.errors.push(self.aim.wrong_variant("Index")),
         }
@@ -112,7 +107,7 @@ impl Deal for All {
         self.apexes.push(view.apex());
         Ok(())
     }
-    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         self.apexes.extend(view.all());
         Ok(())
     }
@@ -121,3 +116,9 @@ impl Deal for All {
         Ok(())
     }
 }
+
+                // if i < view.len() {
+                //     self.apex = Some(view.apex(i));
+                // } else {
+                //     self.errors.push(self.aim.index_out_of_bounds(view.len()));
+                // }

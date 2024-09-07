@@ -1,5 +1,5 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
-pub use hub::{Hub, EngageHubes};
+pub use hub::{Hub, EngageHubes, DealVec};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use edge::Edge;
@@ -19,7 +19,7 @@ pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 pub use apex::Apex;
 pub use view::View;
-pub use vec_view::VecView;
+pub use view_vec::ViewVec;
 pub use deal::Deal;
 
 use aim::*;
@@ -63,7 +63,7 @@ mod tests;
 mod tray;
 mod apex;
 mod view;
-mod vec_view;
+mod view_vec;
 mod deal;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";

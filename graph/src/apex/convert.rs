@@ -17,3 +17,15 @@ impl<'a> From<&'a mut Apex> for View<'a> {
         }
     }
 }
+
+impl From<&str> for Apex {
+    fn from(value: &str) -> Self {
+        Apex::String(value.into())
+    }
+}
+
+impl From<Hub<String>> for Apex {
+    fn from(value: Hub<String>) -> Self {
+        Apex::String(value)
+    }
+}

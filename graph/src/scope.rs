@@ -64,14 +64,14 @@ impl Scope<'_> {
         if let Some(Path::Local(keys)) = view.tray_path() {
             if let Ok(rhs) = self.local.get(keys) {
                 if let Some(back) = self.back.as_ref() {
-                    view.set(rhs.backed(back)?);
+                    view.set(rhs.backed(back)?)?;
                 } else {
                     return no_back("Scope");
                 }
             } else if self.local.imports.contains(&WORLD_ALL) {
                 if let Ok(rhs) = self.world.get(keys) {
                     if let Some(back) = self.back.as_ref() {
-                        view.set(rhs.backed(back)?);
+                        view.set(rhs.backed(back)?)?;
                     } else {
                         return no_back("Scope");
                     }
@@ -87,11 +87,10 @@ impl Deal for Scope<'_> {
         self.back = Some(back.clone());
     }
     fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
-        self.deal(view)?;
-        Ok(())
+        self.deal(view)
     }
-    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> Result<()> {
-        for view in views {
+    fn vec<'a>(&mut self, _: &str, view: ViewVec) -> Result<()> {
+        for view in view.views() {
             self.deal(view)?;
         }
         Ok(())

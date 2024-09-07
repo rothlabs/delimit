@@ -102,7 +102,7 @@ impl Lake {
         if let Some(hash) = view.tray_hash() {
             if let Ok(rhs) = self.get(hash) {
                 if let Some(back) = self.back.as_ref() {
-                    view.set(rhs.backed(back)?);
+                    view.set(rhs.backed(back)?)?;
                 } else {
                     return no_back("Lake");
                 }
@@ -119,9 +119,9 @@ impl Deal for Lake {
     fn one(&mut self, _: &str, view: View) -> Result<()> {
         self.deal(view)
     }
-    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
-        for i in 0..view.len() {
-            self.deal(view.get(i)?)?;
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
+        for view in view.views() {
+            self.deal(view)?;
         }
         Ok(())
     }

@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn default_bay() -> Result<Hub> {
+pub fn default_bay() -> Result<Hub<()>> {
     let mut bay = Bay::new();
 
     let title = "Delimit".leaf().hub();
@@ -82,27 +82,27 @@ pub fn default_bay() -> Result<Hub> {
     Ok(root)
 }
 
-pub fn page(bay: &Hub) -> Result<Hub> {
+pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
     let head = Element::new()
-        .open(bay.get("head")?)
-        .item(bay.get("title_element")?)
-        .item(bay.get("charset")?)
-        .item(bay.get("viewport")?)
-        .item(bay.get("author")?)
-        .item(bay.get("importmap")?)
+        .open(bay.get("head")?.string()?)
+        .item(bay.get("title_element")?.string()?)
+        .item(bay.get("charset")?.string()?)
+        .item(bay.get("viewport")?.string()?)
+        .item(bay.get("author")?.string()?)
+        .item(bay.get("importmap")?.string()?)
         .close()?
         .import(WORLD_ALL)
         .hub();
     let body = Element::new()
-        .open(bay.get("body")?)
-        .item(bay.get("title")?)
-        .item(bay.get("canvas")?)
-        .item(bay.get("app")?)
+        .open(bay.get("body")?.string()?)
+        .item(bay.get("title")?.string()?)
+        .item(bay.get("canvas")?.string()?)
+        .item(bay.get("app")?.string()?)
         .close()?
         .import(WORLD_ALL)
         .hub();
     let html = Element::new()
-        .open(bay.get("html")?)
+        .open(bay.get("html")?.string()?)
         .item(head)
         .item(body)
         .close()?
