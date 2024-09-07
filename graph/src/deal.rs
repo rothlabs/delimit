@@ -18,7 +18,7 @@ pub trait Deal: Debug {
         Ok(())
     }
     /// Handle vector of hubes.
-    fn vec<'a>(&mut self, _: &str, _: Vec<View<'a>>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, _: View<'a>) -> Result<()> {
         Ok(())
     }
     /// Handle map of hubes.

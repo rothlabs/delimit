@@ -67,16 +67,16 @@ impl Deal for Get {
         }
         Ok(())
     }
-    fn vec<'a>(&mut self, _: &str, views: Vec<View<'a>>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, view: View) -> Result<()> {
         if self.apex.is_some() {
             return Ok(());
         }
         match self.aim {
             Aim::Index(i) => {
-                if i < views.len() {
-                    self.apex = Some(views[i].apex());
+                if i < view.len()? {
+                    self.apex = Some(view.apex_at(i)?);
                 } else {
-                    self.errors.push(self.aim.index_out_of_bounds(views.len()));
+                    self.errors.push(self.aim.index_out_of_bounds(view.len()?));
                 }
             }
             _ => self.errors.push(self.aim.wrong_variant("Index")),
@@ -103,14 +103,15 @@ struct All {
 }
 
 impl Deal for All {
-    fn one<'a>(&mut self, _: &str, view: View<'a>) -> Result<()> {
+    fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
         self.apexes.push(view.apex());
         Ok(())
     }
-    fn vec<'a>(&mut self, _: &str, views: Vec<View<'a>>) -> Result<()> {
-        for view in views {
-            self.apexes.push(view.apex())
-        }
+    fn vec<'a>(&mut self, _: &str, view: View) -> Result<()> {
+        self.apexes.extend(view.all()?);
+        // for view in views {
+        //     self.apexes.push(view.apex())
+        // }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {

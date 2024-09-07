@@ -119,7 +119,7 @@ impl Deal for Lake {
     fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
         self.deal(view)
     }
-    fn vec<'a>(&mut self, _: &str, views: Vec<View>) -> Result<()> {
+    fn vec<'a>(&mut self, _: &str, view: View) -> Result<()> {
         for view in views {
             self.deal(view)?;
         }
