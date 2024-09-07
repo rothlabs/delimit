@@ -14,11 +14,11 @@ pub trait Deal: Debug {
     /// Set back of deal.
     fn back(&mut self, _: &Back) {}
     /// Handle one hub.
-    fn one<'a>(&mut self, _: &str, _: View<'a>) -> Result<()> {
+    fn one(&mut self, _: &str, _: View) -> Result<()> {
         Ok(())
     }
     /// Handle vector of hubes.
-    fn vec<'a>(&mut self, _: &str, _: View<'a>) -> Result<()> {
+    fn vec(&mut self, _: &str, _: &mut VecView) -> Result<()> {
         Ok(())
     }
     /// Handle map of hubes.

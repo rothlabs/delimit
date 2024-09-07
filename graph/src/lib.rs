@@ -19,6 +19,7 @@ pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 pub use apex::Apex;
 pub use view::View;
+pub use vec_view::VecView;
 pub use deal::Deal;
 
 use aim::*;
@@ -62,6 +63,7 @@ mod tests;
 mod tray;
 mod apex;
 mod view;
+mod vec_view;
 mod deal;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";

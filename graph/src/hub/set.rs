@@ -46,11 +46,11 @@ impl Deal for Set {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn vec<'a>(&mut self, _: &str, view: View) -> Result<()> {
+    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {
-                    view.set_at(i, self.apex.backed(back)?);
+                    view.set(i, self.apex.backed(back)?);
                     self.wrote = true;
                     Ok(())
                 }

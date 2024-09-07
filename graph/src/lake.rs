@@ -116,12 +116,12 @@ impl Deal for Lake {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
+    fn one(&mut self, _: &str, view: View) -> Result<()> {
         self.deal(view)
     }
-    fn vec<'a>(&mut self, _: &str, view: View) -> Result<()> {
-        for view in views {
-            self.deal(view)?;
+    fn vec(&mut self, _: &str, view: &mut VecView) -> Result<()> {
+        for i in 0..view.len() {
+            self.deal(view.get(i)?)?;
         }
         Ok(())
     }
