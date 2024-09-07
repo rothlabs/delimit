@@ -19,6 +19,7 @@ pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 pub use apex::Apex;
 pub use view::View;
+pub use deal::Deal;
 
 use aim::*;
 use scope::*;
@@ -61,6 +62,7 @@ mod tests;
 mod tray;
 mod apex;
 mod view;
+mod deal;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
@@ -152,33 +154,6 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
     match part.try_borrow_mut() {
         Ok(part) => Ok(write(part)),
         Err(err) => Err(Error::Read(err.to_string())),
-    }
-}
-
-/// Trade a hub for another.
-/// The implmentation should return the same semantic hub with different graph qualities.
-pub trait Deal: Debug {
-    // Did the deal read the unit?
-    fn read(&self) -> bool {
-        false
-    }
-    /// Did the deal mutate the unit?
-    fn wrote(&self) -> bool {
-        false
-    }
-    /// Set back of deal.
-    fn back(&mut self, _: &Back) {}
-    /// Handle one hub.
-    fn one<'a>(&mut self, _: &str, _: View<'a>) -> Result<()> {
-        Ok(())
-    }
-    /// Handle vector of hubes.
-    fn vec<'a>(&mut self, _: &str, _: Vec<View<'a>>) -> Result<()> {
-        Ok(())
-    }
-    /// Handle map of hubes.
-    fn map(&mut self, _: &mut Map) -> Result<()> {
-        Ok(())
     }
 }
 

@@ -4,7 +4,7 @@ use thiserror::Error;
 mod convert;
 mod deserialize;
 mod get;
-// mod hydrate;
+mod deal;
 mod set;
 
 #[derive(Error, Debug)]

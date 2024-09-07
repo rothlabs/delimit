@@ -3,27 +3,27 @@ use super::*;
 #[derive(Default, Hash, Debug, Serialize, Deserialize)]
 pub struct List {
     plain_list: u8,
-    items: Vec<Hub>,
-    separator: Hub,
+    items: Vec<Hub<String>>,
+    separator: Hub<String>,
 }
 
 impl List {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn set_separator(&mut self, separator: impl Into<Hub>) -> &mut Self {
+    pub fn set_separator(&mut self, separator: impl Into<Hub<String>>) -> &mut Self {
         self.separator = separator.into();
         self
     }
-    pub fn separator(mut self, separator: impl Into<Hub>) -> Self {
+    pub fn separator(mut self, separator: impl Into<Hub<String>>) -> Self {
         self.separator = separator.into();
         self
     }
-    pub fn extend(mut self, items: Vec<impl Into<Hub>>) -> Self {
+    pub fn extend(mut self, items: Vec<impl Into<Hub<String>>>) -> Self {
         self.items.extend(items.into_iter().map(|item| item.into()));
         self
     }
-    pub fn push(mut self, item: impl Into<Hub>) -> Self {
+    pub fn push(mut self, item: impl Into<Hub<String>>) -> Self {
         self.items.push(item.into());
         self
     }
@@ -31,18 +31,18 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn main(&self) -> Result<Gain> {
+    fn main(&self) -> Result<Gain<String>> {
         if self.items.is_empty() {
             return solve_ok();
         }
         let last = self.items.len() - 1;
         let mut base = String::new();
-        let separator = self.separator.string().unwrap_or_default();
+        let separator = self.separator.item().unwrap_or_default();
         for i in 0..last {
-            self.items[i].view().string(|x| base += x)?;
+            self.items[i].read(|x| base += x)?;
             base += &separator;
         }
-        self.items[last].view().string(|x| base += x)?;
+        self.items[last].read(|x| base += x)?;
         base.leaf().hub().gain()
     }
 }
@@ -56,7 +56,8 @@ impl Adapt for List {
 }
 
 impl Solve for List {
-    fn solve(&self, task: Task) -> Result<Gain> {
+    type Out = String;
+    fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 1.gain(),
             Task::Main => self.main(),

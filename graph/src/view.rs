@@ -1,5 +1,7 @@
 use super::*;
 
+mod convert;
+
 pub enum View<'a> {
     String(&'a mut Hub<String>),
     U8(&'a mut Hub<u8>),
