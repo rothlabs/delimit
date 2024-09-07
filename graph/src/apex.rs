@@ -8,6 +8,7 @@ pub enum Apex {
     Void(Hub<()>),
     String(Hub<String>),
     U8(Hub<u8>),
+    // Vf32(Hub<Vec<>>),
 }
 
 impl Default for Apex {

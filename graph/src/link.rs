@@ -8,7 +8,7 @@ use std::sync::{Arc, RwLock};
 use std::{cell::RefCell, rc::Rc};
 use std::{
     fmt,
-    hash::{Hash, Hasher}, marker::PhantomData,
+    hash::{Hash, Hasher},
 };
 
 mod leaf;
@@ -363,11 +363,10 @@ where
 {
     type NewSelf = Ploy<T>;
     fn backed(&self, back: &Back) -> Result<Self::NewSelf> {
-        read_part(&self.edge, |edge: RwLockReadGuard<Box<dyn Engage<Pay = T>>>| Self {
+        read_part(&self.edge, |edge| Self {
             edge: edge.backed_ploy(back),
             path: self.path.clone(),
             rank: self.rank,
-            //out: self.out.clone(),
         })
     }
 }

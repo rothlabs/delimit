@@ -50,7 +50,7 @@ impl Deal for Set {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {
-                    view.set(i, self.apex.backed(back)?);
+                    view.set(i, self.apex.backed(back)?)?;
                     self.wrote = true;
                     Ok(())
                 }

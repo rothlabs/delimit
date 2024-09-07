@@ -28,6 +28,11 @@ mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
+pub enum Array {
+    Vu16(Hub<u16>),
+    Vf32(Hub<f32>),
+}
+
 /// GPU graph maker
 pub struct Gpu {
     pub gl: WGLRC,
@@ -40,13 +45,13 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<Hub>) -> shader::Result {
+    pub fn vertex_shader(&self, source: impl Into<Hub>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Hub>) -> shader::Result {
+    pub fn fragment_shader(&self, source: impl Into<Hub>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
-    pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> program::Result {
+    pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<Node<Program>> {
         Program::make(&self.gl, vertex, fragment)
     }
     pub fn buffer(&self, array: impl Into<Hub>) -> Result<Node<Buffer>> {

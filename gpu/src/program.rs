@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlProgram;
 
-pub type Result = std::result::Result<Node<Program>, graph::Error>;
+// pub type Result = std::result::Result<Node<Program>, graph::Error>;
 
 /// GPU program based on vertex and fragment shaders.
 #[derive(Debug)]
@@ -13,7 +13,7 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn make(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result {
+    pub fn make(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<Node<Program>> {
         let program = gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;
@@ -55,5 +55,11 @@ impl Act for Program {
                 .unwrap_or("failed to get program info log".into());
             Err(anyhow!(memo))?
         }
+    }
+}
+
+impl Adapt for Program {
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
     }
 }

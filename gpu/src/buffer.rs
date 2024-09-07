@@ -62,3 +62,9 @@ impl Act for Buffer {
         Ok(())
     }
 }
+
+impl Adapt for Buffer {
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
+    }
+}

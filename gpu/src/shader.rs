@@ -6,9 +6,6 @@ pub mod basic;
 #[cfg(test)]
 mod tests;
 
-//pub type Source = Hub;
-pub type Result = std::result::Result<Node<Shader>, graph::Error>;
-
 #[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,
@@ -17,7 +14,7 @@ pub struct Shader {
 }
 
 impl Shader {
-    pub fn make(gl: &WGLRC, type_: u32, source: &Hub) -> Result {
+    pub fn make(gl: &WGLRC, type_: u32, source: &Hub) -> Result<Node<Shader>> {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
@@ -54,5 +51,11 @@ impl Act for Shader {
                 .unwrap_or("failed to get shader info log".into());
             Err(anyhow!(memo))?
         }
+    }
+}
+
+impl Adapt for Shader {
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
     }
 }

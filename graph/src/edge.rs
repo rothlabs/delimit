@@ -88,7 +88,7 @@ where
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> PloyPointer {
+    fn ploy(&self) -> PloyPointer<U::Out> {
         Rc::new(RefCell::new(Box::new(Self {
             back: self.back.clone(),
             cusp: self.cusp.clone(),
@@ -166,7 +166,7 @@ where
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer {
+    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Pay> {
         Rc::new(RefCell::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),

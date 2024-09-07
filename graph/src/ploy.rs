@@ -7,12 +7,10 @@ pub type Ploy<T> = Link<Box<dyn Engage<Pay = T>>>;
 #[cfg(not(feature = "oneThread"))]
 pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Pay = T>>>>;
 #[cfg(feature = "oneThread")]
-pub type PloyPointer = Rc<RefCell<Box<dyn Engage>>>;
+pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Pay = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: AdaptMid + SolvePloy + AddRoot + Update + Debug {
-    // type Wow;
-}
+pub trait Engage: AdaptMid + SolvePloy + AddRoot + Update + Debug {}
 
 impl<E> Engage for E where 
     E: AdaptMid + SolvePloy + AddRoot + Update + Debug,
