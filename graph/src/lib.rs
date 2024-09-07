@@ -17,7 +17,8 @@ pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
 pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
-pub use apex::{Apex, View};
+pub use apex::Apex;
+pub use view::View;
 
 use aim::*;
 use scope::*;
@@ -59,6 +60,7 @@ mod scope;
 mod tests;
 mod tray;
 mod apex;
+mod view;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 

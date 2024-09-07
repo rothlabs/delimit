@@ -1,14 +1,11 @@
 use super::*;
-use anyhow::anyhow;
 use thiserror::Error;
-// use view::*;
 
 mod convert;
 mod deserialize;
 mod get;
 mod hydrate;
 mod set;
-// mod view;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -60,6 +57,14 @@ where
         let mut lake = Lake::new();
         lake.insert("root", self)?;
         Ok(lake)
+    }
+
+    pub fn tray_path(&self) -> Option<&Path> {
+        if let Hub::Tray(Tray::Path(path)) = self {
+            Some(path)
+        } else {
+            None
+        }
     }
 
     pub fn tray_hash(&self) -> Option<u64> {
