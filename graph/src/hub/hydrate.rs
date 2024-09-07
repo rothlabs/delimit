@@ -18,10 +18,10 @@ where
             back: None,
         })?;
         for space in local.map.values() {
-            space.hub.saturate(world, space)?;
+            space.apex.saturate(world, space)?;
         }
         for space in &local.vec {
-            space.hub.saturate(world, space)?;
+            space.apex.saturate(world, space)?;
         }
         Ok(())
     }

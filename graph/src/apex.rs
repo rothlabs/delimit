@@ -15,6 +15,31 @@ impl Default for Apex {
 }
 
 impl Apex {
+    pub fn hydrate(&self) -> Result<()> {
+        let space = Space::new(vec![], self);
+        self.saturate(&space, &space)?;
+        Ok(())
+    }
+    fn saturate(&self, world: &Space, local: &Space) -> Result<()> {
+        self.adapt(&mut Scope {
+            world,
+            local,
+            back: None,
+        })?;
+        for space in local.map.values() {
+            space.apex.saturate(world, space)?;
+        }
+        for space in &local.vec {
+            space.apex.saturate(world, space)?;
+        }
+        Ok(())
+    }
+    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+        match self {
+            Self::String(x) => x.adapt(deal),
+            Self::U8(x) => x.adapt(deal),
+        }
+    }
     pub fn path(&self) -> Option<&Path> {
         match self {
             Self::String(x) => x.path(),
