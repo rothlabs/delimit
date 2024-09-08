@@ -24,7 +24,6 @@ pub type Node<U> = Link<edge::Node<U>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
-// #[derive(Debug)]
 pub struct Link<E> {
     #[cfg(not(feature = "oneThread"))]
     edge: Arc<RwLock<E>>,
@@ -32,7 +31,6 @@ pub struct Link<E> {
     edge: Rc<RefCell<E>>,
     path: Option<Path>,
     rank: Option<u64>,
-    // out: PhantomData<T>
 }
 
 impl<E> fmt::Debug for Link<E> {
@@ -47,7 +45,6 @@ impl<E> Link<E> {
             edge: self.edge.clone(),
             path: Some(path),
             rank: self.rank,
-            // out: PhantomData::default(),
         }
     }
     pub fn path(&self) -> Option<&Path> {
@@ -85,9 +82,6 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
             digest.hash(state)
-        } else {
-            // TODO: Remove when sure that this won't be a problem
-            panic!("failed to hash link")
         }
     }
 }
@@ -106,8 +100,7 @@ where
         } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
-            // TODO: Remove when sure that this won't be a problem
-            panic!("failed to serialize link")
+            serializer.serialize_str("ERROR(serialization)")
         }
     }
 }
@@ -125,7 +118,6 @@ where
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(edge)),
-            // out: PhantomData::default()
         }
     }
 }
@@ -143,7 +135,6 @@ where
             edge: Arc::new(RwLock::new(edge)),
             #[cfg(feature = "oneThread")]
             edge: Rc::new(RefCell::new(edge)),
-            // out: PhantomData::default(),
         })
     }
 }
@@ -165,7 +156,6 @@ where
             edge: Rc::new(RefCell::new(
                 Box::new(edge) as Box<dyn Engage<Base = E::Base>>
             )),
-            // out: PhantomData::default()
         })
     }
 }
@@ -173,15 +163,13 @@ where
 impl<E> Link<E>
 where
     E: ToPloy,
-    // <Self as Solve>::Out:
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy<E::ToPloyOut>> {
+    pub fn ploy(&self) -> Result<Ploy<E::Base>> {
         read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             path: self.path.clone(),
             rank: self.rank,
-            // out: PhantomData::default(),
         })
     }
 }
@@ -272,24 +260,28 @@ impl<E> Backed for Link<E>
 where
     E: BackedMid,
 {
-    #[cfg(not(feature = "oneThread"))]
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
+            #[cfg(not(feature = "oneThread"))]
+            let edge = Arc::new(RwLock::new(edge.backed(back)));
+            #[cfg(feature = "oneThread")]
+            let edge = Rc::new(RefCell::new(edge.backed(back)));
             Ok(Self {
-                edge: Arc::new(RwLock::new(edge.backed(back))),
+                edge,
                 path: self.path.clone(),
                 rank: self.rank,
             })
         })?
     }
-    #[cfg(feature = "oneThread")]
+}
+
+impl<T> Backed for Ploy<T>
+where
+    T: Payload,
+{
     fn backed(&self, back: &Back) -> Result<Self> {
-        let edge = match self.edge.try_borrow() {
-            Ok(edge) => edge,
-            Err(err) => return Err(crate::Error::Read(err.to_string()))?,
-        };
-        Ok(Self {
-            edge: Rc::new(RefCell::new(edge.backed(back))),
+        read_part(&self.edge, |edge| Self {
+            edge: edge.backed(back),
             path: self.path.clone(),
             rank: self.rank,
         })
@@ -310,9 +302,9 @@ where
     }
 }
 
-impl<E, T> WriteTray<T> for Link<E>
+impl<E, T> WriteBase<T> for Link<E>
 where
-    E: WriteTray<T>,
+    E: WriteBase<T>,
 {
     fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         read_part(&self.edge, |edge| edge.write(write))?
@@ -370,19 +362,6 @@ where
             }
             result
         })?
-    }
-}
-
-impl<T> Backed for Ploy<T>
-where
-    T: Payload,
-{
-    fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.backed(back),
-            path: self.path.clone(),
-            rank: self.rank,
-        })
     }
 }
 

@@ -57,8 +57,8 @@ impl<T> ToItem for Leaf<T> {
     }
 }
 
-impl<T> MutTray<T> for Leaf<T> {
-    fn tray(&mut self) -> &mut T {
+impl<T> BaseMut<T> for Leaf<T> {
+    fn base(&mut self) -> &mut T {
         &mut self.base
     }
 }

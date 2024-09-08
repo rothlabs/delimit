@@ -15,9 +15,9 @@ pub trait Engage: Based + AdaptMid + AddRoot + Update + Debug {}
 impl<E> Engage for E where E: Based + AdaptMid + AddRoot + Update + Debug {}
 
 pub trait ToPloy {
-    type ToPloyOut;
+    type Base;
     /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyPointer<Self::ToPloyOut>;
+    fn ploy(&self) -> PloyPointer<Self::Base>;
 }
 
 pub trait Based {

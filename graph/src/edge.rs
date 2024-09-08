@@ -47,29 +47,29 @@ where
     }
 }
 
-impl<N> Make for Edge<N>
+impl<C> Make for Edge<C>
 where
-    N: 'static + Default + MakeMid + UpdateMut, // + SolveMut,
+    C: 'static + Default + MakeMid + UpdateMut, 
 {
-    type Unit = N::Unit;
+    type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
-        let cusp = N::default();
+        let cusp = C::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??; //.expect(IMMEDIATE_ACCESS);
+        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??;
         Ok((Self { cusp, back: None }, rank))
     }
     #[cfg(feature = "oneThread")]
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
-        let cusp = N::default();
+        let cusp = C::default();
         let id = cusp.id();
         let cusp = Rc::new(RefCell::new(cusp));
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??; //.expect(IMMEDIATE_ACCESS);
+        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??;
         Ok((Self { cusp, back: None }, rank))
     }
 }
@@ -79,7 +79,7 @@ where
     U: 'static + Solve + Adapt + Debug + SendSync,
     U::Base: Payload,
 {
-    type ToPloyOut = U::Base;
+    type Base = U::Base;
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyPointer<U::Base> {
         Arc::new(RwLock::new(Box::new(Self {
@@ -186,9 +186,9 @@ impl<C> BackedMid for Edge<C> {
     }
 }
 
-impl<N, T> WriteTray<T> for Edge<N>
+impl<C, T> WriteBase<T> for Edge<C>
 where
-    N: WriteTrayOut<T>,
+    C: WriteBaseOut<T>,
 {
     fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         let write::Out { roots, id, out } =

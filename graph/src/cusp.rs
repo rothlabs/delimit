@@ -76,12 +76,12 @@ where
     }
 }
 
-impl<W, T> WriteTrayOut<T> for Cusp<W>
+impl<W, T> WriteBaseOut<T> for Cusp<W>
 where
-    W: MutTray<T>,
+    W: BaseMut<T>,
 {
     fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<write::Out<O>> {
-        let out = write(self.work.tray());
+        let out = write(self.work.base());
         let roots = self.ring.rebut_roots()?;
         Ok(write::Out {
             roots,

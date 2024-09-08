@@ -21,7 +21,7 @@ pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
-pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
 use scope::*;
@@ -253,8 +253,8 @@ pub trait ToItem {
     fn item(&self) -> &Self::Item;
 }
 
-pub trait MutTray<T> {
-    fn tray(&mut self) -> &mut T;
+pub trait BaseMut<T> {
+    fn base(&mut self) -> &mut T;
 }
 
 pub trait Read {

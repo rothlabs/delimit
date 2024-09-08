@@ -1,7 +1,5 @@
 use crate::*;
 
-// pub type Result<T> = std::result::Result<T, anyhow::Error>;
-
 /// The unit to be mutated and a hub back to create backed links.
 /// Packs are provided for write-to-unit closures.
 pub struct Pack<'a, U: 'a> {
@@ -15,13 +13,12 @@ pub struct Out<T> {
     pub out: T,
 }
 
-pub trait WriteTray<T> {
-    // type Item;
-    /// Front-facing write-to-tray.
+pub trait WriteBase<T> {
+    /// Front-facing write-to-base.
     fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>;
 }
 
-pub trait WriteTrayOut<T> {
+pub trait WriteBaseOut<T> {
     /// Write and return the hub meta and graph roots of the rebut. Hub level.
     fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
 }
@@ -35,7 +32,7 @@ pub trait WriteUnit {
 pub trait WriteUnitOut {
     type Unit;
     /// Write and return the hub meta and graph roots of the rebut.
-    /// Takes `&Back` to be included in Pack. Hub level.
+    /// Takes `&Back` to be included in Pack. Cusp level.
     fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,

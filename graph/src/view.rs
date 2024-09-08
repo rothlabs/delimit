@@ -13,15 +13,26 @@ pub enum View<'a> {
 }
 
 impl View<'_> {
-    pub fn apex(&self) -> Apex {
+    pub fn apex(self) -> Apex {
         match self {
-            Self::Void(x) => Apex::Void((*x).clone()),
-            Self::String(x) => Apex::String((*x).clone()),
-            Self::U8(x) => Apex::U8((*x).clone()),
-            Self::Vu8(x) => Apex::Vu8((*x).clone()),
-            Self::Vu16(x) => Apex::Vu16((*x).clone()),
-            Self::Vf32(x) => Apex::Vf32((*x).clone()),
+            Self::Void(x) => Apex::Void(x.clone()),
+            Self::String(x) => Apex::String(x.clone()),
+            Self::U8(x) => Apex::U8(x.clone()),
+            Self::Vu8(x) => Apex::Vu8(x.clone()),
+            Self::Vu16(x) => Apex::Vu16(x.clone()),
+            Self::Vf32(x) => Apex::Vf32(x.clone()),
         }
+    }
+    pub fn backed(&self, back: &Back) -> Result<Apex> {
+        let apex = match self {
+            Self::Void(x) => Apex::Void(x.backed(back)?),
+            Self::String(x) => Apex::String(x.backed(back)?),
+            Self::U8(x) => Apex::U8(x.backed(back)?),
+            Self::Vu8(x) => Apex::Vu8(x.backed(back)?),
+            Self::Vu16(x) => Apex::Vu16(x.backed(back)?),
+            Self::Vf32(x) => Apex::Vf32(x.backed(back)?),
+        };
+        Ok(apex)
     }
     pub fn set(self, apex: Apex) -> Result<Self> {
         match self {
@@ -85,3 +96,15 @@ impl View<'_> {
         }
     }
 }
+
+
+    // pub fn apex(&self) -> Apex {
+    //     match self {
+    //         Self::Void(x) => Apex::Void((*x).clone()),
+    //         Self::String(x) => Apex::String((*x).clone()),
+    //         Self::U8(x) => Apex::U8((*x).clone()),
+    //         Self::Vu8(x) => Apex::Vu8((*x).clone()),
+    //         Self::Vu16(x) => Apex::Vu16((*x).clone()),
+    //         Self::Vf32(x) => Apex::Vf32((*x).clone()),
+    //     }
+    // }

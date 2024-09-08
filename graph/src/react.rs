@@ -140,15 +140,14 @@ impl Back {
 
 impl Deal for Back {
     fn one(&mut self, _: &str, view: View) -> crate::Result<()> {
-        let apex = view.apex();
-        view.set(apex.backed(self)?)?;
+        let apex = view.backed(self)?;
+        view.set(apex)?;
         Ok(())
     }
     fn vec(&mut self, _: &str, view: ViewVec) -> crate::Result<()> {
-        // TODO: make ViewVec::back to replace this
         for view in view.views() {
-            let apex = view.apex();
-            view.set(apex.backed(self)?)?;
+            let apex = view.backed(self)?;
+            view.set(apex)?;
         }
         Ok(())
     }

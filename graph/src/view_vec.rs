@@ -17,8 +17,8 @@ impl<'a> ViewVec<'a> {
     pub fn views(self) -> Vec<View<'a>> {
         let mut views = vec![];
         match self {
-            Self::String(x) => {
-                for hub in x {
+            Self::String(hubs) => {
+                for hub in hubs {
                     views.push(hub.into());
                 }
             }
