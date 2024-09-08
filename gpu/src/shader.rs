@@ -52,9 +52,3 @@ impl Act for Shader {
         }
     }
 }
-
-impl Adapt for Shader {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}

@@ -42,7 +42,9 @@ pub trait AddRootMut {
 pub trait Backed {
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> crate::Result<Self> where Self: Sized;
+    fn backed(&self, back: &Back) -> crate::Result<Self>
+    where
+        Self: Sized;
 }
 
 pub trait BackedMid {

@@ -74,11 +74,6 @@ impl Act for Texture {
     }
 }
 
-impl Adapt for Texture {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}
 
 // self.gl.tex_storage_2d(target, levels, internalformat, width, height)
 // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(target, level, internalformat, width, height, border, format, type_, pixels)

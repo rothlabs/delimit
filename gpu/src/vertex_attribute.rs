@@ -58,12 +58,6 @@ impl Act for VertexAttribute {
     }
 }
 
-impl Adapt for VertexAttribute {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}
-
 // self.gl.vertex_attrib_pointer_with_f64(indx, size, type_, normalized, stride, offset)
 
 // impl VertexAttributeBuilder {

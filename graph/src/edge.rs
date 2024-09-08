@@ -125,16 +125,16 @@ where
     }
 }
 
-// impl<N> Solve for Edge<N>
-// where
-//     N: 'static + SolveMut + UpdateMut,
-//     N::Out: Payload
-// {
-//     type Out = N::Out;
-//     fn solve(&self, task: Task) -> Result<Gain<N::Out>> {
-//         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
-//     }
-// }
+impl<C> Solve for Edge<C>
+where
+    C: 'static + SolveMut + UpdateMut,
+    C::Base: Payload,
+{
+    type Base = C::Base;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
+        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+    }
+}
 
 impl<C> AdaptMid for Edge<C>
 where
@@ -151,16 +151,16 @@ where
     }
 }
 
-impl<C> SolveMid for Edge<C>
+impl<C> Based for Edge<C>
 where
     C: 'static + SolveMut + UpdateMut,
     C: AdaptOut + AddRootMut + Debug,
     C::Base: Payload,
 {
+    type Base = C::Base;
     fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
-    type Base = C::Base;
     #[cfg(not(feature = "oneThread"))]
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         Arc::new(RwLock::new(Box::new(Self {
@@ -177,7 +177,7 @@ where
     }
 }
 
-impl<N> BackedMid for Edge<N> {
+impl<C> BackedMid for Edge<C> {
     fn backed(&self, back: &Back) -> Self {
         Self {
             back: Some(back.clone()),

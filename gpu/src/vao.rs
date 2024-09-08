@@ -55,11 +55,6 @@ impl Act for Vao {
     }
 }
 
-impl Adapt for Vao {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}
 
 // impl React for Vao {
 //     fn react(&self, _: &Meta) -> react::Result {

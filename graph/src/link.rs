@@ -158,9 +158,13 @@ where
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
+            edge: Arc::new(RwLock::new(
+                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
+            )),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
+            edge: Rc::new(RefCell::new(
+                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
+            )),
             // out: PhantomData::default()
         })
     }
@@ -192,9 +196,13 @@ where
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
+            edge: Arc::new(RwLock::new(
+                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
+            )),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
+            edge: Rc::new(RefCell::new(
+                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
+            )),
             // out: PhantomData::default(),
         }
     }
@@ -266,13 +274,13 @@ where
 {
     #[cfg(not(feature = "oneThread"))]
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge|
+        read_part(&self.edge, |edge| {
             Ok(Self {
                 edge: Arc::new(RwLock::new(edge.backed(back))),
                 path: self.path.clone(),
                 rank: self.rank,
             })
-        )?
+        })?
     }
     #[cfg(feature = "oneThread")]
     fn backed(&self, back: &Back) -> Result<Self> {
@@ -323,12 +331,24 @@ where
 
 impl<E> Solve for Link<E>
 where
-    //T: 'static + Debug + SendSync, // Hash + Serialize +
-    // E: 'static + Solve<Out = T> + AddRoot + Update,
-    E: 'static + SolveMid + AddRoot + Update,
+    E: 'static + Solve + AddRoot + Update,
     E::Base: Payload,
 {
     type Base = E::Base;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
+        read_part(&self.edge, |edge| {
+            let result = edge.solve(task);
+            edge.add_root(self.as_root(edge.id()))?;
+            result
+        })?
+    }
+}
+
+impl<T> Solve for Ploy<T>
+where
+    T: Payload,
+{
+    type Base = T;
     fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
         read_part(&self.edge, |edge| {
             let result = edge.solve(task);

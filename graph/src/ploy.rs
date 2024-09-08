@@ -10,12 +10,9 @@ pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
 pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Base = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: AdaptMid + SolveMid + AddRoot + Update + Debug {}
+pub trait Engage: Based + AdaptMid + AddRoot + Update + Debug {}
 
-impl<E> Engage for E
-where
-    E: AdaptMid + SolveMid + AddRoot + Update + Debug
-{}
+impl<E> Engage for E where E: Based + AdaptMid + AddRoot + Update + Debug {}
 
 pub trait ToPloy {
     type ToPloyOut;
@@ -23,9 +20,9 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyPointer<Self::ToPloyOut>;
 }
 
-pub trait SolveMid {
+pub trait Based {
     type Base: Payload;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>>; 
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>>;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
 }
 
@@ -35,7 +32,7 @@ impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
     }
 }
 
-impl<T> SolveMid for Box<dyn Engage<Base = T>>
+impl<T> Based for Box<dyn Engage<Base = T>>
 where
     T: Payload,
 {
@@ -71,8 +68,3 @@ impl<T> React for Box<dyn Engage<Base = T>> {
         self.as_ref().react(id)
     }
 }
-
-// pub trait ToPipedPloy {
-//     /// Copy with unit type erased.
-//     fn ploy(&self) -> PloyPointer;
-// }

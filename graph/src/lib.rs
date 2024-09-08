@@ -1,5 +1,6 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
 pub use apex::Apex;
+pub use base::Vf32;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -9,10 +10,9 @@ pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{Engage, Ploy, PloyPointer, SolveMid, ToPloy};
-pub use base::Vf32;
+pub use ploy::{Engage, Ploy, PloyPointer, Based, ToPloy};
 pub use react::{
-    AddRoot, AddRootMut, Back, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Backed,
+    AddRoot, AddRootMut, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root,
     Update, UpdateMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
@@ -52,6 +52,7 @@ pub mod write;
 
 mod aim;
 mod apex;
+mod base;
 mod bay;
 mod cusp;
 mod deal;
@@ -60,7 +61,6 @@ mod link;
 mod map;
 mod meta;
 mod ploy;
-mod base;
 mod scope;
 #[cfg(test)]
 mod tests;

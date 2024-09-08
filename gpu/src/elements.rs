@@ -54,9 +54,3 @@ impl Act for Elements {
         self.vao.read(|vao| self.draw(vao))
     }
 }
-
-impl Adapt for Elements {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}

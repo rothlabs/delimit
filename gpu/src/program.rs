@@ -61,9 +61,3 @@ impl Act for Program {
         }
     }
 }
-
-impl Adapt for Program {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}

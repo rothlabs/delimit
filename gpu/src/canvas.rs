@@ -50,9 +50,3 @@ impl Act for Canvas {
         Ok(())
     }
 }
-
-impl Adapt for Canvas {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}
