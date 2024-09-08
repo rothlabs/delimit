@@ -61,7 +61,7 @@ impl<E> Link<E> {
 impl<E> Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload
+    <Self as Solve>::Out: 'static + Payload,
 {
     pub fn main(&self) -> Result<Hub<<Self as Solve>::Out>> {
         match self.solve(Task::Main)? {
@@ -80,7 +80,7 @@ where
 impl<E> Hash for Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload
+    <Self as Solve>::Out: 'static + Payload,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
@@ -95,7 +95,7 @@ where
 impl<E> Serialize for Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload
+    <Self as Solve>::Out: 'static + Payload,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -203,11 +203,12 @@ where
 impl<E> Link<E>
 where
     E: Read,
-    E::Item: Payload
-    // T: Payload,
+    E::Item: Payload, // T: Payload,
 {
     pub fn tray(&self) -> Result<Tray<E::Item>> {
-        read_part(&self.edge, |edge| edge.read(|tray| Tray::Item(tray.clone())))?
+        read_part(&self.edge, |edge| {
+            edge.read(|tray| Tray::Item(tray.clone()))
+        })?
     }
 }
 
@@ -327,10 +328,10 @@ where
 
 impl<E> Solve for Link<E>
 where
-    //T: 'static + Debug + SendSync, // Hash + Serialize + 
+    //T: 'static + Debug + SendSync, // Hash + Serialize +
     // E: 'static + Solve<Out = T> + AddRoot + Update,
     E: 'static + SolvePloy + AddRoot + Update,
-    E::Pay: Payload
+    E::Pay: Payload,
 {
     type Out = E::Pay;
     fn solve(&self, task: Task) -> Result<Gain<Self::Out>> {
@@ -357,9 +358,9 @@ where
     }
 }
 
-impl<T> TryBacked for Ploy<T> 
-where 
-    T: Payload
+impl<T> TryBacked for Ploy<T>
+where
+    T: Payload,
 {
     type NewSelf = Ploy<T>;
     fn backed(&self, back: &Back) -> Result<Self::NewSelf> {

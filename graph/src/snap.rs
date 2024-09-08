@@ -16,7 +16,7 @@ impl<U> Snap<U> {
 impl<U> Snap<U>
 where
     U: 'static + Adapt + Solve + SendSync + Debug,
-    U::Out: Payload
+    U::Out: Payload,
 {
     pub fn hub(self) -> Hub<U::Out> {
         Node::make_ploy_from_snap(self).into()

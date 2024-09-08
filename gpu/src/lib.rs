@@ -28,11 +28,6 @@ mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
-pub enum Array {
-    Vu16(Hub<u16>),
-    Vf32(Hub<f32>),
-}
-
 /// GPU graph maker
 pub struct Gpu {
     pub gl: WGLRC,
@@ -45,20 +40,20 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
-    pub fn vertex_shader(&self, source: impl Into<Hub>) -> Result<Node<Shader>> {
+    pub fn vertex_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Hub>) -> Result<Node<Shader>> {
+    pub fn fragment_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<Node<Program>> {
         Program::make(&self.gl, vertex, fragment)
     }
-    pub fn buffer(&self, array: impl Into<Hub>) -> Result<Node<Buffer>> {
+    pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // f32
         Buffer::make(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
-    pub fn index_buffer(&self, array: impl Into<Hub>) -> Result<Node<Buffer>> {
+    pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         // u16
         Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
@@ -83,7 +78,7 @@ impl Gpu {
     pub fn texture(
         // <T: Copy>
         &self,
-        array: impl Into<Hub>,
+        array: impl Into<Apex>,
     ) -> Result<TextureBuilder> {
         let texture = self
             .gl

@@ -9,12 +9,12 @@ mod tests;
 #[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,
-    pub source: Hub,
+    pub source: Hub<String>,
     pub shader: WebGlShader,
 }
 
 impl Shader {
-    pub fn make(gl: &WGLRC, type_: u32, source: &Hub) -> Result<Node<Shader>> {
+    pub fn make(gl: &WGLRC, type_: u32, source: &Hub<String>) -> Result<Node<Shader>> {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
@@ -34,8 +34,7 @@ impl Shader {
 impl Act for Shader {
     fn act(&self) -> graph::Result<()> {
         self.source
-            .view()
-            .string(|src| self.gl.shader_source(&self.shader, src))?;
+            .read(|src| self.gl.shader_source(&self.shader, src))?;
         self.gl.compile_shader(&self.shader);
         if self
             .gl

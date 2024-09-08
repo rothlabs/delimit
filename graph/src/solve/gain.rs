@@ -2,9 +2,9 @@ use super::*;
 
 /// Value returned by a successful hub solver.
 #[derive(Clone, PartialEq, Debug, Hash)]
-pub enum Gain<T> 
-where 
-    T: 'static + Payload
+pub enum Gain<T>
+where
+    T: 'static + Payload,
 {
     // for units
     None,
@@ -21,8 +21,9 @@ pub enum Error {
     WrongVariant { expected: String, found: String },
 }
 
-impl<T> Gain<T> 
-where T: Payload
+impl<T> Gain<T>
+where
+    T: Payload,
 {
     /// Emit `WrongVariant` error.
     fn wrong_variant(&self, expected: &str) -> solve::Error {
@@ -98,7 +99,7 @@ pub trait IntoGain<T: Payload> {
 impl<G, T> IntoGain<T> for G
 where
     G: Into<Gain<T>>,
-    T: 'static + Payload
+    T: 'static + Payload,
 {
     fn gain(self) -> Result<Gain<T>> {
         Ok(self.into())

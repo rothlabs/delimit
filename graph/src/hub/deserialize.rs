@@ -2,25 +2,25 @@ use super::*;
 use serde::de::{MapAccess, Visitor};
 use std::{fmt, marker::PhantomData, result};
 
-impl<'de, T> Deserialize<'de> for Hub<T> 
-where 
-    T: Payload + Deserialize<'de>
+impl<'de, T> Deserialize<'de> for Hub<T>
+where
+    T: Payload + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_map(HubVisitor{out: PhantomData::default()})
+        deserializer.deserialize_map(HubVisitor { out: PhantomData })
     }
 }
 
 struct HubVisitor<T> {
-    out: PhantomData<T>
+    out: PhantomData<T>,
 }
 
-impl<'de, T> Visitor<'de> for HubVisitor<T> 
-where 
-    T: 'static + Payload + Deserialize<'de>
+impl<'de, T> Visitor<'de> for HubVisitor<T>
+where
+    T: 'static + Payload + Deserialize<'de>,
 {
     type Value = Hub<T>;
 

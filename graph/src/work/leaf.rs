@@ -8,21 +8,32 @@ pub struct Leaf<T> {
     digest: Option<u64>,
 }
 
-impl<T> Leaf<T> 
-where 
-    T: Payload
+// impl Hash for Leaf<Vec<f32>> {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//         self.value.iter().map(|x| x.to_bits())
+//             .collect::<Vec<u32>>()
+//             .hash(state)
+//     }
+// }
+
+impl<T> Leaf<T>
+where
+    T: Payload,
 {
     pub fn new(tray: T) -> Self {
-        Self { value: tray, digest: None }
+        Self {
+            value: tray,
+            digest: None,
+        }
     }
     pub fn hub(self) -> Hub<T> {
         Hub::Leaf(link::Leaf::new(self.value))
     }
 }
 
-impl<T> Leaf<T> 
-where 
-    T: Payload
+impl<T> Leaf<T>
+where
+    T: Payload,
 {
     fn digest(&mut self) -> Result<Gain<T>> {
         if let Some(digest) = &self.digest {
@@ -40,7 +51,10 @@ where
 impl<T> FromItem for Leaf<T> {
     type Item = T;
     fn new(tray: Self::Item) -> Self {
-        Self { value: tray, digest: None }
+        Self {
+            value: tray,
+            digest: None,
+        }
     }
 }
 
@@ -63,8 +77,8 @@ impl<T> ReactMut for Leaf<T> {
     }
 }
 
-impl<T> SolveMut for Leaf<T> 
-where 
+impl<T> SolveMut for Leaf<T>
+where
     T: Payload, //Hash + Serialize + Debug + SendSync,//Hash + Serialize + Debug
 {
     type Out = T;

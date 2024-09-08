@@ -12,7 +12,7 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
 
-use graph::{self, serial::*, snap::*, write::*, Import, Leaf, Serial, Apex};
+use graph::{self, serial::*, snap::*, write::*, Apex, Import, Leaf, Serial};
 
 mod atlas;
 mod config;
@@ -46,7 +46,10 @@ async fn future(io: Io, ace: Leaf<u8>) {
     }
 }
 
-async fn service(_: Request<impl Body>, ace: Leaf<u8>) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn service(
+    _: Request<impl Body>,
+    ace: Leaf<u8>,
+) -> Result<Response<Full<Bytes>>, Infallible> {
     ace.write(|value| {
         println!("value: {value}");
         *value += 1;

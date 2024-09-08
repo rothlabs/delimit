@@ -13,7 +13,9 @@ pub trait Solve {
     type Out;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self, task: Task) -> Result<Gain<Self::Out>> where <Self as solve::Solve>::Out: Payload;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Out>>
+    where
+        <Self as solve::Solve>::Out: Payload;
 }
 
 #[derive(Error, Debug)]
@@ -32,9 +34,9 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn solve_ok<T>() -> Result<Gain<T>> 
-where 
-    T: Payload
+pub fn solve_ok<T>() -> Result<Gain<T>>
+where
+    T: Payload,
 {
     Ok(Gain::None)
 }

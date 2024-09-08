@@ -154,8 +154,8 @@ where
 impl<N> SolvePloy for Edge<N>
 where
     N: 'static + SolveMut + UpdateMut,
-    N:  AdaptOut + AddRootMut + Debug,
-    N::Out: Payload
+    N: AdaptOut + AddRootMut + Debug,
+    N::Out: Payload,
 {
     type Pay = N::Out;
     #[cfg(not(feature = "oneThread"))]

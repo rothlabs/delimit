@@ -5,9 +5,9 @@ use crate::*;
 /// The solved Gain is kept to be returned on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
-pub struct Node<U: Solve> 
-where 
-    U::Out: 'static + Payload
+pub struct Node<U: Solve>
+where
+    U::Out: 'static + Payload,
 {
     imports: Vec<Import>,
     unit: Option<U>,
@@ -92,7 +92,7 @@ where
 impl<U> MakeMid for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     type Unit = U;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
@@ -112,7 +112,7 @@ where
 impl<U> WithSnap for Node<U>
 where
     U: Adapt + Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     type Unit = U;
     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
@@ -134,7 +134,7 @@ where
 impl<U> FromItem for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     type Item = U;
     fn new(unit: Self::Item) -> Self {
@@ -148,7 +148,7 @@ where
 impl<U> ToItem for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     type Item = U;
     fn item(&self) -> &Self::Item {
@@ -159,7 +159,7 @@ where
 impl<U> Clear for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     fn clear(&mut self) {
         self.main = None;
@@ -171,7 +171,7 @@ where
 impl<U> WriteUnitWork for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     type Unit = U;
     fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
@@ -191,7 +191,7 @@ where
 impl<U> ReactMut for Node<U>
 where
     U: Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     fn react(&mut self, _: &Id) -> react::Result {
         self.unit.as_ref().unwrap().solve(Task::React)?;
@@ -202,7 +202,7 @@ where
 impl<U> Adapt for Node<U>
 where
     U: Adapt + Solve,
-    U::Out: Payload
+    U::Out: Payload,
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.as_mut().unwrap().adapt(deal)

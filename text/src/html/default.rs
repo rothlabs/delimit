@@ -24,10 +24,7 @@ pub fn default_bay() -> Result<Hub<()>> {
     bay.insert("title_element", title_element)?;
 
     let charset = Attribute::new().name("charset").content("utf-8").hub()?;
-    bay.insert(
-        "charset",
-        Tag::new().name("meta").attribute(charset).hub()?,
-    )?;
+    bay.insert("charset", Tag::new().name("meta").attribute(charset).hub()?)?;
 
     let name = Attribute::new().name("name").content("viewport").hub()?;
     let content = Attribute::new()

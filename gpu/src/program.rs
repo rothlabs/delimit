@@ -13,7 +13,11 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn make(gl: &WGLRC, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<Node<Program>> {
+    pub fn make(
+        gl: &WGLRC,
+        vertex: &Node<Shader>,
+        fragment: &Node<Shader>,
+    ) -> Result<Node<Program>> {
         let program = gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;

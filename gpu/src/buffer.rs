@@ -6,11 +6,11 @@ pub struct Buffer {
     gl: WGLRC,
     buffer: WebGlBuffer,
     target: u32,
-    array: Hub,
+    array: Apex,
 }
 
 impl Buffer {
-    pub fn make(gl: &WGLRC, target: u32, array: &Hub) -> Result<Node<Buffer>> {
+    pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
         let buffer = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;
@@ -32,24 +32,24 @@ impl Buffer {
     pub fn unbind(&self) {
         self.gl.bind_buffer(self.target, None);
     }
-    fn set(&self, tray: &Tray) -> Result<()> {
-        match tray {
-            Tray::Vu16(array) => unsafe {
-                self.gl.buffer_data_with_array_buffer_view(
-                    self.target,
-                    &Uint16Array::view(array.as_slice()),
-                    WGLRC::STATIC_DRAW,
-                )
-            },
-            Tray::Vf32(array) => unsafe {
-                self.gl.buffer_data_with_array_buffer_view(
-                    self.target,
-                    &Float32Array::view(array.as_slice()),
-                    WGLRC::STATIC_DRAW,
-                )
-            },
-            tray => return Err(tray.wrong_variant("Vec<u16> or Vec<f32>"))?,
-        };
+    fn vec_u16(&self, array: &Vec<u16>) -> Result<()> {
+        unsafe {
+            self.gl.buffer_data_with_array_buffer_view(
+                self.target,
+                &Uint16Array::view(array.as_slice()),
+                WGLRC::STATIC_DRAW,
+            )
+        }
+        Ok(())
+    }
+    fn vec_f32(&self, array: &Vec<f32>) -> Result<()> {
+        unsafe {
+            self.gl.buffer_data_with_array_buffer_view(
+                self.target,
+                &Float32Array::view(array.as_slice()),
+                WGLRC::STATIC_DRAW,
+            )
+        }
         Ok(())
     }
 }
@@ -57,7 +57,11 @@ impl Buffer {
 impl Act for Buffer {
     fn act(&self) -> graph::Result<()> {
         self.bind();
-        self.array.read(|tray| self.set(tray))??;
+        match &self.array {
+            Apex::Vu16(array) => array.read(|array| self.vec_u16(array))?,
+            Apex::Vf32(array) => array.read(|array| self.vec_f32(array))?,
+            _ => Err(anyhow!("wrong apex"))?,
+        }?;
         self.unbind();
         Ok(())
     }

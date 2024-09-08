@@ -8,16 +8,16 @@ pub struct VertexAttribute {
     buffer: Node<Buffer>,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
-    index: Hub,
+    index: Hub<u32>,
     /// Number of components per value
     #[builder(default)]
-    size: Hub,
+    size: Hub<i32>,
     /// Number of bytes between values
     #[builder(default)]
-    stride: Hub,
+    stride: Hub<i32>,
     /// Byte offset of first value
     #[builder(default)]
-    offset: Hub,
+    offset: Hub<i32>,
 }
 
 impl VertexAttributeBuilder {
@@ -39,11 +39,11 @@ impl VertexAttribute {
         buffer.bind();
         self.gl.vertex_attrib_pointer_with_i32(
             index,
-            self.size.i32().unwrap_or_default(),
+            self.size.item().unwrap_or_default(),
             WGLRC::FLOAT,
             false,
-            self.stride.i32().unwrap_or_default(),
-            self.offset.i32().unwrap_or_default(),
+            self.stride.item().unwrap_or_default(),
+            self.offset.item().unwrap_or_default(),
         );
         self.gl.enable_vertex_attrib_array(index);
         buffer.unbind();
@@ -52,7 +52,7 @@ impl VertexAttribute {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        let index = self.index.u32().unwrap_or_default();
+        let index = self.index.item().unwrap_or_default();
         self.buffer.act()?;
         self.buffer.read(|buffer| self.set(buffer, index))
     }

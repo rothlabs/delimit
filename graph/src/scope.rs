@@ -25,7 +25,7 @@ impl Space {
         }
         if let Ok(stems) = apex.all() {
             for next_apex in &stems {
-                if let Some(_) = next_apex.tray_path() {
+                if next_apex.tray_path().is_some() {
                     continue;
                 }
                 let mut next_path = path.clone();
@@ -86,7 +86,7 @@ impl Deal for Scope<'_> {
     fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
-    fn one<'a>(&mut self, _: &str, view: View) -> Result<()> {
+    fn one(&mut self, _: &str, view: View) -> Result<()> {
         self.deal(view)
     }
     fn vec<'a>(&mut self, _: &str, view: ViewVec) -> Result<()> {

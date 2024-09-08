@@ -8,7 +8,9 @@ pub enum Apex {
     Void(Hub<()>),
     String(Hub<String>),
     U8(Hub<u8>),
-    // Vf32(Hub<Vec<>>),
+    Vu8(Hub<Vec<u8>>),
+    Vu16(Hub<Vec<u16>>),
+    Vf32(Hub<Vf32>),
 }
 
 impl Default for Apex {
@@ -18,20 +20,6 @@ impl Default for Apex {
 }
 
 impl Apex {
-    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
-        match self {
-            Self::Void(x) => x.get(aim),
-            Self::String(x) => x.get(aim),
-            Self::U8(x) => x.get(aim),
-        }
-    }
-    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
-        match self {
-            Self::Void(x) => x.set(aim, apex),
-            Self::String(x) => x.set(aim, apex),
-            Self::U8(x) => x.set(aim, apex)
-        }
-    }
     pub fn hydrate(&self) -> Result<()> {
         let space = Space::new(vec![], self);
         self.saturate(&space, &space)?;
@@ -51,11 +39,34 @@ impl Apex {
         }
         Ok(())
     }
+    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
+        match self {
+            Self::Void(x) => x.get(aim),
+            Self::String(x) => x.get(aim),
+            Self::U8(x) => x.get(aim),
+            Self::Vu8(x) => x.get(aim),
+            Self::Vu16(x) => x.get(aim),
+            Self::Vf32(x) => x.get(aim),
+        }
+    }
+    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
+        match self {
+            Self::Void(x) => x.set(aim, apex),
+            Self::String(x) => x.set(aim, apex),
+            Self::U8(x) => x.set(aim, apex),
+            Self::Vu8(x) => x.set(aim, apex),
+            Self::Vu16(x) => x.set(aim, apex),
+            Self::Vf32(x) => x.set(aim, apex),
+        }
+    }
     pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         match self {
             Self::Void(x) => x.adapt(deal),
             Self::String(x) => x.adapt(deal),
             Self::U8(x) => x.adapt(deal),
+            Self::Vu8(x) => x.adapt(deal),
+            Self::Vu16(x) => x.adapt(deal),
+            Self::Vf32(x) => x.adapt(deal),
         }
     }
     pub fn path(&self) -> Option<&Path> {
@@ -63,6 +74,9 @@ impl Apex {
             Self::Void(x) => x.path(),
             Self::String(x) => x.path(),
             Self::U8(x) => x.path(),
+            Self::Vu8(x) => x.path(),
+            Self::Vu16(x) => x.path(),
+            Self::Vf32(x) => x.path(),
         }
     }
     pub fn tray_path(&self) -> Option<&Path> {
@@ -70,6 +84,9 @@ impl Apex {
             Self::Void(x) => x.tray_path(),
             Self::String(x) => x.tray_path(),
             Self::U8(x) => x.tray_path(),
+            Self::Vu8(x) => x.tray_path(),
+            Self::Vu16(x) => x.tray_path(),
+            Self::Vf32(x) => x.tray_path(),
         }
     }
     pub fn pathed(&self, path: impl Into<Path>) -> Self {
@@ -77,6 +94,9 @@ impl Apex {
             Self::Void(x) => Self::Void(x.pathed(path)),
             Self::String(x) => Self::String(x.pathed(path)),
             Self::U8(x) => Self::U8(x.pathed(path)),
+            Self::Vu8(x) => Self::Vu8(x.pathed(path)),
+            Self::Vu16(x) => Self::Vu16(x.pathed(path)),
+            Self::Vf32(x) => Self::Vf32(x.pathed(path)),
         }
     }
     pub fn imports(&self) -> Result<Vec<Import>> {
@@ -84,6 +104,9 @@ impl Apex {
             Self::Void(x) => x.imports(),
             Self::String(x) => x.imports(),
             Self::U8(x) => x.imports(),
+            Self::Vu8(x) => x.imports(),
+            Self::Vu16(x) => x.imports(),
+            Self::Vf32(x) => x.imports(),
         }
     }
     pub fn all(&self) -> Result<Vec<Apex>> {
@@ -91,6 +114,9 @@ impl Apex {
             Self::Void(x) => x.all(),
             Self::String(x) => x.all(),
             Self::U8(x) => x.all(),
+            Self::Vu8(x) => x.all(),
+            Self::Vu16(x) => x.all(),
+            Self::Vf32(x) => x.all(),
         }
     }
     pub fn insert_in_lake(&self, lake: &mut Lake) -> Result<()> {
@@ -98,6 +124,9 @@ impl Apex {
             Self::Void(x) => lake.insert_stem(x),
             Self::String(x) => lake.insert_stem(x),
             Self::U8(x) => lake.insert_stem(x),
+            Self::Vu8(x) => lake.insert_stem(x),
+            Self::Vu16(x) => lake.insert_stem(x),
+            Self::Vf32(x) => lake.insert_stem(x),
         }
     }
     pub fn grow_from_lake(&self, lake: &mut Lake) -> Result<()> {
@@ -105,6 +134,9 @@ impl Apex {
             Self::Void(x) => lake.grow(x),
             Self::String(x) => lake.grow(x),
             Self::U8(x) => lake.grow(x),
+            Self::Vu8(x) => lake.grow(x),
+            Self::Vu16(x) => lake.grow(x),
+            Self::Vf32(x) => lake.grow(x),
         }
     }
 }
@@ -116,12 +148,13 @@ impl TryBacked for Apex {
             Self::Void(x) => Self::Void(x.backed(back)?),
             Self::String(x) => Self::String(x.backed(back)?),
             Self::U8(x) => Self::U8(x.backed(back)?),
+            Self::Vu8(x) => Self::Vu8(x.backed(back)?),
+            Self::Vu16(x) => Self::Vu16(x.backed(back)?),
+            Self::Vf32(x) => Self::Vf32(x.backed(back)?),
         };
         Ok(apex)
     }
 }
-
-
 
 // pub trait ToApex {
 //     fn apex(&self) -> Apex;
@@ -132,4 +165,3 @@ impl TryBacked for Apex {
 //         self.iter().map(|x| x.apex()).collect()
 //     }
 // }
-

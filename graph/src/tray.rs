@@ -18,9 +18,9 @@ pub enum Error {
     WrongVariant { expected: String, found: String },
 }
 
-impl<T> Tray<T> 
-where 
-    T: Debug
+impl<T> Tray<T>
+where
+    T: Debug,
 {
     pub fn wrong_variant(&self, expected: &str) -> Error {
         Error::WrongVariant {
@@ -45,7 +45,6 @@ impl<T: Hash> Hash for Tray<T> {
         }
     }
 }
-
 
 // impl Hash for Tray {
 //     fn hash<H: Hasher>(&self, state: &mut H) {

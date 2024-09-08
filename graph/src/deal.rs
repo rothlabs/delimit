@@ -26,4 +26,3 @@ pub trait Deal: Debug {
         Ok(())
     }
 }
-

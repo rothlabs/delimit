@@ -12,10 +12,10 @@ pub struct Elements {
     vao: Node<Vao>,
     /// Number of values to draw.
     #[builder(default)]
-    count: Hub,
+    count: Hub<i32>,
     /// Number of values to skip before drawing.
     #[builder(default)]
-    offset: Hub,
+    offset: Hub<i32>,
 }
 
 impl ElementsBuilder {
@@ -37,9 +37,9 @@ impl Elements {
         vao.bind();
         self.gl.draw_elements_with_i32(
             WGLRC::TRIANGLES,
-            self.count.i32().unwrap_or_default(),
+            self.count.item().unwrap_or_default(),
             WGLRC::UNSIGNED_SHORT,
-            self.offset.i32().unwrap_or_default(),
+            self.offset.item().unwrap_or_default(),
         );
         vao.unbind();
     }

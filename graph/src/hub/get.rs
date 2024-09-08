@@ -1,8 +1,8 @@
 use super::*;
 
-impl<T> Hub<T> 
-where 
-    T: Payload
+impl<T> Hub<T>
+where
+    T: Payload,
 {
     /// Get one hub.
     pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
@@ -32,7 +32,7 @@ where
 pub struct Get {
     aim: Aim,
     apex: Option<Apex>,
-    errors: Vec<aim::Error>,
+    errors: Vec<crate::Error>,
 }
 
 impl Get {
@@ -63,7 +63,7 @@ impl Deal for Get {
                     self.apex = Some(view.apex());
                 }
             }
-            _ => self.errors.push(self.aim.wrong_variant("Key")),
+            _ => self.errors.push(self.aim.wrong_variant("Key").into()),
         }
         Ok(())
     }
@@ -72,14 +72,11 @@ impl Deal for Get {
             return Ok(());
         }
         match self.aim {
-            Aim::Index(i) => {
-                if let Ok(apex) = view.apex(i) {
-                    self.apex = Some(apex);
-                } else {
-                    self.errors.push(self.aim.index_out_of_bounds(view.len()));
-                }
-            }
-            _ => self.errors.push(self.aim.wrong_variant("Index")),
+            Aim::Index(i) => match view.apex(i) {
+                Ok(apex) => self.apex = Some(apex),
+                Err(err) => self.errors.push(err),
+            },
+            _ => self.errors.push(self.aim.wrong_variant("Index").into()),
         }
         Ok(())
     }
@@ -91,7 +88,7 @@ impl Deal for Get {
             Aim::Key(key) => {
                 self.apex = map.get(key);
             }
-            _ => self.errors.push(self.aim.wrong_variant("Key")),
+            _ => self.errors.push(self.aim.wrong_variant("Key").into()),
         }
         Ok(())
     }
@@ -117,8 +114,8 @@ impl Deal for All {
     }
 }
 
-                // if i < view.len() {
-                //     self.apex = Some(view.apex(i));
-                // } else {
-                //     self.errors.push(self.aim.index_out_of_bounds(view.len()));
-                // }
+// if i < view.len() {
+//     self.apex = Some(view.apex(i));
+// } else {
+//     self.errors.push(self.aim.index_out_of_bounds(view.len()));
+// }

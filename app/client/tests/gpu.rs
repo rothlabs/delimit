@@ -1,11 +1,6 @@
 use gpu::*;
 use graph::*;
 use texture::Texture;
-// use gpu_setup::draw_basic_elements;
-// use gpu_setup::*;
-// use std::error::Error;
-
-// mod gpu_setup;
 
 pub fn make_canvas() -> Result<Gpu> {
     let canvas = Canvas::new();
@@ -22,7 +17,7 @@ pub fn make_canvas_on_body() -> Result<Gpu> {
     Ok(gpu)
 }
 
-pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf) {
+pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf<String>) {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment_source = shader::basic::FRAGMENT_RED.leaf();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
@@ -33,7 +28,7 @@ pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf) {
     (program.unwrap(), fragment_source)
 }
 
-pub fn make_tex_program(gpu: &Gpu) -> program::Result {
+pub fn make_tex_program(gpu: &Gpu) -> Result<Node<Program>> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
     gpu.program(&vertex, &fragment)
@@ -70,22 +65,22 @@ pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
         240,50,230,			188,246,12,			250,190,190,		0,128,128,
         230,190,255,		154,99,36,			255,250,200,		0,0,0,
     ];
-    let texture = gpu.texture(array)?.width(4_i32).height(4_i32).make()?;
+    let texture = gpu.texture(array)?.width(4).height(4).make()?;
     Ok(texture)
 }
 
-pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf)> {
+pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf<String>)> {
     let (program, vertex_source) = make_basic_program(&gpu);
     let buffer = make_basic_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.index_buffer(array)?;
-    let att = gpu.vertex_attribute(&buffer).size(3_i32).make()?;
+    let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).make()?;
     let elements = gpu
         .elements(&program)
         .buffer(buffer)
         .vao(vao)
-        .count(3_i32)
+        .count(3)
         .make()?;
     elements.solve(Task::Main)?;
     Ok((elements, vertex_source))
@@ -96,17 +91,13 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>> {
     let buffer = make_vertex_color_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.index_buffer(array)?;
-    let pos = gpu
-        .vertex_attribute(&buffer)
-        .size(3_i32)
-        .stride(20_i32)
-        .make()?;
+    let pos = gpu.vertex_attribute(&buffer).size(3).stride(20).make()?;
     let uv = gpu
         .vertex_attribute(&buffer)
-        .index(1_u32)
-        .size(2_i32)
-        .stride(20_i32)
-        .offset(12_i32)
+        .index(1)
+        .size(2)
+        .stride(20)
+        .offset(12)
         .make()?;
     let vao = gpu.vao(&vec![pos, uv])?.index_buffer(index_buffer).make()?;
     let _ = make_basic_texture(&gpu)?;
@@ -114,7 +105,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>> {
         .elements(&program)
         .buffer(buffer)
         .vao(vao)
-        .count(3_i32)
+        .count(3)
         .make()?;
     elements.solve(Task::Main)?;
     Ok(elements)
@@ -147,7 +138,6 @@ pub fn make_program() -> Result<()> {
 }
 
 pub fn make_buffer() -> Result<Node<Buffer>> {
-    // f32
     let gpu = make_canvas()?;
     make_basic_buffer(&gpu)
 }
@@ -166,10 +156,10 @@ pub fn make_vertex_attribute() -> Result<()> {
     let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
-        .index(0_u32)
-        .size(3_i32)
-        .stride(0_i32)
-        .offset(0_i32)
+        .index(0)
+        .size(3)
+        // .stride(0)
+        // .offset(0)
         .make()?;
     Ok(())
 }
@@ -177,7 +167,7 @@ pub fn make_vertex_attribute() -> Result<()> {
 pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
     let buffer = make_basic_buffer(&gpu)?;
-    let att = gpu.vertex_attribute(&buffer).size(3_i32).make()?;
+    let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     gpu.vao(&vec![att])?;
     Ok(())
 }
@@ -192,13 +182,7 @@ pub fn draw_elements() -> Result<()> {
 pub fn elements_react_to_shader_source() -> Result<()> {
     let gpu = make_canvas_on_body()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
-    shader_source.write(|tray| {
-        if let Tray::String(source) = tray {
-            *source = shader::basic::FRAGMENT_GREEN.to_owned();
-        } else {
-            panic!("not a string")
-        }
-    })?;
+    shader_source.write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned())?;
     Ok(())
 }
 
@@ -207,13 +191,7 @@ pub fn elements_react_to_shader_source() -> Result<()> {
 pub fn shader_source_error() -> Result<()> {
     let gpu = make_canvas()?;
     let (_elements, shader_source) = draw_elements_basic(&gpu)?;
-    if let Err(_) = shader_source.write(|tray| {
-        if let Tray::String(string) = tray {
-            *string = "bad shader".to_owned();
-        } else {
-            panic!("not a string")
-        }
-    }) {
+    if let Err(_) = shader_source.write(|source| *source = "bad shader".to_owned()) {
         Ok(())
     } else {
         panic!("this shader write should have caused compile error");

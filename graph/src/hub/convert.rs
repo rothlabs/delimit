@@ -6,36 +6,36 @@ use super::*;
 //     }
 // }
 
-impl<T> From<Leaf<T>> for Hub<T> 
-where 
-    T: Payload
+impl<T> From<Leaf<T>> for Hub<T>
+where
+    T: Payload,
 {
     fn from(leaf: Leaf<T>) -> Self {
         Hub::Leaf(leaf)
     }
 }
 
-impl<T> From<Ploy<T>> for Hub<T> 
-where 
-    T: Payload
+impl<T> From<Ploy<T>> for Hub<T>
+where
+    T: Payload,
 {
     fn from(ploy: Ploy<T>) -> Self {
         Hub::Ploy(ploy)
     }
 }
 
-impl<T> From<&Leaf<T>> for Hub<T> 
-where 
-    T: Payload
+impl<T> From<&Leaf<T>> for Hub<T>
+where
+    T: Payload,
 {
     fn from(value: &Leaf<T>) -> Self {
         Hub::Leaf(value.clone())
     }
 }
 
-impl<T: Clone> From<&Hub<T>> for Hub<T> 
-where 
-    T: Payload
+impl<T: Clone> From<&Hub<T>> for Hub<T>
+where
+    T: Payload,
 {
     fn from(value: &Hub<T>) -> Self {
         value.clone()
@@ -79,8 +79,8 @@ impl From<Vec<u16>> for Hub<Vec<u16>> {
     }
 }
 
-// impl From<Vec<f32>> for Hub<Vec<f32>> {
-//     fn from(value: Vec<f32>) -> Self {
-//         Hub::Leaf(Leaf::new(value))
-//     }
-// }
+impl From<Vec<f32>> for Hub<Vf32> {
+    fn from(value: Vec<f32>) -> Self {
+        Hub::Leaf(Leaf::new(Vf32(value)))
+    }
+}

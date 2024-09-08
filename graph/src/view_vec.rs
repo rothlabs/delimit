@@ -1,5 +1,5 @@
-use anyhow::anyhow;
 use super::*;
+use anyhow::anyhow;
 
 mod convert;
 
@@ -8,7 +8,7 @@ pub enum ViewVec<'a> {
 }
 
 impl<'a> ViewVec<'a> {
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         match self {
             Self::String(x) => x.len(),
         }
@@ -30,10 +30,12 @@ impl<'a> ViewVec<'a> {
             return Err(anyhow!("index out of bounds"))?;
         }
         match self {
-            Self::String(x) => if let Apex::String(y) = apex {
-                x[i] = y; 
-                return Ok(Self::String(x));
-            },
+            Self::String(x) => {
+                if let Apex::String(y) = apex {
+                    x[i] = y;
+                    return Ok(Self::String(x));
+                }
+            }
         };
         Err(anyhow!("view and apex types do not match"))?
     }
@@ -52,8 +54,8 @@ impl<'a> ViewVec<'a> {
             Self::String(x) => {
                 for hub in x.iter() {
                     apexes.push(Apex::String(hub.clone()))
-                } 
-            },
+                }
+            }
         };
         apexes
     }

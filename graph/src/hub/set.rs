@@ -1,8 +1,8 @@
 use super::*;
 
-impl<T> Hub<T> 
-where 
-    T: Payload
+impl<T> Hub<T>
+where
+    T: Payload,
 {
     /// Set one hub.
     pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {

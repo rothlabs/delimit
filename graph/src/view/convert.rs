@@ -6,6 +6,9 @@ impl<'a> From<&'a mut Apex> for View<'a> {
             Apex::Void(x) => View::Void(x),
             Apex::String(x) => View::String(x),
             Apex::U8(x) => View::U8(x),
+            Apex::Vu8(x) => View::Vu8(x),
+            Apex::Vu16(x) => View::Vu16(x),
+            Apex::Vf32(x) => View::Vf32(x),
         }
     }
 }

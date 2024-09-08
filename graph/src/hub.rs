@@ -4,9 +4,9 @@ use super::*;
 use thiserror::Error;
 
 mod convert;
+mod deal;
 mod deserialize;
 mod get;
-mod deal;
 mod set;
 
 #[derive(Error, Debug)]
@@ -16,24 +16,24 @@ pub enum Error {
     #[error("not ploy or leaf")]
     NotNode,
     #[error("not found: ({0:?})")]
-    NotFound(Vec<aim::Error>),
+    NotFound(Vec<crate::Error>),
 }
 
 /// Primary graph part.
-#[derive(Clone, PartialEq, Hash, Serialize, Debug)] 
+#[derive(Clone, PartialEq, Hash, Serialize, Debug)]
 #[serde(untagged)]
-pub enum Hub<T> 
-where 
-    T: 'static + Payload
+pub enum Hub<T>
+where
+    T: 'static + Payload,
 {
     Tray(Tray<T>),
     Leaf(Leaf<T>),
     Ploy(Ploy<T>),
 }
 
-impl<T> Hub<T> 
-where 
-    T: Payload
+impl<T> Hub<T>
+where
+    T: Payload,
 {
     pub fn none() -> Self {
         Self::default()
@@ -169,7 +169,7 @@ where
                 } else {
                     Err(tray.wrong_variant("Item"))?
                 }
-            },
+            }
             Self::Leaf(leaf) => leaf.read(read),
             Self::Ploy(ploy) => ploy.main()?.read(read),
         }
@@ -190,9 +190,9 @@ where
     }
 }
 
-impl<T> TryBacked for Hub<T> 
-where 
-    T: Payload
+impl<T> TryBacked for Hub<T>
+where
+    T: Payload,
 {
     type NewSelf = Self;
     /// New backed hub.
@@ -205,18 +205,18 @@ where
     }
 }
 
-impl<T> Default for Hub<T> 
-where 
-    T: Payload
+impl<T> Default for Hub<T>
+where
+    T: Payload,
 {
     fn default() -> Self {
         Self::Tray(Tray::None)
     }
 }
 
-pub trait EngageHubes<'a, T> 
-where 
-    T: Payload
+pub trait EngageHubes<'a, T>
+where
+    T: Payload,
 {
     /// Solve down to the given graph rank.
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
@@ -224,9 +224,9 @@ where
     // fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
-impl<'a, T> EngageHubes<'a, T> for Vec<Hub<T>> 
-where 
-    T: Payload
+impl<'a, T> EngageHubes<'a, T> for Vec<Hub<T>>
+where
+    T: Payload,
 {
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         self.iter().map(|x| x.down(rank)).collect()

@@ -1,13 +1,16 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
-pub use hub::{Hub, EngageHubes, DealVec};
+pub use apex::Apex;
 pub use bay::Bay;
 pub use cusp::Cusp;
+pub use deal::Deal;
 pub use edge::Edge;
+pub use hub::{DealVec, EngageHubes, Hub};
 pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{SolvePloy, Engage, Ploy, PloyPointer, ToPloy};
+pub use ploy::{Engage, Ploy, PloyPointer, SolvePloy, ToPloy};
+pub use primitive::Vf32;
 pub use react::{
     AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root, TryBacked,
     Update, UpdateMut,
@@ -16,11 +19,9 @@ pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
-pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
-pub use apex::Apex;
 pub use view::View;
 pub use view_vec::ViewVec;
-pub use deal::Deal;
+pub use write::{Pack, WriteTray, WriteTrayOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
 use scope::*;
@@ -50,21 +51,22 @@ pub mod work;
 pub mod write;
 
 mod aim;
+mod apex;
 mod bay;
 mod cusp;
+mod deal;
 mod edge;
 mod link;
 mod map;
 mod meta;
 mod ploy;
+mod primitive;
 mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
-mod apex;
 mod view;
 mod view_vec;
-mod deal;
 
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
@@ -162,7 +164,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 pub trait IntoNode
 where
     Self: Solve + Sized,
-    Self::Out: Payload
+    Self::Out: Payload,
 {
     fn node(self) -> Result<Node<Self>>;
 }
@@ -170,7 +172,7 @@ where
 impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Out: Payload
+    T::Out: Payload,
 {
     fn node(mut self) -> Result<Node<Self>> {
         Node::make(|back| {
@@ -190,7 +192,7 @@ where
 impl<T> IntoPloy for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Out: Payload
+    T::Out: Payload,
 {
     fn ploy(mut self) -> Result<Ploy<T::Out>> {
         Node::make_ploy(|back| {
@@ -210,7 +212,7 @@ pub trait IntoHub {
 impl<T> IntoHub for T
 where
     T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
-    T::Out: Payload
+    T::Out: Payload,
 {
     type Out = T::Out;
     fn hub(self) -> Result<Hub<Self::Out>> {
@@ -239,7 +241,7 @@ pub trait ToHub {
 impl<T> ToHub for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
-    T::Out: Payload
+    T::Out: Payload,
 {
     type Pay = T::Out;
     fn hub(&self) -> Result<Hub<Self::Pay>> {
@@ -315,7 +317,7 @@ pub trait Clear {
 //     fn pathed(&self, path: &Path) -> Self;
 // }
 
-// impl<T: Pathed> Pathed for Vec<T> 
+// impl<T: Pathed> Pathed for Vec<T>
 // {
 //     fn pathed(&self, path: &Path) -> Self {
 //         self.iter().map(|x| x.pathed(path)).collect()

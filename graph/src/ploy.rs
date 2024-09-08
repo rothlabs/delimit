@@ -12,7 +12,8 @@ pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Pay = T>>>>;
 /// General engagement of Ploy with erased unit type.
 pub trait Engage: AdaptMid + SolvePloy + AddRoot + Update + Debug {}
 
-impl<E> Engage for E where 
+impl<E> Engage for E
+where
     E: AdaptMid + SolvePloy + AddRoot + Update + Debug,
     // <E as BackedPloy>::PloyOut: Solve::Out,
 {
@@ -31,16 +32,15 @@ pub trait SolvePloy {
     fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Pay>>; //  where <Self as solve::Solve>::Out: Payload
 }
 
-
 impl<T> AdaptMid for Box<dyn Engage<Pay = T>> {
     fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         self.as_ref().adapt(deal)
     }
 }
 
-impl<T> SolvePloy for Box<dyn Engage<Pay = T>> 
-where 
-    T: Payload
+impl<T> SolvePloy for Box<dyn Engage<Pay = T>>
+where
+    T: Payload,
 {
     type Pay = T;
     fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Pay> {
@@ -51,8 +51,8 @@ where
     }
 }
 
-// impl<T> Solve for Box<dyn Engage<Out = T>> 
-// where 
+// impl<T> Solve for Box<dyn Engage<Out = T>>
+// where
 //     T: Payload
 // {
 //     type Out = T;
