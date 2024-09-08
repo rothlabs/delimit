@@ -198,18 +198,6 @@ where
 
 impl<E> Link<E>
 where
-    E: Read,
-    E::Item: Payload, // T: Payload,
-{
-    pub fn tray(&self) -> Result<Tray<E::Item>> {
-        read_part(&self.edge, |edge| {
-            edge.read(|tray| Tray::Base(tray.clone()))
-        })?
-    }
-}
-
-impl<E> Link<E>
-where
     E: 'static + Update,
 {
     #[cfg(not(feature = "oneThread"))]

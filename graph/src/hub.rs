@@ -123,15 +123,6 @@ where
         }
     }
 
-    /// Get tray of hub. Will solve to lowest rank if needed.
-    pub fn tray(&self) -> Result<Tray<T>> {
-        match self {
-            Self::Tray(tray) => Ok(tray.clone()),
-            Self::Leaf(leaf) => leaf.tray(),
-            Self::Ploy(ploy) => ploy.main()?.tray(),
-        }
-    }
-
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
     pub fn rank(&self) -> Option<u64> {
         match self {
@@ -170,12 +161,15 @@ where
         }
     }
 
-    /// Base value.
+    /// Base value. The graph is solved down to the base.
     pub fn base(&self) -> Result<T> {
-        let tray = self.tray()?;
-        match tray {
-            Tray::Base(base) => Ok(base),
-            _ => Err(tray.wrong_variant("Base"))?,
+        match self {
+            Self::Tray(tray) => match tray {
+                Tray::Base(base) => Ok(base.clone()),
+                tray => Err(tray.wrong_variant("Base"))?
+            },
+            Self::Leaf(leaf) => leaf.read(|base| base.clone()),
+            Self::Ploy(ploy) => ploy.main()?.base(),
         }
     }
 }
