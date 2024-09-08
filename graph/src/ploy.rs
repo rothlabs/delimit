@@ -10,15 +10,12 @@ pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
 pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Base = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: AdaptMid + SolvePloy + AddRoot + Update + Debug {}
+pub trait Engage: AdaptMid + SolveMid + AddRoot + Update + Debug {}
 
 impl<E> Engage for E
 where
-    E: AdaptMid + SolvePloy + AddRoot + Update + Debug,
-    // <E as BackedPloy>::PloyOut: Solve::Out,
-{
-    // type Wow = <E as Solve>::Out;
-}
+    E: AdaptMid + SolveMid + AddRoot + Update + Debug
+{}
 
 pub trait ToPloy {
     type ToPloyOut;
@@ -26,10 +23,10 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyPointer<Self::ToPloyOut>;
 }
 
-pub trait SolvePloy {
+pub trait SolveMid {
     type Base: Payload;
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Base>;
-    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Base>>; //  where <Self as solve::Solve>::Out: Payload
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>>; 
+    fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
 }
 
 impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
@@ -38,28 +35,18 @@ impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
     }
 }
 
-impl<T> SolvePloy for Box<dyn Engage<Base = T>>
+impl<T> SolveMid for Box<dyn Engage<Base = T>>
 where
     T: Payload,
 {
     type Base = T;
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Base> {
-        self.as_ref().backed_ploy(back)
+    fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
+        self.as_ref().backed(back)
     }
-    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Base>> {
-        self.as_ref().solve_ploy(task)
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
+        self.as_ref().solve(task)
     }
 }
-
-// impl<T> Solve for Box<dyn Engage<Out = T>>
-// where
-//     T: Payload
-// {
-//     type Out = T;
-//     fn solve(&self, task: Task) -> Result<Gain<T>> {
-//         self.as_ref().solve(task)
-//     }
-// }
 
 impl<T> AddRoot for Box<dyn Engage<Base = T>> {
     fn add_root(&self, root: Root) -> Result<()> {

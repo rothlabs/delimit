@@ -201,7 +201,7 @@ where
 
 impl<U> Adapt for Node<U>
 where
-    U: Adapt + Solve,
+    U: Solve + Adapt,
     U::Base: Payload,
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {

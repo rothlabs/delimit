@@ -141,9 +141,8 @@ impl Apex {
     }
 }
 
-impl TryBacked for Apex {
-    type NewSelf = Self;
-    fn backed(&self, back: &Back) -> Result<Self::NewSelf> {
+impl Backed for Apex {
+    fn backed(&self, back: &Back) -> Result<Self> {
         let apex = match self {
             Self::Void(x) => Self::Void(x.backed(back)?),
             Self::String(x) => Self::String(x.backed(back)?),

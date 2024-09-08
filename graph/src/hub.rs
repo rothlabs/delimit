@@ -180,12 +180,10 @@ where
     }
 }
 
-impl<T> TryBacked for Hub<T>
+impl<T> Backed for Hub<T>
 where
     T: Payload,
 {
-    type NewSelf = Self;
-    /// New backed hub.
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
             Self::Tray(tray) => Ok(Self::Tray(tray.clone())),

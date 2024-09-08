@@ -9,10 +9,10 @@ pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{Engage, Ploy, PloyPointer, SolvePloy, ToPloy};
-pub use primitive::Vf32;
+pub use ploy::{Engage, Ploy, PloyPointer, SolveMid, ToPloy};
+pub use base::Vf32;
 pub use react::{
-    AddRoot, AddRootMut, Back, Backed, React, ReactMut, Rebut, RebutMut, Ring, Root, TryBacked,
+    AddRoot, AddRootMut, Back, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Backed,
     Update, UpdateMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
@@ -60,7 +60,7 @@ mod link;
 mod map;
 mod meta;
 mod ploy;
-mod primitive;
+mod base;
 mod scope;
 #[cfg(test)]
 mod tests;

@@ -136,9 +136,9 @@ where
 //     }
 // }
 
-impl<N> AdaptMid for Edge<N>
+impl<C> AdaptMid for Edge<C>
 where
-    N: 'static + AdaptOut + UpdateMut,
+    C: 'static + AdaptOut + UpdateMut,
 {
     fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
@@ -151,56 +151,33 @@ where
     }
 }
 
-impl<N> SolvePloy for Edge<N>
+impl<C> SolveMid for Edge<C>
 where
-    N: 'static + SolveMut + UpdateMut,
-    N: AdaptOut + AddRootMut + Debug,
-    N::Base: Payload,
+    C: 'static + SolveMut + UpdateMut,
+    C: AdaptOut + AddRootMut + Debug,
+    C::Base: Payload,
 {
-    type Base = N::Base;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
+        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+    }
+    type Base = C::Base;
     #[cfg(not(feature = "oneThread"))]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Base> {
+    fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         Arc::new(RwLock::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::Base> {
+    fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         Rc::new(RefCell::new(Box::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })))
     }
-    fn solve_ploy(&self, task: Task) -> Result<Gain<Self::Base>> {
-        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
-    }
 }
 
-// impl<U> BackedPloy for Node<U>
-// where
-//     U: 'static + Solve + Adapt + Debug + SendSync,
-//     U::Out: Payload
-//     // Edge<Cusp<work::Node<U>>>: ploy::Engage<<U as solve::Solve>::Out>
-// {
-//     type BackedOut = U::Out;
-//     #[cfg(not(feature = "oneThread"))]
-//     fn backed_ploy(&self, back: &Back) -> PloyPointer<Self::BackedOut> {
-//         Arc::new(RwLock::new(Box::new(Self {
-//             back: Some(back.clone()),
-//             cusp: self.cusp.clone(),
-//         })))
-//     }
-//     #[cfg(feature = "oneThread")]
-//     fn backed_ploy(&self, back: &Back) -> PloyPointer {
-//         Rc::new(RefCell::new(Box::new(Self {
-//             back: Some(back.clone()),
-//             cusp: self.cusp.clone(),
-//         })))
-//     }
-// }
-
-impl<N> Backed for Edge<N> {
+impl<N> BackedMid for Edge<N> {
     fn backed(&self, back: &Back) -> Self {
         Self {
             back: Some(back.clone()),
