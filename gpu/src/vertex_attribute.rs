@@ -39,11 +39,11 @@ impl VertexAttribute {
         buffer.bind();
         self.gl.vertex_attrib_pointer_with_i32(
             index,
-            self.size.item().unwrap_or_default(),
+            self.size.base().unwrap_or_default(),
             WGLRC::FLOAT,
             false,
-            self.stride.item().unwrap_or_default(),
-            self.offset.item().unwrap_or_default(),
+            self.stride.base().unwrap_or_default(),
+            self.offset.base().unwrap_or_default(),
         );
         self.gl.enable_vertex_attrib_array(index);
         buffer.unbind();
@@ -52,7 +52,7 @@ impl VertexAttribute {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        let index = self.index.item().unwrap_or_default();
+        let index = self.index.base().unwrap_or_default();
         self.buffer.act()?;
         self.buffer.read(|buffer| self.set(buffer, index))
     }

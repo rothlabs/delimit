@@ -47,8 +47,8 @@ impl Texture {
                 WGLRC::TEXTURE_2D,                      // target
                 0,                                      // level,
                 WGLRC::RGB as i32,                      // internalformat,
-                self.width.item().unwrap_or_default(),  // width
-                self.height.item().unwrap_or_default(), // height
+                self.width.base().unwrap_or_default(),  // width
+                self.height.base().unwrap_or_default(), // height
                 0,                                      // border,
                 WGLRC::RGB,                             // format
                 WGLRC::UNSIGNED_BYTE,                   // type_

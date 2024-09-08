@@ -1,20 +1,12 @@
 use crate::*;
 
-/// Work that holds a tray. The most simple work that allows read, write, and copy of the tray.
+/// Work that holds a base. The most simple work that allows read, write, and copy of the base.
 #[derive(Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf<T> {
-    value: T,
+    base: T,
     #[serde(skip)]
     digest: Option<u64>,
 }
-
-// impl Hash for Leaf<Vec<f32>> {
-//     fn hash<H: Hasher>(&self, state: &mut H) {
-//         self.value.iter().map(|x| x.to_bits())
-//             .collect::<Vec<u32>>()
-//             .hash(state)
-//     }
-// }
 
 impl<T> Leaf<T>
 where
@@ -22,12 +14,12 @@ where
 {
     pub fn new(tray: T) -> Self {
         Self {
-            value: tray,
+            base: tray,
             digest: None,
         }
     }
     pub fn hub(self) -> Hub<T> {
-        Hub::Leaf(link::Leaf::new(self.value))
+        Hub::Leaf(link::Leaf::new(self.base))
     }
 }
 
@@ -40,7 +32,7 @@ where
             digest.gain()
         } else {
             let mut state = DefaultHasher::new();
-            self.value.hash(&mut state);
+            self.base.hash(&mut state);
             let digest = state.finish();
             self.digest = Some(digest);
             digest.gain()
@@ -52,7 +44,7 @@ impl<T> FromItem for Leaf<T> {
     type Item = T;
     fn new(tray: Self::Item) -> Self {
         Self {
-            value: tray,
+            base: tray,
             digest: None,
         }
     }
@@ -61,13 +53,13 @@ impl<T> FromItem for Leaf<T> {
 impl<T> ToItem for Leaf<T> {
     type Item = T;
     fn item(&self) -> &Self::Item {
-        &self.value
+        &self.base
     }
 }
 
 impl<T> MutTray<T> for Leaf<T> {
     fn tray(&mut self) -> &mut T {
-        &mut self.value
+        &mut self.base
     }
 }
 
@@ -79,9 +71,9 @@ impl<T> ReactMut for Leaf<T> {
 
 impl<T> SolveMut for Leaf<T>
 where
-    T: Payload, //Hash + Serialize + Debug + SendSync,//Hash + Serialize + Debug
+    T: Payload,
 {
-    type Out = T;
+    type Base = T;
     fn solve(&mut self, task: Task) -> Result<Gain<T>> {
         match task {
             Task::Serial => self.serial(),

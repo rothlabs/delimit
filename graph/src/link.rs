@@ -61,9 +61,9 @@ impl<E> Link<E> {
 impl<E> Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload,
+    <Self as Solve>::Base: 'static + Payload,
 {
-    pub fn main(&self) -> Result<Hub<<Self as Solve>::Out>> {
+    pub fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
         match self.solve(Task::Main)? {
             Gain::Hub(hub) => Ok(hub),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
@@ -80,7 +80,7 @@ where
 impl<E> Hash for Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload,
+    <Self as Solve>::Base: 'static + Payload,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
@@ -95,7 +95,7 @@ where
 impl<E> Serialize for Link<E>
 where
     Self: Solve,
-    <Self as Solve>::Out: 'static + Payload,
+    <Self as Solve>::Base: 'static + Payload,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -152,15 +152,15 @@ impl<E> Link<E>
 where
     E: 'static + Make + Engage,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Pay>> {
+    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
         let (edge, rank) = E::make(make)?;
         Ok(Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Pay = E::Pay>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Pay = E::Pay>>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
             // out: PhantomData::default()
         })
     }
@@ -186,15 +186,15 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Engage,
 {
-    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Pay> {
+    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
         let (edge, rank) = E::from_snap(snap);
         Link {
             path: None,
             rank,
             #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Pay = E::Pay>>)),
+            edge: Arc::new(RwLock::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
             #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Pay = E::Pay>>)),
+            edge: Rc::new(RefCell::new(Box::new(edge) as Box<dyn Engage<Base = E::Base>>)),
             // out: PhantomData::default(),
         }
     }
@@ -207,7 +207,7 @@ where
 {
     pub fn tray(&self) -> Result<Tray<E::Item>> {
         read_part(&self.edge, |edge| {
-            edge.read(|tray| Tray::Item(tray.clone()))
+            edge.read(|tray| Tray::Base(tray.clone()))
         })?
     }
 }
@@ -331,10 +331,10 @@ where
     //T: 'static + Debug + SendSync, // Hash + Serialize +
     // E: 'static + Solve<Out = T> + AddRoot + Update,
     E: 'static + SolvePloy + AddRoot + Update,
-    E::Pay: Payload,
+    E::Base: Payload,
 {
-    type Out = E::Pay;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Out>> {
+    type Base = E::Base;
+    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
         read_part(&self.edge, |edge| {
             let result = edge.solve_ploy(task);
             edge.add_root(self.as_root(edge.id()))?;

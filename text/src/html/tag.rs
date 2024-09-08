@@ -38,7 +38,7 @@ impl Adapt for Tag {
 }
 
 impl Solve for Tag {
-    type Out = String;
+    type Base = String;
     fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),

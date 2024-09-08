@@ -37,9 +37,9 @@ impl Elements {
         vao.bind();
         self.gl.draw_elements_with_i32(
             WGLRC::TRIANGLES,
-            self.count.item().unwrap_or_default(),
+            self.count.base().unwrap_or_default(),
             WGLRC::UNSIGNED_SHORT,
-            self.offset.item().unwrap_or_default(),
+            self.offset.base().unwrap_or_default(),
         );
         vao.unbind();
     }

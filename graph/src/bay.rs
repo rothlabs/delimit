@@ -24,7 +24,7 @@ impl Adapt for Bay {
 }
 
 impl Solve for Bay {
-    type Out = ();
+    type Base = ();
     fn solve(&self, task: Task) -> Result<Gain<()>> {
         match task {
             Task::Digest(state) => self.digest(state),

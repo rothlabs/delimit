@@ -132,11 +132,6 @@ where
         }
     }
 
-    // /// Run Trade deal with this hub as input.
-    // pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-    //     deal.one(key, self)
-    // }
-
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
     pub fn rank(&self) -> Option<u64> {
         match self {
@@ -164,10 +159,10 @@ where
     pub fn read<O, F: FnOnce(&T) -> O>(&self, read: F) -> Result<O> {
         match self {
             Self::Tray(tray) => {
-                if let Tray::Item(item) = tray {
-                    Ok(read(item))
+                if let Tray::Base(base) = tray {
+                    Ok(read(base))
                 } else {
-                    Err(tray.wrong_variant("Item"))?
+                    Err(tray.wrong_variant("Base"))?
                 }
             }
             Self::Leaf(leaf) => leaf.read(read),
@@ -175,17 +170,12 @@ where
         }
     }
 
-    // /// Make a View for reading Tray variants.
-    // pub fn view(&self) -> View {
-    //     View { hub: self }
-    // }
-
-    /// Clone String from Hub.
-    pub fn item(&self) -> Result<T> {
+    /// Base value.
+    pub fn base(&self) -> Result<T> {
         let tray = self.tray()?;
         match tray {
-            Tray::Item(item) => Ok(item),
-            _ => Err(tray.wrong_variant("Item"))?,
+            Tray::Base(base) => Ok(base),
+            _ => Err(tray.wrong_variant("Base"))?,
         }
     }
 }
@@ -214,24 +204,19 @@ where
     }
 }
 
-pub trait EngageHubes<'a, T>
+pub trait SolveDown<'a, T>
 where
     T: Payload,
 {
     /// Solve down to the given graph rank.
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
-    // Replace stems according to the Trade deal.
-    // fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
-impl<'a, T> EngageHubes<'a, T> for Vec<Hub<T>>
+impl<'a, T> SolveDown<'a, T> for Vec<Hub<T>>
 where
     T: Payload,
 {
     fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         self.iter().map(|x| x.down(rank)).collect()
     }
-    // fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-    //     deal.vec(key, self)
-    // }
 }

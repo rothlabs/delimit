@@ -4,7 +4,7 @@ pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
-pub use hub::{DealVec, EngageHubes, Hub};
+pub use hub::{DealVec, Hub, SolveDown};
 pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
@@ -164,7 +164,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 pub trait IntoNode
 where
     Self: Solve + Sized,
-    Self::Out: Payload,
+    Self::Base: Payload,
 {
     fn node(self) -> Result<Node<Self>>;
 }
@@ -172,7 +172,7 @@ where
 impl<T> IntoNode for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Out: Payload,
+    T::Base: Payload,
 {
     fn node(mut self) -> Result<Node<Self>> {
         Node::make(|back| {
@@ -186,15 +186,15 @@ pub trait IntoPloy
 where
     Self: Solve + Sized,
 {
-    fn ploy(self) -> Result<Ploy<Self::Out>>;
+    fn ploy(self) -> Result<Ploy<Self::Base>>;
 }
 
 impl<T> IntoPloy for T
 where
     T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Out: Payload,
+    T::Base: Payload,
 {
-    fn ploy(mut self) -> Result<Ploy<T::Out>> {
+    fn ploy(mut self) -> Result<Ploy<T::Base>> {
         Node::make_ploy(|back| {
             self.adapt(&mut back.clone())
                 .expect("To move into Ploy, unit must Adapt with Post::Trade.");
@@ -204,24 +204,23 @@ where
 }
 
 pub trait IntoHub {
-    type Out: Payload;
+    type Base: Payload;
     /// Move into `Hub`
-    fn hub(self) -> Result<Hub<Self::Out>>;
+    fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
 impl<T> IntoHub for T
 where
     T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
-    T::Out: Payload,
+    T::Base: Payload,
 {
-    type Out = T::Out;
-    fn hub(self) -> Result<Hub<Self::Out>> {
+    type Base = T::Base;
+    fn hub(self) -> Result<Hub<Self::Base>> {
         Ok(self.ploy()?.into())
     }
 }
 
 pub trait LeafIntoHub<T: Payload> {
-    //type Out: Payload;
     /// Move into `Hub`
     fn hub(self) -> Hub<T>;
 }
@@ -241,9 +240,9 @@ pub trait ToHub {
 impl<T> ToHub for Node<T>
 where
     T: 'static + Solve + Adapt + Debug + SendSync,
-    T::Out: Payload,
+    T::Base: Payload,
 {
-    type Pay = T::Out;
+    type Pay = T::Base;
     fn hub(&self) -> Result<Hub<Self::Pay>> {
         Ok(Hub::from(self.ploy()?))
     }
@@ -264,16 +263,6 @@ pub trait Read {
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
         F: FnOnce(&Self::Item) -> T;
-}
-
-pub trait ReadGraph<Item, T> {
-    fn read(self, item: Item) -> T;
-}
-
-impl<Item, T, F: FnOnce(Item) -> T> ReadGraph<Item, T> for F {
-    fn read(self, item: Item) -> T {
-        self(item)
-    }
 }
 
 pub trait FromItem {

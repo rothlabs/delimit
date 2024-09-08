@@ -17,13 +17,13 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     bay.hydrate()?;
     let html = bay.get("page")?.string()?;
     eprintln!("wow0");
-    assert_eq!(html.item()?, html::default::PAGE);
+    assert_eq!(html.base()?, html::default::PAGE);
     eprintln!("wow1");
     let plain = html.down(PLAIN)?;
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.item()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(html.base()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
-    assert_eq!(plain.item()?, html::default::PLAIN_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(plain.base()?, html::default::PLAIN_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 

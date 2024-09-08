@@ -37,7 +37,7 @@ impl List {
         }
         let last = self.items.len() - 1;
         let mut base = String::new();
-        let separator = self.separator.item().unwrap_or_default();
+        let separator = self.separator.base().unwrap_or_default();
         for i in 0..last {
             self.items[i].read(|x| base += x)?;
             base += &separator;
@@ -56,7 +56,7 @@ impl Adapt for List {
 }
 
 impl Solve for List {
-    type Out = String;
+    type Base = String;
     fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 1.gain(),

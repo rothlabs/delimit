@@ -150,10 +150,10 @@ where
 impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut,
-    W::Out: Payload,
+    W::Base: Payload,
 {
-    type Out = W::Out;
-    fn solve(&mut self, task: Task) -> Result<Gain<W::Out>> {
+    type Base = W::Base;
+    fn solve(&mut self, task: Task) -> Result<Gain<W::Base>> {
         self.work.solve(task)
     }
 }

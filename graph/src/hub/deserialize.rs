@@ -38,7 +38,7 @@ where
                 DataType::World => Hub::Tray(Tray::Path(Path::World(map.next_value()?))),
                 DataType::Local => Hub::Tray(Tray::Path(Path::Local(map.next_value()?))),
                 DataType::Upper => Hub::Tray(Tray::Path(Path::Upper(map.next_value()?))),
-                DataType::Item => Hub::Tray(Tray::Item(map.next_value()?)),
+                DataType::Base => Hub::Tray(Tray::Base(map.next_value()?)),
             };
             Ok(hub)
         } else {
@@ -55,5 +55,5 @@ enum DataType {
     World,
     Local,
     Upper,
-    Item,
+    Base,
 }

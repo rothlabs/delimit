@@ -39,7 +39,7 @@ impl Adapt for Attribute {
 }
 
 impl Solve for Attribute {
-    type Out = String;
+    type Base = String;
     fn solve(&self, task: Task) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),

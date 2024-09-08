@@ -44,26 +44,26 @@ where
 
 impl From<&str> for Hub<String> {
     fn from(value: &str) -> Self {
-        Hub::Tray(Tray::Item(value.into()))
+        Hub::Tray(Tray::Base(value.into()))
         //Hub::Tray(Tray::String(value.to_owned()))
     }
 }
 
 impl From<String> for Hub<String> {
     fn from(value: String) -> Self {
-        Hub::Tray(Tray::Item(value))
+        Hub::Tray(Tray::Base(value))
     }
 }
 
 impl From<u32> for Hub<u32> {
     fn from(value: u32) -> Self {
-        Hub::Tray(Tray::Item(value))
+        Hub::Tray(Tray::Base(value))
     }
 }
 
 impl From<i32> for Hub<i32> {
     fn from(value: i32) -> Self {
-        Hub::Tray(Tray::Item(value))
+        Hub::Tray(Tray::Base(value))
     }
 }
 
