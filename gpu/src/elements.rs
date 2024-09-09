@@ -2,12 +2,12 @@ use super::*;
 
 /// Draw elements based on program, buffer, vertex array object (vao), count, and offset.
 #[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into))]
 pub struct Elements {
     gl: WGLRC,
-    /// WebGL program
     program: Node<Program>,
-    buffer: Node<Buffer>, // f32
+    buffer: Node<Buffer>,
     /// Vertex array object, collection of buffer attributes.
     vao: Node<Vao>,
     /// Number of values to draw.
@@ -20,7 +20,7 @@ pub struct Elements {
 
 impl ElementsBuilder {
     pub fn make(&self) -> Result<Node<Elements>> {
-        let mut elements = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
+        let mut elements = self.build()?;
         Node::make(|back| {
             elements.program = elements.program.backed(back)?;
             elements.buffer = elements.buffer.backed(back)?;

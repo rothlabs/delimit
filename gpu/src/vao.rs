@@ -1,12 +1,12 @@
 use super::*;
 use web_sys::WebGlVertexArrayObject;
 
-//pub type Result = std::result::Result<Node<Vao>, VaoBuilderError>; // Box<dyn std::error::Error>
 pub type Attributes = Vec<Node<VertexAttribute>>;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
 #[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Vao {
     gl: WGLRC,
@@ -18,16 +18,14 @@ pub struct Vao {
 
 impl VaoBuilder {
     pub fn make(&self) -> Result<Node<Vao>> {
-        let mut vao = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        let node = Node::make(|back| {
+        let mut vao = self.build()?;
+        Node::make(|back| {
             vao.attributes = vao.attributes.backed(back)?;
             if let Some(index_buffer) = vao.index_buffer {
                 vao.index_buffer = Some(index_buffer.backed(back)?);
             }
             Ok(vao)
-        })?;
-        node.act().ok();
-        Ok(node)
+        })
     }
 }
 

@@ -2,6 +2,7 @@ use super::*;
 
 /// Tell the GPU how to read from a buffer
 #[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
@@ -22,7 +23,7 @@ pub struct VertexAttribute {
 
 impl VertexAttributeBuilder {
     pub fn make(&self) -> Result<Node<VertexAttribute>> {
-        let mut attrib = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
+        let mut attrib = self.build()?;
         Node::make(|back| {
             attrib.buffer = attrib.buffer.backed(back)?;
             attrib.index = attrib.index.backed(back)?;

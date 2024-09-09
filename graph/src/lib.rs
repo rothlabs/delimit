@@ -4,6 +4,7 @@ pub use base::Vf32;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
+use derive_builder::UninitializedFieldError;
 pub use edge::Edge;
 pub use hub::{DealVec, Hub, SolveDown};
 pub use lake::{Lake, Serial};
@@ -96,6 +97,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
+    #[error(transparent)]
+    Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }

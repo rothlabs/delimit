@@ -1,9 +1,8 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-// type BuilderResult = std::result::Result<Node<Texture>, TextureBuilderError>;
-
 #[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into))]
 pub struct Texture {
     gl: WGLRC,
@@ -20,15 +19,13 @@ pub struct Texture {
 
 impl TextureBuilder {
     pub fn make(&self) -> Result<Node<Texture>> {
-        let mut texture = self.build().map_err(|err| anyhow!("{}", err.to_string()))?;
-        let node = Node::make(|back| {
+        let mut texture = self.build()?;
+        Node::make(|back| {
             texture.array = texture.array.backed(back)?;
             texture.width = texture.width.backed(back)?;
             texture.height = texture.height.backed(back)?;
             Ok(texture)
-        })?;
-        node.act()?;
-        Ok(node)
+        })
     }
 }
 

@@ -18,21 +18,19 @@ impl Shader {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
-        let node = Node::make(|back| {
+        Node::make(|back| {
             let unit = Self {
                 gl: gl.clone(),
                 source: source.backed(back)?,
                 shader,
             };
             Ok(unit)
-        })?;
-        node.act()?;
-        Ok(node)
+        })
     }
 }
 
 impl Act for Shader {
-    fn act(&self) -> graph::Result<()> {
+    fn act(&self) -> Result<()> {
         self.source
             .read(|src| self.gl.shader_source(&self.shader, src))?;
         self.gl.compile_shader(&self.shader);

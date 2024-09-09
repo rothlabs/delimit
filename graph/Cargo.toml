@@ -17,6 +17,8 @@
             anyhow = "1.0.86"
         # rand
             rand = "0.8.5"
+        # Macros
+            derive_builder = "0.20.0"
 
         # regex
             # regex = "1.0.0"

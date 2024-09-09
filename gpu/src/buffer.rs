@@ -14,7 +14,7 @@ impl Buffer {
         let buffer = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;
-        let node = Node::make(|back| {
+        Node::make(|back| {
             let buffer = Self {
                 gl: gl.clone(),
                 buffer,
@@ -22,9 +22,7 @@ impl Buffer {
                 array: array.backed(back)?,
             };
             Ok(buffer)
-        })?;
-        node.act()?;
-        Ok(node)
+        })
     }
     pub fn bind(&self) {
         self.gl.bind_buffer(self.target, Some(&self.buffer));
