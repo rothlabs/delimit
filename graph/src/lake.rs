@@ -67,6 +67,7 @@ impl Lake {
 
     /// Grow a tree from the lake.
     pub fn tree(&mut self) -> Result<Apex> {
+        // TODO build space/scope tree here so nodes do not need to assume a key!!!
         let root = self.root("root")?;
         root.grow_from_lake(self).ok();
         Ok(root)
@@ -75,6 +76,7 @@ impl Lake {
     pub fn grow<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
         hub.adapt(self)?;
         for apex in hub.all()? {
+            // TODO: I should get (key, apex) so I can build Space tree
             apex.grow_from_lake(self).ok();
         }
         Ok(())

@@ -29,6 +29,7 @@ pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
+    // TODO: ensure path is only used as path and not a Key!!!
     path: Option<Path>,
     rank: Option<u64>,
 }
@@ -80,8 +81,10 @@ where
     <Self as Solve>::Base: 'static + Payload,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        if let Ok(Gain::U64(digest)) = self.solve(Task::Hash) {
-            digest.hash(state)
+        if let Some(path) = &self.path {
+            path.hash(state)
+        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
+            hash.hash(state)
         }
     }
 }

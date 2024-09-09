@@ -19,11 +19,13 @@ impl Map {
         }
     }
     pub fn get(&self, key: &Key) -> Option<Apex> {
+        // TODO: do not use pathed!!
         self.0.get(key).map(|apex| apex.pathed(key))
     }
     pub fn all(&self) -> Vec<Apex> {
         let mut out = vec![];
         for (key, apex) in &self.0 {
+            // TODO: do not use pathed!!
             out.push(apex.pathed(key));
         }
         out
