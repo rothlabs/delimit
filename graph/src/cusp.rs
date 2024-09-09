@@ -50,9 +50,9 @@ impl<W> ToId for Cusp<W> {
     }
 }
 
-impl<W> MakeMid for Cusp<W>
+impl<W> MakeMut for Cusp<W>
 where
-    W: MakeMid,
+    W: MakeMut,
 {
     type Unit = W::Unit;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(

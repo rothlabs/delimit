@@ -49,7 +49,7 @@ where
 
 impl<C> Make for Edge<C>
 where
-    C: 'static + Default + MakeMid + UpdateMut, 
+    C: 'static + Default + MakeMut + UpdateMut, 
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]

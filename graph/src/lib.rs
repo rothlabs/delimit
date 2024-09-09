@@ -146,7 +146,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
 ) -> Result<O> {
     match part.write() {
         Ok(part) => Ok(write(part)),
-        Err(err) => Err(Error::Read(err.to_string())),
+        Err(err) => Err(Error::Write(err.to_string())),
     }
 }
 
@@ -157,14 +157,13 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 ) -> Result<O> {
     match part.try_borrow_mut() {
         Ok(part) => Ok(write(part)),
-        Err(err) => Err(Error::Read(err.to_string())),
+        Err(err) => Err(Error::Write(err.to_string())),
     }
 }
 
 pub trait IntoNode
 where
-    Self: Solve + Sized,
-    Self::Base: Payload,
+    Self: Unit + Sized
 {
     fn node(self) -> Result<Node<Self>>;
 }
@@ -209,7 +208,7 @@ pub trait IntoHub {
 
 impl<T> IntoHub for T
 where
-    T: 'static + IntoPloy + Solve + Adapt + Debug + SendSync,
+    T: IntoPloy,
     T::Base: Payload,
 {
     type Base = T::Base;
@@ -230,18 +229,18 @@ impl<T: Payload> LeafIntoHub<T> for Leaf<T> {
 }
 
 pub trait ToHub {
-    type Pay: Payload;
+    type Base: Payload;
     /// Place inside a Hub.
-    fn hub(&self) -> Result<Hub<Self::Pay>>;
+    fn hub(&self) -> Result<Hub<Self::Base>>;
 }
 
 impl<T> ToHub for Node<T>
 where
     T: 'static + Unit,
 {
-    type Pay = T::Base;
-    fn hub(&self) -> Result<Hub<Self::Pay>> {
-        Ok(Hub::from(self.ploy()?))
+    type Base = T::Base;
+    fn hub(&self) -> Result<Hub<Self::Base>> {
+        Ok(self.ploy()?.into())
     }
 }
 
@@ -256,7 +255,7 @@ pub trait BaseMut<T> {
 
 pub trait Read {
     type Item;
-    /// Read the payload of the graph part.
+    /// Read the Unit or Payload of the graph part.
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
         F: FnOnce(&Self::Item) -> T;
@@ -274,7 +273,7 @@ pub trait Make {
         Self: Sized;
 }
 
-pub trait MakeMid {
+pub trait MakeMut {
     type Unit;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
         &mut self,
@@ -298,17 +297,3 @@ pub trait WithSnap {
 pub trait Clear {
     fn clear(&mut self);
 }
-
-// #[cfg(not(feature = "oneThread"))]
-// const NO_POISON: &str = "The lock should not be poisoned.";
-
-// pub trait Pathed {
-//     fn pathed(&self, path: &Path) -> Self;
-// }
-
-// impl<T: Pathed> Pathed for Vec<T>
-// {
-//     fn pathed(&self, path: &Path) -> Self {
-//         self.iter().map(|x| x.pathed(path)).collect()
-//     }
-// }

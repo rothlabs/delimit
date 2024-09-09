@@ -89,7 +89,7 @@ where
     }
 }
 
-impl<U> MakeMid for Node<U>
+impl<U> MakeMut for Node<U>
 where
     U: Solve,
     U::Base: Payload,
