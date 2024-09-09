@@ -121,7 +121,7 @@ where
             .as_mut()
             .unwrap()
             .adapt(&mut back.clone())
-            .expect("To make Node, unit must Adapt with Post::Trade.");
+            .expect("Adapt must not fail.");
         self.imports = snap.imports;
         if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
             Some(rank)
