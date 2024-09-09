@@ -47,9 +47,6 @@ impl<E> Link<E> {
             rank: self.rank,
         }
     }
-    // pub fn path(&self) -> Option<&Path> {
-    //     self.path.as_ref()
-    // }
     pub fn rank(&self) -> Option<u64> {
         self.rank
     }
@@ -193,7 +190,6 @@ where
             edge: Rc::new(RefCell::new(
                 Box::new(edge) as Box<dyn Engage<Base = E::Base>>
             )),
-            // out: PhantomData::default(),
         }
     }
 }
@@ -226,7 +222,6 @@ impl<E> Clone for Link<E> {
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
-            // out: self.out.clone(),
         }
     }
 }

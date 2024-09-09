@@ -15,8 +15,7 @@ impl<U> Snap<U> {
 
 impl<U> Snap<U>
 where
-    U: 'static + Adapt + Solve + SendSync + Debug,
-    U::Base: Payload,
+    U: 'static + Unit,
 {
     pub fn hub(self) -> Hub<U::Base> {
         Node::make_ploy_from_snap(self).into()
@@ -32,7 +31,7 @@ where
 
 impl<T> IntoSnapWithImport for T
 where
-    T: 'static + Adapt + Solve + SendSync + Debug,
+    T: 'static + Unit,
 {
     fn import(self, import: impl Into<Import>) -> Snap<Self> {
         Snap {
@@ -51,7 +50,7 @@ where
 
 impl<T> IntoSnapWithImports for T
 where
-    T: 'static + Adapt + Solve + SendSync + Debug,
+    T: 'static + Unit,
 {
     fn imports(self, imports: Vec<Import>) -> Snap<Self> {
         Snap {

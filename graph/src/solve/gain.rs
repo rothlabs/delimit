@@ -1,7 +1,7 @@
 use super::*;
 
 /// Value returned by a successful hub solver.
-#[derive(Clone, PartialEq, Debug, Hash)]
+#[derive(Clone, PartialEq, Hash, Debug)]
 pub enum Gain<T>
 where
     T: 'static + Payload,

@@ -98,7 +98,7 @@ impl Apex {
             Self::Vf32(x) => x.imports(),
         }
     }
-    pub fn all(&self) -> Result<Vec<(Key, Apex)>> {
+    pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
             Self::Void(x) => x.all(),
             Self::String(x) => x.all(),

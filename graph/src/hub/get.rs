@@ -16,7 +16,7 @@ where
         }
     }
     /// Get vector of all apexes.
-    pub fn all(&self) -> Result<Vec<(Key, Apex)>> {
+    pub fn all(&self) -> Result<Vec<Apex>> {
         match self {
             Self::Ploy(ploy) => {
                 let mut all = All { apexes: vec![] };
@@ -96,18 +96,16 @@ impl Deal for Get {
 
 #[derive(Debug)]
 struct All {
-    apexes: Vec<(Key, Apex)>,
+    apexes: Vec<Apex>,
 }
 
 impl Deal for All {
-    fn one(&mut self, key: &str, view: View) -> Result<()> {
-        self.apexes.push((key.into(), view.apex()));
+    fn one(&mut self, _: &str, view: View) -> Result<()> {
+        self.apexes.push(view.apex());
         Ok(())
     }
-    fn vec(&mut self, key: &str, view: ViewVec) -> Result<()> {
-        for apex in view.all() {
-            self.apexes.push((key.into(), apex));
-        }
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
+        self.apexes.extend(view.all());
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
@@ -116,8 +114,27 @@ impl Deal for All {
     }
 }
 
-// if i < view.len() {
-//     self.apex = Some(view.apex(i));
-// } else {
-//     self.errors.push(self.aim.index_out_of_bounds(view.len()));
+
+
+
+// #[derive(Debug)]
+// struct All {
+//     apexes: Vec<(Key, Apex)>,
+// }
+
+// impl Deal for All {
+//     fn one(&mut self, key: &str, view: View) -> Result<()> {
+//         self.apexes.push((key.into(), view.apex()));
+//         Ok(())
+//     }
+//     fn vec(&mut self, key: &str, view: ViewVec) -> Result<()> {
+//         for apex in view.all() {
+//             self.apexes.push((key.into(), apex));
+//         }
+//         Ok(())
+//     }
+//     fn map(&mut self, map: &mut Map) -> Result<()> {
+//         self.apexes.extend(map.all());
+//         Ok(())
+//     }
 // }

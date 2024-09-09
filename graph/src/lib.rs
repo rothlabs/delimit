@@ -104,9 +104,6 @@ pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
 }
 
-// #[cfg(not(feature = "oneThread"))]
-// const NO_POISON: &str = "The lock should not be poisoned.";
-
 #[cfg(not(feature = "oneThread"))]
 pub trait SendSync: Send + Sync {}
 #[cfg(not(feature = "oneThread"))]
@@ -116,6 +113,9 @@ impl<T: Send + Sync> SendSync for T {}
 pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
+
+pub trait Unit: Adapt + Solve + SendSync + Debug {}
+impl<T> Unit for T where T: Adapt + Solve + SendSync + Debug, T::Base: Payload {}
 
 pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
@@ -171,8 +171,7 @@ where
 
 impl<T> IntoNode for T
 where
-    T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Base: Payload,
+    T: 'static + Unit,
 {
     fn node(mut self) -> Result<Node<Self>> {
         Node::make(|back| {
@@ -191,8 +190,7 @@ where
 
 impl<T> IntoPloy for T
 where
-    T: 'static + Adapt + Solve + SendSync + Debug,
-    T::Base: Payload,
+    T: 'static + Unit,
 {
     fn ploy(mut self) -> Result<Ploy<T::Base>> {
         Node::make_ploy(|back| {
@@ -239,8 +237,7 @@ pub trait ToHub {
 
 impl<T> ToHub for Node<T>
 where
-    T: 'static + Solve + Adapt + Debug + SendSync,
-    T::Base: Payload,
+    T: 'static + Unit,
 {
     type Pay = T::Base;
     fn hub(&self) -> Result<Hub<Self::Pay>> {
@@ -301,6 +298,9 @@ pub trait WithSnap {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+// #[cfg(not(feature = "oneThread"))]
+// const NO_POISON: &str = "The lock should not be poisoned.";
 
 // pub trait Pathed {
 //     fn pathed(&self, path: &Path) -> Self;

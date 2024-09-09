@@ -136,27 +136,6 @@ impl Hash for Space {
 }
 
 
-        // if let Ok(stems) = apex.all() {
-        //     for (key, next_apex) in &stems {
-        //         if next_apex.tray_path().is_some() {
-        //             continue;
-        //         }
-        //         let mut next_path = path.clone();
-        //         next_path.push(key.clone());
-        //         let next_scope = Self::new(next_path, next_apex);
-        //         space.map.insert(key.clone(), next_scope);
-        //         // if let Some(Path::Local(keys)) = next_apex.path() {
-        //         //     let key = keys.first().expect("No keys in path.");
-        //         //     next_path.push(key.clone());
-        //         //     let next_scope = Self::new(next_path, next_apex);
-        //         //     space.map.insert(key.clone(), next_scope);
-        //         // } else {
-        //         //     space.vec.push(Self::new(next_path, next_apex));
-        //         // }
-        //     }
-        // }
-
-
 
 
 // let mut world_all = false;

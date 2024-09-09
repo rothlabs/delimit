@@ -43,7 +43,7 @@ impl Lake {
             unit: hub.serial()?,
         };
         self.roots.insert(key.into(), serial);
-        for (_, apex) in &hub.all().unwrap_or_default() {
+        for apex in &hub.all().unwrap_or_default() {
             apex.insert_in_lake(self)?;
         }
         Ok(())
@@ -59,7 +59,7 @@ impl Lake {
             unit: hub.serial()?,
         };
         self.nodes.insert(hub.digest()?, serial);
-        for (_, apex) in &hub.all().unwrap_or_default() {
+        for apex in &hub.all().unwrap_or_default() {
             apex.insert_in_lake(self)?;
         }
         Ok(())
@@ -75,8 +75,7 @@ impl Lake {
 
     pub fn grow<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
         hub.adapt(self)?;
-        for (_, apex) in hub.all()? {
-            // TODO: I should get (key, apex) so I can build Space tree
+        for apex in hub.all()? {
             apex.grow_from_lake(self).ok();
         }
         Ok(())
