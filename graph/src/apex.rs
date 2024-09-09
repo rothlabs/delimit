@@ -144,16 +144,16 @@ impl Backed for Apex {
     }
 }
 
-    // pub fn path(&self) -> Option<&Path> {
-    //     match self {
-    //         Self::Void(x) => x.path(),
-    //         Self::String(x) => x.path(),
-    //         Self::U8(x) => x.path(),
-    //         Self::Vu8(x) => x.path(),
-    //         Self::Vu16(x) => x.path(),
-    //         Self::Vf32(x) => x.path(),
-    //     }
-    // }
+// pub fn path(&self) -> Option<&Path> {
+//     match self {
+//         Self::Void(x) => x.path(),
+//         Self::String(x) => x.path(),
+//         Self::U8(x) => x.path(),
+//         Self::Vu8(x) => x.path(),
+//         Self::Vu16(x) => x.path(),
+//         Self::Vf32(x) => x.path(),
+//     }
+// }
 
 // pub trait ToApex {
 //     fn apex(&self) -> Apex;

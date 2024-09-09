@@ -77,7 +77,6 @@ impl Deal for Space {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Scope<'a> {
     pub world: &'a Space,
@@ -134,9 +133,6 @@ impl Hash for Space {
         self.id.hash(state);
     }
 }
-
-
-
 
 // let mut world_all = false;
 // for import in &self.local.imports {

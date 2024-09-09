@@ -114,9 +114,6 @@ impl Deal for All {
     }
 }
 
-
-
-
 // #[derive(Debug)]
 // struct All {
 //     apexes: Vec<(Key, Apex)>,

@@ -19,14 +19,10 @@ impl Map {
         }
     }
     pub fn get(&self, key: &Key) -> Option<Apex> {
-        self.0.get(key).map(|apex| apex.clone())
+        self.0.get(key).cloned()
     }
     pub fn all(&self) -> Vec<Apex> {
-        let mut out = vec![];
-        for (_, apex) in &self.0 {
-            out.push(apex.clone());
-        }
-        out
+        self.0.values().cloned().collect()
     }
     // pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Key, &mut Apex)>
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
@@ -37,8 +33,8 @@ impl Map {
     }
     pub fn backed(&mut self, back: &Back) -> Result<Self> {
         let mut map = Map::new();
-        for (aim, apex) in &self.0 {
-            map.insert(aim, apex.backed(back)?)?;
+        for (key, apex) in &self.0 {
+            map.insert(key, apex.backed(back)?)?;
         }
         Ok(map)
     }
@@ -51,7 +47,6 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
-
 
 // pub fn all(&self) -> Vec<(Key, Apex)> {
 //     let mut out = vec![];

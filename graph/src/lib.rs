@@ -10,7 +10,7 @@ pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{Engage, Ploy, PloyPointer, Based, ToPloy};
+pub use ploy::{Based, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
     AddRoot, AddRootMut, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root,
     Update, UpdateMut,
@@ -115,7 +115,12 @@ pub trait SendSync {}
 impl<T> SendSync for T {}
 
 pub trait Unit: Adapt + Solve + SendSync + Debug {}
-impl<T> Unit for T where T: Adapt + Solve + SendSync + Debug, T::Base: Payload {}
+impl<T> Unit for T
+where
+    T: Adapt + Solve + SendSync + Debug,
+    T::Base: Payload,
+{
+}
 
 pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
@@ -163,7 +168,7 @@ fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
 
 pub trait IntoNode
 where
-    Self: Unit + Sized
+    Self: Unit + Sized,
 {
     fn node(self) -> Result<Node<Self>>;
 }

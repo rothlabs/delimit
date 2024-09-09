@@ -150,7 +150,7 @@ where
         match self {
             Self::Tray(tray) => match tray {
                 Tray::Base(base) => Ok(base.clone()),
-                tray => Err(tray.wrong_variant("Base"))?
+                tray => Err(tray.wrong_variant("Base"))?,
             },
             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
             Self::Ploy(ploy) => ploy.main()?.base(),
