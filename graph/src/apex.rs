@@ -34,9 +34,9 @@ impl Apex {
         for space in local.map.values() {
             space.apex.saturate(world, space)?;
         }
-        for space in &local.vec {
-            space.apex.saturate(world, space)?;
-        }
+        // for space in &local.vec {
+        //     space.apex.saturate(world, space)?;
+        // }
         Ok(())
     }
     pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
@@ -109,7 +109,7 @@ impl Apex {
             Self::Vf32(x) => x.imports(),
         }
     }
-    pub fn all(&self) -> Result<Vec<Apex>> {
+    pub fn all(&self) -> Result<Vec<(Key, Apex)>> {
         match self {
             Self::Void(x) => x.all(),
             Self::String(x) => x.all(),

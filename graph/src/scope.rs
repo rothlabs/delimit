@@ -7,7 +7,7 @@ pub struct Space {
     imports: Vec<Import>,
     pub apex: Apex,
     pub map: HashMap<Key, Space>,
-    pub vec: Vec<Space>,
+    // pub vec: Vec<Space>,
     // path: Vec<Key>,
 }
 
@@ -24,19 +24,22 @@ impl Space {
             space.imports = imports;
         }
         if let Ok(stems) = apex.all() {
-            for next_apex in &stems {
+            for (key, next_apex) in &stems {
                 if next_apex.tray_path().is_some() {
                     continue;
                 }
                 let mut next_path = path.clone();
-                if let Some(Path::Local(keys)) = next_apex.path() {
-                    let key = keys.first().expect("No keys in path.");
-                    next_path.push(key.clone());
-                    let next_scope = Self::new(next_path, next_apex);
-                    space.map.insert(key.clone(), next_scope);
-                } else {
-                    space.vec.push(Self::new(next_path, next_apex));
-                }
+                next_path.push(key.clone());
+                let next_scope = Self::new(next_path, next_apex);
+                space.map.insert(key.clone(), next_scope);
+                // if let Some(Path::Local(keys)) = next_apex.path() {
+                //     let key = keys.first().expect("No keys in path.");
+                //     next_path.push(key.clone());
+                //     let next_scope = Self::new(next_path, next_apex);
+                //     space.map.insert(key.clone(), next_scope);
+                // } else {
+                //     space.vec.push(Self::new(next_path, next_apex));
+                // }
             }
         }
         space

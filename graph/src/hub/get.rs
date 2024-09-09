@@ -17,7 +17,7 @@ where
     }
     // TODO: return Vec<(Key, Apex)>!
     /// Get vector of all hubes.
-    pub fn all(&self) -> Result<Vec<Apex>> {
+    pub fn all(&self) -> Result<Vec<(Key, Apex)>> {
         match self {
             Self::Ploy(ploy) => {
                 let mut all = All { apexes: vec![] };
@@ -97,16 +97,18 @@ impl Deal for Get {
 
 #[derive(Debug)]
 struct All {
-    apexes: Vec<Apex>,
+    apexes: Vec<(Key, Apex)>,
 }
 
 impl Deal for All {
-    fn one(&mut self, _: &str, view: View) -> Result<()> {
-        self.apexes.push(view.apex());
+    fn one(&mut self, key: &str, view: View) -> Result<()> {
+        self.apexes.push((key.into(), view.apex()));
         Ok(())
     }
-    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
-        self.apexes.extend(view.all());
+    fn vec(&mut self, key: &str, view: ViewVec) -> Result<()> {
+        for apex in view.all() {
+            self.apexes.push((key.into(), apex));
+        }
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {

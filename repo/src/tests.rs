@@ -16,7 +16,9 @@ fn write_and_read_serial_page() -> graph::Result<()> {
     let bay = lake.tree()?;
     bay.hydrate()?;
     let html = bay.get("page")?.string()?;
+    eprintln!("before base");
     assert_eq!(html.base()?, html::default::PAGE);
+    eprintln!("after base");
     let plain = html.down(PLAIN)?;
     bay.get("title_element")?.set(0, "html mutated")?;
     assert_eq!(html.base()?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
