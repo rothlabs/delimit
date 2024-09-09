@@ -29,7 +29,6 @@ pub struct Link<E> {
     edge: Arc<RwLock<E>>,
     #[cfg(feature = "oneThread")]
     edge: Rc<RefCell<E>>,
-    // TODO: ensure path is only used as path and not a Key!!!
     path: Option<Path>,
     rank: Option<u64>,
 }
@@ -48,9 +47,9 @@ impl<E> Link<E> {
             rank: self.rank,
         }
     }
-    pub fn path(&self) -> Option<&Path> {
-        self.path.as_ref()
-    }
+    // pub fn path(&self) -> Option<&Path> {
+    //     self.path.as_ref()
+    // }
     pub fn rank(&self) -> Option<u64> {
         self.rank
     }

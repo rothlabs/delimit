@@ -81,25 +81,25 @@ pub fn default_bay() -> Result<Hub<()>> {
 
 pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
     let head = Element::new()
-        .open(bay.get("head")?.string()?)
-        .item(bay.get("title_element")?.string()?)
-        .item(bay.get("charset")?.string()?)
-        .item(bay.get("viewport")?.string()?)
-        .item(bay.get("author")?.string()?)
-        .item(bay.get("importmap")?.string()?)
+        .open(bay.get("head")?.pathed("head").string()?)
+        .item(bay.get("title_element")?.pathed("title_element").string()?)
+        .item(bay.get("charset")?.pathed("charset").string()?)
+        .item(bay.get("viewport")?.pathed("viewport").string()?)
+        .item(bay.get("author")?.pathed("author").string()?)
+        .item(bay.get("importmap")?.pathed("importmap").string()?)
         .close()?
         .import(WORLD_ALL)
         .hub();
     let body = Element::new()
-        .open(bay.get("body")?.string()?)
-        .item(bay.get("title")?.string()?)
-        .item(bay.get("canvas")?.string()?)
-        .item(bay.get("app")?.string()?)
+        .open(bay.get("body")?.pathed("body").string()?)
+        .item(bay.get("title")?.pathed("title").string()?)
+        .item(bay.get("canvas")?.pathed("canvas").string()?)
+        .item(bay.get("app")?.pathed("app").string()?)
         .close()?
         .import(WORLD_ALL)
         .hub();
     let html = Element::new()
-        .open(bay.get("html")?.string()?)
+        .open(bay.get("html")?.pathed("html").string()?)
         .item(head)
         .item(body)
         .close()?

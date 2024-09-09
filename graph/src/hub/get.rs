@@ -15,8 +15,7 @@ where
             _ => Err(Error::NotPloy)?,
         }
     }
-    // TODO: return Vec<(Key, Apex)>!
-    /// Get vector of all hubes.
+    /// Get vector of all apexes.
     pub fn all(&self) -> Result<Vec<(Key, Apex)>> {
         match self {
             Self::Ploy(ploy) => {

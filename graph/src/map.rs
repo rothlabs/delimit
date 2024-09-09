@@ -1,7 +1,7 @@
 use super::*;
 use std::collections::hash_map::IterMut;
 
-/// Key-Hub map.
+/// Key-Apex map.
 #[derive(Default, Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Map(pub HashMap<Key, Apex>);
 
@@ -19,8 +19,7 @@ impl Map {
         }
     }
     pub fn get(&self, key: &Key) -> Option<Apex> {
-        // TODO: do not use pathed!!
-        self.0.get(key).map(|apex| apex.pathed(key))
+        self.0.get(key).map(|apex| apex.clone())
     }
     pub fn all(&self) -> Vec<(Key, Apex)> {
         let mut out = vec![];
@@ -29,6 +28,7 @@ impl Map {
         }
         out
     }
+    // pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Key, &mut Apex)>
     pub fn iter_mut(&mut self) -> IterMut<Key, Apex> {
         self.0.iter_mut()
     }

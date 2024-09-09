@@ -114,16 +114,6 @@ where
         }
     }
 
-    /// Get path associated with hub if any.
-    pub fn path(&self) -> Option<&Path> {
-        match self {
-            Self::Tray(tray) => tray.path(),
-            // _ => panic!("shit")
-            Self::Leaf(leaf) => leaf.path(),
-            Self::Ploy(ploy) => ploy.path(),
-        }
-    }
-
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
     pub fn rank(&self) -> Option<u64> {
         match self {
@@ -213,3 +203,14 @@ where
         self.iter().map(|x| x.down(rank)).collect()
     }
 }
+
+
+    // /// Get path associated with hub if any.
+    // pub fn path(&self) -> Option<&Path> {
+    //     match self {
+    //         Self::Tray(tray) => tray.path(),
+    //         // _ => panic!("shit")
+    //         Self::Leaf(leaf) => leaf.path(),
+    //         Self::Ploy(ploy) => ploy.path(),
+    //     }
+    // }

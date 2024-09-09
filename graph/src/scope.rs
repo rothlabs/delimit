@@ -6,54 +6,77 @@ pub struct Space {
     id: u64,
     imports: Vec<Import>,
     pub apex: Apex,
-    pub map: HashMap<Key, Space>,
-    // pub vec: Vec<Space>,
-    // path: Vec<Key>,
+    pub map: HashMap<Key, Vec<Space>>,
+    path: Vec<Key>,
 }
 
 impl Space {
-    pub fn new(path: Vec<Key>, apex: impl Into<Apex>) -> Self {
+    pub fn new(path: Vec<Key>, apex: impl Into<Apex>) -> Result<Self> {
         let apex: Apex = apex.into();
         let mut space = Self {
             id: rand::random(),
             apex: apex.clone(),
-            // path: path.clone(),
+            path,
             ..Default::default()
         };
         if let Ok(imports) = apex.imports() {
             space.imports = imports;
         }
-        if let Ok(stems) = apex.all() {
-            for (key, next_apex) in &stems {
-                if next_apex.tray_path().is_some() {
-                    continue;
-                }
-                let mut next_path = path.clone();
-                next_path.push(key.clone());
-                let next_scope = Self::new(next_path, next_apex);
-                space.map.insert(key.clone(), next_scope);
-                // if let Some(Path::Local(keys)) = next_apex.path() {
-                //     let key = keys.first().expect("No keys in path.");
-                //     next_path.push(key.clone());
-                //     let next_scope = Self::new(next_path, next_apex);
-                //     space.map.insert(key.clone(), next_scope);
-                // } else {
-                //     space.vec.push(Self::new(next_path, next_apex));
-                // }
-            }
-        }
-        space
+        apex.adapt(&mut space)?;
+        Ok(space)
     }
     pub fn get(&self, keys: &[Key]) -> Result<Apex> {
         if keys.is_empty() {
             Ok(self.apex.clone())
-        } else if let Some(stem) = self.map.get(&keys[0]) {
-            stem.get(&keys[1..])
+        } else if let Some(spaces) = self.map.get(&keys[0]) {
+            let space = spaces.first().ok_or(anyhow!("no spaces"))?;
+            space.get(&keys[1..])
         } else {
             Err(anyhow!("Entry not found."))?
         }
     }
 }
+
+impl Deal for Space {
+    fn one(&mut self, key: &str, view: View) -> Result<()> {
+        let apex = view.apex();
+        if apex.tray_path().is_some() {
+            return Ok(());
+        }
+        let mut path = self.path.clone();
+        path.push(key.into());
+        let space = Self::new(path, apex)?;
+        self.map.insert(key.into(), vec![space]);
+        Ok(())
+    }
+    fn vec(&mut self, key: &str, view: ViewVec) -> Result<()> {
+        let mut path = self.path.clone();
+        path.push(key.into());
+        let mut spaces = vec![];
+        for view in view.views() {
+            let apex = view.apex();
+            if apex.tray_path().is_some() {
+                continue;
+            }
+            spaces.push(Self::new(path.clone(), apex)?);
+        }
+        self.map.insert(key.into(), spaces);
+        Ok(())
+    }
+    fn map(&mut self, map: &mut Map) -> Result<()> {
+        for (key, apex) in map.iter_mut() {
+            let mut path = self.path.clone();
+            path.push(key.into());
+            if apex.tray_path().is_some() {
+                continue;
+            }
+            let space = Self::new(path, apex.clone())?;
+            self.map.insert(key.into(), vec![space]);
+        }
+        Ok(())
+    }
+}
+
 
 #[derive(Debug)]
 pub struct Scope<'a> {
@@ -92,7 +115,7 @@ impl Deal for Scope<'_> {
     fn one(&mut self, _: &str, view: View) -> Result<()> {
         self.deal(view)
     }
-    fn vec<'a>(&mut self, _: &str, view: ViewVec) -> Result<()> {
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         for view in view.views() {
             self.deal(view)?;
         }
@@ -111,6 +134,30 @@ impl Hash for Space {
         self.id.hash(state);
     }
 }
+
+
+        // if let Ok(stems) = apex.all() {
+        //     for (key, next_apex) in &stems {
+        //         if next_apex.tray_path().is_some() {
+        //             continue;
+        //         }
+        //         let mut next_path = path.clone();
+        //         next_path.push(key.clone());
+        //         let next_scope = Self::new(next_path, next_apex);
+        //         space.map.insert(key.clone(), next_scope);
+        //         // if let Some(Path::Local(keys)) = next_apex.path() {
+        //         //     let key = keys.first().expect("No keys in path.");
+        //         //     next_path.push(key.clone());
+        //         //     let next_scope = Self::new(next_path, next_apex);
+        //         //     space.map.insert(key.clone(), next_scope);
+        //         // } else {
+        //         //     space.vec.push(Self::new(next_path, next_apex));
+        //         // }
+        //     }
+        // }
+
+
+
 
 // let mut world_all = false;
 // for import in &self.local.imports {

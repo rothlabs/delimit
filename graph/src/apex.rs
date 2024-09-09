@@ -21,7 +21,7 @@ impl Default for Apex {
 
 impl Apex {
     pub fn hydrate(&self) -> Result<()> {
-        let space = Space::new(vec![], self);
+        let space = Space::new(vec![], self)?;
         self.saturate(&space, &space)?;
         Ok(())
     }
@@ -31,12 +31,11 @@ impl Apex {
             local,
             back: None,
         })?;
-        for space in local.map.values() {
-            space.apex.saturate(world, space)?;
+        for spaces in local.map.values() {
+            for space in spaces {
+                space.apex.saturate(world, space)?;
+            }
         }
-        // for space in &local.vec {
-        //     space.apex.saturate(world, space)?;
-        // }
         Ok(())
     }
     pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
@@ -67,16 +66,6 @@ impl Apex {
             Self::Vu8(x) => x.adapt(deal),
             Self::Vu16(x) => x.adapt(deal),
             Self::Vf32(x) => x.adapt(deal),
-        }
-    }
-    pub fn path(&self) -> Option<&Path> {
-        match self {
-            Self::Void(x) => x.path(),
-            Self::String(x) => x.path(),
-            Self::U8(x) => x.path(),
-            Self::Vu8(x) => x.path(),
-            Self::Vu16(x) => x.path(),
-            Self::Vf32(x) => x.path(),
         }
     }
     pub fn tray_path(&self) -> Option<&Path> {
@@ -154,6 +143,17 @@ impl Backed for Apex {
         Ok(apex)
     }
 }
+
+    // pub fn path(&self) -> Option<&Path> {
+    //     match self {
+    //         Self::Void(x) => x.path(),
+    //         Self::String(x) => x.path(),
+    //         Self::U8(x) => x.path(),
+    //         Self::Vu8(x) => x.path(),
+    //         Self::Vu16(x) => x.path(),
+    //         Self::Vf32(x) => x.path(),
+    //     }
+    // }
 
 // pub trait ToApex {
 //     fn apex(&self) -> Apex;
