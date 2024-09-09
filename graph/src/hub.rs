@@ -61,17 +61,10 @@ where
         Ok(lake)
     }
 
-    pub fn tray_path(&self) -> Option<&Path> {
+    /// Literal `Path` if present. This does not return the `Link` path.
+    pub fn path(&self) -> Option<&Path> {
         if let Hub::Tray(Tray::Path(path)) = self {
             Some(path)
-        } else {
-            None
-        }
-    }
-
-    pub fn tray_hash(&self) -> Option<u64> {
-        if let Hub::Tray(Tray::Path(Path::Hash(hash))) = self {
-            Some(*hash)
         } else {
             None
         }

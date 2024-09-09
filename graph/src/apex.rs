@@ -70,12 +70,12 @@ impl Apex {
     }
     pub fn tray_path(&self) -> Option<&Path> {
         match self {
-            Self::Void(x) => x.tray_path(),
-            Self::String(x) => x.tray_path(),
-            Self::U8(x) => x.tray_path(),
-            Self::Vu8(x) => x.tray_path(),
-            Self::Vu16(x) => x.tray_path(),
-            Self::Vf32(x) => x.tray_path(),
+            Self::Void(x) => x.path(),
+            Self::String(x) => x.path(),
+            Self::U8(x) => x.path(),
+            Self::Vu8(x) => x.path(),
+            Self::Vu16(x) => x.path(),
+            Self::Vf32(x) => x.path(),
         }
     }
     pub fn pathed(&self, path: impl Into<Path>) -> Self {

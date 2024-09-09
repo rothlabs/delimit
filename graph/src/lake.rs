@@ -106,8 +106,8 @@ impl Lake {
     /// Swap hash-hub for deserialized hub
     fn deal<'a>(&self, view: impl Into<View<'a>>) -> Result<()> {
         let view: View<'a> = view.into();
-        if let Some(hash) = view.tray_hash() {
-            if let Ok(rhs) = self.get(hash) {
+        if let Some(Path::Hash(hash)) = view.path() {
+            if let Ok(rhs) = self.get(*hash) {
                 if let Some(back) = self.back.as_ref() {
                     view.set(rhs.backed(back)?)?;
                 } else {

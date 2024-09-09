@@ -87,7 +87,7 @@ pub struct Scope<'a> {
 
 impl Scope<'_> {
     pub fn deal(&self, view: View) -> Result<()> {
-        if let Some(Path::Local(keys)) = view.tray_path() {
+        if let Some(Path::Local(keys)) = view.path() {
             if let Ok(rhs) = self.local.get(keys) {
                 if let Some(back) = self.back.as_ref() {
                     view.set(rhs.backed(back)?)?;

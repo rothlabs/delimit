@@ -23,6 +23,16 @@ impl View<'_> {
             Self::Vf32(x) => Apex::Vf32(x.clone()),
         }
     }
+    pub fn path(&self) -> Option<&Path> {
+        match self {
+            Self::Void(x) => x.path(),
+            Self::String(x) => x.path(),
+            Self::U8(x) => x.path(),
+            Self::Vu8(x) => x.path(),
+            Self::Vu16(x) => x.path(),
+            Self::Vf32(x) => x.path(),
+        }
+    }
     pub fn backed(&self, back: &Back) -> Result<Apex> {
         let apex = match self {
             Self::Void(x) => Apex::Void(x.backed(back)?),
@@ -75,36 +85,4 @@ impl View<'_> {
         };
         Err(anyhow!("view and apex types do not match"))?
     }
-    pub fn tray_hash(&self) -> Option<u64> {
-        match self {
-            Self::Void(x) => x.tray_hash(),
-            Self::String(x) => x.tray_hash(),
-            Self::U8(x) => x.tray_hash(),
-            Self::Vu8(x) => x.tray_hash(),
-            Self::Vu16(x) => x.tray_hash(),
-            Self::Vf32(x) => x.tray_hash(),
-        }
-    }
-    pub fn tray_path(&self) -> Option<&Path> {
-        match self {
-            Self::Void(x) => x.tray_path(),
-            Self::String(x) => x.tray_path(),
-            Self::U8(x) => x.tray_path(),
-            Self::Vu8(x) => x.tray_path(),
-            Self::Vu16(x) => x.tray_path(),
-            Self::Vf32(x) => x.tray_path(),
-        }
-    }
 }
-
-
-    // pub fn apex(&self) -> Apex {
-    //     match self {
-    //         Self::Void(x) => Apex::Void((*x).clone()),
-    //         Self::String(x) => Apex::String((*x).clone()),
-    //         Self::U8(x) => Apex::U8((*x).clone()),
-    //         Self::Vu8(x) => Apex::Vu8((*x).clone()),
-    //         Self::Vu16(x) => Apex::Vu16((*x).clone()),
-    //         Self::Vf32(x) => Apex::Vf32((*x).clone()),
-    //     }
-    // }
