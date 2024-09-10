@@ -9,8 +9,8 @@ mod tests;
 #[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,
+    pub object: WebGlShader,
     pub source: Hub<String>,
-    pub shader: WebGlShader,
 }
 
 impl Shader {
@@ -22,7 +22,7 @@ impl Shader {
             let unit = Self {
                 gl: gl.clone(),
                 source: source.backed(back)?,
-                shader,
+                object: shader,
             };
             Ok(unit)
         })
@@ -32,11 +32,11 @@ impl Shader {
 impl Act for Shader {
     fn act(&self) -> Result<()> {
         self.source
-            .read(|src| self.gl.shader_source(&self.shader, src))?;
-        self.gl.compile_shader(&self.shader);
+            .read(|src| self.gl.shader_source(&self.object, src))?;
+        self.gl.compile_shader(&self.object);
         if self
             .gl
-            .get_shader_parameter(&self.shader, WGLRC::COMPILE_STATUS)
+            .get_shader_parameter(&self.object, WGLRC::COMPILE_STATUS)
             .as_bool()
             .unwrap_or(false)
         {
@@ -44,7 +44,7 @@ impl Act for Shader {
         } else {
             let memo = self
                 .gl
-                .get_shader_info_log(&self.shader)
+                .get_shader_info_log(&self.object)
                 .unwrap_or("failed to get shader info log".into());
             Err(anyhow!(memo))?
         }

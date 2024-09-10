@@ -30,6 +30,9 @@ impl VaoBuilder {
 }
 
 impl Vao {
+    pub fn builder() -> VaoBuilder {
+        VaoBuilder::default()
+    }
     pub fn bind(&self) {
         self.gl.bind_vertex_array(Some(&self.object));
     }
@@ -45,61 +48,10 @@ impl Act for Vao {
             attribute.act()?;
         }
         if let Some(buffer) = &self.index_buffer {
-            buffer.act()?;
+            // buffer.act()?;
             buffer.read(|unit| unit.bind())?;
         }
         self.unbind();
         Ok(())
     }
 }
-
-// impl React for Vao {
-//     fn react(&self, _: &Meta) -> react::Result {
-//         self.act();
-//         Ok(())
-//     }
-// }
-
-// pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
-//     let object = gl
-//         .create_vertex_array()
-//         .ok_or("failed to create vertex array object")?;
-//     let link = Node::make(|back| Self {
-//         gl: gl.clone(),
-//         object,
-//         attributes: attributes.backed(back),
-//         index_buffer: None,
-//     });
-//     link.act();
-//     Ok(link)
-// }
-// pub fn index_buffer(&mut self, buffer: Node<Buffer<u16>>) -> &mut Self {
-//     self.index_buffer = Some(buffer);
-//     self
-// }
-
-// impl Vao {
-//     pub fn link(gl: &WGLRC, attributes: &Attributes) -> Result {
-//         let object = gl
-//             .create_vertex_array()
-//             .ok_or("failed to create vertex array object")?;
-//         let link = Node::make(|back| Self {
-//             gl: gl.clone(),
-//             object,
-//             attributes: attributes.backed(back),
-//             index_buffer: None,
-//         });
-//         link.act();
-//         Ok(link)
-//     }
-//     pub fn index_buffer(&mut self, buffer: Node<Buffer<u16>>) -> &mut Self {
-//         self.index_buffer = Some(buffer);
-//         self
-//     }
-//     pub fn bind(&self) {
-//         self.gl.bind_vertex_array(Some(&self.object));
-//     }
-//     pub fn unbind(&self) {
-//         self.gl.bind_vertex_array(None);
-//     }
-// }

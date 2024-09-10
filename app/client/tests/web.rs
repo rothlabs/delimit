@@ -56,8 +56,14 @@ fn draw_elements() -> Result<()> {
 }
 
 #[wasm_bindgen_test]
-fn elements_react_to_shader_source() -> Result<()> {
-    gpu::elements_react_to_shader_source()?;
+fn draw_elements_react_to_shader_source() -> Result<()> {
+    gpu::draw_elements_react_to_shader_source()?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+fn draw_elements_react_to_buffer_array() -> Result<()> {
+    gpu::draw_elements_react_to_buffer_array()?;
     Ok(())
 }
 

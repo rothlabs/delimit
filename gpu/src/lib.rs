@@ -1,14 +1,16 @@
 pub use anyhow::anyhow;
 pub use buffer::Buffer;
 pub use canvas::Canvas;
-pub use elements::Elements;
+pub use draw_elements::DrawElements;
 pub use program::Program;
+use program::ProgramBuilder;
 pub use shader::Shader;
+use tfo::{Tfo, TfoBuilder};
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
 use derive_builder::Builder;
-use elements::ElementsBuilder;
+use draw_elements::DrawElementsBuilder;
 use graph::*;
 use texture::*;
 use vao::*;
@@ -21,9 +23,11 @@ pub mod program;
 pub mod shader;
 pub mod texture;
 pub mod vao;
+pub mod tfo;
 
 mod canvas;
-mod elements;
+mod draw_elements;
+mod draw_arrays;
 mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
@@ -46,16 +50,26 @@ impl Gpu {
     pub fn fragment_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
-    pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<Node<Program>> {
-        Program::make(&self.gl, vertex, fragment)
+    pub fn program(&self, vertex: &Node<Shader>, fragment: &Node<Shader>) -> Result<ProgramBuilder> {
+        let object = self
+            .gl
+            .create_program()
+            .ok_or(anyhow!("failed to create program"))?;
+        Ok(Program::builder()
+            .gl(self.gl.clone())
+            .object(object)
+            .vertex(vertex.clone())
+            .fragment(fragment.clone())
+            .clone())
     }
     pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
-        // f32
         Buffer::make(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
     }
     pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
-        // u16
         Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
+    }
+    pub fn feedback_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
+        Buffer::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, &array.into())
     }
     pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
         // f32
@@ -69,31 +83,37 @@ impl Gpu {
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
-        Ok(VaoBuilder::default()
+        Ok(Vao::builder()
             .gl(self.gl.clone())
             .object(object)
             .attributes(attributes.clone())
             .clone())
     }
+    pub fn tfo(&self, buffer: &Node<Buffer>) -> Result<TfoBuilder> {
+        let object = self
+            .gl
+            .create_transform_feedback()
+            .ok_or(anyhow!("failed to create transform feedback object"))?;
+        Ok(Tfo::builder().object(object).buffer(buffer.clone()).clone())
+    }
     pub fn texture(
-        // <T: Copy>
         &self,
         array: impl Into<Apex>,
     ) -> Result<TextureBuilder> {
-        let texture = self
+        let object = self
             .gl
             .create_texture()
             .ok_or(anyhow!("failed to create texture"))?;
-        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&texture));
+        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&object));
         self.default_texture_filters();
         Ok(TextureBuilder::default()
             .gl(self.gl.clone())
-            .texture(texture)
+            .object(object)
             .array(array)
             .clone())
     }
-    pub fn elements(&self, program: &Node<Program>) -> ElementsBuilder {
-        ElementsBuilder::default()
+    pub fn elements(&self, program: &Node<Program>) -> DrawElementsBuilder {
+        DrawElementsBuilder::default()
             .gl(self.gl.clone())
             .program(program.clone())
             .clone()

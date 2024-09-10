@@ -4,31 +4,40 @@ use web_sys::WebGlBuffer;
 #[derive(Debug)]
 pub struct Buffer {
     gl: WGLRC,
-    buffer: WebGlBuffer,
+    object: WebGlBuffer,
     target: u32,
     array: Apex,
 }
 
 impl Buffer {
     pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
-        let buffer = gl
+        let object = gl
             .create_buffer()
             .ok_or(anyhow!("failed to create buffer"))?;
         Node::make(|back| {
             let buffer = Self {
                 gl: gl.clone(),
-                buffer,
+                object,
                 target,
                 array: array.backed(back)?,
             };
             Ok(buffer)
         })
     }
+    pub fn array(&mut self, array: impl Into<Apex>) {
+        self.array = array.into();
+    }
     pub fn bind(&self) {
-        self.gl.bind_buffer(self.target, Some(&self.buffer));
+        self.gl.bind_buffer(self.target, Some(&self.object));
     }
     pub fn unbind(&self) {
         self.gl.bind_buffer(self.target, None);
+    }
+    pub fn bind_base(&self) {
+        self.gl.bind_buffer_base(self.target, 0, Some(&self.object));
+    }
+    pub fn unbind_base(&self) {
+        self.gl.bind_buffer_base(self.target, 0, None);
     }
     fn vec_u16(&self, array: &Vec<u16>) -> Result<()> {
         unsafe {

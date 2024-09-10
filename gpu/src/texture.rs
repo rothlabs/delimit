@@ -6,7 +6,7 @@ use web_sys::WebGlTexture;
 #[builder(setter(into))]
 pub struct Texture {
     gl: WGLRC,
-    texture: WebGlTexture,
+    object: WebGlTexture,
     /// Linear data array of image.
     array: Apex,
     /// Horizontal pixel count.
@@ -32,7 +32,7 @@ impl TextureBuilder {
 impl Texture {
     pub fn bind(&self) {
         // self.gl.active_texture(WGLRC::TEXTURE0);
-        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.texture));
+        self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.object));
     }
     fn vec_u8(&self, array: &Vec<u8>) -> Result<()> {
         let pixels = unsafe { Uint8Array::view(array.as_slice()) };

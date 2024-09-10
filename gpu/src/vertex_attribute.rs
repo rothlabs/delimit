@@ -35,27 +35,22 @@ impl VertexAttributeBuilder {
     }
 }
 
-impl VertexAttribute {
-    fn set(&self, buffer: &Buffer, index: u32) {
-        buffer.bind();
-        self.gl.vertex_attrib_pointer_with_i32(
-            index,
-            self.size.base().unwrap_or_default(),
-            WGLRC::FLOAT,
-            false,
-            self.stride.base().unwrap_or_default(),
-            self.offset.base().unwrap_or_default(),
-        );
-        self.gl.enable_vertex_attrib_array(index);
-        buffer.unbind();
-    }
-}
-
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        let index = self.index.base().unwrap_or_default();
-        self.buffer.act()?;
-        self.buffer.read(|buffer| self.set(buffer, index))
+        self.buffer.read(|buffer| {
+            let index = self.index.base().unwrap_or_default();
+            buffer.bind();
+            self.gl.vertex_attrib_pointer_with_i32(
+                index,
+                self.size.base().unwrap_or_default(),
+                WGLRC::FLOAT,
+                false,
+                self.stride.base().unwrap_or_default(),
+                self.offset.base().unwrap_or_default(),
+            );
+            self.gl.enable_vertex_attrib_array(index);
+            buffer.unbind();
+        })
     }
 }
 

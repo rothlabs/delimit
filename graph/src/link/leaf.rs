@@ -12,3 +12,11 @@ impl ToLeaf<String> for str {
         // Leaf::new(Tray::String(self.into()))
     }
 }
+
+// impl ToLeaf<Vf32> for Vf32 {
+//     /// Clone to Leaf.
+//     fn leaf(&self) -> Leaf<Vf32> {
+//         Leaf::new(self.into())
+//         // Leaf::new(Tray::String(self.into()))
+//     }
+// }

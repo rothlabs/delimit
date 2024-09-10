@@ -47,11 +47,3 @@ impl Hash for Map {
         Hash::hash(&pairs, state);
     }
 }
-
-// pub fn all(&self) -> Vec<(Key, Apex)> {
-//     let mut out = vec![];
-//     for (key, apex) in &self.0 {
-//         out.push((key.clone(), apex.clone()));
-//     }
-//     out
-// }

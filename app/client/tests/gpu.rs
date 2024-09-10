@@ -17,32 +17,33 @@ pub fn make_canvas_on_body() -> Result<Gpu> {
     Ok(gpu)
 }
 
-pub fn make_basic_program(gpu: &Gpu) -> (Node<Program>, Leaf<String>) {
+pub fn make_basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment_source = shader::basic::FRAGMENT_RED.leaf();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
-    let program = gpu.program(&vertex, &fragment);
+    let program = gpu.program(&vertex, &fragment)?.make();
     if let Err(memo) = program {
         panic!("gpu error: {memo}");
     }
-    (program.unwrap(), fragment_source)
+    Ok((program.unwrap(), fragment_source))
 }
 
 pub fn make_tex_program(gpu: &Gpu) -> Result<Node<Program>> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
-    gpu.program(&vertex, &fragment)
+    gpu.program(&vertex, &fragment)?.make()
 }
 
-pub fn make_basic_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
+pub fn make_basic_buffer(gpu: &Gpu) -> Result<(Node<Buffer>, Apex)> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         0.,  0.,  0.,
         0., 0.8,  0.,
         0.8,  0., 0.,
     ];
-    let buffer = gpu.buffer(array)?;
-    Ok(buffer)
+    let array = Apex::from(array);
+    let buffer = gpu.buffer(array.clone())?;
+    Ok((buffer, array))
 }
 
 pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
@@ -69,24 +70,24 @@ pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
     Ok(texture)
 }
 
-pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<Elements>, Leaf<String>)> {
-    let (program, vertex_source) = make_basic_program(&gpu);
-    let buffer = make_basic_buffer(&gpu)?;
-    let array: Vec<u16> = vec![0, 1, 2];
-    let index_buffer = gpu.index_buffer(array)?;
+pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<DrawElements>, Leaf<String>, Node<Buffer>)> {
+    let (program, vertex_source) = make_basic_program(&gpu)?;
+    let (buffer, _) = make_basic_buffer(&gpu)?;
+    let index_array: Vec<u16> = vec![0, 1, 2];
+    let index_buffer = gpu.index_buffer(index_array)?;
     let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).make()?;
     let elements = gpu
         .elements(&program)
-        .buffer(buffer)
+        .buffer(buffer.clone())
         .vao(vao)
         .count(3)
         .make()?;
     elements.solve(Task::Main)?;
-    Ok((elements, vertex_source))
+    Ok((elements, vertex_source, buffer))
 }
 
-pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<Elements>> {
+pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements>> {
     let program = make_tex_program(&gpu)?;
     let buffer = make_vertex_color_buffer(&gpu)?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -133,13 +134,14 @@ pub fn make_fragment_shader() -> Result<()> {
 
 pub fn make_program() -> Result<()> {
     let gpu = make_canvas()?;
-    make_basic_program(&gpu);
+    make_basic_program(&gpu)?;
     Ok(())
 }
 
 pub fn make_buffer() -> Result<Node<Buffer>> {
     let gpu = make_canvas()?;
-    make_basic_buffer(&gpu)
+    let (buffer, _) = make_basic_buffer(&gpu)?;
+    Ok(buffer)
 }
 
 pub fn make_index_buffer() -> Result<()> {
@@ -154,7 +156,7 @@ pub fn make_index_buffer() -> Result<()> {
 
 pub fn make_vertex_attribute() -> Result<()> {
     let gpu = make_canvas()?;
-    let buffer = make_basic_buffer(&gpu)?;
+    let (buffer, _) = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
         .index(0)
         .size(3)
@@ -166,7 +168,7 @@ pub fn make_vertex_attribute() -> Result<()> {
 
 pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
-    let buffer = make_basic_buffer(&gpu)?;
+    let (buffer, _) = make_basic_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     gpu.vao(&vec![att])?;
     Ok(())
@@ -179,10 +181,21 @@ pub fn draw_elements() -> Result<()> {
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
-pub fn elements_react_to_shader_source() -> Result<()> {
+pub fn draw_elements_react_to_shader_source() -> Result<()> {
     let gpu = make_canvas_on_body()?;
-    let (_elements, shader_source) = draw_elements_basic(&gpu)?;
+    let (_draw, shader_source, _buff) = draw_elements_basic(&gpu)?;
     shader_source.write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned())?;
+    Ok(())
+}
+
+pub fn draw_elements_react_to_buffer_array() -> Result<()> {
+    let gpu = make_canvas_on_body()?;
+    let (_elements, _shader, buffer) = draw_elements_basic(&gpu)?;
+    buffer.write(|pack| pack.unit.array(vec![
+        0.1,  0.8,  0.,
+        0.9, 0.8,  0.,
+        0.9,  0., 0.,
+    ]))?;
     Ok(())
 }
 
@@ -190,7 +203,7 @@ pub fn elements_react_to_shader_source() -> Result<()> {
 /// and attempt to compile the shader. Error is expected.
 pub fn shader_source_error() -> Result<()> {
     let gpu = make_canvas()?;
-    let (_elements, shader_source) = draw_elements_basic(&gpu)?;
+    let (_elements, shader_source, _buff) = draw_elements_basic(&gpu)?;
     if let Err(_) = shader_source.write(|source| *source = "bad shader".to_owned()) {
         Ok(())
     } else {
