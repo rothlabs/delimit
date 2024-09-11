@@ -20,7 +20,7 @@ use texture::*;
 use vao::*;
 use vertex_attribute::VertexAttributeBuilder;
 use wasm_bindgen::prelude::*;
-use web_sys::{js_sys::*, WebGl2RenderingContext};
+use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod buffer;
 pub mod buffer_out;
@@ -76,7 +76,7 @@ impl Gpu {
     // pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
     //     BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
     // }
-    pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
+    pub fn vertex_attribute(&self, buffer: &WebGlBuffer) -> VertexAttributeBuilder {
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())

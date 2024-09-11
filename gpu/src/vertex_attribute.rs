@@ -1,3 +1,4 @@
+use web_sys::WebGlBuffer;
 use super::*;
 
 /// Tell the GPU how to read from a buffer
@@ -6,7 +7,8 @@ use super::*;
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
-    buffer: Node<Buffer>,
+    buffer: WebGlBuffer,
+    target: u32,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
     index: Hub<u32>,
@@ -25,7 +27,6 @@ impl VertexAttributeBuilder {
     pub fn make(&self) -> Result<Node<VertexAttribute>> {
         let mut attrib = self.build()?;
         Node::make(|back| {
-            // attrib.buffer = attrib.buffer.backed(back)?;
             attrib.index = attrib.index.backed(back)?;
             attrib.size = attrib.size.backed(back)?;
             attrib.stride = attrib.stride.backed(back)?;
@@ -37,20 +38,19 @@ impl VertexAttributeBuilder {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        self.buffer.read(|buffer| {
-            let index = self.index.base().unwrap_or_default();
-            buffer.bind();
-            self.gl.vertex_attrib_pointer_with_i32(
-                index,
-                self.size.base().unwrap_or_default(),
-                WGLRC::FLOAT,
-                false,
-                self.stride.base().unwrap_or_default(),
-                self.offset.base().unwrap_or_default(),
-            );
-            self.gl.enable_vertex_attrib_array(index);
-            buffer.unbind();
-        })
+        self.gl.bind_buffer(self.target, Some(&self.buffer));
+        let index = self.index.base().unwrap_or_default();
+        self.gl.vertex_attrib_pointer_with_i32(
+            index,
+            self.size.base().unwrap_or_default(),
+            WGLRC::FLOAT,
+            false,
+            self.stride.base().unwrap_or_default(),
+            self.offset.base().unwrap_or_default(),
+        );
+        self.gl.enable_vertex_attrib_array(index);
+        self.gl.bind_buffer(self.target, None);
+        Ok(())
     }
 }
 

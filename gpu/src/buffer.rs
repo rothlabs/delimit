@@ -1,29 +1,27 @@
 use super::*;
 use web_sys::WebGlBuffer;
 
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
 pub struct Buffer {
     gl: WGLRC,
+    // TODO: make typed buffer that holds the target number as well!!
     object: WebGlBuffer,
     target: u32,
     array: Apex,
 }
 
-impl Buffer {
-    pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
-        let object = gl
-            .create_buffer()
-            .ok_or(anyhow!("failed to create buffer"))?;
+impl BufferBuilder {
+    pub fn make(&self) -> Result<Node<Buffer>> {
+        let mut buffer = self.build()?;
         Node::make(|back| {
-            let buffer = Self {
-                gl: gl.clone(),
-                object,
-                target,
-                array: array.backed(back)?,
-            };
+            buffer.array = buffer.array.backed(back)?;
             Ok(buffer)
         })
     }
+}
+
+impl Buffer {
     pub fn array(&mut self, array: impl Into<Apex>) {
         self.array = array.into();
     }
@@ -73,3 +71,19 @@ impl Act for Buffer {
         Ok(())
     }
 }
+
+
+// pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
+//     let object = gl
+//         .create_buffer()
+//         .ok_or(anyhow!("failed to create buffer"))?;
+//     Node::make(|back| {
+//         let buffer = Self {
+//             gl: gl.clone(),
+//             object,
+//             target,
+//             array: array.backed(back)?,
+//         };
+//         Ok(buffer)
+//     })
+// }
