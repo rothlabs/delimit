@@ -44,7 +44,6 @@ impl Act for Vao {
             attribute.act()?;
         }
         if let Some(buffer) = &self.index_buffer {
-            // buffer.act()?;
             buffer.read(|unit| unit.bind())?;
         }
         self.unbind();

@@ -11,6 +11,7 @@ where
     Hub(Hub<T>),
     String(String),
     U64(u64),
+    Vf32(Vf32),
     // for graph internals
     Imports(Vec<Import>),
 }
@@ -65,6 +66,13 @@ where
             _ => Err(self.wrong_variant("u64"))?,
         }
     }
+    /// Get `Vec<f32>` from Gain.
+    pub fn vec_f32(self) -> crate::Result<Vec<f32>> {
+        match self {
+            Self::Vf32(x) => Ok(x.0),
+            _ => Err(self.wrong_variant("Vf32"))?,
+        }
+    }
 }
 
 impl<T: Payload> From<String> for Gain<T> {
@@ -84,6 +92,12 @@ impl<T: Payload> From<u64> for Gain<T> {
         Self::U64(value)
     }
 }
+
+// impl<T: Payload> From<u64> for Gain<T> {
+//     fn from(value: u64) -> Self {
+//         Self::U64(value)
+//     }
+// }
 
 impl<T: Payload> From<&Vec<Import>> for Gain<T> {
     fn from(value: &Vec<Import>) -> Self {

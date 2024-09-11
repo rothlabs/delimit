@@ -13,10 +13,13 @@ impl ToLeaf<String> for str {
     }
 }
 
-// impl ToLeaf<Vf32> for Vf32 {
-//     /// Clone to Leaf.
-//     fn leaf(&self) -> Leaf<Vf32> {
-//         Leaf::new(self.into())
-//         // Leaf::new(Tray::String(self.into()))
-//     }
-// }
+pub trait IntoLeaf<T> {
+    /// Move into Leaf.
+    fn leaf(self) -> Leaf<T>;
+}
+
+impl IntoLeaf<Vf32> for Vec<f32> {
+    fn leaf(self) -> Leaf<Vf32> {
+        Leaf::new(Vf32(self))
+    }
+}

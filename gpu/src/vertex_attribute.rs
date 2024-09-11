@@ -25,7 +25,7 @@ impl VertexAttributeBuilder {
     pub fn make(&self) -> Result<Node<VertexAttribute>> {
         let mut attrib = self.build()?;
         Node::make(|back| {
-            attrib.buffer = attrib.buffer.backed(back)?;
+            // attrib.buffer = attrib.buffer.backed(back)?;
             attrib.index = attrib.index.backed(back)?;
             attrib.size = attrib.size.backed(back)?;
             attrib.stride = attrib.stride.backed(back)?;
@@ -37,7 +37,6 @@ impl VertexAttributeBuilder {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        self.buffer.act()?;
         self.buffer.read(|buffer| {
             let index = self.index.base().unwrap_or_default();
             buffer.bind();

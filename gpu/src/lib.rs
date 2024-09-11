@@ -73,9 +73,9 @@ impl Gpu {
     pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
-        BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
-    }
+    // pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
+    //     BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
+    // }
     pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())

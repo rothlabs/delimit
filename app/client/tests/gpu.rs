@@ -92,6 +92,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<DrawElements>, Leaf<String
     let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).make()?;
     let elements = gpu
         .draw_elements(&program)
+        .buffer(buffer.clone())
         .vao(vao)
         .count(3)
         .make()?;
@@ -116,6 +117,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements>> {
     let _ = make_basic_texture(&gpu)?;
     let elements = gpu
         .draw_elements(&program)
+        .buffer(buffer.clone())
         .vao(vao)
         .count(3)
         .make()?;

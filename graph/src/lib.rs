@@ -8,7 +8,7 @@ use derive_builder::UninitializedFieldError;
 pub use edge::Edge;
 pub use hub::{DealItem, Hub, SolveDown};
 pub use lake::{Lake, Serial};
-pub use link::{Leaf, Link, Node, ToLeaf};
+pub use link::{Leaf, Link, Node, ToLeaf, IntoLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use ploy::{Based, Engage, Ploy, PloyPointer, ToPloy};
