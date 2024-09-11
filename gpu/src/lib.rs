@@ -1,15 +1,19 @@
 pub use anyhow::anyhow;
 pub use buffer::Buffer;
+pub use buffer_out::BufferOut;
 pub use canvas::Canvas;
 pub use draw_elements::DrawElements;
+pub use draw_arrays::DrawArrays;
 pub use program::Program;
-use program::ProgramBuilder;
 pub use shader::Shader;
-use tfo::{Tfo, TfoBuilder};
 pub use vao::Vao;
+pub use tfo::Tfo;
 pub use vertex_attribute::VertexAttribute;
 
 use derive_builder::Builder;
+use draw_arrays::DrawArraysBuilder;
+use tfo::TfoBuilder;
+use program::ProgramBuilder;
 use draw_elements::DrawElementsBuilder;
 use graph::*;
 use texture::*;
@@ -19,6 +23,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext};
 
 pub mod buffer;
+pub mod buffer_out;
 pub mod program;
 pub mod shader;
 pub mod texture;
@@ -55,7 +60,7 @@ impl Gpu {
             .gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;
-        Ok(Program::builder()
+        Ok(ProgramBuilder::default()
             .gl(self.gl.clone())
             .object(object)
             .vertex(vertex.clone())
@@ -68,11 +73,10 @@ impl Gpu {
     pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
         Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
     }
-    pub fn feedback_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
-        Buffer::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, &array.into())
+    pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
+        BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
     }
     pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
-        // f32
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())
@@ -83,7 +87,7 @@ impl Gpu {
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
-        Ok(Vao::builder()
+        Ok(VaoBuilder::default()
             .gl(self.gl.clone())
             .object(object)
             .attributes(attributes.clone())
@@ -94,7 +98,7 @@ impl Gpu {
             .gl
             .create_transform_feedback()
             .ok_or(anyhow!("failed to create transform feedback object"))?;
-        Ok(Tfo::builder().object(object).buffer(buffer.clone()).clone())
+        Ok(TfoBuilder::default().object(object).buffer(buffer.clone()).clone())
     }
     pub fn texture(
         &self,
@@ -112,12 +116,17 @@ impl Gpu {
             .array(array)
             .clone())
     }
-    pub fn elements(&self, program: &Node<Program>) -> DrawElementsBuilder {
+    pub fn draw_arrays(&self, program: &Node<Program>) -> DrawArraysBuilder {
+        DrawArraysBuilder::default()
+            .gl(self.gl.clone())
+            .program(program.clone())
+            .clone()
+    }
+    pub fn draw_elements(&self, program: &Node<Program>) -> DrawElementsBuilder {
         DrawElementsBuilder::default()
             .gl(self.gl.clone())
             .program(program.clone())
             .clone()
-        // Elements::link(&self.gl, program, buffer, vao)
     }
     fn default_texture_filters(&self) {
         self.default_texture_min_filter();

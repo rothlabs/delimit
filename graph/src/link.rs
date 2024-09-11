@@ -358,3 +358,16 @@ where
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
+
+impl<T> Backed for Option<T>
+where
+    T: Backed,
+{
+    fn backed(&self, back: &Back) -> Result<Self> {
+        if let Some(x) = self {
+            Ok(Some(x.backed(back)?))
+        } else {
+            Ok(None)
+        }
+    }
+}

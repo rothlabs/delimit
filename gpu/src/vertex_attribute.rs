@@ -37,6 +37,7 @@ impl VertexAttributeBuilder {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
+        self.buffer.act()?;
         self.buffer.read(|buffer| {
             let index = self.index.base().unwrap_or_default();
             buffer.bind();

@@ -6,7 +6,7 @@ pub use cusp::Cusp;
 pub use deal::Deal;
 use derive_builder::UninitializedFieldError;
 pub use edge::Edge;
-pub use hub::{DealVec, Hub, SolveDown};
+pub use hub::{DealItem, Hub, SolveDown};
 pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf};
 pub use map::Map;

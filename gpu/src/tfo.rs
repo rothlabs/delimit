@@ -22,9 +22,6 @@ impl TfoBuilder {
 }
 
 impl Tfo {
-    pub fn builder() -> TfoBuilder {
-        TfoBuilder::default()
-    }
     pub fn bind(&self) {
         self.gl.bind_transform_feedback(0, Some(&self.object));
     }

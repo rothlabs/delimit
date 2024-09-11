@@ -52,3 +52,13 @@ void main()
     fragColor = texture(uSampler, vTexCoord);
 }
 ";
+
+pub const VERTEX_FEEDBACK: &str = r"#version 300 es
+out float output0;
+out float output1;
+
+void main() {
+    output0 = 1.0;
+    output1 = 2.0;
+}
+";

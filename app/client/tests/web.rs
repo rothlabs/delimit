@@ -50,6 +50,12 @@ fn make_vertex_array_object() -> Result<()> {
 }
 
 #[wasm_bindgen_test]
+fn draw_arrays() -> Result<()> {
+    gpu::draw_arrays()?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
 fn draw_elements() -> Result<()> {
     gpu::draw_elements()?;
     Ok(())

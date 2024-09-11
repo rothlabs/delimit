@@ -34,16 +34,15 @@ pub fn make_tex_program(gpu: &Gpu) -> Result<Node<Program>> {
     gpu.program(&vertex, &fragment)?.make()
 }
 
-pub fn make_basic_buffer(gpu: &Gpu) -> Result<(Node<Buffer>, Apex)> {
+pub fn make_basic_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         0.,  0.,  0.,
         0., 0.8,  0.,
         0.8,  0., 0.,
     ];
-    let array = Apex::from(array);
-    let buffer = gpu.buffer(array.clone())?;
-    Ok((buffer, array))
+    let buffer = gpu.buffer(array)?;
+    Ok(buffer)
 }
 
 pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<Node<Buffer>> {
@@ -70,20 +69,33 @@ pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
     Ok(texture)
 }
 
+pub fn draw_arrays_basic(gpu: &Gpu) -> Result<(Node<DrawArrays>, Node<Buffer>)> {
+    let (program, _) = make_basic_program(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
+    let att = gpu.vertex_attribute(&buffer).size(3).make()?;
+    let vao = gpu.vao(&vec![att])?.make()?;
+    let draw_arrays = gpu
+        .draw_arrays(&program)
+        .vao(vao)
+        .count(3)
+        .make()?;
+    draw_arrays.act()?;
+    Ok((draw_arrays, buffer))
+}
+
 pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<DrawElements>, Leaf<String>, Node<Buffer>)> {
     let (program, vertex_source) = make_basic_program(&gpu)?;
-    let (buffer, _) = make_basic_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.index_buffer(index_array)?;
     let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     let vao = gpu.vao(&vec![att])?.index_buffer(index_buffer).make()?;
     let elements = gpu
-        .elements(&program)
-        .buffer(buffer.clone())
+        .draw_elements(&program)
         .vao(vao)
         .count(3)
         .make()?;
-    elements.solve(Task::Main)?;
+    elements.act()?;
     Ok((elements, vertex_source, buffer))
 }
 
@@ -103,8 +115,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements>> {
     let vao = gpu.vao(&vec![pos, uv])?.index_buffer(index_buffer).make()?;
     let _ = make_basic_texture(&gpu)?;
     let elements = gpu
-        .elements(&program)
-        .buffer(buffer)
+        .draw_elements(&program)
         .vao(vao)
         .count(3)
         .make()?;
@@ -140,7 +151,7 @@ pub fn make_program() -> Result<()> {
 
 pub fn make_buffer() -> Result<Node<Buffer>> {
     let gpu = make_canvas()?;
-    let (buffer, _) = make_basic_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     Ok(buffer)
 }
 
@@ -156,7 +167,7 @@ pub fn make_index_buffer() -> Result<()> {
 
 pub fn make_vertex_attribute() -> Result<()> {
     let gpu = make_canvas()?;
-    let (buffer, _) = make_basic_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     gpu.vertex_attribute(&buffer)
         .index(0)
         .size(3)
@@ -168,9 +179,15 @@ pub fn make_vertex_attribute() -> Result<()> {
 
 pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
-    let (buffer, _) = make_basic_buffer(&gpu)?;
+    let buffer = make_basic_buffer(&gpu)?;
     let att = gpu.vertex_attribute(&buffer).size(3).make()?;
     gpu.vao(&vec![att])?;
+    Ok(())
+}
+
+pub fn draw_arrays() -> Result<()> {
+    let gpu = make_canvas_on_body()?;
+    draw_arrays_basic(&gpu)?;
     Ok(())
 }
 

@@ -6,12 +6,22 @@ impl Hub<String> {
     }
 }
 
-pub trait DealVec {
+pub trait DealItem {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
-impl DealVec for Vec<Hub<String>> {
+impl DealItem for Vec<Hub<String>> {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.vec(key, self.into())
+    }
+}
+
+impl DealItem for Option<Hub<String>> {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        if let Some(x) = self {
+            deal.one(key, x.into())
+        } else {
+            Ok(())
+        }
     }
 }

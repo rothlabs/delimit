@@ -36,9 +36,9 @@ impl Buffer {
     pub fn bind_base(&self) {
         self.gl.bind_buffer_base(self.target, 0, Some(&self.object));
     }
-    pub fn unbind_base(&self) {
-        self.gl.bind_buffer_base(self.target, 0, None);
-    }
+    // pub fn unbind_base(&self) {
+    //     self.gl.bind_buffer_base(self.target, 0, None);
+    // }
     fn vec_u16(&self, array: &Vec<u16>) -> Result<()> {
         unsafe {
             self.gl.buffer_data_with_array_buffer_view(
@@ -62,7 +62,7 @@ impl Buffer {
 }
 
 impl Act for Buffer {
-    fn act(&self) -> graph::Result<()> {
+    fn act(&self) -> Result<()> {
         self.bind();
         match &self.array {
             Apex::Vu16(array) => array.read(|array| self.vec_u16(array))?,

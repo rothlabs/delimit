@@ -13,6 +13,7 @@ pub struct Vao {
     object: WebGlVertexArrayObject,
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
+    #[builder(default)]
     index_buffer: Option<Node<Buffer>>, // u16
 }
 
@@ -21,18 +22,13 @@ impl VaoBuilder {
         let mut vao = self.build()?;
         Node::make(|back| {
             vao.attributes = vao.attributes.backed(back)?;
-            if let Some(index_buffer) = vao.index_buffer {
-                vao.index_buffer = Some(index_buffer.backed(back)?);
-            }
+            vao.index_buffer = vao.index_buffer.backed(back)?;
             Ok(vao)
         })
     }
 }
 
 impl Vao {
-    pub fn builder() -> VaoBuilder {
-        VaoBuilder::default()
-    }
     pub fn bind(&self) {
         self.gl.bind_vertex_array(Some(&self.object));
     }

@@ -31,9 +31,6 @@ impl ProgramBuilder {
 }
 
 impl Program {
-    pub fn builder() -> ProgramBuilder {
-        ProgramBuilder::default()
-    }
     pub fn use_(&self) {
         self.gl.use_program(Some(&self.object));
     }
