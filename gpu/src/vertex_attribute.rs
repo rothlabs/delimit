@@ -1,4 +1,3 @@
-use web_sys::WebGlBuffer;
 use super::*;
 
 /// Tell the GPU how to read from a buffer
@@ -7,8 +6,7 @@ use super::*;
 #[builder(setter(into))]
 pub struct VertexAttribute {
     gl: WGLRC,
-    buffer: WebGlBuffer,
-    target: u32,
+    buffer: BufferBinder,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
     index: Hub<u32>,
@@ -38,7 +36,7 @@ impl VertexAttributeBuilder {
 
 impl Act for VertexAttribute {
     fn act(&self) -> Result<()> {
-        self.gl.bind_buffer(self.target, Some(&self.buffer));
+        self.buffer.bind();
         let index = self.index.base().unwrap_or_default();
         self.gl.vertex_attrib_pointer_with_i32(
             index,
@@ -49,7 +47,7 @@ impl Act for VertexAttribute {
             self.offset.base().unwrap_or_default(),
         );
         self.gl.enable_vertex_attrib_array(index);
-        self.gl.bind_buffer(self.target, None);
+        self.buffer.unbind();
         Ok(())
     }
 }

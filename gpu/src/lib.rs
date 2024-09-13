@@ -1,4 +1,5 @@
 pub use anyhow::anyhow;
+pub use buffer_data::BufferData;
 pub use buffer::Buffer;
 pub use buffer_out::BufferOut;
 pub use canvas::Canvas;
@@ -23,6 +24,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod buffer;
+pub mod buffer_data;
 pub mod buffer_out;
 pub mod program;
 pub mod shader;
@@ -37,7 +39,6 @@ mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
-/// GPU graph maker
 pub struct Gpu {
     pub gl: WGLRC,
 }
@@ -67,16 +68,39 @@ impl Gpu {
             .fragment(fragment.clone())
             .clone())
     }
-    pub fn buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
-        Buffer::make(&self.gl, WGLRC::ARRAY_BUFFER, &array.into())
+    pub fn array_buffer(&self) -> Result<Node<Buffer>> {
+        let object = self
+            .gl
+            .create_buffer()
+            .ok_or(anyhow!("failed to create buffer"))?;
+        Node::make(|_| Ok(Buffer {
+            gl: self.gl.clone(),
+            object,
+            target: WGLRC::ARRAY_BUFFER
+        }))
     }
-    pub fn index_buffer(&self, array: impl Into<Apex>) -> Result<Node<Buffer>> {
-        Buffer::make(&self.gl, WGLRC::ELEMENT_ARRAY_BUFFER, &array.into())
+    pub fn index_buffer(&self) -> Result<Node<Buffer>> {
+        let object = self
+            .gl
+            .create_buffer()
+            .ok_or(anyhow!("failed to create buffer"))?;
+        Node::make(|_| Ok(Buffer {
+            gl: self.gl.clone(),
+            object,
+            target: WGLRC::ELEMENT_ARRAY_BUFFER
+        }))
+    }
+    pub fn buffer(&self, buffer: &Node<Buffer>, array: impl Into<Apex>) -> Result<Node<BufferData>> {
+        Node::make(|back| Ok(BufferData {
+            gl: self.gl.clone(),
+            buffer: buffer.backed(back)?,
+            array: array.into().backed(back)?,
+        }))
     }
     // pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
     //     BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
     // }
-    pub fn vertex_attribute(&self, buffer: &WebGlBuffer) -> VertexAttributeBuilder {
+    pub fn vertex_attribute(&self, buffer: &Node<Buffer>) -> VertexAttributeBuilder {
         VertexAttributeBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer.clone())
@@ -93,7 +117,7 @@ impl Gpu {
             .attributes(attributes.clone())
             .clone())
     }
-    pub fn tfo(&self, buffer: &Node<Buffer>) -> Result<TfoBuilder> {
+    pub fn tfo(&self, buffer: &Node<BufferData>) -> Result<TfoBuilder> {
         let object = self
             .gl
             .create_transform_feedback()
@@ -147,8 +171,3 @@ impl Gpu {
         );
     }
 }
-
-// <F: FnOnce(&mut VertexAttribute)>
-// pub fn vertex_attribute(&self, buffer: &Node<Buffer<f32>>) -> Node<VertexAttribute> {
-//     VertexAttribute::link(&self.gl, buffer)
-// }

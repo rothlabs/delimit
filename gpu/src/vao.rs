@@ -14,7 +14,7 @@ pub struct Vao {
     attributes: Attributes,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
     #[builder(default)]
-    index_buffer: Option<Node<Buffer>>, // u16
+    index_buffer: Option<Node<BufferData>>, // u16
 }
 
 impl VaoBuilder {
@@ -28,25 +28,27 @@ impl VaoBuilder {
     }
 }
 
-impl Vao {
-    pub fn bind(&self) {
-        self.gl.bind_vertex_array(Some(&self.object));
-    }
-    pub fn unbind(&self) {
-        self.gl.bind_vertex_array(None);
-    }
-}
+// impl Vao {
+//     pub fn bind(&self) {
+//         self.gl.bind_vertex_array(Some(&self.object));
+//     }
+//     pub fn unbind(&self) {
+//         self.gl.bind_vertex_array(None);
+//     }
+// }
 
 impl Act for Vao {
     fn act(&self) -> Result<()> {
-        self.bind();
+        // self.bind();
+        self.gl.bind_vertex_array(Some(&self.object));
         for attribute in &self.attributes {
             attribute.act()?;
         }
         if let Some(buffer) = &self.index_buffer {
             buffer.read(|unit| unit.bind())?;
         }
-        self.unbind();
+        self.gl.bind_vertex_array(None);
+        // self.unbind();
         Ok(())
     }
 }

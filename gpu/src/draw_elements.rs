@@ -7,7 +7,7 @@ use super::*;
 pub struct DrawElements {
     gl: WGLRC,
     program: Node<Program>,
-    buffer: Node<Buffer>,
+    buffer: Node<BufferData>,
     /// Vertex array object, collection of buffer attributes.
     vao: Node<Vao>,
     /// Number of values to draw.
