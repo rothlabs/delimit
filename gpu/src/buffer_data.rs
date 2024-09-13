@@ -1,24 +1,22 @@
 use super::*;
 
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(pattern = "owned", build_fn(error = "graph::Error"), setter(into))]
 pub struct BufferData {
-    pub gl: WGLRC,
-    pub buffer: Node<Buffer>,
-    pub array: Apex,
+    gl: WGLRC,
+    buffer: Buffer,
+    array: Apex,
 }
 
-// #[derive(Builder, Debug)]
-// #[builder(build_fn(error = "graph::Error"))]
-
-// impl BufferDataBuilder {
-//     pub fn make(&self) -> Result<Node<BufferData>> {
-//         let mut buffer = self.build()?;
-//         Node::make(|back| {
-//             buffer.array = buffer.array.backed(back)?;
-//             Ok(buffer)
-//         })
-//     }
-// }
+impl BufferDataBuilder {
+    pub fn make(self) -> Result<Node<BufferData>> {
+        let mut buffer = self.build()?;
+        Node::make(|back| {
+            buffer.array = buffer.array.backed(back)?;
+            Ok(buffer)
+        })
+    }
+}
 
 impl BufferData {
     pub fn array(&mut self, array: impl Into<Apex>) {
@@ -58,33 +56,3 @@ impl Act for BufferData {
         Ok(())
     }
 }
-
-
-// pub fn bind(&self) {
-//     self.gl.bind_buffer(self.target, Some(&self.object));
-// }
-// pub fn unbind(&self) {
-//     self.gl.bind_buffer(self.target, None);
-// }
-// pub fn bind_base(&self) {
-//     self.gl.bind_buffer_base(self.target, 0, Some(&self.object));
-// }
-// // pub fn unbind_base(&self) {
-// //     self.gl.bind_buffer_base(self.target, 0, None);
-// // }
-
-
-// pub fn make(gl: &WGLRC, target: u32, array: &Apex) -> Result<Node<Buffer>> {
-//     let object = gl
-//         .create_buffer()
-//         .ok_or(anyhow!("failed to create buffer"))?;
-//     Node::make(|back| {
-//         let buffer = Self {
-//             gl: gl.clone(),
-//             object,
-//             target,
-//             array: array.backed(back)?,
-//         };
-//         Ok(buffer)
-//     })
-// }

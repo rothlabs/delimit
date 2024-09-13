@@ -48,7 +48,7 @@ impl DrawArrays {
                 self.draw_triangles();
                 self.gl.end_transform_feedback();
                 tfo.unbind();
-            })?;            
+            })?;
         } else {
             self.draw_triangles();
         }

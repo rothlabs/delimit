@@ -8,7 +8,7 @@ use web_sys::WebGlTransformFeedback;
 pub struct Tfo {
     gl: WGLRC,
     object: WebGlTransformFeedback,
-    buffer: Node<BufferData>
+    buffer: Vec<Node<BufferData>>,
 }
 
 impl TfoBuilder {
@@ -23,10 +23,10 @@ impl TfoBuilder {
 
 impl Tfo {
     pub fn bind(&self) {
-        self.gl.bind_transform_feedback(0, Some(&self.object));
+        self.gl.bind_transform_feedback(WGLRC::TRANSFORM_FEEDBACK, Some(&self.object));
     }
     pub fn unbind(&self) {
-        self.gl.bind_transform_feedback(0, None);
+        self.gl.bind_transform_feedback(WGLRC::TRANSFORM_FEEDBACK, None);
     }
 }
 

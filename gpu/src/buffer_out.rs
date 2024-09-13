@@ -39,15 +39,16 @@ impl Solve for BufferOut {
         // self.gl.buffer_data_with_i32(WGLRC::ARRAY_BUFFER, size, usage)
         let count = self.count.base()?;
         let mut array = vec![0.; count as usize];
-        let view = unsafe {
-            Float32Array::view(array.as_mut_slice())
-        };
-        self.gl.get_buffer_sub_data_with_i32_and_array_buffer_view(WGLRC::TRANSFORM_FEEDBACK_BUFFER, 0, &view);
+        let view = unsafe { Float32Array::view(array.as_mut_slice()) };
+        self.gl.get_buffer_sub_data_with_i32_and_array_buffer_view(
+            WGLRC::TRANSFORM_FEEDBACK_BUFFER,
+            0,
+            &view,
+        );
         self.unbind();
         array.leaf().hub().gain()
     }
 }
-
 
 // pub fn make(gl: &WGLRC, target: u32, count: Hub<i32>) -> Result<Node<BufferOut>> {
 //     let object = gl

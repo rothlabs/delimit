@@ -2,8 +2,7 @@ use super::*;
 use web_sys::WebGlTexture;
 
 #[derive(Builder, Debug)]
-#[builder(build_fn(error = "graph::Error"))]
-#[builder(setter(into))]
+#[builder(setter(into), build_fn(error = "graph::Error"))]
 pub struct Texture {
     gl: WGLRC,
     object: WebGlTexture,

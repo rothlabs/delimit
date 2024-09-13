@@ -45,7 +45,11 @@ impl Act for Program {
             for out in &self.outputs {
                 outputs.push(&out.base()?.into());
             }
-            self.gl.transform_feedback_varyings(&self.object, &outputs.into(), WGLRC::INTERLEAVED_ATTRIBS);
+            self.gl.transform_feedback_varyings(
+                &self.object,
+                &outputs.into(),
+                WGLRC::INTERLEAVED_ATTRIBS,
+            );
         }
         self.gl.link_program(&self.object);
         if self
@@ -65,7 +69,6 @@ impl Act for Program {
     }
 }
 
-
-            // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
-            // let outputs = Array::from_iter(outs.into_iter());
-            // let outputs = Array::from_iter(self.outputs.iter().map(|x| Hub::base));
+// let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
+// let outputs = Array::from_iter(outs.into_iter());
+// let outputs = Array::from_iter(self.outputs.iter().map(|x| Hub::base));
