@@ -3,14 +3,14 @@ use web_sys::WebGlProgram;
 
 /// GPU program based on vertex and fragment shaders.
 #[derive(Builder, Debug)]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(setter(into), build_fn(error = "graph::Error"))]
 pub struct Program {
     gl: WGLRC,
     object: WebGlProgram,
     vertex: Node<Shader>,
     fragment: Node<Shader>,
     #[builder(default)]
-    outputs: Vec<Hub<String>>,
+    outs: Vec<Hub<String>>,
 }
 
 impl ProgramBuilder {
@@ -40,14 +40,14 @@ impl Act for Program {
     fn act(&self) -> Result<()> {
         self.vertex.act()?;
         self.fragment.act()?;
-        if !self.outputs.is_empty() {
-            let outputs = Array::new();
-            for out in &self.outputs {
-                outputs.push(&out.base()?.into());
+        if !self.outs.is_empty() {
+            let outs = Array::new();
+            for out in &self.outs {
+                outs.push(&out.base()?.into());
             }
             self.gl.transform_feedback_varyings(
                 &self.object,
-                &outputs.into(),
+                &outs.into(),
                 WGLRC::INTERLEAVED_ATTRIBS,
             );
         }

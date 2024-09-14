@@ -84,3 +84,27 @@ impl From<Vec<f32>> for Hub<Vf32> {
         Hub::Leaf(Leaf::new(Vf32(value)))
     }
 }
+
+impl From<Vec<f64>> for Hub<Vf64> {
+    fn from(value: Vec<f64>) -> Self {
+        Hub::Leaf(Leaf::new(Vf64(value)))
+    }
+}
+
+
+// pub trait ToHub {
+//     type Base: Payload;
+//     /// Move into `Hub`
+//     fn hub(self) -> Vec<Hub<Self::Base>>;
+// }
+
+// impl<T: 'static + Payload + Into<Hub<T>> > ToHub for Vec<T> {
+//     type Base = T;
+//     fn hub(self) -> Vec<Hub<Self::Base>> {
+//         let mut out = vec![];
+//         for item in self {
+//             out.push(item.into());
+//         }
+//         out
+//     }
+// }

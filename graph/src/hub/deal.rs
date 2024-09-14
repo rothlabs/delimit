@@ -6,6 +6,12 @@ impl Hub<String> {
     }
 }
 
+impl Hub<i32> {
+    pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.one(key, self.into())
+    }
+}
+
 pub trait DealItem {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }

@@ -3,21 +3,23 @@ use web_sys::WebGlTransformFeedback;
 
 /// Transform Feedback Object
 /// Manage transform-feedback state on the GPU
-#[derive(Builder, Debug)]
-#[builder(build_fn(error = "graph::Error"))]
+#[derive(Builder, Clone, Debug)]
+#[builder(pattern = "owned", build_fn(error = "graph::Error"))]
 pub struct Tfo {
     gl: WGLRC,
     object: WebGlTransformFeedback,
-    buffer: Vec<Node<BufferData>>,
+    buffers: Vec<Buffer>,
 }
 
 impl TfoBuilder {
-    pub fn make(&self) -> Result<Node<Tfo>> {
-        let mut tfo = self.build()?;
-        Node::make(|back| {
-            tfo.buffer = tfo.buffer.backed(back)?;
-            Ok(tfo)
-        })
+    pub fn make(self) -> Result<Tfo> {
+        let tfo = self.build()?;
+        tfo.bind();
+        for (i, buffer) in tfo.buffers.iter().enumerate() {
+            tfo.gl.bind_buffer_base(WGLRC::TRANSFORM_FEEDBACK_BUFFER, i as u32, Some(&buffer.object));
+        }
+        tfo.unbind();
+        Ok(tfo)
     }
 }
 
@@ -30,11 +32,11 @@ impl Tfo {
     }
 }
 
-impl Act for Tfo {
-    fn act(&self) -> Result<()> {
-        self.bind();
-        //self.buffer.read(|unit| unit.bind_base())?;
-        self.unbind();
-        Ok(())
-    }
-}
+// impl Act for Tfo {
+//     fn act(&self) -> Result<()> {
+//         self.bind();
+//         //self.buffer.read(|unit| unit.bind_base())?;
+//         self.unbind();
+//         Ok(())
+//     }
+// }

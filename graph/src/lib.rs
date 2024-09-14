@@ -1,6 +1,6 @@
 pub use adapt::{Adapt, AdaptMid, AdaptOut};
 pub use apex::Apex;
-pub use base::Vf32;
+pub use base::{Vf32, Vf64};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;

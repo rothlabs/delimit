@@ -1,4 +1,5 @@
 pub const VERTEX: &str = r"#version 300 es
+precision highp float;
 layout(location = 0) in vec4 a_position;
 
 void main() {
@@ -8,7 +9,6 @@ void main() {
 
 pub const FRAGMENT_RED: &str = r"#version 300 es
 precision highp float;
-
 layout(location = 0) out vec4 outColor;
 
 void main() {
@@ -18,7 +18,6 @@ void main() {
 
 pub const FRAGMENT_GREEN: &str = r"#version 300 es
 precision highp float;
-
 layout(location = 0) out vec4 outColor;
 
 void main() {
@@ -61,4 +60,8 @@ void main() {
     output0 = 1.0;
     output1 = 2.0;
 }
+";
+
+pub const FRAGMENT_EMPTY: &str = r"#version 300 es
+void main() {}
 ";

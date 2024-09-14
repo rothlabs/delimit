@@ -1,9 +1,10 @@
 pub use anyhow::anyhow;
 pub use buffer::Buffer;
 use buffer::BufferBuilder;
-pub use buffer_data::BufferData;
-use buffer_data::BufferDataBuilder;
-pub use buffer_out::BufferOut;
+use buffer_in::BufferInBuilder;
+pub use bufferer::Bufferer;
+use bufferer::BuffererBuilder;
+pub use buffer_in::BufferIn;
 pub use canvas::Canvas;
 pub use draw_arrays::DrawArrays;
 pub use draw_elements::DrawElements;
@@ -26,8 +27,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod buffer;
-pub mod buffer_data;
-pub mod buffer_out;
+pub mod bufferer;
+pub mod buffer_in;
 pub mod program;
 pub mod shader;
 pub mod texture;
@@ -79,11 +80,16 @@ impl Gpu {
             .gl
             .create_buffer()
             .ok_or(anyhow!("create buffer failed"))?;
-        let buffer = BufferBuilder::default().gl(self.gl.clone()).buffer(buffer).build()?;
+        let buffer = BufferBuilder::default().gl(self.gl.clone()).object(buffer).build()?;
         Ok(buffer)
     }
-    pub fn buffer_data(&self, buffer: impl Into<Buffer>) -> BufferDataBuilder {
-        BufferDataBuilder::default()
+    pub fn bufferer(&self, buffer: impl Into<Buffer>) -> BuffererBuilder {
+        BuffererBuilder::default()
+            .gl(self.gl.clone())
+            .buffer(buffer)
+    }
+    pub fn buffer_in(&self, buffer: impl Into<Buffer>) -> BufferInBuilder {
+        BufferInBuilder::default()
             .gl(self.gl.clone())
             .buffer(buffer)
     }
@@ -106,15 +112,13 @@ impl Gpu {
             .attributes(attributes);
         Ok(builder)
     }
-    pub fn tfo(&self, buffer: &Node<BufferData>) -> Result<TfoBuilder> {
+    pub fn tfo(&self, buffers: Vec<Buffer>) -> Result<Tfo> {
         let object = self
             .gl
             .create_transform_feedback()
             .ok_or(anyhow!("failed to create transform feedback object"))?;
-        Ok(TfoBuilder::default()
-            .object(object)
-            .buffer(buffer.clone())
-            .clone())
+        let tfo = TfoBuilder::default().gl(self.gl.clone()).object(object).buffers(buffers).make()?;
+        Ok(tfo)
     }
     pub fn texture(&self, array: impl Into<Apex>) -> Result<TextureBuilder> {
         let object = self
@@ -129,11 +133,10 @@ impl Gpu {
             .array(array)
             .clone())
     }
-    pub fn draw_arrays(&self, program: &Node<Program>) -> DrawArraysBuilder {
+    pub fn draw_arrays(&self, program: Node<Program>) -> DrawArraysBuilder {
         DrawArraysBuilder::default()
             .gl(self.gl.clone())
-            .program(program.clone())
-            .clone()
+            .program(program)
     }
     pub fn draw_elements(&self, program: Node<Program>) -> DrawElementsBuilder {
         DrawElementsBuilder::default()

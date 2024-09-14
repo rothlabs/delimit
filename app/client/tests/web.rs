@@ -84,3 +84,9 @@ fn draw_elements_textured() -> Result<()> {
     gpu::draw_elements_textured()?;
     Ok(())
 }
+
+#[wasm_bindgen_test]
+fn transform_feedback() -> Result<()> {
+    gpu::transform_feedback()?;
+    Ok(())
+}

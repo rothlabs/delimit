@@ -29,5 +29,6 @@ edition = "2021"
         'WebGlVertexArrayObject',
         'WebGlTransformFeedback',
         'WebGlUniformLocation',
-        'WebGlTexture'
+        'WebGlTexture',
+        'WebGlSync',
     ]

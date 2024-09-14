@@ -6,7 +6,7 @@ use super::*;
 pub struct DrawElements {
     gl: WGLRC,
     program: Node<Program>,
-    buffers: Vec<Node<BufferData>>,
+    buffers: Vec<Node<Bufferer>>,
     /// Vertex array object, collection of buffer attributes.
     vao: Node<Vao>,
     /// Number of values to draw.
@@ -19,14 +19,14 @@ pub struct DrawElements {
 
 impl DrawElementsBuilder {
     pub fn make(self) -> Result<Node<DrawElements>> {
-        let mut elements = self.build()?;
+        let mut draw = self.build()?;
         Node::make(|back| {
-            elements.program = elements.program.backed(back)?;
-            elements.buffers = elements.buffers.backed(back)?;
-            elements.vao = elements.vao.backed(back)?;
-            elements.count = elements.count.backed(back)?;
-            elements.offset = elements.offset.backed(back)?;
-            Ok(elements)
+            draw.program = draw.program.backed(back)?;
+            draw.buffers = draw.buffers.backed(back)?;
+            draw.vao = draw.vao.backed(back)?;
+            draw.count = draw.count.backed(back)?;
+            draw.offset = draw.offset.backed(back)?;
+            Ok(draw)
         })
     }
 }

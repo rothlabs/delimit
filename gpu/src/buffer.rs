@@ -4,7 +4,7 @@ use super::*;
 #[builder(pattern = "owned", build_fn(error = "graph::Error"))]
 pub struct Buffer {
     gl: WGLRC,
-    pub buffer: WebGlBuffer,
+    pub object: WebGlBuffer,
     #[builder(default = "WGLRC::ARRAY_BUFFER")]
     pub target: u32,
 }
@@ -15,7 +15,7 @@ impl Buffer {
         self
     }
     pub fn bind(&self) {
-        self.gl.bind_buffer(self.target, Some(&self.buffer))
+        self.gl.bind_buffer(self.target, Some(&self.object))
     }
     pub fn unbind(&self) {
         self.gl.bind_buffer(self.target, None)

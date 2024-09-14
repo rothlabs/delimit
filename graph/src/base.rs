@@ -22,6 +22,22 @@ impl Deref for Vf32 {
     }
 }
 
-// impl  {
-    
-// }
+#[derive(Default, PartialEq, Clone, Debug, Serialize, Deserialize)]
+pub struct Vf64(pub Vec<f64>);
+
+impl Hash for Vf64 {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0
+            .iter()
+            .map(|x| x.to_bits())
+            .collect::<Vec<u64>>()
+            .hash(state)
+    }
+}
+
+impl Deref for Vf64 {
+    type Target = Vec<f64>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
