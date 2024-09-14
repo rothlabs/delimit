@@ -1,3 +1,5 @@
+use std::{future::Future, task::Poll};
+
 pub use deal::*;
 
 use super::*;
@@ -40,9 +42,9 @@ where
     }
 
     /// Run main hub function. Will return lower rank hub if successful.
-    pub fn main(&self) -> Result<Hub<T>> {
+    pub async fn main(&self) -> Result<Hub<T>> {
         match self {
-            Self::Ploy(ploy) => ploy.main(),
+            Self::Ploy(ploy) => ploy.main().await,
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -116,12 +118,12 @@ where
     }
 
     /// Solve down to the given graph rank.
-    pub fn down(&self, target: u64) -> Result<Hub<T>> {
+    pub async fn down(&self, target: u64) -> Result<Hub<T>> {
         let mut hub = self.clone();
         let mut rank = hub.rank();
         while let Some(current) = rank {
             if current > target {
-                hub = hub.main()?;
+                hub = hub.main().await?;
                 rank = hub.rank();
             } else {
                 rank = None;
@@ -131,7 +133,7 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<O, F: FnOnce(&T) -> O>(&self, read: F) -> Result<O> {
+    pub async fn read<O, F: 'static + FnOnce(&T) -> O>(&self, read: F) -> Result<O> { // Future<Output = 
         match self {
             Self::Tray(tray) => {
                 if let Tray::Base(base) = tray {
@@ -141,19 +143,19 @@ where
                 }
             }
             Self::Leaf(leaf) => leaf.read(read),
-            Self::Ploy(ploy) => ploy.main()?.read(read),
+            Self::Ploy(ploy) => ploy.main().await?.read(read).await,
         }
     }
 
     /// Base value. The graph is solved down to the base.
-    pub fn base(&self) -> Result<T> {
+    pub async fn base(&self) -> Result<T> {
         match self {
             Self::Tray(tray) => match tray {
                 Tray::Base(base) => Ok(base.clone()),
                 tray => Err(tray.wrong_variant("Base"))?,
             },
             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-            Self::Ploy(ploy) => ploy.main()?.base(),
+            Self::Ploy(ploy) => ploy.main().await?.base().await,
         }
     }
 }
@@ -182,17 +184,22 @@ where
 
 pub trait SolveDown<'a, T>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
     /// Solve down to the given graph rank.
-    fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
+    async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
 }
 
 impl<'a, T> SolveDown<'a, T> for Vec<Hub<T>>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
-    fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
-        self.iter().map(|x| x.down(rank)).collect()
+    async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
+        let mut out = vec![];
+        for hub in self {
+            out.push(hub.down(rank).await?);
+        }
+        Ok(out)
+        // self.iter().map(|x| x.down(rank)).collect() // join_all();
     }
 }

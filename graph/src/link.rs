@@ -1,6 +1,7 @@
-use anyhow::anyhow;
 pub use leaf::*;
 
+use futures::executor::block_on;
+use anyhow::anyhow;
 use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
@@ -57,14 +58,15 @@ where
     Self: Solve,
     <Self as Solve>::Base: 'static + Payload,
 {
-    pub fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
-        match self.solve(Task::Main)? {
+    pub async fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
+        // let wow = self.solve(Task::Main);
+        match self.solve(Task::Main).await? {
             Gain::Hub(hub) => Ok(hub),
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
-    pub fn act(&self) -> Result<()> {
-        match self.solve(Task::None) {
+    pub async fn act(&self) -> Result<()> {
+        match self.solve(Task::None).await {
             Ok(_) => Ok(()),
             Err(err) => Err(err),
         }
@@ -79,7 +81,7 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state)
-        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
+        } else if let Ok(Gain::U64(hash)) = block_on(self.solve(Task::Hash)) {
             hash.hash(state)
         }
     }
@@ -96,7 +98,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Gain::U64(hash)) = self.solve(Task::Hash) {
+        } else if let Ok(Gain::U64(hash)) = block_on(self.solve(Task::Hash)) {
             Path::Hash(hash).serialize(serializer)
         } else {
             serializer.serialize_str("ERROR(serialization)")
@@ -312,18 +314,19 @@ where
     E::Base: Payload,
 {
     type Base = E::Base;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
-        read_part(&self.edge, |edge| {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+        let wow = read_part(&self.edge, |edge| {
             let result = edge.solve(task);
             edge.add_root(self.as_root(edge.id()))?;
             result
-        })?
+        });
+        wow
     }
 }
 
 impl<T> Solve for Ploy<T>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
     type Base = T;
     fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {

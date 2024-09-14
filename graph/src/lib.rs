@@ -129,7 +129,7 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+async fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O> {

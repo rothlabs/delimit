@@ -131,7 +131,7 @@ where
     C::Base: Payload,
 {
     type Base = C::Base;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
         write_part(&self.cusp, |mut cusp| cusp.solve(task))?
     }
 }
@@ -220,7 +220,7 @@ where
     N: ToItem,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
+    async fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
         read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }

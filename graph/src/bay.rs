@@ -25,7 +25,7 @@ impl Adapt for Bay {
 
 impl Solve for Bay {
     type Base = ();
-    fn solve(&self, task: Task) -> Result<Gain<()>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<()>> {
         match task {
             Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),

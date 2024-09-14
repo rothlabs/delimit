@@ -10,10 +10,10 @@ mod task;
 // pub type Result = result::Result<Gain, crate::Error>;
 
 pub trait Solve {
-    type Base: Payload;
+    type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>>;
+    async fn solve(&self, task: Task) -> Result<Gain<Self::Base>>;
 }
 
 #[derive(Error, Debug)]
