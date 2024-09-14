@@ -1,3 +1,5 @@
+use futures::executor::block_on;
+
 use crate::*;
 
 /// Main Work type.
@@ -21,11 +23,11 @@ where
     U: Solve,
     U::Base: Payload,
 {
-    fn main(&mut self) -> Result<Gain<U::Base>> {
+    async fn main(&mut self) -> Result<Gain<U::Base>> {
         if let Some(main) = &self.main {
             Ok(main.clone())
         } else {
-            let main = self.unit.as_ref().unwrap().solve(Task::Main)?;
+            let main = self.unit.as_ref().unwrap().solve(Task::Main).await?;
             self.main = Some(main.clone());
             Ok(main)
         }
@@ -36,11 +38,8 @@ where
         } else {
             let mut state = UnitHasher::default();
             self.imports.hash(&mut state);
-            let digest = self
-                .unit
-                .as_ref()
-                .unwrap()
-                .solve(Task::Digest(&mut state))?;
+            let unit = self.unit.as_ref().unwrap();
+            let digest = block_on(unit.solve(Task::Digest(&mut state)))?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
@@ -49,7 +48,8 @@ where
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
-            let serial = self.unit.as_ref().unwrap().solve(Task::Serial)?;
+            let unit = self.unit.as_ref().unwrap();
+            let serial = block_on(unit.solve(Task::Serial))?;
             self.serial = Some(serial.clone());
             Ok(serial)
         }
@@ -62,13 +62,13 @@ where
     U::Base: Payload,
 {
     type Base = U::Base;
-    fn solve(&mut self, task: Task) -> Result<Gain<U::Base>> {
+    async fn solve(&mut self, task: Task<'_>) -> Result<Gain<U::Base>> {
         match task {
-            Task::Main => self.main(),
+            Task::Main => self.main().await,
             Task::Hash => self.digest(),
             Task::Serial => self.serial(),
             Task::Imports => self.imports.gain(),
-            _ => self.unit.as_ref().unwrap().solve(task),
+            _ => self.unit.as_ref().unwrap().solve(task).await,
         }
     }
 }
@@ -101,7 +101,7 @@ where
         back: &Back,
     ) -> Result<Option<u64>> {
         self.unit = Some(make(back)?);
-        Ok(if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+        Ok(if let Ok(Gain::U64(rank)) = block_on(self.solve(Task::Rank)) {
             Some(rank)
         } else {
             None
@@ -123,7 +123,7 @@ where
             .adapt(&mut back.clone())
             .expect("Adapt must not fail.");
         self.imports = snap.imports;
-        if let Ok(Gain::U64(rank)) = self.solve(Task::Rank) {
+        if let Ok(Gain::U64(rank)) = block_on(self.solve(Task::Rank)) {
             Some(rank)
         } else {
             None
@@ -194,7 +194,7 @@ where
     U::Base: Payload,
 {
     fn react(&mut self, _: &Id) -> react::Result {
-        self.unit.as_ref().unwrap().solve(Task::React)?;
+        block_on(self.unit.as_ref().unwrap().solve(Task::React))?;
         Ok(())
     }
 }

@@ -31,18 +31,18 @@ impl List {
         self.items.remove(index);
         self
     }
-    fn main(&self) -> Result<Gain<String>> {
+    async fn main(&self) -> Result<Gain<String>> {
         if self.items.is_empty() {
             return solve_ok();
         }
         let last = self.items.len() - 1;
         let mut base = String::new();
-        let separator = self.separator.base().unwrap_or_default();
+        let separator = self.separator.base().await.unwrap_or_default();
         for i in 0..last {
-            self.items[i].read(|x| base += x)?;
+            base = self.items[i].read(move |x| {base += x; base}).await?;
             base += &separator;
         }
-        self.items[last].read(|x| base += x)?;
+        base = self.items[last].read(move |x| {base += x; base}).await?;
         base.leaf().hub().gain()
     }
 }
@@ -57,10 +57,10 @@ impl Adapt for List {
 
 impl Solve for List {
     type Base = String;
-    fn solve(&self, task: Task) -> Result<Gain<String>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
         match task {
             Task::Rank => 1.gain(),
-            Task::Main => self.main(),
+            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),

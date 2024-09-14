@@ -24,6 +24,7 @@ pub use view::View;
 pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
+use std::future::Future;
 use aim::*;
 use scope::*;
 use serde::{Deserialize, Serialize};
@@ -129,7 +130,7 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-async fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O> {
@@ -157,6 +158,17 @@ fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
         Err(err) => Err(Error::Write(err.to_string())),
     }
 }
+
+// #[cfg(not(feature = "oneThread"))]
+// async fn write_part_async<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> Box<dyn Future<Output = O>>>(
+//     part: &Arc<RwLock<P>>,
+//     write: F,
+// ) -> Result<O> {
+//     match part.write() {
+//         Ok(part) => Ok(write(part).await),
+//         Err(err) => Err(Error::Write(err.to_string())),
+//     }
+// }
 
 #[cfg(feature = "oneThread")]
 fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(

@@ -65,6 +65,13 @@ where
             _ => Err(anyhow!("Wrong return type for Task::Main."))?,
         }
     }
+    pub fn main_block(&self) -> Result<Hub<<Self as Solve>::Base>> {
+        // let wow = self.solve(Task::Main);
+        match block_on(self.solve(Task::Main))? {
+            Gain::Hub(hub) => Ok(hub),
+            _ => Err(anyhow!("Wrong return type for Task::Main."))?,
+        }
+    }
     pub async fn act(&self) -> Result<()> {
         match self.solve(Task::None).await {
             Ok(_) => Ok(()),
@@ -264,7 +271,7 @@ where
 
 impl<T> Backed for Ploy<T>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| Self {
@@ -315,12 +322,23 @@ where
 {
     type Base = E::Base;
     async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
-        let wow = read_part(&self.edge, |edge| {
-            let result = edge.solve(task);
-            edge.add_root(self.as_root(edge.id()))?;
-            result
-        });
-        wow
+        match self.edge.read() {
+            Ok(edge) => {
+                let result = edge.solve(task).await;
+                edge.add_root(self.as_root(edge.id()))?;
+                result
+            },
+            Err(err) => Err(Error::Read(err.to_string())),
+        }
+        // let wow = read_part(&self.edge, |edge| {
+        //     let fut = async {
+        //         let result = edge.solve(task).await;
+        //         edge.add_root(self.as_root(edge.id()))?;
+        //         result
+        //     };
+        //     fut
+        // })?;
+        // wow
     }
 }
 
@@ -329,12 +347,23 @@ where
     T: 'static + Payload,
 {
     type Base = T;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
-        read_part(&self.edge, |edge| {
-            let result = edge.solve(task);
-            edge.add_root(self.as_root(edge.id()))?;
-            result
-        })?
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+        match self.edge.read() {
+            Ok(edge) => {
+                let result = edge.solve(task).await;
+                edge.add_root(self.as_root(edge.id()))?;
+                result
+            },
+            Err(err) => Err(Error::Read(err.to_string())),
+        }
+        // let wow = read_part(&self.edge, |edge| {
+        //     async {
+        //         let result = edge.solve(task).await;
+        //         edge.add_root(self.as_root(edge.id()))?;
+        //         result
+        //     }
+        // })?;
+        // wow
     }
 }
 

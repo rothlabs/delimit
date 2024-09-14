@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 pub use gain::*;
 pub use task::*;
 
@@ -9,11 +10,12 @@ mod task;
 
 // pub type Result = result::Result<Gain, crate::Error>;
 
+#[async_trait(?Send)]
 pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    async fn solve(&self, task: Task) -> Result<Gain<Self::Base>>;
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>>;
 }
 
 #[derive(Error, Debug)]
@@ -44,16 +46,17 @@ pub trait Act {
     fn act(&self) -> Result<()>;
 }
 
+#[async_trait(?Send)]
 impl<A: Act> Solve for A {
     type Base = ();
-    fn solve(&self, _: Task) -> Result<Gain<()>> {
+    async fn solve(&self, _: Task<'_>) -> Result<Gain<()>> {
         self.act()?;
         solve_ok()
     }
 }
 
 pub trait SolveMut {
-    type Base: Payload;
+    type Base: 'static + Payload;
     /// For graph internals to handle solve calls
-    fn solve(&mut self, task: Task) -> Result<Gain<Self::Base>>;
+    async fn solve(&mut self, task: Task) -> Result<Gain<Self::Base>>;
 }

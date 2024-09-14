@@ -1,3 +1,5 @@
+use futures::executor::block_on;
+
 use super::*;
 
 fn new_list(ace: &Leaf<String>) -> Result<Node<List>> {
@@ -8,14 +10,14 @@ fn new_list(ace: &Leaf<String>) -> Result<Node<List>> {
 fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
     let text_node = new_list(&string_leaf)?.hub()?;
-    text_node.read(|string| assert_eq!(string, "str, ace"))
+    block_on(text_node.read(|string| assert_eq!(string, "str, ace")))
 }
 
 #[test]
 fn solve_same_hub_twice() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
-    assert!(text.main()? == text.main()?);
+    assert!(text.main_block()? == text.main_block()?);
     Ok(())
 }
 

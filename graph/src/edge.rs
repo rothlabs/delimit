@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
@@ -132,7 +134,15 @@ where
 {
     type Base = C::Base;
     async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
-        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+        let mut cusp = self.cusp.write().unwrap();
+        cusp.solve(task).await
+        // let wow = write_part_async(&self.cusp, |mut cusp| {
+        //     // async {
+        //         cusp.solve(task).await
+        //     // }
+        
+        // })?.await;
+        // wow
     }
 }
 
@@ -151,6 +161,7 @@ where
     }
 }
 
+#[async_trait(?Send)]
 impl<C> Based for Edge<C>
 where
     C: 'static + SolveMut + UpdateMut,
@@ -158,8 +169,10 @@ where
     C::Base: Payload,
 {
     type Base = C::Base;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
-        write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+        //write_part(&self.cusp, |mut cusp| cusp.solve(task))?
+        let mut cusp = self.cusp.write().unwrap();
+        cusp.solve(task).await
     }
     #[cfg(not(feature = "oneThread"))]
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
@@ -220,7 +233,7 @@ where
     N: ToItem,
 {
     type Item = N::Item;
-    async fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
+    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
         read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }

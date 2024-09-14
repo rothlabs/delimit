@@ -71,10 +71,10 @@ impl<T> ReactMut for Leaf<T> {
 
 impl<T> SolveMut for Leaf<T>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
     type Base = T;
-    fn solve(&mut self, task: Task) -> Result<Gain<T>> {
+    async fn solve(&mut self, task: Task<'_>) -> Result<Gain<T>> {
         match task {
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),

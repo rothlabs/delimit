@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use super::*;
 
 /// `Link` to domain-specific unit.
@@ -20,10 +22,12 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyPointer<Self::Base>;
 }
 
+
+#[async_trait(?Send)]
 pub trait Based {
     type Base: Payload;
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>>;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>>;
 }
 
 impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
@@ -32,16 +36,17 @@ impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
     }
 }
 
+#[async_trait(?Send)]
 impl<T> Based for Box<dyn Engage<Base = T>>
 where
-    T: Payload,
+    T: 'static + Payload,
 {
     type Base = T;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         self.as_ref().backed(back)
     }
-    fn solve(&self, task: Task) -> Result<Gain<Self::Base>> {
-        self.as_ref().solve(task)
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+        self.as_ref().solve(task).await
     }
 }
 

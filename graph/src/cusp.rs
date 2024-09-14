@@ -153,8 +153,8 @@ where
     W::Base: Payload,
 {
     type Base = W::Base;
-    fn solve(&mut self, task: Task) -> Result<Gain<W::Base>> {
-        self.work.solve(task)
+    async fn solve(&mut self, task: Task<'_>) -> Result<Gain<W::Base>> {
+        self.work.solve(task).await
     }
 }
 

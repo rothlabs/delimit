@@ -1,7 +1,6 @@
-use std::{future::Future, task::Poll};
-
 pub use deal::*;
 
+use futures::executor::block_on;
 use super::*;
 use thiserror::Error;
 
@@ -51,7 +50,7 @@ where
 
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
-            Self::Ploy(ploy) => ploy.solve(Task::Imports)?.imports(),
+            Self::Ploy(ploy) => block_on(ploy.solve(Task::Imports))?.imports(),
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -75,8 +74,8 @@ where
     /// Get hash digest number of hub.
     pub fn digest(&self) -> Result<u64> {
         match self {
-            Self::Leaf(leaf) => leaf.solve(Task::Hash),
-            Self::Ploy(ploy) => ploy.solve(Task::Hash),
+            Self::Leaf(leaf) => block_on(leaf.solve(Task::Hash)),
+            Self::Ploy(ploy) => block_on(ploy.solve(Task::Hash)),
             _ => Err(Error::NotNode)?,
         }?
         .u64()
@@ -86,8 +85,8 @@ where
     pub fn serial(&self) -> Result<String> {
         match self {
             Self::Tray(tray) => tray.serial(),
-            Self::Leaf(leaf) => leaf.solve(Task::Serial),
-            Self::Ploy(ploy) => ploy.solve(Task::Serial),
+            Self::Leaf(leaf) => block_on(leaf.solve(Task::Serial)),
+            Self::Ploy(ploy) => block_on(ploy.solve(Task::Serial)),
         }?
         .string()
     }
@@ -133,7 +132,7 @@ where
     }
 
     /// Read tray of hub.
-    pub async fn read<O, F: 'static + FnOnce(&T) -> O>(&self, read: F) -> Result<O> { // Future<Output = 
+    pub async fn read<O, F: 'static + FnOnce(&T) -> O>(&self, read: F) -> Result<O> { 
         match self {
             Self::Tray(tray) => {
                 if let Tray::Base(base) = tray {
