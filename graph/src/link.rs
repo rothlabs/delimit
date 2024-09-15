@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 pub use leaf::*;
 
 use super::*;
@@ -283,12 +284,21 @@ where
     }
 }
 
+#[async_trait(?Send)]
 impl<E, T> WriteBase<T> for Link<E>
 where
     E: WriteBase<T>,
 {
-    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
-        read_part(&self.edge, |edge| edge.write(write))?
+    async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O> {
+        // read_part(&self.edge, |edge| edge.write(write))?
+        #[cfg(not(feature = "oneThread"))]
+        let edge = self.edge.read();
+        #[cfg(feature = "oneThread")]
+        let edge = self.edge.try_borrow();
+        match edge {
+            Ok(edge) => edge.write(write).await,
+            Err(err) => Err(Error::Read(err.to_string())),
+        }
     }
 }
 

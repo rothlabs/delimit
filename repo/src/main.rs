@@ -53,7 +53,6 @@ async fn service(
     ace.write(|value| {
         println!("value: {value}");
         *value += 1;
-    })
-    .ok();
+    }).await.ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
 }

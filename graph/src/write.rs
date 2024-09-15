@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::*;
 
 /// The unit to be mutated and a hub back to create backed links.
@@ -13,9 +15,12 @@ pub struct Out<T> {
     pub out: T,
 }
 
+
+#[async_trait(?Send)]
 pub trait WriteBase<T> {
     /// Front-facing write-to-base.
-    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>;
+    async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O>; 
+    //fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> impl std::future::Future<Output = Result<O>>;
 }
 
 pub trait WriteBaseOut<T> {

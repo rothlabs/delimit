@@ -220,15 +220,16 @@ impl<C> BackedMid for Edge<C> {
     }
 }
 
+#[async_trait(?Send)]
 impl<C, T> WriteBase<T> for Edge<C>
 where
     C: WriteBaseOut<T>,
 {
-    fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
+    async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O> { // impl std::future::Future<Output = Result<O>>
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
         for root in &roots {
-            // root.react(&id)?;
+            root.react(&id).await?;
         }
         Ok(out)
     }
