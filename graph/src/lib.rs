@@ -73,7 +73,7 @@ mod tray;
 mod view;
 mod view_vec;
 
-const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
+// const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;

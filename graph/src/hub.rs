@@ -132,7 +132,7 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<'a, O: 'a, F: FnOnce(&T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
+    pub fn read<'a, O, F: FnOnce(&T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
         let out = async move { 
             match self {
                 Self::Tray(tray) => {
@@ -192,7 +192,8 @@ where
     T: 'static + Payload,
 {
     /// Solve down to the given graph rank.
-    async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
+    //async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
+    fn down(&self, rank: u64) -> impl std::future::Future<Output = Result<Vec<Hub<T>>>> + Send;
 }
 
 impl<'a, T> SolveDown<'a, T> for Vec<Hub<T>>
