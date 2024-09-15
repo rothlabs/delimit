@@ -34,19 +34,23 @@ impl VertexAttributeBuilder {
 }
 
 impl Act for VertexAttribute {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
         self.buffer.bind();
-        let index = self.index.base().unwrap_or_default();
+        let index = self.index.base().await.unwrap_or_default();
         self.gl.vertex_attrib_pointer_with_i32(
             index,
-            self.size.base().unwrap_or_default(),
+            self.size.base().await.unwrap_or_default(),
             WGLRC::FLOAT,
             false,
-            self.stride.base().unwrap_or_default(),
-            self.offset.base().unwrap_or_default(),
+            self.stride.base().await.unwrap_or_default(),
+            self.offset.base().await.unwrap_or_default(),
         );
         self.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
         Ok(())
     }
+}
+
+impl Reckon for VertexAttribute {
+    
 }

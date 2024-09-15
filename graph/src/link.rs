@@ -53,18 +53,18 @@ impl<E> Link<E> {
 
 impl<E> Link<E>
 where
-    Self: Solve,
+    Self: Solve<Base = ()>,
     <Self as Solve>::Base: 'static + Payload,
 {
-    pub async fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
-        self.solve().await
-    }
-    // pub async fn act(&self) -> Result<()> {
-    //     match self.solve().await {
-    //         Ok(_) => Ok(()),
-    //         Err(err) => Err(err),
-    //     }
+    // pub async fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
+    //     self.solve().await
     // }
+    pub async fn act(&self) -> Result<()> {
+        match self.solve().await {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err),
+        }
+    }
 }
 
 impl<E> Hash for Link<E>

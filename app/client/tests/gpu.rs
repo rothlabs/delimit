@@ -1,3 +1,4 @@
+use futures::executor::block_on;
 use gpu::*;
 use graph::*;
 use texture::Texture;
@@ -14,7 +15,7 @@ pub fn make_canvas_on_body() -> Result<Gpu> {
         unit.add_to_body();
         unit.gpu()
     })?;
-    canvas.solve(Task::Main).ok();
+    block_on(canvas.act())?;
     Ok(gpu)
 }
 
@@ -80,7 +81,7 @@ pub fn draw_arrays_basic(gpu: &Gpu) -> Result<(Node<DrawArrays>, Node<Bufferer>)
         .vao(vao)
         .count(3)
         .make()?;
-    draw_arrays.act()?;
+    block_on(draw_arrays.act())?;
     Ok((draw_arrays, bufferer))
 }
 
@@ -98,7 +99,7 @@ pub fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<DrawElements>, Leaf<String
         .vao(vao)
         .count(3)
         .make()?;
-    elements.act()?;
+    block_on(elements.act())?;
     Ok((elements, vertex_source, bufferer))
 }
 
@@ -124,7 +125,7 @@ pub fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements>> {
         .vao(vao)
         .count(3)
         .make()?;
-    elements.solve(Task::Main)?;
+    block_on(elements.act())?;
     Ok(elements)
 }
 
@@ -249,7 +250,7 @@ pub fn transform_feedback() -> Result<()> {
 
     let buffer = gpu.buffer()?;
     let buffer_sizer = gpu.bufferer(&buffer).array(72).make()?;
-    buffer_sizer.act()?;
+    block_on(buffer_sizer.act())?;
     let tfo = gpu.tfo(vec![buffer.clone()])?;
 
     let draw_arrays = gpu
@@ -260,7 +261,7 @@ pub fn transform_feedback() -> Result<()> {
         .rasterizer_discard(true)
         .count(3)
         .make()?;
-    draw_arrays.act()?;
+    block_on(draw_arrays.act())?;
 
     let sync = gpu.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;
     let status = gpu.gl.client_wait_sync_with_u32(&sync, WGLRC::SYNC_FLUSH_COMMANDS_BIT, 100);
@@ -275,6 +276,6 @@ pub fn transform_feedback() -> Result<()> {
 
     let buffer_in = gpu.buffer_in(&buffer).size(9).draw(draw_arrays).make()?;
     console_log!("MAX_CLIENT_WAIT_TIMEOUT_WEBGL: {}", WGLRC::MAX_CLIENT_WAIT_TIMEOUT_WEBGL);
-    console_log!("buffer_in: {:?}", buffer_in.base()?);
+    console_log!("buffer_in: {:?}", block_on(buffer_in.base())?);
     Ok(())
 }

@@ -18,7 +18,9 @@ pub trait Solve {
 }
 
 pub trait Reckon {
-    fn reckon(&self, task: Task) -> Result<Gain>;
+    fn reckon(&self, _: Task) -> Result<Gain> {
+        reckon_ok()
+    }
 }
 
 #[derive(Error, Debug)]

@@ -51,10 +51,10 @@ impl Solve for List {
         let mut base = String::new();
         let separator = self.separator.base().await.unwrap_or_default();
         for i in 0..last {
-            base = self.items[i].read(move |x| {base += x; base}).await?;
+            self.items[i].read(|x| base += x).await?;
             base += &separator;
         }
-        base = self.items[last].read(move |x| {base += x; base}).await?;
+        self.items[last].read(|x| base += x).await?;
         Ok(base.leaf().hub())
     }
 }

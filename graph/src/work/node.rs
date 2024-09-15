@@ -105,7 +105,7 @@ where
 
 impl<U> MakeMut for Node<U>
 where
-    U: Solve, // + Reckon,
+    U: Solve + Reckon,
 {
     type Unit = U;
     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
@@ -114,12 +114,11 @@ where
         back: &Back,
     ) -> Result<Option<u64>> {
         self.unit = Some(make(back)?);
-        Ok(None)
-        // Ok(if let Ok(Gain::U64(rank)) = self.reckon(Task::Rank) {
-        //     Some(rank)
-        // } else {
-        //     None
-        // })
+        Ok(if let Ok(Gain::U64(rank)) = self.reckon(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        })
     }
 }
 

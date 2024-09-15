@@ -25,7 +25,7 @@ impl Adapt for BufferIn {
 impl Solve for BufferIn {
     type Base = Vf32;
     async fn solve(&self) -> Result<Hub<Vf32>> {
-        // self.draw.act()?;
+        self.draw.act().await?;
         // let sync = self.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;
         // let status = self.gl.client_wait_sync_with_u32(&sync, WGLRC::SYNC_FLUSH_COMMANDS_BIT, 30000);
         self.buffer.bind();
@@ -40,6 +40,8 @@ impl Solve for BufferIn {
         Ok(array.leaf().hub())
     }
 }
+
+impl Reckon for BufferIn {}
 
 // impl BufferIn {
 //     pub fn bind(&self) {

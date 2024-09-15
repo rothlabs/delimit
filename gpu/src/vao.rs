@@ -36,10 +36,10 @@ impl Vao {
 }
 
 impl Act for Vao {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
         self.bind();
         for attribute in &self.attributes {
-            attribute.act()?;
+            attribute.act().await?;
         }
         if let Some(buffer) = &self.index_buffer {
             buffer.bind();
@@ -47,4 +47,8 @@ impl Act for Vao {
         self.unbind();
         Ok(())
     }
+}
+
+impl Reckon for Vao {
+    
 }

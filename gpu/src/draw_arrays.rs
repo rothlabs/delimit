@@ -36,7 +36,7 @@ impl DrawArraysBuilder {
 }
 
 impl DrawArrays {
-    fn draw(&self, vao: &Vao) -> Result<()> {
+    fn draw(&self, vao: &Vao, first: i32, count: i32) -> Result<()> {
         vao.bind();
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
@@ -44,11 +44,11 @@ impl DrawArrays {
         if let Some(tfo) = &self.tfo {
             tfo.bind();
             self.gl.begin_transform_feedback(WGLRC::TRIANGLES);
-            self.draw_triangles();
+            self.draw_triangles(first, count);
             self.gl.end_transform_feedback();
             tfo.unbind();
         } else {
-            self.draw_triangles();
+            self.draw_triangles(first, count);
         }
         if self.rasterizer_discard {
             self.gl.disable(WGLRC::RASTERIZER_DISCARD);
@@ -56,23 +56,23 @@ impl DrawArrays {
         vao.unbind();
         Ok(())
     }
-    async fn draw_triangles(&self) {
-        self.gl.draw_arrays(
-            WGLRC::TRIANGLES,
-            self.first.base().await.unwrap_or_default(),
-            self.count.base().await.unwrap_or_default(),
-        );
+    fn draw_triangles(&self, first: i32, count: i32) {
+        self.gl.draw_arrays(WGLRC::TRIANGLES, first, count);
     }
 }
 
 impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
-        self.program.act()?;
+        self.program.act().await?;
         self.program.read(|unit| unit.use_())?;
         for bufferer in &self.bufferers {
-            bufferer.act()?;
+            bufferer.act().await?;
         }
-        self.vao.act()?;
-        self.vao.read(|vao| self.draw(vao))?
+        self.vao.act().await?;
+        let first = self.first.base().await.unwrap_or_default();
+        let count = self.count.base().await.unwrap_or_default();
+        self.vao.read(|vao| self.draw(vao, first, count))?
     }
 }
+
+impl Reckon for DrawArrays {}

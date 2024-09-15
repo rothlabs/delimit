@@ -39,7 +39,7 @@ impl Canvas {
 }
 
 impl Act for Canvas {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
         self.fit_size();
         self.gl.viewport(
             0,
@@ -50,3 +50,5 @@ impl Act for Canvas {
         Ok(())
     }
 }
+
+impl Reckon for Canvas {}

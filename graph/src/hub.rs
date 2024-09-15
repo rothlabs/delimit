@@ -43,7 +43,7 @@ where
     /// Run main hub function. Will return lower rank hub if successful.
     pub async fn main(&self) -> Result<Hub<T>> {
         match self {
-            Self::Ploy(ploy) => ploy.main().await,
+            Self::Ploy(ploy) => ploy.solve().await,
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -132,7 +132,7 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<'a, O, F: 'static + FnOnce(&T) -> O>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + 'a>> {// BoxFuture<'a, Result<O>> {
+    pub fn read<'a, O, F: FnOnce(&T) -> O + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + 'a>> {
         let out = async move { 
             match self {
                 Self::Tray(tray) => {
@@ -143,7 +143,7 @@ where
                     }
                 }
                 Self::Leaf(leaf) => leaf.read(read),
-                Self::Ploy(ploy) => ploy.main().await?.read(read).await,
+                Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
             }
         };
         Box::pin(out)
@@ -158,7 +158,7 @@ where
                     tray => Err(tray.wrong_variant("Base"))?,
                 },
                 Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-                Self::Ploy(ploy) => ploy.main().await?.base().await,
+                Self::Ploy(ploy) => ploy.solve().await?.base().await,
             }
         };
         Box::pin(out)

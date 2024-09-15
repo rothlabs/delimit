@@ -37,13 +37,13 @@ impl Program {
 }
 
 impl Act for Program {
-    fn act(&self) -> Result<()> {
-        self.vertex.act()?;
-        self.fragment.act()?;
+    async fn act(&self) -> Result<()> {
+        self.vertex.act().await?;
+        self.fragment.act().await?;
         if !self.outs.is_empty() {
             let outs = Array::new();
             for out in &self.outs {
-                outs.push(&out.base()?.into());
+                outs.push(&out.base().await?.into());
             }
             self.gl.transform_feedback_varyings(
                 &self.object,
@@ -68,6 +68,8 @@ impl Act for Program {
         }
     }
 }
+
+impl Reckon for Program {}
 
 // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
 // let outputs = Array::from_iter(outs.into_iter());

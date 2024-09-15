@@ -35,7 +35,7 @@ impl Bufferer {
             self.buffer.target,
             &view,
             WGLRC::DYNAMIC_DRAW,
-        )
+        );
     }
     fn vec_f32(&self, array: &Vec<f32>) {
         let view = unsafe { Float32Array::view(array.as_slice()) };
@@ -43,20 +43,22 @@ impl Bufferer {
             self.buffer.target,
             &view,
             WGLRC::DYNAMIC_DRAW,
-        )
+        );
     }
 }
 
 impl Act for Bufferer {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
         self.buffer.bind();
         match &self.array {
-            Apex::I32(size) => self.size(size.base()?),
-            Apex::Vu16(array) => array.read(|array| self.vec_u16(array))?,
-            Apex::Vf32(array) => array.read(|array| self.vec_f32(array))?,
+            Apex::I32(size) => self.size(size.base().await?),
+            Apex::Vu16(array) => array.read(|array| self.vec_u16(array)).await?,
+            Apex::Vf32(array) => array.read(|array| self.vec_f32(array)).await?,
             _ => Err(anyhow!("wrong apex"))?,
         };
         self.buffer.unbind();
         Ok(())
     }
 }
+
+impl Reckon for Bufferer {}

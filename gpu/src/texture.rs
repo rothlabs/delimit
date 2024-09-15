@@ -33,7 +33,7 @@ impl Texture {
         // self.gl.active_texture(WGLRC::TEXTURE0);
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.object));
     }
-    fn vec_u8(&self, array: &Vec<u8>) -> Result<()> {
+    fn vec_u8(&self, array: &Vec<u8>, width: i32, height: i32) -> Result<()> {
         let pixels = unsafe { Uint8Array::view(array.as_slice()) };
         // TODO: use PIXEL_UNPACK_ buffer bind and following pbo offset:
         // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
@@ -43,8 +43,8 @@ impl Texture {
                 WGLRC::TEXTURE_2D,                      // target
                 0,                                      // level,
                 WGLRC::RGB as i32,                      // internalformat,
-                self.width.base().unwrap_or_default(),  // width
-                self.height.base().unwrap_or_default(), // height
+                width,
+                height,
                 0,                                      // border,
                 WGLRC::RGB,                             // format
                 WGLRC::UNSIGNED_BYTE,                   // type_
@@ -61,13 +61,19 @@ impl Texture {
 }
 
 impl Act for Texture {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
+        let width = self.width.base().await.unwrap_or_default();
+        let height = self.height.base().await.unwrap_or_default();
         self.bind();
         match &self.array {
-            Apex::Vu8(array) => array.read(|array| self.vec_u8(array))?,
+            Apex::Vu8(array) => array.read(|array| self.vec_u8(array, width, height)).await?,
             _ => Err(anyhow!("wrong apex"))?,
         }
     }
+}
+
+impl Reckon for Texture {
+    
 }
 
 // self.gl.tex_storage_2d(target, levels, internalformat, width, height)

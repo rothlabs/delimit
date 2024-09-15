@@ -32,26 +32,33 @@ impl DrawElementsBuilder {
 }
 
 impl DrawElements {
-    fn draw(&self, vao: &Vao) {
+    fn draw(&self, vao: &Vao, count: i32, offset: i32) {
         vao.bind();
         self.gl.draw_elements_with_i32(
             WGLRC::TRIANGLES,
-            self.count.base().unwrap_or_default(),
+            count,
             WGLRC::UNSIGNED_SHORT,
-            self.offset.base().unwrap_or_default(),
+            offset,
         );
         vao.unbind();
     }
 }
 
 impl Act for DrawElements {
-    fn act(&self) -> Result<()> {
-        self.program.act()?;
+    async fn act(&self) -> Result<()> {
+        self.program.act().await?;
         self.program.read(|program| program.use_())?;
         for buffer in &self.buffers {
-            buffer.act()?;
+            buffer.act().await?;
         }
-        self.vao.act()?;
-        self.vao.read(|vao| self.draw(vao))
+        self.vao.act().await?;
+        let count = self.count.base().await.unwrap_or_default();
+        let offset = self.offset.base().await.unwrap_or_default();
+        self.vao.read(|vao| self.draw(vao, count, offset))?;
+        Ok(())
     }
+}
+
+impl Reckon for DrawElements {
+    
 }
