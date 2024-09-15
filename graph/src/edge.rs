@@ -224,11 +224,11 @@ impl<C> BackedMid for Edge<C> {
 }
 
 // #[async_trait(?Send)]
-impl<'a, C, T: 'a> WriteBase<'a, T> for Edge<C>
+impl<C, T> WriteBase<T> for Edge<C>
 where
-    C: WriteBaseOut<'a, T> + SendSync,
+    C: WriteBaseOut<T> + SendSync,
 {
-    async fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> Result<O> {
+    async fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         #[cfg(feature = "oneThread")]
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;

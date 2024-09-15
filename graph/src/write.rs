@@ -17,16 +17,16 @@ pub struct Out<T> {
 
 
 // #[async_trait(?Send)] impl std::future::Future<Output = Result<Vec<Hub<T>>>> + Send
-pub trait WriteBase<'a, T> {
+pub trait WriteBase<T> {
     /// Front-facing write-to-base.
-    // async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O>; 
-    fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> impl std::future::Future<Output = Result<O>> + Send + 'a; 
+    async fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>; 
+    // fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> impl std::future::Future<Output = Result<O>> + Send + 'a; 
     //fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> impl std::future::Future<Output = Result<O>>;
 }
 
-pub trait WriteBaseOut<'a, T> {
+pub trait WriteBaseOut<T> {
     /// Write and return the hub meta and graph roots of the rebut. Hub level.
-    fn write_tray_out<O: 'a, F: FnOnce(&mut T) -> O + 'a>(&mut self, write: F) -> Result<Out<O>>;
+    fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
 }
 
 pub trait WriteUnit {

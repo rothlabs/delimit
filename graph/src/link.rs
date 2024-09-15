@@ -309,11 +309,11 @@ where
 }
 
 // #[async_trait(?Send)]
-impl<'a, E, T: 'a> WriteBase<'a, T> for Link<E>
+impl<E, T> WriteBase<T> for Link<E>
 where
-    E: WriteBase<'a, T> + SendSync,
+    E: WriteBase<T> + SendSync,
 {
-    async fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> Result<O> {
+    async fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
         // read_part(&self.edge, |edge| edge.write(write))?.await
         #[cfg(not(feature = "oneThread"))]
         let out = self.edge.read().write(write).await;
