@@ -175,10 +175,10 @@ where
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + ReckonMut,
+    C: 'static + SolveMut + UpdateMut + ReckonMut + SendSync,
     C: AdaptOut + AddRootMut + Debug,
     C::Base: Payload,
 {
@@ -220,7 +220,7 @@ impl<C> BackedMid for Edge<C> {
     }
 }
 
-#[async_trait(?Send)]
+// #[async_trait(?Send)]
 impl<C, T> WriteBase<T> for Edge<C>
 where
     C: WriteBaseOut<T>,
@@ -279,7 +279,7 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<N> React for Edge<N>
 where
     N: ReactMut,

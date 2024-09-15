@@ -39,7 +39,7 @@ fn react_from_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
     let a = block_on(text.solve())?;
-    ace.write(|str| str.push_str("_mutated"))?;
+    block_on(ace.write(|str| str.push_str("_mutated")))?;
     let b = block_on(text.solve())?;
     assert!(a != b);
     Ok(())
@@ -54,7 +54,7 @@ fn no_rebut_after_dropping_stem() -> Result<()> {
         pack.unit.remove(1);
     })?;
     let a = block_on(text.solve())?;
-    ace.write(|str| str.push_str("_mutated"))?;
+    block_on(ace.write(|str| str.push_str("_mutated")))?;
     let b = block_on(text.solve())?;
     assert!(a == b);
     Ok(())

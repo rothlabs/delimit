@@ -29,7 +29,10 @@ use aim::*;
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+#[cfg(not(feature = "oneThread"))]
+use std::sync::Arc;
+// use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 #[cfg(feature = "oneThread")]
 use std::{
     cell::{Ref, RefCell, RefMut},

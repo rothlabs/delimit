@@ -19,13 +19,13 @@ pub trait RebutMut {
     fn rebut(&mut self) -> crate::Result<Ring>;
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
     async fn react(&self, id: &Id) -> react::Result;
 }
 
-#[async_trait(?Send)]
+#[async_trait] 
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
     async fn react(&mut self, id: &Id) -> react::Result;

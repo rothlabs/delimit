@@ -65,8 +65,11 @@ impl<T> BaseMut<T> for Leaf<T> {
     }
 }
 
-#[async_trait(?Send)]
-impl<T> ReactMut for Leaf<T> {
+#[async_trait]
+impl<T> ReactMut for Leaf<T> 
+where 
+    T: SendSync
+{
     async fn react(&mut self, _: &Id) -> react::Result {
         Ok(())
     }

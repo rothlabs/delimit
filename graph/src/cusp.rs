@@ -139,10 +139,10 @@ where
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<W> ReactMut for Cusp<W>
 where
-    W: ReactMut,
+    W: ReactMut + SendSync,
 {
     async fn react(&mut self, id: &Id) -> react::Result {
         self.work.react(id).await
@@ -151,7 +151,7 @@ where
 
 impl<W> SolveMut for Cusp<W>
 where
-    W: SolveMut,
+    W: SolveMut + SendSync,
     W::Base: Payload,
 {
     type Base = W::Base;

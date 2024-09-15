@@ -23,14 +23,14 @@ pub trait ToPloy {
 }
 
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait Based {
     type Base: Payload;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
     async fn solve(&self) -> Result<Hub<Self::Base>>;
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<T> Based for Box<dyn Engage<Base = T>>
 where
     T: 'static + Payload,
@@ -74,7 +74,7 @@ impl<T> Rebut for Box<dyn Engage<Base = T>> {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<T> React for Box<dyn Engage<Base = T>> {
     async fn react(&self, id: &Id) -> react::Result {
         self.as_ref().react(id).await

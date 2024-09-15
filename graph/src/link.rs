@@ -284,7 +284,7 @@ where
     }
 }
 
-#[async_trait(?Send)]
+// #[async_trait(?Send)]
 impl<E, T> WriteBase<T> for Link<E>
 where
     E: WriteBase<T>,

@@ -16,7 +16,7 @@ pub struct Out<T> {
 }
 
 
-#[async_trait(?Send)]
+// #[async_trait(?Send)]
 pub trait WriteBase<T> {
     /// Front-facing write-to-base.
     async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O>; 

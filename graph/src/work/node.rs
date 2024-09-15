@@ -66,7 +66,7 @@ where
 
 impl<U> SolveMut for Node<U>
 where
-    U: Solve,
+    U: Solve + SendSync,
     U::Base: Payload,
 {
     type Base = U::Base;
@@ -203,10 +203,10 @@ where
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<U> ReactMut for Node<U>
 where
-    U: Solve + Reckon,
+    U: Solve + Reckon + SendSync,
     U::Base: Payload,
 {
     async fn react(&mut self, _: &Id) -> react::Result {
