@@ -152,26 +152,18 @@ where
     }
 
     /// Base value. The graph is solved down to the base.
-    pub async fn base(&self) -> Result<T> {
-        match self {
-            Self::Tray(tray) => match tray {
-                Tray::Base(base) => Ok(base.clone()),
-                tray => Err(tray.wrong_variant("Base"))?,
-            },
-            Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-            Self::Ploy(ploy) => ploy.main().await?.base().await,
-        }
-    }
-    /// Base value by blocking. The graph is solved down to the base.
-    pub fn base_block(&self) -> Result<T> {
-        match self {
-            Self::Tray(tray) => match tray {
-                Tray::Base(base) => Ok(base.clone()),
-                tray => Err(tray.wrong_variant("Base"))?,
-            },
-            Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-            Self::Ploy(ploy) => block_on(block_on(ploy.main())?.base()),
-        }
+    pub fn base<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a>> {
+        let out = async move { 
+            match self {
+                Self::Tray(tray) => match tray {
+                    Tray::Base(base) => Ok(base.clone()),
+                    tray => Err(tray.wrong_variant("Base"))?,
+                },
+                Self::Leaf(leaf) => leaf.read(|base| base.clone()),
+                Self::Ploy(ploy) => ploy.main().await?.base().await,
+            }
+        };
+        Box::pin(out)
     }
 }
 

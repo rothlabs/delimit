@@ -37,12 +37,12 @@ impl List {
         }
         let last = self.items.len() - 1;
         let mut base = String::new();
-        // let separator = self.separator.base().await.unwrap_or_default();
-        // for i in 0..last {
-        //     base = self.items[i].read(move |x| {base += x; base}).await?;
-        //     base += &separator;
-        // }
-        // base = self.items[last].read(move |x| {base += x; base}).await?;
+        let separator = self.separator.base().await.unwrap_or_default();
+        for i in 0..last {
+            base = self.items[i].read(move |x| {base += x; base}).await?;
+            base += &separator;
+        }
+        base = self.items[last].read(move |x| {base += x; base}).await?;
         base.leaf().hub().gain()
     }
 }

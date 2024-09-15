@@ -5,7 +5,7 @@ use super::*;
 #[test]
 fn default_page() -> Result<()> {
     let hub = default_bay()?.get("page")?.string()?;
-    assert_eq!(hub.base_block()?, PAGE);
+    assert_eq!(block_on(hub.base())?, PAGE);
     Ok(())
 }
 
@@ -18,9 +18,9 @@ fn reactive_lower_graph() -> Result<()> {
     let _solved = html.base();
     let _solved = plain.base();
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
-    assert_eq!(plain.base_block()?, PLAIN_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(block_on(plain.base())?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.base_block()?, HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(block_on(html.base())?, HTML_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 
