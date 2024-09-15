@@ -18,7 +18,7 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
+pub use solve::{solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task, Reckon, ReckonMut, reckon_ok};
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
@@ -118,10 +118,10 @@ pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
 
-pub trait Unit: Adapt + Solve + SendSync + Debug {}
+pub trait Unit: Adapt + Solve + Reckon + SendSync + Debug {}
 impl<T> Unit for T
 where
-    T: Adapt + Solve + SendSync + Debug,
+    T: Adapt + Solve + Reckon + SendSync + Debug,
     T::Base: Payload,
 {
 }
@@ -158,17 +158,6 @@ fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
         Err(err) => Err(Error::Write(err.to_string())),
     }
 }
-
-// #[cfg(not(feature = "oneThread"))]
-// async fn write_part_async<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> Box<dyn Future<Output = O>>>(
-//     part: &Arc<RwLock<P>>,
-//     write: F,
-// ) -> Result<O> {
-//     match part.write() {
-//         Ok(part) => Ok(write(part).await),
-//         Err(err) => Err(Error::Write(err.to_string())),
-//     }
-// }
 
 #[cfg(feature = "oneThread")]
 fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(

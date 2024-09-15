@@ -78,7 +78,7 @@ where
 
 impl<U> ToPloy for Node<U>
 where
-    U: 'static + Solve + Adapt + Debug + SendSync,
+    U: 'static + Solve + Reckon + Adapt + Debug + SendSync,
     U::Base: Payload,
 {
     type Base = U::Base;
@@ -129,20 +129,34 @@ where
 
 impl<C> Solve for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut,
+    C: 'static + SolveMut,// + UpdateMut,
     C::Base: Payload,
 {
     type Base = C::Base;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
-        let mut cusp = self.cusp.write().unwrap();
-        cusp.solve(task).await
-        // let wow = write_part_async(&self.cusp, |mut cusp| {
-        //     // async {
-        //         cusp.solve(task).await
-        //     // }
-        
-        // })?.await;
-        // wow
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        #[cfg(not(feature = "oneThread"))]
+        match self.cusp.write() {
+            Ok(mut cusp) => {
+                cusp.solve().await
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+        #[cfg(feature = "oneThread")]
+        match self.cusp.try_borrow_mut() {
+            Ok(mut cusp) => {
+                cusp.solve().await
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+    }
+}
+
+impl<C> Reckon for Edge<C>
+where
+    C: ReckonMut, // + UpdateMut,
+{
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        write_part(&self.cusp, |mut cusp| cusp.reckon(task))?
     }
 }
 
@@ -164,15 +178,26 @@ where
 #[async_trait(?Send)]
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut,
+    C: 'static + SolveMut + UpdateMut + ReckonMut,
     C: AdaptOut + AddRootMut + Debug,
     C::Base: Payload,
 {
     type Base = C::Base;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
-        //write_part(&self.cusp, |mut cusp| cusp.solve(task))?
-        let mut cusp = self.cusp.write().unwrap();
-        cusp.solve(task).await
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        #[cfg(not(feature = "oneThread"))]
+        match self.cusp.write() {
+            Ok(mut cusp) => {
+                cusp.solve().await
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+        #[cfg(feature = "oneThread")]
+        match self.cusp.try_borrow_mut() {
+            Ok(mut cusp) => {
+                cusp.solve().await
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
     }
     #[cfg(not(feature = "oneThread"))]
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {

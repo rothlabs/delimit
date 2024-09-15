@@ -56,17 +56,17 @@ impl DrawArrays {
         vao.unbind();
         Ok(())
     }
-    fn draw_triangles(&self) {
+    async fn draw_triangles(&self) {
         self.gl.draw_arrays(
             WGLRC::TRIANGLES,
-            self.first.base().unwrap_or_default(),
-            self.count.base().unwrap_or_default(),
+            self.first.base().await.unwrap_or_default(),
+            self.count.base().await.unwrap_or_default(),
         );
     }
 }
 
 impl Act for DrawArrays {
-    fn act(&self) -> Result<()> {
+    async fn act(&self) -> Result<()> {
         self.program.act()?;
         self.program.read(|unit| unit.use_())?;
         for bufferer in &self.bufferers {

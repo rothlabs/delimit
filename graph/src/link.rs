@@ -1,8 +1,5 @@
-use async_trait::async_trait;
 pub use leaf::*;
 
-use futures::{executor::block_on, FutureExt, TryFutureExt};
-use anyhow::anyhow;
 use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{Arc, RwLock};
@@ -60,36 +57,25 @@ where
     <Self as Solve>::Base: 'static + Payload,
 {
     pub async fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
-        // let wow = self.solve(Task::Main);
-        match self.solve(Task::Main).await? {
-            Gain::Hub(hub) => Ok(hub),
-            _ => Err(anyhow!("Wrong return type for Task::Main."))?,
-        }
+        self.solve().await
     }
-    pub fn main_block(&self) -> Result<Hub<<Self as Solve>::Base>> {
-        // let wow = self.solve(Task::Main);
-        match block_on(self.solve(Task::Main))? {
-            Gain::Hub(hub) => Ok(hub),
-            _ => Err(anyhow!("Wrong return type for Task::Main."))?,
-        }
-    }
-    pub async fn act(&self) -> Result<()> {
-        match self.solve(Task::None).await {
-            Ok(_) => Ok(()),
-            Err(err) => Err(err),
-        }
-    }
+    // pub async fn act(&self) -> Result<()> {
+    //     match self.solve().await {
+    //         Ok(_) => Ok(()),
+    //         Err(err) => Err(err),
+    //     }
+    // }
 }
 
 impl<E> Hash for Link<E>
 where
-    Self: Solve,
-    <Self as Solve>::Base: 'static + Payload,
+    Self: Solve + Reckon,
+    // <Self as Solve>::Base: 'static + Payload,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state)
-        } else if let Ok(Gain::U64(hash)) = block_on(self.solve(Task::Hash)) {
+        } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             hash.hash(state)
         }
     }
@@ -97,8 +83,8 @@ where
 
 impl<E> Serialize for Link<E>
 where
-    Self: Solve,
-    <Self as Solve>::Base: 'static + Payload,
+    Self: Solve + Reckon,
+    //<Self as Solve>::Base: 'static + Payload,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -106,7 +92,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Gain::U64(hash)) = block_on(self.solve(Task::Hash)) {
+        } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
             serializer.serialize_str("ERROR(serialization)")
@@ -323,24 +309,38 @@ where
     E::Base: Payload,
 {
     type Base = E::Base;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        #[cfg(not(feature = "oneThread"))]
         match self.edge.read() {
             Ok(edge) => {
-                let result = edge.solve(task).await;
+                let result = edge.solve().await;
                 edge.add_root(self.as_root(edge.id()))?;
                 result
             },
-            Err(err) => Err(Error::Read(err.to_string())),
+            Err(err) => Err(Error::Write(err.to_string())),
         }
-        // let wow = read_part(&self.edge, |edge| {
-        //     let fut = async {
-        //         let result = edge.solve(task).await;
-        //         edge.add_root(self.as_root(edge.id()))?;
-        //         result
-        //     };
-        //     fut
-        // })?;
-        // wow
+        #[cfg(feature = "oneThread")]
+        match self.edge.try_borrow() {
+            Ok(edge) => {
+                let result = edge.solve().await;
+                edge.add_root(self.as_root(edge.id()))?;
+                result
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+    }
+}
+
+impl<E> Reckon for Link<E>
+where
+    E: 'static + Reckon + AddRoot + Update,
+{
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        read_part(&self.edge, |edge| {
+            let result = edge.reckon(task);
+            edge.add_root(self.as_root(edge.id()))?;
+            result
+        })?
     }
 }
 
@@ -349,25 +349,49 @@ where
     T: 'static + Payload,
 {
     type Base = T;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        #[cfg(not(feature = "oneThread"))]
         match self.edge.read() {
             Ok(edge) => {
-                let result = edge.solve(task).await;
+                let result = edge.solve().await;
                 edge.add_root(self.as_root(edge.id()))?;
                 result
             },
-            Err(err) => Err(Error::Read(err.to_string())),
+            Err(err) => Err(Error::Write(err.to_string())),
         }
-        // let wow = read_part(&self.edge, |edge| {
-        //     async {
-        //         let result = edge.solve(task).await;
+        #[cfg(feature = "oneThread")]
+        match self.edge.try_borrow() {
+            Ok(edge) => {
+                let result = edge.solve().await;
+                edge.add_root(self.as_root(edge.id()))?;
+                result
+            },
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+
+        // match self.edge.read() {
+        //     Ok(edge) => {
+        //         let result = edge.solve().await;
         //         edge.add_root(self.as_root(edge.id()))?;
         //         result
-        //     }
-        // })?;
-        // wow
+        //     },
+        //     Err(err) => Err(Error::Read(err.to_string())),
+        // }
     }
 }
+
+// impl<T> Reckon for Ploy<T>
+// where 
+//     T: 'static + Payload
+// {
+//     fn reckon(&self, task: Task) -> Result<Gain> {
+//         read_part(&self.edge, |edge| {
+//             let result = edge.reckon(task);
+//             edge.add_root(self.as_root(edge.id()))?;
+//             result
+//         })?
+//     }
+// }
 
 impl<E> AdaptMid for Link<E>
 where

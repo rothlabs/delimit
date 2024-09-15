@@ -19,14 +19,6 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    async fn main(&self) -> Result<Gain<String>> {
-        let items = List::new()
-            .separator(" ")
-            .push(self.name.down(PLAIN).await?)
-            .extend(self.attributes.down(PLAIN).await?)
-            .hub()?;
-        List::new().push("<").push(&items).push(">").hub()?.gain()
-    }
 }
 
 impl Adapt for Tag {
@@ -39,13 +31,23 @@ impl Adapt for Tag {
 
 impl Solve for Tag {
     type Base = String;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
+    async fn solve(&self) -> Result<Hub<String>> {
+        let items = List::new()
+            .separator(" ")
+            .push(self.name.down(PLAIN).await?)
+            .extend(self.attributes.down(PLAIN).await?)
+            .hub()?;
+        Ok(List::new().push("<").push(&items).push(">").hub()?)
+    }
+}
+
+impl Reckon for Tag {
+    fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::React => solve_ok(),
+            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

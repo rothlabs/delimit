@@ -153,8 +153,17 @@ where
     W::Base: Payload,
 {
     type Base = W::Base;
-    async fn solve(&mut self, task: Task<'_>) -> Result<Gain<W::Base>> {
-        self.work.solve(task).await
+    async fn solve(&mut self) -> Result<Hub<W::Base>> {
+        self.work.solve().await
+    }
+}
+
+impl<W> ReckonMut for Cusp<W>
+where
+    W: ReckonMut,
+{
+    fn reckon(&mut self, task: Task) -> Result<Gain> {
+        self.work.reckon(task)
     }
 }
 

@@ -31,20 +31,6 @@ impl List {
         self.items.remove(index);
         self
     }
-    async fn main(&self) -> Result<Gain<String>> {
-        if self.items.is_empty() {
-            return solve_ok();
-        }
-        let last = self.items.len() - 1;
-        let mut base = String::new();
-        let separator = self.separator.base().await.unwrap_or_default();
-        for i in 0..last {
-            base = self.items[i].read(move |x| {base += x; base}).await?;
-            base += &separator;
-        }
-        base = self.items[last].read(move |x| {base += x; base}).await?;
-        base.leaf().hub().gain()
-    }
 }
 
 impl Adapt for List {
@@ -57,17 +43,35 @@ impl Adapt for List {
 
 impl Solve for List {
     type Base = String;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
+    async fn solve(&self) -> Result<Hub<String>> {
+        if self.items.is_empty() {
+            return solve_ok();
+        }
+        let last = self.items.len() - 1;
+        let mut base = String::new();
+        let separator = self.separator.base().await.unwrap_or_default();
+        for i in 0..last {
+            base = self.items[i].read(move |x| {base += x; base}).await?;
+            base += &separator;
+        }
+        base = self.items[last].read(move |x| {base += x; base}).await?;
+        Ok(base.leaf().hub())
+    }
+}
+
+impl Reckon for List {
+    fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 1.gain(),
-            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::React => solve_ok(),
+            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }
 }
+
+
 
 // fn set_at(&mut self, index: usize, hub: Hub) -> Result<Memo> {
 //     self.items[index] = hub;

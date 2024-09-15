@@ -25,11 +25,17 @@ impl Adapt for Bay {
 
 impl Solve for Bay {
     type Base = ();
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<()>> {
+    async fn solve(&self) -> Result<Hub<()>> {
+        solve_ok()
+    }
+}
+
+impl Reckon for Bay {
+    fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),
-            Task::React => solve_ok(),
+            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

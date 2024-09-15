@@ -27,7 +27,7 @@ impl<T> Leaf<T>
 where
     T: Payload,
 {
-    fn digest(&mut self) -> Result<Gain<T>> {
+    fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {
             digest.gain()
         } else {
@@ -73,8 +73,17 @@ impl<T> SolveMut for Leaf<T>
 where
     T: 'static + Payload,
 {
-    type Base = T;
-    async fn solve(&mut self, task: Task<'_>) -> Result<Gain<T>> {
+    type Base = ();
+    async fn solve(&mut self) -> Result<Hub<()>> {
+        solve_ok()
+    }
+}
+
+impl<T> ReckonMut for Leaf<T> 
+where
+    T: 'static + Payload,
+{
+    fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Serial => self.serial(),
             Task::Hash => self.digest(),

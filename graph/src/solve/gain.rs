@@ -2,16 +2,12 @@ use super::*;
 
 /// Value returned by a successful hub solver.
 #[derive(Clone, PartialEq, Hash, Debug)]
-pub enum Gain<T>
-where
-    T: 'static + Payload,
-{
+pub enum Gain {
     // for units
     None,
-    Hub(Hub<T>),
     String(String),
     U64(u64),
-    Vf32(Vf32),
+    // Vf32(Vf32),
     // for graph internals
     Imports(Vec<Import>),
 }
@@ -22,10 +18,7 @@ pub enum Error {
     WrongVariant { expected: String, found: String },
 }
 
-impl<T> Gain<T>
-where
-    T: Payload,
-{
+impl Gain {
     /// Emit `WrongVariant` error.
     fn wrong_variant(&self, expected: &str) -> solve::Error {
         Error::WrongVariant {
@@ -35,15 +28,8 @@ where
         .into()
     }
     /// Move Gain into Ok(...)
-    pub fn ok(self) -> Result<Gain<T>> {
+    pub fn ok(self) -> Result<Gain> {
         Ok(self)
-    }
-    /// Get Hub from Gain.
-    pub fn hub(self) -> crate::Result<Hub<T>> {
-        match self {
-            Self::Hub(hub) => Ok(hub),
-            _ => Err(self.wrong_variant("Hub"))?,
-        }
     }
     /// Get Imports from Gain.
     pub fn imports(self) -> crate::Result<Vec<Import>> {
@@ -66,28 +52,22 @@ where
             _ => Err(self.wrong_variant("u64"))?,
         }
     }
-    /// Get `Vec<f32>` from Gain.
-    pub fn vec_f32(self) -> crate::Result<Vec<f32>> {
-        match self {
-            Self::Vf32(x) => Ok(x.0),
-            _ => Err(self.wrong_variant("Vf32"))?,
-        }
-    }
+    // /// Get `Vec<f32>` from Gain.
+    // pub fn vec_f32(self) -> crate::Result<Vec<f32>> {
+    //     match self {
+    //         Self::Vf32(x) => Ok(x.0),
+    //         _ => Err(self.wrong_variant("Vf32"))?,
+    //     }
+    // }
 }
 
-impl<T: Payload> From<String> for Gain<T> {
+impl From<String> for Gain {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl<T: Payload> From<Hub<T>> for Gain<T> {
-    fn from(value: Hub<T>) -> Self {
-        Self::Hub(value)
-    }
-}
-
-impl<T: Payload> From<u64> for Gain<T> {
+impl From<u64> for Gain {
     fn from(value: u64) -> Self {
         Self::U64(value)
     }
@@ -99,23 +79,22 @@ impl<T: Payload> From<u64> for Gain<T> {
 //     }
 // }
 
-impl<T: Payload> From<&Vec<Import>> for Gain<T> {
+impl From<&Vec<Import>> for Gain {
     fn from(value: &Vec<Import>) -> Self {
         Self::Imports(value.clone())
     }
 }
 
-pub trait IntoGain<T: Payload> {
+pub trait IntoGain {
     /// Move into Gain.
-    fn gain(self) -> Result<Gain<T>>;
+    fn gain(self) -> Result<Gain>;
 }
 
-impl<G, T> IntoGain<T> for G
+impl<G> IntoGain for G
 where
-    G: Into<Gain<T>>,
-    T: 'static + Payload,
+    G: Into<Gain>,
 {
-    fn gain(self) -> Result<Gain<T>> {
+    fn gain(self) -> Result<Gain> {
         Ok(self.into())
     }
 }

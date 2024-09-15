@@ -12,9 +12,9 @@ pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
 pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Base = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Based + AdaptMid + AddRoot + Update + Debug {}
+pub trait Engage: Reckon + Based + AdaptMid + AddRoot + Update + Debug {}
 
-impl<E> Engage for E where E: Based + AdaptMid + AddRoot + Update + Debug {}
+impl<E> Engage for E where E: Reckon + Based + AdaptMid + AddRoot + Update + Debug {}
 
 pub trait ToPloy {
     type Base;
@@ -27,13 +27,7 @@ pub trait ToPloy {
 pub trait Based {
     type Base: Payload;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>>;
-}
-
-impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
-        self.as_ref().adapt(deal)
-    }
+    async fn solve(&self) -> Result<Hub<Self::Base>>;
 }
 
 #[async_trait(?Send)]
@@ -45,8 +39,20 @@ where
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         self.as_ref().backed(back)
     }
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>> {
-        self.as_ref().solve(task).await
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        self.as_ref().solve().await
+    }
+}
+
+impl<T> Reckon for Box<dyn Engage<Base = T>> {
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        self.as_ref().reckon(task)
+    }
+}
+
+impl<T> AdaptMid for Box<dyn Engage<Base = T>> {
+    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+        self.as_ref().adapt(deal)
     }
 }
 

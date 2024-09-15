@@ -1,10 +1,8 @@
-use std::{alloc, pin::Pin};
-
 pub use deal::*;
 
-use futures::{executor::block_on, future::BoxFuture, FutureExt};
 use super::*;
 use thiserror::Error;
+use std::pin::Pin;
 
 mod convert;
 mod deal;
@@ -52,7 +50,7 @@ where
 
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
-            Self::Ploy(ploy) => block_on(ploy.solve(Task::Imports))?.imports(),
+            Self::Ploy(ploy) => ploy.reckon(Task::Imports)?.imports(),
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -76,8 +74,8 @@ where
     /// Get hash digest number of hub.
     pub fn digest(&self) -> Result<u64> {
         match self {
-            Self::Leaf(leaf) => block_on(leaf.solve(Task::Hash)),
-            Self::Ploy(ploy) => block_on(ploy.solve(Task::Hash)),
+            Self::Leaf(leaf) => leaf.reckon(Task::Hash),
+            Self::Ploy(ploy) => ploy.reckon(Task::Hash),
             _ => Err(Error::NotNode)?,
         }?
         .u64()
@@ -87,8 +85,8 @@ where
     pub fn serial(&self) -> Result<String> {
         match self {
             Self::Tray(tray) => tray.serial(),
-            Self::Leaf(leaf) => block_on(leaf.solve(Task::Serial)),
-            Self::Ploy(ploy) => block_on(ploy.solve(Task::Serial)),
+            Self::Leaf(leaf) => leaf.reckon(Task::Serial),
+            Self::Ploy(ploy) => ploy.reckon(Task::Serial),
         }?
         .string()
     }

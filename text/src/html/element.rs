@@ -25,21 +25,6 @@ impl Element {
         self.close = Some(name);
         Ok(self)
     }
-    async fn main(&self) -> Result<Gain<String>> {
-        let mut element = List::new()
-            .separator("\n")
-            .push(self.open.down(PLAIN).await?)
-            .extend(self.items.down(PLAIN).await?);
-        if let Some(close) = &self.close {
-            let close = List::new()
-                .push("</")
-                .push(close.down(PLAIN).await?)
-                .push(">")
-                .hub()?;
-            element = element.push(close);
-        }
-        element.hub()?.gain()
-    }
 }
 
 impl Adapt for Element {
@@ -53,13 +38,30 @@ impl Adapt for Element {
 
 impl Solve for Element {
     type Base = String;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
+    async fn solve(&self) -> Result<Hub<String>> {
+        let mut element = List::new()
+            .separator("\n")
+            .push(self.open.down(PLAIN).await?)
+            .extend(self.items.down(PLAIN).await?);
+        if let Some(close) = &self.close {
+            let close = List::new()
+                .push("</")
+                .push(close.down(PLAIN).await?)
+                .push(">")
+                .hub()?;
+            element = element.push(close);
+        }
+        Ok(element.hub()?)
+    }
+}
+
+impl Reckon for Element {
+    fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::React => solve_ok(),
+            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

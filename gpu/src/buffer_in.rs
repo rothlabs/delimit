@@ -24,12 +24,12 @@ impl Adapt for BufferIn {
 
 impl Solve for BufferIn {
     type Base = Vf32;
-    fn solve(&self, _: Task) -> Result<Gain<Vf32>> {
+    async fn solve(&self) -> Result<Hub<Vf32>> {
         // self.draw.act()?;
         // let sync = self.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;
         // let status = self.gl.client_wait_sync_with_u32(&sync, WGLRC::SYNC_FLUSH_COMMANDS_BIT, 30000);
         self.buffer.bind();
-        let mut array = vec![0.; self.size.base()? as usize];
+        let mut array = vec![0.; self.size.base().await? as usize];
         let view = unsafe { Float32Array::view(array.as_mut_slice()) };
         self.gl.get_buffer_sub_data_with_i32_and_array_buffer_view(
             WGLRC::ARRAY_BUFFER,
@@ -37,7 +37,7 @@ impl Solve for BufferIn {
             &view,
         );
         self.buffer.unbind();
-        array.leaf().hub().gain()
+        Ok(array.leaf().hub())
     }
 }
 

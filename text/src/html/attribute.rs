@@ -19,15 +19,6 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    async fn main(&self) -> Result<Gain<String>> {
-        List::new()
-            .push(self.name.down(PLAIN).await?)
-            .push(r#"=""#)
-            .push(self.content.down(PLAIN).await?)
-            .push(r#"""#)
-            .hub()?
-            .gain()
-    }
 }
 
 impl Adapt for Attribute {
@@ -40,12 +31,24 @@ impl Adapt for Attribute {
 
 impl Solve for Attribute {
     type Base = String;
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
+    async fn solve(&self) -> Result<Hub<String>> {
+        let hub = List::new()
+            .push(self.name.down(PLAIN).await?)
+            .push(r#"=""#)
+            .push(self.content.down(PLAIN).await?)
+            .push(r#"""#)
+            .hub()?;
+        Ok(hub)
+    }
+}
+
+impl Reckon for Attribute {
+    fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
+            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 pub use gain::*;
 pub use task::*;
 
@@ -15,7 +14,11 @@ pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    async fn solve(&self, task: Task<'_>) -> Result<Gain<Self::Base>>;
+    async fn solve(&self) -> Result<Hub<Self::Base>>;
+}
+
+pub trait Reckon {
+    fn reckon(&self, task: Task) -> Result<Gain>;
 }
 
 #[derive(Error, Debug)]
@@ -34,23 +37,28 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn solve_ok<T>() -> Result<Gain<T>>
-where
-    T: Payload,
+pub fn reckon_ok() -> Result<Gain>
 {
     Ok(Gain::None)
 }
 
+pub fn solve_ok<T>() -> Result<Hub<T>>
+where 
+    T: 'static + Payload
+{
+    Ok(Hub::none())
+}
+
 pub trait Act {
     /// Perform an external action.
-    fn act(&self) -> Result<()>;
+    async fn act(&self) -> Result<()>;
 }
 
 // #[async_trait(?Send)]
 impl<A: Act> Solve for A {
     type Base = ();
-    async fn solve(&self, _: Task<'_>) -> Result<Gain<()>> {
-        self.act()?;
+    async fn solve(&self) -> Result<Hub<()>> {
+        self.act().await?;
         solve_ok()
     }
 }
@@ -58,5 +66,9 @@ impl<A: Act> Solve for A {
 pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
-    async fn solve(&mut self, task: Task) -> Result<Gain<Self::Base>>;
+    async fn solve(&mut self) -> Result<Hub<Self::Base>>;
+}
+
+pub trait ReckonMut {
+    fn reckon(&mut self, task: Task) -> Result<Gain>;
 }
