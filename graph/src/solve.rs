@@ -16,10 +16,10 @@ pub trait Solve {
     /// Solve a task.
     /// The hub will run computations or return existing results.
     // async fn solve(&self) -> Result<Hub<Self::Base>>;
-    #[cfg(feature = "oneThread")]
-    fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
     #[cfg(not(feature = "oneThread"))]
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
+    #[cfg(feature = "oneThread")]
+    fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
 }
 
 pub trait Reckon {
@@ -60,7 +60,10 @@ where
 pub trait Act {
     /// Perform an external action.
     // async fn act(&self) -> Result<()>;
-    fn act(&self) -> impl std::future::Future<Output = Result<Hub<()>>> + Send;
+    #[cfg(not(feature = "oneThread"))]
+    fn act(&self) -> impl std::future::Future<Output = Result<()>> + Send;
+    #[cfg(feature = "oneThread")]
+    fn act(&self) -> impl std::future::Future<Output = Result<()>>;
 }
 
 // #[async_trait]

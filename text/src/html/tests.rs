@@ -1,26 +1,26 @@
-use futures::executor::block_on;
+// use futures::executor::block_on;
 
 use super::*;
 
-#[test]
-fn default_page() -> Result<()> {
+#[tokio::test]
+async fn default_page() -> Result<()> {
     let hub = default_bay()?.get("page")?.string()?;
-    assert_eq!(block_on(hub.base())?, PAGE);
+    assert_eq!(hub.base().await?, PAGE);
     Ok(())
 }
 
 /// Lower and upper grapgs are reactive and independent of each other.
-#[test]
-fn reactive_lower_graph() -> Result<()> {
+#[tokio::test]
+async fn reactive_lower_graph() -> Result<()> {
     let bay = default_bay()?;
     let html = bay.get("page")?.string()?;
-    let plain = block_on(html.down(PLAIN))?;
+    let plain = html.down(PLAIN).await?;
     let _solved = html.base();
     let _solved = plain.base();
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
-    assert_eq!(block_on(plain.base())?, PLAIN_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(plain.base().await?, PLAIN_PAGE_WITH_MUTATED_TITLE);
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(block_on(html.base())?, HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(html.base().await?, HTML_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
 
