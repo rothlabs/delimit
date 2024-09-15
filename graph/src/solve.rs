@@ -10,13 +10,13 @@ mod task;
 
 // pub type Result = result::Result<Gain, crate::Error>;
 
-#[async_trait]
+// #[async_trait]
 pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    async fn solve(&self) -> Result<Hub<Self::Base>>;
-    // fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
+    // async fn solve(&self) -> Result<Hub<Self::Base>>;
+    fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
 }
 
 pub trait Reckon {
@@ -53,13 +53,14 @@ where
     Ok(Hub::none())
 }
 
-#[async_trait]
+// #[async_trait]
 pub trait Act {
     /// Perform an external action.
-    async fn act(&self) -> Result<()>;
+    // async fn act(&self) -> Result<()>;
+    fn act(&self) -> impl std::future::Future<Output = Result<Hub<()>>> + Send;
 }
 
-#[async_trait]
+// #[async_trait]
 impl<A: Act + SendSync> Solve for A {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
@@ -69,11 +70,12 @@ impl<A: Act + SendSync> Solve for A {
     }
 }
 
-#[async_trait]
+// #[async_trait]
 pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
-    async fn solve(&mut self) -> Result<Hub<Self::Base>>;
+    // async fn solve(&mut self) -> Result<Hub<Self::Base>>;
+    fn solve(&mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
 }
 
 pub trait ReckonMut {

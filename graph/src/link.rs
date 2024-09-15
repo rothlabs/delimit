@@ -336,7 +336,7 @@ where
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
@@ -376,7 +376,7 @@ where
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl<T> Solve for Ploy<T>
 where
     T: 'static + Payload,

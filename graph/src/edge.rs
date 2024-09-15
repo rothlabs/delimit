@@ -129,7 +129,7 @@ where
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl<C> Solve for Edge<C>
 where
     C: 'static + SolveMut + SendSync,// + UpdateMut,

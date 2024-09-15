@@ -25,7 +25,7 @@ impl Adapt for Bay {
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl Solve for Bay {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {

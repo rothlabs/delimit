@@ -75,7 +75,7 @@ where
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl<T> SolveMut for Leaf<T>
 where
     T: 'static + Payload,

@@ -46,11 +46,11 @@ async fn future(io: Io, ace: Leaf<u8>) {
     }
 }
 
-async fn service(
+async fn service<'a>(
     _: Request<impl Body>,
     ace: Leaf<u8>,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.write(|value| {
+    ace.write(|value| { // : &'static mut u8
         println!("value: {value}");
         *value += 1;
     }).await.ok();
