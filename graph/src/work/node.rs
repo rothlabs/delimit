@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::*;
 
 /// Main Work type.
@@ -201,12 +203,13 @@ where
     }
 }
 
+#[async_trait(?Send)]
 impl<U> ReactMut for Node<U>
 where
     U: Solve + Reckon,
     U::Base: Payload,
 {
-    fn react(&mut self, _: &Id) -> react::Result {
+    async fn react(&mut self, _: &Id) -> react::Result {
         self.unit.as_ref().unwrap().reckon(Task::React)?;
         Ok(())
     }

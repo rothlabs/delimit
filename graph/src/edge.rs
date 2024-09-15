@@ -282,11 +282,12 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
+#[async_trait(?Send)]
 impl<N> React for Edge<N>
 where
     N: ReactMut,
 {
-    fn react(&self, id: &Id) -> react::Result {
+    async fn react(&self, id: &Id) -> react::Result {
         write_part(&self.cusp, |mut cusp| cusp.react(id))?
     }
 }

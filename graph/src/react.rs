@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::{RwLock, Weak};
@@ -17,14 +19,16 @@ pub trait RebutMut {
     fn rebut(&mut self) -> crate::Result<Ring>;
 }
 
+#[async_trait(?Send)]
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn react(&self, id: &Id) -> react::Result;
+    async fn react(&self, id: &Id) -> react::Result;
 }
 
+#[async_trait(?Send)]
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn react(&mut self, id: &Id) -> react::Result;
+    async fn react(&mut self, id: &Id) -> react::Result;
 }
 
 pub trait AddRoot {
@@ -80,9 +84,19 @@ impl Root {
             Ok(Ring::new())
         }
     }
-    pub fn react(&self, id: &Id) -> react::Result {
+    pub async fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.react(id))?
+            #[cfg(not(feature = "oneThread"))]
+            match edge.read() {
+                Ok(edge) => edge.react(id).await,
+                Err(err) => Err(Error::Write(err.to_string())),
+            }
+            #[cfg(feature = "oneThread")]
+            match edge.try_borrow() {
+                Ok(edge) => edge.react(id).await,
+                Err(err) => Err(Error::Write(err.to_string())),
+            }
+            // read_part(&edge, |edge| edge.react(id))?
         } else {
             Ok(())
         }

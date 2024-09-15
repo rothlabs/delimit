@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::*;
 
 /// Work that holds a base. The most simple work that allows read, write, and copy of the base.
@@ -63,8 +65,9 @@ impl<T> BaseMut<T> for Leaf<T> {
     }
 }
 
+#[async_trait(?Send)]
 impl<T> ReactMut for Leaf<T> {
-    fn react(&mut self, _: &Id) -> react::Result {
+    async fn react(&mut self, _: &Id) -> react::Result {
         Ok(())
     }
 }

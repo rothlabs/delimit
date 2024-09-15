@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use async_trait::async_trait;
 
 use super::*;
 
@@ -138,12 +139,13 @@ where
     }
 }
 
+#[async_trait(?Send)]
 impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut,
 {
-    fn react(&mut self, id: &Id) -> react::Result {
-        self.work.react(id)
+    async fn react(&mut self, id: &Id) -> react::Result {
+        self.work.react(id).await
     }
 }
 
