@@ -133,14 +133,15 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+async fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O> {
-    match part.read() {
-        Ok(part) => Ok(read(part)),
-        Err(err) => Err(Error::Read(err.to_string())),
-    }
+    Ok(read(part.read().await))
+    // match part.read() {
+    //     Ok(part) => Ok(read(part)),
+    //     Err(err) => Err(Error::Read(err.to_string())),
+    // }
 }
 
 #[cfg(feature = "oneThread")]
@@ -152,14 +153,15 @@ fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: 
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
+async fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     write: F,
 ) -> Result<O> {
-    match part.write() {
-        Ok(part) => Ok(write(part)),
-        Err(err) => Err(Error::Write(err.to_string())),
-    }
+    Ok(write(part.write().await))
+    // match part.write() {
+    //     Ok(part) => Ok(write(part)),
+    //     Err(err) => Err(Error::Write(err.to_string())),
+    // }
 }
 
 #[cfg(feature = "oneThread")]

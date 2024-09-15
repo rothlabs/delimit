@@ -2,7 +2,9 @@ use async_trait::async_trait;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+#[cfg(not(feature = "oneThread"))]
+use tokio::sync::RwLock;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
@@ -134,20 +136,16 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
+        // write_part(&self.cusp, |mut cusp| cusp.solve().await).await;
         #[cfg(not(feature = "oneThread"))]
-        match self.cusp.write() {
-            Ok(mut cusp) => {
-                cusp.solve().await
-            },
-            Err(err) => Err(Error::Write(err.to_string())),
-        }
-        #[cfg(feature = "oneThread")]
-        match self.cusp.try_borrow_mut() {
-            Ok(mut cusp) => {
-                cusp.solve().await
-            },
-            Err(err) => Err(Error::Write(err.to_string())),
-        }
+        self.cusp.write().await.solve().await
+        // #[cfg(feature = "oneThread")]
+        // match self.cusp.try_borrow_mut() {
+        //     Ok(mut cusp) => {
+        //         cusp.solve().await
+        //     },
+        //     Err(err) => Err(Error::Write(err.to_string())),
+        // }
     }
 }
 
@@ -156,7 +154,9 @@ where
     C: ReckonMut, // + UpdateMut,
 {
     fn reckon(&self, task: Task) -> Result<Gain> {
-        write_part(&self.cusp, |mut cusp| cusp.reckon(task))?
+        #[cfg(not(feature = "oneThread"))]
+        self.cusp.write().await.reckon(task)
+        //write_part(&self.cusp, |mut cusp| cusp.reckon(task))?
     }
 }
 

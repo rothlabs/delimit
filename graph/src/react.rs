@@ -2,7 +2,9 @@ use async_trait::async_trait;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::{RwLock, Weak};
+use std::sync::Weak;
+#[cfg(not(feature = "oneThread"))]
+use tokio::sync::RwLock;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};

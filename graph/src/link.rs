@@ -3,7 +3,9 @@ pub use leaf::*;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+#[cfg(not(feature = "oneThread"))]
+use tokio::sync::RwLock;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 use std::{
