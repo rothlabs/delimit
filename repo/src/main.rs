@@ -12,7 +12,7 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
 
-use graph::{self, serial::*, snap::*, write::*, Apex, Import, Leaf, Serial};
+use graph::{self, serial::*, snap::*, write::*, Apex, Hub, Import, Leaf, LeafIntoHub, Serial};
 
 mod atlas;
 mod config;
@@ -28,7 +28,7 @@ pub async fn main() -> graph::Result<()> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let ace = Leaf::new(0_u8);
+    let ace = Leaf::new(0_u8).hub();
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
@@ -37,7 +37,7 @@ pub async fn main() -> graph::Result<()> {
     }
 }
 
-async fn future(io: Io, ace: Leaf<u8>) {
+async fn future(io: Io, ace: Hub<u8>) {
     let result = http1::Builder::new()
         .serve_connection(io, service_fn(|req| service(req, ace.clone())))
         .await;
@@ -48,11 +48,15 @@ async fn future(io: Io, ace: Leaf<u8>) {
 
 async fn service<'a>(
     _: Request<impl Body>,
-    ace: Leaf<u8>,
+    hub: Hub<u8>,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
-    ace.write(|value| { // : &'static mut u8
+    hub.read(|value| { 
         println!("value: {value}");
-        *value += 1;
+        // *value += 1;
     }).await.ok();
+    // hub.write(|value| { // : &'static mut u8
+    //     println!("value: {value}");
+    //     *value += 1;
+    // }).await.ok();
     Ok(Response::new(Full::new(Bytes::from("repo test"))))
 }

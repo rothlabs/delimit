@@ -32,7 +32,7 @@ where
     Ploy(Ploy<T>),
 }
 
-impl<'a, T> Hub<T>
+impl<T> Hub<T>
 where
     T: Payload,
 {
@@ -132,7 +132,7 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<O, F: FnOnce(&'a T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
+    pub fn read<'a, O: 'a, F: FnOnce(&T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
         let out = async move { 
             match self {
                 Self::Tray(tray) => {
@@ -150,7 +150,7 @@ where
     }
 
     /// Base value. The graph is solved down to the base.
-    pub fn base(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a + Send>> {
+    pub fn base<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a + Send>> {
         let out = async move { 
             match self {
                 Self::Tray(tray) => match tray {
