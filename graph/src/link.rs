@@ -5,7 +5,7 @@ use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::Arc;
 #[cfg(not(feature = "oneThread"))]
-use tokio::sync::RwLock;
+use parking_lot::RwLock;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -164,11 +164,19 @@ where
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-        read_part(&self.edge, |edge| Ploy {
+        #[cfg(feature = "oneThread")]
+        let out = read_part(&self.edge, |edge| Ploy {
             edge: edge.ploy(),
             path: self.path.clone(),
             rank: self.rank,
-        })
+        });
+        #[cfg(not(feature = "oneThread"))]
+        let out = Ploy {
+            edge: self.edge.read().ploy(),
+            path: self.path.clone(),
+            rank: self.rank,
+        };
+        Ok(out)
     }
 }
 
@@ -245,17 +253,21 @@ where
     E: BackedMid,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| {
-            #[cfg(not(feature = "oneThread"))]
-            let edge = Arc::new(RwLock::new(edge.backed(back)));
-            #[cfg(feature = "oneThread")]
-            let edge = Rc::new(RefCell::new(edge.backed(back)));
+        #[cfg(feature = "oneThread")]
+        let out = read_part(&self.edge, |edge| {
             Ok(Self {
-                edge,
+                edge: Rc::new(RefCell::new(edge.backed(back))),
                 path: self.path.clone(),
                 rank: self.rank,
             })
-        })?
+        })?;
+        #[cfg(not(feature = "oneThread"))]
+        let out = Ok(Self {
+            edge: Arc::new(RwLock::new(self.edge.read().backed(back))),
+            path: self.path.clone(),
+            rank: self.rank,
+        });
+        out
     }
 }
 
@@ -264,11 +276,21 @@ where
     T: 'static + Payload,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.backed(back),
+        #[cfg(feature = "oneThread")]
+        let out = read_part(&self.edge, |edge| {
+            Ok(Self {
+                edge: edge.backed(back),
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })?;
+        #[cfg(not(feature = "oneThread"))]
+        let out = Ok(Self {
+            edge: self.edge.read().backed(back),
             path: self.path.clone(),
             rank: self.rank,
-        })
+        });
+        out
     }
 }
 
@@ -292,15 +314,15 @@ where
     E: WriteBase<T>,
 {
     async fn write<'a, O, F: FnOnce(&mut T) -> O + 'a>(&'a self, write: F) -> Result<O> {
-        // read_part(&self.edge, |edge| edge.write(write))?
+        // read_part(&self.edge, |edge| edge.write(write))?.await
         #[cfg(not(feature = "oneThread"))]
-        let edge = self.edge.read();
+        let out = self.edge.read().write(write).await;
         #[cfg(feature = "oneThread")]
-        let edge = self.edge.try_borrow();
-        match edge {
+        let out = match self.edge.try_borrow() {
             Ok(edge) => edge.write(write).await,
             Err(err) => Err(Error::Read(err.to_string())),
-        }
+        };
+        out
     }
 }
 
@@ -314,7 +336,7 @@ where
     }
 }
 
-// #[async_trait(?Send)]
+#[async_trait]
 impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
@@ -323,13 +345,11 @@ where
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         #[cfg(not(feature = "oneThread"))]
-        match self.edge.read() {
-            Ok(edge) => {
-                let result = edge.solve().await;
-                edge.add_root(self.as_root(edge.id()))?;
-                result
-            },
-            Err(err) => Err(Error::Write(err.to_string())),
+        {
+            let edge = self.edge.read();
+            let result = edge.solve().await;
+            edge.add_root(self.as_root(edge.id()))?;
+            result
         }
         #[cfg(feature = "oneThread")]
         match self.edge.try_borrow() {
@@ -356,6 +376,7 @@ where
     }
 }
 
+#[async_trait]
 impl<T> Solve for Ploy<T>
 where
     T: 'static + Payload,
@@ -363,13 +384,11 @@ where
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         #[cfg(not(feature = "oneThread"))]
-        match self.edge.read() {
-            Ok(edge) => {
-                let result = edge.solve().await;
-                edge.add_root(self.as_root(edge.id()))?;
-                result
-            },
-            Err(err) => Err(Error::Write(err.to_string())),
+        {
+            let edge = self.edge.read();
+            let result = edge.solve().await;
+            edge.add_root(self.as_root(edge.id()))?;
+            result
         }
         #[cfg(feature = "oneThread")]
         match self.edge.try_borrow() {

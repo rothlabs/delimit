@@ -63,7 +63,7 @@ where
 }
 
 
-
+#[async_trait]
 impl<U> SolveMut for Node<U>
 where
     U: Solve + SendSync,

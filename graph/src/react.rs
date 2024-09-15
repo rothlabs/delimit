@@ -4,7 +4,7 @@ use super::*;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::Weak;
 #[cfg(not(feature = "oneThread"))]
-use tokio::sync::RwLock;
+use parking_lot::RwLock;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};
@@ -81,23 +81,22 @@ pub struct Root {
 impl Root {
     pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.rebut())?
+            #[cfg(not(feature = "oneThread"))]
+            edge.read().rebut()
+            //read_part(&edge, |edge| edge.rebut())?
         } else {
             Ok(Ring::new())
         }
     }
     pub async fn react(&self, id: &Id) -> react::Result {
         if let Some(edge) = self.edge.upgrade() {
-            #[cfg(not(feature = "oneThread"))]
-            match edge.read() {
-                Ok(edge) => edge.react(id).await,
-                Err(err) => Err(Error::Write(err.to_string())),
-            }
             #[cfg(feature = "oneThread")]
             match edge.try_borrow() {
                 Ok(edge) => edge.react(id).await,
                 Err(err) => Err(Error::Write(err.to_string())),
             }
+            #[cfg(not(feature = "oneThread"))]
+            edge.read().react(id).await
             // read_part(&edge, |edge| edge.react(id))?
         } else {
             Ok(())
@@ -140,23 +139,24 @@ impl Back {
     }
     pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.rebut())?
+            #[cfg(feature = "oneThread")]
+            let out = write_part(&cusp, |mut cusp| cusp.rebut())?;
+            #[cfg(not(feature = "oneThread"))]
+            let out = cusp.write().rebut();
+            out
         } else {
             Ok(Ring::new())
         }
     }
     pub async  fn react(&self, id: &Id) -> react::Result {
         if let Some(cusp) = self.cusp.upgrade() {
-            #[cfg(not(feature = "oneThread"))]
-            match cusp.write() {
-                Ok(mut cusp) => cusp.react(id).await,
-                Err(err) => Err(Error::Write(err.to_string())),
-            }
             #[cfg(feature = "oneThread")]
             match cusp.try_borrow_mut() {
                 Ok(mut cusp) => cusp.react(id).await,
                 Err(err) => Err(Error::Write(err.to_string())),
             }
+            #[cfg(not(feature = "oneThread"))]
+            cusp.write().react(id).await
             //write_part(&cusp, |mut cusp| cusp.react(id))?
         } else {
             Ok(())

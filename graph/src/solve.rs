@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 pub use gain::*;
 pub use task::*;
 
@@ -9,12 +10,13 @@ mod task;
 
 // pub type Result = result::Result<Gain, crate::Error>;
 
-// #[async_trait(?Send)]
+#[async_trait]
 pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
     async fn solve(&self) -> Result<Hub<Self::Base>>;
+    // fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
 }
 
 pub trait Reckon {
@@ -51,20 +53,23 @@ where
     Ok(Hub::none())
 }
 
+#[async_trait]
 pub trait Act {
     /// Perform an external action.
     async fn act(&self) -> Result<()>;
 }
 
-// #[async_trait(?Send)]
-impl<A: Act> Solve for A {
+#[async_trait]
+impl<A: Act + SendSync> Solve for A {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
+    //fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send {
         self.act().await?;
         solve_ok()
     }
 }
 
+#[async_trait]
 pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls

@@ -29,7 +29,7 @@ use aim::*;
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
-use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::Arc;
 // use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -133,11 +133,11 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-async fn read_part<P: ?Sized, O, F: FnOnce(RwLockReadGuard<P>) -> O>(
+fn read_part<'a, P: ?Sized, O: 'a, F: FnOnce(RwLockReadGuard<P>) -> O + 'a>(
     part: &Arc<RwLock<P>>,
     read: F,
 ) -> Result<O> {
-    Ok(read(part.read().await))
+    Ok(read(part.read()))
     // match part.read() {
     //     Ok(part) => Ok(read(part)),
     //     Err(err) => Err(Error::Read(err.to_string())),
@@ -153,11 +153,11 @@ fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: 
 }
 
 #[cfg(not(feature = "oneThread"))]
-async fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
+fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
     part: &Arc<RwLock<P>>,
     write: F,
 ) -> Result<O> {
-    Ok(write(part.write().await))
+    Ok(write(part.write()))
     // match part.write() {
     //     Ok(part) => Ok(write(part)),
     //     Err(err) => Err(Error::Write(err.to_string())),

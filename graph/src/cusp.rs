@@ -149,6 +149,7 @@ where
     }
 }
 
+#[async_trait]
 impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut + SendSync,

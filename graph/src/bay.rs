@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use super::*;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]
@@ -23,6 +25,7 @@ impl Adapt for Bay {
     }
 }
 
+#[async_trait]
 impl Solve for Bay {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
