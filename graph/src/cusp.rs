@@ -139,7 +139,8 @@ where
     }
 }
 
-#[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
@@ -149,7 +150,8 @@ where
     }
 }
 
-// #[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut + SendSync,

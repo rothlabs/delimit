@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use super::*;
 
 #[derive(Default, Hash, Serialize, Deserialize, Debug)]

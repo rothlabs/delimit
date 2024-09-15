@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 // use async_trait::async_trait;
 pub use leaf::*;
 
@@ -169,7 +170,7 @@ where
             edge: edge.ploy(),
             path: self.path.clone(),
             rank: self.rank,
-        });
+        })?;
         #[cfg(not(feature = "oneThread"))]
         let out = Ploy {
             edge: self.edge.read().ploy(),
@@ -308,12 +309,13 @@ where
     }
 }
 
-// #[async_trait(?Send)]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E, T> WriteBase<T> for Link<E>
 where
     E: WriteBase<T> + SendSync,
 {
-    async fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O> {
+    async fn write<O, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         // read_part(&self.edge, |edge| edge.write(write))?.await
         #[cfg(not(feature = "oneThread"))]
         let out = self.edge.read().write(write).await;

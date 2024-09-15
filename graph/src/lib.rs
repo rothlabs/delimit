@@ -24,12 +24,13 @@ pub use view::View;
 pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
+use async_trait::async_trait;
 use std::future::Future;
 use aim::*;
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
-use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use parking_lot::{RwLock, RwLockReadGuard};// RwLockWriteGuard};
 #[cfg(not(feature = "oneThread"))]
 use std::sync::Arc;
 // use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -73,7 +74,8 @@ mod tray;
 mod view;
 mod view_vec;
 
-// const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
+#[cfg(feature = "oneThread")]
+const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
@@ -152,21 +154,21 @@ fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: 
     }
 }
 
-#[cfg(not(feature = "oneThread"))]
-fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
-    part: &Arc<RwLock<P>>,
-    write: F,
-) -> Result<O> {
-    Ok(write(part.write()))
-    // match part.write() {
-    //     Ok(part) => Ok(write(part)),
-    //     Err(err) => Err(Error::Write(err.to_string())),
-    // }
-}
+// #[cfg(not(feature = "oneThread"))]
+// fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
+//     part: &Arc<RwLock<P>>,
+//     write: F,
+// ) -> Result<O> {
+//     Ok(write(part.write()))
+//     // match part.write() {
+//     //     Ok(part) => Ok(write(part)),
+//     //     Err(err) => Err(Error::Write(err.to_string())),
+//     // }
+// }
 
 #[cfg(feature = "oneThread")]
-fn write_part<P: ?Sized, O, F: FnOnce(RefMut<P>) -> O>(
-    part: &Rc<RefCell<P>>,
+fn write_part<'a, P: ?Sized + 'a, O, F: FnOnce(RefMut<'a, P>) -> O + 'a>(
+    part: &'a Rc<RefCell<P>>,
     write: F,
 ) -> Result<O> {
     match part.try_borrow_mut() {
@@ -273,6 +275,18 @@ pub trait Read {
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
         F: FnOnce(&Self::Item) -> T;
+}
+
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+pub trait ReadDown<T> {
+    async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O>;
+}
+
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+pub trait BaseDown<T> {
+    async fn base(&self) -> Result<T>;
 }
 
 pub trait FromItem {

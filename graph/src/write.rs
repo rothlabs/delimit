@@ -17,9 +17,11 @@ pub struct Out<T> {
 
 
 // #[async_trait(?Send)] impl std::future::Future<Output = Result<Vec<Hub<T>>>> + Send
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait WriteBase<T> {
     /// Front-facing write-to-base.
-    async fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> Result<O>; 
+    async fn write<O, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O>; 
     // fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> impl std::future::Future<Output = Result<O>> + Send + 'a; 
     //fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> impl std::future::Future<Output = Result<O>>;
 }

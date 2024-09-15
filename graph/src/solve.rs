@@ -16,6 +16,9 @@ pub trait Solve {
     /// Solve a task.
     /// The hub will run computations or return existing results.
     // async fn solve(&self) -> Result<Hub<Self::Base>>;
+    #[cfg(feature = "oneThread")]
+    fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
+    #[cfg(not(feature = "oneThread"))]
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
 }
 
@@ -70,14 +73,25 @@ impl<A: Act + SendSync> Solve for A {
     }
 }
 
-// #[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
-    // async fn solve(&mut self) -> Result<Hub<Self::Base>>;
-    fn solve(&mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
+    async fn solve(&mut self) -> Result<Hub<Self::Base>>;
+    // fn solve<'a>(&'a mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + 'a;
 }
 
 pub trait ReckonMut {
     fn reckon(&mut self, task: Task) -> Result<Gain>;
 }
+
+
+
+// // #[async_trait]
+// pub trait SolveMut {
+//     type Base: 'static + Payload;
+//     /// For graph internals to handle solve calls
+//     // async fn solve(&mut self) -> Result<Hub<Self::Base>>;
+//     fn solve(&mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
+// }

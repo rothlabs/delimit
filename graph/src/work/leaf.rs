@@ -65,7 +65,8 @@ impl<T> BaseMut<T> for Leaf<T> {
     }
 }
 
-#[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T> ReactMut for Leaf<T> 
 where 
     T: SendSync
@@ -75,7 +76,8 @@ where
     }
 }
 
-// #[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T> SolveMut for Leaf<T>
 where
     T: 'static + Payload,

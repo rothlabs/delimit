@@ -23,14 +23,16 @@ pub trait ToPloy {
 }
 
 
-#[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait Based {
     type Base: Payload;
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
     async fn solve(&self) -> Result<Hub<Self::Base>>;
 }
 
-#[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T> Based for Box<dyn Engage<Base = T>>
 where
     T: 'static + Payload,
@@ -74,7 +76,8 @@ impl<T> Rebut for Box<dyn Engage<Base = T>> {
     }
 }
 
-#[async_trait]
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T> React for Box<dyn Engage<Base = T>> {
     async fn react(&self, id: &Id) -> react::Result {
         self.as_ref().react(id).await
