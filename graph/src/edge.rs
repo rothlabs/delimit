@@ -168,7 +168,7 @@ where
         let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         if deal.wrote() {
             for root in &roots {
-                root.react(&id)?;
+                // root.react(&id)?;
             }
         }
         Ok(())
@@ -186,16 +186,12 @@ where
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         #[cfg(not(feature = "oneThread"))]
         match self.cusp.write() {
-            Ok(mut cusp) => {
-                cusp.solve().await
-            },
+            Ok(mut cusp) => cusp.solve().await,
             Err(err) => Err(Error::Write(err.to_string())),
         }
         #[cfg(feature = "oneThread")]
         match self.cusp.try_borrow_mut() {
-            Ok(mut cusp) => {
-                cusp.solve().await
-            },
+            Ok(mut cusp) => cusp.solve().await,
             Err(err) => Err(Error::Write(err.to_string())),
         }
     }
@@ -232,7 +228,7 @@ where
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
         for root in &roots {
-            root.react(&id)?;
+            // root.react(&id)?;
         }
         Ok(out)
     }
@@ -247,7 +243,7 @@ where
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         for root in &roots {
-            root.react(&id)?;
+            // root.react(&id)?;
         }
         Ok(out)
     }
@@ -288,6 +284,16 @@ where
     N: ReactMut,
 {
     async fn react(&self, id: &Id) -> react::Result {
-        write_part(&self.cusp, |mut cusp| cusp.react(id))?
+        #[cfg(not(feature = "oneThread"))]
+        match self.cusp.write() {
+            Ok(mut cusp) => cusp.react(id).await,
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+        #[cfg(feature = "oneThread")]
+        match self.cusp.try_borrow_mut() {
+            Ok(mut cusp) => cusp.react(id).await,
+            Err(err) => Err(Error::Write(err.to_string())),
+        }
+        // write_part(&self.cusp, |mut cusp| cusp.react(id))?
     }
 }

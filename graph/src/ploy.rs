@@ -77,6 +77,6 @@ impl<T> Rebut for Box<dyn Engage<Base = T>> {
 #[async_trait(?Send)]
 impl<T> React for Box<dyn Engage<Base = T>> {
     async fn react(&self, id: &Id) -> react::Result {
-        self.as_ref().react(id)
+        self.as_ref().react(id).await
     }
 }

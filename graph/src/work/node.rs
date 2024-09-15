@@ -210,8 +210,12 @@ where
     U::Base: Payload,
 {
     async fn react(&mut self, _: &Id) -> react::Result {
-        self.unit.as_ref().unwrap().reckon(Task::React)?;
-        Ok(())
+        // self.unit.as_ref().unwrap().reckon(Task::React)?;
+        // Ok(())
+        match self.unit.as_ref().unwrap().solve().await {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err)
+        }
     }
 }
 
