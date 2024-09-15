@@ -10,7 +10,7 @@ mod task;
 
 // pub type Result = result::Result<Gain, crate::Error>;
 
-#[async_trait(?Send)]
+// #[async_trait(?Send)]
 pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
@@ -46,7 +46,7 @@ pub trait Act {
     fn act(&self) -> Result<()>;
 }
 
-#[async_trait(?Send)]
+// #[async_trait(?Send)]
 impl<A: Act> Solve for A {
     type Base = ();
     async fn solve(&self, _: Task<'_>) -> Result<Gain<()>> {

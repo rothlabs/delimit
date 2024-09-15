@@ -1,6 +1,8 @@
+use std::{alloc, pin::Pin};
+
 pub use deal::*;
 
-use futures::executor::block_on;
+use futures::{executor::block_on, future::BoxFuture, FutureExt};
 use super::*;
 use thiserror::Error;
 
@@ -132,18 +134,21 @@ where
     }
 
     /// Read tray of hub.
-    pub async fn read<O, F: 'static + FnOnce(&T) -> O>(&self, read: F) -> Result<O> { 
-        match self {
-            Self::Tray(tray) => {
-                if let Tray::Base(base) = tray {
-                    Ok(read(base))
-                } else {
-                    Err(tray.wrong_variant("Base"))?
+    pub fn read<'a, O, F: 'static + FnOnce(&T) -> O>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + 'a>> {// BoxFuture<'a, Result<O>> {
+        let out = async move { 
+            match self {
+                Self::Tray(tray) => {
+                    if let Tray::Base(base) = tray {
+                        Ok(read(base))
+                    } else {
+                        Err(tray.wrong_variant("Base"))?
+                    }
                 }
+                Self::Leaf(leaf) => leaf.read(read),
+                Self::Ploy(ploy) => ploy.main().await?.read(read).await,
             }
-            Self::Leaf(leaf) => leaf.read(read),
-            Self::Ploy(ploy) => ploy.main().await?.read(read).await,
-        }
+        };
+        Box::pin(out)
     }
 
     /// Base value. The graph is solved down to the base.
@@ -155,6 +160,17 @@ where
             },
             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
             Self::Ploy(ploy) => ploy.main().await?.base().await,
+        }
+    }
+    /// Base value by blocking. The graph is solved down to the base.
+    pub fn base_block(&self) -> Result<T> {
+        match self {
+            Self::Tray(tray) => match tray {
+                Tray::Base(base) => Ok(base.clone()),
+                tray => Err(tray.wrong_variant("Base"))?,
+            },
+            Self::Leaf(leaf) => leaf.read(|base| base.clone()),
+            Self::Ploy(ploy) => block_on(block_on(ploy.main())?.base()),
         }
     }
 }

@@ -19,11 +19,11 @@ impl Attribute {
         self.content = content.into();
         self
     }
-    fn main(&self) -> Result<Gain<String>> {
+    async fn main(&self) -> Result<Gain<String>> {
         List::new()
-            .push(self.name.down(PLAIN)?)
+            .push(self.name.down(PLAIN).await?)
             .push(r#"=""#)
-            .push(self.content.down(PLAIN)?)
+            .push(self.content.down(PLAIN).await?)
             .push(r#"""#)
             .hub()?
             .gain()
@@ -40,10 +40,10 @@ impl Adapt for Attribute {
 
 impl Solve for Attribute {
     type Base = String;
-    fn solve(&self, task: Task) -> Result<Gain<String>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main(),
+            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             _ => task.no_handler(self),

@@ -25,11 +25,11 @@ fn solve_same_hub_twice() -> Result<()> {
 fn rebut_from_self() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
-    let a = text.solve(Task::Main)?;
+    let a = block_on(text.solve(Task::Main))?;
     text.write(|pack| {
         pack.unit.set_separator(" > ");
     })?;
-    let b = text.solve(Task::Main)?;
+    let b = block_on(text.solve(Task::Main))?;
     assert!(a != b);
     Ok(())
 }
@@ -38,9 +38,9 @@ fn rebut_from_self() -> Result<()> {
 fn react_from_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
-    let a = text.solve(Task::Main)?;
+    let a = block_on(text.solve(Task::Main))?;
     ace.write(|str| str.push_str("_mutated"))?;
-    let b = text.solve(Task::Main)?;
+    let b = block_on(text.solve(Task::Main))?;
     assert!(a != b);
     Ok(())
 }
@@ -53,9 +53,9 @@ fn no_rebut_after_dropping_stem() -> Result<()> {
     text.write(|pack| {
         pack.unit.remove(1);
     })?;
-    let a = text.solve(Task::Main)?;
+    let a = block_on(text.solve(Task::Main))?;
     ace.write(|str| str.push_str("_mutated"))?;
-    let b = text.solve(Task::Main)?;
+    let b = block_on(text.solve(Task::Main))?;
     assert!(a == b);
     Ok(())
 }

@@ -19,11 +19,11 @@ impl Tag {
         self.attributes.push(attribute.into());
         self
     }
-    fn main(&self) -> Result<Gain<String>> {
+    async fn main(&self) -> Result<Gain<String>> {
         let items = List::new()
             .separator(" ")
-            .push(self.name.down(PLAIN)?)
-            .extend(self.attributes.down(PLAIN)?)
+            .push(self.name.down(PLAIN).await?)
+            .extend(self.attributes.down(PLAIN).await?)
             .hub()?;
         List::new().push("<").push(&items).push(">").hub()?.gain()
     }
@@ -39,10 +39,10 @@ impl Adapt for Tag {
 
 impl Solve for Tag {
     type Base = String;
-    fn solve(&self, task: Task) -> Result<Gain<String>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main(),
+            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),

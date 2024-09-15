@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 pub use leaf::*;
 
 use futures::executor::block_on;
@@ -315,6 +316,7 @@ where
     }
 }
 
+// #[async_trait(?Send)]
 impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,

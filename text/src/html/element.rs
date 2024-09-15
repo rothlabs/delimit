@@ -25,15 +25,15 @@ impl Element {
         self.close = Some(name);
         Ok(self)
     }
-    fn main(&self) -> Result<Gain<String>> {
+    async fn main(&self) -> Result<Gain<String>> {
         let mut element = List::new()
             .separator("\n")
-            .push(self.open.down(PLAIN)?)
-            .extend(self.items.down(PLAIN)?);
+            .push(self.open.down(PLAIN).await?)
+            .extend(self.items.down(PLAIN).await?);
         if let Some(close) = &self.close {
             let close = List::new()
                 .push("</")
-                .push(close.down(PLAIN)?)
+                .push(close.down(PLAIN).await?)
                 .push(">")
                 .hub()?;
             element = element.push(close);
@@ -53,10 +53,10 @@ impl Adapt for Element {
 
 impl Solve for Element {
     type Base = String;
-    fn solve(&self, task: Task) -> Result<Gain<String>> {
+    async fn solve(&self, task: Task<'_>) -> Result<Gain<String>> {
         match task {
             Task::Rank => 2.gain(),
-            Task::Main => self.main(),
+            Task::Main => self.main().await,
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
             Task::React => solve_ok(),
