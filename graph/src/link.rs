@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 pub use leaf::*;
 
-use futures::executor::block_on;
+use futures::{executor::block_on, FutureExt, TryFutureExt};
 use anyhow::anyhow;
 use super::*;
 #[cfg(not(feature = "oneThread"))]

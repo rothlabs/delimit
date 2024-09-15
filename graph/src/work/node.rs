@@ -32,24 +32,24 @@ where
             Ok(main)
         }
     }
-    fn digest(&mut self) -> Result<Gain<U::Base>> {
+    async fn digest(&mut self) -> Result<Gain<U::Base>> {
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
         } else {
             let mut state = UnitHasher::default();
             self.imports.hash(&mut state);
             let unit = self.unit.as_ref().unwrap();
-            let digest = block_on(unit.solve(Task::Digest(&mut state)))?;
+            let digest = unit.solve(Task::Digest(&mut state)).await?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
     }
-    fn serial(&mut self) -> Result<Gain<U::Base>> {
+    async fn serial(&mut self) -> Result<Gain<U::Base>> {
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
             let unit = self.unit.as_ref().unwrap();
-            let serial = block_on(unit.solve(Task::Serial))?;
+            let serial = unit.solve(Task::Serial).await?;
             self.serial = Some(serial.clone());
             Ok(serial)
         }
@@ -65,8 +65,8 @@ where
     async fn solve(&mut self, task: Task<'_>) -> Result<Gain<U::Base>> {
         match task {
             Task::Main => self.main().await,
-            Task::Hash => self.digest(),
-            Task::Serial => self.serial(),
+            Task::Hash => self.digest().await,
+            Task::Serial => self.serial().await,
             Task::Imports => self.imports.gain(),
             _ => self.unit.as_ref().unwrap().solve(task).await,
         }
