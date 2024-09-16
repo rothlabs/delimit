@@ -2,7 +2,6 @@ pub use deal::*;
 
 use super::*;
 use thiserror::Error;
-use std::pin::Pin;
 
 mod convert;
 mod deal;

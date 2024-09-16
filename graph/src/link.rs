@@ -315,26 +315,34 @@ impl<E, T> WriteBase<T> for Link<E>
 where
     E: WriteBase<T> + SendSync,
 {
-    async fn write<O, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
+    async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         // read_part(&self.edge, |edge| edge.write(write))?.await
         #[cfg(not(feature = "oneThread"))]
-        let out = self.edge.read().write(write).await;
+        {self.edge.read().write(write).await}
         #[cfg(feature = "oneThread")]
-        let out = match self.edge.try_borrow() {
+        match self.edge.try_borrow() {
             Ok(edge) => edge.write(write).await,
             Err(err) => Err(Error::Read(err.to_string())),
-        };
-        out
+        }
     }
 }
 
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E> WriteUnit for Link<E>
 where
-    E: WriteUnit,
+    E: WriteUnit + SendSync,
 {
     type Unit = E::Unit;
-    fn write<O, F: FnOnce(&mut Pack<Self::Unit>) -> O>(&self, write: F) -> Result<O> {
-        read_part(&self.edge, |edge| edge.write(write))?
+    async fn write<O: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> O + SendSync>(&self, write: F) -> Result<O> {
+        // read_part(&self.edge, |edge| edge.write(write))?
+        #[cfg(not(feature = "oneThread"))]
+        {self.edge.read().write(write).await}
+        #[cfg(feature = "oneThread")]
+        match self.edge.try_borrow() {
+            Ok(edge) => edge.write(write).await,
+            Err(err) => Err(Error::Read(err.to_string())),
+        }
     }
 }
 

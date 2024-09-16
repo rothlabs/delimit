@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
     wasm-bindgen = "0.2.93"
+    wasm-bindgen-futures = "0.4.43"
+
+    gloo-timers = { version = "0.3.0", features = ["futures"] }
     # dtolnay
         anyhow = "1.0.86"
     # Macros

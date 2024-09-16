@@ -21,7 +21,7 @@ pub struct Out<T> {
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait WriteBase<T> {
     /// Front-facing write-to-base.
-    async fn write<O, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O>; 
+    async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O>; 
     // fn write<O: 'a, F: FnOnce(&mut T) -> O + Send + 'a>(&'a self, write: F) -> impl std::future::Future<Output = Result<O>> + Send + 'a; 
     //fn write<O, F: FnOnce(&mut T) -> O>(&self, write: F) -> impl std::future::Future<Output = Result<O>>;
 }
@@ -31,10 +31,12 @@ pub trait WriteBaseOut<T> {
     fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
 }
 
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T>;
+    async fn write<T: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> T + SendSync>(&self, write: F) -> Result<T>;
 }
 
 pub trait WriteUnitOut {

@@ -14,9 +14,7 @@ pub async fn make_canvas_on_body() -> Result<Gpu> {
         unit.add_to_body();
         unit.gpu()
     })?;
-    //spawn_local(async move {
-        canvas.act().await?;
-    //});
+    canvas.act().await?;
     Ok(gpu)
 }
 
@@ -59,7 +57,7 @@ pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<(Buffer, Node<Bufferer>)> {
     Ok((buffer, bufferer))
 }
 
-pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
+pub async fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
     #[rustfmt::skip]
     let array: Vec<u8> = vec![
         128,128,128,		230,25,75,			60,180,75,			255,225,25,
@@ -68,6 +66,7 @@ pub fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
         230,190,255,		154,99,36,			255,250,200,		0,0,0,
     ];
     let texture = gpu.texture(array)?.width(4).height(4).make()?;
+    texture.act().await?;
     Ok(texture)
 }
 
@@ -82,10 +81,7 @@ pub async fn draw_arrays_basic(gpu: &Gpu) -> Result<(Node<DrawArrays>, Node<Buff
         .vao(vao)
         .count(3)
         .make()?;
-    let draw_arrays_clone = draw_arrays.clone();
-    //spawn_local(async move {
-        draw_arrays_clone.act().await?;
-    //});
+    draw_arrays.act().await?;
     Ok((draw_arrays, bufferer))
 }
 
@@ -103,12 +99,7 @@ pub async fn draw_elements_basic(gpu: &Gpu) -> Result<(Node<DrawElements>, Leaf<
         .vao(vao)
         .count(3)
         .make()?;
-    let draw_clone = elements.clone();
-    draw_clone.act().await?;
-    // spawn_local(async move {
-    //     draw_clone.act().await;
-    // });
-    // block_on(elements.act())?;
+    elements.act().await?;
     Ok((elements, vertex_source, bufferer))
 }
 
@@ -127,18 +118,14 @@ pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements
         .offset(12)
         .make()?;
     let vao = gpu.vao(vec![pos, uv])?.index_buffer(index_buffer).make()?;
-    let _ = make_basic_texture(&gpu)?;
+    let _ = make_basic_texture(&gpu).await?;
     let elements = gpu
         .draw_elements(program)
         .buffers(vec![bufferer, index_bufferer])
         .vao(vao)
         .count(3)
         .make()?;
-    let draw_clone = elements.clone();
-    //spawn_local(async move {
-        draw_clone.act().await?;
-    //});
-    // block_on(elements.act())?;
+    elements.act().await?;
     Ok(elements)
 }
 
@@ -219,10 +206,6 @@ pub async fn draw_elements_react_to_shader_source() -> Result<()> {
     let gpu = make_canvas_on_body().await?;
     let (_draw, shader_source, _buff) = draw_elements_basic(&gpu).await?;
     shader_source.write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned()).await?;
-    // spawn_local(async move {
-    //     shader_source.write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned()).await;
-    // });
-    //block_on(shader_source.write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned()))?;
     Ok(())
 }
 
@@ -234,7 +217,7 @@ pub async fn draw_elements_react_to_buffer_array() -> Result<()> {
         0.9, 0.8,  0.,
         0.9,  0., 0.,
     ];
-    buffer.write(|pack| pack.unit.array(array))?;
+    buffer.write(|pack| pack.unit.array(array)).await?;
     Ok(())
 }
 
@@ -266,7 +249,7 @@ pub async fn transform_feedback() -> Result<()> {
     let vao = gpu.vao(vec![att])?.make()?;
 
     let buffer = gpu.buffer()?;
-    let buffer_sizer = gpu.bufferer(&buffer).array(72).make()?;
+    let buffer_sizer = gpu.bufferer(&buffer).array(36).make()?;
     buffer_sizer.act().await?;
     let tfo = gpu.tfo(vec![buffer.clone()])?;
 
@@ -280,19 +263,7 @@ pub async fn transform_feedback() -> Result<()> {
         .make()?;
     draw_arrays.act().await?;
 
-    let sync = gpu.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;
-    let status = gpu.gl.client_wait_sync_with_u32(&sync, WGLRC::SYNC_FLUSH_COMMANDS_BIT, 100);
-
-    if status == WGLRC::TIMEOUT_EXPIRED {
-        console_log!("TIMEOUT_EXPIRED");
-    } else if status == WGLRC::WAIT_FAILED {
-        console_log!("WAIT_FAILED");
-    } else {
-        console_log!("Good: {}", status);
-    }
-
-    let buffer_in = gpu.buffer_in(&buffer).size(9).draw(draw_arrays).make()?;
-    console_log!("MAX_CLIENT_WAIT_TIMEOUT_WEBGL: {}", WGLRC::MAX_CLIENT_WAIT_TIMEOUT_WEBGL);
-    console_log!("buffer_in: {:?}", buffer_in.base().await?);
+    let buffer_in = gpu.buffer_in(&buffer).size(6).draw(draw_arrays).make()?;
+    assert_eq!(Vf32(vec![1.0, 2.0, 1.0, 2.0, 1.0, 2.0]), buffer_in.base().await?);
     Ok(())
 }

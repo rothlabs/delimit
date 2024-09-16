@@ -1,6 +1,6 @@
 use super::*;
 use atlas::*;
-use graph::Lake;
+use graph::{BaseDown, Lake};
 use std::{fs, io::BufReader};
 use text::*;
 

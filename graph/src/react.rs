@@ -91,20 +91,20 @@ impl Root {
             Ok(Ring::new())
         }
     }
-    pub async fn react(&self, id: &Id) -> react::Result {
-        if let Some(edge) = self.edge.upgrade() {
-            #[cfg(feature = "oneThread")]
-            match edge.try_borrow() {
-                Ok(edge) => edge.react(id).await,
-                Err(err) => Err(Error::Write(err.to_string())),
-            }
-            #[cfg(not(feature = "oneThread"))]
-            edge.read().react(id).await
-            // read_part(&edge, |edge| edge.react(id))?
-        } else {
-            Ok(())
-        }
-    }
+    // pub async fn react(&self, id: &Id) -> react::Result {
+    //     if let Some(edge) = self.edge.upgrade() {
+    //         #[cfg(feature = "oneThread")]
+    //         match edge.try_borrow() {
+    //             Ok(edge) => edge.react(id).await,
+    //             Err(err) => Err(Error::Write(err.to_string())),
+    //         }
+    //         #[cfg(not(feature = "oneThread"))]
+    //         edge.read().react(id).await
+    //         // read_part(&edge, |edge| edge.react(id))?
+    //     } else {
+    //         Ok(())
+    //     }
+    // }
 }
 
 impl Eq for Root {}
@@ -118,6 +118,25 @@ impl PartialEq for Root {
 impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.id.hash(state)
+    }
+}
+
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl React for Root {
+    async fn react(&self, id: &Id) -> react::Result {
+        if let Some(edge) = self.edge.upgrade() {
+            #[cfg(feature = "oneThread")]
+            match edge.try_borrow() {
+                Ok(edge) => edge.react(id).await,
+                Err(err) => Err(Error::Write(err.to_string())),
+            }
+            #[cfg(not(feature = "oneThread"))]
+            edge.read().react(id).await
+            // read_part(&edge, |edge| edge.react(id))?
+        } else {
+            Ok(())
+        }
     }
 }
 

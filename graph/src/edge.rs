@@ -229,32 +229,34 @@ impl<C, T> WriteBase<T> for Edge<C>
 where
     C: WriteBaseOut<T> + SendSync,
 {
-    async fn write<O, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
+    async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         #[cfg(feature = "oneThread")]
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
         #[cfg(not(feature = "oneThread"))]
         let write::Out { roots, id, out } = self.cusp.write().write_tray_out(write)?;
         for root in &roots {
-            // root.react(&id).await?;
+            root.react(&id).await?;
         }
         Ok(out)
     }
 }
 
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<N> WriteUnit for Edge<N>
 where
     N: 'static + WriteUnitOut + UpdateMut,
 {
     type Unit = N::Unit;
-    fn write<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(&self, write: F) -> Result<T> {
+    async fn write<T: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> T + SendSync>(&self, write: F) -> Result<T> {
         #[cfg(feature = "oneThread")]
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         #[cfg(not(feature = "oneThread"))]
         let write::Out { roots, id, out } = self.cusp.write().write_unit_out(write)?;
         for root in &roots {
-            // root.react(&id)?;
+            root.react(&id).await?;
         }
         Ok(out)
     }

@@ -25,7 +25,6 @@ pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use async_trait::async_trait;
-use std::future::Future;
 use aim::*;
 use scope::*;
 use serde::{Deserialize, Serialize};

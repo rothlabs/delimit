@@ -26,7 +26,7 @@ async fn rebut_from_self() -> Result<()> {
     let a = text.solve().await?;
     text.write(|pack| {
         pack.unit.set_separator(" > ");
-    })?;
+    }).await?;
     let b = text.solve().await?;
     assert!(a != b);
     Ok(())
@@ -50,7 +50,7 @@ async fn no_rebut_after_dropping_stem() -> Result<()> {
     let _r = text.solve();
     text.write(|pack| {
         pack.unit.remove(1);
-    })?;
+    }).await?;
     let a = text.solve().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
     let b = text.solve().await?;
