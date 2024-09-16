@@ -4,9 +4,9 @@ pub use leaf::*;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::Arc;
-#[cfg(not(feature = "oneThread"))]
 use parking_lot::RwLock;
+#[cfg(not(feature = "oneThread"))]
+use std::sync::Arc;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -318,7 +318,9 @@ where
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         // read_part(&self.edge, |edge| edge.write(write))?.await
         #[cfg(not(feature = "oneThread"))]
-        {self.edge.read().write(write).await}
+        {
+            self.edge.read().write(write).await
+        }
         #[cfg(feature = "oneThread")]
         match self.edge.try_borrow() {
             Ok(edge) => edge.write(write).await,
@@ -334,10 +336,15 @@ where
     E: WriteUnit + SendSync,
 {
     type Unit = E::Unit;
-    async fn write<O: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> O + SendSync>(&self, write: F) -> Result<O> {
+    async fn write<O: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> O + SendSync>(
+        &self,
+        write: F,
+    ) -> Result<O> {
         // read_part(&self.edge, |edge| edge.write(write))?
         #[cfg(not(feature = "oneThread"))]
-        {self.edge.read().write(write).await}
+        {
+            self.edge.read().write(write).await
+        }
         #[cfg(feature = "oneThread")]
         match self.edge.try_borrow() {
             Ok(edge) => edge.write(write).await,
@@ -367,7 +374,7 @@ where
                 let result = edge.solve().await;
                 edge.add_root(self.as_root(edge.id()))?;
                 result
-            },
+            }
             Err(err) => Err(Error::Write(err.to_string())),
         }
     }
@@ -406,7 +413,7 @@ where
                 let result = edge.solve().await;
                 edge.add_root(self.as_root(edge.id()))?;
                 result
-            },
+            }
             Err(err) => Err(Error::Write(err.to_string())),
         }
 
@@ -422,7 +429,7 @@ where
 }
 
 // impl<T> Reckon for Ploy<T>
-// where 
+// where
 //     T: 'static + Payload
 // {
 //     fn reckon(&self, task: Task) -> Result<Gain> {

@@ -6,7 +6,10 @@ use super::*;
 pub struct DrawArrays {
     gl: WGLRC,
     program: Node<Program>,
-    bufferers: Vec<Node<Bufferer>>,
+    #[builder(setter(each(name = "writer")))]
+    writers: Vec<Node<Bufferer>>,
+    #[builder(default = "WGLRC::TRIANGLES")]
+    pub mode: u32,
     /// Vertex array object, collection of buffer attributes.
     vao: Node<Vao>,
     /// Number of values to skip before drawing.
@@ -26,7 +29,7 @@ impl DrawArraysBuilder {
         let mut draw = self.build()?;
         Node::make(|back| {
             draw.program = draw.program.backed(back)?;
-            draw.bufferers = draw.bufferers.backed(back)?;
+            draw.writers = draw.writers.backed(back)?;
             draw.vao = draw.vao.backed(back)?;
             draw.first = draw.first.backed(back)?;
             draw.count = draw.count.backed(back)?;
@@ -40,24 +43,13 @@ impl DrawArrays {
         vao.bind();
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
-        }
-        if let Some(tfo) = &self.tfo {
-            tfo.bind();
-            self.gl.begin_transform_feedback(WGLRC::TRIANGLES);
-            self.draw_triangles(first, count);
-            self.gl.end_transform_feedback();
-            tfo.unbind();
-        } else {
-            self.draw_triangles(first, count);
-        }
-        if self.rasterizer_discard {
+            self.gl.draw_arrays(self.mode, first, count);
             self.gl.disable(WGLRC::RASTERIZER_DISCARD);
+        } else {
+            self.gl.draw_arrays(self.mode, first, count);
         }
         vao.unbind();
         Ok(())
-    }
-    fn draw_triangles(&self, first: i32, count: i32) {
-        self.gl.draw_arrays(WGLRC::TRIANGLES, first, count);
     }
 }
 
@@ -65,13 +57,20 @@ impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
         self.program.act().await?;
         self.program.read(|unit| unit.use_())?;
-        for bufferer in &self.bufferers {
+        for bufferer in &self.writers {
             bufferer.act().await?;
         }
         self.vao.act().await?;
         let first = self.first.base().await.unwrap_or_default();
         let count = self.count.base().await.unwrap_or_default();
-        self.vao.read(|vao| self.draw(vao, first, count))?
+        if let Some(tfo) = &self.tfo {
+            tfo.begin(self.mode);
+            self.vao.read(|vao| self.draw(vao, first, count))??;
+            tfo.end();
+        } else {
+            self.vao.read(|vao| self.draw(vao, first, count))??;
+        }
+        Ok(())
     }
 }
 

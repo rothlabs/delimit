@@ -133,7 +133,7 @@ where
     // /// Read tray of hub.
     // /// TODO: make trait that uses async_trait macro
     // pub fn read<'a, O, F: FnOnce(&T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
-    //     let out = async move { 
+    //     let out = async move {
     //         match self {
     //             Self::Tray(tray) => {
     //                 if let Tray::Base(base) = tray {
@@ -151,7 +151,7 @@ where
 
     // /// Base value. The graph is solved down to the base.
     // pub fn base<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a + Send>> {
-    //     let out = async move { 
+    //     let out = async move {
     //         match self {
     //             Self::Tray(tray) => match tray {
     //                 Tray::Base(base) => Ok(base.clone()),
@@ -167,11 +167,11 @@ where
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> ReadDown<T> for Hub<T> 
-where 
-    T: 'static + Payload
+impl<T> ReadDown<T> for Hub<T>
+where
+    T: 'static + Payload,
 {
-    async fn read<O, F:FnOnce(&T) -> O + SendSync>(&self, read:F) -> Result<O> {
+    async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O> {
         match self {
             Self::Tray(tray) => {
                 if let Tray::Base(base) = tray {
@@ -188,11 +188,11 @@ where
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> BaseDown<T> for Hub<T> 
-where 
-    T: 'static + Payload
+impl<T> BaseDown<T> for Hub<T>
+where
+    T: 'static + Payload,
 {
-    async fn base(&self) -> Result<T> { 
+    async fn base(&self) -> Result<T> {
         match self {
             Self::Tray(tray) => match tray {
                 Tray::Base(base) => Ok(base.clone()),

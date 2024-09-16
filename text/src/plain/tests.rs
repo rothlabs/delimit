@@ -8,7 +8,9 @@ fn new_list(ace: &Leaf<String>) -> Result<Node<List>> {
 async fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
     let text_node = new_list(&string_leaf)?.hub()?;
-    text_node.read(|string| assert_eq!(string, "str, ace")).await
+    text_node
+        .read(|string| assert_eq!(string, "str, ace"))
+        .await
 }
 
 #[tokio::test]
@@ -26,7 +28,8 @@ async fn rebut_from_self() -> Result<()> {
     let a = text.solve().await?;
     text.write(|pack| {
         pack.unit.set_separator(" > ");
-    }).await?;
+    })
+    .await?;
     let b = text.solve().await?;
     assert!(a != b);
     Ok(())
@@ -50,7 +53,8 @@ async fn no_rebut_after_dropping_stem() -> Result<()> {
     let _r = text.solve();
     text.write(|pack| {
         pack.unit.remove(1);
-    }).await?;
+    })
+    .await?;
     let a = text.solve().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
     let b = text.solve().await?;

@@ -71,8 +71,6 @@ impl Reckon for List {
     }
 }
 
-
-
 // fn set_at(&mut self, index: usize, hub: Hub) -> Result<Memo> {
 //     self.items[index] = hub;
 //     adapt_ok()

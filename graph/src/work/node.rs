@@ -215,7 +215,7 @@ where
         // Ok(())
         match self.unit.as_ref().unwrap().solve().await {
             Ok(_) => Ok(()),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 }

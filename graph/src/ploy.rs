@@ -22,7 +22,6 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyPointer<Self::Base>;
 }
 
-
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait Based {

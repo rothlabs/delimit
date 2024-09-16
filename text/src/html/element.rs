@@ -51,7 +51,7 @@ impl Solve for Element {
                 .hub()?;
             element = element.push(close);
         }
-        Ok(element.hub()?)
+        element.hub()
     }
 }
 

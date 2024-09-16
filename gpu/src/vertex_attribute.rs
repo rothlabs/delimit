@@ -4,8 +4,10 @@ use super::*;
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned", build_fn(error = "graph::Error"), setter(into))]
 pub struct VertexAttribute {
-    gl: WGLRC,
+    // gl: WGLRC,
     buffer: Buffer,
+    #[builder(default = "WGLRC::FLOAT")]
+    type_: u32,
     /// Location in vertex shader. `layout(location = index)`
     #[builder(default)]
     index: Hub<u32>,
@@ -37,20 +39,18 @@ impl Act for VertexAttribute {
     async fn act(&self) -> Result<()> {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();
-        self.gl.vertex_attrib_pointer_with_i32(
+        self.buffer.gl.vertex_attrib_pointer_with_i32(
             index,
             self.size.base().await.unwrap_or_default(),
-            WGLRC::FLOAT,
+            self.type_,
             false,
             self.stride.base().await.unwrap_or_default(),
             self.offset.base().await.unwrap_or_default(),
         );
-        self.gl.enable_vertex_attrib_array(index);
+        self.buffer.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
         Ok(())
     }
 }
 
-impl Reckon for VertexAttribute {
-    
-}
+impl Reckon for VertexAttribute {}

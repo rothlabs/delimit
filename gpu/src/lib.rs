@@ -1,10 +1,10 @@
 pub use anyhow::anyhow;
 pub use buffer::Buffer;
 use buffer::BufferBuilder;
+pub use buffer_in::BufferIn;
 use buffer_in::BufferInBuilder;
 pub use bufferer::Bufferer;
 use bufferer::BuffererBuilder;
-pub use buffer_in::BufferIn;
 pub use canvas::Canvas;
 pub use draw_arrays::DrawArrays;
 pub use draw_elements::DrawElements;
@@ -27,8 +27,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod buffer;
-pub mod bufferer;
 pub mod buffer_in;
+pub mod bufferer;
 pub mod program;
 pub mod shader;
 pub mod texture;
@@ -59,11 +59,7 @@ impl Gpu {
     pub fn fragment_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
-    pub fn program(
-        &self,
-        vertex: &Node<Shader>,
-        fragment: &Node<Shader>,
-    ) -> Result<ProgramBuilder> {
+    pub fn program(&self, vertex: Node<Shader>, fragment: Node<Shader>) -> Result<ProgramBuilder> {
         let object = self
             .gl
             .create_program()
@@ -71,8 +67,8 @@ impl Gpu {
         Ok(ProgramBuilder::default()
             .gl(self.gl.clone())
             .object(object)
-            .vertex(vertex.clone())
-            .fragment(fragment.clone())
+            .vertex(vertex)
+            .fragment(fragment)
             .clone())
     }
     pub fn buffer(&self) -> Result<Buffer> {
@@ -80,44 +76,30 @@ impl Gpu {
             .gl
             .create_buffer()
             .ok_or(anyhow!("create buffer failed"))?;
-        let buffer = BufferBuilder::default().gl(self.gl.clone()).object(buffer).build()?;
+        let buffer = BufferBuilder::default()
+            .gl(self.gl.clone())
+            .object(buffer)
+            .build()?;
         Ok(buffer)
     }
-    pub fn bufferer(&self, buffer: impl Into<Buffer>) -> BuffererBuilder {
-        BuffererBuilder::default()
-            .gl(self.gl.clone())
-            .buffer(buffer)
-    }
-    pub fn buffer_in(&self, buffer: impl Into<Buffer>) -> BufferInBuilder {
-        BufferInBuilder::default()
-            .gl(self.gl.clone())
-            .buffer(buffer)
-    }
-    // pub fn feedback_buffer(&self, count: impl Into<Hub<i32>>) -> Result<Node<BufferOut>> {
-    //     BufferOut::make(&self.gl, WGLRC::TRANSFORM_FEEDBACK_BUFFER, count.into())
-    // }
-    pub fn vertex_attribute(&self, buffer: impl Into<Buffer>) -> VertexAttributeBuilder {
-        VertexAttributeBuilder::default()
-            .gl(self.gl.clone())
-            .buffer(buffer)
-    }
-    pub fn vao(&self, attributes: impl Into<Attributes>) -> Result<VaoBuilder> {
+    pub fn vao(&self) -> Result<VaoBuilder> {
         let object = self
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
         let builder = VaoBuilder::default()
             .gl(self.gl.clone())
-            .object(object)
-            .attributes(attributes);
+            .object(object);
         Ok(builder)
     }
-    pub fn tfo(&self, buffers: Vec<Buffer>) -> Result<Tfo> {
+    pub fn tfo(&self) -> Result<TfoBuilder> {
         let object = self
             .gl
             .create_transform_feedback()
             .ok_or(anyhow!("failed to create transform feedback object"))?;
-        let tfo = TfoBuilder::default().gl(self.gl.clone()).object(object).buffers(buffers).make()?;
+        let tfo = TfoBuilder::default()
+            .gl(self.gl.clone())
+            .object(object);
         Ok(tfo)
     }
     pub fn texture(&self, array: impl Into<Apex>) -> Result<TextureBuilder> {
@@ -162,3 +144,32 @@ impl Gpu {
         );
     }
 }
+
+
+// pub fn vao(&self, attributes: impl Into<Attributes>) -> Result<VaoBuilder> {
+//     let object = self
+//         .gl
+//         .create_vertex_array()
+//         .ok_or(anyhow!("failed to create vertex array object"))?;
+//     let builder = VaoBuilder::default()
+//         .gl(self.gl.clone())
+//         .object(object)
+//         .attributes(attributes);
+//     Ok(builder)
+// }
+
+// pub fn vertex_attribute(&self, buffer: impl Into<Buffer>) -> VertexAttributeBuilder {
+//     VertexAttributeBuilder::default()
+//         .gl(self.gl.clone())
+//         .buffer(buffer)
+// }
+// pub fn bufferer(&self, buffer: impl Into<Buffer>) -> BuffererBuilder {
+//     BuffererBuilder::default()
+//         .gl(self.gl.clone())
+//         .buffer(buffer)
+// }
+// pub fn buffer_in(&self, buffer: impl Into<Buffer>) -> BufferInBuilder {
+//     BufferInBuilder::default()
+//         .gl(self.gl.clone())
+//         .buffer(buffer)
+// }

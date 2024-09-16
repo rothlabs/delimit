@@ -91,7 +91,6 @@ impl From<Vec<f64>> for Hub<Vf64> {
     }
 }
 
-
 // pub trait ToHub {
 //     type Base: Payload;
 //     /// Move into `Hub`

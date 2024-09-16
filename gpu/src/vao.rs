@@ -1,19 +1,24 @@
 use super::*;
 use web_sys::WebGlVertexArrayObject;
 
-pub type Attributes = Vec<Node<VertexAttribute>>;
+// pub type Attributes = Vec<Node<VertexAttribute>>;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
 #[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into, strip_option), build_fn(error = "graph::Error"))]
+#[builder(
+    pattern = "owned",
+    setter(into, strip_option),
+    build_fn(error = "graph::Error")
+)]
 pub struct Vao {
     gl: WGLRC,
     object: WebGlVertexArrayObject,
-    attributes: Attributes,
+    #[builder(setter(each(name = "attribute")))]
+    attributes: Vec<Node<VertexAttribute>>,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
     #[builder(default)]
-    index_buffer: Option<Buffer>, // u16
+    index: Option<Buffer>, // u16
 }
 
 impl VaoBuilder {
@@ -41,7 +46,7 @@ impl Act for Vao {
         for attribute in &self.attributes {
             attribute.act().await?;
         }
-        if let Some(buffer) = &self.index_buffer {
+        if let Some(buffer) = &self.index {
             buffer.bind();
         }
         self.unbind();
@@ -49,6 +54,4 @@ impl Act for Vao {
     }
 }
 
-impl Reckon for Vao {
-    
-}
+impl Reckon for Vao {}

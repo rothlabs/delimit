@@ -2,9 +2,9 @@ use async_trait::async_trait;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::Arc;
-#[cfg(not(feature = "oneThread"))]
 use parking_lot::RwLock;
+#[cfg(not(feature = "oneThread"))]
+use std::sync::Arc;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Rc};
 
@@ -113,7 +113,7 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().with_snap(snap, &back);
-            //write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+        //write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         (Self { cusp, back: None }, rank)
     }
     #[cfg(feature = "oneThread")]
@@ -132,13 +132,15 @@ where
 // #[async_trait]
 impl<C> Solve for Edge<C>
 where
-    C: 'static + SolveMut + SendSync,// + UpdateMut,
+    C: 'static + SolveMut + SendSync, // + UpdateMut,
     C::Base: Payload,
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         #[cfg(not(feature = "oneThread"))]
-        {self.cusp.write().solve().await}
+        {
+            self.cusp.write().solve().await
+        }
         #[cfg(feature = "oneThread")]
         match self.cusp.try_borrow_mut() {
             Ok(mut cusp) => cusp.solve().await,
@@ -153,7 +155,9 @@ where
 {
     fn reckon(&self, task: Task) -> Result<Gain> {
         #[cfg(not(feature = "oneThread"))]
-        {self.cusp.write().reckon(task)}
+        {
+            self.cusp.write().reckon(task)
+        }
         #[cfg(feature = "oneThread")]
         match self.cusp.try_borrow_mut() {
             Ok(mut cusp) => cusp.reckon(task),
@@ -191,7 +195,9 @@ where
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         #[cfg(not(feature = "oneThread"))]
-        {self.cusp.write().solve().await}
+        {
+            self.cusp.write().solve().await
+        }
         #[cfg(feature = "oneThread")]
         match self.cusp.try_borrow_mut() {
             Ok(mut cusp) => cusp.solve().await,
@@ -249,7 +255,10 @@ where
     N: 'static + WriteUnitOut + UpdateMut,
 {
     type Unit = N::Unit;
-    async fn write<T: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> T + SendSync>(&self, write: F) -> Result<T> {
+    async fn write<T: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> T + SendSync>(
+        &self,
+        write: F,
+    ) -> Result<T> {
         #[cfg(feature = "oneThread")]
         let write::Out { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
@@ -307,7 +316,9 @@ where
 {
     async fn react(&self, id: &Id) -> react::Result {
         #[cfg(not(feature = "oneThread"))]
-        {self.cusp.write().react(id).await}
+        {
+            self.cusp.write().react(id).await
+        }
         #[cfg(feature = "oneThread")]
         match self.cusp.try_borrow_mut() {
             Ok(mut cusp) => cusp.react(id).await,

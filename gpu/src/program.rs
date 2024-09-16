@@ -10,6 +10,7 @@ pub struct Program {
     vertex: Node<Shader>,
     fragment: Node<Shader>,
     #[builder(default)]
+    #[builder(setter(each(name = "out", into)))]
     outs: Vec<Hub<String>>,
 }
 

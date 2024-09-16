@@ -94,3 +94,9 @@ async fn transform_feedback() -> Result<()> {
     gpu::transform_feedback().await?;
     Ok(())
 }
+
+#[wasm_bindgen_test]
+async fn nurbs_shader() -> Result<()> {
+    gpu::nurbs_shader().await?;
+    Ok(())
+}

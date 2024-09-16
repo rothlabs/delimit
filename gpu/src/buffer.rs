@@ -3,7 +3,7 @@ use super::*;
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned", build_fn(error = "graph::Error"))]
 pub struct Buffer {
-    gl: WGLRC,
+    pub gl: WGLRC,
     pub object: WebGlBuffer,
     #[builder(default = "WGLRC::ARRAY_BUFFER")]
     pub target: u32,
@@ -19,6 +19,15 @@ impl Buffer {
     }
     pub fn unbind(&self) {
         self.gl.bind_buffer(self.target, None)
+    }
+    pub fn writer(&self) -> BuffererBuilder {
+        BuffererBuilder::default().buffer(self)
+    }
+    pub fn reader(&self) -> BufferInBuilder {
+        BufferInBuilder::default().buffer(self)
+    }
+    pub fn attribute(&self) -> VertexAttributeBuilder {
+        VertexAttributeBuilder::default().buffer(self)
     }
 }
 

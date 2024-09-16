@@ -2,9 +2,9 @@ use async_trait::async_trait;
 
 use super::*;
 #[cfg(not(feature = "oneThread"))]
-use std::sync::Weak;
-#[cfg(not(feature = "oneThread"))]
 use parking_lot::RwLock;
+#[cfg(not(feature = "oneThread"))]
+use std::sync::Weak;
 #[cfg(feature = "oneThread")]
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};
@@ -84,7 +84,9 @@ impl Root {
     pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
             #[cfg(not(feature = "oneThread"))]
-            {edge.read().rebut()}
+            {
+                edge.read().rebut()
+            }
             #[cfg(feature = "oneThread")]
             read_part(&edge, |edge| edge.rebut())?
         } else {
@@ -170,7 +172,7 @@ impl Back {
             Ok(Ring::new())
         }
     }
-    pub async  fn react(&self, id: &Id) -> react::Result {
+    pub async fn react(&self, id: &Id) -> react::Result {
         if let Some(cusp) = self.cusp.upgrade() {
             #[cfg(feature = "oneThread")]
             match cusp.try_borrow_mut() {

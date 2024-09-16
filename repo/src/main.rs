@@ -50,10 +50,12 @@ async fn service<'a>(
     _: Request<impl Body>,
     hub: Hub<u8>,
 ) -> Result<Response<Full<Bytes>>, Infallible> {
-    hub.read(|value| { 
+    hub.read(|value| {
         println!("value: {value}");
         // *value += 1;
-    }).await.ok();
+    })
+    .await
+    .ok();
     // hub.write(|value| { // : &'static mut u8
     //     println!("value: {value}");
     //     *value += 1;

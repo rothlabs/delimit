@@ -67,9 +67,9 @@ impl<T> BaseMut<T> for Leaf<T> {
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> ReactMut for Leaf<T> 
-where 
-    T: SendSync
+impl<T> ReactMut for Leaf<T>
+where
+    T: SendSync,
 {
     async fn react(&mut self, _: &Id) -> react::Result {
         Ok(())
@@ -88,7 +88,7 @@ where
     }
 }
 
-impl<T> ReckonMut for Leaf<T> 
+impl<T> ReckonMut for Leaf<T>
 where
     T: 'static + Payload,
 {

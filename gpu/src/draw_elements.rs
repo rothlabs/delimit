@@ -34,12 +34,8 @@ impl DrawElementsBuilder {
 impl DrawElements {
     fn draw(&self, vao: &Vao, count: i32, offset: i32) {
         vao.bind();
-        self.gl.draw_elements_with_i32(
-            WGLRC::TRIANGLES,
-            count,
-            WGLRC::UNSIGNED_SHORT,
-            offset,
-        );
+        self.gl
+            .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
         vao.unbind();
     }
 }
@@ -59,6 +55,4 @@ impl Act for DrawElements {
     }
 }
 
-impl Reckon for DrawElements {
-    
-}
+impl Reckon for DrawElements {}

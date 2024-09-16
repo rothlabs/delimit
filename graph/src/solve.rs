@@ -44,14 +44,13 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-pub fn reckon_ok() -> Result<Gain>
-{
+pub fn reckon_ok() -> Result<Gain> {
     Ok(Gain::None)
 }
 
 pub fn solve_ok<T>() -> Result<Hub<T>>
-where 
-    T: 'static + Payload
+where
+    T: 'static + Payload,
 {
     Ok(Hub::none())
 }
@@ -70,7 +69,7 @@ pub trait Act {
 impl<A: Act + SendSync> Solve for A {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
-    //fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send {
+        //fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send {
         self.act().await?;
         solve_ok()
     }
@@ -88,8 +87,6 @@ pub trait SolveMut {
 pub trait ReckonMut {
     fn reckon(&mut self, task: Task) -> Result<Gain>;
 }
-
-
 
 // // #[async_trait]
 // pub trait SolveMut {

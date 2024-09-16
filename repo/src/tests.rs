@@ -19,9 +19,15 @@ async fn write_and_read_serial_page() -> graph::Result<()> {
     assert_eq!(html.base().await?, html::default::PAGE);
     let plain = html.down(PLAIN).await?;
     bay.get("title_element")?.set(0, "html mutated")?;
-    assert_eq!(html.base().await?, html::default::HTML_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(
+        html.base().await?,
+        html::default::HTML_PAGE_WITH_MUTATED_TITLE
+    );
     plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
-    assert_eq!(plain.base().await?, html::default::PLAIN_PAGE_WITH_MUTATED_TITLE);
+    assert_eq!(
+        plain.base().await?,
+        html::default::PLAIN_PAGE_WITH_MUTATED_TITLE
+    );
     Ok(())
 }
 

@@ -1,13 +1,12 @@
+use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{window, WebGlSync};
-use gloo_timers::callback::Timeout;
 
 use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
 pub struct BufferIn {
-    gl: WGLRC,
     buffer: Buffer,
     size: Hub<i32>,
     draw: Node<DrawArrays>,
@@ -30,21 +29,22 @@ impl Solve for BufferIn {
     type Base = Vf32;
     async fn solve(&self) -> Result<Hub<Vf32>> {
         self.draw.act().await?;
-        let sync = self.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;
-        let promise = Promise::new(&mut |resolve, _| 
-            poll(self.gl.clone(), sync.clone(), resolve)
-        );
+        let sync = self
+            .buffer
+            .gl
+            .fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0)
+            .ok_or(anyhow!("make fenc sync failed"))?;
+        let promise =
+            Promise::new(&mut |resolve, _| poll(self.buffer.gl.clone(), sync.clone(), resolve));
         if let Err(err) = JsFuture::from(promise).await {
             Err(anyhow!("JsFuture failed {:?}", err))?
         }
         self.buffer.bind();
         let mut array = vec![0.; self.size.base().await? as usize];
         let view = unsafe { Float32Array::view(array.as_mut_slice()) };
-        self.gl.get_buffer_sub_data_with_i32_and_array_buffer_view(
-            WGLRC::ARRAY_BUFFER,
-            0,
-            &view,
-        );
+        self.buffer
+            .gl
+            .get_buffer_sub_data_with_i32_and_array_buffer_view(WGLRC::ARRAY_BUFFER, 0, &view);
         self.buffer.unbind();
         Ok(array.leaf().hub())
     }
@@ -58,14 +58,13 @@ fn poll(gl: WGLRC, sync: WebGlSync, resolve: Function) {
         panic!("WGLRC::WAIT_FAILED");
     } else {
         let window = window().unwrap();
-        if let Err(_) = window.set_timeout_with_callback(&resolve) {
-            panic!("set_timeout_with_callback failed")
+        if let Err(err) = window.set_timeout_with_callback(&resolve) {
+            panic!("set_timeout_with_callback: {:?}", err)
         }
     }
 }
 
 impl Reckon for BufferIn {}
-
 
 // impl BufferIn {
 //     fn poll(&self) -> Result<()> {

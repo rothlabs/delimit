@@ -37,7 +37,7 @@ impl Solve for Tag {
             .push(self.name.down(PLAIN).await?)
             .extend(self.attributes.down(PLAIN).await?)
             .hub()?;
-        Ok(List::new().push("<").push(&items).push(">").hub()?)
+        List::new().push("<").push(&items).push(">").hub()
     }
 }
 

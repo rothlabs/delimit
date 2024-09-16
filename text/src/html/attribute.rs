@@ -32,13 +32,12 @@ impl Adapt for Attribute {
 impl Solve for Attribute {
     type Base = String;
     async fn solve(&self) -> Result<Hub<String>> {
-        let hub = List::new()
+        List::new()
             .push(self.name.down(PLAIN).await?)
             .push(r#"=""#)
             .push(self.content.down(PLAIN).await?)
             .push(r#"""#)
-            .hub()?;
-        Ok(hub)
+            .hub()
     }
 }
 

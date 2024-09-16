@@ -32,7 +32,8 @@ impl Shader {
 impl Act for Shader {
     async fn act(&self) -> Result<()> {
         self.source
-            .read(|src| self.gl.shader_source(&self.object, src)).await?;
+            .read(|src| self.gl.shader_source(&self.object, src))
+            .await?;
         self.gl.compile_shader(&self.object);
         if self
             .gl
@@ -51,6 +52,4 @@ impl Act for Shader {
     }
 }
 
-impl Reckon for Shader {
-    
-}
+impl Reckon for Shader {}

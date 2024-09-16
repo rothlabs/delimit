@@ -40,15 +40,15 @@ impl Texture {
         if let Err(memo) = self
             .gl
             .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(
-                WGLRC::TEXTURE_2D,                      // target
-                0,                                      // level,
-                WGLRC::RGB as i32,                      // internalformat,
+                WGLRC::TEXTURE_2D, // target
+                0,                 // level,
+                WGLRC::RGB as i32, // internalformat,
                 width,
                 height,
-                0,                                      // border,
-                WGLRC::RGB,                             // format
-                WGLRC::UNSIGNED_BYTE,                   // type_
-                Some(&pixels),                          // pixels
+                0,                    // border,
+                WGLRC::RGB,           // format
+                WGLRC::UNSIGNED_BYTE, // type_
+                Some(&pixels),        // pixels
             )
         {
             let memo = memo
@@ -66,15 +66,17 @@ impl Act for Texture {
         let height = self.height.base().await.unwrap_or_default();
         self.bind();
         match &self.array {
-            Apex::Vu8(array) => array.read(|array| self.vec_u8(array, width, height)).await?,
+            Apex::Vu8(array) => {
+                array
+                    .read(|array| self.vec_u8(array, width, height))
+                    .await?
+            }
             _ => Err(anyhow!("wrong apex"))?,
         }
     }
 }
 
-impl Reckon for Texture {
-    
-}
+impl Reckon for Texture {}
 
 // self.gl.tex_storage_2d(target, levels, internalformat, width, height)
 // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(target, level, internalformat, width, height, border, format, type_, pixels)
