@@ -19,4 +19,7 @@
             # erased-serde = {workspace = true}
             # enum-as-inner = {workspace = true}
     # delimit
-        graph = { path = "../graph" }
+        graph = { path = "../graph", default-features = false }
+
+[dev-dependencies]
+tokio = { version = "1.40.0", features = ["test-util"] }

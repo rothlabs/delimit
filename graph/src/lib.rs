@@ -7,7 +7,6 @@ pub use deal::Deal;
 use derive_builder::UninitializedFieldError;
 pub use edge::Edge;
 pub use hub::{DealItem, Hub, SolveDown};
-use js_sys::wasm_bindgen::{JsError, JsValue};
 pub use lake::{Lake, Serial};
 pub use link::{Leaf, Link, Node, ToLeaf, IntoLeaf};
 pub use map::Map;
@@ -106,8 +105,6 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
-    // #[error(transparent)]
-    // JsValue(#[from] JsValue),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
