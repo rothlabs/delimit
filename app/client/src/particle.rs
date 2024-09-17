@@ -1,7 +1,3 @@
-// use web_sys::js_sys::Math::random;
-
-use web_sys::js_sys::Math::random;
-
 use crate::prelude::*;
 use crate::log;
 
@@ -11,15 +7,6 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").make()?;
-        // #[rustfmt::skip]
-        // let mut points: Vec<f32> = vec![
-        //     // pos        vel
-        //     0., -1.0,   0.01, 0.01,
-        //     0., -0.5,   -0.01, 0.01,
-        //     0.,  0.0,   0.01, -0.01,
-        //     0.,  0.5,   -0.01, -0.01,
-        //     0.,  1.0,   0.01, 0.01,
-        // ];
         let count = 20;
         let mut points = vec![];
         for _ in 0..count {
@@ -83,12 +70,8 @@ impl ParticlesBuilder {
 
 impl Act for Particles {
     async fn act(&self) -> Result<()> {
-        // console_log!("tick: {}", self.tick.base().await?);
-        // if self.tick.base().await? % 2 == 0 {
-            self.draw0.act().await?;
-        // } else {
-            self.draw1.act().await
-        // }
+        self.draw0.act().await?;
+        self.draw1.act().await
     }
 }
 
