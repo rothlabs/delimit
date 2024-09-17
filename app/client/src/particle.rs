@@ -7,7 +7,7 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").out_type(WGLRC::SEPARATE_ATTRIBS).make()?;
-        let point_count = 4;
+        let point_count = 16;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -61,7 +61,7 @@ impl Sim {
             .out("position0").out("position1").out("position2").out("position3")
             .make()?;
         let mut curve_array = vec![];
-        let order = 4;
+        let order = 16;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
@@ -218,17 +218,27 @@ layout(location = 11) in vec4 bD;
 void main() {
     vec2 out_pos = vec2(0., 0.);
     out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
-    out_pos.x += c0.z*bB[0] + c1.z*bB[1] + c2.z*bB[2] + c3.z*bB[3];
-    out_pos.x += c4.x*bC[0] + c5.x*bC[1] + c6.x*bC[2] + c7.x*bC[3];
+    out_pos.x += c4.x*bB[0] + c5.x*bB[1] + c6.x*bB[2] + c7.x*bB[3];
+    out_pos.x += c0.z*bC[0] + c1.z*bC[1] + c2.z*bC[2] + c3.z*bC[3];
     out_pos.x += c4.z*bD[0] + c5.z*bD[1] + c6.z*bD[2] + c7.z*bD[3];
 
     out_pos.y =  c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
-    out_pos.y += c0.w*bB[0] + c1.w*bB[1] + c2.w*bB[2] + c4.w*bB[3];
-    out_pos.y += c4.y*bC[0] + c5.y*bC[1] + c6.y*bC[2] + c7.y*bC[3];
+    out_pos.y += c4.y*bB[0] + c5.y*bB[1] + c6.y*bB[2] + c7.y*bB[3];
+    out_pos.y += c0.w*bC[0] + c1.w*bC[1] + c2.w*bC[2] + c3.w*bC[3];
     out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
     gl_PointSize = 4.;
 }";
+
+    // out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
+    // out_pos.x += c0.z*bB[0] + c1.z*bB[1] + c2.z*bB[2] + c3.z*bB[3];
+    // out_pos.x += c4.x*bC[0] + c5.x*bC[1] + c6.x*bC[2] + c7.x*bC[3];
+    // out_pos.x += c4.z*bD[0] + c5.z*bD[1] + c6.z*bD[2] + c7.z*bD[3];
+
+    // out_pos.y =  c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
+    // out_pos.y += c0.w*bB[0] + c1.w*bB[1] + c2.w*bB[2] + c4.w*bB[3];
+    // out_pos.y += c4.y*bC[0] + c5.y*bC[1] + c6.y*bC[2] + c7.y*bC[3];
+    // out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
 
 pub const CURVE_FRAG: &str = r"#version 300 es
 precision highp float;
