@@ -20,6 +20,8 @@ pub struct VertexAttribute {
     /// Byte offset of first value
     #[builder(default)]
     offset: Hub<i32>,
+    #[builder(default)]
+    divisor: Hub<i32>,
 }
 
 impl VertexAttributeBuilder {
@@ -30,6 +32,7 @@ impl VertexAttributeBuilder {
             attrib.size = attrib.size.backed(back)?;
             attrib.stride = attrib.stride.backed(back)?;
             attrib.offset = attrib.offset.backed(back)?;
+            attrib.divisor = attrib.divisor.backed(back)?;
             Ok(attrib)
         })
     }
@@ -47,6 +50,10 @@ impl Act for VertexAttribute {
             self.stride.base().await.unwrap_or_default(),
             self.offset.base().await.unwrap_or_default(),
         );
+        let divisor = self.divisor.base().await.unwrap_or_default();
+        if divisor > 0 {
+            self.buffer.gl.vertex_attrib_divisor(index, divisor as u32);
+        }
         self.buffer.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
         Ok(())

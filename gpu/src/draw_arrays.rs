@@ -19,13 +19,15 @@ pub struct DrawArrays {
     #[builder(default)]
     count: Hub<i32>,
     #[builder(default)]
+    instances: Hub<i32>,
+    #[builder(default)]
     tfo: Option<Tfo>,
     #[builder(default)]
     rasterizer_discard: bool,
     #[builder(default)]
     tick: Hub<i32>,
-    #[builder(default)]
-    step: Hub<i32>,
+    // #[builder(default)]
+    // step: Hub<i32>,
 }
 
 impl DrawArraysBuilder {
@@ -37,22 +39,25 @@ impl DrawArraysBuilder {
             draw.vao = draw.vao.backed(back)?;
             draw.first = draw.first.backed(back)?;
             draw.count = draw.count.backed(back)?;
+            draw.instances = draw.instances.backed(back)?;
             draw.tick = draw.tick.backed(back)?;
-            draw.step = draw.step.backed(back)?;
+            // draw.step = draw.step.backed(back)?;
             Ok(draw)
         })
     }
 }
 
 impl DrawArrays {
-    fn draw(&self, vao: &Vao, first: i32, count: i32) -> Result<()> {
+    fn draw(&self, vao: &Vao, first: i32, count: i32, instances: i32) -> Result<()> {
         vao.bind();
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
-            self.gl.draw_arrays(self.mode, first, count);
+            // self.gl.draw_arrays(self.mode, first, count);
+            self.gl.draw_arrays_instanced(self.mode, first, count, instances);
             self.gl.disable(WGLRC::RASTERIZER_DISCARD);
         } else {
-            self.gl.draw_arrays(self.mode, first, count);
+            // self.gl.draw_arrays(self.mode, first, count);
+            self.gl.draw_arrays_instanced(self.mode, first, count, instances);
         }
         vao.unbind();
         Ok(())
@@ -62,7 +67,7 @@ impl DrawArrays {
 impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
         let tick = self.tick.base().await.unwrap_or_default();
-        if tick % 2 == self.step.base().await.unwrap_or_default() {
+        // if tick % 2 == self.step.base().await.unwrap_or_default() {
             self.program.act().await?;
             self.program.read(|unit| unit.use_())?;
             for bufferer in &self.writers {
@@ -71,14 +76,15 @@ impl Act for DrawArrays {
             self.vao.act().await?;
             let first = self.first.base().await.unwrap_or_default();
             let count = self.count.base().await.unwrap_or_default();
+            let instances = self.instances.base().await.unwrap_or_default();
             if let Some(tfo) = &self.tfo {
                 tfo.begin(self.mode);
-                self.vao.read(|vao| self.draw(vao, first, count))??;
+                self.vao.read(|vao| self.draw(vao, first, count, instances))??;
                 tfo.end();
             } else {
-                self.vao.read(|vao| self.draw(vao, first, count))??;
+                self.vao.read(|vao| self.draw(vao, first, count, instances))??;
             }       
-        }
+        // }
         Ok(())
     }
 }
