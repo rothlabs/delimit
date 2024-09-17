@@ -7,7 +7,7 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").out_type(WGLRC::SEPARATE_ATTRIBS).make()?;
-        let point_count = 32;
+        let point_count = 4;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -61,7 +61,7 @@ impl Sim {
             .out("position0").out("position1").out("position2").out("position3")
             .make()?;
         let mut curve_array = vec![];
-        let order = 16;
+        let order = 4;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
