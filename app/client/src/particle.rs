@@ -7,7 +7,7 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").make()?;
-        let point_count = 20;
+        let point_count = 8;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -22,7 +22,7 @@ impl Sim {
         let vao0 = self.gpu.vao()?.attributes(vec![pos0, vel0]).make()?;
         let tfo0 = self.gpu.tfo()?.buffer(&cp_buff).make()?;
         let buffer1 = self.gpu.buffer()?;
-        buffer1.writer().array(point_count * 16).make()?.act().await?;
+        buffer1.writer().array(point_count * 16 * 2).make()?.act().await?;
         let pos1 = buffer1.attribute().size(2).stride(16).make()?;
         let vel1 = buffer1.attribute().size(2).stride(16).offset(8).index(1).make()?;
         let vao1 = self.gpu.vao()?.attributes(vec![pos1, vel1]).make()?;
@@ -46,7 +46,7 @@ impl Sim {
             .tick(&tick)
             .make()?;
 
-        let seg_count = 50;
+        let seg_count = 80;
         let vertex = self.gpu.vertex_shader(NURBS)?;
         let fragment = self.gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
         let program = self.gpu
@@ -71,7 +71,7 @@ impl Sim {
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let basis_buf = self.gpu.buffer()?;
-        let _ = basis_buf.writer().array(4 * (order * seg_count * curve_count + 3)).make()?.act().await?;
+        let _ = basis_buf.writer().array(4 * (order * seg_count * curve_count)).make()?.act().await?;
         let tfo = self.gpu.tfo()?.buffer(&basis_buf).make()?;
         let basis_draw = self.gpu
             .draw_arrays(program)
@@ -83,32 +83,33 @@ impl Sim {
             .instances(curve_count)
             .tick(&tick)
             .make()?;
-        let reader = basis_buf.reader().size(order * seg_count * curve_count + 3).draw(basis_draw.clone()).make()?;
-
+        // let reader = basis_buf.reader().size(order * seg_count * curve_count + 3)
+        // .draw(basis_draw.clone())
+        // .make()?;
 
         let vert = self.gpu.vertex_shader(CURVE)?;
         let frag = self.gpu.fragment_shader(CURVE_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.make()?;
         let attribs = vec![
-            cp_buff.attribute().size(2).stride(16).make()?,
-            cp_buff.attribute().size(2).stride(16).offset(16).index(1).make()?,
-            cp_buff.attribute().size(2).stride(16).offset(32).index(2).make()?,
-            cp_buff.attribute().size(2).stride(16).offset(48).index(3).make()?,
-            basis_buf.attribute().size(4).stride(16).divisor(1).index(4).make()?,
+            cp_buff.attribute().size(2).stride(16).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(16).index(1).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(32).index(2).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(48).index(3).divisor(1).make()?,
+            basis_buf.attribute().size(4).stride(16).index(4).make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let curve_draw = self.gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
             .vao(vao)
-            .count(seg_count)
+            .count(seg_count) //////////////////////////////////////////
             .instances(curve_count)
             .tick(&tick)
             .make()?;
 
         let particles = ParticlesBuilder::default().draw0(draw0).draw1(draw1).basis(basis_draw)
         .curve(curve_draw)
-        .reader(reader)
+        // .reader(reader)
         .tick(tick);
         Ok(particles)
     }
@@ -123,7 +124,7 @@ pub struct Particles {
     draw1: Node<DrawArrays>,
     basis: Node<DrawArrays>,
     curve: Node<DrawArrays>,
-    reader: Hub<Vf32>,
+    // reader: Hub<Vf32>,
 }
 
 impl ParticlesBuilder {
@@ -145,7 +146,7 @@ impl Act for Particles {
         }
         self.basis.act().await?;
         self.curve.act().await?;
-        console_log!("basis: {:?}", self.reader.base().await?);
+        // console_log!("basis: {:?}", self.reader.base().await?);
         Ok(())
     }
 }
@@ -161,8 +162,14 @@ out vec2 out_vel;
 
 void main() {
     out_pos = pos + vel;
-    out_pos = mod(out_pos + 1.0, 2.0) - 1.0;
+    // out_pos = mod(out_pos + 1.0, 2.0) - 1.0;
     out_vel = vel;
+    if(out_pos.x < -1. || out_pos.x > 1.) {
+        out_vel.x = -out_vel.x;
+    }
+    if(out_pos.y < -1. || out_pos.y > 1.) {
+        out_vel.y = -out_vel.y;
+    }
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
     gl_PointSize = 6.;
 }";

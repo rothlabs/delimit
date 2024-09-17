@@ -55,7 +55,7 @@ pub async fn initialize() -> std::result::Result<(), JsValue> {
     particles.act().await.unwrap();
     for _ in 0..1000 {
         tick.write(|x| *x += 1).await.unwrap();
-        TimeoutFuture::new(1000).await;
+        TimeoutFuture::new(16).await;
     }
     Ok(())
 }
