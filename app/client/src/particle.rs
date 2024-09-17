@@ -52,26 +52,27 @@ impl Sim {
         let program = self.gpu
             .program(vertex, fragment)?
             .out("position0")
+            .out("position1")
             .make()?;
         let mut curve_array = vec![];
-        let order = 4;
+        let order = 8;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
-            curve_array.extend(vec![0., 0., 0., 0.,  1., 1., 1., 1.]);
+            curve_array.extend(vec![0., 0., 0., 0., 0., 0., 0., 0.,  1., 1., 1., 1., 1., 1., 1., 1.]);
         }
         let nurbs_buff = self.gpu.buffer()?;
         let _ = nurbs_buff.writer().array(curve_array).make()?.act().await?;
         let attribs = vec![
-            nurbs_buff.attribute().size(1).stride(36).divisor(1).make()?,
-            nurbs_buff.attribute().size(4).stride(36).offset(4).divisor(1).index(1).make()?,
-            nurbs_buff.attribute().size(4).stride(36).offset(20).divisor(1).index(2).make()?,
-            // buffer.attribute().size(4).stride(68).offset(36).index(3).make()?,
-            // buffer.attribute().size(4).stride(68).offset(52).index(4).make()?,
+            nurbs_buff.attribute().size(1).stride(68).divisor(1).make()?,
+            nurbs_buff.attribute().size(4).stride(68).offset(4).divisor(1).index(1).make()?,
+            nurbs_buff.attribute().size(4).stride(68).offset(20).divisor(1).index(2).make()?,
+            nurbs_buff.attribute().size(4).stride(68).offset(36).divisor(1).index(3).make()?,
+            nurbs_buff.attribute().size(4).stride(68).offset(52).divisor(1).index(4).make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let basis_buf = self.gpu.buffer()?;
-        let _ = basis_buf.writer().array(4 * (order * seg_count * curve_count)).make()?.act().await?;
+        let _ = basis_buf.writer().array(4 * order * seg_count * curve_count).make()?.act().await?;
         let tfo = self.gpu.tfo()?.buffer(&basis_buf).make()?;
         let basis_draw = self.gpu
             .draw_arrays(program)
@@ -95,7 +96,12 @@ impl Sim {
             cp_buff.attribute().size(2).stride(16).offset(16).index(1).divisor(1).make()?,
             cp_buff.attribute().size(2).stride(16).offset(32).index(2).divisor(1).make()?,
             cp_buff.attribute().size(2).stride(16).offset(48).index(3).divisor(1).make()?,
-            basis_buf.attribute().size(4).stride(16).index(4).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(64).index(4).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(80).index(5).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(96).index(6).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(112).index(7).divisor(1).make()?,
+            basis_buf.attribute().size(4).stride(32).index(8).make()?,
+            basis_buf.attribute().size(4).stride(32).offset(16).index(9).make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let curve_draw = self.gpu
@@ -187,11 +193,18 @@ layout(location = 0) in vec2 c0;
 layout(location = 1) in vec2 c1;
 layout(location = 2) in vec2 c2;
 layout(location = 3) in vec2 c3;
-layout(location = 4) in vec4 b;
+layout(location = 4) in vec2 c4;
+layout(location = 5) in vec2 c5;
+layout(location = 6) in vec2 c6;
+layout(location = 7) in vec2 c7;
+layout(location = 8) in vec4 bA;
+layout(location = 9) in vec4 bB;
 void main() {
     vec2 out_pos = vec2(0., 0.);
-    out_pos.x = c0.x*b[0] + c1.x*b[1] + c2.x*b[2] + c3.x*b[3];
-    out_pos.y = c0.y*b[0] + c1.y*b[1] + c2.y*b[2] + c3.y*b[3];
+    out_pos.x = c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
+    out_pos.x = out_pos.x + (c4.x*bB[0] + c5.x*bB[1] + c6.x*bB[2] + c7.x*bB[3]);
+    out_pos.y = c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
+    out_pos.y = out_pos.y + (c4.y*bB[0] + c5.y*bB[1] + c6.y*bB[2] + c7.y*bB[3]);
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
     gl_PointSize = 4.;
 }";
@@ -208,28 +221,28 @@ pub const NURBS: &str = r"#version 300 es
 layout(location = 0) in float order;
 layout(location = 1) in vec4 knots0;
 layout(location = 2) in vec4 knots1;
-// layout(location = 3) in vec4 knots2;
-// layout(location = 4) in vec4 knots3;
+layout(location = 3) in vec4 knots2;
+layout(location = 4) in vec4 knots3;
 
 out vec4 position0;
-// out vec4 position1;
+out vec4 position1;
 
 // max order
-const int order_max = 4;
+const int order_max = 8;
 // max knots
-const int knot_max = 8;
+const int knot_max = 16;
 
 void main() {
     int knot_index = knot_max - int(order) - 1;
-    float u = float(gl_VertexID) / 50.0;
+    float u = float(gl_VertexID) / 80.0;
     float[knot_max] knots = float[knot_max](
         knots0[0], knots0[1], knots0[2], knots0[3], 
-        knots1[0], knots1[1], knots1[2], knots1[3]
-            // knots2[0], knots2[1], knots2[2], knots2[3],
-            // knots3[0], knots3[1], knots3[2], knots3[3]
+        knots1[0], knots1[1], knots1[2], knots1[3],
+        knots2[0], knots2[1], knots2[2], knots2[3],
+        knots3[0], knots3[1], knots3[2], knots3[3]
     );
-        // float[order_max] pos = float[order_max](0., 0., 0., 0., 0., 0., 0., 1.);
-    float[order_max] pos = float[order_max](0., 0., 0., 1.);
+    float[order_max] pos = float[order_max](0., 0., 0., 0., 0., 0., 0., 1.);
+    // float[order_max] pos = float[order_max](0., 0., 0., 1.);
     for (int deg = 1; deg < int(order); deg++) {
         for (int i = 0; i < deg + 1; i++) {
             int b0 = order_max - 1 - deg + i;
@@ -253,5 +266,5 @@ void main() {
         }
     }
     position0 = vec4(pos[0], pos[1], pos[2], pos[3]);
-    // position1 = vec4(pos[4], pos[5], pos[6], pos[7]);
+    position1 = vec4(pos[4], pos[5], pos[6], pos[7]);
 }";
