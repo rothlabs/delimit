@@ -12,6 +12,8 @@ pub struct Program {
     #[builder(default)]
     #[builder(setter(each(name = "out", into)))]
     outs: Vec<Hub<String>>,
+    #[builder(default = "WGLRC::INTERLEAVED_ATTRIBS")]
+    pub out_type: u32,
 }
 
 impl ProgramBuilder {
@@ -49,7 +51,7 @@ impl Act for Program {
             self.gl.transform_feedback_varyings(
                 &self.object,
                 &outs.into(),
-                WGLRC::INTERLEAVED_ATTRIBS,
+                self.out_type,
             );
         }
         self.gl.link_program(&self.object);
