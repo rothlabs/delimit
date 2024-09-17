@@ -230,7 +230,8 @@ impl Ring {
                 result.roots.extend(ring.roots);
             }
         }
-        self.roots.clear();
+        // TODO: figure out how to add this back in
+        ///////////////////////////////////// self.roots.clear();
         Ok(result)
     }
     pub fn rebut_roots(&mut self) -> crate::Result<Vec<Root>> {
@@ -238,7 +239,8 @@ impl Ring {
         for root in &self.roots {
             ring.roots.extend(root.rebut()?.roots);
         }
-        self.roots.clear();
+        // TODO: figure out how to add this back in
+        //////////////////////////////////// self.roots.clear();
         Ok(Vec::from_iter(ring.roots))
     }
 }

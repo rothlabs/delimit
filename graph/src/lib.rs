@@ -110,6 +110,16 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+// pub trait ErrorToJsValue {
+//     fn js_err(&self)
+// }
+
+// impl From<JsValue> for Error {
+//     fn from(value: JsValue) -> Self {
+//         Error::Any(anyhow!("crap"))
+//     }
+// }
+
 pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
 }

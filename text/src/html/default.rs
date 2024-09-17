@@ -61,15 +61,15 @@ pub fn default_bay() -> Result<Hub<()>> {
     let canvas = Element::new().open(tag).close()?.hub()?;
     bay.insert("canvas", canvas)?;
 
-    let src = Attribute::new().name("src").content("/app.js").hub()?;
+    let src = Attribute::new().name("src").content("/boot.js").hub()?;
     let module = Attribute::new().name("type").content("module").hub()?;
     let tag = Tag::new()
         .name("script")
         .attribute(src)
         .attribute(module)
         .hub()?;
-    let app = Element::new().open(tag).close()?.hub()?;
-    bay.insert("app", app)?;
+    let boot = Element::new().open(tag).close()?.hub()?;
+    bay.insert("boot", boot)?;
 
     let root = bay.hub()?;
 
@@ -94,7 +94,7 @@ pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
         .open(bay.get("body")?.pathed("body").string()?)
         .item(bay.get("title")?.pathed("title").string()?)
         .item(bay.get("canvas")?.pathed("canvas").string()?)
-        .item(bay.get("app")?.pathed("app").string()?)
+        .item(bay.get("boot")?.pathed("boot").string()?)
         .close()?
         .import(WORLD_ALL)
         .hub();
@@ -145,7 +145,7 @@ Delimit
 Delimit
 <canvas id="canvas">
 </canvas>
-<script src="/app.js" type="module">
+<script src="/boot.js" type="module">
 </script>
 </body>
 </html>"#;
@@ -167,7 +167,7 @@ html mutated
 Delimit
 <canvas id="canvas">
 </canvas>
-<script src="/app.js" type="module">
+<script src="/boot.js" type="module">
 </script>
 </body>
 </html>"#;
@@ -189,7 +189,7 @@ plain mutated
 Delimit
 <canvas id="canvas">
 </canvas>
-<script src="/app.js" type="module">
+<script src="/boot.js" type="module">
 </script>
 </body>
 </html>"#;

@@ -37,8 +37,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
 
-    let mut test_data = 0;
-
     loop {
         // When an incoming TCP connection is received grab a TCP stream for
         // client<->server communication.
@@ -57,12 +55,11 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // current task without waiting for the processing of the HTTP1 connection we just received
         // to finish
         tokio::task::spawn(async move {
-            test_data += 1;
             // Handle the connection from the client using HTTP1 and pass any
             // HTTP requests received on that connection to the `hello` function
             if let Err(err) = http1::Builder::new()
                 .timer(TokioTimer::new())
-                .serve_connection(io, service_fn(|req| handle(req, test_data)))
+                .serve_connection(io, service_fn(|req| handle(req)))
                 .await
             {
                 println!("Error serving connection: {:?}", err);
@@ -73,10 +70,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
 type RequestResult = hyper::Result<Response<BoxBody<Bytes, std::io::Error>>>;
 
-async fn handle(req: Request<Incoming>, count: i32) -> RequestResult {
-    println!("count!!! {count}");
+async fn handle(req: Request<Incoming>) -> RequestResult {
+    println!("request");
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => text(index().unwrap()),
+        (&Method::GET, "/") => text(index().await.unwrap()),
         (&Method::GET, BOOT) => static_file(BOOT).await,
         (&Method::GET, INIT) => client_file(INIT).await,
         (&Method::GET, MAIN) => client_file(MAIN).await,

@@ -23,3 +23,9 @@ impl IntoLeaf<Vf32> for Vec<f32> {
         Leaf::new(Vf32(self))
     }
 }
+
+impl IntoLeaf<i32> for i32 {
+    fn leaf(self) -> Leaf<i32> {
+        Leaf::new(self)
+    }
+}

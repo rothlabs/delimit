@@ -9,6 +9,7 @@
     oneThread = []
 
 [dependencies]
+    js-sys = "0.3.70"
     # third party
         # futures
             futures = { version = "0.3.3", optional = true }

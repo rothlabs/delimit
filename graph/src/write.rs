@@ -27,7 +27,7 @@ pub trait WriteBase<T> {
 
 pub trait WriteBaseOut<T> {
     /// Write and return the hub meta and graph roots of the rebut. Hub level.
-    fn write_tray_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
+    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]

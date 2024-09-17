@@ -1,5 +1,6 @@
 use graph::*;
 use serde::Serialize;
+use text::html;
 
 // use text::html::{attribute_set, Doc};
 
@@ -26,8 +27,9 @@ impl Default for Imports {
     }
 }
 
-pub fn index() -> Result<String> {
-    Ok("page".into())
+pub async fn index() -> Result<String> {
+    let page = html::default::default_bay()?.get("page")?.string()?.base().await?;
+    Ok(page)
 }
 
 //     let atts = attribute_set();

@@ -238,9 +238,9 @@ where
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         #[cfg(feature = "oneThread")]
         let write::Out { roots, id, out } =
-            write_part(&self.cusp, |mut cusp| cusp.write_tray_out(write))??;
+            write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         #[cfg(not(feature = "oneThread"))]
-        let write::Out { roots, id, out } = self.cusp.write().write_tray_out(write)?;
+        let write::Out { roots, id, out } = self.cusp.write().write_base_out(write)?;
         for root in &roots {
             root.react(&id).await?;
         }
