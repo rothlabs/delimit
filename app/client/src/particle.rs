@@ -7,7 +7,7 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").make()?;
-        let point_count = 8;
+        let point_count = 16;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -51,24 +51,27 @@ impl Sim {
         let fragment = self.gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
         let program = self.gpu
             .program(vertex, fragment)?
-            .out("position0")
-            .out("position1")
+            .out("position0").out("position1").out("position2").out("position3")
             .make()?;
         let mut curve_array = vec![];
-        let order = 8;
+        let order = 16;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
-            curve_array.extend(vec![0., 0., 0., 0., 0., 0., 0., 0.,  1., 1., 1., 1., 1., 1., 1., 1.]);
+            curve_array.extend(vec![0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]);
         }
         let nurbs_buff = self.gpu.buffer()?;
         let _ = nurbs_buff.writer().array(curve_array).make()?.act().await?;
         let attribs = vec![
-            nurbs_buff.attribute().size(1).stride(68).divisor(1).make()?,
-            nurbs_buff.attribute().size(4).stride(68).offset(4).divisor(1).index(1).make()?,
-            nurbs_buff.attribute().size(4).stride(68).offset(20).divisor(1).index(2).make()?,
-            nurbs_buff.attribute().size(4).stride(68).offset(36).divisor(1).index(3).make()?,
-            nurbs_buff.attribute().size(4).stride(68).offset(52).divisor(1).index(4).make()?,
+            nurbs_buff.attribute().size(1).stride(132).divisor(1).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(4).divisor(1).index(1).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(20).divisor(1).index(2).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(36).divisor(1).index(3).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(52).divisor(1).index(4).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(68).divisor(1).index(5).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(84).divisor(1).index(6).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).make()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let basis_buf = self.gpu.buffer()?;
@@ -100,8 +103,18 @@ impl Sim {
             cp_buff.attribute().size(2).stride(16).offset(80).index(5).divisor(1).make()?,
             cp_buff.attribute().size(2).stride(16).offset(96).index(6).divisor(1).make()?,
             cp_buff.attribute().size(2).stride(16).offset(112).index(7).divisor(1).make()?,
-            basis_buf.attribute().size(4).stride(32).index(8).make()?,
-            basis_buf.attribute().size(4).stride(32).offset(16).index(9).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(128).index(8).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(144).index(9).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(160).index(10).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(176).index(11).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(192).index(12).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(208).index(13).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(224).index(14).divisor(1).make()?,
+            cp_buff.attribute().size(2).stride(16).offset(240).index(15).divisor(1).make()?,
+            basis_buf.attribute().size(4).stride(64).offset(0 ).index(16).make()?,
+            basis_buf.attribute().size(4).stride(64).offset(16).index(17).make()?,
+            basis_buf.attribute().size(4).stride(64).offset(32).index(18).make()?,
+            basis_buf.attribute().size(4).stride(64).offset(48).index(19).make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let curve_draw = self.gpu
@@ -197,14 +210,29 @@ layout(location = 4) in vec2 c4;
 layout(location = 5) in vec2 c5;
 layout(location = 6) in vec2 c6;
 layout(location = 7) in vec2 c7;
-layout(location = 8) in vec4 bA;
-layout(location = 9) in vec4 bB;
+layout(location = 8) in vec2 c8;
+layout(location = 9) in vec2 c9;
+layout(location = 10) in vec2 c10;
+layout(location = 11) in vec2 c11;
+layout(location = 12) in vec2 c12;
+layout(location = 13) in vec2 c13;
+layout(location = 14) in vec2 c14;
+layout(location = 15) in vec2 c15;
+layout(location = 16) in vec4 bA;
+layout(location = 17) in vec4 bB;
+layout(location = 18) in vec4 bC;
+layout(location = 19) in vec4 bD;
 void main() {
     vec2 out_pos = vec2(0., 0.);
-    out_pos.x = c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
-    out_pos.x = out_pos.x + (c4.x*bB[0] + c5.x*bB[1] + c6.x*bB[2] + c7.x*bB[3]);
-    out_pos.y = c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
-    out_pos.y = out_pos.y + (c4.y*bB[0] + c5.y*bB[1] + c6.y*bB[2] + c7.y*bB[3]);
+    out_pos.x =  c0.x*bA[0]  +  c1.x*bA[1] +  c2.x*bA[2] +  c3.x*bA[3];
+    out_pos.x += c4.x*bB[0]  +  c5.x*bB[1] +  c6.x*bB[2] +  c7.x*bB[3];
+    out_pos.x += c8.x*bC[0]  +  c9.x*bC[1] + c10.x*bC[2] + c11.x*bC[3];
+    out_pos.x += c12.x*bD[0] + c13.x*bD[1] + c14.x*bD[2] + c15.x*bD[3];
+
+    out_pos.y =  c0.y*bA[0]  + c1.y*bA[1]  +  c2.y*bA[2] +  c3.y*bA[3];
+    out_pos.y += c4.y*bB[0]  + c5.y*bB[1]  +  c6.y*bB[2] +  c7.y*bB[3];
+    out_pos.y += c8.y*bC[0]  + c9.y*bC[1]  + c10.y*bC[2] + c11.y*bC[3];
+    out_pos.y += c12.y*bD[0] + c13.y*bD[1] + c14.y*bD[2] + c15.y*bD[3];
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
     gl_PointSize = 4.;
 }";
@@ -223,14 +251,20 @@ layout(location = 1) in vec4 knots0;
 layout(location = 2) in vec4 knots1;
 layout(location = 3) in vec4 knots2;
 layout(location = 4) in vec4 knots3;
+layout(location = 5) in vec4 knots4;
+layout(location = 6) in vec4 knots5;
+layout(location = 7) in vec4 knots6;
+layout(location = 8) in vec4 knots7;
 
 out vec4 position0;
 out vec4 position1;
+out vec4 position2;
+out vec4 position3;
 
 // max order
-const int order_max = 8;
+const int order_max = 16;
 // max knots
-const int knot_max = 16;
+const int knot_max = 32;
 
 void main() {
     int knot_index = knot_max - int(order) - 1;
@@ -239,10 +273,13 @@ void main() {
         knots0[0], knots0[1], knots0[2], knots0[3], 
         knots1[0], knots1[1], knots1[2], knots1[3],
         knots2[0], knots2[1], knots2[2], knots2[3],
-        knots3[0], knots3[1], knots3[2], knots3[3]
+        knots3[0], knots3[1], knots3[2], knots3[3],
+        knots4[0], knots4[1], knots4[2], knots4[3], 
+        knots5[0], knots5[1], knots5[2], knots5[3],
+        knots6[0], knots6[1], knots6[2], knots6[3],
+        knots7[0], knots7[1], knots7[2], knots7[3]
     );
-    float[order_max] pos = float[order_max](0., 0., 0., 0., 0., 0., 0., 1.);
-    // float[order_max] pos = float[order_max](0., 0., 0., 1.);
+    float[order_max] pos = float[order_max](0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.);
     for (int deg = 1; deg < int(order); deg++) {
         for (int i = 0; i < deg + 1; i++) {
             int b0 = order_max - 1 - deg + i;
@@ -267,4 +304,6 @@ void main() {
     }
     position0 = vec4(pos[0], pos[1], pos[2], pos[3]);
     position1 = vec4(pos[4], pos[5], pos[6], pos[7]);
+    position2 = vec4(pos[8], pos[9], pos[10], pos[11]);
+    position3 = vec4(pos[12], pos[13], pos[14], pos[15]);
 }";
