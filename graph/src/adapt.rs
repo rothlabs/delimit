@@ -1,9 +1,5 @@
-// pub use post::Post;
-
 use super::*;
 use thiserror::Error;
-
-// pub mod post;
 
 pub trait Adapt {
     /// Alter an hub.
@@ -23,21 +19,20 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-// pub enum Memo {
-//     None,
-// }
-
-// pub fn adapt_ok() -> Result<Memo> {
-//     Ok(Memo::None)
-// }
-
 pub trait AdaptOut {
     /// Alter a hub.
     /// Useful for inserting, removing, and more.
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Vec<Root>, u64)>;
 }
 
-pub trait AdaptMid {
+pub trait AdaptGet {
     /// For graph internals to handle alter calls
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<()>;
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
+}
+
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+pub trait AdaptSet {
+    /// For graph internals to handle alter calls
+    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()>;
 }

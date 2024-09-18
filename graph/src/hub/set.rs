@@ -7,14 +7,14 @@ where
     /// Set one hub.
     pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Set::new(aim, apex)),
+            Self::Ploy(ploy) => ploy.adapt_get(&mut Set::new(aim, apex)),
             _ => Err(hub::Error::NotPloy)?,
         }
     }
     // Insert one hub
     pub fn insert(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Ploy(ploy) => ploy.adapt(&mut Insert::new(aim, apex)),
+            Self::Ploy(ploy) => ploy.adapt_get(&mut Insert::new(aim, apex)),
             _ => Err(hub::Error::NotPloy)?,
         }
     }

@@ -93,7 +93,7 @@ where
     /// Replace stems according to the Trade deal.
     pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
         if let Self::Ploy(ploy) = self {
-            ploy.adapt(deal)?;
+            ploy.adapt_get(deal)?;
         }
         Ok(())
     }

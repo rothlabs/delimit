@@ -1,4 +1,4 @@
-pub use adapt::{Adapt, AdaptMid, AdaptOut};
+pub use adapt::{Adapt, AdaptGet, AdaptSet, AdaptOut};
 pub use apex::Apex;
 pub use base::{Vf32, Vf64};
 pub use bay::Bay;

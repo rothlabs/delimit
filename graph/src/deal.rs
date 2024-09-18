@@ -2,7 +2,7 @@ use super::*;
 
 /// Trade a hub for another.
 /// The implmentation should return the same semantic hub with different graph qualities.
-pub trait Deal: Debug {
+pub trait Deal: Debug + SendSync {
     // Did the deal read the unit?
     fn read(&self) -> bool {
         false

@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use async_trait::async_trait;
 // use async_trait::async_trait;
 pub use leaf::*;
@@ -416,45 +417,49 @@ where
             }
             Err(err) => Err(Error::Write(err.to_string())),
         }
-
-        // match self.edge.read() {
-        //     Ok(edge) => {
-        //         let result = edge.solve().await;
-        //         edge.add_root(self.as_root(edge.id()))?;
-        //         result
-        //     },
-        //     Err(err) => Err(Error::Read(err.to_string())),
-        // }
     }
 }
 
-// impl<T> Reckon for Ploy<T>
-// where
-//     T: 'static + Payload
-// {
-//     fn reckon(&self, task: Task) -> Result<Gain> {
-//         read_part(&self.edge, |edge| {
-//             let result = edge.reckon(task);
-//             edge.add_root(self.as_root(edge.id()))?;
-//             result
-//         })?
-//     }
-// }
-
-impl<E> AdaptMid for Link<E>
+impl<E> AdaptGet for Link<E>
 where
-    E: 'static + AdaptMid + AddRoot + Update,
+    E: 'static + AdaptGet + AddRoot + Update,
 {
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
-            let result = edge.adapt(deal);
+            let result = edge.adapt_get(deal);
             if deal.read() {
                 edge.add_root(self.as_root(edge.id()))?;
             }
+            // } else {
+            //     return Err(anyhow!("Deal did not report reading in AdaptGet"))?;
+            // }
+            // if deal.wrote() {
+            //     return Err(anyhow!("Deal should not write in AdaptGet"))?;
+            // }
             result
         })?
     }
 }
+
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
+// impl<E> AdaptSet for Link<E>
+// where
+//     E: 'static + AdaptSet + AddRoot + Update,
+// {
+//     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
+//         read_part(&self.edge, |edge| async {
+//             let result = edge.adapt_set(deal).await;
+//             if deal.read() {
+//                 return Err(anyhow!("Deal should not read in AdaptSet"))?;
+//             }
+//             if !deal.wrote() {
+//                 return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
+//             }
+//             result
+//         })?
+//     }
+// }
 
 impl<T> Backed for Vec<T>
 where

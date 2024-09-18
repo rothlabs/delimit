@@ -9,7 +9,7 @@ where
         match self {
             Self::Ploy(ploy) => {
                 let mut get = Get::new(aim.into());
-                ploy.adapt(&mut get)?;
+                ploy.adapt_get(&mut get)?;
                 get.hub()
             }
             _ => Err(Error::NotPloy)?,
@@ -20,7 +20,7 @@ where
         match self {
             Self::Ploy(ploy) => {
                 let mut all = All { apexes: vec![] };
-                ploy.adapt(&mut all)?;
+                ploy.adapt_get(&mut all)?;
                 Ok(all.apexes)
             }
             _ => Err(Error::NotPloy)?,

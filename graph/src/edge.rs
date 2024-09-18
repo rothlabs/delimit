@@ -166,18 +166,33 @@ where
     }
 }
 
-impl<C> AdaptMid for Edge<C>
+impl<C> AdaptGet for Edge<C>
 where
     C: 'static + AdaptOut + UpdateMut,
 {
-    fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+        #[cfg(feature = "oneThread")]
+        let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
+        #[cfg(not(feature = "oneThread"))]
+        let (roots, id) = self.cusp.write().adapt(deal)?;
+        Ok(())
+    }
+}
+
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl<C> AdaptSet for Edge<C>
+where
+    C: 'static + AdaptOut + UpdateMut,
+{
+    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         #[cfg(feature = "oneThread")]
         let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         #[cfg(not(feature = "oneThread"))]
         let (roots, id) = self.cusp.write().adapt(deal)?;
         if deal.wrote() {
             for root in &roots {
-                // root.react(&id)?;
+                root.react(&id).await?;
             }
         }
         Ok(())
