@@ -9,8 +9,6 @@ use std::sync::Weak;
 use std::{cell::RefCell, rc::Weak};
 use std::{collections::HashSet, hash::Hash};
 
-pub type Result = std::result::Result<(), crate::Error>;
-
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
     fn rebut(&self) -> crate::Result<Ring>;
@@ -25,14 +23,14 @@ pub trait RebutMut {
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react(&self, id: &Id) -> react::Result;
+    async fn react(&self, id: &Id) -> Result<()>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react(&mut self, id: &Id) -> react::Result;
+    async fn react(&mut self, id: &Id) -> Result<()>;
 }
 
 pub trait AddRoot {
@@ -83,30 +81,11 @@ pub struct Root {
 impl Root {
     pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
-            #[cfg(not(feature = "oneThread"))]
-            {
-                edge.read().rebut()
-            }
-            #[cfg(feature = "oneThread")]
             read_part(&edge, |edge| edge.rebut())?
         } else {
             Ok(Ring::new())
         }
     }
-    // pub async fn react(&self, id: &Id) -> react::Result {
-    //     if let Some(edge) = self.edge.upgrade() {
-    //         #[cfg(feature = "oneThread")]
-    //         match edge.try_borrow() {
-    //             Ok(edge) => edge.react(id).await,
-    //             Err(err) => Err(Error::Write(err.to_string())),
-    //         }
-    //         #[cfg(not(feature = "oneThread"))]
-    //         edge.read().react(id).await
-    //         // read_part(&edge, |edge| edge.react(id))?
-    //     } else {
-    //         Ok(())
-    //     }
-    // }
 }
 
 impl Eq for Root {}
@@ -126,16 +105,11 @@ impl Hash for Root {
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl React for Root {
-    async fn react(&self, id: &Id) -> react::Result {
+    async fn react(&self, id: &Id) -> Result<()> {
         if let Some(edge) = self.edge.upgrade() {
-            #[cfg(feature = "oneThread")]
-            match edge.try_borrow() {
-                Ok(edge) => edge.react(id).await,
-                Err(err) => Err(Error::Write(err.to_string())),
-            }
-            #[cfg(not(feature = "oneThread"))]
-            edge.read().react(id).await
-            // read_part(&edge, |edge| edge.react(id))?
+            read_part_async(&edge, |edge| async move {
+                edge.react(id).await
+            })?.await
         } else {
             Ok(())
         }
@@ -172,7 +146,7 @@ impl Back {
             Ok(Ring::new())
         }
     }
-    pub async fn react(&self, id: &Id) -> react::Result {
+    pub async fn react(&self, id: &Id) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
             #[cfg(feature = "oneThread")]
             match cusp.try_borrow_mut() {

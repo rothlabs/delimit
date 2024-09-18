@@ -146,37 +146,55 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<'a, P: ?Sized, O: 'a, F: FnOnce(RwLockReadGuard<P>) -> O + 'a>(
+fn read_part<P, F, O>(
     part: &Arc<RwLock<P>>,
     read: F,
-) -> Result<O> {
-    Ok(read(part.read()))
-    // match part.read() {
-    //     Ok(part) => Ok(read(part)),
-    //     Err(err) => Err(Error::Read(err.to_string())),
-    // }
-}
-
-#[cfg(not(feature = "oneThread"))]
-fn read_part2<'a, P, O, F>(
-    part: &'a Arc<RwLock<P>>,
-    read: F,
-) -> O 
+) -> Result<O> 
 where 
-    P: 'a + ?Sized,
-    F: 'a + FnOnce(RwLockReadGuard<'a, P>) -> O,
-    O: 'a + std::future::Future,
+    P: ?Sized,
+    F: FnOnce(RwLockReadGuard<P>) -> O,
 {
-
-    read(part.read())
-    // match part.read() {
-    //     Ok(part) => Ok(read(part)),
-    //     Err(err) => Err(Error::Read(err.to_string())),
-    // }
+    Ok(read(part.read()))
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: F) -> Result<O> {
+fn read_part<P, F, O>(
+    part: &Rc<RefCell<P>>,
+    read: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(Ref<P>) -> O,
+{
+    match part.try_borrow() {
+        Ok(part) => Ok(read(part)),
+        Err(err) => Err(Error::Read(err.to_string())),
+    }
+}
+
+#[cfg(not(feature = "oneThread"))]
+fn read_part_async<'a, P, F, O>(
+    part: &'a Arc<RwLock<P>>,
+    read: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(RwLockReadGuard<'a, P>) -> O,
+    O: std::future::Future,
+{
+    Ok(read(part.read()))
+}
+
+#[cfg(feature = "oneThread")]
+fn read_part_async<'a, F, P, O>(
+    part: &'a Rc<RefCell<P>>,
+    read: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(Ref<'a, P>) -> O,
+    O: std::future::Future,
+{
     match part.try_borrow() {
         Ok(part) => Ok(read(part)),
         Err(err) => Err(Error::Read(err.to_string())),

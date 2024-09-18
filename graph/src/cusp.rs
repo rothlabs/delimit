@@ -145,7 +145,7 @@ impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
 {
-    async fn react(&mut self, id: &Id) -> react::Result {
+    async fn react(&mut self, id: &Id) -> Result<()> {
         self.work.react(id).await
     }
 }

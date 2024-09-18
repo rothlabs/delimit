@@ -78,7 +78,7 @@ impl<T> Rebut for Box<dyn Engage<Base = T>> {
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T> React for Box<dyn Engage<Base = T>> {
-    async fn react(&self, id: &Id) -> react::Result {
+    async fn react(&self, id: &Id) -> Result<()> {
         self.as_ref().react(id).await
     }
 }

@@ -292,11 +292,7 @@ where
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
-        #[cfg(feature = "oneThread")]
-        let out = read_part(&self.cusp, |cusp| read(cusp.item()));
-        #[cfg(not(feature = "oneThread"))]
-        let out = Ok(read(self.cusp.read().item()));
-        out
+        read_part(&self.cusp, |cusp| read(cusp.item()))
     }
 }
 
@@ -329,7 +325,7 @@ impl<N> React for Edge<N>
 where
     N: ReactMut + SendSync,
 {
-    async fn react(&self, id: &Id) -> react::Result {
+    async fn react(&self, id: &Id) -> Result<()> {
         #[cfg(not(feature = "oneThread"))]
         {
             self.cusp.write().react(id).await

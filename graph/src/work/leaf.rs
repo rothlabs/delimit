@@ -71,7 +71,7 @@ impl<T> ReactMut for Leaf<T>
 where
     T: SendSync,
 {
-    async fn react(&mut self, _: &Id) -> react::Result {
+    async fn react(&mut self, _: &Id) -> Result<()> {
         Ok(())
     }
 }

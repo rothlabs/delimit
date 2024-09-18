@@ -210,7 +210,7 @@ where
     U: Solve + Reckon + SendSync,
     U::Base: Payload,
 {
-    async fn react(&mut self, _: &Id) -> react::Result {
+    async fn react(&mut self, _: &Id) -> Result<()> {
         // self.unit.as_ref().unwrap().reckon(Task::React)?;
         // Ok(())
         match self.unit.as_ref().unwrap().solve().await {
