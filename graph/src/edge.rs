@@ -167,7 +167,7 @@ where
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         if deal.wrote() {
-            for root in &roots {
+            for root in roots.iter() {
                 root.react(&id).await?;
             }
         }
@@ -217,9 +217,9 @@ where
     C: WriteBaseOut<T> + SendSync,
 {
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
-        let write::Out { roots, id, out } =
+        let Post { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
-        for root in &roots {
+        for root in roots.iter() {
             root.react(&id).await?;
         }
         Ok(out)
@@ -237,9 +237,9 @@ where
         &self,
         write: F,
     ) -> Result<T> {
-        let write::Out { roots, id, out } =
+        let Post { roots, id, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
-        for root in &roots {
+        for root in roots.iter() {
             root.react(&id).await?;
         }
         Ok(out)
@@ -271,6 +271,13 @@ impl<N> Rebut for Edge<N> {
             back.rebut()
         } else {
             Ok(Ring::new())
+        }
+    }
+    fn clear_roots(&self) -> Result<()> {
+        if let Some(back) = &self.back {
+            back.clear()
+        } else {
+            Ok(())
         }
     }
 }

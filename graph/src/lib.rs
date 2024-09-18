@@ -15,6 +15,7 @@ pub use ploy::{Based, Engage, Ploy, PloyPointer, ToPloy};
 pub use react::{
     AddRoot, AddRootMut, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root,
     Update, UpdateMut,
+    // ClearRoots, ClearRootsMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
@@ -24,7 +25,7 @@ pub use solve::{
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
-pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use write::{Pack, Post, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
 use async_trait::async_trait;

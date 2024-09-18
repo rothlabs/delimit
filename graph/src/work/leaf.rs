@@ -101,11 +101,14 @@ where
     }
 }
 
-impl<T> RebutMut for Leaf<T> {
-    fn rebut(&mut self) -> Result<Ring> {
-        Ok(Ring::new())
-    }
-}
+// impl<T> RebutMut for Leaf<T> {
+//     fn rebut(&mut self) -> Result<Ring> {
+//         Ok(Ring::new())
+//     }
+//     fn clear_roots(&mut self) -> Result<()> {
+//         Ok(())
+//     }
+// }
 
 impl<T> Clear for Leaf<T> {
     fn clear(&mut self) {

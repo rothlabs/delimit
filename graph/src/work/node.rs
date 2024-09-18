@@ -146,19 +146,19 @@ where
     }
 }
 
-impl<U> FromItem for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
-    type Item = U;
-    fn new(unit: Self::Item) -> Self {
-        Self {
-            unit: Some(unit),
-            ..Default::default()
-        }
-    }
-}
+// impl<U> FromItem for Node<U>
+// where
+//     U: Solve,
+//     U::Base: Payload,
+// {
+//     type Item = U;
+//     fn new(unit: Self::Item) -> Self {
+//         Self {
+//             unit: Some(unit),
+//             ..Default::default()
+//         }
+//     }
+// }
 
 impl<U> ToItem for Node<U>
 where
@@ -198,6 +198,7 @@ where
             unit: self.unit.as_mut().unwrap(),
             back,
         });
+        // TODO: remove this because clear should happen from Rebut?!
         self.clear(); //self.main = None;
         Ok(out)
     }

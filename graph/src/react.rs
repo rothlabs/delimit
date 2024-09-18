@@ -12,12 +12,22 @@ use std::{collections::HashSet, hash::Hash};
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
     fn rebut(&self) -> Result<Ring>;
+    fn clear_roots(&self) -> Result<()>;
 }
 
 pub trait RebutMut {
     /// Invalidatd the tray at cusp level. Call only after write during rebut phase.
     fn rebut(&mut self) -> Result<Ring>;
+    fn clear_roots(&mut self) -> Result<()>;
 }
+
+// pub trait ClearRoots {
+//     fn clear_roots(&self) -> Result<()>;
+// }
+
+// pub trait ClearRootsMut {
+//     fn clear_roots(&mut self) -> Result<()>;
+// }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
@@ -86,6 +96,12 @@ impl Root {
             Ok(Ring::new())
         }
     }
+    fn clear(&self) -> Result<()> {
+        if let Some(edge) = self.edge.upgrade() {
+            read_part(&edge, |edge| edge.clear_roots())??
+        }
+        Ok(())
+    }
 }
 
 impl Eq for Root {}
@@ -140,6 +156,13 @@ impl Back {
             Ok(Ring::new())
         }
     }
+    pub fn clear(&self) -> Result<()> {
+        if let Some(cusp) = self.cusp.upgrade() {
+            write_part(&cusp, |mut cusp| cusp.clear_roots())?
+        } else {
+            Ok(())
+        }
+    }
     pub async fn react(&self, id: &Id) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part_async(&cusp, |mut cusp| async move { cusp.react(id).await })?.await
@@ -178,6 +201,9 @@ impl Ring {
     pub fn new() -> Self {
         Self::default()
     }
+    pub fn iter(&self) -> impl Iterator<Item = &Root> {
+        self.roots.iter()
+    }
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
@@ -195,12 +221,20 @@ impl Ring {
         /////// self.roots.clear();
         Ok(out)
     }
-    pub fn rebut_roots(&mut self) -> Result<Vec<Root>> {
+    pub fn rebut_roots(&mut self) -> Result<Ring> {
         let mut ring = Ring::new();
         for root in &self.roots {
             ring.roots.extend(root.rebut()?.roots);
         }
+        self.clear()?;
+        // self.roots.clear();
+        Ok(ring)
+    }
+    pub fn clear(&mut self) -> Result<()> {
+        for root in self.iter() {
+            root.clear()?; 
+        }
         self.roots.clear();
-        Ok(Vec::from_iter(ring.roots))
+        Ok(())
     }
 }

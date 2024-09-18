@@ -81,6 +81,9 @@ impl<T> Rebut for Box<dyn Engage<Base = T>> {
     fn rebut(&self) -> Result<Ring> {
         self.as_ref().rebut()
     }
+    fn clear_roots(&self) -> Result<()> {
+        self.as_ref().clear_roots()
+    }
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]

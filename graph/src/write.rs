@@ -9,8 +9,9 @@ pub struct Pack<'a, U: 'a> {
     pub back: &'a Back,
 }
 
-pub struct Out<T> {
-    pub roots: Vec<Root>,
+pub struct Post<T> {
+    pub roots: Ring,
+    // pub hits: Ring,
     pub id: Id,
     pub out: T,
 }
@@ -27,7 +28,7 @@ pub trait WriteBase<T> {
 
 pub trait WriteBaseOut<T> {
     /// Write and return the hub meta and graph roots of the rebut. Hub level.
-    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Out<O>>;
+    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Post<O>>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
@@ -48,7 +49,7 @@ pub trait WriteUnitOut {
     fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
-    ) -> Result<Out<T>>;
+    ) -> Result<Post<T>>;
 }
 
 pub trait WriteUnitWork {

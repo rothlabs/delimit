@@ -81,10 +81,10 @@ impl<W, T> WriteBaseOut<T> for Cusp<W>
 where
     W: BaseMut<T>,
 {
-    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<write::Out<O>> {
+    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Post<O>> {
         let out = write(self.work.base());
         let roots = self.ring.rebut_roots()?;
-        Ok(write::Out {
+        Ok(Post {
             roots,
             out,
             id: self.id,
@@ -100,13 +100,13 @@ where
     fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
         &mut self,
         write: F,
-    ) -> Result<write::Out<T>> {
+    ) -> Result<Post<T>> {
         // TODO: remove unrwap
         let out = self
             .work
             .write_unit_work(write, &self.back.clone().unwrap())?;
         let roots = self.ring.rebut_roots()?;
-        Ok(write::Out {
+        Ok(Post {
             roots,
             out,
             id: self.id,
@@ -138,7 +138,16 @@ where
         self.work.clear();
         self.ring.rebut()
     }
+    fn clear_roots(&mut self) -> Result<()> {
+        self.ring.clear()
+    }
 }
+
+// impl<W> ClearRootsMut for Cusp<W> {
+//     fn clear_roots(&mut self) -> Result<()> {
+//         self.ring.clear()
+//     }
+// }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
@@ -177,7 +186,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: Adapt + Clear,
 {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Vec<Root>, u64)> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Ring, u64)> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
             deal.back(back);
@@ -188,7 +197,7 @@ where
         let roots = if deal.wrote() {
             self.ring.rebut_roots()?
         } else {
-            vec![]
+            Ring::new()
         };
         Ok((roots, self.id))
     }
