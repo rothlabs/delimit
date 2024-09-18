@@ -378,25 +378,25 @@ where
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-// impl<E> AdaptSet for Link<E>
-// where
-//     E: 'static + AdaptSet + AddRoot + Update,
-// {
-//     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-//         read_part(&self.edge, |edge| async {
-//             let result = edge.adapt_set(deal).await;
-//             if deal.read() {
-//                 return Err(anyhow!("Deal should not read in AdaptSet"))?;
-//             }
-//             if !deal.wrote() {
-//                 return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
-//             }
-//             result
-//         })?
-//     }
-// }
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl<E> AdaptSet for Link<E>
+where
+    E: 'static + AdaptSet + AddRoot + Update,
+{
+    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
+        read_part_async(&self.edge, |edge| async move {
+            let result = edge.adapt_set(deal).await;
+            // if deal.read() {
+            //     return Err(anyhow!("Deal should not read in AdaptSet"))?;
+            // }
+            // if !deal.wrote() {
+            //     return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
+            // }
+            result
+        })?.await
+    }
+}
 
 impl<T> Backed for Vec<T>
 where
