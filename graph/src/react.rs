@@ -137,25 +137,16 @@ impl Back {
     }
     pub fn rebut(&self) -> crate::Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
-            #[cfg(feature = "oneThread")]
-            let out = write_part(&cusp, |mut cusp| cusp.rebut())?;
-            #[cfg(not(feature = "oneThread"))]
-            let out = cusp.write().rebut();
-            out
+            write_part(&cusp, |mut cusp| cusp.rebut())?
         } else {
             Ok(Ring::new())
         }
     }
     pub async fn react(&self, id: &Id) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            #[cfg(feature = "oneThread")]
-            match cusp.try_borrow_mut() {
-                Ok(mut cusp) => cusp.react(id).await,
-                Err(err) => Err(Error::Write(err.to_string())),
-            }
-            #[cfg(not(feature = "oneThread"))]
-            cusp.write().react(id).await
-            //write_part(&cusp, |mut cusp| cusp.react(id))?
+            write_part_async(&cusp, |mut cusp| async move {
+                cusp.react(id).await
+            })?.await
         } else {
             Ok(())
         }

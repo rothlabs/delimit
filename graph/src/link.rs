@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use async_trait::async_trait;
 // use async_trait::async_trait;
 pub use leaf::*;
@@ -355,9 +354,9 @@ where
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part_async(&self.edge, |edge| async move {
-            let result = edge.solve().await;
+            let out = edge.solve().await;
             edge.add_root(self.as_root(edge.id()))?;
-            result
+            out
         })?.await
     }
 }
@@ -368,7 +367,7 @@ where
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
-            let result = edge.adapt_get(deal);
+            let out = edge.adapt_get(deal);
             if deal.read() {
                 edge.add_root(self.as_root(edge.id()))?;
             }
@@ -378,7 +377,7 @@ where
             // if deal.wrote() {
             //     return Err(anyhow!("Deal should not write in AdaptGet"))?;
             // }
-            result
+            out
         })?
     }
 }

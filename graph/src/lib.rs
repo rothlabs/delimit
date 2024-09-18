@@ -29,7 +29,7 @@ pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUni
 use aim::*;
 use async_trait::async_trait;
 #[cfg(not(feature = "oneThread"))]
-use parking_lot::{RwLock, RwLockReadGuard}; // RwLockWriteGuard};
+use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use scope::*;
 use serde::{Deserialize, Serialize};
 #[cfg(not(feature = "oneThread"))]
@@ -201,23 +201,56 @@ where
     }
 }
 
-// #[cfg(not(feature = "oneThread"))]
-// fn write_part<P: ?Sized, O, F: FnOnce(RwLockWriteGuard<P>) -> O>(
-//     part: &Arc<RwLock<P>>,
-//     write: F,
-// ) -> Result<O> {
-//     Ok(write(part.write()))
-//     // match part.write() {
-//     //     Ok(part) => Ok(write(part)),
-//     //     Err(err) => Err(Error::Write(err.to_string())),
-//     // }
-// }
+#[cfg(not(feature = "oneThread"))]
+fn write_part<P, F, O>(
+    part: &Arc<RwLock<P>>,
+    write: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(RwLockWriteGuard<P>) -> O,
+{
+    Ok(write(part.write()))
+}
 
 #[cfg(feature = "oneThread")]
-fn write_part<'a, P: ?Sized + 'a, O, F: FnOnce(RefMut<'a, P>) -> O + 'a>(
+fn write_part<P, F, O>(
+    part: &Rc<RefCell<P>>,
+    write: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(RefMut<P>) -> O,
+{
+    match part.try_borrow_mut() {
+        Ok(part) => Ok(write(part)),
+        Err(err) => Err(Error::Write(err.to_string())),
+    }
+}
+
+#[cfg(not(feature = "oneThread"))]
+fn write_part_async<'a, P, F, O>(
+    part: &'a Arc<RwLock<P>>,
+    write: F,
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
+    O: std::future::Future,
+{
+    Ok(write(part.write()))
+}
+
+#[cfg(feature = "oneThread")]
+fn write_part_async<'a, F, P, O>(
     part: &'a Rc<RefCell<P>>,
     write: F,
-) -> Result<O> {
+) -> Result<O> 
+where 
+    P: ?Sized,
+    F: FnOnce(RefMut<'a, P>) -> O,
+    O: std::future::Future,
+{
     match part.try_borrow_mut() {
         Ok(part) => Ok(write(part)),
         Err(err) => Err(Error::Write(err.to_string())),
