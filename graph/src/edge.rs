@@ -135,9 +135,7 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.solve().await
-        })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { cusp.solve().await })?.await
     }
 }
 
@@ -187,9 +185,7 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.solve().await
-        })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { cusp.solve().await })?.await
     }
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         let edge = Self {
@@ -197,7 +193,9 @@ where
             cusp: self.cusp.clone(),
         };
         #[cfg(not(feature = "oneThread"))]
-        {Arc::new(RwLock::new(Box::new(edge)))}
+        {
+            Arc::new(RwLock::new(Box::new(edge)))
+        }
         #[cfg(feature = "oneThread")]
         Rc::new(RefCell::new(Box::new(edge)))
     }
@@ -284,8 +282,6 @@ where
     N: ReactMut + SendSync,
 {
     async fn react(&self, id: &Id) -> Result<()> {
-        write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.react(id).await
-        })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { cusp.react(id).await })?.await
     }
 }

@@ -48,11 +48,8 @@ impl Act for Program {
             for out in &self.outs {
                 outs.push(&out.base().await?.into());
             }
-            self.gl.transform_feedback_varyings(
-                &self.object,
-                &outs.into(),
-                self.out_type,
-            );
+            self.gl
+                .transform_feedback_varyings(&self.object, &outs.into(), self.out_type);
         }
         self.gl.link_program(&self.object);
         if self

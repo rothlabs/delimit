@@ -1,7 +1,6 @@
 use gpu::*;
 use graph::*;
 use texture::Texture;
-use wasm_bindgen_test::console_log;
 
 pub fn make_canvas() -> Result<Gpu> {
     let canvas = Canvas::new();
@@ -119,7 +118,11 @@ pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements
         .stride(20)
         .offset(12)
         .make()?;
-    let vao = gpu.vao()?.attributes(vec![pos, uv]).index(index_buffer).make()?;
+    let vao = gpu
+        .vao()?
+        .attributes(vec![pos, uv])
+        .index(index_buffer)
+        .make()?;
     let _ = make_basic_texture(&gpu).await?;
     let elements = gpu
         .draw_elements(program)
@@ -249,7 +252,8 @@ pub async fn transform_feedback() -> Result<()> {
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
     let program = gpu
         .program(vertex, fragment)?
-        .out("output0").out("output1")
+        .out("output0")
+        .out("output1")
         .make()?;
     let (buffer, bufferer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).make()?;
@@ -294,10 +298,34 @@ pub async fn nurbs_shader() -> Result<()> {
 
     let attribs = vec![
         buffer.attribute().size(1).stride(68).make()?,
-        buffer.attribute().size(4).stride(68).offset(4).index(1).make()?,
-        buffer.attribute().size(4).stride(68).offset(20).index(2).make()?,
-        buffer.attribute().size(4).stride(68).offset(36).index(3).make()?,
-        buffer.attribute().size(4).stride(68).offset(52).index(4).make()?,
+        buffer
+            .attribute()
+            .size(4)
+            .stride(68)
+            .offset(4)
+            .index(1)
+            .make()?,
+        buffer
+            .attribute()
+            .size(4)
+            .stride(68)
+            .offset(20)
+            .index(2)
+            .make()?,
+        buffer
+            .attribute()
+            .size(4)
+            .stride(68)
+            .offset(36)
+            .index(3)
+            .make()?,
+        buffer
+            .attribute()
+            .size(4)
+            .stride(68)
+            .offset(52)
+            .index(4)
+            .make()?,
     ];
     let vao = gpu.vao()?.attributes(attribs).make()?;
     let target = gpu.buffer()?;
@@ -313,6 +341,6 @@ pub async fn nurbs_shader() -> Result<()> {
         .rasterizer_discard(true)
         .count(3)
         .make()?;
-    let reader = target.reader().size(100).draw(draw).make()?;
+    target.reader().size(100).draw(draw).make()?;
     Ok(())
 }

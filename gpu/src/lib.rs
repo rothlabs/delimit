@@ -88,9 +88,7 @@ impl Gpu {
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
-        let builder = VaoBuilder::default()
-            .gl(self.gl.clone())
-            .object(object);
+        let builder = VaoBuilder::default().gl(self.gl.clone()).object(object);
         Ok(builder)
     }
     pub fn tfo(&self) -> Result<TfoBuilder> {
@@ -98,9 +96,7 @@ impl Gpu {
             .gl
             .create_transform_feedback()
             .ok_or(anyhow!("failed to create transform feedback object"))?;
-        let tfo = TfoBuilder::default()
-            .gl(self.gl.clone())
-            .object(object);
+        let tfo = TfoBuilder::default().gl(self.gl.clone()).object(object);
         Ok(tfo)
     }
     pub fn texture(&self, array: impl Into<Apex>) -> Result<TextureBuilder> {
@@ -145,7 +141,6 @@ impl Gpu {
         );
     }
 }
-
 
 // pub fn vao(&self, attributes: impl Into<Attributes>) -> Result<VaoBuilder> {
 //     let object = self

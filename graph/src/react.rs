@@ -107,9 +107,7 @@ impl Hash for Root {
 impl React for Root {
     async fn react(&self, id: &Id) -> Result<()> {
         if let Some(edge) = self.edge.upgrade() {
-            read_part_async(&edge, |edge| async move {
-                edge.react(id).await
-            })?.await
+            read_part_async(&edge, |edge| async move { edge.react(id).await })?.await
         } else {
             Ok(())
         }
@@ -144,9 +142,7 @@ impl Back {
     }
     pub async fn react(&self, id: &Id) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part_async(&cusp, |mut cusp| async move {
-                cusp.react(id).await
-            })?.await
+            write_part_async(&cusp, |mut cusp| async move { cusp.react(id).await })?.await
         } else {
             Ok(())
         }

@@ -1,7 +1,6 @@
-import init from 'init';
-init('client_bg.wasm');
-
-// import init, * as app from 'init';
-// init('client_bg.wasm').then(() => {
-//     app.initialize();
-// });
+import init, * as app from 'init';
+async function run() {
+    await init({});
+    // now call wasm methods on * as app as desired
+}
+run();

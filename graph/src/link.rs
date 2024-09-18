@@ -265,12 +265,10 @@ where
     T: 'static + Payload,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| {
-            Self {
-                edge: edge.backed(back),
-                path: self.path.clone(),
-                rank: self.rank,
-            }
+        read_part(&self.edge, |edge| Self {
+            edge: edge.backed(back),
+            path: self.path.clone(),
+            rank: self.rank,
         })
     }
 }
@@ -296,9 +294,7 @@ where
     E: WriteBase<T> + SendSync,
 {
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
-        read_part_async(&self.edge, |edge| async move {
-            edge.write(write).await
-        })?.await
+        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
 
@@ -313,9 +309,7 @@ where
         &self,
         write: F,
     ) -> Result<O> {
-        read_part_async(&self.edge, |edge| async move {
-            edge.write(write).await
-        })?.await
+        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
 
@@ -330,7 +324,8 @@ where
             let out = edge.solve().await;
             edge.add_root(self.as_root(edge.id()))?;
             out
-        })?.await
+        })?
+        .await
     }
 }
 
@@ -357,7 +352,8 @@ where
             let out = edge.solve().await;
             edge.add_root(self.as_root(edge.id()))?;
             out
-        })?.await
+        })?
+        .await
     }
 }
 

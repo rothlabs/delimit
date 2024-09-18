@@ -28,7 +28,11 @@ impl Default for Imports {
 }
 
 pub async fn index() -> Result<String> {
-    let page = html::default::default_bay()?.get("page")?.string()?.base().await?;
+    let page = html::default::default_bay()?
+        .get("page")?
+        .string()?
+        .base()
+        .await?;
     Ok(page)
 }
 

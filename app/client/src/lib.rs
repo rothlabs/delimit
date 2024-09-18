@@ -5,6 +5,7 @@ extern "C" {
     fn log(s: &str);
 }
 
+#[allow(unused_macros)]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
@@ -12,30 +13,42 @@ macro_rules! console_log {
 use gloo_timers::future::TimeoutFuture;
 pub use particle::*;
 
-use wasm_bindgen::prelude::*;
-use web_sys::window;
+// use gloo_render::request_animation_frame;
 use prelude::*;
-use gloo_render::request_animation_frame;
+use wasm_bindgen::prelude::*;
+// use web_sys::window;
 
 mod prelude {
-    pub use graph::*;
-    pub use gpu::*;
     pub use derive_builder::Builder;
+    pub use gpu::*;
+    pub use graph::*;
     use wasm_bindgen::JsCast;
     use web_sys::{js_sys::Math::random, window, HtmlCanvasElement};
     pub struct Sim {
         pub gpu: Gpu,
-    } 
+    }
     impl Sim {
         pub fn new() -> Self {
-            let canvas = window().unwrap().document().unwrap().get_element_by_id("canvas").unwrap().dyn_into::<HtmlCanvasElement>().unwrap();
+            let canvas = window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .get_element_by_id("canvas")
+                .unwrap()
+                .dyn_into::<HtmlCanvasElement>()
+                .unwrap();
             canvas.set_width(1200);
             canvas.set_height(900);
-            Self { gpu: Gpu { gl: canvas.get_context("webgl2") // canvas.get_context_with_context_options("webgl2", {preserveDrawingBuffer: true})
-            .unwrap()
-            .unwrap()
-            .dyn_into::<WGLRC>()
-            .unwrap() }}
+            Self {
+                gpu: Gpu {
+                    gl: canvas
+                        .get_context("webgl2") // canvas.get_context_with_context_options("webgl2", {preserveDrawingBuffer: true})
+                        .unwrap()
+                        .unwrap()
+                        .dyn_into::<WGLRC>()
+                        .unwrap(),
+                },
+            }
         }
     }
     pub fn random_float() -> f32 {
@@ -43,7 +56,6 @@ mod prelude {
     }
 }
 mod particle;
-
 
 #[wasm_bindgen(start)]
 pub async fn initialize() -> std::result::Result<(), JsValue> {
@@ -53,7 +65,7 @@ pub async fn initialize() -> std::result::Result<(), JsValue> {
     let tick = 0_i32.leaf();
     let particles = sim.particles(&tick).await.unwrap().make().unwrap();
     particles.act().await.unwrap();
-    for _ in 0..5000 {
+    for _ in 0..100 {
         tick.write(|x| *x += 1).await.unwrap();
         TimeoutFuture::new(16).await;
     }
@@ -61,14 +73,11 @@ pub async fn initialize() -> std::result::Result<(), JsValue> {
 }
 
 // gloo_render::request_animation_frame(|x| {
-        
+
 // });
 
-
-
-
 // let window = window().expect("no window");
-    // window.alert_with_message("Delimit!").ok();
+// window.alert_with_message("Delimit!").ok();
 
 // alert("Hello, delimit!");
 

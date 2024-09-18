@@ -1,12 +1,17 @@
 use crate::prelude::*;
-use crate::log;
 
 impl Sim {
     pub async fn particles(&self, tick: impl Into<Hub<i32>>) -> Result<ParticlesBuilder> {
         let tick = tick.into();
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
-        let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").out_type(WGLRC::SEPARATE_ATTRIBS).make()?;
+        let prog = self
+            .gpu
+            .program(vert, frag)?
+            .out("out_pos")
+            .out("out_vel")
+            .out_type(WGLRC::SEPARATE_ATTRIBS)
+            .make()?;
         let point_count = 16 * 200;
         let mut point_array = vec![];
         for _ in 0..point_count {
@@ -25,16 +30,32 @@ impl Sim {
         let pos0 = pos_buff0.attribute().size(2).stride(8).make()?;
         let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).make()?;
         let vao0 = self.gpu.vao()?.attributes(vec![pos0, vel0]).make()?;
-        let tfo0 = self.gpu.tfo()?.buffer(&pos_buff0).buffer(&vel_buff0).make()?;
+        let tfo0 = self
+            .gpu
+            .tfo()?
+            .buffer(&pos_buff0)
+            .buffer(&vel_buff0)
+            .make()?;
         let pos_buff1 = self.gpu.buffer()?;
-        pos_buff1.writer().array(point_count * 8).make()?.act().await?;
+        pos_buff1
+            .writer()
+            .array(point_count * 8)
+            .make()?
+            .act()
+            .await?;
         let vel_buff1 = self.gpu.buffer()?;
-        vel_buff1.writer().array(point_count * 8).make()?.act().await?;
+        vel_buff1
+            .writer()
+            .array(point_count * 8)
+            .make()?
+            .act()
+            .await?;
         let pos1 = pos_buff1.attribute().size(2).stride(8).make()?;
         let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).make()?;
         let vao1 = self.gpu.vao()?.attributes(vec![pos1, vel1]).make()?;
         let tfo1 = self.gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
-        let draw0 = self.gpu
+        let draw0 = self
+            .gpu
             .draw_arrays(prog.clone())
             .mode(WGLRC::POINTS)
             .vao(vao0)
@@ -43,7 +64,8 @@ impl Sim {
             .instances(1)
             .tick(&tick)
             .make()?;
-        let draw1 = self.gpu
+        let draw1 = self
+            .gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
             .vao(vao1)
@@ -56,35 +78,109 @@ impl Sim {
         let seg_count = 2000;
         let vertex = self.gpu.vertex_shader(NURBS)?;
         let fragment = self.gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
-        let program = self.gpu
+        let program = self
+            .gpu
             .program(vertex, fragment)?
-            .out("position0").out("position1").out("position2").out("position3")
+            .out("position0")
+            .out("position1")
+            .out("position2")
+            .out("position3")
             .make()?;
         let mut curve_array = vec![];
         let order = 16;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
-            curve_array.extend(vec![0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]);
+            curve_array.extend(vec![
+                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1.,
+                1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+            ]);
         }
         let nurbs_buff = self.gpu.buffer()?;
-        let _ = nurbs_buff.writer().array(curve_array).make()?.act().await?;
+        nurbs_buff.writer().array(curve_array).make()?.act().await?;
         let attribs = vec![
-            nurbs_buff.attribute().size(1).stride(132).divisor(1).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(4).divisor(1).index(1).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(20).divisor(1).index(2).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(36).divisor(1).index(3).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(52).divisor(1).index(4).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(68).divisor(1).index(5).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(84).divisor(1).index(6).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).make()?,
+            nurbs_buff
+                .attribute()
+                .size(1)
+                .stride(132)
+                .divisor(1)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(4)
+                .divisor(1)
+                .index(1)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(20)
+                .divisor(1)
+                .index(2)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(36)
+                .divisor(1)
+                .index(3)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(52)
+                .divisor(1)
+                .index(4)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(68)
+                .divisor(1)
+                .index(5)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(84)
+                .divisor(1)
+                .index(6)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(100)
+                .divisor(1)
+                .index(7)
+                .make()?,
+            nurbs_buff
+                .attribute()
+                .size(4)
+                .stride(132)
+                .offset(116)
+                .divisor(1)
+                .index(8)
+                .make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
         let basis_buf = self.gpu.buffer()?;
-        let _ = basis_buf.writer().array(4 * order * seg_count * curve_count).make()?.act().await?;
+        basis_buf
+            .writer()
+            .array(4 * order * seg_count * curve_count)
+            .make()?
+            .act()
+            .await?;
         let tfo = self.gpu.tfo()?.buffer(&basis_buf).make()?;
-        let basis_draw = self.gpu
+        let basis_draw = self
+            .gpu
             .draw_arrays(program)
             .mode(WGLRC::POINTS)
             .vao(vao)
@@ -94,30 +190,100 @@ impl Sim {
             .instances(curve_count)
             .tick(&tick)
             .make()?;
-        // let reader = basis_buf.reader().size(order * seg_count * curve_count + 3)
-        // .draw(basis_draw.clone())
-        // .make()?;
 
         let vert = self.gpu.vertex_shader(CURVE)?;
         let frag = self.gpu.fragment_shader(CURVE_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.make()?;
         let attribs = vec![
             pos_buff0.attribute().size(4).stride(16).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(16).index(1).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(32).index(2).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(48).index(3).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(64).index(4).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(80).index(5).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(96).index(6).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(112).index(7).divisor(1).make()?,
-
-            basis_buf.attribute().size(4).stride(64).offset(0 ).index(8).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(16).index(9).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(32).index(10).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(48).index(11).make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(16)
+                .index(1)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(32)
+                .index(2)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(48)
+                .index(3)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(64)
+                .index(4)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(80)
+                .index(5)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(96)
+                .index(6)
+                .divisor(1)
+                .make()?,
+            pos_buff0
+                .attribute()
+                .size(4)
+                .stride(16)
+                .offset(112)
+                .index(7)
+                .divisor(1)
+                .make()?,
+            basis_buf
+                .attribute()
+                .size(4)
+                .stride(64)
+                .offset(0)
+                .index(8)
+                .make()?,
+            basis_buf
+                .attribute()
+                .size(4)
+                .stride(64)
+                .offset(16)
+                .index(9)
+                .make()?,
+            basis_buf
+                .attribute()
+                .size(4)
+                .stride(64)
+                .offset(32)
+                .index(10)
+                .make()?,
+            basis_buf
+                .attribute()
+                .size(4)
+                .stride(64)
+                .offset(48)
+                .index(11)
+                .make()?,
         ];
         let vao = self.gpu.vao()?.attributes(attribs).make()?;
-        let curve_draw = self.gpu
+        let curve_draw = self
+            .gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
             .vao(vao)
@@ -127,12 +293,13 @@ impl Sim {
             .make()?;
 
         let particles = ParticlesBuilder::default()
-        .gpu(self.gpu.clone())
-        .draw0(draw0).draw1(draw1)
-        .basis(basis_draw)
-        .curve(curve_draw)
-        // .reader(reader)
-        .tick(tick);
+            // .gpu(self.gpu.clone())
+            .draw0(draw0)
+            .draw1(draw1)
+            .basis(basis_draw)
+            .curve(curve_draw)
+            // .reader(reader)
+            .tick(tick);
         Ok(particles)
     }
 }
@@ -140,7 +307,7 @@ impl Sim {
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
 pub struct Particles {
-    gpu: Gpu,
+    // gpu: Gpu,
     tick: Hub<i32>,
     draw0: Node<DrawArrays>,
     draw1: Node<DrawArrays>,
@@ -152,7 +319,7 @@ pub struct Particles {
 impl ParticlesBuilder {
     pub fn make(self) -> Result<Node<Particles>> {
         let mut part = self.build()?;
-        Node::make(|back|{
+        Node::make(|back| {
             part.tick = part.tick.backed(back)?;
             Ok(part)
         })
@@ -162,7 +329,7 @@ impl ParticlesBuilder {
 impl Act for Particles {
     async fn act(&self) -> Result<()> {
         // self.gpu.gl.clear(WGLRC::COLOR_BUFFER_BIT);
-        if self.tick.base().await? % 2 == 0{
+        if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
             self.basis.act().await?;
             self.curve.act().await?;
@@ -233,15 +400,15 @@ void main() {
     gl_PointSize = 1.;
 }";
 
-    // out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
-    // out_pos.x += c0.z*bB[0] + c1.z*bB[1] + c2.z*bB[2] + c3.z*bB[3];
-    // out_pos.x += c4.x*bC[0] + c5.x*bC[1] + c6.x*bC[2] + c7.x*bC[3];
-    // out_pos.x += c4.z*bD[0] + c5.z*bD[1] + c6.z*bD[2] + c7.z*bD[3];
+// out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
+// out_pos.x += c0.z*bB[0] + c1.z*bB[1] + c2.z*bB[2] + c3.z*bB[3];
+// out_pos.x += c4.x*bC[0] + c5.x*bC[1] + c6.x*bC[2] + c7.x*bC[3];
+// out_pos.x += c4.z*bD[0] + c5.z*bD[1] + c6.z*bD[2] + c7.z*bD[3];
 
-    // out_pos.y =  c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
-    // out_pos.y += c0.w*bB[0] + c1.w*bB[1] + c2.w*bB[2] + c4.w*bB[3];
-    // out_pos.y += c4.y*bC[0] + c5.y*bC[1] + c6.y*bC[2] + c7.y*bC[3];
-    // out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
+// out_pos.y =  c0.y*bA[0] + c1.y*bA[1] + c2.y*bA[2] + c3.y*bA[3];
+// out_pos.y += c0.w*bB[0] + c1.w*bB[1] + c2.w*bB[2] + c4.w*bB[3];
+// out_pos.y += c4.y*bC[0] + c5.y*bC[1] + c6.y*bC[2] + c7.y*bC[3];
+// out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
 
 pub const CURVE_FRAG: &str = r"#version 300 es
 precision highp float;
@@ -249,7 +416,6 @@ layout(location = 0) out vec4 outColor;
 void main() {
     outColor = vec4(0.8, 0.2, 0.2, 1);
 }";
-
 
 pub const NURBS: &str = r"#version 300 es
 layout(location = 0) in float order;

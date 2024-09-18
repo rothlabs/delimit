@@ -53,11 +53,13 @@ impl DrawArrays {
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
             // self.gl.draw_arrays(self.mode, first, count);
-            self.gl.draw_arrays_instanced(self.mode, first, count, instances);
+            self.gl
+                .draw_arrays_instanced(self.mode, first, count, instances);
             self.gl.disable(WGLRC::RASTERIZER_DISCARD);
         } else {
             // self.gl.draw_arrays(self.mode, first, count);
-            self.gl.draw_arrays_instanced(self.mode, first, count, instances);
+            self.gl
+                .draw_arrays_instanced(self.mode, first, count, instances);
         }
         vao.unbind();
         Ok(())
@@ -78,11 +80,13 @@ impl Act for DrawArrays {
         let instances = self.instances.base().await.unwrap_or_default().max(1);
         if let Some(tfo) = &self.tfo {
             tfo.begin(self.mode);
-            self.vao.read(|vao| self.draw(vao, first, count, instances))??;
+            self.vao
+                .read(|vao| self.draw(vao, first, count, instances))??;
             tfo.end();
         } else {
-            self.vao.read(|vao| self.draw(vao, first, count, instances))??;
-        }       
+            self.vao
+                .read(|vao| self.draw(vao, first, count, instances))??;
+        }
         Ok(())
     }
 }

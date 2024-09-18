@@ -59,7 +59,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             // HTTP requests received on that connection to the `hello` function
             if let Err(err) = http1::Builder::new()
                 .timer(TokioTimer::new())
-                .serve_connection(io, service_fn(|req| handle(req)))
+                .serve_connection(io, service_fn(handle))
                 .await
             {
                 println!("Error serving connection: {:?}", err);

@@ -1,4 +1,4 @@
-pub use adapt::{Adapt, AdaptGet, AdaptSet, AdaptOut};
+pub use adapt::{Adapt, AdaptGet, AdaptOut, AdaptSet};
 pub use apex::Apex;
 pub use base::{Vf32, Vf64};
 pub use bay::Bay;
@@ -146,11 +146,8 @@ pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P, F, O>(
-    part: &Arc<RwLock<P>>,
-    read: F,
-) -> Result<O> 
-where 
+fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RwLockReadGuard<P>) -> O,
 {
@@ -158,11 +155,8 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P, F, O>(
-    part: &Rc<RefCell<P>>,
-    read: F,
-) -> Result<O> 
-where 
+fn read_part<P, F, O>(part: &Rc<RefCell<P>>, read: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(Ref<P>) -> O,
 {
@@ -173,11 +167,8 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part_async<'a, P, F, O>(
-    part: &'a Arc<RwLock<P>>,
-    read: F,
-) -> Result<O> 
-where 
+fn read_part_async<'a, P, F, O>(part: &'a Arc<RwLock<P>>, read: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RwLockReadGuard<'a, P>) -> O,
     O: std::future::Future,
@@ -186,11 +177,8 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part_async<'a, F, P, O>(
-    part: &'a Rc<RefCell<P>>,
-    read: F,
-) -> Result<O> 
-where 
+fn read_part_async<'a, F, P, O>(part: &'a Rc<RefCell<P>>, read: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(Ref<'a, P>) -> O,
     O: std::future::Future,
@@ -202,11 +190,8 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P, F, O>(
-    part: &Arc<RwLock<P>>,
-    write: F,
-) -> Result<O> 
-where 
+fn write_part<P, F, O>(part: &Arc<RwLock<P>>, write: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<P>) -> O,
 {
@@ -214,11 +199,8 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<P, F, O>(
-    part: &Rc<RefCell<P>>,
-    write: F,
-) -> Result<O> 
-where 
+fn write_part<P, F, O>(part: &Rc<RefCell<P>>, write: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RefMut<P>) -> O,
 {
@@ -229,11 +211,8 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part_async<'a, P, F, O>(
-    part: &'a Arc<RwLock<P>>,
-    write: F,
-) -> Result<O> 
-where 
+fn write_part_async<'a, P, F, O>(part: &'a Arc<RwLock<P>>, write: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
     O: std::future::Future,
@@ -242,11 +221,8 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part_async<'a, F, P, O>(
-    part: &'a Rc<RefCell<P>>,
-    write: F,
-) -> Result<O> 
-where 
+fn write_part_async<'a, F, P, O>(part: &'a Rc<RefCell<P>>, write: F) -> Result<O>
+where
     P: ?Sized,
     F: FnOnce(RefMut<'a, P>) -> O,
     O: std::future::Future,
