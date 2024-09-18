@@ -29,8 +29,8 @@ mod prelude {
     impl Sim {
         pub fn new() -> Self {
             let canvas = window().unwrap().document().unwrap().get_element_by_id("canvas").unwrap().dyn_into::<HtmlCanvasElement>().unwrap();
-            canvas.set_width(1000);
-            canvas.set_height(800);
+            canvas.set_width(1200);
+            canvas.set_height(900);
             Self { gpu: Gpu { gl: canvas.get_context("webgl2") // canvas.get_context_with_context_options("webgl2", {preserveDrawingBuffer: true})
             .unwrap()
             .unwrap()
@@ -53,7 +53,7 @@ pub async fn initialize() -> std::result::Result<(), JsValue> {
     let tick = 0_i32.leaf();
     let particles = sim.particles(&tick).await.unwrap().make().unwrap();
     particles.act().await.unwrap();
-    for _ in 0..1000 {
+    for _ in 0..5000 {
         tick.write(|x| *x += 1).await.unwrap();
         TimeoutFuture::new(16).await;
     }

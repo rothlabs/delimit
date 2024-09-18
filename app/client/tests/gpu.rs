@@ -314,6 +314,5 @@ pub async fn nurbs_shader() -> Result<()> {
         .count(3)
         .make()?;
     let reader = target.reader().size(100).draw(draw).make()?;
-    console_log!("nurbs: {:?}", reader.base().await?);
     Ok(())
 }

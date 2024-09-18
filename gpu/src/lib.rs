@@ -42,7 +42,7 @@ mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Gpu {
     pub gl: WGLRC,
 }

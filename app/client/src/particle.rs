@@ -7,7 +7,7 @@ impl Sim {
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self.gpu.program(vert, frag)?.out("out_pos").out("out_vel").out_type(WGLRC::SEPARATE_ATTRIBS).make()?;
-        let point_count = 16;
+        let point_count = 16 * 200;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -53,7 +53,7 @@ impl Sim {
             .tick(&tick)
             .make()?;
 
-        let seg_count = 80;
+        let seg_count = 2000;
         let vertex = self.gpu.vertex_shader(NURBS)?;
         let fragment = self.gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
         let program = self.gpu
@@ -126,7 +126,9 @@ impl Sim {
             .tick(&tick)
             .make()?;
 
-        let particles = ParticlesBuilder::default().draw0(draw0).draw1(draw1)
+        let particles = ParticlesBuilder::default()
+        .gpu(self.gpu.clone())
+        .draw0(draw0).draw1(draw1)
         .basis(basis_draw)
         .curve(curve_draw)
         // .reader(reader)
@@ -138,7 +140,7 @@ impl Sim {
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
 pub struct Particles {
-    // gpu: Gpu,
+    gpu: Gpu,
     tick: Hub<i32>,
     draw0: Node<DrawArrays>,
     draw1: Node<DrawArrays>,
@@ -159,13 +161,14 @@ impl ParticlesBuilder {
 
 impl Act for Particles {
     async fn act(&self) -> Result<()> {
+        // self.gpu.gl.clear(WGLRC::COLOR_BUFFER_BIT);
         if self.tick.base().await? % 2 == 0{
             self.draw0.act().await?;
+            self.basis.act().await?;
+            self.curve.act().await?;
         } else {
             self.draw1.act().await?;
         }
-        self.basis.act().await?;
-        self.curve.act().await?;
         // console_log!("basis: {:?}", self.reader.base().await?);
         Ok(())
     }
@@ -191,7 +194,7 @@ void main() {
         out_vel.y = -out_vel.y;
     }
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
-    gl_PointSize = 6.;
+    gl_PointSize = 3.;
 }";
 
 pub const PARTICLES_FRAG: &str = r"#version 300 es
@@ -227,7 +230,7 @@ void main() {
     out_pos.y += c0.w*bC[0] + c1.w*bC[1] + c2.w*bC[2] + c3.w*bC[3];
     out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
-    gl_PointSize = 4.;
+    gl_PointSize = 1.;
 }";
 
     // out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
@@ -271,7 +274,7 @@ const int knot_max = 32;
 
 void main() {
     int knot_index = knot_max - int(order) - 1;
-    float u = float(gl_VertexID) / 80.0;
+    float u = float(gl_VertexID) / 2000.0;
     float[knot_max] knots = float[knot_max](
         knots0[0], knots0[1], knots0[2], knots0[3], 
         knots1[0], knots1[1], knots1[2], knots1[3],
