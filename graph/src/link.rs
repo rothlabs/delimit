@@ -354,7 +354,6 @@ where
     }
 }
 
-// #[async_trait]
 impl<E> Solve for Link<E>
 where
     E: 'static + Solve + AddRoot + Update,
@@ -362,22 +361,27 @@ where
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        #[cfg(not(feature = "oneThread"))]
-        {
-            let edge = self.edge.read();
-            let result = edge.solve().await;
-            edge.add_root(self.as_root(edge.id()))?;
-            result
-        }
-        #[cfg(feature = "oneThread")]
-        match self.edge.try_borrow() {
-            Ok(edge) => {
-                let result = edge.solve().await;
-                edge.add_root(self.as_root(edge.id()))?;
-                result
-            }
-            Err(err) => Err(Error::Write(err.to_string())),
-        }
+        let wow = read_part2(&self.edge, |edge| async move {
+            let huh = edge.solve().await;
+            huh
+        }).await;
+        wow
+        // #[cfg(not(feature = "oneThread"))]
+        // {
+            // let edge = self.edge.read();
+            // let result = edge.solve().await;
+            // edge.add_root(self.as_root(edge.id()))?;
+            // result
+        // }
+        // #[cfg(feature = "oneThread")]
+        // match self.edge.try_borrow() {
+        //     Ok(edge) => {
+        //         let result = edge.solve().await;
+        //         edge.add_root(self.as_root(edge.id()))?;
+        //         result
+        //     }
+        //     Err(err) => Err(Error::Write(err.to_string())),
+        // }
     }
 }
 

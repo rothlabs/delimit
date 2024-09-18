@@ -157,6 +157,24 @@ fn read_part<'a, P: ?Sized, O: 'a, F: FnOnce(RwLockReadGuard<P>) -> O + 'a>(
     // }
 }
 
+#[cfg(not(feature = "oneThread"))]
+fn read_part2<'a, P, O, F>(
+    part: &'a Arc<RwLock<P>>,
+    read: F,
+) -> O 
+where 
+    P: 'a + ?Sized,
+    F: 'a + FnOnce(RwLockReadGuard<'a, P>) -> O,
+    O: 'a + std::future::Future,
+{
+
+    read(part.read())
+    // match part.read() {
+    //     Ok(part) => Ok(read(part)),
+    //     Err(err) => Err(Error::Read(err.to_string())),
+    // }
+}
+
 #[cfg(feature = "oneThread")]
 fn read_part<P: ?Sized, O, F: FnOnce(Ref<P>) -> O>(part: &Rc<RefCell<P>>, read: F) -> Result<O> {
     match part.try_borrow() {
