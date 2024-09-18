@@ -101,6 +101,7 @@ where
         &mut self,
         write: F,
     ) -> Result<write::Out<T>> {
+        // TODO: remove unrwap
         let out = self
             .work
             .write_unit_work(write, &self.back.clone().unwrap())?;

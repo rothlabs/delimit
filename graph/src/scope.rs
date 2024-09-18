@@ -22,7 +22,7 @@ impl Space {
         if let Ok(imports) = apex.imports() {
             space.imports = imports;
         }
-        apex.adapt(&mut space)?;
+        apex.adapt_get(&mut space)?;
         Ok(space)
     }
     pub fn get(&self, keys: &[Key]) -> Result<Apex> {

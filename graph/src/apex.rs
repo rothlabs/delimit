@@ -28,7 +28,7 @@ impl Apex {
         Ok(())
     }
     fn saturate(&self, world: &Space, local: &Space) -> Result<()> {
-        self.adapt(&mut Scope {
+        self.adapt_get(&mut Scope {
             world,
             local,
             back: None,
@@ -64,16 +64,16 @@ impl Apex {
             Self::Vf64(x) => x.set(aim, apex),
         }
     }
-    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+    pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         match self {
-            Self::Void(x) => x.adapt(deal),
-            Self::String(x) => x.adapt(deal),
-            Self::U8(x) => x.adapt(deal),
-            Self::I32(x) => x.adapt(deal),
-            Self::Vu8(x) => x.adapt(deal),
-            Self::Vu16(x) => x.adapt(deal),
-            Self::Vf32(x) => x.adapt(deal),
-            Self::Vf64(x) => x.adapt(deal),
+            Self::Void(x) => x.adapt_get(deal),
+            Self::String(x) => x.adapt_get(deal),
+            Self::U8(x) => x.adapt_get(deal),
+            Self::I32(x) => x.adapt_get(deal),
+            Self::Vu8(x) => x.adapt_get(deal),
+            Self::Vu16(x) => x.adapt_get(deal),
+            Self::Vf32(x) => x.adapt_get(deal),
+            Self::Vf64(x) => x.adapt_get(deal),
         }
     }
     pub fn tray_path(&self) -> Option<&Path> {

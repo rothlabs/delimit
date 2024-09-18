@@ -11,12 +11,12 @@ use std::{collections::HashSet, hash::Hash};
 
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
-    fn rebut(&self) -> crate::Result<Ring>;
+    fn rebut(&self) -> Result<Ring>;
 }
 
 pub trait RebutMut {
     /// Invalidatd the tray at cusp level. Call only after write during rebut phase.
-    fn rebut(&mut self) -> crate::Result<Ring>;
+    fn rebut(&mut self) -> Result<Ring>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
@@ -36,7 +36,7 @@ pub trait ReactMut {
 pub trait AddRoot {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn add_root(&self, root: Root) -> crate::Result<()>;
+    fn add_root(&self, root: Root) -> Result<()>;
 }
 
 pub trait AddRootMut {
@@ -48,7 +48,7 @@ pub trait AddRootMut {
 pub trait Backed {
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> crate::Result<Self>
+    fn backed(&self, back: &Back) -> Result<Self>
     where
         Self: Sized;
 }
@@ -79,7 +79,7 @@ pub struct Root {
 }
 
 impl Root {
-    pub fn rebut(&self) -> crate::Result<Ring> {
+    pub fn rebut(&self) -> Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.rebut())?
         } else {
@@ -133,7 +133,7 @@ impl Back {
     pub fn new(cusp: Weak<RefCell<dyn UpdateMut>>, id: Id) -> Self {
         Self { cusp, id }
     }
-    pub fn rebut(&self) -> crate::Result<Ring> {
+    pub fn rebut(&self) -> Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.rebut())?
         } else {
@@ -150,19 +150,19 @@ impl Back {
 }
 
 impl Deal for Back {
-    fn one(&mut self, _: &str, view: View) -> crate::Result<()> {
+    fn one(&mut self, _: &str, view: View) -> Result<()> {
         let apex = view.backed(self)?;
         view.set(apex)?;
         Ok(())
     }
-    fn vec(&mut self, _: &str, view: ViewVec) -> crate::Result<()> {
+    fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         for view in view.views() {
             let apex = view.backed(self)?;
             view.set(apex)?;
         }
         Ok(())
     }
-    fn map(&mut self, map: &mut Map) -> crate::Result<()> {
+    fn map(&mut self, map: &mut Map) -> Result<()> {
         *map = map.backed(self)?;
         Ok(())
     }
@@ -181,21 +181,21 @@ impl Ring {
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
-    pub fn rebut(&mut self) -> crate::Result<Ring> {
-        let mut result = Ring::new();
+    pub fn rebut(&mut self) -> Result<Ring> {
+        let mut out = Ring::new();
         for root in &self.roots {
             let ring = root.rebut()?;
             if ring.roots.is_empty() {
-                result.roots.insert(root.clone());
+                out.roots.insert(root.clone());
             } else {
-                result.roots.extend(ring.roots);
+                out.roots.extend(ring.roots);
             }
         }
         // TODO: figure out how to add this back in
-        ///////////// self.roots.clear();
-        Ok(result)
+        /////// self.roots.clear();
+        Ok(out)
     }
-    pub fn rebut_roots(&mut self) -> crate::Result<Vec<Root>> {
+    pub fn rebut_roots(&mut self) -> Result<Vec<Root>> {
         let mut ring = Ring::new();
         for root in &self.roots {
             ring.roots.extend(root.rebut()?.roots);

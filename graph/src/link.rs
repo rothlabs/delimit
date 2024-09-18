@@ -394,7 +394,8 @@ where
             //     return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
             // }
             result
-        })?.await
+        })?
+        .await
     }
 }
 

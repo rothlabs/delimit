@@ -91,9 +91,17 @@ where
     }
 
     /// Replace stems according to the Trade deal.
-    pub fn adapt(&self, deal: &mut dyn Deal) -> Result<()> {
+    pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         if let Self::Ploy(ploy) = self {
             ploy.adapt_get(deal)?;
+        }
+        Ok(())
+    }
+
+    /// Replace stems according to the Trade deal.
+    pub async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
+        if let Self::Ploy(ploy) = self {
+            ploy.adapt_set(deal).await?;
         }
         Ok(())
     }
