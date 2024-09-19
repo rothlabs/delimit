@@ -41,16 +41,6 @@ where
     }
 }
 
-impl<N> ToId for Edge<N> {
-    fn id(&self) -> Id {
-        if let Some(back) = &self.back {
-            back.id
-        } else {
-            0
-        }
-    }
-}
-
 impl<N> FromItem for Edge<N>
 where
     N: FromItem,
@@ -93,14 +83,14 @@ where
         Ok(rank)
     }
     #[cfg(feature = "oneThread")]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
         self.root = Some(root);
         let cusp = C::default();
         let id = cusp.id();
         self.cusp = Rc::new(RefCell::new(cusp));
         let update = self.cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&self.cusp, |mut cusp| cusp.make(make, &back))??;
+        let rank = write_part(&self.cusp, |mut cusp| cusp.init(make, &back))??;
         Ok(rank)
     }
 }
@@ -354,3 +344,14 @@ where
         })?.await
     }
 }
+
+
+// impl<N> ToId for Edge<N> {
+//     fn id(&self) -> Id {
+//         if let Some(back) = &self.back {
+//             back.id
+//         } else {
+//             0
+//         }
+//     }
+// }

@@ -71,12 +71,6 @@ impl<T> AddRoot for Box<dyn Engage<Base = T>> {
     }
 }
 
-impl<T> ToId for Box<dyn Engage<Base = T>> {
-    fn id(&self) -> Id {
-        self.as_ref().id()
-    }
-}
-
 impl<T> Rebut for Box<dyn Engage<Base = T>> {
     fn rebut(&self) -> Result<Ring> {
         self.as_ref().rebut()
@@ -93,3 +87,9 @@ impl<T> React for Box<dyn Engage<Base = T>> {
         self.as_ref().react(id).await
     }
 }
+
+// impl<T> ToId for Box<dyn Engage<Base = T>> {
+//     fn id(&self) -> Id {
+//         self.as_ref().id()
+//     }
+// }

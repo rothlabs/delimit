@@ -21,14 +21,6 @@ pub trait RebutMut {
     fn clear_roots(&mut self) -> Result<()>;
 }
 
-// pub trait ClearRoots {
-//     fn clear_roots(&self) -> Result<()>;
-// }
-
-// pub trait ClearRootsMut {
-//     fn clear_roots(&mut self) -> Result<()>;
-// }
-
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait React {
@@ -70,8 +62,8 @@ pub trait BackedMid {
 }
 
 /// For edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut + React + ToId + SendSync {}
-impl<T> Update for T where T: Rebut + React + ToId + SendSync {}
+pub trait Update: Rebut + React + SendSync {}
+impl<T> Update for T where T: Rebut + React + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
 pub trait UpdateMut: RebutMut + ReactMut + ToId + SendSync {}
@@ -241,3 +233,12 @@ impl Ring {
         Ok(())
     }
 }
+
+
+// pub trait ClearRoots {
+//     fn clear_roots(&self) -> Result<()>;
+// }
+
+// pub trait ClearRootsMut {
+//     fn clear_roots(&mut self) -> Result<()>;
+// }
