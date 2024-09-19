@@ -136,11 +136,12 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + InitEdge + Update,
+    E: 'static + Default + InitEdge + Update + SetRoot,
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
-        let (edge, root) = edge_pointers(E::default());
-        let rank = write_part(&edge, |mut edge| edge.init(make, root))??;
+        let (edge, rank) = E::init(make)?;
+        let (edge, root) = edge_pointers(edge);
+        write_part(&edge, |mut edge| edge.set_root(root))?;
         Ok(Self {
             path: None,
             rank,
@@ -154,24 +155,14 @@ where
     E: 'static + Default + InitEdge + Engage,
 {
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
-        // let (edge, rank) = E::make(make)?;
-        // let (edge, root) = edge_pointers(Box::new(E::default()));
-        // let rank = write_part(&edge, |mut edge| edge.init(make, root))??;
-        let edge = Box::new(E::default()) as Box<dyn Engage<Base = E::Base>>;
+        let (edge, rank) = E::init(make)?;
+        let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         let (edge, root) = edge_pointers(edge);
-        let rank = write_part(&edge, |mut edge| edge.set_root(root))?;
+        write_part(&edge, |mut edge| edge.set_root(root))?;
         Ok(Link {
             path: None,
             rank,
             edge
-            // #[cfg(not(feature = "oneThread"))]
-            // edge: Arc::new(RwLock::new(
-            //     Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            // )),
-            // #[cfg(feature = "oneThread")]
-            // edge: Rc::new(RefCell::new(
-            //     Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            // )),
         })
     }
 }

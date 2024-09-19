@@ -265,11 +265,11 @@ where
     T: 'static + Unit,
 {
     fn ploy(mut self) -> Result<Ploy<T::Base>> {
-        Node::make(|back| {
+        Node::make_ploy(|back| {
             self.adapt(&mut back.clone())
                 .expect("To move into Ploy, unit must Adapt with Post::Trade.");
             Ok(self)
-        })?.ploy()
+        })
     }
 }
 
@@ -362,7 +362,8 @@ pub trait SetBack {
 // TODO: rename to initialize
 pub trait InitEdge {
     type Unit;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, init: F, root: Root) -> Result<Option<u64>>;
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Self, Option<u64>)>
+    where Self: Sized;
 }
 
 pub trait InitMut {

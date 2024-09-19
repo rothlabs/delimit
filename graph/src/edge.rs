@@ -72,15 +72,18 @@ where
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
-        self.root = Some(root);
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
         let cusp = C::default();
         let id = cusp.id();
-        self.cusp = Arc::new(RwLock::new(cusp));
-        let update = self.cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+        let cusp = Arc::new(RwLock::new(cusp));
+        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        let rank = self.cusp.write().init(make, &back)?;
-        Ok(rank)
+        let rank = cusp.write().init(make, &back)?;
+        Ok((Self {
+            root: None,
+            back: None,
+            cusp,
+        }, rank))
     }
     #[cfg(feature = "oneThread")]
     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
