@@ -149,17 +149,37 @@ where
     }
 }
 
+// impl<E> Link<E>
+// where
+//     E: ToPloy,
+// {
+//     /// Copy the link with unit type erased.  
+//     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
+//         read_part(&self.edge, |edge| Ploy {
+//             edge: edge.ploy(),
+//             path: self.path.clone(),
+//             rank: self.rank,
+//         })
+//     }
+// }
+
 impl<E> Link<E>
 where
-    E: ToPloy,
+    E: ToPloy + Clone + Update + SetRoot,
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-        read_part(&self.edge, |edge| Ploy {
-            edge: edge.ploy(),
-            path: self.path.clone(),
-            rank: self.rank,
-        })
+        // let (edge, root) = edge_pointers(edge.ploy());
+        // write_part(&edge, |mut edge| edge.root(root))?;
+        read_part(&self.edge, |edge| {
+            let (edge, root) = edge_pointers((*edge).clone());
+            write_part(&edge, |mut edge| edge.root(root))?;
+            Ok(Ploy {
+                edge,
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })?
     }
 }
 

@@ -104,7 +104,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyPointer<U::Base> {
         Arc::new(RwLock::new(Box::new(Self {
-            root: self.root.clone(),
+            root: None, // self.root.clone(),
             back: self.back.clone(),
             cusp: self.cusp.clone(),
         })))
@@ -112,7 +112,7 @@ where
     #[cfg(feature = "oneThread")]
     fn ploy(&self) -> PloyPointer<U::Base> {
         Rc::new(RefCell::new(Box::new(Self {
-            root: self.root.clone(),
+            root: None, // self.root.clone(),
             back: self.back.clone(),
             cusp: self.cusp.clone(),
         })))
