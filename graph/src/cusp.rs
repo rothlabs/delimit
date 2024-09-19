@@ -51,18 +51,18 @@ impl<W> ToId for Cusp<W> {
     }
 }
 
-impl<W> MakeMut for Cusp<W>
+impl<W> InitMut for Cusp<W>
 where
-    W: MakeMut,
+    W: InitMut,
 {
     type Unit = W::Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
         &mut self,
         make: F,
         back: &Back,
     ) -> Result<Option<u64>> {
         self.back = Some(back.clone());
-        self.work.make(make, back)
+        self.work.init(make, back)
     }
 }
 

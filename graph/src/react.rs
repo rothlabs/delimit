@@ -221,7 +221,6 @@ impl Ring {
                 out.roots.extend(ring.roots);
             }
         }
-        // TODO: figure out how to add this back in
         // self.roots.clear();
         Ok(out)
     }

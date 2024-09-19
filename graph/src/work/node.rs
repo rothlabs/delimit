@@ -105,12 +105,12 @@ where
     }
 }
 
-impl<U> MakeMut for Node<U>
+impl<U> InitMut for Node<U>
 where
     U: Solve + Reckon,
 {
     type Unit = U;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
         &mut self,
         make: F,
         back: &Back,

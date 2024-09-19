@@ -60,9 +60,6 @@ where
     Self: Solve<Base = ()>,
     <Self as Solve>::Base: 'static + Payload,
 {
-    // pub async fn main(&self) -> Result<Hub<<Self as Solve>::Base>> {
-    //     self.solve().await
-    // }
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
             Ok(_) => Ok(()),
@@ -74,7 +71,6 @@ where
 impl<E> Hash for Link<E>
 where
     Self: Solve + Reckon,
-    // <Self as Solve>::Base: 'static + Payload,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
@@ -87,8 +83,7 @@ where
 
 impl<E> Serialize for Link<E>
 where
-    Self: Solve + Reckon,
-    //<Self as Solve>::Base: 'static + Payload,
+    Self: Solve + Reckon
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -106,10 +101,9 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromItem + SetEdgeWeakSelf + Update,
+    E: 'static + FromItem + SetRoot + Update,
 {
     pub fn new(base: E::Item) -> Self {
-        // let edge = E::new(unit);
         #[cfg(not(feature = "oneThread"))]
         let (edge, root) = {
             let edge = Arc::new(RwLock::new(E::new(base)));
@@ -133,7 +127,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + MakeEdge + Update,
+    E: 'static + Default + InitEdge + Update,
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
         #[cfg(not(feature = "oneThread"))]
@@ -148,7 +142,7 @@ where
             let update = edge.clone() as Rc<RefCell<dyn Update>>;
             (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
         };
-        let rank = write_part(&edge, |mut edge| edge.make(make, root))??;
+        let rank = write_part(&edge, |mut edge| edge.init(make, root))??;
         Ok(Self {
             path: None,
             rank,
@@ -220,7 +214,7 @@ impl<E> PartialEq for Link<E> {
 
 impl<E> Backed for Link<E>
 where
-    E: 'static + BackedMid + SetEdgeWeakSelf + Update,
+    E: 'static + BackedMid + SetRoot + Update,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {

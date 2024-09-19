@@ -69,27 +69,27 @@ where
     }
 }
 
-impl<C> SetEdgeWeakSelf for Edge<C>
+impl<C> SetRoot for Edge<C>
 {
     fn root(&mut self, root: Root) {
         self.root = Some(root);
     }
 }
 
-impl<C> MakeEdge for Edge<C>
+impl<C> InitEdge for Edge<C>
 where
-    C: 'static + Default + MakeMut + UpdateMut,
+    C: 'static + Default + InitMut + UpdateMut,
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
         self.root = Some(root);
         let cusp = C::default();
         let id = cusp.id();
         self.cusp = Arc::new(RwLock::new(cusp));
         let update = self.cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        let rank = self.cusp.write().make(make, &back)?;
+        let rank = self.cusp.write().init(make, &back)?;
         Ok(rank)
     }
     #[cfg(feature = "oneThread")]
@@ -309,9 +309,6 @@ where
             }
             out
         })
-        // let out = read_part(&self.cusp, |cusp| read(cusp.item()));
-        // write_part(&self.cusp, |mut cusp| cusp.add_root(self.root.clone().unwrap()))?;
-        // out
     }
 }
 

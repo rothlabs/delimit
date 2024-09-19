@@ -352,22 +352,22 @@ pub trait FromItem {
 }
 
 // TODO: rename to initialize
-pub trait SetEdgeWeakSelf {
+pub trait SetRoot {
     // type Unit;
     fn root(&mut self, root: Root);
 }
 
 // TODO: rename to initialize
-pub trait MakeEdge {
+pub trait InitEdge {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>>;
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, init: F, root: Root) -> Result<Option<u64>>;
 }
 
-pub trait MakeMut {
+pub trait InitMut {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
         &mut self,
-        make: F,
+        init: F,
         back: &Back,
     ) -> Result<Option<u64>>;
 }
