@@ -12,9 +12,9 @@ pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
 pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Base = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + Debug {}
+pub trait Engage: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetEdgeWeakSelf + Debug {}
 
-impl<E> Engage for E where E: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + Debug {}
+impl<E> Engage for E where E: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetEdgeWeakSelf + Debug {}
 
 pub trait ToPloy {
     type Base;

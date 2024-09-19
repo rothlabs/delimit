@@ -104,23 +104,6 @@ where
     }
 }
 
-// impl<E> Link<E>
-// where
-//     E: FromItem,
-// {
-//     pub fn new(unit: E::Item) -> Self {
-//         let edge = E::new(unit);
-//         Self {
-//             path: None,
-//             rank: None,
-//             #[cfg(not(feature = "oneThread"))]
-//             edge: Arc::new(RwLock::new(edge)),
-//             #[cfg(feature = "oneThread")]
-//             edge: Rc::new(RefCell::new(edge)),
-//         }
-//     }
-// }
-
 impl<E> Link<E>
 where
     E: 'static + FromItem + SetEdgeWeakSelf + Update,
@@ -165,7 +148,6 @@ where
             let update = edge.clone() as Rc<RefCell<dyn Update>>;
             (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
         };
-        // let rank = edge.write().make(make, root)?;
         let rank = write_part(&edge, |mut edge| edge.make(make, root))??;
         Ok(Self {
             path: None,
@@ -193,6 +175,7 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Engage,
 {
+    // TODO: add weak self to edge!!!
     pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
         let (edge, rank) = E::from_snap(snap);
         Link {
@@ -206,28 +189,6 @@ where
             edge: Rc::new(RefCell::new(
                 Box::new(edge) as Box<dyn Engage<Base = E::Base>>
             )),
-        }
-    }
-}
-
-impl<E> Link<E>
-where
-    E: 'static + Update,
-{
-    #[cfg(not(feature = "oneThread"))]
-    pub fn as_root(&self, id: Id) -> Root {
-        let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
-        Root {
-            edge: Arc::downgrade(&edge),
-            id,
-        }
-    }
-    #[cfg(feature = "oneThread")]
-    pub fn as_root(&self, id: Id) -> Root {
-        let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
-        Root {
-            edge: Rc::downgrade(&edge),
-            id,
         }
     }
 }
@@ -270,14 +231,18 @@ where
                 (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
             };
             #[cfg(feature = "oneThread")]
-            let edge = Rc::new(RefCell::new(edge.backed(back)));
-            write_part(&edge, |mut edge| edge.root(root)).expect(IMMEDIATE_ACCESS);
-            Self {
+            let (edge, root) = {
+                let edge = Rc::new(RefCell::new(edge.backed(back)));
+                let update = edge.clone() as Rc<RefCell<dyn Update>>;
+                (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
+            };
+            write_part(&edge, |mut edge| edge.root(root))?;
+            Ok(Self {
                 edge,
                 path: self.path.clone(),
                 rank: self.rank,
-            }
-        })
+            })
+        })?
     }
 }
 
@@ -286,11 +251,25 @@ where
     T: 'static + Payload,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.backed(back),
-            path: self.path.clone(),
-            rank: self.rank,
-        })
+        read_part(&self.edge, |edge| {
+            let edge = edge.backed(back);
+            #[cfg(not(feature = "oneThread"))]
+            let (edge, root) = {
+                let update = edge.clone() as Arc<RwLock<dyn Update>>;
+                (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
+            };
+            #[cfg(feature = "oneThread")]
+            let (edge, root) = {
+                let update = edge.clone() as Rc<RefCell<dyn Update>>;
+                (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
+            };
+            write_part(&edge, |mut edge| edge.root(root))?;
+            Ok(Self {
+                edge,//: edge.backed(back),
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })?
     }
 }
 
@@ -300,11 +279,7 @@ where
 {
     /// Read payload of Link.
     pub fn read<O, F: FnOnce(&E::Item) -> O>(&self, read: F) -> Result<O> {
-        read_part(&self.edge, |edge| {
-            let out = edge.read(read);
-            edge.add_root(self.as_root(edge.id()))?;
-            out
-        })?
+        read_part(&self.edge, |edge| edge.read(read))?
     }
 }
 
@@ -341,12 +316,7 @@ where
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move {
-            let out = edge.solve().await;
-            edge.add_root(self.as_root(edge.id()))?;
-            out
-        })?
-        .await
+        read_part_async(&self.edge, |edge| async move {edge.solve().await})?.await
     }
 }
 
@@ -355,11 +325,7 @@ where
     E: 'static + Reckon + AddRoot + Update,
 {
     fn reckon(&self, task: Task) -> Result<Gain> {
-        read_part(&self.edge, |edge| {
-            let out = edge.reckon(task);
-            edge.add_root(self.as_root(edge.id()))?;
-            out
-        })?
+        read_part(&self.edge, |edge| edge.reckon(task))?
     }
 }
 
@@ -369,12 +335,7 @@ where
 {
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move {
-            let out = edge.solve().await;
-            edge.add_root(self.as_root(edge.id()))?;
-            out
-        })?
-        .await
+        read_part_async(&self.edge, |edge| async move {edge.solve().await})?.await
     }
 }
 
@@ -385,9 +346,9 @@ where
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
             let out = edge.adapt_get(deal);
-            if deal.read() {
-                edge.add_root(self.as_root(edge.id()))?;
-            }
+            // if deal.read() {
+            //     edge.add_root(self.as_root(edge.id()))?;
+            // }
             // } else {
             //     return Err(anyhow!("Deal did not report reading in AdaptGet"))?;
             // }
@@ -441,3 +402,26 @@ where
         }
     }
 }
+
+
+// impl<E> Link<E>
+// where
+//     E: 'static + Update,
+// {
+//     #[cfg(not(feature = "oneThread"))]
+//     pub fn as_root(&self, id: Id) -> Root {
+//         let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
+//         Root {
+//             edge: Arc::downgrade(&edge),
+//             id,
+//         }
+//     }
+//     #[cfg(feature = "oneThread")]
+//     pub fn as_root(&self, id: Id) -> Root {
+//         let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
+//         Root {
+//             edge: Rc::downgrade(&edge),
+//             id,
+//         }
+//     }
+// }

@@ -159,21 +159,34 @@ where
 
 impl<C> Solve for Edge<C>
 where
-    C: 'static + SolveMut + SendSync,
+    C: 'static + SolveMut + AddRootMut + SendSync,
     C::Base: Payload,
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move { cusp.solve().await })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { 
+            let out = cusp.solve().await;
+            if let Some(root) = self.root.clone() {
+                cusp.add_root(root);
+            }
+            out
+        })?.await
     }
 }
 
 impl<C> Reckon for Edge<C>
 where
-    C: ReckonMut,
+    C: ReckonMut // + AddRoot,
 {
     fn reckon(&self, task: Task) -> Result<Gain> {
-        write_part(&self.cusp, |mut cusp| cusp.reckon(task))?
+        // should not need to add root
+        write_part(&self.cusp, |mut cusp| {
+            let out = cusp.reckon(task);
+            // if let Some(root) = self.root.clone() {
+            //     cusp.add_root(root);
+            // }
+            out
+        })?
     }
 }
 
@@ -214,11 +227,16 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move { cusp.solve().await })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { 
+            let out = cusp.solve().await;
+            if let Some(root) = self.root.clone() {
+                cusp.add_root(root);
+            }
+            out
+        })?.await
     }
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         let edge = Self {
-            // TODO: need to update root!!!!!!
             root: self.root.clone(),
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -284,16 +302,16 @@ where
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
-        // write_part(&self.cusp, |mut cusp| {
-        //     let out = read(cusp.item());
-        //     if let Some(root) = self.root.clone() {
-        //         cusp.add_root(root);
-        //     }
-        //     out
-        // })
-        let out = read_part(&self.cusp, |cusp| read(cusp.item()));
+        write_part(&self.cusp, |mut cusp| {
+            let out = read(cusp.item());
+            if let Some(root) = self.root.clone() {
+                cusp.add_root(root);
+            }
+            out
+        })
+        // let out = read_part(&self.cusp, |cusp| read(cusp.item()));
         // write_part(&self.cusp, |mut cusp| cusp.add_root(self.root.clone().unwrap()))?;
-        out
+        // out
     }
 }
 
@@ -327,9 +345,15 @@ impl<N> Rebut for Edge<N> {
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<N> React for Edge<N>
 where
-    N: ReactMut + SendSync,
+    N: ReactMut + AddRootMut + SendSync,
 {
     async fn react(&self, id: &Id) -> Result<()> {
-        write_part_async(&self.cusp, |mut cusp| async move { cusp.react(id).await })?.await
+        write_part_async(&self.cusp, |mut cusp| async move { 
+            let out = cusp.react(id).await;
+            if let Some(root) = self.root.clone() {
+                cusp.add_root(root);
+            }
+            out
+        })?.await
     }
 }

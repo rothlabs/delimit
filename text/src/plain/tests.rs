@@ -59,7 +59,7 @@ async fn no_rebut_after_dropping_stem() -> Result<()> {
     let a = text.solve().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
     let b = text.solve().await?;
-    panic!("wow");
+    // panic!("wow");
     assert!(a == b);
     Ok(())
 }
