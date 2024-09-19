@@ -123,38 +123,27 @@ where
 
 impl<E> Link<E>
 where
-    E: Make,
+    E: 'static + Default + MakeEdge + Update,
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
-        let (edge, rank) = E::make(make)?;
+        #[cfg(not(feature = "oneThread"))]
+        let (edge, root) = {
+            let edge = Arc::new(RwLock::new(E::default()));
+            let update = edge.clone() as Arc<RwLock<dyn Update>>;
+            (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
+        };
+        #[cfg(feature = "oneThread")]
+        let (edge, root) = {
+            let edge = Rc::new(RefCell::new(E::default()));
+            let update = edge.clone() as Rc<RefCell<dyn Update>>;
+            (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
+        };
+        // let rank = edge.write().make(make, root)?;
+        let rank = write_part(&edge, |mut edge| edge.make(make, root))??;
         Ok(Self {
             path: None,
             rank,
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(edge)),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(edge)),
-        })
-    }
-}
-
-impl<E> Link<E>
-where
-    E: 'static + Make + Engage,
-{
-    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
-        let (edge, rank) = E::make(make)?;
-        Ok(Link {
-            path: None,
-            rank,
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(
-                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            )),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(
-                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            )),
+            edge,
         })
     }
 }

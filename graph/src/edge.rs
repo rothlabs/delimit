@@ -17,11 +17,28 @@ pub type Node<U> = Edge<cusp::Node<U>>;
 /// The forward bridge between hubes.
 #[derive(Debug)]
 pub struct Edge<N> {
-    pub back: Option<Back>,
+    root: Option<Root>,
+    back: Option<Back>,
     #[cfg(not(feature = "oneThread"))]
-    pub cusp: Arc<RwLock<N>>,
+    cusp: Arc<RwLock<N>>,
     #[cfg(feature = "oneThread")]
-    pub cusp: Rc<RefCell<N>>,
+    cusp: Rc<RefCell<N>>,
+}
+
+impl<C> Default for Edge<C> 
+where 
+    C: Default
+{
+    fn default() -> Self {
+        Self {
+            root: None,
+            back: None,
+            #[cfg(not(feature = "oneThread"))]
+            cusp: Arc::new(RwLock::new(C::default())),
+            #[cfg(feature = "oneThread")]
+            cusp: Rc::new(RefCell::new(C::default())),
+        }
+    }
 }
 
 impl<N> ToId for Edge<N> {
@@ -42,6 +59,7 @@ where
     fn new(unit: Self::Item) -> Self {
         let cusp = N::new(unit);
         Self {
+            root: None,
             back: None,
             #[cfg(not(feature = "oneThread"))]
             cusp: Arc::new(RwLock::new(cusp)),
@@ -51,30 +69,32 @@ where
     }
 }
 
-impl<C> Make for Edge<C>
+impl<C> MakeEdge for Edge<C>
 where
     C: 'static + Default + MakeMut + UpdateMut,
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
+        self.root = Some(root);
         let cusp = C::default();
         let id = cusp.id();
-        let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+        self.cusp = Arc::new(RwLock::new(cusp));
+        let update = self.cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
-        let rank = cusp.write().make(make, &back)?;
-        Ok((Self { cusp, back: None }, rank))
+        let rank = self.cusp.write().make(make, &back)?;
+        Ok(rank)
     }
     #[cfg(feature = "oneThread")]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
+        self.root = Some(root);
         let cusp = C::default();
         let id = cusp.id();
-        let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+        self.cusp = Rc::new(RefCell::new(cusp));
+        let update = self.cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.make(make, &back))??;
-        Ok((Self { cusp, back: None }, rank))
+        let rank = write_part(&self.cusp, |mut cusp| cusp.make(make, &back))??;
+        Ok(rank)
     }
 }
 
@@ -87,6 +107,7 @@ where
     #[cfg(not(feature = "oneThread"))]
     fn ploy(&self) -> PloyPointer<U::Base> {
         Arc::new(RwLock::new(Box::new(Self {
+            root: self.root.clone(),
             back: self.back.clone(),
             cusp: self.cusp.clone(),
         })))
@@ -94,6 +115,7 @@ where
     #[cfg(feature = "oneThread")]
     fn ploy(&self) -> PloyPointer<U::Base> {
         Rc::new(RefCell::new(Box::new(Self {
+            root: self.root.clone(),
             back: self.back.clone(),
             cusp: self.cusp.clone(),
         })))
@@ -113,7 +135,7 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().with_snap(snap, &back);
-        (Self { cusp, back: None }, rank)
+        (Self { cusp, back: None, root: None }, rank)
     }
     #[cfg(feature = "oneThread")]
     fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) {
@@ -124,7 +146,7 @@ where
         let back = Back::new(Rc::downgrade(&update), id);
         let rank =
             write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
-        (Self { cusp, back: None }, rank)
+        (Self { cusp, back: None, root: None }, rank)
     }
 }
 
@@ -189,6 +211,7 @@ where
     }
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         let edge = Self {
+            root: self.root.clone(),
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         };
@@ -204,6 +227,7 @@ where
 impl<C> BackedMid for Edge<C> {
     fn backed(&self, back: &Back) -> Self {
         Self {
+            root: self.root.clone(),
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         }
