@@ -61,7 +61,7 @@ where
 
 impl<C> SetRoot for Edge<C>
 {
-    fn root(&mut self, root: Root) {
+    fn set_root(&mut self, root: Root) {
         self.root = Some(root);
     }
 }

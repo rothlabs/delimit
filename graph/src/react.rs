@@ -64,6 +64,7 @@ pub trait BackedMid {
 /// For edge that Rebuts a Ring and reacts.
 pub trait Update: Rebut + React + SendSync {}
 impl<T> Update for T where T: Rebut + React + SendSync {}
+// impl<T> Update for Box<T> where T: Rebut + React + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
 pub trait UpdateMut: RebutMut + ReactMut + ToId + SendSync {}

@@ -351,10 +351,12 @@ pub trait FromItem {
     fn new(item: Self::Item) -> Self;
 }
 
-// TODO: rename to initialize
 pub trait SetRoot {
-    // type Unit;
-    fn root(&mut self, root: Root);
+    fn set_root(&mut self, root: Root);
+}
+
+pub trait SetBack {
+    fn set_back(&mut self, back: Back);
 }
 
 // TODO: rename to initialize
