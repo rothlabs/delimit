@@ -93,6 +93,7 @@ impl Root {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.rebut())?
         } else {
+            // eprintln!("Root no upgrade on rebut");
             Ok(Ring::new())
         }
     }
@@ -125,6 +126,7 @@ impl React for Root {
         if let Some(edge) = self.edge.upgrade() {
             read_part_async(&edge, |edge| async move { edge.react(id).await })?.await
         } else {
+            // eprintln!("Root no upgrade on React");
             Ok(())
         }
     }
@@ -153,6 +155,7 @@ impl Back {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.rebut())?
         } else {
+            // eprintln!("Back no upgrade on rebut");
             Ok(Ring::new())
         }
     }
@@ -167,6 +170,7 @@ impl Back {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part_async(&cusp, |mut cusp| async move { cusp.react(id).await })?.await
         } else {
+            // eprintln!("Back no upgrade on react");
             Ok(())
         }
     }
@@ -218,7 +222,7 @@ impl Ring {
             }
         }
         // TODO: figure out how to add this back in
-        /////// self.roots.clear();
+        // self.roots.clear();
         Ok(out)
     }
     pub fn rebut_roots(&mut self) -> Result<Ring> {

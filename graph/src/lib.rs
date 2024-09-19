@@ -76,7 +76,7 @@ mod tray;
 mod view;
 mod view_vec;
 
-#[cfg(feature = "oneThread")]
+// #[cfg(feature = "oneThread")]
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
@@ -349,6 +349,12 @@ pub trait BaseDown<T> {
 pub trait FromItem {
     type Item;
     fn new(item: Self::Item) -> Self;
+}
+
+// TODO: rename to initialize
+pub trait SetEdgeWeakSelf {
+    // type Unit;
+    fn root(&mut self, root: Root);
 }
 
 // TODO: rename to initialize

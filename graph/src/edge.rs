@@ -69,6 +69,13 @@ where
     }
 }
 
+impl<C> SetEdgeWeakSelf for Edge<C>
+{
+    fn root(&mut self, root: Root) {
+        self.root = Some(root);
+    }
+}
+
 impl<C> MakeEdge for Edge<C>
 where
     C: 'static + Default + MakeMut + UpdateMut,
@@ -211,6 +218,7 @@ where
     }
     fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
         let edge = Self {
+            // TODO: need to update root!!!!!!
             root: self.root.clone(),
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -272,11 +280,20 @@ where
 
 impl<N> Read for Edge<N>
 where
-    N: ToItem,
+    N: ToItem + AddRootMut,
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
-        read_part(&self.cusp, |cusp| read(cusp.item()))
+        // write_part(&self.cusp, |mut cusp| {
+        //     let out = read(cusp.item());
+        //     if let Some(root) = self.root.clone() {
+        //         cusp.add_root(root);
+        //     }
+        //     out
+        // })
+        let out = read_part(&self.cusp, |cusp| read(cusp.item()));
+        // write_part(&self.cusp, |mut cusp| cusp.add_root(self.root.clone().unwrap()))?;
+        out
     }
 }
 

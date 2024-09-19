@@ -39,9 +39,10 @@ async fn rebut_from_self() -> Result<()> {
 async fn react_from_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
-    let a = text.solve().await?;
+    let a = text.solve().await?.base().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
-    let b = text.solve().await?;
+    let b = text.solve().await?.base().await?;
+    // eprintln!("a: {a}, b: {b}");
     assert!(a != b);
     Ok(())
 }
@@ -50,7 +51,7 @@ async fn react_from_stem() -> Result<()> {
 async fn no_rebut_after_dropping_stem() -> Result<()> {
     let ace = "ace".leaf();
     let text = new_list(&ace)?;
-    let _r = text.solve();
+    let _r = text.solve().await?;
     text.write(|pack| {
         pack.unit.remove(1);
     })
@@ -58,6 +59,7 @@ async fn no_rebut_after_dropping_stem() -> Result<()> {
     let a = text.solve().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
     let b = text.solve().await?;
+    panic!("wow");
     assert!(a == b);
     Ok(())
 }

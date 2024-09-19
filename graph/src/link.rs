@@ -104,19 +104,46 @@ where
     }
 }
 
+// impl<E> Link<E>
+// where
+//     E: FromItem,
+// {
+//     pub fn new(unit: E::Item) -> Self {
+//         let edge = E::new(unit);
+//         Self {
+//             path: None,
+//             rank: None,
+//             #[cfg(not(feature = "oneThread"))]
+//             edge: Arc::new(RwLock::new(edge)),
+//             #[cfg(feature = "oneThread")]
+//             edge: Rc::new(RefCell::new(edge)),
+//         }
+//     }
+// }
+
 impl<E> Link<E>
 where
-    E: FromItem,
+    E: 'static + FromItem + SetEdgeWeakSelf + Update,
 {
-    pub fn new(unit: E::Item) -> Self {
-        let edge = E::new(unit);
+    pub fn new(base: E::Item) -> Self {
+        // let edge = E::new(unit);
+        #[cfg(not(feature = "oneThread"))]
+        let (edge, root) = {
+            let edge = Arc::new(RwLock::new(E::new(base)));
+            let update = edge.clone() as Arc<RwLock<dyn Update>>;
+            (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
+        };
+        #[cfg(feature = "oneThread")]
+        let (edge, root) = {
+            let edge = Rc::new(RefCell::new(E::new(base)));
+            let update = edge.clone() as Rc<RefCell<dyn Update>>;
+            (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
+        };
+        write_part(&edge, |mut edge| edge.root(root)).expect(IMMEDIATE_ACCESS);
         Self {
             path: None,
             rank: None,
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(edge)),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(edge)),
+            edge,
         }
     }
 }
@@ -232,14 +259,19 @@ impl<E> PartialEq for Link<E> {
 
 impl<E> Backed for Link<E>
 where
-    E: BackedMid,
+    E: 'static + BackedMid + SetEdgeWeakSelf + Update,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
             #[cfg(not(feature = "oneThread"))]
-            let edge = Arc::new(RwLock::new(edge.backed(back)));
+            let (edge, root) = {
+                let edge = Arc::new(RwLock::new(edge.backed(back)));
+                let update = edge.clone() as Arc<RwLock<dyn Update>>;
+                (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
+            };
             #[cfg(feature = "oneThread")]
             let edge = Rc::new(RefCell::new(edge.backed(back)));
+            write_part(&edge, |mut edge| edge.root(root)).expect(IMMEDIATE_ACCESS);
             Self {
                 edge,
                 path: self.path.clone(),

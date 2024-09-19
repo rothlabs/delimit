@@ -10,6 +10,15 @@ pub struct Leaf<T> {
     digest: Option<u64>,
 }
 
+impl<T> Default for Leaf<T> 
+where 
+    T: Default
+{
+    fn default() -> Self {
+        Self { base: T::default(), digest: None }
+    }
+}
+
 impl<T> Leaf<T>
 where
     T: Payload,
@@ -101,14 +110,14 @@ where
     }
 }
 
-// impl<T> RebutMut for Leaf<T> {
-//     fn rebut(&mut self) -> Result<Ring> {
-//         Ok(Ring::new())
-//     }
-//     fn clear_roots(&mut self) -> Result<()> {
-//         Ok(())
-//     }
-// }
+impl<T> RebutMut for Leaf<T> {
+    fn rebut(&mut self) -> Result<Ring> {
+        Ok(Ring::new())
+    }
+    fn clear_roots(&mut self) -> Result<()> {
+        Ok(())
+    }
+}
 
 impl<T> Clear for Leaf<T> {
     fn clear(&mut self) {
@@ -121,3 +130,17 @@ impl<T> Adapt for Leaf<T> {
         Ok(())
     }
 }
+
+// impl<T> MakeMut for Leaf<T>
+// // where
+// //     U: Solve + Reckon,
+// {
+//     type Unit = T;
+//     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
+//         &mut self,
+//         _: F,
+//         _: &Back,
+//     ) -> Result<Option<u64>> {
+//         Ok(None)
+//     }
+// }
