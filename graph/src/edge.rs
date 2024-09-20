@@ -86,15 +86,18 @@ where
         }, rank))
     }
     #[cfg(feature = "oneThread")]
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(&mut self, make: F, root: Root) -> Result<Option<u64>> {
-        self.root = Some(root);
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
         let cusp = C::default();
         let id = cusp.id();
-        self.cusp = Rc::new(RefCell::new(cusp));
-        let update = self.cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+        let cusp = Rc::new(RefCell::new(cusp));
+        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&self.cusp, |mut cusp| cusp.init(make, &back))??;
-        Ok(rank)
+        let rank = write_part(&cusp, |mut cusp| cusp.init(make, &back))??;
+        Ok((Self {
+            root: None,
+            back: None,
+            cusp,
+        }, rank))
     }
 }
 

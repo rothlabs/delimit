@@ -45,6 +45,12 @@ where
     }
 }
 
+impl<T> SetRoot for Box<dyn Engage<Base = T>> {
+    fn set_root(&mut self, root: Root) {
+        self.as_mut().set_root(root);
+    }
+}
+
 impl<T> Reckon for Box<dyn Engage<Base = T>> {
     fn reckon(&self, task: Task) -> Result<Gain> {
         self.as_ref().reckon(task)

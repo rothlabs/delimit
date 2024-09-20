@@ -310,6 +310,7 @@ pub trait ToHub {
 impl<T> ToHub for Node<T>
 where
     T: 'static + Unit,
+    // Edge<Cusp<Node<T>>>: Clone
 {
     type Base = T::Base;
     fn hub(&self) -> Result<Hub<Self::Base>> {

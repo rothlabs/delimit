@@ -100,23 +100,27 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn edge_pointers<T>(edge: T) -> (Arc<RwLock<T>>, Root) 
+fn make_edge<T>(edge: T) -> Result<Arc<RwLock<T>>> 
 where 
-    T: 'static + Update,
+    T: 'static + Update + SetRoot,
 {
     let edge = Arc::new(RwLock::new(edge));
     let update = edge.clone() as Arc<RwLock<dyn Update>>;
-    (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
+    let root = Root{ edge: Arc::downgrade(&update), id: rand::random() };
+    write_part(&edge, |mut edge| edge.set_root(root))?;
+    Ok(edge)
 }
 
 #[cfg(feature = "oneThread")]
-fn edge_pointers<T>(edge: T) -> (Rc<RefCell<T>>, Root) 
+fn make_edge<T>(edge: T) -> Result<Rc<RefCell<T>>> 
 where 
-    T: 'static + Update,
+    T: 'static + Update + SetRoot,
 {
     let edge = Rc::new(RefCell::new(edge));
     let update = edge.clone() as Rc<RefCell<dyn Update>>;
-    (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
+    let root = Root{ edge: Rc::downgrade(&update), id: rand::random() };
+    write_part(&edge, |mut edge| edge.set_root(root))?;
+    Ok(edge)
 }
 
 impl<E> Link<E>
@@ -124,8 +128,7 @@ where
     E: 'static + FromItem + SetRoot + Update,
 {
     pub fn new(base: E::Item) -> Self {
-        let (edge, root) = edge_pointers(E::new(base));
-        write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
+        let edge = make_edge(E::new(base)).expect(IMMEDIATE_ACCESS);
         Self {
             path: None,
             rank: None,
@@ -140,8 +143,7 @@ where
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
         let (edge, rank) = E::init(make)?;
-        let (edge, root) = edge_pointers(edge);
-        write_part(&edge, |mut edge| edge.set_root(root))?;
+        let edge = make_edge(edge)?;
         Ok(Self {
             path: None,
             rank,
@@ -157,8 +159,7 @@ where
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
         let (edge, rank) = E::init(make)?;
         let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
-        let (edge, root) = edge_pointers(edge);
-        write_part(&edge, |mut edge| edge.set_root(root))?;
+        let edge = make_edge(edge)?;
         Ok(Link {
             path: None,
             rank,
@@ -167,39 +168,39 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    E: ToPloy,
-{
-    /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-        read_part(&self.edge, |edge| Ploy {
-            edge: edge.ploy(),
-            path: self.path.clone(),
-            rank: self.rank,
-        })
-    }
-}
-
 // impl<E> Link<E>
 // where
-//     E: ToPloy + Clone + Update + SetRoot,
+//     E: ToPloy,
 // {
 //     /// Copy the link with unit type erased.  
 //     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-//         // let (edge, root) = edge_pointers(edge.ploy());
-//         // write_part(&edge, |mut edge| edge.root(root))?;
-//         read_part(&self.edge, |edge| {
-//             let (edge, root) = edge_pointers((*edge).clone());
-//             write_part(&edge, |mut edge| edge.root(root))?;
-//             Ok(Ploy {
-//                 edge,
-//                 path: self.path.clone(),
-//                 rank: self.rank,
-//             })
-//         })?
+//         read_part(&self.edge, |edge| Ploy {
+//             edge: edge.ploy(),
+//             path: self.path.clone(),
+//             rank: self.rank,
+//         })
 //     }
 // }
+
+impl<E> Link<E>
+where
+    E: 'static + ToPloy + SetRoot,
+{
+    /// Copy the link with unit type erased.  
+    pub fn ploy(&self) -> Result<Ploy<E::Base>> {
+        read_part(&self.edge, |edge| {
+            let edge = edge.ploy();
+            let update = edge.clone() as Arc<RwLock<dyn Update>>;
+            let root = Root{ edge: Arc::downgrade(&update), id: rand::random() };
+            write_part(&edge, |mut edge| edge.set_root(root))?;
+            Ok(Ploy {
+                edge,
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })?
+    }
+}
 
 impl<E> Link<E>
 where
@@ -254,8 +255,7 @@ where
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
-            let (edge, root) = edge_pointers(edge.backed(back));
-            write_part(&edge, |mut edge| edge.set_root(root))?;
+            let edge = make_edge(edge.backed(back))?;
             Ok(Self {
                 edge,
                 path: self.path.clone(),
@@ -284,7 +284,7 @@ where
             };
             write_part(&edge, |mut edge| edge.set_root(root))?;
             Ok(Self {
-                edge,//: edge.backed(back),
+                edge,
                 path: self.path.clone(),
                 rank: self.rank,
             })
