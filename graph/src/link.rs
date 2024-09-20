@@ -99,83 +99,6 @@ where
     }
 }
 
-#[cfg(not(feature = "oneThread"))]
-fn make_edge<T>(edge: T) -> Arc<RwLock<T>>
-where
-    T: 'static + Update + SetRoot,
-{
-    let edge = Arc::new(RwLock::new(edge));
-    let update = edge.clone() as Arc<RwLock<dyn Update>>;
-    let root = Root {
-        edge: Arc::downgrade(&update),
-        id: rand::random(),
-    };
-    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
-    edge
-}
-
-#[cfg(feature = "oneThread")]
-fn make_edge<T>(edge: T) -> Rc<RefCell<T>>
-where
-    T: 'static + Update + SetRoot,
-{
-    let edge = Rc::new(RefCell::new(edge));
-    let update = edge.clone() as Rc<RefCell<dyn Update>>;
-    let root = Root {
-        edge: Rc::downgrade(&update),
-        id: rand::random(),
-    };
-    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
-    edge
-}
-
-#[cfg(not(feature = "oneThread"))]
-fn init_edge<T>(edge: Pointer<T>) -> Pointer<T> 
-where
-    T: 'static + Update + SetRoot //+ ?Sized,
-{
-    let update = edge.clone() as Arc<RwLock<dyn Update>>;
-    let root = Root {
-        edge: Arc::downgrade(&update),
-        id: rand::random(),
-    };
-    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
-    edge
-}
-
-#[cfg(feature = "oneThread")]
-fn init_edge<T: 'static>(edge: PloyEdge<T>) -> Result<PloyEdge<T>> {
-    let update = edge.clone() as Rc<RefCell<dyn Update>>;
-    let root = Root {
-        edge: Rc::downgrade(&update),
-        id: rand::random(),
-    };
-    write_part(&edge, |mut edge| edge.set_root(root))?;
-    Ok(edge)
-}
-
-// #[cfg(not(feature = "oneThread"))]
-// fn init_edge<T: 'static>(edge: PloyEdge<T>) -> Result<PloyEdge<T>> {
-//     let update = edge.clone() as Arc<RwLock<dyn Update>>;
-//     let root = Root {
-//         edge: Arc::downgrade(&update),
-//         id: rand::random(),
-//     };
-//     write_part(&edge, |mut edge| edge.set_root(root))?;
-//     Ok(edge)
-// }
-
-// #[cfg(feature = "oneThread")]
-// fn init_edge<T: 'static>(edge: PloyEdge<T>) -> Result<PloyEdge<T>> {
-//     let update = edge.clone() as Rc<RefCell<dyn Update>>;
-//     let root = Root {
-//         edge: Rc::downgrade(&update),
-//         id: rand::random(),
-//     };
-//     write_part(&edge, |mut edge| edge.set_root(root))?;
-//     Ok(edge)
-// }
-
 impl<E> Link<E>
 where
     E: 'static + FromItem + SetRoot + Update,
@@ -184,7 +107,7 @@ where
         Self {
             path: None,
             rank: None,
-            edge: init_edge(pointer(E::new(base))),
+            edge: make_edge(E::new(base)),
         }
     }
 }
@@ -198,7 +121,7 @@ where
         Ok(Self {
             path: None,
             rank,
-            edge: make_edge(edge),
+            edge, //: make_edge(edge),
         })
     }
 }
@@ -214,47 +137,34 @@ where
         Ok(Link {
             path: None,
             rank,
-            edge: make_edge(edge),
+            edge, //: make_edge(edge),
         })
     }
 }
-
-// impl<E> Link<E>
-// where
-//     E: 'static + ToPloy,
-// {
-//     /// Copy the link with unit type erased.  
-//     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-//         read_part(&self.edge, |edge| {
-//             Ok(Ploy {
-//                 edge: init_edge(edge.ploy())?,
-//                 path: self.path.clone(),
-//                 rank: self.rank,
-//             })
-//         })?
-//     }
-// }
 
 impl<E> Link<E>
 where
     E: 'static + Engage,
 {
     /// Copy the link with unit type erased.  
-    pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-        // let wow = self.edge.clone() as Arc<RwLock<dyn Engage<Base = E::Base>>>;
-        Ok(Link {
-            edge: self.edge.clone(),// as Arc<RwLock<dyn Engage<Base = E::Base>>>,
+    pub fn ploy(&self) -> Ploy<E::Base> {
+        Ploy {
+            edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
-        })
-        // read_part(&self.edge, |edge| {
-        //     Ok(Ploy {
-        //         edge: init_edge(edge.ploy())?,
-        //         path: self.path.clone(),
-        //         rank: self.rank,
-        //     })
-        // })?
-        // Ok(())
+        }
+    }
+}
+
+impl<U: 'static + Unit> Node<U> {
+    pub fn hub(self) -> Hub<U::Base> {
+        self.into()
+    }
+}
+
+impl<T: Payload> Leaf<T> {
+    pub fn hub(self) -> Hub<T> {
+        self.into()
     }
 }
 
@@ -265,11 +175,10 @@ where
     // TODO: add weak self to edge!!!
     pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
         let (edge, rank) = E::from_snap(snap);
-        //let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Link {
             path: None,
             rank,
-            edge: make_edge(edge),
+            edge,
         }
     }
 }

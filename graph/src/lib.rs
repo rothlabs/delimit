@@ -87,7 +87,7 @@ mod tray;
 mod view;
 mod view_vec;
 
-// #[cfg(feature = "oneThread")]
+#[cfg(feature = "oneThread")]
 const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
@@ -162,14 +162,44 @@ pub type Pointer<T> = Arc<RwLock<T>>;
 #[cfg(feature = "oneThread")]
 pub type Pointer<T> = Rc<RefCell<T>>;
 
+// #[cfg(not(feature = "oneThread"))]
+// pub fn pointer<T>(item: T) -> Pointer<T> {
+//     Arc::new(RwLock::new(item))
+// }
+
+// #[cfg(feature = "oneThread")]
+// pub fn pointer<T>(item: T) -> Pointer<T> {
+//     Rc::new(RefCell::new(item))
+// }
+
 #[cfg(not(feature = "oneThread"))]
-pub fn pointer<T>(item: T) -> Pointer<T> {
-    Arc::new(RwLock::new(item))
+pub fn make_edge<T>(edge: T) -> Arc<RwLock<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Arc::new(RwLock::new(edge));
+    let update = edge.clone() as Arc<RwLock<dyn Update>>;
+    let root = Root {
+        edge: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    edge.write().set_root(root); 
+    edge
 }
 
 #[cfg(feature = "oneThread")]
-pub fn pointer<T>(item: T) -> Pointer<T> {
-    Rc::new(RefCell::new(item))
+pub fn make_edge<T>(edge: T) -> Rc<RefCell<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Rc::new(RefCell::new(edge));
+    let update = edge.clone() as Rc<RefCell<dyn Update>>;
+    let root = Root {
+        edge: Rc::downgrade(&update),
+        id: rand::random(),
+    };
+    edge.borrow_mut().set_root(root); 
+    edge
 }
 
 #[cfg(not(feature = "oneThread"))]
@@ -316,34 +346,6 @@ where
     }
 }
 
-pub trait LeafIntoHub<T: Payload> {
-    /// Move into `Hub`
-    fn hub(self) -> Hub<T>;
-}
-
-impl<T: Payload> LeafIntoHub<T> for Leaf<T> {
-    fn hub(self) -> Hub<T> {
-        self.into()
-    }
-}
-
-pub trait ToHub {
-    type Base: Payload;
-    /// Place inside a Hub.
-    fn hub(&self) -> Result<Hub<Self::Base>>;
-}
-
-impl<T> ToHub for Node<T>
-where
-    T: 'static + Unit,
-    // Edge<Cusp<Node<T>>>: Clone
-{
-    type Base = T::Base;
-    fn hub(&self) -> Result<Hub<Self::Base>> {
-        Ok(self.ploy()?.into())
-    }
-}
-
 pub trait ToItem {
     type Item;
     fn item(&self) -> &Self::Item;
@@ -389,7 +391,7 @@ pub trait SetBack {
 // TODO: rename to initialize
 pub trait InitEdge {
     type Unit;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Self, Option<u64>)> where Self: Sized;
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Pointer<Self>, Option<u64>)>;
 }
 
 pub trait InitMut {
@@ -403,9 +405,9 @@ pub trait InitMut {
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>)
-    where
-        Self: Sized;
+    fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>);
+    // where
+    //     Self: Sized;
 }
 
 pub trait WithSnap {
