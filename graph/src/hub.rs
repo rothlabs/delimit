@@ -31,6 +31,18 @@ where
     Ploy(Ploy<T>),
 }
 
+// impl<T: Payload> Clone for Hub<T> {
+//     fn clone(&self) -> Self {
+//         match self {
+//             Self::Tray(x) => Self::Tray(x.clone()),
+//             Self::Leaf(x) => Self::Leaf(x.clone()),
+//             Self::Ploy(x) => Self::Ploy(x.clone())
+//         }
+//     }
+// }
+
+
+
 impl<T> Hub<T>
 where
     T: Payload,

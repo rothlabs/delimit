@@ -22,6 +22,13 @@ pub trait Solve {
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
 }
 
+#[cfg_attr(not(feature = "oneThread"), async_trait)]
+#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+pub trait SolveMid {
+    type Base: Payload;
+    async fn solve(&self) -> Result<Hub<Self::Base>>;
+}
+
 pub trait Reckon {
     fn reckon(&self, _: Task) -> Result<Gain> {
         reckon_ok()

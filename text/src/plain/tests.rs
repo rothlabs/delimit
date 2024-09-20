@@ -42,7 +42,7 @@ async fn react_from_stem() -> Result<()> {
     let a = text.solve().await?.base().await?;
     ace.write(|str| str.push_str("_mutated")).await?;
     let b = text.solve().await?.base().await?;
-    // eprintln!("a: {a}, b: {b}");
+    eprintln!("a: {a}, b: {b}");
     assert!(a != b);
     Ok(())
 }

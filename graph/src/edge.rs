@@ -106,29 +106,29 @@ where
     }
 }
 
-impl<U> ToPloy for Node<U>
-where
-    U: 'static + Solve + Reckon + Adapt + Debug + SendSync,
-    U::Base: Payload,
-{
-    type Base = U::Base;
-    #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> PloyEdge<U::Base> {
-        Arc::new(RwLock::new(Box::new(Self {
-            root: None, // self.root.clone(),
-            back: self.back.clone(),
-            cusp: self.cusp.clone(),
-        })))
-    }
-    #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> PloyEdge<U::Base> {
-        Rc::new(RefCell::new(Box::new(Self {
-            root: None, // self.root.clone(),
-            back: self.back.clone(),
-            cusp: self.cusp.clone(),
-        })))
-    }
-}
+// impl<U> ToPloy for Node<U>
+// where
+//     U: 'static + Solve + Reckon + Adapt + Debug + SendSync,
+//     U::Base: Payload,
+// {
+//     type Base = U::Base;
+//     #[cfg(not(feature = "oneThread"))]
+//     fn ploy(&self) -> PloyEdge<U::Base> {
+//         Arc::new(RwLock::new(Box::new(Self {
+//             root: None, // self.root.clone(),
+//             back: self.back.clone(),
+//             cusp: self.cusp.clone(),
+//         })))
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn ploy(&self) -> PloyEdge<U::Base> {
+//         Rc::new(RefCell::new(Box::new(Self {
+//             root: None, // self.root.clone(),
+//             back: self.back.clone(),
+//             cusp: self.cusp.clone(),
+//         })))
+//     }
+// }
 
 impl<N> FromSnap for Edge<N>
 where
@@ -172,6 +172,8 @@ where
     }
 }
 
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Solve for Edge<C>
 where
     C: 'static + SolveMut + AddRootMut + SendSync,
@@ -233,6 +235,21 @@ where
     }
 }
 
+#[cfg(not(feature = "oneThread"))]
+fn make_edge<T>(edge: T) -> Arc<RwLock<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Arc::new(RwLock::new(edge));
+    let update = edge.clone() as Arc<RwLock<dyn Update>>;
+    let root = Root {
+        edge: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
+    edge
+}
+
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Based for Edge<C>
@@ -254,26 +271,33 @@ where
     }
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         let edge = Self {
+            root: None, // self.root.clone(),
+            back: Some(back.clone()),
+            cusp: self.cusp.clone(),
+        };
+        let wow = make_edge(edge);
+        wow
+        // #[cfg(not(feature = "oneThread"))]
+        // {
+        //     Arc::new(RwLock::new(edge))
+        // }
+        // #[cfg(feature = "oneThread")]
+        // Rc::new(RefCell::new(edge))
+    }
+}
+
+impl<C> BackedMid for Edge<C> 
+where
+    C: 'static + ReactMut + AddRootMut + SendSync,
+{
+    fn backed(&self, back: &Back) -> Pointer<Self> {
+        let edge = Self {
             root: self.root.clone(),
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         };
-        #[cfg(not(feature = "oneThread"))]
-        {
-            Arc::new(RwLock::new(Box::new(edge)))
-        }
-        #[cfg(feature = "oneThread")]
-        Rc::new(RefCell::new(Box::new(edge)))
-    }
-}
-
-impl<C> BackedMid for Edge<C> {
-    fn backed(&self, back: &Back) -> Self {
-        Self {
-            root: self.root.clone(),
-            back: Some(back.clone()),
-            cusp: self.cusp.clone(),
-        }
+        let wow = make_edge(edge);
+        wow
     }
 }
 

@@ -31,7 +31,7 @@ pub use react::{
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{
-    reckon_ok, solve_ok, Act, Gain, IntoGain, Reckon, ReckonMut, Solve, SolveMut, Task,
+    reckon_ok, solve_ok, Act, Gain, IntoGain, Reckon, ReckonMut, Solve, SolveMut, Task, SolveMid,
 };
 pub use tray::Tray;
 pub use view::View;
@@ -156,6 +156,21 @@ where
 
 pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
+
+#[cfg(not(feature = "oneThread"))]
+pub type Pointer<T> = Arc<RwLock<T>>;
+#[cfg(feature = "oneThread")]
+pub type Pointer<T> = Rc<RefCell<T>>;
+
+#[cfg(not(feature = "oneThread"))]
+pub fn pointer<T>(item: T) -> Pointer<T> {
+    Arc::new(RwLock::new(item))
+}
+
+#[cfg(feature = "oneThread")]
+pub fn pointer<T>(item: T) -> Pointer<T> {
+    Rc::new(RefCell::new(item))
+}
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
@@ -374,9 +389,7 @@ pub trait SetBack {
 // TODO: rename to initialize
 pub trait InitEdge {
     type Unit;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Self, Option<u64>)>
-    where
-        Self: Sized;
+    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Self, Option<u64>)> where Self: Sized;
 }
 
 pub trait InitMut {
