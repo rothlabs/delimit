@@ -30,6 +30,12 @@ where
     }
 }
 
+impl<W> ToId for Cusp<W> {
+    fn id(&self) -> Id {
+        self.id
+    }
+}
+
 impl<W> FromItem for Cusp<W>
 where
     W: FromItem,
@@ -45,59 +51,39 @@ where
     }
 }
 
-impl<W> ToId for Cusp<W> {
-    fn id(&self) -> Id {
-        self.id
+impl<W> Make for Cusp<W> 
+where 
+    W: 'static + MakeWork + Default + Clear + ReactMut + Adapt + SendSync,
+{
+    type Unit = W::Unit;
+    fn make(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+        let (rank, work) = W::make(unit);
+        let (cusp, back) = cusp_pointer(Self {
+            work,
+            ..Self::default()
+        });
+        write_part(&cusp, |mut cusp| cusp.set_back(back))??;
+        //cusp.write().set_back(back)?;
+        Ok((rank, cusp))
     }
 }
+
+// impl<W> WithSnap for Cusp<W>
+// where
+//     W: WithSnap,
+// {
+//     type Unit = W::Unit;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
+//         self.back = Some(back.clone());
+//         self.work.with_snap(snap, back)
+//     }
+// }
 
 impl<W: Adapt> SetBack for Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
         self.work.adapt(&mut back)?;
         self.back = Some(back);
         Ok(())
-    }
-}
-
-impl<W> Make for Cusp<W> 
-where 
-    W: 'static + MakeWork + Default + Clear + ReactMut + Adapt + SendSync,
-{
-    type Unit = W::Unit;
-    fn make(unit: Self::Unit) -> Result<(Option<u64>, Pointer<Self>)> {
-        let (rank, work) = W::make(unit);
-        let (cusp, back) = cusp_pointer(Self {
-            work,
-            ..Self::default()
-        });
-        cusp.write().set_back(back)?;
-        Ok((rank, cusp))
-    }
-}
-
-// impl<W> InitMut for Cusp<W>
-// where
-//     W: InitMut,
-// {
-//     type Unit = W::Unit;
-//     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
-//         &mut self,
-//         make: F,
-//         back: &Back,
-//     ) -> Result<Option<u64>> {
-//         self.back = Some(back.clone());
-//         self.work.init(make, back)
-//     }
-// }
-
-impl<W> WithSnap for Cusp<W>
-where
-    W: WithSnap,
-{
-    type Unit = W::Unit;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
-        self.back = Some(back.clone());
-        self.work.with_snap(snap, back)
     }
 }
 

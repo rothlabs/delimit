@@ -110,41 +110,42 @@ where
     U: Solve + Reckon,
 {
     type Unit = U;
-    fn make(unit: Self::Unit) -> (Option<u64>, Self) {
-        let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
+    fn make(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
+        let rank = if let Ok(Gain::U64(rank)) = snap.unit.reckon(Task::Rank) {
             Some(rank)
         } else {
             None
         };
         let node = Self {
-            unit: Some(unit),
+            unit: Some(snap.unit),
+            imports: snap.imports,
             ..Default::default()
         };
         (rank, node)
     }
 }
 
-impl<U> WithSnap for Node<U>
-where
-    U: Adapt + Solve + Reckon,
-    // U::Base: Payload,
-{
-    type Unit = U;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
-        self.unit = Some(snap.unit);
-        self.unit
-            .as_mut()
-            .unwrap()
-            .adapt(&mut back.clone())
-            .expect("Adapt must not fail.");
-        self.imports = snap.imports;
-        if let Ok(Gain::U64(rank)) = self.reckon(Task::Rank) {
-            Some(rank)
-        } else {
-            None
-        }
-    }
-}
+// impl<U> WithSnap for Node<U>
+// where
+//     U: Adapt + Solve + Reckon,
+//     // U::Base: Payload,
+// {
+//     type Unit = U;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
+//         self.unit = Some(snap.unit);
+//         self.unit
+//             .as_mut()
+//             .unwrap()
+//             .adapt(&mut back.clone())
+//             .expect("Adapt must not fail.");
+//         self.imports = snap.imports;
+//         if let Ok(Gain::U64(rank)) = self.reckon(Task::Rank) {
+//             Some(rank)
+//         } else {
+//             None
+//         }
+//     }
+// }
 
 // impl<U> FromItem for Node<U>
 // where

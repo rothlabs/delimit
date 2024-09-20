@@ -70,8 +70,8 @@ where
     C: 'static + Default + Make + UpdateMut + AddRootMut,
 {
     type Unit = C::Unit;
-    #[cfg(not(feature = "oneThread"))]
-    fn make(unit: C::Unit) -> Result<(Option<u64>, Pointer<Self>)> {
+    // #[cfg(not(feature = "oneThread"))]
+    fn make(unit: Snap<C::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
         // let cusp = C::default();
         // let id = cusp.id();
         // let cusp = Arc::new(RwLock::new(cusp));
@@ -88,66 +88,67 @@ where
             })
         ))
     }
-    #[cfg(feature = "oneThread")]
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Pointer<Self>, Option<u64>)> {
-        let cusp = C::default();
-        let id = cusp.id();
-        let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
-        let back = Back::new(Rc::downgrade(&update), id);
-        let rank = write_part(&cusp, |mut cusp| cusp.init(make, &back))??;
-        Ok((
-            edge_pointer(Self {
-                root: None,
-                back: None,
-                cusp,
-            }),
-            rank,
-        ))
-    }
+    // #[cfg(feature = "oneThread")]
+    // fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Pointer<Self>, Option<u64>)> {
+    //     // let cusp = C::default();
+    //     // let id = cusp.id();
+    //     // let cusp = Rc::new(RefCell::new(cusp));
+    //     // let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+    //     // let back = Back::new(Rc::downgrade(&update), id);
+    //     // let rank = write_part(&cusp, |mut cusp| cusp.init(make, &back))??;
+    //     let (rank, cusp) = C::make(unit)?;
+    //     Ok((
+    //         rank,
+    //         edge_pointer(Self {
+    //             root: None,
+    //             back: None,
+    //             cusp,
+    //         }),
+    //     ))
+    // }
 }
 
-impl<N> FromSnap for Edge<N>
-where
-    N: 'static + Default + WithSnap + UpdateMut + AddRootMut,
-{
-    type Unit = N::Unit;
-    #[cfg(not(feature = "oneThread"))]
-    fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>) {
-        let cusp = N::default();
-        let id = cusp.id();
-        let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
-        let back = Back::new(Arc::downgrade(&update), id);
-        let rank = cusp.write().with_snap(snap, &back);
-        (
-            edge_pointer(Self {
-                cusp,
-                back: None,
-                root: None,
-            }),
-            rank,
-        )
-    }
-    #[cfg(feature = "oneThread")]
-    fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>) {
-        let cusp = N::default();
-        let id = cusp.id();
-        let cusp = Rc::new(RefCell::new(cusp));
-        let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
-        let back = Back::new(Rc::downgrade(&update), id);
-        let rank =
-            write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
-        (
-            edge_pointer(Self {
-                cusp,
-                back: None,
-                root: None,
-            }),
-            rank,
-        )
-    }
-}
+// impl<N> FromSnap for Edge<N>
+// where
+//     N: 'static + Default + WithSnap + UpdateMut + AddRootMut,
+// {
+//     type Unit = N::Unit;
+//     #[cfg(not(feature = "oneThread"))]
+//     fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>) {
+//         let cusp = N::default();
+//         let id = cusp.id();
+//         let cusp = Arc::new(RwLock::new(cusp));
+//         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+//         let back = Back::new(Arc::downgrade(&update), id);
+//         let rank = cusp.write().with_snap(snap, &back);
+//         (
+//             edge_pointer(Self {
+//                 cusp,
+//                 back: None,
+//                 root: None,
+//             }),
+//             rank,
+//         )
+//     }
+//     #[cfg(feature = "oneThread")]
+//     fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>) {
+//         let cusp = N::default();
+//         let id = cusp.id();
+//         let cusp = Rc::new(RefCell::new(cusp));
+//         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+//         let back = Back::new(Rc::downgrade(&update), id);
+//         let rank =
+//             write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
+//         (
+//             edge_pointer(Self {
+//                 cusp,
+//                 back: None,
+//                 root: None,
+//             }),
+//             rank,
+//         )
+//     }
+// }
 
 // #[cfg_attr(not(feature = "oneThread"), async_trait)]
 // #[cfg_attr(feature = "oneThread", async_trait(?Send))]

@@ -7,7 +7,7 @@ impl DeserializeUnit for Atlas {
     fn deserialize(&self, serial: &Serial) -> graph::Result<Apex> {
         let unit: Unit = serde_json::from_str(&serial.unit)?;
         let imports = serial.imports.clone();
-        Ok(unit.apex(imports))
+        unit.apex(imports)
     }
 }
 
@@ -23,14 +23,14 @@ enum Unit {
 }
 
 impl Unit {
-    fn apex(self, imports: Vec<Import>) -> Apex {
-        match self {
+    fn apex(self, imports: Vec<Import>) -> graph::Result<Apex> {
+        Ok(match self {
             Self::Leaf(x) => x.hub().into(),
-            Self::Bay(x) => x.imports(imports).hub().into(),
-            Self::TextPlainList(x) => x.imports(imports).hub().into(),
-            Self::TextHtmlTag(x) => x.imports(imports).hub().into(),
-            Self::TextHtmlAttribute(x) => x.imports(imports).hub().into(),
-            Self::TextHtmlElement(x) => x.imports(imports).hub().into(),
-        }
+            Self::Bay(x) => x.imports(imports).hub()?.into(),
+            Self::TextPlainList(x) => x.imports(imports).hub()?.into(),
+            Self::TextHtmlTag(x) => x.imports(imports).hub()?.into(),
+            Self::TextHtmlAttribute(x) => x.imports(imports).hub()?.into(),
+            Self::TextHtmlElement(x) => x.imports(imports).hub()?.into(),
+        })
     }
 }

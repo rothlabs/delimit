@@ -117,7 +117,7 @@ where
     E: 'static + Default + Make + Update + SetRoot,
 {
     pub fn make(unit: E::Unit) -> Result<Self> {
-        let (rank, edge) = E::make(unit)?;
+        let (rank, edge) = E::make(unit.into())?;
         Ok(Self {
             path: None,
             rank,
@@ -132,7 +132,7 @@ where
 {
     // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
     pub fn make_ploy(unit: E::Unit) -> Result<Ploy<E::Base>> {
-        let (rank, edge) = E::make(unit)?;
+        let (rank, edge) = E::make(unit.into())?;
         //let wow = edge.clone() as Arc<RwLock<dyn Update>>;
         //let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Ok(Link {
@@ -171,16 +171,16 @@ impl<T: Payload> Leaf<T> {
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + Engage,
+    E: 'static + Make + Engage,
 {
     // TODO: add weak self to edge!!!
-    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
-        let (edge, rank) = E::from_snap(snap);
-        Link {
+    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
+        let (rank, edge) = E::make(snap)?;
+        Ok(Link {
             path: None,
             rank,
             edge,
-        }
+        })
     }
 }
 

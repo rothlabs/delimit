@@ -203,9 +203,23 @@ where
         cusp: Arc::downgrade(&update),
         id: rand::random(),
     };
-    //cusp.write().set_back(root); 
     (cusp, back)
 }
+
+#[cfg(feature = "oneThread")]
+pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
+where
+    T: 'static + UpdateMut,// + SetBack,
+{
+    let cusp = Rc::new(RefCell::new(cusp));
+    let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+    let back = Back {
+        cusp: Rc::downgrade(&update),
+        id: rand::random(),
+    };
+    (cusp, back)
+}
+
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
@@ -398,7 +412,7 @@ pub trait SetBack {
 // TODO: rename to initialize
 pub trait Make {
     type Unit;
-    fn make(unit: Self::Unit) -> Result<(Option<u64>, Pointer<Self>)>;
+    fn make(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)>;
 }
 
 // pub trait MakeCusp {
@@ -412,7 +426,7 @@ pub trait Make {
 
 pub trait MakeWork {
     type Unit;
-    fn make(unit: Self::Unit) -> (Option<u64>, Self);
+    fn make(unit: Snap<Self::Unit>) -> (Option<u64>, Self);
 }
 
 pub trait InitMut {
@@ -431,10 +445,16 @@ pub trait FromSnap {
     //     Self: Sized;
 }
 
-pub trait WithSnap {
-    type Unit;
-    fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
-}
+// pub trait WithSnap {
+//     type Unit;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
+// }
+
+// pub trait WithSnap {
+//     type Unit;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
+// }
+
 
 pub trait Clear {
     fn clear(&mut self);

@@ -6,6 +6,15 @@ pub struct Snap<U> {
     pub unit: U,
 }
 
+impl<U> From<U> for Snap<U> {
+    fn from(unit: U) -> Self {
+        Self {
+            unit,
+            imports: vec![]
+        }
+    }
+}
+
 impl<U> Snap<U> {
     pub fn import(mut self, import: impl Into<Import>) -> Self {
         self.imports.push(import.into());
@@ -17,8 +26,8 @@ impl<U> Snap<U>
 where
     U: 'static + Unit,
 {
-    pub fn hub(self) -> Hub<U::Base> {
-        Node::make_ploy_from_snap(self).into()
+    pub fn hub(self) -> Result<Hub<U::Base>> {
+        Ok(Node::make_ploy_from_snap(self)?.into())
     }
 }
 
