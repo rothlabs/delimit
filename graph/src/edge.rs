@@ -65,13 +65,13 @@ impl<C> SetRoot for Edge<C> {
     }
 }
 
-impl<C> InitEdge for Edge<C>
+impl<C> Make for Edge<C>
 where
     C: 'static + Default + InitMut + UpdateMut + AddRootMut,
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Pointer<Self>, Option<u64>)> {
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Pointer<Self>, Option<u64>)> {
         let cusp = C::default();
         let id = cusp.id();
         let cusp = Arc::new(RwLock::new(cusp));
@@ -79,7 +79,7 @@ where
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().init(make, &back)?;
         Ok((
-            make_edge(Self {
+            edge_pointer(Self {
                 root: None,
                 back: None,
                 cusp,
@@ -96,7 +96,7 @@ where
         let back = Back::new(Rc::downgrade(&update), id);
         let rank = write_part(&cusp, |mut cusp| cusp.init(make, &back))??;
         Ok((
-            make_edge(Self {
+            edge_pointer(Self {
                 root: None,
                 back: None,
                 cusp,
@@ -120,7 +120,7 @@ where
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().with_snap(snap, &back);
         (
-            make_edge(Self {
+            edge_pointer(Self {
                 cusp,
                 back: None,
                 root: None,
@@ -138,7 +138,7 @@ where
         let rank =
             write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
         (
-            make_edge(Self {
+            edge_pointer(Self {
                 cusp,
                 back: None,
                 root: None,
@@ -231,7 +231,7 @@ where
         .await
     }
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
-        make_edge(Self {
+        edge_pointer(Self {
             root: None, 
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
@@ -249,7 +249,7 @@ where
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         };
-        let wow = make_edge(edge);
+        let wow = edge_pointer(edge);
         wow
     }
 }

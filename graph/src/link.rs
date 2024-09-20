@@ -107,17 +107,17 @@ where
         Self {
             path: None,
             rank: None,
-            edge: make_edge(E::new(base)),
+            edge: edge_pointer(E::new(base)),
         }
     }
 }
 
 impl<E> Link<E>
 where
-    E: 'static + Default + InitEdge + Update + SetRoot,
+    E: 'static + Default + Make + Update + SetRoot,
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
-        let (edge, rank) = E::init(make)?;
+        let (edge, rank) = E::make(make)?;
         Ok(Self {
             path: None,
             rank,
@@ -128,10 +128,10 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + InitEdge + Engage,
+    E: 'static + Default + Make + Engage,
 {
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
-        let (edge, rank) = E::init(make)?;
+        let (edge, rank) = E::make(make)?;
         //let wow = edge.clone() as Arc<RwLock<dyn Update>>;
         //let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Ok(Link {

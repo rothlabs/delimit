@@ -162,18 +162,8 @@ pub type Pointer<T> = Arc<RwLock<T>>;
 #[cfg(feature = "oneThread")]
 pub type Pointer<T> = Rc<RefCell<T>>;
 
-// #[cfg(not(feature = "oneThread"))]
-// pub fn pointer<T>(item: T) -> Pointer<T> {
-//     Arc::new(RwLock::new(item))
-// }
-
-// #[cfg(feature = "oneThread")]
-// pub fn pointer<T>(item: T) -> Pointer<T> {
-//     Rc::new(RefCell::new(item))
-// }
-
 #[cfg(not(feature = "oneThread"))]
-pub fn make_edge<T>(edge: T) -> Arc<RwLock<T>>
+pub fn edge_pointer<T>(edge: T) -> Arc<RwLock<T>>
 where
     T: 'static + Update + SetRoot,
 {
@@ -188,7 +178,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-pub fn make_edge<T>(edge: T) -> Rc<RefCell<T>>
+pub fn edge_pointer<T>(edge: T) -> Rc<RefCell<T>>
 where
     T: 'static + Update + SetRoot,
 {
@@ -200,6 +190,21 @@ where
     };
     edge.borrow_mut().set_root(root); 
     edge
+}
+
+#[cfg(not(feature = "oneThread"))]
+pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
+where
+    T: 'static + UpdateMut,// + SetBack,
+{
+    let cusp = Arc::new(RwLock::new(cusp));
+    let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+    let back = Back {
+        cusp: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    //cusp.write().set_back(root); 
+    (cusp, back)
 }
 
 #[cfg(not(feature = "oneThread"))]
@@ -389,10 +394,19 @@ pub trait SetBack {
 }
 
 // TODO: rename to initialize
-pub trait InitEdge {
+pub trait Make {
     type Unit;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Pointer<Self>, Option<u64>)>;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Pointer<Self>, Option<u64>)>;
 }
+
+// pub trait MakeCusp {
+//     type Unit;
+//     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
+//         &mut self,
+//         init: F,
+//         back: &Back,
+//     ) -> Result<Option<u64>>;
+// }
 
 pub trait InitMut {
     type Unit;

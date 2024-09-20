@@ -51,6 +51,22 @@ impl<W> ToId for Cusp<W> {
     }
 }
 
+impl<W> SetBack for Cusp<W> {
+    fn set_back(&mut self, back: Back) {
+        self.back = Some(back)
+    }
+}
+
+impl<W> Make for Cusp<W> 
+where 
+    W: InitMut
+{
+    type Unit = W::Unit;
+    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Pointer<Self>, Option<u64>)> {
+        
+    }
+}
+
 impl<W> InitMut for Cusp<W>
 where
     W: InitMut,
