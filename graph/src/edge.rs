@@ -67,24 +67,25 @@ impl<C> SetRoot for Edge<C> {
 
 impl<C> Make for Edge<C>
 where
-    C: 'static + Default + InitMut + UpdateMut + AddRootMut,
+    C: 'static + Default + Make + UpdateMut + AddRootMut,
 {
     type Unit = C::Unit;
     #[cfg(not(feature = "oneThread"))]
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Pointer<Self>, Option<u64>)> {
-        let cusp = C::default();
-        let id = cusp.id();
-        let cusp = Arc::new(RwLock::new(cusp));
-        let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
-        let back = Back::new(Arc::downgrade(&update), id);
-        let rank = cusp.write().init(make, &back)?;
+    fn make(unit: C::Unit) -> Result<(Option<u64>, Pointer<Self>)> {
+        // let cusp = C::default();
+        // let id = cusp.id();
+        // let cusp = Arc::new(RwLock::new(cusp));
+        // let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+        // let back = Back::new(Arc::downgrade(&update), id);
+        // let rank = cusp.write().init(make, &back)?;
+        let (rank, cusp) = C::make(unit)?;
         Ok((
+            rank,
             edge_pointer(Self {
                 root: None,
                 back: None,
                 cusp,
-            }),
-            rank,
+            })
         ))
     }
     #[cfg(feature = "oneThread")]

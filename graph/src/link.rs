@@ -116,8 +116,8 @@ impl<E> Link<E>
 where
     E: 'static + Default + Make + Update + SetRoot,
 {
-    pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
-        let (edge, rank) = E::make(make)?;
+    pub fn make(unit: E::Unit) -> Result<Self> {
+        let (rank, edge) = E::make(unit)?;
         Ok(Self {
             path: None,
             rank,
@@ -130,8 +130,9 @@ impl<E> Link<E>
 where
     E: 'static + Default + Make + Engage,
 {
-    pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
-        let (edge, rank) = E::make(make)?;
+    // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
+    pub fn make_ploy(unit: E::Unit) -> Result<Ploy<E::Base>> {
+        let (rank, edge) = E::make(unit)?;
         //let wow = edge.clone() as Arc<RwLock<dyn Update>>;
         //let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Ok(Link {

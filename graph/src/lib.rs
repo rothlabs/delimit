@@ -306,11 +306,12 @@ impl<T> IntoNode for T
 where
     T: 'static + Unit,
 {
-    fn node(mut self) -> Result<Node<Self>> {
-        Node::make(|back| {
-            self.adapt(&mut back.clone())?;
-            Ok(self)
-        })
+    fn node(self) -> Result<Node<Self>> {
+        Node::make(self)
+        // Node::make(|back| {
+        //     self.adapt(&mut back.clone())?;
+        //     Ok(self)
+        // })
     }
 }
 
@@ -325,12 +326,13 @@ impl<T> IntoPloy for T
 where
     T: 'static + Unit,
 {
-    fn ploy(mut self) -> Result<Ploy<T::Base>> {
-        Node::make_ploy(|back| {
-            self.adapt(&mut back.clone())
-                .expect("To move into Ploy, unit must Adapt with Post::Trade.");
-            Ok(self)
-        })
+    fn ploy(self) -> Result<Ploy<T::Base>> {
+        Node::make_ploy(self)
+        // Node::make_ploy(|back| {
+        //     self.adapt(&mut back.clone())
+        //         .expect("To move into Ploy, unit must Adapt with Post::Trade.");
+        //     Ok(self)
+        // })
     }
 }
 
@@ -390,13 +392,13 @@ pub trait SetRoot {
 }
 
 pub trait SetBack {
-    fn set_back(&mut self, back: Back);
+    fn set_back(&mut self, back: Back) -> Result<()>;
 }
 
 // TODO: rename to initialize
 pub trait Make {
     type Unit;
-    fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Pointer<Self>, Option<u64>)>;
+    fn make(unit: Self::Unit) -> Result<(Option<u64>, Pointer<Self>)>;
 }
 
 // pub trait MakeCusp {
@@ -407,6 +409,11 @@ pub trait Make {
 //         back: &Back,
 //     ) -> Result<Option<u64>>;
 // }
+
+pub trait MakeWork {
+    type Unit;
+    fn make(unit: Self::Unit) -> (Option<u64>, Self);
+}
 
 pub trait InitMut {
     type Unit;

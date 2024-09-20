@@ -105,22 +105,22 @@ where
     }
 }
 
-impl<U> InitMut for Node<U>
+impl<U> MakeWork for Node<U>
 where
     U: Solve + Reckon,
 {
     type Unit = U;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
-        &mut self,
-        make: F,
-        back: &Back,
-    ) -> Result<Option<u64>> {
-        self.unit = Some(make(back)?);
-        Ok(if let Ok(Gain::U64(rank)) = self.reckon(Task::Rank) {
+    fn make(unit: Self::Unit) -> (Option<u64>, Self) {
+        let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
             Some(rank)
         } else {
             None
-        })
+        };
+        let node = Self {
+            unit: Some(unit),
+            ..Default::default()
+        };
+        (rank, node)
     }
 }
 
