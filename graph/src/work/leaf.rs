@@ -10,12 +10,15 @@ pub struct Leaf<T> {
     digest: Option<u64>,
 }
 
-impl<T> Default for Leaf<T> 
-where 
-    T: Default
+impl<T> Default for Leaf<T>
+where
+    T: Default,
 {
     fn default() -> Self {
-        Self { base: T::default(), digest: None }
+        Self {
+            base: T::default(),
+            digest: None,
+        }
     }
 }
 

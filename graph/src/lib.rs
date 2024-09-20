@@ -11,10 +11,21 @@ pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
-pub use ploy::{Based, Engage, Ploy, PloyPointer, ToPloy};
+pub use ploy::{Based, Engage, Ploy, PloyEdge, ToPloy};
 pub use react::{
-    AddRoot, AddRootMut, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root,
-    Update, UpdateMut,
+    AddRoot,
+    AddRootMut,
+    Back,
+    Backed,
+    BackedMid,
+    React,
+    ReactMut,
+    Rebut,
+    RebutMut,
+    Ring,
+    Root,
+    Update,
+    UpdateMut,
     // ClearRoots, ClearRootsMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
@@ -364,7 +375,8 @@ pub trait SetBack {
 pub trait InitEdge {
     type Unit;
     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(init: F) -> Result<(Self, Option<u64>)>
-    where Self: Sized;
+    where
+        Self: Sized;
 }
 
 pub trait InitMut {

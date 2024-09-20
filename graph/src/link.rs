@@ -83,7 +83,7 @@ where
 
 impl<E> Serialize for Link<E>
 where
-    Self: Solve + Reckon
+    Self: Solve + Reckon,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -100,25 +100,53 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn make_edge<T>(edge: T) -> Result<Arc<RwLock<T>>> 
-where 
+fn make_edge<T>(edge: T) -> Arc<RwLock<T>>
+where
     T: 'static + Update + SetRoot,
 {
     let edge = Arc::new(RwLock::new(edge));
     let update = edge.clone() as Arc<RwLock<dyn Update>>;
-    let root = Root{ edge: Arc::downgrade(&update), id: rand::random() };
+    let root = Root {
+        edge: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
+    edge
+}
+
+#[cfg(feature = "oneThread")]
+fn make_edge<T>(edge: T) -> Rc<RefCell<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Rc::new(RefCell::new(edge));
+    let update = edge.clone() as Rc<RefCell<dyn Update>>;
+    let root = Root {
+        edge: Rc::downgrade(&update),
+        id: rand::random(),
+    };
+    write_part(&edge, |mut edge| edge.set_root(root)).expect(IMMEDIATE_ACCESS);
+    edge
+}
+
+#[cfg(not(feature = "oneThread"))]
+fn init_edge<T: 'static>(edge: PloyEdge<T>) -> Result<PloyEdge<T>> {
+    let update = edge.clone() as Arc<RwLock<dyn Update>>;
+    let root = Root {
+        edge: Arc::downgrade(&update),
+        id: rand::random(),
+    };
     write_part(&edge, |mut edge| edge.set_root(root))?;
     Ok(edge)
 }
 
 #[cfg(feature = "oneThread")]
-fn make_edge<T>(edge: T) -> Result<Rc<RefCell<T>>> 
-where 
-    T: 'static + Update + SetRoot,
-{
-    let edge = Rc::new(RefCell::new(edge));
+fn init_edge<T: 'static>(edge: PloyEdge<T>) -> Result<PloyEdge<T>> {
     let update = edge.clone() as Rc<RefCell<dyn Update>>;
-    let root = Root{ edge: Rc::downgrade(&update), id: rand::random() };
+    let root = Root {
+        edge: Rc::downgrade(&update),
+        id: rand::random(),
+    };
     write_part(&edge, |mut edge| edge.set_root(root))?;
     Ok(edge)
 }
@@ -128,11 +156,10 @@ where
     E: 'static + FromItem + SetRoot + Update,
 {
     pub fn new(base: E::Item) -> Self {
-        let edge = make_edge(E::new(base)).expect(IMMEDIATE_ACCESS);
         Self {
             path: None,
             rank: None,
-            edge,
+            edge: make_edge(E::new(base)),
         }
     }
 }
@@ -143,11 +170,10 @@ where
 {
     pub fn make<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Self> {
         let (edge, rank) = E::init(make)?;
-        let edge = make_edge(edge)?;
         Ok(Self {
             path: None,
             rank,
-            edge,
+            edge: make_edge(edge),
         })
     }
 }
@@ -159,42 +185,23 @@ where
     pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
         let (edge, rank) = E::init(make)?;
         let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
-        let edge = make_edge(edge)?;
         Ok(Link {
             path: None,
             rank,
-            edge
+            edge: make_edge(edge),
         })
     }
 }
 
-// impl<E> Link<E>
-// where
-//     E: ToPloy,
-// {
-//     /// Copy the link with unit type erased.  
-//     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
-//         read_part(&self.edge, |edge| Ploy {
-//             edge: edge.ploy(),
-//             path: self.path.clone(),
-//             rank: self.rank,
-//         })
-//     }
-// }
-
 impl<E> Link<E>
 where
-    E: 'static + ToPloy + SetRoot,
+    E: 'static + ToPloy,
 {
     /// Copy the link with unit type erased.  
     pub fn ploy(&self) -> Result<Ploy<E::Base>> {
         read_part(&self.edge, |edge| {
-            let edge = edge.ploy();
-            let update = edge.clone() as Arc<RwLock<dyn Update>>;
-            let root = Root{ edge: Arc::downgrade(&update), id: rand::random() };
-            write_part(&edge, |mut edge| edge.set_root(root))?;
             Ok(Ploy {
-                edge,
+                edge: init_edge(edge.ploy())?,
                 path: self.path.clone(),
                 rank: self.rank,
             })
@@ -209,17 +216,11 @@ where
     // TODO: add weak self to edge!!!
     pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
         let (edge, rank) = E::from_snap(snap);
+        let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Link {
             path: None,
             rank,
-            #[cfg(not(feature = "oneThread"))]
-            edge: Arc::new(RwLock::new(
-                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            )),
-            #[cfg(feature = "oneThread")]
-            edge: Rc::new(RefCell::new(
-                Box::new(edge) as Box<dyn Engage<Base = E::Base>>
-            )),
+            edge: make_edge(edge),
         }
     }
 }
@@ -254,14 +255,11 @@ where
     E: 'static + BackedMid + SetRoot + Update,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| {
-            let edge = make_edge(edge.backed(back))?;
-            Ok(Self {
-                edge,
-                path: self.path.clone(),
-                rank: self.rank,
-            })
-        })?
+        read_part(&self.edge, |edge| Self {
+            edge: make_edge(edge.backed(back)),
+            path: self.path.clone(),
+            rank: self.rank,
+        })
     }
 }
 
@@ -271,20 +269,8 @@ where
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
-            let edge = edge.backed(back);
-            #[cfg(not(feature = "oneThread"))]
-            let (edge, root) = {
-                let update = edge.clone() as Arc<RwLock<dyn Update>>;
-                (edge, Root{ edge: Arc::downgrade(&update), id: rand::random() })
-            };
-            #[cfg(feature = "oneThread")]
-            let (edge, root) = {
-                let update = edge.clone() as Rc<RefCell<dyn Update>>;
-                (edge, Root{ edge: Rc::downgrade(&update), id: rand::random() })
-            };
-            write_part(&edge, |mut edge| edge.set_root(root))?;
             Ok(Self {
-                edge,
+                edge: init_edge(edge.backed(back))?,
                 path: self.path.clone(),
                 rank: self.rank,
             })
@@ -335,7 +321,7 @@ where
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move {edge.solve().await})?.await
+        read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
     }
 }
 
@@ -354,7 +340,7 @@ where
 {
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move {edge.solve().await})?.await
+        read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
     }
 }
 
@@ -364,7 +350,7 @@ where
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
-            let out = edge.adapt_get(deal);
+            edge.adapt_get(deal)
             // if deal.read() {
             //     edge.add_root(self.as_root(edge.id()))?;
             // }
@@ -374,7 +360,7 @@ where
             // if deal.wrote() {
             //     return Err(anyhow!("Deal should not write in AdaptGet"))?;
             // }
-            out
+            // out
         })?
     }
 }
@@ -387,14 +373,14 @@ where
 {
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part_async(&self.edge, |edge| async move {
-            let result = edge.adapt_set(deal).await;
+            edge.adapt_set(deal).await
             // if deal.read() {
             //     return Err(anyhow!("Deal should not read in AdaptSet"))?;
             // }
             // if !deal.wrote() {
             //     return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
             // }
-            result
+            // result
         })?
         .await
     }
@@ -421,7 +407,6 @@ where
         }
     }
 }
-
 
 // impl<E> Link<E>
 // where

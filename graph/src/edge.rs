@@ -25,9 +25,9 @@ pub struct Edge<N> {
     cusp: Rc<RefCell<N>>,
 }
 
-impl<C> Default for Edge<C> 
-where 
-    C: Default
+impl<C> Default for Edge<C>
+where
+    C: Default,
 {
     fn default() -> Self {
         Self {
@@ -59,8 +59,7 @@ where
     }
 }
 
-impl<C> SetRoot for Edge<C>
-{
+impl<C> SetRoot for Edge<C> {
     fn set_root(&mut self, root: Root) {
         self.root = Some(root);
     }
@@ -79,11 +78,14 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().init(make, &back)?;
-        Ok((Self {
-            root: None,
-            back: None,
-            cusp,
-        }, rank))
+        Ok((
+            Self {
+                root: None,
+                back: None,
+                cusp,
+            },
+            rank,
+        ))
     }
     #[cfg(feature = "oneThread")]
     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(make: F) -> Result<(Self, Option<u64>)> {
@@ -93,11 +95,14 @@ where
         let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
         let back = Back::new(Rc::downgrade(&update), id);
         let rank = write_part(&cusp, |mut cusp| cusp.init(make, &back))??;
-        Ok((Self {
-            root: None,
-            back: None,
-            cusp,
-        }, rank))
+        Ok((
+            Self {
+                root: None,
+                back: None,
+                cusp,
+            },
+            rank,
+        ))
     }
 }
 
@@ -108,7 +113,7 @@ where
 {
     type Base = U::Base;
     #[cfg(not(feature = "oneThread"))]
-    fn ploy(&self) -> PloyPointer<U::Base> {
+    fn ploy(&self) -> PloyEdge<U::Base> {
         Arc::new(RwLock::new(Box::new(Self {
             root: None, // self.root.clone(),
             back: self.back.clone(),
@@ -116,7 +121,7 @@ where
         })))
     }
     #[cfg(feature = "oneThread")]
-    fn ploy(&self) -> PloyPointer<U::Base> {
+    fn ploy(&self) -> PloyEdge<U::Base> {
         Rc::new(RefCell::new(Box::new(Self {
             root: None, // self.root.clone(),
             back: self.back.clone(),
@@ -138,7 +143,14 @@ where
         let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
         let back = Back::new(Arc::downgrade(&update), id);
         let rank = cusp.write().with_snap(snap, &back);
-        (Self { cusp, back: None, root: None }, rank)
+        (
+            Self {
+                cusp,
+                back: None,
+                root: None,
+            },
+            rank,
+        )
     }
     #[cfg(feature = "oneThread")]
     fn from_snap(snap: Snap<Self::Unit>) -> (Self, Option<u64>) {
@@ -149,7 +161,14 @@ where
         let back = Back::new(Rc::downgrade(&update), id);
         let rank =
             write_part(&cusp, |mut cusp| cusp.with_snap(snap, &back)).expect(IMMEDIATE_ACCESS);
-        (Self { cusp, back: None, root: None }, rank)
+        (
+            Self {
+                cusp,
+                back: None,
+                root: None,
+            },
+            rank,
+        )
     }
 }
 
@@ -160,28 +179,29 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move { 
+        write_part_async(&self.cusp, |mut cusp| async move {
             let out = cusp.solve().await;
             if let Some(root) = self.root.clone() {
                 cusp.add_root(root);
             }
             out
-        })?.await
+        })?
+        .await
     }
 }
 
 impl<C> Reckon for Edge<C>
 where
-    C: ReckonMut // + AddRoot,
+    C: ReckonMut, // + AddRoot,
 {
     fn reckon(&self, task: Task) -> Result<Gain> {
         // should not need to add root
         write_part(&self.cusp, |mut cusp| {
-            let out = cusp.reckon(task);
+            cusp.reckon(task)
             // if let Some(root) = self.root.clone() {
             //     cusp.add_root(root);
             // }
-            out
+            // out
         })?
     }
 }
@@ -223,15 +243,16 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move { 
+        write_part_async(&self.cusp, |mut cusp| async move {
             let out = cusp.solve().await;
             if let Some(root) = self.root.clone() {
                 cusp.add_root(root);
             }
             out
-        })?.await
+        })?
+        .await
     }
-    fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
+    fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         let edge = Self {
             root: self.root.clone(),
             back: Some(back.clone()),
@@ -341,16 +362,16 @@ where
     N: ReactMut + AddRootMut + SendSync,
 {
     async fn react(&self, id: &Id) -> Result<()> {
-        write_part_async(&self.cusp, |mut cusp| async move { 
+        write_part_async(&self.cusp, |mut cusp| async move {
             let out = cusp.react(id).await;
             if let Some(root) = self.root.clone() {
                 cusp.add_root(root);
             }
             out
-        })?.await
+        })?
+        .await
     }
 }
-
 
 // impl<N> ToId for Edge<N> {
 //     fn id(&self) -> Id {

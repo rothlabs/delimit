@@ -7,26 +7,32 @@ use super::*;
 pub type Ploy<T> = Link<Box<dyn Engage<Base = T>>>;
 
 #[cfg(not(feature = "oneThread"))]
-pub type PloyPointer<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
+pub type PloyEdge<T> = Arc<RwLock<Box<dyn Engage<Base = T>>>>;
 #[cfg(feature = "oneThread")]
 pub type PloyPointer<T> = Rc<RefCell<Box<dyn Engage<Base = T>>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetRoot + Debug {}
+pub trait Engage:
+    Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetRoot + Debug
+{
+}
 
-impl<E> Engage for E where E: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetRoot + Debug {}
+impl<E> Engage for E where
+    E: Reckon + Based + AdaptGet + AdaptSet + AddRoot + Update + SetRoot + Debug
+{
+}
 
 pub trait ToPloy {
     type Base;
     /// Copy with unit type erased.  
-    fn ploy(&self) -> PloyPointer<Self::Base>;
+    fn ploy(&self) -> PloyEdge<Self::Base>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait Based {
     type Base: Payload;
-    fn backed(&self, back: &Back) -> PloyPointer<Self::Base>;
+    fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
     async fn solve(&self) -> Result<Hub<Self::Base>>;
 }
 
@@ -37,7 +43,7 @@ where
     T: 'static + Payload,
 {
     type Base = T;
-    fn backed(&self, back: &Back) -> PloyPointer<Self::Base> {
+    fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         self.as_ref().backed(back)
     }
     async fn solve(&self) -> Result<Hub<Self::Base>> {

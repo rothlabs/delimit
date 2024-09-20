@@ -228,13 +228,12 @@ impl Ring {
     }
     pub fn clear(&mut self) -> Result<()> {
         for root in self.iter() {
-            root.clear()?; 
+            root.clear()?;
         }
         self.roots.clear();
         Ok(())
     }
 }
-
 
 // pub trait ClearRoots {
 //     fn clear_roots(&self) -> Result<()>;
