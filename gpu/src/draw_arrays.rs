@@ -33,17 +33,17 @@ pub struct DrawArrays {
 impl DrawArraysBuilder {
     pub fn make(self) -> Result<Node<DrawArrays>> {
         let mut draw = self.build()?;
-        Node::make(|back| {
-            draw.program = draw.program.backed(back)?;
-            draw.writers = draw.writers.backed(back)?;
-            draw.vao = draw.vao.backed(back)?;
-            draw.first = draw.first.backed(back)?;
-            draw.count = draw.count.backed(back)?;
-            draw.instances = draw.instances.backed(back)?;
-            draw.tick = draw.tick.backed(back)?;
-            // draw.step = draw.step.backed(back)?;
-            Ok(draw)
-        })
+        // Node::make(|back| {
+        //     draw.program = draw.program.backed(back)?;
+        //     draw.writers = draw.writers.backed(back)?;
+        //     draw.vao = draw.vao.backed(back)?;
+        //     draw.first = draw.first.backed(back)?;
+        //     draw.count = draw.count.backed(back)?;
+        //     draw.instances = draw.instances.backed(back)?;
+        //     draw.tick = draw.tick.backed(back)?;
+        //     // draw.step = draw.step.backed(back)?;
+        //     Ok(draw)
+        // })
     }
 }
 

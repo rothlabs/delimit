@@ -121,7 +121,7 @@ where
         Ok(Self {
             path: None,
             rank,
-            edge, //: make_edge(edge),
+            edge,
         })
     }
 }
@@ -133,12 +133,10 @@ where
     // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
     pub fn make_ploy(unit: E::Unit) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::make(unit.into())?;
-        //let wow = edge.clone() as Arc<RwLock<dyn Update>>;
-        //let edge = Box::new(edge) as Box<dyn Engage<Base = E::Base>>;
         Ok(Link {
             path: None,
             rank,
-            edge, //: make_edge(edge),
+            edge,
         })
     }
 }

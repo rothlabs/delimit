@@ -28,7 +28,7 @@ pub trait Deal: Debug + SendSync {
         Ok(())
     }
 
-    fn back(&self, wow: Box<dyn BackIt>) -> Result<()> {
-        Err(anyhow!("no back impl for deal"))?
-    }
+    // fn back(&self, wow: Box<dyn BackIt>) -> Result<()> {
+    //     Err(anyhow!("no back impl for deal"))?
+    // }
 }

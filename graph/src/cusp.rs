@@ -56,28 +56,16 @@ where
     W: 'static + MakeWork + Default + Clear + ReactMut + Adapt + SendSync,
 {
     type Unit = W::Unit;
-    fn make(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
-        let (rank, work) = W::make(unit);
+    fn make(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+        let (rank, work) = W::make(snap);
         let (cusp, back) = cusp_pointer(Self {
             work,
             ..Self::default()
         });
         write_part(&cusp, |mut cusp| cusp.set_back(back))??;
-        //cusp.write().set_back(back)?;
         Ok((rank, cusp))
     }
 }
-
-// impl<W> WithSnap for Cusp<W>
-// where
-//     W: WithSnap,
-// {
-//     type Unit = W::Unit;
-//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64> {
-//         self.back = Some(back.clone());
-//         self.work.with_snap(snap, back)
-//     }
-// }
 
 impl<W: Adapt> SetBack for Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
@@ -152,12 +140,6 @@ where
         self.ring.clear()
     }
 }
-
-// impl<W> ClearRootsMut for Cusp<W> {
-//     fn clear_roots(&mut self) -> Result<()> {
-//         self.ring.clear()
-//     }
-// }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
