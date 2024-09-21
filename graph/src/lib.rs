@@ -445,17 +445,23 @@ pub trait FromSnap {
     //     Self: Sized;
 }
 
-// pub trait WithSnap {
-//     type Unit;
-//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
-// }
-
-// pub trait WithSnap {
-//     type Unit;
-//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
-// }
-
-
 pub trait Clear {
     fn clear(&mut self);
 }
+
+pub trait BackIt {
+    /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
+    /// Must be called to include `&Back` in the rebut phase.
+    fn back_it(&mut self, back: Back) -> Result<()>;
+}
+
+// pub trait WithSnap {
+//     type Unit;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
+// }
+
+// pub trait WithSnap {
+//     type Unit;
+//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
+// }
+

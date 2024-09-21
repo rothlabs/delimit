@@ -199,7 +199,7 @@ where
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Ring, u64)> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
-            deal.back(back);
+            deal.set_back(back);
         } else {
             return Err(anyhow!("No back in cusp adapt."))?;
         }

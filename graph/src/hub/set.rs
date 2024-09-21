@@ -43,7 +43,7 @@ impl Deal for Set {
     fn wrote(&self) -> bool {
         self.wrote
     }
-    fn back(&mut self, back: &Back) {
+    fn set_back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
@@ -92,7 +92,7 @@ impl Deal for Insert {
     fn wrote(&self) -> bool {
         self.wrote
     }
-    fn back(&mut self, back: &Back) {
+    fn set_back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {

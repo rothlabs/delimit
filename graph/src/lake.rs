@@ -119,7 +119,7 @@ impl Lake {
 }
 
 impl Deal for Lake {
-    fn back(&mut self, back: &Back) {
+    fn set_back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn one(&mut self, _: &str, view: View) -> Result<()> {

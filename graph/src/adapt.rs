@@ -4,7 +4,9 @@ use thiserror::Error;
 pub trait Adapt {
     /// Alter an hub.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()>;
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[derive(Error, Debug)]

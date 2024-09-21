@@ -187,6 +187,9 @@ impl Deal for Back {
         *map = map.backed(self)?;
         Ok(())
     }
+    fn back(&self) -> Result<Back> {
+        Ok(self.clone())
+    }
 }
 
 /// Points to many root edges, each pointing to back of a cusp.
