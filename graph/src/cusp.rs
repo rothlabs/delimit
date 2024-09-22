@@ -16,20 +16,6 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-// impl<W> Default for Cusp<W>
-// where
-//     W: Default,
-// {
-//     fn default() -> Self {
-//         Self {
-//             id: rand::random(),
-//             ring: Ring::new(),
-//             work: W::default(),
-//             back: None,
-//         }
-//     }
-// }
-
 impl<W> ToId for Cusp<W> {
     fn id(&self) -> Id {
         self.id
@@ -53,7 +39,7 @@ where
 
 impl<W> FromSnap for Cusp<W> 
 where 
-    W: 'static + WorkFromSnap + Clear + ReactMut + Adapt + SendSync,
+    W: 'static + WorkFromSnap + Clear + ReactMut + SolveMut + SendSync,
 {
     type Unit = W::Unit;
     fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
@@ -69,7 +55,7 @@ where
     }
 }
 
-impl<W: Adapt> SetBack for Cusp<W> {
+impl<W: SolveMut> Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
         if !self.work.adapt(&mut back).is_ok() {
             self.work.back(&back)?;
@@ -180,7 +166,7 @@ where
 
 impl<W> AdaptOut for Cusp<W>
 where
-    W: Adapt + Clear,
+    W: SolveMut + Clear,
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Ring, u64)> {
         self.work.clear();
@@ -197,4 +183,32 @@ where
         };
         Ok((roots, self.id))
     }
+}
+
+#[cfg(not(feature = "oneThread"))]
+pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
+where
+    T: 'static + UpdateMut,// + SetBack,
+{
+    let cusp = Arc::new(RwLock::new(cusp));
+    let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+    let back = Back {
+        cusp: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    (cusp, back)
+}
+
+#[cfg(feature = "oneThread")]
+pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
+where
+    T: 'static + UpdateMut,// + SetBack,
+{
+    let cusp = Rc::new(RefCell::new(cusp));
+    let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+    let back = Back {
+        cusp: Rc::downgrade(&update),
+        id: rand::random(),
+    };
+    (cusp, back)
 }

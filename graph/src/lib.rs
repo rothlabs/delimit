@@ -1,4 +1,4 @@
-pub use adapt::{Adapt, AdaptGet, AdaptOut, AdaptSet};
+pub use adapt::{AdaptGet, AdaptOut, AdaptSet};
 pub use apex::Apex;
 pub use base::{Vf32, Vf64};
 pub use bay::Bay;
@@ -192,34 +192,6 @@ where
     edge
 }
 
-#[cfg(not(feature = "oneThread"))]
-pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
-where
-    T: 'static + UpdateMut,// + SetBack,
-{
-    let cusp = Arc::new(RwLock::new(cusp));
-    let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
-    let back = Back {
-        cusp: Arc::downgrade(&update),
-        id: rand::random(),
-    };
-    (cusp, back)
-}
-
-#[cfg(feature = "oneThread")]
-pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
-where
-    T: 'static + UpdateMut,// + SetBack,
-{
-    let cusp = Rc::new(RefCell::new(cusp));
-    let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
-    let back = Back {
-        cusp: Rc::downgrade(&update),
-        id: rand::random(),
-    };
-    (cusp, back)
-}
-
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
@@ -405,21 +377,10 @@ pub trait SetRoot {
     fn set_root(&mut self, root: Root);
 }
 
-pub trait SetBack {
-    fn set_back(&mut self, back: Back) -> Result<()>;
-}
-
 
 pub trait FromSnap {
     type Unit;
     fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)>;
-}
-
-pub trait Make {
-    type Unit;
-    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
-    where
-        F: FnOnce(&Back) -> Result<Self::Unit>;
 }
 
 pub trait WorkFromSnap {
@@ -427,30 +388,6 @@ pub trait WorkFromSnap {
     fn from_snap(unit: Snap<Self::Unit>) -> (Option<u64>, Self);
 }
 
-pub trait InitWork {
-    type Unit;
-    fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
-    where 
-        F: FnOnce(&Back) -> Result<Self::Unit>;
-}
-
 pub trait Clear {
     fn clear(&mut self);
 }
-
-pub trait BackIt {
-    /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
-    /// Must be called to include `&Back` in the rebut phase.
-    fn back_it(&mut self, back: Back) -> Result<()>;
-}
-
-// pub trait WithSnap {
-//     type Unit;
-//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
-// }
-
-// pub trait WithSnap {
-//     type Unit;
-//     fn with_snap(&mut self, snap: Snap<Self::Unit>, back: &Back) -> Option<u64>;
-// }
-

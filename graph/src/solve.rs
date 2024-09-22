@@ -100,7 +100,12 @@ pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
     async fn solve(&mut self) -> Result<Hub<Self::Base>>;
-    // fn solve<'a>(&'a mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + 'a;
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
+    }
+    fn back(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+    }
 }
 
 pub trait ReckonMut {

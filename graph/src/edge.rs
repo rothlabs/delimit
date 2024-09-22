@@ -177,13 +177,11 @@ where
     C: 'static + ReactMut + AddRootMut + SendSync,
 {
     fn backed(&self, back: &Back) -> Pointer<Self> {
-        let edge = Self {
-            root: self.root.clone(),
+        edge_pointer(Self {
+            root: None,
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
-        };
-        let wow = edge_pointer(edge);
-        wow
+        })
     }
 }
 

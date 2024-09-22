@@ -20,24 +20,15 @@ where
 
 impl<U> Node<U>
 where
-    U: Solve,
-    U::Base: Payload,
-{
-    async fn main(&mut self) -> Result<Hub<U::Base>> {
-        if let Some(main) = &self.main {
-            Ok(main.clone())
-        } else {
-            let main = self.unit.solve().await?;
-            self.main = Some(main.clone());
-            Ok(main)
-        }
-    }
-}
-
-impl<U> Node<U>
-where
     U: Solve + Reckon,
 {
+    fn rank(&self) -> Option<u64> {
+        if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        }
+    }
     fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {
             Ok(digest.clone())
@@ -69,7 +60,19 @@ where
 {
     type Base = U::Base;
     async fn solve(&mut self) -> Result<Hub<U::Base>> {
-        self.main().await
+        if let Some(main) = &self.main {
+            Ok(main.clone())
+        } else {
+            let main = self.unit.solve().await?;
+            self.main = Some(main.clone());
+            Ok(main)
+        }
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.unit.adapt(deal)
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.unit.back(back)
     }
 }
 
@@ -87,37 +90,12 @@ where
     }
 }
 
-// impl<U> Default for Node<U>
-// where
-//     U: Solve,
-//     U::Base: Payload,
-// {
-//     fn default() -> Self {
-//         Self {
-//             imports: vec![],
-//             unit: None,
-//             main: None,
-//             digest: None,
-//             serial: None,
-//         }
-//     }
-// }
-
-fn unit_rank<U: Reckon>(unit: &U) -> Option<u64> {
-    if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
-        Some(rank)
-    } else {
-        None
-    }
-}
-
 impl<U> WorkFromSnap for Node<U>
 where
     U: Solve + Reckon,
 {
     type Unit = U;
     fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
-        let rank = unit_rank(&snap.unit);
         let node = Self {
             unit: snap.unit,
             imports: snap.imports,
@@ -125,7 +103,7 @@ where
             digest: None,
             serial: None,
         };
-        (rank, node)
+        (node.rank(), node)
     }
 }
 
@@ -190,15 +168,15 @@ where
     }
 }
 
-impl<U> Adapt for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.unit.adapt(deal)
-    }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.unit.back(back)
-    }
-}
+// impl<U> Adapt for Node<U>
+// where
+//     U: Solve,
+//     U::Base: Payload,
+// {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.unit.adapt(deal)
+//     }
+//     fn back(&mut self, back: &Back) -> Result<()> {
+//         self.unit.back(back)
+//     }
+// }
