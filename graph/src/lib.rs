@@ -146,10 +146,10 @@ pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
 
-pub trait Unit: Adapt + Solve + Reckon + SendSync + Debug {}
+pub trait Unit: Solve + Reckon + SendSync + Debug {}
 impl<T> Unit for T
 where
-    T: Adapt + Solve + Reckon + SendSync + Debug,
+    T: Solve + Reckon + SendSync + Debug,
     T::Base: Payload,
 {
 }

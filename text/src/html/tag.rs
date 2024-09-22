@@ -21,13 +21,13 @@ impl Tag {
     }
 }
 
-impl Adapt for Tag {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.name.deal("name", deal)?;
-        self.attributes.deal("attributes", deal)?;
-        Ok(())
-    }
-}
+// impl Adapt for Tag {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.name.deal("name", deal)?;
+//         self.attributes.deal("attributes", deal)?;
+//         Ok(())
+//     }
+// }
 
 impl Solve for Tag {
     type Base = String;
@@ -38,6 +38,11 @@ impl Solve for Tag {
             .extend(self.attributes.down(PLAIN).await?)
             .hub()?;
         List::new().push("<").push(&items).push(">").hub()
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.name.deal("name", deal)?;
+        self.attributes.deal("attributes", deal)?;
+        Ok(())
     }
 }
 

@@ -18,18 +18,19 @@ pub struct Program {
 
 impl ProgramBuilder {
     pub fn make(&mut self) -> Result<Node<Program>> {
-        let mut program = self.build()?;
+        let program = self.build()?;
         program
             .vertex
             .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
         program
             .fragment
             .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
-        Node::make(|back| {
-            program.vertex = program.vertex.backed(back)?;
-            program.fragment = program.fragment.backed(back)?;
-            Ok(program)
-        })
+        program.node()
+        // Node::make(|back| {
+        //     program.vertex = program.vertex.backed(back)?;
+        //     program.fragment = program.fragment.backed(back)?;
+        //     Ok(program)
+        // })
     }
 }
 
@@ -40,6 +41,11 @@ impl Program {
 }
 
 impl Act for Program {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.vertex = self.vertex.backed(back)?;
+        self.fragment = self.fragment.backed(back)?;
+        Ok(())
+    }
     async fn act(&self) -> Result<()> {
         self.vertex.act().await?;
         self.fragment.act().await?;

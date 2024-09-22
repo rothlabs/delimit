@@ -19,15 +19,16 @@ pub struct DrawElements {
 
 impl DrawElementsBuilder {
     pub fn make(self) -> Result<Node<DrawElements>> {
-        let mut draw = self.build()?;
-        Node::make(|back| {
-            draw.program = draw.program.backed(back)?;
-            draw.buffers = draw.buffers.backed(back)?;
-            draw.vao = draw.vao.backed(back)?;
-            draw.count = draw.count.backed(back)?;
-            draw.offset = draw.offset.backed(back)?;
-            Ok(draw)
-        })
+        self.build()?.node()
+        // let mut draw = self.build()?;
+        // Node::make(|back| {
+        //     draw.program = draw.program.backed(back)?;
+        //     draw.buffers = draw.buffers.backed(back)?;
+        //     draw.vao = draw.vao.backed(back)?;
+        //     draw.count = draw.count.backed(back)?;
+        //     draw.offset = draw.offset.backed(back)?;
+        //     Ok(draw)
+        // })
     }
 }
 
@@ -51,6 +52,14 @@ impl Act for DrawElements {
         let count = self.count.base().await.unwrap_or_default();
         let offset = self.offset.base().await.unwrap_or_default();
         self.vao.read(|vao| self.draw(vao, count, offset))?;
+        Ok(())
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.program = self.program.backed(back)?;
+        self.buffers = self.buffers.backed(back)?;
+        self.vao = self.vao.backed(back)?;
+        self.count = self.count.backed(back)?;
+        self.offset = self.offset.backed(back)?;
         Ok(())
     }
 }

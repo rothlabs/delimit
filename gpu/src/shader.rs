@@ -18,18 +18,27 @@ impl Shader {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
-        Node::make(|back| {
-            let unit = Self {
-                gl: gl.clone(),
-                source: source.backed(back)?,
-                object: shader,
-            };
-            Ok(unit)
-        })
+        Self {
+            gl: gl.clone(),
+            source: source.clone(),//: source.backed(back)?,
+            object: shader,
+        }.node()
+        // Node::make(|back| {
+        //     let unit = Self {
+        //         gl: gl.clone(),
+        //         source: source.backed(back)?,
+        //         object: shader,
+        //     };
+        //     Ok(unit)
+        // })
     }
 }
 
 impl Act for Shader {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.source = self.source.backed(back)?;
+        Ok(())
+    }
     async fn act(&self) -> Result<()> {
         self.source
             .read(|src| self.gl.shader_source(&self.object, src))

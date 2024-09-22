@@ -67,27 +67,29 @@ where
     }
 }
 
-impl<W> Make for Cusp<W> 
-where 
-    W: 'static + InitWork + Default + ReactMut + Clear + SendSync,
-{
-    type Unit = W::Unit;
-    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
-        where
-            F: FnOnce(&Back) -> Result<Self::Unit> {
-        let (cusp, back) = cusp_pointer(Self::default());
-        let rank = write_part(&cusp, |mut cusp| {
-            let rank = cusp.work.init(back.clone(), make);
-            cusp.back = Some(back);
-            rank
-        })??;
-        Ok((rank, cusp))
-    }
-}
+// impl<W> Make for Cusp<W> 
+// where 
+//     W: 'static + InitWork + Default + ReactMut + Clear + SendSync,
+// {
+//     type Unit = W::Unit;
+//     fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
+//         where
+//             F: FnOnce(&Back) -> Result<Self::Unit> {
+//         let (cusp, back) = cusp_pointer(Self::default());
+//         let rank = write_part(&cusp, |mut cusp| {
+//             let rank = cusp.work.init(back.clone(), make);
+//             cusp.back = Some(back);
+//             rank
+//         })??;
+//         Ok((rank, cusp))
+//     }
+// }
 
 impl<W: Adapt> SetBack for Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
-        self.work.adapt(&mut back)?;
+        if !self.work.adapt(&mut back).is_ok() {
+            self.work.back(&back)?;
+        }
         self.back = Some(back);
         Ok(())
     }

@@ -15,7 +15,7 @@ where
     U: 'static + Unit<Base = T>,
 {
     fn from(node: Node<U>) -> Self {
-        Hub::Ploy(node.ploy())
+        Hub::Ploy(node.to_ploy())
     }
 }
 

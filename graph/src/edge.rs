@@ -83,25 +83,25 @@ where
     }
 }
 
-impl<C> Make for Edge<C>
-where
-    C: 'static + Make + UpdateMut + AddRootMut,
-{
-    type Unit = C::Unit;
-    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
-        where
-            F: FnOnce(&Back) -> Result<Self::Unit> {
-        let (rank, cusp) = C::make(make)?;
-        Ok((
-            rank,
-            edge_pointer(Self {
-                root: None,
-                back: None,
-                cusp,
-            })
-        ))
-    }
-}
+// impl<C> Make for Edge<C>
+// where
+//     C: 'static + Make + UpdateMut + AddRootMut,
+// {
+//     type Unit = C::Unit;
+//     fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
+//         where
+//             F: FnOnce(&Back) -> Result<Self::Unit> {
+//         let (rank, cusp) = C::make(make)?;
+//         Ok((
+//             rank,
+//             edge_pointer(Self {
+//                 root: None,
+//                 back: None,
+//                 cusp,
+//             })
+//         ))
+//     }
+// }
 
 
 // #[cfg_attr(not(feature = "oneThread"), async_trait)]

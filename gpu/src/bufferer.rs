@@ -16,12 +16,12 @@ pub struct Bufferer {
 
 impl BuffererBuilder {
     pub fn make(self) -> Result<Node<Bufferer>> {
-        // Node::make(self.build()?)
-        let mut buffer = self.build()?;
-        Node::make(|back| {
-            buffer.array = buffer.array.backed(back)?;
-            Ok(buffer)
-        })
+        self.build()?.node()
+        // let mut buffer = self.build()?;
+        // Node::make(|back| {
+        //     buffer.array = buffer.array.backed(back)?;
+        //     Ok(buffer)
+        // })
     }
 }
 
@@ -62,6 +62,10 @@ impl Act for Bufferer {
             _ => Err(anyhow!("wrong apex"))?,
         };
         self.buffer.unbind();
+        Ok(())
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.array = self.array.backed(back)?;
         Ok(())
     }
 }

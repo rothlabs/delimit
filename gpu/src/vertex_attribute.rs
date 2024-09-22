@@ -26,19 +26,28 @@ pub struct VertexAttribute {
 
 impl VertexAttributeBuilder {
     pub fn make(self) -> Result<Node<VertexAttribute>> {
-        let mut attrib = self.build()?;
-        Node::make(|back| {
-            attrib.index = attrib.index.backed(back)?;
-            attrib.size = attrib.size.backed(back)?;
-            attrib.stride = attrib.stride.backed(back)?;
-            attrib.offset = attrib.offset.backed(back)?;
-            attrib.divisor = attrib.divisor.backed(back)?;
-            Ok(attrib)
-        })
+        self.build()?.node()
+        // let mut attrib = self.build()?;
+        // Node::make(|back| {
+        //     attrib.index = attrib.index.backed(back)?;
+        //     attrib.size = attrib.size.backed(back)?;
+        //     attrib.stride = attrib.stride.backed(back)?;
+        //     attrib.offset = attrib.offset.backed(back)?;
+        //     attrib.divisor = attrib.divisor.backed(back)?;
+        //     Ok(attrib)
+        // })
     }
 }
 
 impl Act for VertexAttribute {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.index = self.index.backed(back)?;
+        self.size = self.size.backed(back)?;
+        self.stride = self.stride.backed(back)?;
+        self.offset = self.offset.backed(back)?;
+        self.divisor = self.divisor.backed(back)?;
+        Ok(())
+    }
     async fn act(&self) -> Result<()> {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();

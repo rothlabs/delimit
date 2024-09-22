@@ -128,11 +128,11 @@ impl<T> Clear for Leaf<T> {
     }
 }
 
-impl<T> Adapt for Leaf<T> {
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
-    }
-}
+// impl<T> Adapt for Leaf<T> {
+//     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+//         Ok(())
+//     }
+// }
 
 // impl<T> MakeMut for Leaf<T>
 // // where

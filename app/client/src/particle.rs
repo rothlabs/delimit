@@ -186,15 +186,20 @@ pub struct Particles {
 
 impl ParticlesBuilder {
     pub fn make(self) -> Result<Node<Particles>> {
-        let mut part = self.build()?;
-        Node::make(|back| {
-            part.tick = part.tick.backed(back)?;
-            Ok(part)
-        })
+        self.build()?.node()
+        // let mut part = self.build()?;
+        // Node::make(|back| {
+        //     part.tick = part.tick.backed(back)?;
+        //     Ok(part)
+        // })
     }
 }
 
 impl Act for Particles {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.tick = self.tick.backed(back)?;
+        Ok(())
+    }
     async fn act(&self) -> Result<()> {
         // self.gpu.gl.clear(WGLRC::COLOR_BUFFER_BIT);
         if self.tick.base().await? % 2 == 0 {

@@ -30,18 +30,19 @@ pub struct DrawArrays {
 
 impl DrawArraysBuilder {
     pub fn make(self) -> Result<Node<DrawArrays>> {
-        let mut draw = self.build()?;
-        Node::make(|back| {
-            draw.program = draw.program.backed(back)?;
-            draw.vao = draw.vao.backed(back)?;
-            draw.first = draw.first.backed(back)?;
-            draw.count = draw.count.backed(back)?;
-            draw.instances = draw.instances.backed(back)?;
-            // TODO: replace writers and tick with generic Hub<()>
-            draw.writers = draw.writers.backed(back)?;
-            draw.tick = draw.tick.backed(back)?;
-            Ok(draw)
-        })
+        self.build()?.node()
+        // let mut draw = self.build()?;
+        // Node::make(|back| {
+        //     draw.program = draw.program.backed(back)?;
+        //     draw.vao = draw.vao.backed(back)?;
+        //     draw.first = draw.first.backed(back)?;
+        //     draw.count = draw.count.backed(back)?;
+        //     draw.instances = draw.instances.backed(back)?;
+        //     // TODO: replace writers and tick with generic Hub<()>
+        //     draw.writers = draw.writers.backed(back)?;
+        //     draw.tick = draw.tick.backed(back)?;
+        //     Ok(draw)
+        // })
     }
 }
 
@@ -85,6 +86,17 @@ impl Act for DrawArrays {
             self.vao
                 .read(|vao| self.draw(vao, first, count, instances))??;
         }
+        Ok(())
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.program = self.program.backed(back)?;
+        self.vao = self.vao.backed(back)?;
+        self.first = self.first.backed(back)?;
+        self.count = self.count.backed(back)?;
+        self.instances = self.instances.backed(back)?;
+        // TODO: replace writers and tick with generic Hub<()>
+        self.writers = self.writers.backed(back)?;
+        self.tick = self.tick.backed(back)?;
         Ok(())
     }
 }

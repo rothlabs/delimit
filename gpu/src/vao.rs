@@ -23,11 +23,12 @@ pub struct Vao {
 
 impl VaoBuilder {
     pub fn make(self) -> Result<Node<Vao>> {
-        let mut vao = self.build()?;
-        Node::make(|back| {
-            vao.attributes = vao.attributes.backed(back)?;
-            Ok(vao)
-        })
+        self.build()?.node()
+        // let mut vao = self.build()?;
+        // Node::make(|back| {
+        //     vao.attributes = vao.attributes.backed(back)?;
+        //     Ok(vao)
+        // })
     }
 }
 
@@ -41,6 +42,10 @@ impl Vao {
 }
 
 impl Act for Vao {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.attributes = self.attributes.backed(back)?;
+        Ok(())
+    }
     async fn act(&self) -> Result<()> {
         self.bind();
         for attribute in &self.attributes {

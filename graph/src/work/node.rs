@@ -129,24 +129,24 @@ where
     }
 }
 
-impl<U> InitWork for Node<U> 
-where
-    U: Solve + Reckon,
-{
-    type Unit = U;
-    fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
-        where 
-            F: FnOnce(&Back) -> Result<Self::Unit> {
-        let unit = init(&back)?;
-        let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
-            Some(rank)
-        } else {
-            None
-        };
-        self.unit = Some(unit);
-        Ok(rank)
-    }
-}
+// impl<U> InitWork for Node<U> 
+// where
+//     U: Solve + Reckon,
+// {
+//     type Unit = U;
+//     fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
+//         where 
+//             F: FnOnce(&Back) -> Result<Self::Unit> {
+//         let unit = init(&back)?;
+//         let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
+//             Some(rank)
+//         } else {
+//             None
+//         };
+//         self.unit = Some(unit);
+//         Ok(rank)
+//     }
+// }
 
 impl<U> ToItem for Node<U>
 where
@@ -211,10 +211,13 @@ where
 
 impl<U> Adapt for Node<U>
 where
-    U: Solve + Adapt,
+    U: Solve,
     U::Base: Payload,
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.as_mut().unwrap().adapt(deal)
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.unit.as_mut().unwrap().back(back)
     }
 }

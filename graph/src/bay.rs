@@ -16,18 +16,22 @@ impl Bay {
     }
 }
 
-impl Adapt for Bay {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.map.deal(deal)?;
-        Ok(())
-    }
-}
+// impl Adapt for Bay {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.map.deal(deal)?;
+//         Ok(())
+//     }
+// }
 
 // #[async_trait]
 impl Solve for Bay {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
         solve_ok()
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.map.deal(deal)?;
+        Ok(())
     }
 }
 

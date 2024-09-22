@@ -18,15 +18,19 @@ impl BufferInBuilder {
     }
 }
 
-impl Adapt for BufferIn {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.size.deal("size", deal)?;
-        Ok(())
-    }
-}
+// impl Adapt for BufferIn {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.size.deal("size", deal)?;
+//         Ok(())
+//     }
+// }
 
 impl Solve for BufferIn {
     type Base = Vf32;
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.size = self.size.backed(back)?;
+        Ok(())
+    }
     async fn solve(&self) -> Result<Hub<Vf32>> {
         self.draw.act().await?;
         let sync = self

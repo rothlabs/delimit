@@ -27,14 +27,14 @@ impl Element {
     }
 }
 
-impl Adapt for Element {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.open.deal("open", deal)?;
-        self.items.deal("items", deal)?;
-        self.close.deal("close", deal)?;
-        Ok(())
-    }
-}
+// impl Adapt for Element {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.open.deal("open", deal)?;
+//         self.items.deal("items", deal)?;
+//         self.close.deal("close", deal)?;
+//         Ok(())
+//     }
+// }
 
 impl Solve for Element {
     type Base = String;
@@ -52,6 +52,12 @@ impl Solve for Element {
             element = element.push(close);
         }
         element.hub()
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.open.deal("open", deal)?;
+        self.items.deal("items", deal)?;
+        self.close.deal("close", deal)?;
+        Ok(())
     }
 }
 

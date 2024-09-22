@@ -21,13 +21,13 @@ impl Attribute {
     }
 }
 
-impl Adapt for Attribute {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.name.deal("name", deal)?;
-        self.content.deal("content", deal)?;
-        Ok(())
-    }
-}
+// impl Adapt for Attribute {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.name.deal("name", deal)?;
+//         self.content.deal("content", deal)?;
+//         Ok(())
+//     }
+// }
 
 impl Solve for Attribute {
     type Base = String;
@@ -38,6 +38,11 @@ impl Solve for Attribute {
             .push(self.content.down(PLAIN).await?)
             .push(r#"""#)
             .hub()
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.name.deal("name", deal)?;
+        self.content.deal("content", deal)?;
+        Ok(())
     }
 }
 

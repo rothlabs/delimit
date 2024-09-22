@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use async_trait::async_trait;
 pub use gain::*;
 pub use task::*;
@@ -20,6 +21,13 @@ pub trait Solve {
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
     #[cfg(feature = "oneThread")]
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Err(anyhow!("adapt not defined"))?
+    }
+    fn back(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+        //Err(anyhow!("back not defined"))?
+    }
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
@@ -62,14 +70,15 @@ where
     Ok(Hub::none())
 }
 
-// #[async_trait]
 pub trait Act {
-    /// Perform an external action.
-    // async fn act(&self) -> Result<()>;
     #[cfg(not(feature = "oneThread"))]
     fn act(&self) -> impl std::future::Future<Output = Result<()>> + Send;
     #[cfg(feature = "oneThread")]
     fn act(&self) -> impl std::future::Future<Output = Result<()>>;
+    fn back(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+        // Err(anyhow!("back not defined"))?
+    }
 }
 
 // #[async_trait]
@@ -79,6 +88,9 @@ impl<A: Act + SendSync> Solve for A {
         //fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send {
         self.act().await?;
         solve_ok()
+    }
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.back(back)
     }
 }
 

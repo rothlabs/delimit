@@ -33,14 +33,6 @@ impl List {
     }
 }
 
-impl Adapt for List {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.items.deal("items", deal)?;
-        self.separator.deal("separator", deal)?;
-        Ok(())
-    }
-}
-
 impl Solve for List {
     type Base = String;
     async fn solve(&self) -> Result<Hub<String>> {
@@ -57,6 +49,11 @@ impl Solve for List {
         self.items[last].read(|x| base += x).await?;
         Ok(base.leaf().hub())
     }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.items.deal("items", deal)?;
+        self.separator.deal("separator", deal)?;
+        Ok(())
+    }
 }
 
 impl Reckon for List {
@@ -70,6 +67,14 @@ impl Reckon for List {
         }
     }
 }
+
+// impl Adapt for List {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.items.deal("items", deal)?;
+//         self.separator.deal("separator", deal)?;
+//         Ok(())
+//     }
+// }
 
 // fn set_at(&mut self, index: usize, hub: Hub) -> Result<Memo> {
 //     self.items[index] = hub;
