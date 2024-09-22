@@ -1,5 +1,3 @@
-use anyhow::anyhow;
-
 use super::*;
 
 /// Trade a hub for another.

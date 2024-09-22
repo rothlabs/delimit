@@ -27,7 +27,7 @@ where
     U: 'static + Unit,
 {
     pub fn hub(self) -> Result<Hub<U::Base>> {
-        Ok(Node::make_ploy_from_snap(self)?.into())
+        Ok(Node::ploy_from_snap(self)?.into())
     }
 }
 

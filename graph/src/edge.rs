@@ -65,13 +65,33 @@ impl<C> SetRoot for Edge<C> {
     }
 }
 
-impl<C> Make for Edge<C>
+impl<C> FromSnap for Edge<C>
 where
-    C: 'static + Default + Make + UpdateMut + AddRootMut,
+    C: 'static + Default + FromSnap + UpdateMut + AddRootMut,
 {
     type Unit = C::Unit;
-    fn make(unit: Snap<C::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
-        let (rank, cusp) = C::make(unit)?;
+    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+        let (rank, cusp) = C::from_snap(unit)?;
+        Ok((
+            rank,
+            edge_pointer(Self {
+                root: None,
+                back: None,
+                cusp,
+            })
+        ))
+    }
+}
+
+impl<C> Make for Edge<C>
+where
+    C: 'static + Make + UpdateMut + AddRootMut,
+{
+    type Unit = C::Unit;
+    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
+        where
+            F: FnOnce(&Back) -> Result<Self::Unit> {
+        let (rank, cusp) = C::make(make)?;
         Ok((
             rank,
             edge_pointer(Self {

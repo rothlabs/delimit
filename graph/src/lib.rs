@@ -87,8 +87,8 @@ mod tray;
 mod view;
 mod view_vec;
 
-#[cfg(feature = "oneThread")]
-const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
+// #[cfg(feature = "oneThread")]
+// const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
@@ -321,7 +321,7 @@ where
     T: 'static + Unit,
 {
     fn node(self) -> Result<Node<Self>> {
-        Node::make(self)
+        Node::from_unit(self)
         // Node::make(|back| {
         //     self.adapt(&mut back.clone())?;
         //     Ok(self)
@@ -341,7 +341,7 @@ where
     T: 'static + Unit,
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
-        Node::make_ploy(self)
+        Node::ploy_from_unit(self)
         // Node::make_ploy(|back| {
         //     self.adapt(&mut back.clone())
         //         .expect("To move into Ploy, unit must Adapt with Post::Trade.");
@@ -409,40 +409,29 @@ pub trait SetBack {
     fn set_back(&mut self, back: Back) -> Result<()>;
 }
 
-// TODO: rename to initialize
-pub trait Make {
-    type Unit;
-    fn make(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)>;
-}
-
-// pub trait MakeCusp {
-//     type Unit;
-//     fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
-//         &mut self,
-//         init: F,
-//         back: &Back,
-//     ) -> Result<Option<u64>>;
-// }
-
-pub trait MakeWork {
-    type Unit;
-    fn make(unit: Snap<Self::Unit>) -> (Option<u64>, Self);
-}
-
-pub trait InitMut {
-    type Unit;
-    fn init<F: FnOnce(&Back) -> Result<Self::Unit>>(
-        &mut self,
-        init: F,
-        back: &Back,
-    ) -> Result<Option<u64>>;
-}
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> (Pointer<Self>, Option<u64>);
-    // where
-    //     Self: Sized;
+    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)>;
+}
+
+pub trait Make {
+    type Unit;
+    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
+    where
+        F: FnOnce(&Back) -> Result<Self::Unit>;
+}
+
+pub trait WorkFromSnap {
+    type Unit;
+    fn from_snap(unit: Snap<Self::Unit>) -> (Option<u64>, Self);
+}
+
+pub trait InitWork {
+    type Unit;
+    fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
+    where 
+        F: FnOnce(&Back) -> Result<Self::Unit>;
 }
 
 pub trait Clear {

@@ -114,10 +114,10 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + Make + Update + SetRoot,
+    E: 'static + Default + FromSnap + Update + SetRoot,
 {
-    pub fn make(unit: E::Unit) -> Result<Self> {
-        let (rank, edge) = E::make(unit.into())?;
+    pub fn from_unit(unit: E::Unit) -> Result<Self> {
+        let (rank, edge) = E::from_snap(unit.into())?;
         Ok(Self {
             path: None,
             rank,
@@ -128,11 +128,28 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + Make + Engage,
+    E: Make + SetRoot,
+{
+    pub fn make<F>(make: F) -> Result<Self> 
+    where 
+        F: FnOnce(&Back) -> Result<E::Unit>
+    {
+        let (rank, edge) = E::make(make)?;
+        Ok(Self {
+            path: None,
+            rank,
+            edge,
+        })
+    }
+}
+
+impl<E> Link<E>
+where
+    E: 'static + Default + FromSnap + Engage,
 {
     // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
-    pub fn make_ploy(unit: E::Unit) -> Result<Ploy<E::Base>> {
-        let (rank, edge) = E::make(unit.into())?;
+    pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
+        let (rank, edge) = E::from_snap(unit.into())?;
         Ok(Link {
             path: None,
             rank,
@@ -169,11 +186,11 @@ impl<T: Payload> Leaf<T> {
 
 impl<E> Link<E>
 where
-    E: 'static + Make + Engage,
+    E: 'static + FromSnap + Engage,
 {
     // TODO: add weak self to edge!!!
-    pub fn make_ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
-        let (rank, edge) = E::make(snap)?;
+    pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
+        let (rank, edge) = E::from_snap(snap)?;
         Ok(Link {
             path: None,
             rank,

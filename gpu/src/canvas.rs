@@ -23,8 +23,8 @@ impl Canvas {
             .unwrap()
             .dyn_into::<WGLRC>()
             .unwrap();
-        //Node::make(|_| Ok(Self { object, gl })).unwrap()
-        Node::make(Self { object, gl }).unwrap()
+        Node::make(|_| Ok(Self { object, gl })).unwrap()
+        // Node::make(Self { object, gl }).unwrap()
     }
     pub fn gpu(&self) -> Gpu {
         self.gl.clone().into()

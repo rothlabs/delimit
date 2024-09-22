@@ -51,18 +51,36 @@ where
     }
 }
 
-impl<W> Make for Cusp<W> 
+impl<W> FromSnap for Cusp<W> 
 where 
-    W: 'static + MakeWork + Default + Clear + ReactMut + Adapt + SendSync,
+    W: 'static + WorkFromSnap + Default + Clear + ReactMut + Adapt + SendSync,
 {
     type Unit = W::Unit;
-    fn make(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
-        let (rank, work) = W::make(snap);
+    fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+        let (rank, work) = W::from_snap(snap);
         let (cusp, back) = cusp_pointer(Self {
             work,
             ..Self::default()
         });
         write_part(&cusp, |mut cusp| cusp.set_back(back))??;
+        Ok((rank, cusp))
+    }
+}
+
+impl<W> Make for Cusp<W> 
+where 
+    W: 'static + InitWork + Default + ReactMut + Clear + SendSync,
+{
+    type Unit = W::Unit;
+    fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
+        where
+            F: FnOnce(&Back) -> Result<Self::Unit> {
+        let (cusp, back) = cusp_pointer(Self::default());
+        let rank = write_part(&cusp, |mut cusp| {
+            let rank = cusp.work.init(back.clone(), make);
+            cusp.back = Some(back);
+            rank
+        })??;
         Ok((rank, cusp))
     }
 }

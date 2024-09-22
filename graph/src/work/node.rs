@@ -105,12 +105,13 @@ where
     }
 }
 
-impl<U> MakeWork for Node<U>
+impl<U> WorkFromSnap for Node<U>
 where
     U: Solve + Reckon,
 {
     type Unit = U;
-    fn make(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
+    fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
+        // TODO: make func to get rank
         let rank = if let Ok(Gain::U64(rank)) = snap.unit.reckon(Task::Rank) {
             Some(rank)
         } else {
@@ -122,6 +123,25 @@ where
             ..Default::default()
         };
         (rank, node)
+    }
+}
+
+impl<U> InitWork for Node<U> 
+where
+    U: Solve + Reckon,
+{
+    type Unit = U;
+    fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
+        where 
+            F: FnOnce(&Back) -> Result<Self::Unit> {
+        let unit = init(&back)?;
+        let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
+            Some(rank)
+        } else {
+            None
+        };
+        self.unit = Some(unit);
+        Ok(rank)
     }
 }
 
