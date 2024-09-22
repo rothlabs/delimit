@@ -99,12 +99,6 @@ where
         })?
         .await
     }
-}
-
-impl<C> Reckon for Edge<C>
-where
-    C: ReckonMut, // + AddRoot,
-{
     fn reckon(&self, task: Task) -> Result<Gain> {
         // should not need to add root
         write_part(&self.cusp, |mut cusp| {
@@ -148,11 +142,12 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + ReckonMut + SendSync,
+    C: 'static + SolveMut + UpdateMut + SendSync,
     C: AdaptOut + AddRootMut + Debug,
     C::Base: Payload,
 {
     type Base = C::Base;
+    
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         write_part_async(&self.cusp, |mut cusp| async move {
             let out = cusp.solve().await;
@@ -169,6 +164,15 @@ where
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })
+    }
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        write_part(&self.cusp, |mut cusp| {
+            cusp.reckon(task)
+            // if let Some(root) = self.root.clone() {
+            //     cusp.add_root(root);
+            // }
+            // out
+        })?
     }
 }
 

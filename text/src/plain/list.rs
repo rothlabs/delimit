@@ -54,9 +54,6 @@ impl Solve for List {
         self.separator.deal("separator", deal)?;
         Ok(())
     }
-}
-
-impl Reckon for List {
     fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 1.gain(),
@@ -67,44 +64,3 @@ impl Reckon for List {
         }
     }
 }
-
-// impl Adapt for List {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.items.deal("items", deal)?;
-//         self.separator.deal("separator", deal)?;
-//         Ok(())
-//     }
-// }
-
-// fn set_at(&mut self, index: usize, hub: Hub) -> Result<Memo> {
-//     self.items[index] = hub;
-//     adapt_ok()
-// }
-
-// fn all(&self) -> Result<Gain> {
-//     let mut hubes = vec![self.separator.clone()];
-//     hubes.extend(self.items.clone());
-//     hubes.gain()
-// }
-// fn map(&self) -> Result<Gain> {
-//     let mut map = Map::new();
-//     map.insert("items", &self.items);
-//     map.insert("separator", &self.separator);
-//     map.gain()
-// }
-
-// impl Adapt for List {
-//     fn adapt(&mut self, post: Post) -> Result<Memo> {
-//         match post {
-//             Post::Trade(deal) => self.trade(deal),
-//             Post::SetAt(index, hub) => self.set_at(index, hub),
-//             _ => post.no_handler(self),
-//         }
-//     }
-// }
-
-// fn trade(&mut self, deal: &dyn Trade) -> Result<Memo> {
-//     self.items = self.items.deal(deal);
-//     self.separator = self.separator.deal(deal);
-//     adapt_ok()
-// }

@@ -153,16 +153,19 @@ where
     async fn solve(&mut self) -> Result<Hub<W::Base>> {
         self.work.solve().await
     }
-}
-
-impl<W> ReckonMut for Cusp<W>
-where
-    W: ReckonMut,
-{
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         self.work.reckon(task)
     }
 }
+
+// impl<W> ReckonMut for Cusp<W>
+// where
+//     W: ReckonMut,
+// {
+//     fn reckon(&mut self, task: Task) -> Result<Gain> {
+//         self.work.reckon(task)
+//     }
+// }
 
 impl<W> AdaptOut for Cusp<W>
 where

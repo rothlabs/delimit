@@ -58,5 +58,3 @@ impl Act for Vao {
         Ok(())
     }
 }
-
-impl Reckon for Vao {}

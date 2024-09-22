@@ -21,14 +21,6 @@ impl Tag {
     }
 }
 
-// impl Adapt for Tag {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.name.deal("name", deal)?;
-//         self.attributes.deal("attributes", deal)?;
-//         Ok(())
-//     }
-// }
-
 impl Solve for Tag {
     type Base = String;
     async fn solve(&self) -> Result<Hub<String>> {
@@ -44,9 +36,6 @@ impl Solve for Tag {
         self.attributes.deal("attributes", deal)?;
         Ok(())
     }
-}
-
-impl Reckon for Tag {
     fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),

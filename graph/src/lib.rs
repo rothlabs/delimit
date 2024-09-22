@@ -31,7 +31,7 @@ pub use react::{
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{
-    reckon_ok, solve_ok, Act, Gain, IntoGain, Reckon, ReckonMut, Solve, SolveMut, Task, SolveMid,
+    reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task, SolveMid,
 };
 pub use tray::Tray;
 pub use view::View;
@@ -146,10 +146,10 @@ pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
 
-pub trait Unit: Solve + Reckon + SendSync + Debug {}
+pub trait Unit: Solve + SendSync + Debug {}
 impl<T> Unit for T
 where
-    T: Solve + Reckon + SendSync + Debug,
+    T: Solve + SendSync + Debug,
     T::Base: Payload,
 {
 }

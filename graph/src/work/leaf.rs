@@ -98,12 +98,6 @@ where
     async fn solve(&mut self) -> Result<Hub<()>> {
         solve_ok()
     }
-}
-
-impl<T> ReckonMut for Leaf<T>
-where
-    T: 'static + Payload,
-{
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Serial => self.serial(),
@@ -127,23 +121,3 @@ impl<T> Clear for Leaf<T> {
         self.digest = None;
     }
 }
-
-// impl<T> Adapt for Leaf<T> {
-//     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-//         Ok(())
-//     }
-// }
-
-// impl<T> MakeMut for Leaf<T>
-// // where
-// //     U: Solve + Reckon,
-// {
-//     type Unit = T;
-//     fn make<F: FnOnce(&Back) -> Result<Self::Unit>>(
-//         &mut self,
-//         _: F,
-//         _: &Back,
-//     ) -> Result<Option<u64>> {
-//         Ok(None)
-//     }
-// }

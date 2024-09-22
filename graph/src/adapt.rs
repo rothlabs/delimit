@@ -1,17 +1,6 @@
 use super::*;
 use thiserror::Error;
 
-// pub trait Adapt {
-//     /// Alter an hub.
-//     /// Useful for inserting, removing, and more.
-//     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-//         Err(anyhow!("adapt not defined"))?
-//     }
-//     fn back(&mut self, _: &Back) -> Result<()>;// {
-//     //     Err(anyhow!("back not defined"))?
-//     // }
-// }
-
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]

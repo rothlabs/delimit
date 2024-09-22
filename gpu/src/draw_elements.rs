@@ -20,19 +20,11 @@ pub struct DrawElements {
 impl DrawElementsBuilder {
     pub fn make(self) -> Result<Node<DrawElements>> {
         self.build()?.node()
-        // let mut draw = self.build()?;
-        // Node::make(|back| {
-        //     draw.program = draw.program.backed(back)?;
-        //     draw.buffers = draw.buffers.backed(back)?;
-        //     draw.vao = draw.vao.backed(back)?;
-        //     draw.count = draw.count.backed(back)?;
-        //     draw.offset = draw.offset.backed(back)?;
-        //     Ok(draw)
-        // })
     }
 }
 
 impl DrawElements {
+    // TODO: Make it so this can be async!!!!
     fn draw(&self, vao: &Vao, count: i32, offset: i32) {
         vao.bind();
         self.gl
@@ -63,5 +55,3 @@ impl Act for DrawElements {
         Ok(())
     }
 }
-
-impl Reckon for DrawElements {}

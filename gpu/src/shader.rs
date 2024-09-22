@@ -20,17 +20,9 @@ impl Shader {
             .ok_or(anyhow!("failed to create shader"))?;
         Self {
             gl: gl.clone(),
-            source: source.clone(),//: source.backed(back)?,
+            source: source.clone(),
             object: shader,
         }.node()
-        // Node::make(|back| {
-        //     let unit = Self {
-        //         gl: gl.clone(),
-        //         source: source.backed(back)?,
-        //         object: shader,
-        //     };
-        //     Ok(unit)
-        // })
     }
 }
 
@@ -61,4 +53,3 @@ impl Act for Shader {
     }
 }
 
-impl Reckon for Shader {}

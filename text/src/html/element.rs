@@ -27,15 +27,6 @@ impl Element {
     }
 }
 
-// impl Adapt for Element {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.open.deal("open", deal)?;
-//         self.items.deal("items", deal)?;
-//         self.close.deal("close", deal)?;
-//         Ok(())
-//     }
-// }
-
 impl Solve for Element {
     type Base = String;
     async fn solve(&self) -> Result<Hub<String>> {
@@ -59,9 +50,6 @@ impl Solve for Element {
         self.close.deal("close", deal)?;
         Ok(())
     }
-}
-
-impl Reckon for Element {
     fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),

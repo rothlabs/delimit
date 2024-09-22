@@ -7,8 +7,6 @@ pub struct Canvas {
     gl: WGLRC,
 }
 
-// impl Adapt for Canvas {}
-
 impl Canvas {
     pub fn new() -> Node<Self> {
         let document = window().unwrap().document().unwrap();
@@ -24,8 +22,6 @@ impl Canvas {
             .dyn_into::<WGLRC>()
             .unwrap();
         Self { object, gl }.node().unwrap()
-        //Node::make(|_| Ok(Self { object, gl })).unwrap()
-        // Node::make(Self { object, gl }).unwrap()
     }
     pub fn gpu(&self) -> Gpu {
         self.gl.clone().into()
@@ -43,9 +39,6 @@ impl Canvas {
 }
 
 impl Act for Canvas {
-    // fn back(&mut self, _: &Back) -> Result<()> {
-    //     Ok(())
-    // }
     async fn act(&self) -> Result<()> {
         self.fit_size();
         self.gl.viewport(
@@ -57,5 +50,3 @@ impl Act for Canvas {
         Ok(())
     }
 }
-
-impl Reckon for Canvas {}

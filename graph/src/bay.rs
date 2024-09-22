@@ -16,14 +16,6 @@ impl Bay {
     }
 }
 
-// impl Adapt for Bay {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.map.deal(deal)?;
-//         Ok(())
-//     }
-// }
-
-// #[async_trait]
 impl Solve for Bay {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
@@ -33,9 +25,6 @@ impl Solve for Bay {
         self.map.deal(deal)?;
         Ok(())
     }
-}
-
-impl Reckon for Bay {
     fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Digest(state) => self.digest(state),

@@ -27,15 +27,6 @@ pub struct VertexAttribute {
 impl VertexAttributeBuilder {
     pub fn make(self) -> Result<Node<VertexAttribute>> {
         self.build()?.node()
-        // let mut attrib = self.build()?;
-        // Node::make(|back| {
-        //     attrib.index = attrib.index.backed(back)?;
-        //     attrib.size = attrib.size.backed(back)?;
-        //     attrib.stride = attrib.stride.backed(back)?;
-        //     attrib.offset = attrib.offset.backed(back)?;
-        //     attrib.divisor = attrib.divisor.backed(back)?;
-        //     Ok(attrib)
-        // })
     }
 }
 
@@ -68,5 +59,3 @@ impl Act for VertexAttribute {
         Ok(())
     }
 }
-
-impl Reckon for VertexAttribute {}

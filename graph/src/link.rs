@@ -42,6 +42,18 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
+impl<U: 'static + Unit> Node<U> {
+    pub fn hub(self) -> Hub<U::Base> {
+        self.into()
+    }
+}
+
+impl<T: Payload> Leaf<T> {
+    pub fn hub(self) -> Hub<T> {
+        self.into()
+    }
+}
+
 impl<E: ?Sized> Link<E> {
     pub fn pathed(&self, path: Path) -> Self {
         Self {
@@ -70,7 +82,7 @@ where
 
 impl<E: ?Sized> Hash for Link<E>
 where
-    Self: Solve + Reckon,
+    Self: Solve,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
@@ -83,7 +95,7 @@ where
 
 impl<E: ?Sized> Serialize for Link<E>
 where
-    Self: Solve + Reckon,
+    Self: Solve,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -107,6 +119,7 @@ where
         Self {
             path: None,
             rank: None,
+            // TODO: find way to keep edge pointer function in edge file
             edge: edge_pointer(E::new(base)),
         }
     }
@@ -167,18 +180,6 @@ where
             path: self.path.clone(),
             rank: self.rank,
         }
-    }
-}
-
-impl<U: 'static + Unit> Node<U> {
-    pub fn hub(self) -> Hub<U::Base> {
-        self.into()
-    }
-}
-
-impl<T: Payload> Leaf<T> {
-    pub fn hub(self) -> Hub<T> {
-        self.into()
     }
 }
 
@@ -280,12 +281,6 @@ where
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
     }
-}
-
-impl<E: ?Sized> Reckon for Link<E>
-where
-    E: 'static + Reckon + AddRoot + Update,
-{
     fn reckon(&self, task: Task) -> Result<Gain> {
         read_part(&self.edge, |edge| edge.reckon(task))?
     }
@@ -298,6 +293,9 @@ where
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
+    }
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        read_part(&self.edge, |edge| edge.reckon(task))?
     }
 }
 
@@ -364,25 +362,3 @@ where
         }
     }
 }
-
-// impl<E> Link<E>
-// where
-//     E: 'static + Update,
-// {
-//     #[cfg(not(feature = "oneThread"))]
-//     pub fn as_root(&self, id: Id) -> Root {
-//         let edge = self.edge.clone() as Arc<RwLock<dyn Update>>;
-//         Root {
-//             edge: Arc::downgrade(&edge),
-//             id,
-//         }
-//     }
-//     #[cfg(feature = "oneThread")]
-//     pub fn as_root(&self, id: Id) -> Root {
-//         let edge = self.edge.clone() as Rc<RefCell<dyn Update>>;
-//         Root {
-//             edge: Rc::downgrade(&edge),
-//             id,
-//         }
-//     }
-// }

@@ -7,8 +7,9 @@ use crate::*;
 /// The solved Gain is kept to be returned on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
-pub struct Node<U: Solve>
+pub struct Node<U>
 where
+    U: Solve,
     U::Base: 'static + Payload,
 {
     imports: Vec<Import>,
@@ -20,7 +21,7 @@ where
 
 impl<U> Node<U>
 where
-    U: Solve + Reckon,
+    U: Solve,
 {
     fn rank(&self) -> Option<u64> {
         if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
@@ -74,12 +75,6 @@ where
     fn back(&mut self, back: &Back) -> Result<()> {
         self.unit.back(back)
     }
-}
-
-impl<U> ReckonMut for Node<U>
-where
-    U: Solve + Reckon,
-{
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Hash => self.digest(),
@@ -90,9 +85,23 @@ where
     }
 }
 
+// impl<U> ReckonMut for Node<U>
+// where
+//     U: Solve,
+// {
+//     fn reckon(&mut self, task: Task) -> Result<Gain> {
+//         match task {
+//             Task::Hash => self.digest(),
+//             Task::Serial => self.serial(),
+//             Task::Imports => self.imports.gain(),
+//             _ => self.unit.reckon(task),
+//         }
+//     }
+// }
+
 impl<U> WorkFromSnap for Node<U>
 where
-    U: Solve + Reckon,
+    U: Solve,
 {
     type Unit = U;
     fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
@@ -155,7 +164,7 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<U> ReactMut for Node<U>
 where
-    U: Solve + Reckon + SendSync,
+    U: Solve + SendSync,
     U::Base: Payload,
 {
     async fn react(&mut self, _: &Id) -> Result<()> {
@@ -167,16 +176,3 @@ where
         }
     }
 }
-
-// impl<U> Adapt for Node<U>
-// where
-//     U: Solve,
-//     U::Base: Payload,
-// {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.unit.adapt(deal)
-//     }
-//     fn back(&mut self, back: &Back) -> Result<()> {
-//         self.unit.back(back)
-//     }
-// }

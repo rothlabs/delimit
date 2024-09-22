@@ -75,7 +75,6 @@ impl Act for Program {
     }
 }
 
-impl Reckon for Program {}
 
 // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
 // let outputs = Array::from_iter(outs.into_iter());

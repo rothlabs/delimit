@@ -214,7 +214,6 @@ impl Act for Particles {
     }
 }
 
-impl Reckon for Particles {}
 
 pub const PARTICLES: &str = r"#version 300 es
 layout(location = 0) in vec2 pos;

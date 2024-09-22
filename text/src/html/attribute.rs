@@ -21,14 +21,6 @@ impl Attribute {
     }
 }
 
-// impl Adapt for Attribute {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.name.deal("name", deal)?;
-//         self.content.deal("content", deal)?;
-//         Ok(())
-//     }
-// }
-
 impl Solve for Attribute {
     type Base = String;
     async fn solve(&self) -> Result<Hub<String>> {
@@ -44,9 +36,6 @@ impl Solve for Attribute {
         self.content.deal("content", deal)?;
         Ok(())
     }
-}
-
-impl Reckon for Attribute {
     fn reckon(&self, task: Task) -> Result<Gain> {
         match task {
             Task::Rank => 2.gain(),
@@ -57,6 +46,7 @@ impl Reckon for Attribute {
         }
     }
 }
+
 
 pub const ID: &str = "id";
 pub const LANG: &str = "lang";

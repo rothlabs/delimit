@@ -18,13 +18,6 @@ impl BufferInBuilder {
     }
 }
 
-// impl Adapt for BufferIn {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.size.deal("size", deal)?;
-//         Ok(())
-//     }
-// }
-
 impl Solve for BufferIn {
     type Base = Vf32;
     fn back(&mut self, back: &Back) -> Result<()> {
@@ -68,7 +61,6 @@ fn poll(gl: WGLRC, sync: WebGlSync, resolve: Function) {
     }
 }
 
-impl Reckon for BufferIn {}
 
 // impl BufferIn {
 //     fn poll(&self) -> Result<()> {

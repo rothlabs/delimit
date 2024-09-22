@@ -9,8 +9,6 @@ use thiserror::Error;
 mod gain;
 mod task;
 
-// pub type Result = result::Result<Gain, crate::Error>;
-
 // #[async_trait]
 pub trait Solve {
     type Base: 'static + Payload;
@@ -21,12 +19,14 @@ pub trait Solve {
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
     #[cfg(feature = "oneThread")]
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>>;
+    fn reckon(&self, _: Task) -> Result<Gain> {
+        Err(anyhow!("reckon not defined"))?
+    }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("adapt not defined"))?
     }
     fn back(&mut self, _: &Back) -> Result<()> {
-        Ok(())
-        //Err(anyhow!("back not defined"))?
+        Err(anyhow!("back not defined"))?
     }
 }
 
@@ -35,12 +35,6 @@ pub trait Solve {
 pub trait SolveMid {
     type Base: Payload;
     async fn solve(&self) -> Result<Hub<Self::Base>>;
-}
-
-pub trait Reckon {
-    fn reckon(&self, _: Task) -> Result<Gain> {
-        reckon_ok()
-    }
 }
 
 #[derive(Error, Debug)]
@@ -77,20 +71,23 @@ pub trait Act {
     fn act(&self) -> impl std::future::Future<Output = Result<()>>;
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
-        // Err(anyhow!("back not defined"))?
+    }
+    fn reckon(&self, _: Task) -> Result<Gain> {
+        Err(anyhow!("reckon not defined"))?
     }
 }
 
-// #[async_trait]
 impl<A: Act + SendSync> Solve for A {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
-        //fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send {
         self.act().await?;
         solve_ok()
     }
     fn back(&mut self, back: &Back) -> Result<()> {
         self.back(back)
+    }
+    fn reckon(&self, task: Task) -> Result<Gain> {
+        self.reckon(task)
     }
 }
 
@@ -106,11 +103,14 @@ pub trait SolveMut {
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
+    fn reckon(&mut self, _: Task) -> Result<Gain> {
+        Err(anyhow!("reckon not defined"))?
+    }
 }
 
-pub trait ReckonMut {
-    fn reckon(&mut self, task: Task) -> Result<Gain>;
-}
+// pub trait ReckonMut {
+//     fn reckon(&mut self, task: Task) -> Result<Gain>;
+// }
 
 // // #[async_trait]
 // pub trait SolveMut {

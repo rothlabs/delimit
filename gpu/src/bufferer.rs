@@ -7,21 +7,9 @@ pub struct Bufferer {
     array: Apex,
 }
 
-// impl Adapt for Bufferer {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.array = self.array.backed(&deal.back()?)?;
-//         Ok(())
-//     }
-// }
-
 impl BuffererBuilder {
     pub fn make(self) -> Result<Node<Bufferer>> {
         self.build()?.node()
-        // let mut buffer = self.build()?;
-        // Node::make(|back| {
-        //     buffer.array = buffer.array.backed(back)?;
-        //     Ok(buffer)
-        // })
     }
 }
 
@@ -69,5 +57,3 @@ impl Act for Bufferer {
         Ok(())
     }
 }
-
-impl Reckon for Bufferer {}
