@@ -114,7 +114,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Default + FromSnap + Update + SetRoot,
+    E: 'static + FromSnap + Update + SetRoot,
 {
     pub fn from_unit(unit: E::Unit) -> Result<Self> {
         let (rank, edge) = E::from_snap(unit.into())?;
@@ -126,26 +126,9 @@ where
     }
 }
 
-// impl<E> Link<E>
-// where
-//     E: Make + SetRoot,
-// {
-//     pub fn make<F>(make: F) -> Result<Self> 
-//     where 
-//         F: FnOnce(&Back) -> Result<E::Unit>
-//     {
-//         let (rank, edge) = E::make(make)?;
-//         Ok(Self {
-//             path: None,
-//             rank,
-//             edge,
-//         })
-//     }
-// }
-
 impl<E> Link<E>
 where
-    E: 'static + Default + FromSnap + Engage,
+    E: 'static + FromSnap + Engage,
 {
     // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {

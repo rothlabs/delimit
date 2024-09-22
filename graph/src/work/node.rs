@@ -12,7 +12,7 @@ where
     U::Base: 'static + Payload,
 {
     imports: Vec<Import>,
-    unit: Option<U>,
+    unit: U,
     main: Option<Hub<U::Base>>,
     digest: Option<Gain>,
     serial: Option<Gain>,
@@ -27,7 +27,7 @@ where
         if let Some(main) = &self.main {
             Ok(main.clone())
         } else {
-            let main = self.unit.as_ref().unwrap().solve().await?;
+            let main = self.unit.solve().await?;
             self.main = Some(main.clone());
             Ok(main)
         }
@@ -44,8 +44,7 @@ where
         } else {
             let mut state = UnitHasher::default();
             self.imports.hash(&mut state);
-            let unit = self.unit.as_ref().unwrap();
-            let digest = unit.reckon(Task::Digest(&mut state))?;
+            let digest = self.unit.reckon(Task::Digest(&mut state))?;
             self.digest = Some(digest.clone());
             Ok(digest)
         }
@@ -54,8 +53,7 @@ where
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
-            let unit = self.unit.as_ref().unwrap();
-            let serial = unit.reckon(Task::Serial)?;
+            let serial = self.unit.reckon(Task::Serial)?;
             self.serial = Some(serial.clone());
             Ok(serial)
         }
@@ -84,26 +82,26 @@ where
             Task::Hash => self.digest(),
             Task::Serial => self.serial(),
             Task::Imports => self.imports.gain(),
-            _ => self.unit.as_ref().unwrap().reckon(task),
+            _ => self.unit.reckon(task),
         }
     }
 }
 
-impl<U> Default for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
-    fn default() -> Self {
-        Self {
-            imports: vec![],
-            unit: None,
-            main: None,
-            digest: None,
-            serial: None,
-        }
-    }
-}
+// impl<U> Default for Node<U>
+// where
+//     U: Solve,
+//     U::Base: Payload,
+// {
+//     fn default() -> Self {
+//         Self {
+//             imports: vec![],
+//             unit: None,
+//             main: None,
+//             digest: None,
+//             serial: None,
+//         }
+//     }
+// }
 
 fn unit_rank<U: Reckon>(unit: &U) -> Option<u64> {
     if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
@@ -121,32 +119,15 @@ where
     fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
         let rank = unit_rank(&snap.unit);
         let node = Self {
-            unit: Some(snap.unit),
+            unit: snap.unit,
             imports: snap.imports,
-            ..Default::default()
+            main: None,
+            digest: None,
+            serial: None,
         };
         (rank, node)
     }
 }
-
-// impl<U> InitWork for Node<U> 
-// where
-//     U: Solve + Reckon,
-// {
-//     type Unit = U;
-//     fn init<F>(&mut self, back: Back, init: F) -> Result<Option<u64>>
-//         where 
-//             F: FnOnce(&Back) -> Result<Self::Unit> {
-//         let unit = init(&back)?;
-//         let rank = if let Ok(Gain::U64(rank)) = unit.reckon(Task::Rank) {
-//             Some(rank)
-//         } else {
-//             None
-//         };
-//         self.unit = Some(unit);
-//         Ok(rank)
-//     }
-// }
 
 impl<U> ToItem for Node<U>
 where
@@ -155,7 +136,7 @@ where
 {
     type Item = U;
     fn item(&self) -> &Self::Item {
-        self.unit.as_ref().unwrap()
+        &self.unit
     }
 }
 
@@ -183,7 +164,7 @@ where
         back: &Back,
     ) -> Result<T> {
         let out = write(&mut Pack {
-            unit: self.unit.as_mut().unwrap(),
+            unit: &mut self.unit,
             back,
         });
         // TODO: remove this because clear should happen from Rebut?!
@@ -202,7 +183,7 @@ where
     async fn react(&mut self, _: &Id) -> Result<()> {
         // self.unit.as_ref().unwrap().reckon(Task::React)?;
         // Ok(())
-        match self.unit.as_ref().unwrap().solve().await {
+        match self.unit.solve().await {
             Ok(_) => Ok(()),
             Err(err) => Err(err),
         }
@@ -215,9 +196,9 @@ where
     U::Base: Payload,
 {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.unit.as_mut().unwrap().adapt(deal)
+        self.unit.adapt(deal)
     }
     fn back(&mut self, back: &Back) -> Result<()> {
-        self.unit.as_mut().unwrap().back(back)
+        self.unit.back(back)
     }
 }

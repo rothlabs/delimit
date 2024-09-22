@@ -16,19 +16,19 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-impl<W> Default for Cusp<W>
-where
-    W: Default,
-{
-    fn default() -> Self {
-        Self {
-            id: rand::random(),
-            ring: Ring::new(),
-            work: W::default(),
-            back: None,
-        }
-    }
-}
+// impl<W> Default for Cusp<W>
+// where
+//     W: Default,
+// {
+//     fn default() -> Self {
+//         Self {
+//             id: rand::random(),
+//             ring: Ring::new(),
+//             work: W::default(),
+//             back: None,
+//         }
+//     }
+// }
 
 impl<W> ToId for Cusp<W> {
     fn id(&self) -> Id {
@@ -44,8 +44,8 @@ where
     fn new(item: Self::Item) -> Self {
         Self {
             id: rand::random(),
-            ring: Ring::new(),
             work: W::new(item),
+            ring: Ring::new(),
             back: None,
         }
     }
@@ -53,37 +53,21 @@ where
 
 impl<W> FromSnap for Cusp<W> 
 where 
-    W: 'static + WorkFromSnap + Default + Clear + ReactMut + Adapt + SendSync,
+    W: 'static + WorkFromSnap + Clear + ReactMut + Adapt + SendSync,
 {
     type Unit = W::Unit;
     fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
         let (rank, work) = W::from_snap(snap);
         let (cusp, back) = cusp_pointer(Self {
+            id: rand::random(),
             work,
-            ..Self::default()
+            ring: Ring::new(),
+            back: None,
         });
         write_part(&cusp, |mut cusp| cusp.set_back(back))??;
         Ok((rank, cusp))
     }
 }
-
-// impl<W> Make for Cusp<W> 
-// where 
-//     W: 'static + InitWork + Default + ReactMut + Clear + SendSync,
-// {
-//     type Unit = W::Unit;
-//     fn make<F>(make: F) -> Result<(Option<u64>, Pointer<Self>)>
-//         where
-//             F: FnOnce(&Back) -> Result<Self::Unit> {
-//         let (cusp, back) = cusp_pointer(Self::default());
-//         let rank = write_part(&cusp, |mut cusp| {
-//             let rank = cusp.work.init(back.clone(), make);
-//             cusp.back = Some(back);
-//             rank
-//         })??;
-//         Ok((rank, cusp))
-//     }
-// }
 
 impl<W: Adapt> SetBack for Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
