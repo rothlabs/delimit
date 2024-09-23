@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 pub use leaf::*;
 
 use super::*;
@@ -293,8 +292,6 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E: ?Sized> Adapt for Link<E>
 where
     E: 'static + Adapt + Update,
@@ -302,8 +299,10 @@ where
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?
     }
-    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>> {
+        Box::pin(async move {
+            read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+        })
     }
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         read_part(&self.edge, |edge| edge.transient_set(deal))?

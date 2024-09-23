@@ -13,13 +13,11 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait Adapt {
     /// For graph internals to handle alter calls
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
     /// For graph internals to handle alter calls
-    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()>;
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>>;
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
 }
 
@@ -27,13 +25,3 @@ pub trait AdaptMut {
     fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()>;
     fn adapt_set(&mut self, deal: &mut dyn Deal) -> Result<Ring>;
 }
-
-// pub trait AdaptGetMut {
-//     fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()>;
-// }
-
-// pub trait AdaptGet {
-//     /// For graph internals to handle alter calls
-//     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
-//     fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()>;
-// }

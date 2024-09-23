@@ -80,8 +80,8 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Adapt for Edge<C>
 where
     C: AdaptMut + UpdateMut + AddRoot,
@@ -92,9 +92,11 @@ where
             cusp.adapt_get(deal)
         })?
     }
-    async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        let ring = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
-        ring.react().await
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>> {
+        Box::pin(async move {
+            let ring = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
+            ring.react().await
+        })
     }
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))?
@@ -220,7 +222,7 @@ where
     async fn react(&self) -> Result<()> {
         write_part_async(&self.cusp, |mut cusp| async move {
             cusp.add_root(&self.root);
-            cusp.react().await
+            cusp.react_mut().await
         })?
         .await
     }

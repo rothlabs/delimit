@@ -62,7 +62,7 @@ impl<T> BaseMut for Leaf<T> {
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T: SendSync> ReactMut for Leaf<T> {
-    async fn react(&mut self) -> Result<()> {
+    async fn react_mut(&mut self) -> Result<()> {
         Ok(())
     }
 }

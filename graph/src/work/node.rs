@@ -133,8 +133,8 @@ impl<U> ReactMut for Node<U>
 where
     U: Solve + SendSync,
 {
-    async fn react(&mut self) -> Result<()> {
-        match self.unit.solve().await {
+    async fn react_mut(&mut self) -> Result<()> {
+        match self.solve().await {
             Ok(_) => Ok(()),
             Err(err) => Err(err),
         }
