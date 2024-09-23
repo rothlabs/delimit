@@ -144,13 +144,17 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<C, T> WriteBase<T> for Edge<C>
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl<C> WriteBase for Edge<C>
 where
-    C: WriteBaseOut<T> + SendSync,
+    C: WriteBaseOut + SendSync,
 {
-    async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
+    type Base = C::Base;
+    async fn write<O, F>(&self, write: F) -> Result<O>
+    where
+        F: FnOnce(&mut C::Base) -> O,
+    {
         let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         ring.react().await?;
         Ok(out)
@@ -161,13 +165,12 @@ where
 // #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> WriteUnit for Edge<C>
 where
-    C: 'static + WriteUnitOut + UpdateMut,
+    C: WriteUnitOut + UpdateMut,
 {
     type Unit = C::Unit;
     async fn write<O, F>(&self, write: F) -> Result<O>
     where
-        O: SendSync,
-        F: FnOnce(&mut Pack<C::Unit>) -> O + SendSync,
+        F: FnOnce(&mut Pack<C::Unit>) -> O,
     {
         let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         ring.react().await?;

@@ -50,7 +50,8 @@ impl<T> ToItem for Leaf<T> {
     }
 }
 
-impl<T> BaseMut<T> for Leaf<T> {
+impl<T> BaseMut for Leaf<T> {
+    type Base = T;
     fn base(&mut self) -> &mut T {
         // TODO: do I need to clear here?
         // self.clear();

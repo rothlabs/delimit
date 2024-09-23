@@ -309,8 +309,9 @@ pub trait ToItem {
     fn item(&self) -> &Self::Item;
 }
 
-pub trait BaseMut<T> {
-    fn base(&mut self) -> &mut T;
+pub trait BaseMut {
+    type Base;
+    fn base(&mut self) -> &mut Self::Base;
 }
 
 pub trait Read {

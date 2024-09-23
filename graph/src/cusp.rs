@@ -57,11 +57,12 @@ impl<W: SolveMut> Cusp<W> {
     }
 }
 
-impl<W, T> WriteBaseOut<T> for Cusp<W>
+impl<W> WriteBaseOut for Cusp<W>
 where
-    W: BaseMut<T> + Clear,
+    W: BaseMut + Clear,
 {
-    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<(Ring, O)> {
+    type Base = W::Base;
+    fn write_base_out<O, F: FnOnce(&mut W::Base) -> O>(&mut self, write: F) -> Result<(Ring, O)> {
         self.work.clear();
         let ring = self.ring.root_rebut()?;
         let out = write(self.work.base());

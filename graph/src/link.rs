@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-// use async_trait::async_trait;
 pub use leaf::*;
 
 use super::*;
@@ -229,33 +228,40 @@ where
     E: 'static + Read + Update,
 {
     /// Read payload of Link.
-    pub fn read<O, F: FnOnce(&E::Item) -> O>(&self, read: F) -> Result<O> {
+    pub fn read<O, F>(&self, read: F) -> Result<O> 
+    where 
+        F: FnOnce(&E::Item) -> O
+    {
         read_part(&self.edge, |edge| edge.read(read))?
-    }
-}
-
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<E, T> WriteBase<T> for Link<E>
-where
-    E: WriteBase<T> + SendSync,
-{
-    async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
-        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
 
 // #[cfg_attr(not(feature = "oneThread"), async_trait)]
 // #[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl<E> WriteBase for Link<E>
+where
+    E: WriteBase + SendSync,
+{
+    type Base = E::Base;
+    async fn write<O, F>(&self, write: F) -> Result<O>
+    where
+        O: IsSend,
+        F: FnOnce(&mut E::Base) -> O + IsSend,
+    {
+        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
+    }
+}
+
 impl<E> WriteUnit for Link<E>
 where
     E: WriteUnit + SendSync,
 {
     type Unit = E::Unit;
-    async fn write<O: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> O + SendSync>(
-        &self,
-        write: F,
-    ) -> Result<O> {
+    async fn write<O, F>(&self, write: F) -> Result<O>
+    where
+        O: IsSend,
+        F: FnOnce(&mut Pack<Self::Unit>) -> O + IsSend,
+    {
         read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
