@@ -29,8 +29,6 @@ impl Apex {
         ring.react().await
     }
     fn saturate(&self, world: &Space, local: &Space, ring: &mut Ring) -> Result<()> {
-        // TODO: use adapt_set but does not need to be async because does not need to react?
-        // need special adapt_set where I can collect items to react when everything is done being set
         ring.extend(self.transient_set(&mut Scope {
             world,
             local,
@@ -180,24 +178,3 @@ impl Backed for Apex {
         Ok(apex)
     }
 }
-
-// pub fn path(&self) -> Option<&Path> {
-//     match self {
-//         Self::Void(x) => x.path(),
-//         Self::String(x) => x.path(),
-//         Self::U8(x) => x.path(),
-//         Self::Vu8(x) => x.path(),
-//         Self::Vu16(x) => x.path(),
-//         Self::Vf32(x) => x.path(),
-//     }
-// }
-
-// pub trait ToApex {
-//     fn apex(&self) -> Apex;
-// }
-
-// impl<T: ToApex> ToApex for Vec<T> {
-//     fn apex(&self) -> Apex {
-//         self.iter().map(|x| x.apex()).collect()
-//     }
-// }
