@@ -76,15 +76,14 @@ impl Act for DrawArrays {
         }
         Ok(())
     }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.program = self.program.backed(back)?;
-        self.vao = self.vao.backed(back)?;
-        self.first = self.first.backed(back)?;
-        self.count = self.count.backed(back)?;
-        self.instances = self.instances.backed(back)?;
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.program.back(back)?;
+        self.vao.back(back)?;
+        self.first.back(back)?;
+        self.count.back(back)?;
+        self.instances.back(back)?;
         // TODO: replace writers and tick with generic Hub<()>
-        self.writers = self.writers.backed(back)?;
-        self.tick = self.tick.backed(back)?;
-        Ok(())
+        self.writers.back(back)?;
+        self.tick.back(back)
     }
 }

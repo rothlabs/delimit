@@ -196,7 +196,7 @@ impl ParticlesBuilder {
 }
 
 impl Act for Particles {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn backed(&mut self, back: &Back) -> Result<()> {
         self.tick = self.tick.backed(back)?;
         Ok(())
     }

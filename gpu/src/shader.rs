@@ -28,10 +28,6 @@ impl Shader {
 }
 
 impl Act for Shader {
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.source = self.source.backed(back)?;
-        Ok(())
-    }
     async fn act(&self) -> Result<()> {
         self.source
             .read(|src| self.gl.shader_source(&self.object, src))
@@ -51,5 +47,8 @@ impl Act for Shader {
                 .unwrap_or("failed to get shader info log".into());
             Err(anyhow!(memo))?
         }
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.source.back(back)
     }
 }

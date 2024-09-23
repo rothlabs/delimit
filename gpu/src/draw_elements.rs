@@ -46,12 +46,11 @@ impl Act for DrawElements {
         self.vao.read(|vao| self.draw(vao, count, offset))?;
         Ok(())
     }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.program = self.program.backed(back)?;
-        self.buffers = self.buffers.backed(back)?;
-        self.vao = self.vao.backed(back)?;
-        self.count = self.count.backed(back)?;
-        self.offset = self.offset.backed(back)?;
-        Ok(())
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.program.back(back)?;
+        self.buffers.back(back)?;
+        self.vao.back(back)?;
+        self.count.back(back)?;
+        self.offset.back(back)
     }
 }

@@ -41,11 +41,6 @@ impl Program {
 }
 
 impl Act for Program {
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.vertex = self.vertex.backed(back)?;
-        self.fragment = self.fragment.backed(back)?;
-        Ok(())
-    }
     async fn act(&self) -> Result<()> {
         self.vertex.act().await?;
         self.fragment.act().await?;
@@ -72,6 +67,10 @@ impl Act for Program {
                 .unwrap_or("failed to get program info log".into());
             Err(anyhow!(memo))?
         }
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.vertex.back(back)?;
+        self.fragment.back(back)
     }
 }
 

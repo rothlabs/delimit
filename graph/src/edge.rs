@@ -212,7 +212,7 @@ where
         Box::pin(async move {
             write_part_async(&self.cusp, |mut cusp| async move {
                 cusp.add_root(&self.root);
-                cusp.react_mut().await
+                cusp.react().await
             })?
             .await
         })

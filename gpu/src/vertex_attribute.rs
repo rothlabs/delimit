@@ -31,14 +31,6 @@ impl VertexAttributeBuilder {
 }
 
 impl Act for VertexAttribute {
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.index = self.index.backed(back)?;
-        self.size = self.size.backed(back)?;
-        self.stride = self.stride.backed(back)?;
-        self.offset = self.offset.backed(back)?;
-        self.divisor = self.divisor.backed(back)?;
-        Ok(())
-    }
     async fn act(&self) -> Result<()> {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();
@@ -57,5 +49,12 @@ impl Act for VertexAttribute {
         self.buffer.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
         Ok(())
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.index.back(back)?;
+        self.size.back(back)?;
+        self.stride.back(back)?;
+        self.offset.back(back)?;
+        self.divisor.back(back)
     }
 }

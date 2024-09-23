@@ -9,11 +9,8 @@ pub struct Leaf<T> {
 }
 
 impl<T: Payload> Leaf<T> {
-    pub fn new(tray: T) -> Self {
-        Self {
-            base: tray,
-            digest: None,
-        }
+    pub fn new(base: T) -> Self {
+        Self { base, digest: None }
     }
     pub fn hub(self) -> Hub<T> {
         Hub::Leaf(link::Leaf::new(self.base))
@@ -55,17 +52,8 @@ impl<T> BaseMut for Leaf<T> {
     }
 }
 
-impl<T> ReactMut for Leaf<T> {
-    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
-        Box::pin(async move { Ok(()) })
-    }
-}
-
 impl<T: Payload> SolveMut for Leaf<T> {
     type Base = ();
-    // fn solve<'a>(&'a mut self) -> Result<Hub<()>> {
-    //     solve_ok()
-    // }
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Serial => self.serial(),
@@ -80,3 +68,5 @@ impl<T> Clear for Leaf<T> {
         self.digest = None;
     }
 }
+
+impl<T> ReactMut for Leaf<T> {}

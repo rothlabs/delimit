@@ -25,7 +25,9 @@ pub trait React {
 
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>>;
+    fn react(&mut self) -> GraphFuture<Result<()>> {
+        Box::pin(async move { Ok(()) })
+    }
 }
 
 pub trait AddRoot {
@@ -136,7 +138,7 @@ impl Back {
     }
     pub async fn react(&self) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part_async(&cusp, |mut cusp| async move { cusp.react_mut().await })?.await
+            write_part_async(&cusp, |mut cusp| async move { cusp.react().await })?.await
         } else {
             Ok(())
         }

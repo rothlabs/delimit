@@ -13,17 +13,14 @@ pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    #[cfg(not(feature = "oneThread"))]
-    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + Send;
-    #[cfg(feature = "oneThread")]
-    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>>;
+    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend;
     fn reckon(&self, _: Task) -> Result<Gain> {
         Err(anyhow!("reckon not defined"))?
     }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("adapt not defined"))?
     }
-    fn back(&mut self, _: &Back) -> Result<()> {
+    fn backed(&mut self, _: &Back) -> Result<()> {
         Err(anyhow!("back not defined"))?
     }
 }
@@ -56,11 +53,8 @@ where
 }
 
 pub trait Act {
-    #[cfg(not(feature = "oneThread"))]
-    fn act(&self) -> impl std::future::Future<Output = Result<()>> + Send;
-    #[cfg(feature = "oneThread")]
-    fn act(&self) -> impl std::future::Future<Output = Result<()>>;
-    fn back(&mut self, _: &Back) -> Result<()> {
+    fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
+    fn backed(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
     fn reckon(&self, _: Task) -> Result<Gain> {
@@ -68,14 +62,14 @@ pub trait Act {
     }
 }
 
-impl<A: Act + SendSync> Solve for A {
+impl<T: Act + SendSync> Solve for T {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {
         self.act().await?;
         solve_ok()
     }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.back(back)
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.backed(back)
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         self.reckon(task)

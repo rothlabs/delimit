@@ -4,7 +4,6 @@ pub use base::{Vf32, Vf64};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
-use derive_builder::UninitializedFieldError;
 pub use edge::Edge;
 pub use hub::{DealItem, Hub, SolveDown};
 pub use lake::{Lake, Serial};
@@ -25,18 +24,9 @@ pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
-#[cfg(not(feature = "oneThread"))]
-use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use derive_builder::UninitializedFieldError;
 use scope::*;
 use serde::{Deserialize, Serialize};
-#[cfg(not(feature = "oneThread"))]
-use std::sync::Arc;
-// use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
-#[cfg(feature = "oneThread")]
-use std::{
-    cell::{Ref, RefCell, RefMut},
-    rc::Rc,
-};
 use std::{
     collections::HashMap,
     fmt::Debug,
@@ -45,6 +35,16 @@ use std::{
     pin::Pin,
 };
 use thiserror::Error;
+
+#[cfg(not(feature = "oneThread"))]
+use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+#[cfg(not(feature = "oneThread"))]
+use std::sync::Arc;
+#[cfg(feature = "oneThread")]
+use std::{
+    cell::{Ref, RefCell, RefMut},
+    rc::Rc,
+};
 
 pub mod adapt;
 pub mod hub;
@@ -73,9 +73,6 @@ mod tests;
 mod tray;
 mod view;
 mod view_vec;
-
-// #[cfg(feature = "oneThread")]
-// const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
@@ -263,7 +260,7 @@ where
 
 pub trait IntoPloy
 where
-    Self: Solve + Sized,
+    Self: Solve
 {
     fn ploy(self) -> Result<Ploy<Self::Base>>;
 }
@@ -283,11 +280,7 @@ pub trait IntoHub {
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
-impl<T> IntoHub for T
-where
-    T: IntoPloy,
-    T::Base: Payload,
-{
+impl<T: IntoPloy> IntoHub for T {
     type Base = T::Base;
     fn hub(self) -> Result<Hub<Self::Base>> {
         Ok(self.ploy()?.into())
@@ -339,3 +332,18 @@ pub trait WorkFromSnap {
 pub trait Clear {
     fn clear(&mut self);
 }
+
+pub trait BackIt {
+    fn back(&mut self, back: &Back) -> Result<()>;
+}
+
+impl<T: Backed> BackIt for T {
+    fn back(&mut self, back: &Back) -> Result<()> {
+        *self = self.backed(back)?;
+        Ok(())
+    }
+}
+
+// #[cfg(feature = "oneThread")]
+// const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
+

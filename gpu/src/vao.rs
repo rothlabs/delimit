@@ -42,10 +42,6 @@ impl Vao {
 }
 
 impl Act for Vao {
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.attributes = self.attributes.backed(back)?;
-        Ok(())
-    }
     async fn act(&self) -> Result<()> {
         self.bind();
         for attribute in &self.attributes {
@@ -56,5 +52,8 @@ impl Act for Vao {
         }
         self.unbind();
         Ok(())
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.attributes.back(back)
     }
 }

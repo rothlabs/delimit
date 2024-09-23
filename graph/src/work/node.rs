@@ -48,7 +48,7 @@ where
     U: Solve + IsSend,
 {
     type Base = U::Base;
-    fn solve<'a>(&'a mut self) -> GraphFuture<Result<Hub<U::Base>>> {
+    fn solve(&mut self) -> GraphFuture<Result<Hub<U::Base>>> {
         Box::pin(async move {
             if let Some(main) = &self.main {
                 Ok(main.clone())
@@ -63,7 +63,7 @@ where
         self.unit.adapt(deal)
     }
     fn back(&mut self, back: &Back) -> Result<()> {
-        self.unit.back(back)
+        self.unit.backed(back)
     }
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
@@ -121,7 +121,7 @@ impl<U> ReactMut for Node<U>
 where
     U: Solve + IsSend,
 {
-    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
+    fn react(&mut self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             match self.solve().await {
                 Ok(_) => Ok(()),

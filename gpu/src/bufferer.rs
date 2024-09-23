@@ -52,8 +52,7 @@ impl Act for Bufferer {
         self.buffer.unbind();
         Ok(())
     }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.array = self.array.backed(back)?;
-        Ok(())
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.array.back(back)
     }
 }

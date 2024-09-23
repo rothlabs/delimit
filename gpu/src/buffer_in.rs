@@ -20,10 +20,6 @@ impl BufferInBuilder {
 
 impl Solve for BufferIn {
     type Base = Vf32;
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.size = self.size.backed(back)?;
-        Ok(())
-    }
     async fn solve(&self) -> Result<Hub<Vf32>> {
         self.draw.act().await?;
         let sync = self
@@ -44,6 +40,9 @@ impl Solve for BufferIn {
             .get_buffer_sub_data_with_i32_and_array_buffer_view(WGLRC::ARRAY_BUFFER, 0, &view);
         self.buffer.unbind();
         Ok(array.leaf().hub())
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.size.back(back)
     }
 }
 

@@ -62,12 +62,6 @@ impl Texture {
 }
 
 impl Act for Texture {
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.array = self.array.backed(back)?;
-        self.width = self.width.backed(back)?;
-        self.height = self.height.backed(back)?;
-        Ok(())
-    }
     async fn act(&self) -> Result<()> {
         let width = self.width.base().await.unwrap_or_default();
         let height = self.height.base().await.unwrap_or_default();
@@ -80,6 +74,11 @@ impl Act for Texture {
             }
             _ => Err(anyhow!("wrong apex"))?,
         }
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.array.back(back)?;
+        self.width.back(back)?;
+        self.height.back(back)
     }
 }
 

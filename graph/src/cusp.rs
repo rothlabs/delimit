@@ -117,8 +117,8 @@ impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
 {
-    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
-        Box::pin(async move { self.work.react_mut().await })
+    fn react(&mut self) -> GraphFuture<Result<()>> {
+        Box::pin(async move { self.work.react().await })
     }
 }
 
