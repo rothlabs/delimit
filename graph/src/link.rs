@@ -210,7 +210,7 @@ impl<E: ?Sized> PartialEq for Link<E> {
 
 impl<E: ?Sized> Backed for Link<E>
 where
-    E: 'static + BackedMid + SetRoot + Update,
+    E: 'static + BackedMid + Update,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| Self {
@@ -238,7 +238,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Read + Update + AddRoot,
+    E: 'static + Read + Update
 {
     /// Read payload of Link.
     pub fn read<O, F: FnOnce(&E::Item) -> O>(&self, read: F) -> Result<O> {
@@ -274,7 +274,7 @@ where
 
 impl<E> Solve for Link<E>
 where
-    E: 'static + Solve + AddRoot + Update,
+    E: 'static + Solve + Update,
     E::Base: Payload,
 {
     type Base = E::Base;
@@ -301,7 +301,7 @@ where
 
 impl<E: ?Sized> AdaptGet for Link<E>
 where
-    E: 'static + AdaptGet + AddRoot + Update,
+    E: 'static + AdaptGet + Update
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| {
@@ -324,7 +324,7 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E: ?Sized> AdaptSet for Link<E>
 where
-    E: 'static + AdaptSet + AddRoot + Update,
+    E: 'static + AdaptSet + Update
 {
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part_async(&self.edge, |edge| async move {

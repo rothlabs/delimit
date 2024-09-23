@@ -112,9 +112,11 @@ where
     }
 }
 
-impl<W> AddRootMut for Cusp<W> {
-    fn add_root(&mut self, root: Root) {
-        self.ring.add_root(root);
+impl<W> AddRoot for Cusp<W> {
+    fn add_root(&mut self, root: Option<Root>) {
+        if let Some(root) = root {
+            self.ring.add_root(root);
+        }
     }
 }
 
@@ -157,15 +159,6 @@ where
         self.work.reckon(task)
     }
 }
-
-// impl<W> ReckonMut for Cusp<W>
-// where
-//     W: ReckonMut,
-// {
-//     fn reckon(&mut self, task: Task) -> Result<Gain> {
-//         self.work.reckon(task)
-//     }
-// }
 
 impl<W> AdaptOut for Cusp<W>
 where

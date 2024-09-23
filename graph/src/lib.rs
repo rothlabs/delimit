@@ -14,7 +14,6 @@ pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
 pub use ploy::{Based, Engage, Ploy, PloyEdge, ToPloy};
 pub use react::{
     AddRoot,
-    AddRootMut,
     Back,
     Backed,
     BackedMid,

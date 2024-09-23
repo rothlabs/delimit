@@ -38,13 +38,7 @@ pub trait ReactMut {
 pub trait AddRoot {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn add_root(&self, root: Root) -> Result<()>;
-}
-
-pub trait AddRootMut {
-    /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
-    /// so that the cusp will react if contents change.
-    fn add_root(&mut self, root: Root);
+    fn add_root(&mut self, root: Option<Root>);
 }
 
 pub trait Backed {

@@ -67,7 +67,7 @@ impl<C> SetRoot for Edge<C> {
 
 impl<C> FromSnap for Edge<C>
 where
-    C: 'static + FromSnap + UpdateMut + AddRootMut,
+    C: 'static + FromSnap + UpdateMut + AddRoot,
 {
     type Unit = C::Unit;
     fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
@@ -85,38 +85,31 @@ where
 
 impl<C> Solve for Edge<C>
 where
-    C: 'static + SolveMut + AddRootMut + SendSync,
+    C: SolveMut + AddRoot + SendSync,
     C::Base: Payload,
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            let out = cusp.solve().await;
-            if let Some(root) = self.root.clone() {
-                cusp.add_root(root);
-            }
-            out
+            cusp.add_root(self.root.clone());
+            cusp.solve().await
         })?
         .await
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
-        // should not need to add root
         write_part(&self.cusp, |mut cusp| {
+            cusp.add_root(self.root.clone());
             cusp.reckon(task)
-            // if let Some(root) = self.root.clone() {
-            //     cusp.add_root(root);
-            // }
-            // out
         })?
     }
 }
 
 impl<C> AdaptGet for Edge<C>
 where
-    C: 'static + AdaptOut + UpdateMut,
+    C: AdaptOut + UpdateMut,
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
+        let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         Ok(())
     }
 }
@@ -125,7 +118,7 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> AdaptSet for Edge<C>
 where
-    C: 'static + AdaptOut + UpdateMut,
+    C: AdaptOut + UpdateMut,
 {
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
@@ -142,21 +135,15 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + SendSync,
-    C: AdaptOut + AddRootMut + Debug,
-    C::Base: Payload,
+    C: 'static + SolveMut + UpdateMut + AdaptOut + AddRoot + Debug,
 {
     type Base = C::Base;
     
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            let out = cusp.solve().await;
-            if let Some(root) = self.root.clone() {
-                cusp.add_root(root);
-            }
-            out
-        })?
-        .await
+            cusp.add_root(self.root.clone());
+            cusp.solve().await
+        })?.await
     }
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         edge_pointer(Self {
@@ -167,18 +154,15 @@ where
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         write_part(&self.cusp, |mut cusp| {
+            cusp.add_root(self.root.clone());
             cusp.reckon(task)
-            // if let Some(root) = self.root.clone() {
-            //     cusp.add_root(root);
-            // }
-            // out
         })?
     }
 }
 
 impl<C> BackedMid for Edge<C> 
 where
-    C: 'static + ReactMut + AddRootMut + SendSync,
+    C: 'static + ReactMut + AddRoot + SendSync,
 {
     fn backed(&self, back: &Back) -> Pointer<Self> {
         edge_pointer(Self {
@@ -227,26 +211,14 @@ where
 
 impl<N> Read for Edge<N>
 where
-    N: ToItem + AddRootMut,
+    N: ToItem + AddRoot,
 {
     type Item = N::Item;
     fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
         write_part(&self.cusp, |mut cusp| {
-            let out = read(cusp.item());
-            if let Some(root) = self.root.clone() {
-                cusp.add_root(root);
-            }
-            out
+            cusp.add_root(self.root.clone());
+            read(cusp.item())
         })
-    }
-}
-
-impl<N> AddRoot for Edge<N>
-where
-    N: AddRootMut,
-{
-    fn add_root(&self, root: Root) -> Result<()> {
-        write_part(&self.cusp, |mut cusp| cusp.add_root(root))
     }
 }
 
@@ -271,26 +243,13 @@ impl<N> Rebut for Edge<N> {
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<N> React for Edge<N>
 where
-    N: ReactMut + AddRootMut + SendSync,
+    N: ReactMut + AddRoot + SendSync,
 {
     async fn react(&self, id: &Id) -> Result<()> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            let out = cusp.react(id).await;
-            if let Some(root) = self.root.clone() {
-                cusp.add_root(root);
-            }
-            out
+            cusp.add_root(self.root.clone());
+            cusp.react(id).await
         })?
         .await
     }
 }
-
-// impl<N> ToId for Edge<N> {
-//     fn id(&self) -> Id {
-//         if let Some(back) = &self.back {
-//             back.id
-//         } else {
-//             0
-//         }
-//     }
-// }
