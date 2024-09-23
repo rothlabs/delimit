@@ -148,22 +148,21 @@ where
 
     // /// Read tray of hub.
     // /// TODO: make trait that uses async_trait macro
-    // pub fn read<'a, O, F: FnOnce(&T) -> O + Send + 'a>(&'a self, read: F) -> Pin<Box<dyn Future<Output = Result<O>> + Send + 'a>> {
-    //     let out = async move {
-    //         match self {
-    //             Self::Tray(tray) => {
-    //                 if let Tray::Base(base) = tray {
-    //                     Ok(read(base))
-    //                 } else {
-    //                     Err(tray.wrong_variant("Base"))?
-    //                 }
-    //             }
-    //             Self::Leaf(leaf) => leaf.read(read),
-    //             Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-    //         }
-    //     };
-    //     Box::pin(out)
-    // }
+    pub fn read<'a, O, F: FnOnce(&T) -> O + 'a + IsSend>(&'a self, read: F) -> AsyncFuture<'a, Result<O>> {
+        Box::pin(async move {
+            match self {
+                Self::Tray(tray) => {
+                    if let Tray::Base(base) = tray {
+                        Ok(read(base))
+                    } else {
+                        Err(tray.wrong_variant("Base"))?
+                    }
+                }
+                Self::Leaf(leaf) => leaf.read(read),
+                Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
+            }
+        })
+    }
 
     // /// Base value. The graph is solved down to the base.
     // pub fn base<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a + Send>> {
@@ -181,26 +180,26 @@ where
     // }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> ReadDown<T> for Hub<T>
-where
-    T: 'static + Payload,
-{
-    async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O> {
-        match self {
-            Self::Tray(tray) => {
-                if let Tray::Base(base) = tray {
-                    Ok(read(base))
-                } else {
-                    Err(tray.wrong_variant("Base"))?
-                }
-            }
-            Self::Leaf(leaf) => leaf.read(read),
-            Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-        }
-    }
-}
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
+// impl<T> ReadDown<T> for Hub<T>
+// where
+//     T: 'static + Payload,
+// {
+//     async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O> {
+//         match self {
+//             Self::Tray(tray) => {
+//                 if let Tray::Base(base) = tray {
+//                     Ok(read(base))
+//                 } else {
+//                     Err(tray.wrong_variant("Base"))?
+//                 }
+//             }
+//             Self::Leaf(leaf) => leaf.read(read),
+//             Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
+//         }
+//     }
+// }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]

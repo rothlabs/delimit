@@ -50,9 +50,7 @@ use std::{
     rc::Rc,
 };
 use std::{
-    collections::HashMap,
-    fmt::Debug,
-    hash::{DefaultHasher, Hash, Hasher},
+    collections::HashMap, fmt::Debug, future::Future, hash::{DefaultHasher, Hash, Hasher}, pin::Pin
 };
 use thiserror::Error;
 
@@ -166,6 +164,11 @@ impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + Send
 pub type Pointer<T> = Arc<RwLock<T>>;
 #[cfg(feature = "oneThread")]
 pub type Pointer<T> = Rc<RefCell<T>>;
+
+#[cfg(not(feature = "oneThread"))]
+type AsyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+#[cfg(feature = "oneThread")]
+type AsyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
