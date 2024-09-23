@@ -119,8 +119,7 @@ where
         Self {
             path: None,
             rank: None,
-            // TODO: find way to keep edge pointer function in edge file
-            edge: edge_pointer(E::from_base(base)),
+            edge: E::from_base(base),
         }
     }
 }
@@ -143,10 +142,9 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Engage,
 {
-    // pub fn make_ploy<F: FnOnce(&Back) -> Result<E::Unit>>(make: F) -> Result<Ploy<E::Base>> {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
-        Ok(Link {
+        Ok(Ploy {
             path: None,
             rank,
             edge,
@@ -158,10 +156,9 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Engage,
 {
-    // TODO: add weak self to edge!!!
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(snap)?;
-        Ok(Link {
+        Ok(Ploy {
             path: None,
             rank,
             edge,
@@ -194,17 +191,12 @@ impl<E: ?Sized> Clone for Link<E> {
 }
 
 impl<E: ?Sized> PartialEq for Link<E> {
-    #[cfg(not(feature = "oneThread"))]
-    fn eq(&self, other: &Self) -> bool {
-        Arc::<RwLock<E>>::ptr_eq(&self.edge, &other.edge)
-            && self.path == other.path
-            && self.rank == other.rank
-    }
-    #[cfg(feature = "oneThread")]
-    fn eq(&self, other: &Self) -> bool {
-        Rc::<RefCell<E>>::ptr_eq(&self.edge, &other.edge)
-            && self.path == other.path
-            && self.rank == other.rank
+    fn eq(&self, rhs: &Self) -> bool {
+        #[cfg(not(feature = "oneThread"))]
+        let ptr_eq = Arc::<RwLock<E>>::ptr_eq(&self.edge, &rhs.edge);
+        #[cfg(feature = "oneThread")]
+        let ptr_eq = Rc::<RefCell<E>>::ptr_eq(&self.edge, &rhs.edge);
+        ptr_eq && self.path == rhs.path && self.rank == rhs.rank
     }
 }
 

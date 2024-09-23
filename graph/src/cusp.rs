@@ -15,14 +15,18 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-impl<W: FromBase> FromBase for Cusp<W> {
+impl<W> FromBase for Cusp<W> 
+where 
+    W: 'static + WorkFromBase + Clear + ReactMut + SendSync
+{
     type Base = W::Base;
-    fn from_base(base: W::Base) -> Self {
-        Self {
+    fn from_base(base: W::Base) -> Pointer<Self> {
+        let (cusp, _) = cusp_pointer(Self {
             work: W::from_base(base),
             ring: Ring::new(),
             back: None,
-        }
+        });
+        cusp
     }
 }
 

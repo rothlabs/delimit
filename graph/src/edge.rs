@@ -41,18 +41,26 @@ where
     }
 }
 
-impl<C: FromBase> FromBase for Edge<C> {
+impl<C> FromBase for Edge<C> 
+where 
+    C: 'static + FromBase + ReactMut + AddRoot + SendSync
+{
     type Base = C::Base;
-    fn from_base(base: C::Base) -> Self {
-        let cusp = C::from_base(base);
-        Self {
+    fn from_base(base: C::Base) -> Pointer<Self> {
+        edge_pointer(Self {
             root: None,
             back: None,
-            #[cfg(not(feature = "oneThread"))]
-            cusp: Arc::new(RwLock::new(cusp)),
-            #[cfg(feature = "oneThread")]
-            cusp: Rc::new(RefCell::new(cusp)),
-        }
+            cusp: C::from_base(base),
+        })
+        // let cusp = C::from_base(base);
+        // Self {
+        //     root: None,
+        //     back: None,
+        //     #[cfg(not(feature = "oneThread"))]
+        //     cusp: Arc::new(RwLock::new(cusp)),
+        //     #[cfg(feature = "oneThread")]
+        //     cusp: Rc::new(RefCell::new(cusp)),
+        // }
     }
 }
 
@@ -239,4 +247,34 @@ where
         })?
         .await
     }
+}
+
+#[cfg(not(feature = "oneThread"))]
+fn edge_pointer<T>(edge: T) -> Arc<RwLock<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Arc::new(RwLock::new(edge));
+    let update = edge.clone() as Arc<RwLock<dyn Update>>;
+    let root = Root {
+        edge: Arc::downgrade(&update),
+        id: rand::random(),
+    };
+    edge.write().set_root(root); 
+    edge
+}
+
+#[cfg(feature = "oneThread")]
+fn edge_pointer<T>(edge: T) -> Rc<RefCell<T>>
+where
+    T: 'static + Update + SetRoot,
+{
+    let edge = Rc::new(RefCell::new(edge));
+    let update = edge.clone() as Rc<RefCell<dyn Update>>;
+    let root = Root {
+        edge: Rc::downgrade(&update),
+        id: rand::random(),
+    };
+    edge.borrow_mut().set_root(root); 
+    edge
 }

@@ -54,7 +54,7 @@ where
     }
 }
 
-impl<T> FromBase for Leaf<T> {
+impl<T> WorkFromBase for Leaf<T> {
     type Base = T;
     fn from_base(base: Self::Base) -> Self {
         Self {

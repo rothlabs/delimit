@@ -161,36 +161,6 @@ pub type Pointer<T> = Arc<RwLock<T>>;
 #[cfg(feature = "oneThread")]
 pub type Pointer<T> = Rc<RefCell<T>>;
 
-#[cfg(not(feature = "oneThread"))]
-pub fn edge_pointer<T>(edge: T) -> Arc<RwLock<T>>
-where
-    T: 'static + Update + SetRoot,
-{
-    let edge = Arc::new(RwLock::new(edge));
-    let update = edge.clone() as Arc<RwLock<dyn Update>>;
-    let root = Root {
-        edge: Arc::downgrade(&update),
-        id: rand::random(),
-    };
-    edge.write().set_root(root); 
-    edge
-}
-
-#[cfg(feature = "oneThread")]
-pub fn edge_pointer<T>(edge: T) -> Rc<RefCell<T>>
-where
-    T: 'static + Update + SetRoot,
-{
-    let edge = Rc::new(RefCell::new(edge));
-    let update = edge.clone() as Rc<RefCell<dyn Update>>;
-    let root = Root {
-        edge: Rc::downgrade(&update),
-        id: rand::random(),
-    };
-    edge.borrow_mut().set_root(root); 
-    edge
-}
-
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
@@ -368,6 +338,11 @@ pub trait BaseDown<T> {
 }
 
 pub trait FromBase {
+    type Base;
+    fn from_base(base: Self::Base) -> Pointer<Self>;
+}
+
+pub trait WorkFromBase {
     type Base;
     fn from_base(base: Self::Base) -> Self;
 }
