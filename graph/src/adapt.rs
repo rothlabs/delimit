@@ -17,7 +17,7 @@ pub trait Adapt {
     /// For graph internals to handle alter calls
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
     /// For graph internals to handle alter calls
-    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>>;
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>>;
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
 }
 

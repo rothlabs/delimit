@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use crate::*;
 
 /// Work that holds a base. The most simple work that allows read, write, and copy of the base.
@@ -58,20 +56,16 @@ impl<T> BaseMut for Leaf<T> {
 }
 
 impl<T> ReactMut for Leaf<T> {
-    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
-        Box::pin(async move {
-            Ok(()) 
-        })
+    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
+        Box::pin(async move { Ok(()) })
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<T: Payload> SolveMut for Leaf<T> {
     type Base = ();
-    async fn solve(&mut self) -> Result<Hub<()>> {
-        solve_ok()
-    }
+    // fn solve<'a>(&'a mut self) -> Result<Hub<()>> {
+    //     solve_ok()
+    // }
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         match task {
             Task::Serial => self.serial(),

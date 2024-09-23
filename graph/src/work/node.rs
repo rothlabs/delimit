@@ -1,15 +1,11 @@
 use crate::*;
-use async_trait::async_trait;
 
 /// Main Work type.
 /// To be useful, unit should at least impl Solve.
 /// The solved Gain is kept to be returned on subsequent solve calls
 /// until the unit changes.
 #[derive(Debug)]
-pub struct Node<U>
-where
-    U: Solve,
-{
+pub struct Node<U: Solve> {
     imports: Vec<Import>,
     unit: U,
     main: Option<Hub<U::Base>>,
@@ -17,10 +13,7 @@ where
     serial: Option<Gain>,
 }
 
-impl<U> Node<U>
-where
-    U: Solve,
-{
+impl<U: Solve> Node<U> {
     fn rank(&self) -> Option<u64> {
         if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
             Some(rank)
@@ -50,21 +43,21 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<U> SolveMut for Node<U>
 where
-    U: Solve + SendSync,
+    U: Solve + IsSend,
 {
     type Base = U::Base;
-    async fn solve(&mut self) -> Result<Hub<U::Base>> {
-        if let Some(main) = &self.main {
-            Ok(main.clone())
-        } else {
-            let main = self.unit.solve().await?;
-            self.main = Some(main.clone());
-            Ok(main)
-        }
+    fn solve<'a>(&'a mut self) -> GraphFuture<Result<Hub<U::Base>>> {
+        Box::pin(async move {
+            if let Some(main) = &self.main {
+                Ok(main.clone())
+            } else {
+                let main = self.unit.solve().await?;
+                self.main = Some(main.clone());
+                Ok(main)
+            }
+        })
     }
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.adapt(deal)
@@ -82,10 +75,7 @@ where
     }
 }
 
-impl<U> WorkFromSnap for Node<U>
-where
-    U: Solve,
-{
+impl<U: Solve> WorkFromSnap for Node<U> {
     type Unit = U;
     fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
         let node = Self {
@@ -129,9 +119,9 @@ impl<U: Solve> WriteUnitWork for Node<U> {
 
 impl<U> ReactMut for Node<U>
 where
-    U: Solve + SendSync,
+    U: Solve + IsSend,
 {
-    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
+    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             match self.solve().await {
                 Ok(_) => Ok(()),

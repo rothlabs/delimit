@@ -146,9 +146,11 @@ where
         Ok(hub)
     }
 
-    // /// Read tray of hub.
-    // /// TODO: make trait that uses async_trait macro
-    pub fn read<'a, O, F: FnOnce(&T) -> O + 'a + IsSend>(&'a self, read: F) -> AsyncFuture<'a, Result<O>> {
+    /// Read tray of hub.
+    pub fn read<'a, O, F: FnOnce(&T) -> O + 'a + IsSend>(
+        &'a self,
+        read: F,
+    ) -> GraphFuture<'a, Result<O>> {
         Box::pin(async move {
             match self {
                 Self::Tray(tray) => {
@@ -164,58 +166,18 @@ where
         })
     }
 
-    // /// Base value. The graph is solved down to the base.
-    // pub fn base<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<T>> + 'a + Send>> {
-    //     let out = async move {
-    //         match self {
-    //             Self::Tray(tray) => match tray {
-    //                 Tray::Base(base) => Ok(base.clone()),
-    //                 tray => Err(tray.wrong_variant("Base"))?,
-    //             },
-    //             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-    //             Self::Ploy(ploy) => ploy.solve().await?.base().await,
-    //         }
-    //     };
-    //     Box::pin(out)
-    // }
-}
-
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-// impl<T> ReadDown<T> for Hub<T>
-// where
-//     T: 'static + Payload,
-// {
-//     async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O> {
-//         match self {
-//             Self::Tray(tray) => {
-//                 if let Tray::Base(base) = tray {
-//                     Ok(read(base))
-//                 } else {
-//                     Err(tray.wrong_variant("Base"))?
-//                 }
-//             }
-//             Self::Leaf(leaf) => leaf.read(read),
-//             Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-//         }
-//     }
-// }
-
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> BaseDown<T> for Hub<T>
-where
-    T: 'static + Payload,
-{
-    async fn base(&self) -> Result<T> {
-        match self {
-            Self::Tray(tray) => match tray {
-                Tray::Base(base) => Ok(base.clone()),
-                tray => Err(tray.wrong_variant("Base"))?,
-            },
-            Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-            Self::Ploy(ploy) => ploy.solve().await?.base().await,
-        }
+    /// Base value. The graph is solved down to the base.
+    pub fn base(&self) -> GraphFuture<Result<T>> {
+        Box::pin(async move {
+            match self {
+                Self::Tray(tray) => match tray {
+                    Tray::Base(base) => Ok(base.clone()),
+                    tray => Err(tray.wrong_variant("Base"))?,
+                },
+                Self::Leaf(leaf) => leaf.read(|base| base.clone()),
+                Self::Ploy(ploy) => ploy.solve().await?.base().await,
+            }
+        })
     }
 }
 
@@ -241,22 +203,17 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-pub trait SolveDown<'a, T>
+pub trait SolveDown<T>
 where
     T: 'static + Payload,
 {
     /// Solve down to the given graph rank.
-    async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>>;
-    //fn down(&self, rank: u64) -> impl std::future::Future<Output = Result<Vec<Hub<T>>>> + Send;
+    fn down(&self, rank: u64) -> impl Future<Output = Result<Vec<Hub<T>>>> + IsSend;
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<'a, T> SolveDown<'a, T> for Vec<Hub<T>>
+impl<T> SolveDown<T> for Vec<Hub<T>>
 where
-    T: 'static + Payload,
+    T: Payload,
 {
     async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         let mut out = vec![];
@@ -264,6 +221,5 @@ where
             out.push(hub.down(rank).await?);
         }
         Ok(out)
-        // self.iter().map(|x| x.down(rank)).collect() // join_all();
     }
 }

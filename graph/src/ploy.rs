@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use super::*;
 
 /// `Link` to domain-specific unit.
@@ -22,11 +20,9 @@ pub trait ToPloy {
     fn ploy(&self) -> PloyEdge<Self::Base>;
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait Based {
     type Base: Payload;
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
-    async fn solve(&self) -> Result<Hub<Self::Base>>;
+    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
     fn reckon(&self, task: Task) -> Result<Gain>;
 }

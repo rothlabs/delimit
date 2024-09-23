@@ -227,16 +227,14 @@ where
     E: 'static + Read + Update,
 {
     /// Read payload of Link.
-    pub fn read<O, F>(&self, read: F) -> Result<O> 
-    where 
-        F: FnOnce(&E::Item) -> O
+    pub fn read<O, F>(&self, read: F) -> Result<O>
+    where
+        F: FnOnce(&E::Item) -> O,
     {
         read_part(&self.edge, |edge| edge.read(read))?
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E> WriteBase for Link<E>
 where
     E: WriteBase + SendSync,
@@ -299,7 +297,7 @@ where
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?
     }
-    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>> {
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
         })

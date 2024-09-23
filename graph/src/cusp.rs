@@ -1,7 +1,5 @@
-use anyhow::anyhow;
-use async_trait::async_trait;
-
 use super::*;
+use anyhow::anyhow;
 
 pub type Leaf<T> = Cusp<work::Leaf<T>>;
 
@@ -119,23 +117,18 @@ impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
 {
-    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
-        Box::pin(async move {
-            self.work.react_mut().await
-        })
+    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>> {
+        Box::pin(async move { self.work.react_mut().await })
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<W> SolveMut for Cusp<W>
 where
     W: SolveMut + SendSync,
-    W::Base: Payload,
 {
     type Base = W::Base;
-    async fn solve(&mut self) -> Result<Hub<W::Base>> {
-        self.work.solve().await
+    fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
+        Box::pin(async move { self.work.solve().await })
     }
     fn reckon(&mut self, task: Task) -> Result<Gain> {
         self.work.reckon(task)

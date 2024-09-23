@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use super::*;
 #[cfg(not(feature = "oneThread"))]
 use parking_lot::RwLock;
@@ -80,8 +78,6 @@ where
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Adapt for Edge<C>
 where
     C: AdaptMut + UpdateMut + AddRoot,
@@ -92,7 +88,7 @@ where
             cusp.adapt_get(deal)
         })?
     }
-    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> AsyncFuture<Result<()>> {
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             let ring = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
             ring.react().await
@@ -103,20 +99,19 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Based for Edge<C>
 where
     C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
 {
     type Base = C::Base;
-
-    async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.add_root(&self.root);
-            cusp.solve().await
-        })?
-        .await
+    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
+        Box::pin(async move {
+            write_part_async(&self.cusp, |mut cusp| async move {
+                cusp.add_root(&self.root);
+                cusp.solve().await
+            })?
+            .await
+        })
     }
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         edge_pointer(Self {
@@ -146,8 +141,6 @@ where
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> WriteBase for Edge<C>
 where
     C: WriteBaseOut + SendSync,
@@ -163,8 +156,6 @@ where
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> WriteUnit for Edge<C>
 where
     C: WriteUnitOut + UpdateMut,
@@ -213,18 +204,18 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<N> React for Edge<N>
 where
     N: ReactMut + AddRoot + SendSync,
 {
-    async fn react(&self) -> Result<()> {
-        write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.add_root(&self.root);
-            cusp.react_mut().await
-        })?
-        .await
+    fn react(&self) -> GraphFuture<Result<()>> {
+        Box::pin(async move {
+            write_part_async(&self.cusp, |mut cusp| async move {
+                cusp.add_root(&self.root);
+                cusp.react_mut().await
+            })?
+            .await
+        })
     }
 }
 

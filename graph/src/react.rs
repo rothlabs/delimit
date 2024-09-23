@@ -1,5 +1,4 @@
 use super::*;
-use async_trait::async_trait;
 use std::{collections::HashSet, hash::Hash};
 
 #[cfg(not(feature = "oneThread"))]
@@ -19,16 +18,14 @@ pub trait RebutMut {
     fn clear_roots(&mut self) -> Result<()>;
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react(&self) -> Result<()>;
+    fn react(&self) -> GraphFuture<Result<()>>;
 }
 
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>>;
+    fn react_mut<'a>(&'a mut self) -> GraphFuture<Result<()>>;
 }
 
 pub trait AddRoot {
@@ -103,15 +100,15 @@ impl Hash for Root {
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl React for Root {
-    async fn react(&self) -> Result<()> {
-        if let Some(edge) = self.edge.upgrade() {
-            read_part_async(&edge, |edge| async move { edge.react().await })?.await
-        } else {
-            Ok(())
-        }
+    fn react(&self) -> GraphFuture<Result<()>> {
+        Box::pin(async move {
+            if let Some(edge) = self.edge.upgrade() {
+                read_part_async(&edge, |edge| async move { edge.react().await })?.await
+            } else {
+                Ok(())
+            }
+        })
     }
 }
 

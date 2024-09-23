@@ -13,30 +13,18 @@ pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use ploy::{Based, Engage, Ploy, PloyEdge, ToPloy};
 pub use react::{
-    AddRoot,
-    Back,
-    Backed,
-    BackedMid,
-    React,
-    ReactMut,
-    Rebut,
-    RebutMut,
-    Ring,
-    Root,
-    Update,
+    AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
-    // ClearRoots, ClearRootsMut,
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMid, SolveMut, Task};
+pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
-use async_trait::async_trait;
 #[cfg(not(feature = "oneThread"))]
 use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use scope::*;
@@ -50,7 +38,11 @@ use std::{
     rc::Rc,
 };
 use std::{
-    collections::HashMap, fmt::Debug, future::Future, hash::{DefaultHasher, Hash, Hasher}, pin::Pin
+    collections::HashMap,
+    fmt::Debug,
+    future::Future,
+    hash::{DefaultHasher, Hash, Hasher},
+    pin::Pin,
 };
 use thiserror::Error;
 
@@ -150,12 +142,7 @@ pub trait IsSend {}
 impl<T> IsSend for T {}
 
 pub trait Unit: Solve + SendSync + Debug {}
-impl<T> Unit for T
-where
-    T: Solve + SendSync + Debug,
-    T::Base: Payload,
-{
-}
+impl<T> Unit for T where T: Solve + SendSync + Debug {}
 
 pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
@@ -166,9 +153,9 @@ pub type Pointer<T> = Arc<RwLock<T>>;
 pub type Pointer<T> = Rc<RefCell<T>>;
 
 #[cfg(not(feature = "oneThread"))]
-type AsyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+type GraphFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 #[cfg(feature = "oneThread")]
-type AsyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
+type GraphFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 #[cfg(not(feature = "oneThread"))]
 fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
@@ -323,18 +310,6 @@ pub trait Read {
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
         F: FnOnce(&Self::Item) -> T;
-}
-
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-pub trait ReadDown<T> {
-    async fn read<O, F: FnOnce(&T) -> O + SendSync>(&self, read: F) -> Result<O>;
-}
-
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-pub trait BaseDown<T> {
-    async fn base(&self) -> Result<T>;
 }
 
 pub trait FromBase {
