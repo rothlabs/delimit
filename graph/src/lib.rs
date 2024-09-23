@@ -367,9 +367,9 @@ pub trait BaseDown<T> {
     async fn base(&self) -> Result<T>;
 }
 
-pub trait FromItem {
-    type Item;
-    fn new(item: Self::Item) -> Self;
+pub trait FromBase {
+    type Base;
+    fn from_base(base: Self::Base) -> Self;
 }
 
 pub trait SetRoot {

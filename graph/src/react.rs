@@ -196,9 +196,18 @@ impl Ring {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn iter(&self) -> impl Iterator<Item = &Root> {
-        self.roots.iter()
+    pub async fn react(&self) -> Result<()> {
+        for root in &self.roots {
+            root.react().await?;
+        }
+        Ok(())
     }
+    pub fn extend(&mut self, ring: Ring) {
+        self.roots.extend(ring.roots);
+    }
+    // pub fn iter(&self) -> impl Iterator<Item = &Root> {
+    //     self.roots.iter()
+    // }
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
@@ -225,7 +234,7 @@ impl Ring {
         Ok(ring)
     }
     pub fn clear(&mut self) -> Result<()> {
-        for root in self.iter() {
+        for root in &self.roots {
             root.clear()?;
         }
         self.roots.clear();

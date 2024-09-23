@@ -20,6 +20,7 @@ pub trait Adapt {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
     /// For graph internals to handle alter calls
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()>;
+    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
 }
 
 pub trait AdaptMut {

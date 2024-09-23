@@ -41,13 +41,10 @@ where
     }
 }
 
-impl<N> FromItem for Edge<N>
-where
-    N: FromItem,
-{
-    type Item = N::Item;
-    fn new(unit: Self::Item) -> Self {
-        let cusp = N::new(unit);
+impl<C: FromBase> FromBase for Edge<C> {
+    type Base = C::Base;
+    fn from_base(base: C::Base) -> Self {
+        let cusp = C::from_base(base);
         Self {
             root: None,
             back: None,
@@ -117,11 +114,11 @@ where
         })?
     }
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        let roots = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
-        for root in roots.iter() {
-            root.react().await?;
-        }
-        Ok(())
+        let ring = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
+        ring.react().await
+    }
+    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+        write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))?
     }
 }
 
@@ -176,9 +173,7 @@ where
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
         let Post { roots, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
-        for root in roots.iter() {
-            root.react().await?;
-        }
+        roots.react().await?;
         Ok(out)
     }
 }
@@ -196,9 +191,7 @@ where
     ) -> Result<T> {
         let Post { roots, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
-        for root in roots.iter() {
-            root.react().await?;
-        }
+        roots.react().await?;
         Ok(out)
     }
 }

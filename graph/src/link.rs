@@ -113,14 +113,14 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromItem + SetRoot + Update,
+    E: 'static + FromBase + SetRoot + Update,
 {
-    pub fn new(base: E::Item) -> Self {
+    pub fn new(base: E::Base) -> Self {
         Self {
             path: None,
             rank: None,
             // TODO: find way to keep edge pointer function in edge file
-            edge: edge_pointer(E::new(base)),
+            edge: edge_pointer(E::from_base(base)),
         }
     }
 }
@@ -174,7 +174,7 @@ where
     E: 'static + Engage,
 {
     /// Copy the link with unit type erased.  
-    pub fn to_ploy(&self) -> Ploy<E::Base> {
+    pub fn as_ploy(&self) -> Ploy<E::Base> {
         Ploy {
             edge: self.edge.clone(),
             path: self.path.clone(),
@@ -310,6 +310,9 @@ where
     }
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+    }
+    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+        read_part(&self.edge, |edge| edge.transient_set(deal) )?
     }
 }
 

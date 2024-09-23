@@ -13,17 +13,17 @@ async fn write_and_read_serial_page() -> graph::Result<()> {
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
     lake.atlas(Box::new(Atlas::default()));
-    let bay = lake.tree()?;
-    bay.hydrate()?;
+    let bay = lake.tree().await?;
+    bay.hydrate().await?;
     let html = bay.get("page")?.string()?;
     assert_eq!(html.base().await?, html::default::PAGE);
     let plain = html.down(PLAIN).await?;
-    bay.get("title_element")?.set(0, "html mutated")?;
+    bay.get("title_element")?.set(0, "html mutated").await?;
     assert_eq!(
         html.base().await?,
         html::default::HTML_PAGE_WITH_MUTATED_TITLE
     );
-    plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
+    plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated").await?;
     assert_eq!(
         plain.base().await?,
         html::default::PLAIN_PAGE_WITH_MUTATED_TITLE

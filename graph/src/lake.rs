@@ -66,17 +66,19 @@ impl Lake {
     }
 
     /// Grow a tree from the lake.
-    pub fn tree(&mut self) -> Result<Apex> {
+    pub async fn tree(&mut self) -> Result<Apex> {
         // TODO build space/scope tree here so nodes do not need to assume a key!!!
         let root = self.root("root")?;
-        root.grow_from_lake(self).ok();
+        let mut ring = Ring::new();
+        root.grow_from_lake(self, &mut ring).ok();
+        ring.react().await?;
         Ok(root)
     }
 
-    pub fn grow<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
-        hub.adapt_get(self)?;
+    pub fn grow<T: Payload>(&mut self, hub: &Hub<T>, ring: &mut Ring) -> Result<()> {
+        ring.extend(hub.transient_set(self)?);
         for apex in hub.all()? {
-            apex.grow_from_lake(self).ok();
+            apex.grow_from_lake(self, ring).ok();
         }
         Ok(())
     }

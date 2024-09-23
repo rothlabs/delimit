@@ -54,11 +54,11 @@ where
     }
 }
 
-impl<T> FromItem for Leaf<T> {
-    type Item = T;
-    fn new(tray: Self::Item) -> Self {
+impl<T> FromBase for Leaf<T> {
+    type Base = T;
+    fn from_base(base: Self::Base) -> Self {
         Self {
-            base: tray,
+            base,
             digest: None,
         }
     }

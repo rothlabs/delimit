@@ -15,14 +15,11 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-impl<W> FromItem for Cusp<W>
-where
-    W: FromItem,
-{
-    type Item = W::Item;
-    fn new(item: Self::Item) -> Self {
+impl<W: FromBase> FromBase for Cusp<W> {
+    type Base = W::Base;
+    fn from_base(base: W::Base) -> Self {
         Self {
-            work: W::new(item),
+            work: W::from_base(base),
             ring: Ring::new(),
             back: None,
         }
@@ -153,6 +150,9 @@ impl<W> AdaptMut for Cusp<W>
 where
     W: SolveMut + Clear,
 {
+    fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.work.adapt(deal)
+    }
     fn adapt_set(&mut self, deal: &mut dyn Deal) -> Result<Ring> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
@@ -163,15 +163,12 @@ where
         self.work.adapt(deal)?;
         Ok(self.ring.rebut_roots()?)
     }
-    fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.work.adapt(deal)
-    }
 }
 
 #[cfg(not(feature = "oneThread"))]
 pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
 where
-    T: 'static + UpdateMut,// + SetBack,
+    T: 'static + UpdateMut,
 {
     let cusp = Arc::new(RwLock::new(cusp));
     let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;

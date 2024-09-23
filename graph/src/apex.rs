@@ -22,20 +22,23 @@ impl Default for Apex {
 }
 
 impl Apex {
-    pub fn hydrate(&self) -> Result<()> {
+    pub async fn hydrate(&self) -> Result<()> {
         let space = Space::new(vec![], self)?;
-        self.saturate(&space, &space)?;
-        Ok(())
+        let mut ring = Ring::new();
+        self.saturate(&space, &space, &mut ring)?;
+        ring.react().await
     }
-    fn saturate(&self, world: &Space, local: &Space) -> Result<()> {
-        self.adapt_get(&mut Scope {
+    fn saturate(&self, world: &Space, local: &Space, ring: &mut Ring) -> Result<()> {
+        // TODO: use adapt_set but does not need to be async because does not need to react?
+        // need special adapt_set where I can collect items to react when everything is done being set
+        ring.extend(self.transient_set(&mut Scope {
             world,
             local,
             back: None,
-        })?;
+        })?);
         for spaces in local.map.values() {
             for space in spaces {
-                space.apex.saturate(world, space)?;
+                space.apex.saturate(world, space, ring)?;
             }
         }
         Ok(())
@@ -52,16 +55,16 @@ impl Apex {
             Self::Vf64(x) => x.get(aim),
         }
     }
-    pub fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
+    pub async fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
         match self {
-            Self::Void(x) => x.set(aim, apex),
-            Self::String(x) => x.set(aim, apex),
-            Self::U8(x) => x.set(aim, apex),
-            Self::I32(x) => x.set(aim, apex),
-            Self::Vu8(x) => x.set(aim, apex),
-            Self::Vu16(x) => x.set(aim, apex),
-            Self::Vf32(x) => x.set(aim, apex),
-            Self::Vf64(x) => x.set(aim, apex),
+            Self::Void(x) => x.set(aim, apex).await,
+            Self::String(x) => x.set(aim, apex).await,
+            Self::U8(x) => x.set(aim, apex).await,
+            Self::I32(x) => x.set(aim, apex).await,
+            Self::Vu8(x) => x.set(aim, apex).await,
+            Self::Vu16(x) => x.set(aim, apex).await,
+            Self::Vf32(x) => x.set(aim, apex).await,
+            Self::Vf64(x) => x.set(aim, apex).await,
         }
     }
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
@@ -74,6 +77,18 @@ impl Apex {
             Self::Vu16(x) => x.adapt_get(deal),
             Self::Vf32(x) => x.adapt_get(deal),
             Self::Vf64(x) => x.adapt_get(deal),
+        }
+    }
+    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+        match self {
+            Self::Void(x) => x.transient_set(deal),
+            Self::String(x) => x.transient_set(deal),
+            Self::U8(x) => x.transient_set(deal),
+            Self::I32(x) => x.transient_set(deal),
+            Self::Vu8(x) => x.transient_set(deal),
+            Self::Vu16(x) => x.transient_set(deal),
+            Self::Vf32(x) => x.transient_set(deal),
+            Self::Vf64(x) => x.transient_set(deal),
         }
     }
     pub fn tray_path(&self) -> Option<&Path> {
@@ -136,16 +151,16 @@ impl Apex {
             Self::Vf64(x) => lake.insert_stem(x),
         }
     }
-    pub fn grow_from_lake(&self, lake: &mut Lake) -> Result<()> {
+    pub fn grow_from_lake(&self, lake: &mut Lake, ring: &mut Ring) -> Result<()> {
         match self {
-            Self::Void(x) => lake.grow(x),
-            Self::String(x) => lake.grow(x),
-            Self::U8(x) => lake.grow(x),
-            Self::I32(x) => lake.grow(x),
-            Self::Vu8(x) => lake.grow(x),
-            Self::Vu16(x) => lake.grow(x),
-            Self::Vf32(x) => lake.grow(x),
-            Self::Vf64(x) => lake.grow(x),
+            Self::Void(x) => lake.grow(x, ring),
+            Self::String(x) => lake.grow(x, ring),
+            Self::U8(x) => lake.grow(x, ring),
+            Self::I32(x) => lake.grow(x, ring),
+            Self::Vu8(x) => lake.grow(x, ring),
+            Self::Vu16(x) => lake.grow(x, ring),
+            Self::Vf32(x) => lake.grow(x, ring),
+            Self::Vf64(x) => lake.grow(x, ring),
         }
     }
 }

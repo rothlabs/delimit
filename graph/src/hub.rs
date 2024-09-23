@@ -106,6 +106,14 @@ where
         Ok(())
     }
 
+    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+        if let Self::Ploy(ploy) = self {
+            ploy.transient_set(deal)
+        } else {
+            Ok(Ring::new())
+        }
+    }
+
     /// New Hub with Path
     pub fn pathed(&self, path: impl Into<Path>) -> Self {
         match self {

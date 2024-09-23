@@ -17,9 +17,9 @@ async fn reactive_lower_graph() -> Result<()> {
     let plain = html.down(PLAIN).await?;
     let _solved = html.base();
     let _solved = plain.base();
-    plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated")?;
+    plain.get(1)?.get(1)?.get(1)?.set(1, "plain mutated").await?;
     assert_eq!(plain.base().await?, PLAIN_PAGE_WITH_MUTATED_TITLE);
-    bay.get("title_element")?.set(0, "html mutated")?;
+    bay.get("title_element")?.set(0, "html mutated").await?;
     assert_eq!(html.base().await?, HTML_PAGE_WITH_MUTATED_TITLE);
     Ok(())
 }
