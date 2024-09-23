@@ -106,16 +106,6 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-// pub trait ErrorToJsValue {
-//     fn js_err(&self)
-// }
-
-// impl From<JsValue> for Error {
-//     fn from(value: JsValue) -> Self {
-//         Error::Any(anyhow!("crap"))
-//     }
-// }
-
 pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
 }
@@ -155,42 +145,19 @@ type GraphFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 type GraphFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
-where
-    P: ?Sized,
-    F: FnOnce(RwLockReadGuard<P>) -> O,
-{
-    Ok(read(part.read()))
-}
-
-#[cfg(feature = "oneThread")]
-fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
-where
-    P: ?Sized,
-    F: FnOnce(Ref<P>) -> O,
-{
-    match part.try_borrow() {
-        Ok(part) => Ok(read(part)),
-        Err(err) => Err(Error::Read(err.to_string())),
-    }
-}
-
-#[cfg(not(feature = "oneThread"))]
-fn read_part_async<'a, P, F, O>(part: &'a Pointer<P>, read: F) -> Result<O>
+fn read_part<'a, P, F, O>(part: &'a Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockReadGuard<'a, P>) -> O,
-    O: std::future::Future,
 {
     Ok(read(part.read()))
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part_async<'a, F, P, O>(part: &'a Pointer<P>, read: F) -> Result<O>
+fn read_part<'a, P, F, O>(part: &'a Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(Ref<'a, P>) -> O,
-    O: std::future::Future,
 {
     match part.try_borrow() {
         Ok(part) => Ok(read(part)),
@@ -199,42 +166,19 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P, F, O>(part: &Pointer<P>, write: F) -> Result<O>
-where
-    P: ?Sized,
-    F: FnOnce(RwLockWriteGuard<P>) -> O,
-{
-    Ok(write(part.write()))
-}
-
-#[cfg(feature = "oneThread")]
-fn write_part<P, F, O>(part: &Pointer<P>, write: F) -> Result<O>
-where
-    P: ?Sized,
-    F: FnOnce(RefMut<P>) -> O,
-{
-    match part.try_borrow_mut() {
-        Ok(part) => Ok(write(part)),
-        Err(err) => Err(Error::Write(err.to_string())),
-    }
-}
-
-#[cfg(not(feature = "oneThread"))]
-fn write_part_async<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
-    O: std::future::Future,
 {
     Ok(write(part.write()))
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part_async<'a, F, P, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RefMut<'a, P>) -> O,
-    O: std::future::Future,
 {
     match part.try_borrow_mut() {
         Ok(part) => Ok(write(part)),
@@ -344,6 +288,61 @@ impl<T: Backed> BackIt for T {
     }
 }
 
+// pub trait ErrorToJsValue {
+//     fn js_err(&self)
+// }
+
+// impl From<JsValue> for Error {
+//     fn from(value: JsValue) -> Self {
+//         Error::Any(anyhow!("crap"))
+//     }
+// }
+
 // #[cfg(feature = "oneThread")]
 // const IMMEDIATE_ACCESS: &str = "Item should be immediately accessible after creation.";
 
+// #[cfg(not(feature = "oneThread"))]
+// fn read_part_async<'a, P, F, O>(part: &'a Pointer<P>, read: F) -> Result<O>
+// where
+//     P: ?Sized,
+//     F: FnOnce(RwLockReadGuard<'a, P>) -> O,
+//     O: std::future::Future,
+// {
+//     Ok(read(part.read()))
+// }
+
+// #[cfg(feature = "oneThread")]
+// fn read_part_async<'a, F, P, O>(part: &'a Pointer<P>, read: F) -> Result<O>
+// where
+//     P: ?Sized,
+//     F: FnOnce(Ref<'a, P>) -> O,
+//     O: std::future::Future,
+// {
+//     match part.try_borrow() {
+//         Ok(part) => Ok(read(part)),
+//         Err(err) => Err(Error::Read(err.to_string())),
+//     }
+// }
+
+// #[cfg(not(feature = "oneThread"))]
+// fn write_part_async<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+// where
+//     P: ?Sized,
+//     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
+//     O: std::future::Future,
+// {
+//     Ok(write(part.write()))
+// }
+
+// #[cfg(feature = "oneThread")]
+// fn write_part_async<'a, F, P, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+// where
+//     P: ?Sized,
+//     F: FnOnce(RefMut<'a, P>) -> O,
+//     O: std::future::Future,
+// {
+//     match part.try_borrow_mut() {
+//         Ok(part) => Ok(write(part)),
+//         Err(err) => Err(Error::Write(err.to_string())),
+//     }
+// }

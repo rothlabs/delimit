@@ -106,7 +106,7 @@ impl React for Root {
     fn react(&self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             if let Some(edge) = self.edge.upgrade() {
-                read_part_async(&edge, |edge| async move { edge.react().await })?.await
+                read_part(&edge, |edge| async move { edge.react().await })?.await
             } else {
                 Ok(())
             }
@@ -138,7 +138,7 @@ impl Back {
     }
     pub async fn react(&self) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part_async(&cusp, |mut cusp| async move { cusp.react().await })?.await
+            write_part(&cusp, |mut cusp| async move { cusp.react().await })?.await
         } else {
             Ok(())
         }

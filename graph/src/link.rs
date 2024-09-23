@@ -224,12 +224,19 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Read + Update,
+    E: Read,
 {
     /// Read payload of Link.
-    pub fn read<O, F>(&self, read: F) -> Result<O>
+    pub fn read<F, O>(&self, read: F) -> Result<O>
     where
         F: FnOnce(&E::Item) -> O,
+    {
+        read_part(&self.edge, |edge| edge.read(read))?
+    }
+    pub fn read_async<F, O>(&self, read: F) -> Result<O>
+    where
+        F: FnOnce(&E::Item) -> O,
+        O: std::future::Future
     {
         read_part(&self.edge, |edge| edge.read(read))?
     }
@@ -245,7 +252,7 @@ where
         O: IsSend,
         F: FnOnce(&mut E::Base) -> O + IsSend,
     {
-        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
+        read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
 
@@ -257,9 +264,9 @@ where
     async fn write<O, F>(&self, write: F) -> Result<O>
     where
         O: IsSend,
-        F: FnOnce(&mut Pack<Self::Unit>) -> O + IsSend,
+        F: FnOnce(&mut Pack<E::Unit>) -> O + IsSend,
     {
-        read_part_async(&self.edge, |edge| async move { edge.write(write).await })?.await
+        read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
 }
 
@@ -270,7 +277,7 @@ where
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
+        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         read_part(&self.edge, |edge| edge.reckon(task))?
@@ -283,7 +290,7 @@ where
 {
     type Base = T;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part_async(&self.edge, |edge| async move { edge.solve().await })?.await
+        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         read_part(&self.edge, |edge| edge.reckon(task))?
@@ -299,7 +306,7 @@ where
     }
     fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
-            read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+            read_part(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
         })
     }
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {

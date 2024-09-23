@@ -64,7 +64,7 @@ where
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part_async(&self.cusp, |mut cusp| async move {
+        write_part(&self.cusp, |mut cusp| async move {
             cusp.add_root(&self.root);
             cusp.solve().await
         })?
@@ -106,7 +106,7 @@ where
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move {
-            write_part_async(&self.cusp, |mut cusp| async move {
+            write_part(&self.cusp, |mut cusp| async move {
                 cusp.add_root(&self.root);
                 cusp.solve().await
             })?
@@ -210,7 +210,7 @@ where
 {
     fn react(&self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
-            write_part_async(&self.cusp, |mut cusp| async move {
+            write_part(&self.cusp, |mut cusp| async move {
                 cusp.add_root(&self.root);
                 cusp.react().await
             })?
