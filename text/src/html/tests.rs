@@ -4,7 +4,7 @@ use super::*;
 
 #[tokio::test]
 async fn default_page() -> Result<()> {
-    let hub = default_bay()?.get("page")?.string()?;
+    let hub = default_bay().await?.get("page")?.string()?;
     assert_eq!(hub.base().await?, PAGE);
     Ok(())
 }
@@ -12,7 +12,7 @@ async fn default_page() -> Result<()> {
 /// Lower and upper grapgs are reactive and independent of each other.
 #[tokio::test]
 async fn reactive_lower_graph() -> Result<()> {
-    let bay = default_bay()?;
+    let bay = default_bay().await?;
     let html = bay.get("page")?.string()?;
     let plain = html.down(PLAIN).await?;
     let _solved = html.base();

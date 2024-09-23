@@ -13,12 +13,12 @@ pub type PloyEdge<T> = Rc<RefCell<dyn Engage<Base = T>>>;
 
 /// General engagement of Ploy with erased unit type.
 pub trait Engage:
-    Based + AdaptGet + AdaptSet + Update + SetRoot + Debug
+    Based + Adapt + Update + SetRoot + Debug
 {
 }
 
 impl<E> Engage for E where
-    E: Based + AdaptGet + AdaptSet + Update + SetRoot + Debug
+    E: Based + Adapt + Update + SetRoot + Debug
 {
 }
 

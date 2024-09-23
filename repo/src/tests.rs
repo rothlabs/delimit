@@ -6,7 +6,7 @@ use text::*;
 
 #[tokio::test]
 async fn write_and_read_serial_page() -> graph::Result<()> {
-    let serial = html::default_bay()?.lake()?.serial()?;
+    let serial = html::default_bay().await?.lake()?.serial()?;
     let path = STORAGE.to_owned() + "/page.json";
     fs::write(&path, serial)?;
     let file = fs::File::open(path)?;

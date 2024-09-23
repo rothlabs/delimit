@@ -299,45 +299,17 @@ where
     }
 }
 
-impl<E: ?Sized> AdaptGet for Link<E>
-where
-    E: 'static + AdaptGet + Update
-{
-    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        read_part(&self.edge, |edge| {
-            edge.adapt_get(deal)
-            // if deal.read() {
-            //     edge.add_root(self.as_root(edge.id()))?;
-            // }
-            // } else {
-            //     return Err(anyhow!("Deal did not report reading in AdaptGet"))?;
-            // }
-            // if deal.wrote() {
-            //     return Err(anyhow!("Deal should not write in AdaptGet"))?;
-            // }
-            // out
-        })?
-    }
-}
-
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<E: ?Sized> AdaptSet for Link<E>
+impl<E: ?Sized> Adapt for Link<E>
 where
-    E: 'static + AdaptSet + Update
+    E: 'static + Adapt + Update
 {
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+        read_part(&self.edge, |edge| edge.adapt_get(deal))?
+    }
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        read_part_async(&self.edge, |edge| async move {
-            edge.adapt_set(deal).await
-            // if deal.read() {
-            //     return Err(anyhow!("Deal should not read in AdaptSet"))?;
-            // }
-            // if !deal.wrote() {
-            //     return Err(anyhow!("Deal did not report writing in AdaptSet"))?;
-            // }
-            // result
-        })?
-        .await
+        read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
     }
 }
 

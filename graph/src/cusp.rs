@@ -149,11 +149,11 @@ where
     }
 }
 
-impl<W> AdaptOut for Cusp<W>
+impl<W> AdaptMut for Cusp<W>
 where
     W: SolveMut + Clear,
 {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Ring> {
+    fn adapt_set(&mut self, deal: &mut dyn Deal) -> Result<Ring> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
             deal.set_back(back);
@@ -161,12 +161,10 @@ where
             return Err(anyhow!("No back in cusp adapt."))?;
         }
         self.work.adapt(deal)?;
-        let roots = if deal.wrote() {
-            self.ring.rebut_roots()?
-        } else {
-            Ring::new()
-        };
-        Ok(roots)
+        Ok(self.ring.rebut_roots()?)
+    }
+    fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.work.adapt(deal)
     }
 }
 

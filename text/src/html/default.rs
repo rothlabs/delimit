@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn default_bay() -> Result<Hub<()>> {
+pub async fn default_bay() -> Result<Hub<()>> {
     let mut bay = Bay::new();
 
     let title = "Delimit".leaf().hub();
@@ -74,7 +74,7 @@ pub fn default_bay() -> Result<Hub<()>> {
     let root = bay.hub()?;
 
     let page = page(&root)?;
-    root.insert("page", page)?;
+    root.insert("page", page).await?;
 
     Ok(root)
 }

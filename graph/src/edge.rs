@@ -104,28 +104,22 @@ where
     }
 }
 
-impl<C> AdaptGet for Edge<C>
-where
-    C: AdaptOut + UpdateMut,
-{
-    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        let _ = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
-        Ok(())
-    }
-}
-
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<C> AdaptSet for Edge<C>
+impl<C> Adapt for Edge<C>
 where
-    C: AdaptOut + UpdateMut,
+    C: AdaptMut + UpdateMut + AddRoot,
 {
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+        write_part(&self.cusp, |mut cusp| {
+            cusp.add_root(self.root.clone());
+            cusp.adapt_get(deal)
+        })?
+    }
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        let roots = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
-        if deal.wrote() {
-            for root in roots.iter() {
-                root.react().await?;
-            }
+        let roots = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
+        for root in roots.iter() {
+            root.react().await?;
         }
         Ok(())
     }
@@ -135,7 +129,7 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptOut + AddRoot + Debug,
+    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
 {
     type Base = C::Base;
     

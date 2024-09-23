@@ -85,20 +85,6 @@ where
     }
 }
 
-// impl<U> ReckonMut for Node<U>
-// where
-//     U: Solve,
-// {
-//     fn reckon(&mut self, task: Task) -> Result<Gain> {
-//         match task {
-//             Task::Hash => self.digest(),
-//             Task::Serial => self.serial(),
-//             Task::Imports => self.imports.gain(),
-//             _ => self.unit.reckon(task),
-//         }
-//     }
-// }
-
 impl<U> WorkFromSnap for Node<U>
 where
     U: Solve,
