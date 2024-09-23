@@ -127,8 +127,6 @@ impl<U: Solve> WriteUnitWork for Node<U> {
     }
 }
 
-// #[cfg_attr(not(feature = "oneThread"), async_trait)]
-// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<U> ReactMut for Node<U>
 where
     U: Solve + SendSync,
