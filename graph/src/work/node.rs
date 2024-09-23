@@ -1,6 +1,5 @@
-use async_trait::async_trait;
-
 use crate::*;
+use async_trait::async_trait;
 
 /// Main Work type.
 /// To be useful, unit should at least impl Solve.
@@ -10,7 +9,6 @@ use crate::*;
 pub struct Node<U>
 where
     U: Solve,
-    U::Base: 'static + Payload,
 {
     imports: Vec<Import>,
     unit: U,
@@ -57,7 +55,6 @@ where
 impl<U> SolveMut for Node<U>
 where
     U: Solve + SendSync,
-    U::Base: Payload,
 {
     type Base = U::Base;
     async fn solve(&mut self) -> Result<Hub<U::Base>> {
@@ -102,22 +99,14 @@ where
     }
 }
 
-impl<U> ToItem for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
+impl<U: Solve> ToItem for Node<U> {
     type Item = U;
     fn item(&self) -> &Self::Item {
         &self.unit
     }
 }
 
-impl<U> Clear for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
+impl<U: Solve> Clear for Node<U> {
     fn clear(&mut self) {
         self.main = None;
         self.digest = None;
@@ -125,24 +114,16 @@ where
     }
 }
 
-impl<U> WriteUnitWork for Node<U>
-where
-    U: Solve,
-    U::Base: Payload,
-{
+impl<U: Solve> WriteUnitWork for Node<U> {
     type Unit = U;
-    fn write_unit_work<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &mut self,
-        write: F,
-        back: &Back,
-    ) -> Result<T> {
-        let out = write(&mut Pack {
+    fn write_unit_work<T, F>(&mut self, write: F, back: &Back) -> T
+    where
+        F: FnOnce(&mut Pack<Self::Unit>) -> T,
+    {
+        write(&mut Pack {
             unit: &mut self.unit,
             back,
-        });
-        // TODO: remove this because clear should happen from Rebut?!
-        self.clear(); //self.main = None;
-        Ok(out)
+        })
     }
 }
 
@@ -151,11 +132,8 @@ where
 impl<U> ReactMut for Node<U>
 where
     U: Solve + SendSync,
-    U::Base: Payload,
 {
     async fn react(&mut self) -> Result<()> {
-        // self.unit.as_ref().unwrap().reckon(Task::React)?;
-        // Ok(())
         match self.unit.solve().await {
             Ok(_) => Ok(()),
             Err(err) => Err(err),

@@ -28,10 +28,7 @@ pub type Node<U> = Link<edge::Node<U>>;
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
 pub struct Link<E: ?Sized> {
-    #[cfg(not(feature = "oneThread"))]
-    edge: Arc<RwLock<E>>,
-    #[cfg(feature = "oneThread")]
-    edge: Rc<RefCell<E>>,
+    edge: Pointer<E>,
     path: Option<Path>,
     rank: Option<u64>,
 }
@@ -70,7 +67,6 @@ impl<E: ?Sized> Link<E> {
 impl<E> Link<E>
 where
     Self: Solve<Base = ()>,
-    <Self as Solve>::Base: 'static + Payload,
 {
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
@@ -230,7 +226,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Read + Update
+    E: 'static + Read + Update,
 {
     /// Read payload of Link.
     pub fn read<O, F: FnOnce(&E::Item) -> O>(&self, read: F) -> Result<O> {
@@ -249,8 +245,8 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E> WriteUnit for Link<E>
 where
     E: WriteUnit + SendSync,
@@ -295,7 +291,7 @@ where
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<E: ?Sized> Adapt for Link<E>
 where
-    E: 'static + Adapt + Update
+    E: 'static + Adapt + Update,
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?
@@ -304,7 +300,7 @@ where
         read_part_async(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
     }
     fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        read_part(&self.edge, |edge| edge.transient_set(deal) )?
+        read_part(&self.edge, |edge| edge.transient_set(deal))?
     }
 }
 

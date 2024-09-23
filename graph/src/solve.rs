@@ -9,12 +9,10 @@ use thiserror::Error;
 mod gain;
 mod task;
 
-// #[async_trait]
 pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    // async fn solve(&self) -> Result<Hub<Self::Base>>;
     #[cfg(not(feature = "oneThread"))]
     fn solve(&self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
     #[cfg(feature = "oneThread")]
@@ -107,15 +105,3 @@ pub trait SolveMut {
         Err(anyhow!("reckon not defined"))?
     }
 }
-
-// pub trait ReckonMut {
-//     fn reckon(&mut self, task: Task) -> Result<Gain>;
-// }
-
-// // #[async_trait]
-// pub trait SolveMut {
-//     type Base: 'static + Payload;
-//     /// For graph internals to handle solve calls
-//     // async fn solve(&mut self) -> Result<Hub<Self::Base>>;
-//     fn solve(&mut self) -> impl std::future::Future<Output = Result<Hub<Self::Base>>> + Send;
-// }

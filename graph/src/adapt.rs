@@ -37,4 +37,3 @@ pub trait AdaptMut {
 //     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
 //     fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()>;
 // }
-

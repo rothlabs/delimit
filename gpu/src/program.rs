@@ -75,7 +75,6 @@ impl Act for Program {
     }
 }
 
-
 // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
 // let outputs = Array::from_iter(outs.into_iter());
 // let outputs = Array::from_iter(self.outputs.iter().map(|x| Hub::base));

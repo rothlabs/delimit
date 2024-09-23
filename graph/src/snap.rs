@@ -10,7 +10,7 @@ impl<U> From<U> for Snap<U> {
     fn from(unit: U) -> Self {
         Self {
             unit,
-            imports: vec![]
+            imports: vec![],
         }
     }
 }

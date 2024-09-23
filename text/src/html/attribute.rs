@@ -47,7 +47,6 @@ impl Solve for Attribute {
     }
 }
 
-
 pub const ID: &str = "id";
 pub const LANG: &str = "lang";
 pub const CHARSET: &str = "charset";

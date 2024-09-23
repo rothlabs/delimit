@@ -22,7 +22,8 @@ impl Shader {
             gl: gl.clone(),
             source: source.clone(),
             object: shader,
-        }.node()
+        }
+        .node()
     }
 }
 
@@ -52,4 +53,3 @@ impl Act for Shader {
         }
     }
 }
-

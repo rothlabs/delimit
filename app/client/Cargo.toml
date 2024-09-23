@@ -3,7 +3,6 @@
     version = "0.1.0"
     authors = ["Julian Erickson <julian@rothlabs.com>"]
     edition = "2021"
-    wasm-opt = false
     # resolver = "2"
 
 [lib]

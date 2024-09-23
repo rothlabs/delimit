@@ -1,6 +1,6 @@
 use super::*;
 
-/// Draw elements on WebGL canvas.
+/// Draw arrays with WebGL.
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
 pub struct DrawArrays {
@@ -88,4 +88,3 @@ impl Act for DrawArrays {
         Ok(())
     }
 }
-

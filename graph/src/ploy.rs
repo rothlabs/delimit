@@ -12,15 +12,9 @@ pub type PloyEdge<T> = Arc<RwLock<dyn Engage<Base = T>>>;
 pub type PloyEdge<T> = Rc<RefCell<dyn Engage<Base = T>>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage:
-    Based + Adapt + Update + SetRoot + Debug
-{
-}
+pub trait Engage: Based + Adapt + Update + SetRoot + Debug {}
 
-impl<E> Engage for E where
-    E: Based + Adapt + Update + SetRoot + Debug
-{
-}
+impl<E> Engage for E where E: Based + Adapt + Update + SetRoot + Debug {}
 
 pub trait ToPloy {
     type Base;

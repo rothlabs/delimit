@@ -10,22 +10,7 @@ pub struct Leaf<T> {
     digest: Option<u64>,
 }
 
-impl<T> Default for Leaf<T>
-where
-    T: Default,
-{
-    fn default() -> Self {
-        Self {
-            base: T::default(),
-            digest: None,
-        }
-    }
-}
-
-impl<T> Leaf<T>
-where
-    T: Payload,
-{
+impl<T: Payload> Leaf<T> {
     pub fn new(tray: T) -> Self {
         Self {
             base: tray,
@@ -37,10 +22,7 @@ where
     }
 }
 
-impl<T> Leaf<T>
-where
-    T: Payload,
-{
+impl<T: Payload> Leaf<T> {
     fn digest(&mut self) -> Result<Gain> {
         if let Some(digest) = &self.digest {
             digest.gain()
@@ -57,10 +39,7 @@ where
 impl<T> WorkFromBase for Leaf<T> {
     type Base = T;
     fn from_base(base: Self::Base) -> Self {
-        Self {
-            base,
-            digest: None,
-        }
+        Self { base, digest: None }
     }
 }
 
@@ -73,16 +52,15 @@ impl<T> ToItem for Leaf<T> {
 
 impl<T> BaseMut<T> for Leaf<T> {
     fn base(&mut self) -> &mut T {
+        // TODO: do I need to clear here?
+        // self.clear();
         &mut self.base
     }
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> ReactMut for Leaf<T>
-where
-    T: SendSync,
-{
+impl<T: SendSync> ReactMut for Leaf<T> {
     async fn react(&mut self) -> Result<()> {
         Ok(())
     }
@@ -90,10 +68,7 @@ where
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T> SolveMut for Leaf<T>
-where
-    T: 'static + Payload,
-{
+impl<T: Payload> SolveMut for Leaf<T> {
     type Base = ();
     async fn solve(&mut self) -> Result<Hub<()>> {
         solve_ok()

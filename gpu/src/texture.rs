@@ -83,7 +83,6 @@ impl Act for Texture {
     }
 }
 
-
 // self.gl.tex_storage_2d(target, levels, internalformat, width, height)
 // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_array_buffer_view(target, level, internalformat, width, height, border, format, type_, pixels)
 // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_array_buffer_view_and_src_offset(target, level, internalformat, width, height, border, format, type_, src_data, src_offset)

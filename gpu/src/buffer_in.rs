@@ -61,7 +61,6 @@ fn poll(gl: WGLRC, sync: WebGlSync, resolve: Function) {
     }
 }
 
-
 // impl BufferIn {
 //     fn poll(&self) -> Result<()> {
 //         let sync = self.gl.fence_sync(WGLRC::SYNC_GPU_COMMANDS_COMPLETE, 0).ok_or(anyhow!("make fenc sync failed"))?;

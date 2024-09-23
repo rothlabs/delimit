@@ -29,13 +29,11 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{
-    reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task, SolveMid,
-};
+pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMid, SolveMut, Task};
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
-pub use write::{Pack, Post, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
 use async_trait::async_trait;
@@ -139,11 +137,19 @@ pub fn no_back(source: &str) -> Result<()> {
 pub trait SendSync: Send + Sync {}
 #[cfg(not(feature = "oneThread"))]
 impl<T: Send + Sync> SendSync for T {}
-
 #[cfg(feature = "oneThread")]
 pub trait SendSync {}
 #[cfg(feature = "oneThread")]
 impl<T> SendSync for T {}
+
+#[cfg(not(feature = "oneThread"))]
+pub trait IsSend: Send {}
+#[cfg(not(feature = "oneThread"))]
+impl<T: Send> IsSend for T {}
+#[cfg(feature = "oneThread")]
+pub trait IsSend {}
+#[cfg(feature = "oneThread")]
+impl<T> IsSend for T {}
 
 pub trait Unit: Solve + SendSync + Debug {}
 impl<T> Unit for T
@@ -161,9 +167,8 @@ pub type Pointer<T> = Arc<RwLock<T>>;
 #[cfg(feature = "oneThread")]
 pub type Pointer<T> = Rc<RefCell<T>>;
 
-
 #[cfg(not(feature = "oneThread"))]
-fn read_part<P, F, O>(part: &Arc<RwLock<P>>, read: F) -> Result<O>
+fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockReadGuard<P>) -> O,
@@ -172,7 +177,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part<P, F, O>(part: &Rc<RefCell<P>>, read: F) -> Result<O>
+fn read_part<P, F, O>(part: &Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(Ref<P>) -> O,
@@ -184,7 +189,7 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn read_part_async<'a, P, F, O>(part: &'a Arc<RwLock<P>>, read: F) -> Result<O>
+fn read_part_async<'a, P, F, O>(part: &'a Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockReadGuard<'a, P>) -> O,
@@ -194,7 +199,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn read_part_async<'a, F, P, O>(part: &'a Rc<RefCell<P>>, read: F) -> Result<O>
+fn read_part_async<'a, F, P, O>(part: &'a Pointer<P>, read: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(Ref<'a, P>) -> O,
@@ -207,7 +212,7 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<P, F, O>(part: &Arc<RwLock<P>>, write: F) -> Result<O>
+fn write_part<P, F, O>(part: &Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<P>) -> O,
@@ -216,7 +221,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<P, F, O>(part: &Rc<RefCell<P>>, write: F) -> Result<O>
+fn write_part<P, F, O>(part: &Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RefMut<P>) -> O,
@@ -228,7 +233,7 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part_async<'a, P, F, O>(part: &'a Arc<RwLock<P>>, write: F) -> Result<O>
+fn write_part_async<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
@@ -238,7 +243,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part_async<'a, F, P, O>(part: &'a Rc<RefCell<P>>, write: F) -> Result<O>
+fn write_part_async<'a, F, P, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RefMut<'a, P>) -> O,
@@ -263,10 +268,6 @@ where
 {
     fn node(self) -> Result<Node<Self>> {
         Node::from_unit(self)
-        // Node::make(|back| {
-        //     self.adapt(&mut back.clone())?;
-        //     Ok(self)
-        // })
     }
 }
 
@@ -283,11 +284,6 @@ where
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
-        // Node::make_ploy(|back| {
-        //     self.adapt(&mut back.clone())
-        //         .expect("To move into Ploy, unit must Adapt with Post::Trade.");
-        //     Ok(self)
-        // })
     }
 }
 
@@ -350,7 +346,6 @@ pub trait WorkFromBase {
 pub trait SetRoot {
     fn set_root(&mut self, root: Root);
 }
-
 
 pub trait FromSnap {
     type Unit;

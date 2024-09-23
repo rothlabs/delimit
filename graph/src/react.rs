@@ -1,13 +1,11 @@
-use async_trait::async_trait;
-
 use super::*;
-#[cfg(not(feature = "oneThread"))]
-use parking_lot::RwLock;
-#[cfg(not(feature = "oneThread"))]
-use std::sync::Weak;
-#[cfg(feature = "oneThread")]
-use std::{cell::RefCell, rc::Weak};
+use async_trait::async_trait;
 use std::{collections::HashSet, hash::Hash};
+
+#[cfg(not(feature = "oneThread"))]
+type WeakPointer<T> = std::sync::Weak<parking_lot::RwLock<T>>;
+#[cfg(feature = "oneThread")]
+type WeakPointer<T> = std::rc::Weak<std::cell::RefCell<T>>;
 
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
@@ -38,7 +36,7 @@ pub trait ReactMut {
 pub trait AddRoot {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn add_root(&mut self, root: Option<Root>);
+    fn add_root(&mut self, root: &Option<Root>);
 }
 
 pub trait Backed {
@@ -69,10 +67,7 @@ impl<T> UpdateMut for T where T: RebutMut + ReactMut + SendSync {}
 /// A Cusp holds a Ring of Roots.
 #[derive(Clone, Debug)]
 pub struct Root {
-    #[cfg(not(feature = "oneThread"))]
-    pub edge: Weak<RwLock<dyn Update>>,
-    #[cfg(feature = "oneThread")]
-    pub edge: Weak<RefCell<dyn Update>>,
+    pub edge: WeakPointer<dyn Update>,
     pub id: Id,
 }
 
@@ -81,7 +76,6 @@ impl Root {
         if let Some(edge) = self.edge.upgrade() {
             read_part(&edge, |edge| edge.rebut())?
         } else {
-            // eprintln!("Root no upgrade on rebut");
             Ok(Ring::new())
         }
     }
@@ -97,7 +91,11 @@ impl Eq for Root {}
 
 impl PartialEq for Root {
     fn eq(&self, other: &Self) -> bool {
-        Weak::ptr_eq(&self.edge, &other.edge) // && self.id == other.id
+        #[cfg(not(feature = "oneThread"))]
+        let eq = std::sync::Weak::ptr_eq(&self.edge, &other.edge); // && self.id == other.id
+        #[cfg(feature = "oneThread")]
+        let eq = std::rc::Weak::ptr_eq(&self.edge, &other.edge);
+        eq
     }
 }
 
@@ -114,7 +112,6 @@ impl React for Root {
         if let Some(edge) = self.edge.upgrade() {
             read_part_async(&edge, |edge| async move { edge.react().await })?.await
         } else {
-            // eprintln!("Root no upgrade on React");
             Ok(())
         }
     }
@@ -123,27 +120,15 @@ impl React for Root {
 /// Weakly point to the back of a cusp as UpdateMid.
 #[derive(Clone, Debug)]
 pub struct Back {
-    #[cfg(not(feature = "oneThread"))]
-    pub cusp: Weak<RwLock<dyn UpdateMut>>,
-    #[cfg(feature = "oneThread")]
-    pub cusp: Weak<RefCell<dyn UpdateMut>>,
+    pub cusp: WeakPointer<dyn UpdateMut>,
     pub id: Id,
 }
 
 impl Back {
-    #[cfg(not(feature = "oneThread"))]
-    pub fn new(cusp: Weak<RwLock<dyn UpdateMut>>, id: Id) -> Self {
-        Self { cusp, id }
-    }
-    #[cfg(feature = "oneThread")]
-    pub fn new(cusp: Weak<RefCell<dyn UpdateMut>>, id: Id) -> Self {
-        Self { cusp, id }
-    }
     pub fn rebut(&self) -> Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.rebut())?
         } else {
-            // eprintln!("Back no upgrade on rebut");
             Ok(Ring::new())
         }
     }
@@ -158,7 +143,6 @@ impl Back {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part_async(&cusp, |mut cusp| async move { cusp.react().await })?.await
         } else {
-            // eprintln!("Back no upgrade on react");
             Ok(())
         }
     }
@@ -181,9 +165,6 @@ impl Deal for Back {
         *map = map.backed(self)?;
         Ok(())
     }
-    // fn back(&self) -> Result<Back> {
-    //     Ok(self.clone())
-    // }
 }
 
 /// Points to many root edges, each pointing to back of a cusp.
@@ -205,9 +186,6 @@ impl Ring {
     pub fn extend(&mut self, ring: Ring) {
         self.roots.extend(ring.roots);
     }
-    // pub fn iter(&self) -> impl Iterator<Item = &Root> {
-    //     self.roots.iter()
-    // }
     pub fn add_root(&mut self, root: Root) {
         self.roots.insert(root);
     }
@@ -224,7 +202,7 @@ impl Ring {
         // self.roots.clear();
         Ok(out)
     }
-    pub fn rebut_roots(&mut self) -> Result<Ring> {
+    pub fn root_rebut(&mut self) -> Result<Ring> {
         let mut ring = Ring::new();
         for root in &self.roots {
             ring.roots.extend(root.rebut()?.roots);
@@ -241,11 +219,3 @@ impl Ring {
         Ok(())
     }
 }
-
-// pub trait ClearRoots {
-//     fn clear_roots(&self) -> Result<()>;
-// }
-
-// pub trait ClearRootsMut {
-//     fn clear_roots(&mut self) -> Result<()>;
-// }

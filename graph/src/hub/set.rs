@@ -25,7 +25,6 @@ struct Set {
     aim: Aim,
     apex: Apex,
     back: Option<Back>,
-    wrote: bool,
 }
 
 impl Set {
@@ -34,16 +33,12 @@ impl Set {
             aim: aim.into(),
             apex: apex.into(),
             back: None,
-            wrote: false,
         }
     }
 }
 
 impl Deal for Set {
-    fn wrote(&self) -> bool {
-        self.wrote
-    }
-    fn set_back(&mut self, back: &Back) {
+    fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
@@ -51,7 +46,6 @@ impl Deal for Set {
             match self.aim {
                 Aim::Index(i) => {
                     view.set(i, self.apex.backed(back)?)?;
-                    self.wrote = true;
                     Ok(())
                 }
                 _ => Err(self.aim.wrong_variant("Index"))?,
@@ -74,7 +68,6 @@ struct Insert {
     aim: Aim,
     apex: Apex,
     back: Option<Back>,
-    wrote: bool,
 }
 
 impl Insert {
@@ -83,16 +76,12 @@ impl Insert {
             aim: aim.into(),
             apex: apex.into(),
             back: None,
-            wrote: false,
         }
     }
 }
 
 impl Deal for Insert {
-    fn wrote(&self) -> bool {
-        self.wrote
-    }
-    fn set_back(&mut self, back: &Back) {
+    fn back(&mut self, back: &Back) {
         self.back = Some(back.clone());
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {

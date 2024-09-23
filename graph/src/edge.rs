@@ -16,34 +16,15 @@ pub type Node<U> = Edge<cusp::Node<U>>;
 
 /// The forward bridge between hubes.
 #[derive(Debug)]
-pub struct Edge<N> {
+pub struct Edge<C> {
+    cusp: Pointer<C>,
     root: Option<Root>,
     back: Option<Back>,
-    #[cfg(not(feature = "oneThread"))]
-    cusp: Arc<RwLock<N>>,
-    #[cfg(feature = "oneThread")]
-    cusp: Rc<RefCell<N>>,
 }
 
-impl<C> Default for Edge<C>
+impl<C> FromBase for Edge<C>
 where
-    C: Default,
-{
-    fn default() -> Self {
-        Self {
-            root: None,
-            back: None,
-            #[cfg(not(feature = "oneThread"))]
-            cusp: Arc::new(RwLock::new(C::default())),
-            #[cfg(feature = "oneThread")]
-            cusp: Rc::new(RefCell::new(C::default())),
-        }
-    }
-}
-
-impl<C> FromBase for Edge<C> 
-where 
-    C: 'static + FromBase + ReactMut + AddRoot + SendSync
+    C: 'static + FromBase + ReactMut + AddRoot + SendSync,
 {
     type Base = C::Base;
     fn from_base(base: C::Base) -> Pointer<Self> {
@@ -52,15 +33,6 @@ where
             back: None,
             cusp: C::from_base(base),
         })
-        // let cusp = C::from_base(base);
-        // Self {
-        //     root: None,
-        //     back: None,
-        //     #[cfg(not(feature = "oneThread"))]
-        //     cusp: Arc::new(RwLock::new(cusp)),
-        //     #[cfg(feature = "oneThread")]
-        //     cusp: Rc::new(RefCell::new(cusp)),
-        // }
     }
 }
 
@@ -83,7 +55,7 @@ where
                 root: None,
                 back: None,
                 cusp,
-            })
+            }),
         ))
     }
 }
@@ -91,19 +63,18 @@ where
 impl<C> Solve for Edge<C>
 where
     C: SolveMut + AddRoot + SendSync,
-    C::Base: Payload,
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.solve().await
         })?
         .await
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.reckon(task)
         })?
     }
@@ -117,7 +88,7 @@ where
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.adapt_get(deal)
         })?
     }
@@ -137,29 +108,30 @@ where
     C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
 {
     type Base = C::Base;
-    
+
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.solve().await
-        })?.await
+        })?
+        .await
     }
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
         edge_pointer(Self {
-            root: None, 
+            root: None,
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })
     }
     fn reckon(&self, task: Task) -> Result<Gain> {
         write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.reckon(task)
         })?
     }
 }
 
-impl<C> BackedMid for Edge<C> 
+impl<C> BackedMid for Edge<C>
 where
     C: 'static + ReactMut + AddRoot + SendSync,
 {
@@ -179,27 +151,26 @@ where
     C: WriteBaseOut<T> + SendSync,
 {
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
-        let Post { roots, out } =
-            write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
-        roots.react().await?;
+        let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
+        ring.react().await?;
         Ok(out)
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<N> WriteUnit for Edge<N>
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
+impl<C> WriteUnit for Edge<C>
 where
-    N: 'static + WriteUnitOut + UpdateMut,
+    C: 'static + WriteUnitOut + UpdateMut,
 {
-    type Unit = N::Unit;
-    async fn write<T: SendSync, F: FnOnce(&mut Pack<Self::Unit>) -> T + SendSync>(
-        &self,
-        write: F,
-    ) -> Result<T> {
-        let Post { roots, out } =
-            write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
-        roots.react().await?;
+    type Unit = C::Unit;
+    async fn write<O, F>(&self, write: F) -> Result<O>
+    where
+        O: SendSync,
+        F: FnOnce(&mut Pack<C::Unit>) -> O + SendSync,
+    {
+        let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
+        ring.react().await?;
         Ok(out)
     }
 }
@@ -209,9 +180,12 @@ where
     N: ToItem + AddRoot,
 {
     type Item = N::Item;
-    fn read<T, F: FnOnce(&Self::Item) -> T>(&self, read: F) -> Result<T> {
+    fn read<T, F>(&self, read: F) -> Result<T>
+    where
+        F: FnOnce(&N::Item) -> T,
+    {
         write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             read(cusp.item())
         })
     }
@@ -242,7 +216,7 @@ where
 {
     async fn react(&self) -> Result<()> {
         write_part_async(&self.cusp, |mut cusp| async move {
-            cusp.add_root(self.root.clone());
+            cusp.add_root(&self.root);
             cusp.react().await
         })?
         .await
@@ -260,7 +234,7 @@ where
         edge: Arc::downgrade(&update),
         id: rand::random(),
     };
-    edge.write().set_root(root); 
+    edge.write().set_root(root);
     edge
 }
 
@@ -275,6 +249,6 @@ where
         edge: Rc::downgrade(&update),
         id: rand::random(),
     };
-    edge.borrow_mut().set_root(root); 
+    edge.borrow_mut().set_root(root);
     edge
 }

@@ -15,9 +15,9 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-impl<W> FromBase for Cusp<W> 
-where 
-    W: 'static + WorkFromBase + Clear + ReactMut + SendSync
+impl<W> FromBase for Cusp<W>
+where
+    W: 'static + WorkFromBase + Clear + ReactMut + SendSync,
 {
     type Base = W::Base;
     fn from_base(base: W::Base) -> Pointer<Self> {
@@ -30,8 +30,8 @@ where
     }
 }
 
-impl<W> FromSnap for Cusp<W> 
-where 
+impl<W> FromSnap for Cusp<W>
+where
     W: 'static + WorkFromSnap + Clear + ReactMut + SolveMut + SendSync,
 {
     type Unit = W::Unit;
@@ -49,7 +49,7 @@ where
 
 impl<W: SolveMut> Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
-        if !self.work.adapt(&mut back).is_ok() {
+        if self.work.adapt(&mut back).is_err() {
             self.work.back(&back)?;
         }
         self.back = Some(back);
@@ -59,43 +59,34 @@ impl<W: SolveMut> Cusp<W> {
 
 impl<W, T> WriteBaseOut<T> for Cusp<W>
 where
-    W: BaseMut<T>,
+    W: BaseMut<T> + Clear,
 {
-    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<Post<O>> {
+    fn write_base_out<O, F: FnOnce(&mut T) -> O>(&mut self, write: F) -> Result<(Ring, O)> {
+        self.work.clear();
+        let ring = self.ring.root_rebut()?;
         let out = write(self.work.base());
-        let roots = self.ring.rebut_roots()?;
-        Ok(Post {
-            roots,
-            out,
-        })
+        Ok((ring, out))
     }
 }
 
 impl<W> WriteUnitOut for Cusp<W>
 where
-    W: WriteUnitWork,
+    W: WriteUnitWork + Clear,
 {
     type Unit = W::Unit;
-    fn write_unit_out<T, F: FnOnce(&mut Pack<Self::Unit>) -> T>(
-        &mut self,
-        write: F,
-    ) -> Result<Post<T>> {
-        // TODO: remove unrwap
-        let out = self
-            .work
-            .write_unit_work(write, &self.back.clone().unwrap())?;
-        let roots = self.ring.rebut_roots()?;
-        Ok(Post {
-            roots,
-            out,
-        })
+    fn write_unit_out<O, F>(&mut self, write: F) -> Result<(Ring, O)>
+    where
+        F: FnOnce(&mut Pack<Self::Unit>) -> O,
+    {
+        let back = self.back.as_ref().ok_or(anyhow!("no back"))?;
+        self.work.clear();
+        let ring = self.ring.root_rebut()?;
+        let out = self.work.write_unit_work(write, back);
+        Ok((ring, out))
     }
 }
 
-impl<W> ToItem for Cusp<W>
-where
-    W: ToItem,
-{
+impl<W: ToItem> ToItem for Cusp<W> {
     type Item = W::Item;
     fn item(&self) -> &Self::Item {
         self.work.item()
@@ -103,9 +94,9 @@ where
 }
 
 impl<W> AddRoot for Cusp<W> {
-    fn add_root(&mut self, root: Option<Root>) {
+    fn add_root(&mut self, root: &Option<Root>) {
         if let Some(root) = root {
-            self.ring.add_root(root);
+            self.ring.add_root(root.clone());
         }
     }
 }
@@ -158,14 +149,11 @@ where
         self.work.adapt(deal)
     }
     fn adapt_set(&mut self, deal: &mut dyn Deal) -> Result<Ring> {
+        let back = self.back.as_ref().ok_or(anyhow!("no back"))?;
+        deal.back(back);
         self.work.clear();
-        if let Some(back) = self.back.as_ref() {
-            deal.set_back(back);
-        } else {
-            return Err(anyhow!("No back in cusp adapt."))?;
-        }
         self.work.adapt(deal)?;
-        Ok(self.ring.rebut_roots()?)
+        self.ring.root_rebut()
     }
 }
 
@@ -186,7 +174,7 @@ where
 #[cfg(feature = "oneThread")]
 pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
 where
-    T: 'static + UpdateMut,// + SetBack,
+    T: 'static + UpdateMut, // + SetBack,
 {
     let cusp = Rc::new(RefCell::new(cusp));
     let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
