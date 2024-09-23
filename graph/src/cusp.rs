@@ -10,16 +10,9 @@ pub type Node<U> = Cusp<work::Node<U>>;
 /// A cusp creates an interactive bridge between root edges and work nodes.
 #[derive(Debug)]
 pub struct Cusp<W> {
-    id: Id,
     work: W,
     ring: Ring,
     back: Option<Back>,
-}
-
-impl<W> ToId for Cusp<W> {
-    fn id(&self) -> Id {
-        self.id
-    }
 }
 
 impl<W> FromItem for Cusp<W>
@@ -29,7 +22,6 @@ where
     type Item = W::Item;
     fn new(item: Self::Item) -> Self {
         Self {
-            id: rand::random(),
             work: W::new(item),
             ring: Ring::new(),
             back: None,
@@ -45,7 +37,6 @@ where
     fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
         let (rank, work) = W::from_snap(snap);
         let (cusp, back) = cusp_pointer(Self {
-            id: rand::random(),
             work,
             ring: Ring::new(),
             back: None,
@@ -75,7 +66,6 @@ where
         Ok(Post {
             roots,
             out,
-            id: self.id,
         })
     }
 }
@@ -97,7 +87,6 @@ where
         Ok(Post {
             roots,
             out,
-            id: self.id,
         })
     }
 }
@@ -139,8 +128,8 @@ impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
 {
-    async fn react(&mut self, id: &Id) -> Result<()> {
-        self.work.react(id).await
+    async fn react(&mut self) -> Result<()> {
+        self.work.react().await
     }
 }
 
@@ -164,7 +153,7 @@ impl<W> AdaptOut for Cusp<W>
 where
     W: SolveMut + Clear,
 {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Ring, u64)> {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Ring> {
         self.work.clear();
         if let Some(back) = self.back.as_ref() {
             deal.set_back(back);
@@ -177,7 +166,7 @@ where
         } else {
             Ring::new()
         };
-        Ok((roots, self.id))
+        Ok(roots)
     }
 }
 

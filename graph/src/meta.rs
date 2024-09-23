@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 /// Runtime-only ID. Used to easily distinguish between hub instances.
 pub type Id = u64;
 
-pub trait ToId {
-    fn id(&self) -> Id;
-}
+// pub trait ToId {
+//     fn id(&self) -> Id;
+// }
 
 /// Path component. Used to lookup a hub from another hub such as Lake or Bay.
 pub type Key = String;

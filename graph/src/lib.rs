@@ -10,7 +10,7 @@ pub use hub::{DealItem, Hub, SolveDown};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
-pub use meta::{upper_all, Id, Import, Key, Path, ToId, WORLD_ALL};
+pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use ploy::{Based, Engage, Ploy, PloyEdge, ToPloy};
 pub use react::{
     AddRoot,

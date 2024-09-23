@@ -167,7 +167,7 @@ where
     U: Solve + SendSync,
     U::Base: Payload,
 {
-    async fn react(&mut self, _: &Id) -> Result<()> {
+    async fn react(&mut self) -> Result<()> {
         // self.unit.as_ref().unwrap().reckon(Task::React)?;
         // Ok(())
         match self.unit.solve().await {

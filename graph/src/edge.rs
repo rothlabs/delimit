@@ -109,7 +109,7 @@ where
     C: AdaptOut + UpdateMut,
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
+        let _ = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         Ok(())
     }
 }
@@ -121,10 +121,10 @@ where
     C: AdaptOut + UpdateMut,
 {
     async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        let (roots, id) = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
+        let roots = write_part(&self.cusp, |mut cusp| cusp.adapt(deal))??;
         if deal.wrote() {
             for root in roots.iter() {
-                root.react(&id).await?;
+                root.react().await?;
             }
         }
         Ok(())
@@ -180,10 +180,10 @@ where
     C: WriteBaseOut<T> + SendSync,
 {
     async fn write<O: SendSync, F: FnOnce(&mut T) -> O + SendSync>(&self, write: F) -> Result<O> {
-        let Post { roots, id, out } =
+        let Post { roots, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         for root in roots.iter() {
-            root.react(&id).await?;
+            root.react().await?;
         }
         Ok(out)
     }
@@ -200,10 +200,10 @@ where
         &self,
         write: F,
     ) -> Result<T> {
-        let Post { roots, id, out } =
+        let Post { roots, out } =
             write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         for root in roots.iter() {
-            root.react(&id).await?;
+            root.react().await?;
         }
         Ok(out)
     }
@@ -245,10 +245,10 @@ impl<N> React for Edge<N>
 where
     N: ReactMut + AddRoot + SendSync,
 {
-    async fn react(&self, id: &Id) -> Result<()> {
+    async fn react(&self) -> Result<()> {
         write_part_async(&self.cusp, |mut cusp| async move {
             cusp.add_root(self.root.clone());
-            cusp.react(id).await
+            cusp.react().await
         })?
         .await
     }

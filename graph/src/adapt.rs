@@ -16,7 +16,7 @@ pub enum Error {
 pub trait AdaptOut {
     /// Alter a hub.
     /// Useful for inserting, removing, and more.
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<(Ring, u64)>;
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<Ring>;
 }
 
 pub trait AdaptGet {

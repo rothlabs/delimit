@@ -25,14 +25,14 @@ pub trait RebutMut {
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait React {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react(&self, id: &Id) -> Result<()>;
+    async fn react(&self) -> Result<()>;
 }
 
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react(&mut self, id: &Id) -> Result<()>;
+    async fn react(&mut self) -> Result<()>;
 }
 
 pub trait AddRoot {
@@ -62,8 +62,8 @@ impl<T> Update for T where T: Rebut + React + SendSync {}
 // impl<T> Update for Box<T> where T: Rebut + React + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
-pub trait UpdateMut: RebutMut + ReactMut + ToId + SendSync {}
-impl<T> UpdateMut for T where T: RebutMut + ReactMut + ToId + SendSync {}
+pub trait UpdateMut: RebutMut + ReactMut + SendSync {}
+impl<T> UpdateMut for T where T: RebutMut + ReactMut + SendSync {}
 
 /// Weakly point to a root edge, the inverse of Link.
 /// A Cusp holds a Ring of Roots.
@@ -110,9 +110,9 @@ impl Hash for Root {
 #[cfg_attr(not(feature = "oneThread"), async_trait)]
 #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl React for Root {
-    async fn react(&self, id: &Id) -> Result<()> {
+    async fn react(&self) -> Result<()> {
         if let Some(edge) = self.edge.upgrade() {
-            read_part_async(&edge, |edge| async move { edge.react(id).await })?.await
+            read_part_async(&edge, |edge| async move { edge.react().await })?.await
         } else {
             // eprintln!("Root no upgrade on React");
             Ok(())
@@ -154,9 +154,9 @@ impl Back {
             Ok(())
         }
     }
-    pub async fn react(&self, id: &Id) -> Result<()> {
+    pub async fn react(&self) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part_async(&cusp, |mut cusp| async move { cusp.react(id).await })?.await
+            write_part_async(&cusp, |mut cusp| async move { cusp.react().await })?.await
         } else {
             // eprintln!("Back no upgrade on react");
             Ok(())

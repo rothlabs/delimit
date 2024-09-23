@@ -12,7 +12,7 @@ pub struct Pack<'a, U: 'a> {
 pub struct Post<T> {
     pub roots: Ring,
     // pub hits: Ring,
-    pub id: Id,
+    // pub id: Id,
     pub out: T,
 }
 
