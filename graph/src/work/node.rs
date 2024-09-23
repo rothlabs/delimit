@@ -127,16 +127,18 @@ impl<U: Solve> WriteUnitWork for Node<U> {
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
+// #[cfg_attr(not(feature = "oneThread"), async_trait)]
+// #[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<U> ReactMut for Node<U>
 where
     U: Solve + SendSync,
 {
-    async fn react_mut(&mut self) -> Result<()> {
-        match self.solve().await {
-            Ok(_) => Ok(()),
-            Err(err) => Err(err),
-        }
+    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
+        Box::pin(async move {
+            match self.solve().await {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
+            }
+        })
     }
 }

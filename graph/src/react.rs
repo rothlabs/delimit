@@ -26,11 +26,9 @@ pub trait React {
     async fn react(&self) -> Result<()>;
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 pub trait ReactMut {
     /// Cause the unit to react. Call only on graph roots returned from the rebut phase.
-    async fn react_mut(&mut self) -> Result<()>;
+    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>>;
 }
 
 pub trait AddRoot {

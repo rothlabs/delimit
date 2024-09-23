@@ -115,14 +115,14 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
 impl<W> ReactMut for Cusp<W>
 where
     W: ReactMut + SendSync,
 {
-    async fn react_mut(&mut self) -> Result<()> {
-        self.work.react_mut().await
+    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
+        Box::pin(async move {
+            self.work.react_mut().await
+        })
     }
 }
 

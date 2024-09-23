@@ -53,17 +53,15 @@ impl<T> ToItem for Leaf<T> {
 impl<T> BaseMut for Leaf<T> {
     type Base = T;
     fn base(&mut self) -> &mut T {
-        // TODO: do I need to clear here?
-        // self.clear();
         &mut self.base
     }
 }
 
-#[cfg_attr(not(feature = "oneThread"), async_trait)]
-#[cfg_attr(feature = "oneThread", async_trait(?Send))]
-impl<T: SendSync> ReactMut for Leaf<T> {
-    async fn react_mut(&mut self) -> Result<()> {
-        Ok(())
+impl<T> ReactMut for Leaf<T> {
+    fn react_mut<'a>(&'a mut self) -> AsyncFuture<Result<()>> {
+        Box::pin(async move {
+            Ok(()) 
+        })
     }
 }
 
@@ -80,15 +78,6 @@ impl<T: Payload> SolveMut for Leaf<T> {
             Task::Hash => self.digest(),
             _ => task.no_handler(self),
         }
-    }
-}
-
-impl<T> RebutMut for Leaf<T> {
-    fn rebut(&mut self) -> Result<Ring> {
-        Ok(Ring::new())
-    }
-    fn clear_roots(&mut self) -> Result<()> {
-        Ok(())
     }
 }
 
