@@ -187,11 +187,6 @@ pub struct Particles {
 impl ParticlesBuilder {
     pub fn make(self) -> Result<Node<Particles>> {
         self.build()?.node()
-        // let mut part = self.build()?;
-        // Node::make(|back| {
-        //     part.tick = part.tick.backed(back)?;
-        //     Ok(part)
-        // })
     }
 }
 

@@ -217,6 +217,7 @@ impl<E: Read> Link<E> {
     /// Read payload of Link.
     pub fn read<F, O>(&self, read: F) -> Result<O>
     where
+        // TODO: take ReadGuard directly so its lifetime is okay for async block in closure
         F: FnOnce(&E::Item) -> O,
     {
         read_part(&self.edge, |edge| edge.read(read))?
