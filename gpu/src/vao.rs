@@ -24,11 +24,6 @@ pub struct Vao {
 impl VaoBuilder {
     pub fn make(self) -> Result<Node<Vao>> {
         self.build()?.node()
-        // let mut vao = self.build()?;
-        // Node::make(|back| {
-        //     vao.attributes = vao.attributes.backed(back)?;
-        //     Ok(vao)
-        // })
     }
 }
 

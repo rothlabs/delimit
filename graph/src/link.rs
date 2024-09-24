@@ -64,7 +64,7 @@ impl<E: ?Sized> Link<E> {
 
 impl<E> Link<E>
 where
-    Self: Solve<Base = ()>,
+    Self: Solve,
 {
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
@@ -105,10 +105,7 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    E: 'static + FromBase + SetRoot + Update,
-{
+impl<E: FromBase> Link<E> {
     pub fn new(base: E::Base) -> Self {
         Self {
             path: None,
@@ -118,10 +115,7 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    E: 'static + FromSnap + Update + SetRoot,
-{
+impl<E: FromSnap> Link<E> {
     pub fn from_unit(unit: E::Unit) -> Result<Self> {
         let (rank, edge) = E::from_snap(unit.into())?;
         Ok(Self {
@@ -194,9 +188,9 @@ impl<E: ?Sized> PartialEq for Link<E> {
     }
 }
 
-impl<E: ?Sized> Backed for Link<E>
+impl<E> Backed for Link<E>
 where
-    E: 'static + BackedMid + Update,
+    E: BackedMid + ?Sized,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| Self {
@@ -207,10 +201,7 @@ where
     }
 }
 
-impl<T> Backed for Ploy<T>
-where
-    T: 'static + Payload,
-{
+impl<T: Payload> Backed for Ploy<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
             Ok(Self {
@@ -222,21 +213,11 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    E: Read,
-{
+impl<E: Read> Link<E> {
     /// Read payload of Link.
     pub fn read<F, O>(&self, read: F) -> Result<O>
     where
         F: FnOnce(&E::Item) -> O,
-    {
-        read_part(&self.edge, |edge| edge.read(read))?
-    }
-    pub fn read_async<F, O>(&self, read: F) -> Result<O>
-    where
-        F: FnOnce(&E::Item) -> O,
-        O: std::future::Future
     {
         read_part(&self.edge, |edge| edge.read(read))?
     }
@@ -270,10 +251,9 @@ where
     }
 }
 
-impl<E> Solve for Link<E>
-where
-    E: 'static + Solve + Update,
-    E::Base: Payload,
+impl<E> Solve for Link<E> 
+where 
+    E: Solve + SendSync
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
@@ -297,9 +277,9 @@ where
     }
 }
 
-impl<E: ?Sized> Adapt for Link<E>
+impl<E> Adapt for Link<E>
 where
-    E: 'static + Adapt + Update,
+    E: Adapt + ?Sized + SendSync,
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?
@@ -314,19 +294,13 @@ where
     }
 }
 
-impl<T> Backed for Vec<T>
-where
-    T: Backed,
-{
+impl<T: Backed> Backed for Vec<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
 
-impl<T> Backed for Option<T>
-where
-    T: Backed,
-{
+impl<T: Backed> Backed for Option<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         if let Some(x) = self {
             Ok(Some(x.backed(back)?))
