@@ -252,9 +252,9 @@ where
     }
 }
 
-impl<E> Solve for Link<E> 
-where 
-    E: Solve + SendSync
+impl<E> Solve for Link<E>
+where
+    E: Solve + SendSync,
 {
     type Base = E::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {

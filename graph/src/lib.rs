@@ -204,7 +204,7 @@ where
 
 pub trait IntoPloy
 where
-    Self: Solve
+    Self: Solve,
 {
     fn ploy(self) -> Result<Ploy<Self::Base>>;
 }

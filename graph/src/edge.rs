@@ -171,14 +171,14 @@ where
     }
 }
 
-impl<N> Read for Edge<N>
+impl<C> Read for Edge<C>
 where
-    N: ToItem + AddRoot,
+    C: ToItem + AddRoot,
 {
-    type Item = N::Item;
+    type Item = C::Item;
     fn read<T, F>(&self, read: F) -> Result<T>
     where
-        F: FnOnce(&N::Item) -> T,
+        F: FnOnce(&C::Item) -> T,
     {
         write_part(&self.cusp, |mut cusp| {
             cusp.add_root(&self.root);
@@ -187,7 +187,7 @@ where
     }
 }
 
-impl<N> Rebut for Edge<N> {
+impl<C> Rebut for Edge<C> {
     fn rebut(&self) -> Result<Ring> {
         if let Some(back) = &self.back {
             back.rebut()
@@ -204,9 +204,9 @@ impl<N> Rebut for Edge<N> {
     }
 }
 
-impl<N> React for Edge<N>
+impl<C> React for Edge<C>
 where
-    N: ReactMut + AddRoot + SendSync,
+    C: ReactMut + AddRoot + SendSync,
 {
     fn react(&self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
