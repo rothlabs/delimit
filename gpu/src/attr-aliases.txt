@@ -1,0 +1,1 @@
+*build=builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))

@@ -6,12 +6,14 @@ edition = "2021"
 [dependencies]
     wasm-bindgen = "0.2.93"
     wasm-bindgen-futures = "0.4.43"
-
-        gloo-timers = { version = "0.3.0", features = ["futures"] }
+    gloo-timers = { version = "0.3.0", features = ["futures"] }
     # dtolnay
         anyhow = "1.0.86"
     # Macros
         derive_builder = "0.20.0"
+        paste = "1.0"
+        macro_rules_attribute = "0.2.0"
+        attr_alias = "0.1.3"
     # delimit 
         graph = { path = "../graph", features = ["oneThread"], default-features = false }
         text = {path = "../text"}

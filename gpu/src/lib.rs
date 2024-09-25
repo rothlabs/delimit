@@ -1,10 +1,7 @@
 pub use anyhow::anyhow;
 pub use buffer::Buffer;
-use buffer::BufferBuilder;
 pub use buffer_in::BufferIn;
-use buffer_in::BufferInBuilder;
 pub use bufferer::Bufferer;
-use bufferer::BuffererBuilder;
 pub use canvas::Canvas;
 pub use draw_arrays::DrawArrays;
 pub use draw_elements::DrawElements;
@@ -14,6 +11,13 @@ pub use tfo::Tfo;
 pub use vao::Vao;
 pub use vertex_attribute::VertexAttribute;
 
+#[macro_use]
+extern crate macro_rules_attribute;
+
+use buffer::BufferBuilder;
+use bufferer::BuffererBuilder;
+use buffer_in::BufferInBuilder;
+use paste::paste;
 use derive_builder::Builder;
 use draw_arrays::DrawArraysBuilder;
 use draw_elements::DrawElementsBuilder;
@@ -65,12 +69,13 @@ impl Gpu {
             .gl
             .create_program()
             .ok_or(anyhow!("failed to create program"))?;
+        vertex.read(|unit| self.gl.attach_shader(&object, &unit.object))?;
+        fragment.read(|unit| self.gl.attach_shader(&object, &unit.object))?;
         Ok(ProgramBuilder::default()
             .gl(self.gl.clone())
             .object(object)
             .vertex(vertex)
-            .fragment(fragment)
-            .clone())
+            .fragment(fragment))
     }
     pub fn buffer(&self) -> Result<Buffer> {
         let buffer = self
@@ -141,6 +146,20 @@ impl Gpu {
         );
     }
 }
+
+// macro_rules! make {
+//     ($Unit:ident) => (
+//         impl paste!{[<$Unit "Builder">]} {
+//             pub fn make(self) -> Result<Node<$Unit>> {
+//                 self.build()?.node()
+//             }
+//         }
+//     )
+// }
+
+// make!{DrawElements}
+
+
 
 // pub fn vao(&self, attributes: impl Into<Attributes>) -> Result<VaoBuilder> {
 //     let object = self

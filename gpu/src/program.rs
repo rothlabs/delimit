@@ -2,36 +2,18 @@ use super::*;
 use web_sys::WebGlProgram;
 
 /// GPU program based on vertex and fragment shaders.
-#[derive(Builder, Debug)]
-#[builder(setter(into), build_fn(error = "graph::Error"))]
+#[attr_alias::eval]
+#[derive(Builder, Debug, Make!)]
+#[attr_alias(build)]
 pub struct Program {
     gl: WGLRC,
     object: WebGlProgram,
     vertex: Node<Shader>,
     fragment: Node<Shader>,
-    #[builder(default)]
-    #[builder(setter(each(name = "out", into)))]
+    #[builder(default, setter(each(name = "out", into)))]
     outs: Vec<Hub<String>>,
     #[builder(default = "WGLRC::INTERLEAVED_ATTRIBS")]
     pub out_type: u32,
-}
-
-impl ProgramBuilder {
-    pub fn make(&mut self) -> Result<Node<Program>> {
-        let program = self.build()?;
-        program
-            .vertex
-            .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
-        program
-            .fragment
-            .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
-        program.node()
-        // Node::make(|back| {
-        //     program.vertex = program.vertex.backed(back)?;
-        //     program.fragment = program.fragment.backed(back)?;
-        //     Ok(program)
-        // })
-    }
 }
 
 impl Program {
@@ -77,3 +59,22 @@ impl Act for Program {
 // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
 // let outputs = Array::from_iter(outs.into_iter());
 // let outputs = Array::from_iter(self.outputs.iter().map(|x| Hub::base));
+
+
+// impl ProgramBuilder {
+//     pub fn make(&mut self) -> Result<Node<Program>> {
+//         let program = self.build()?;
+//         // program
+//         //     .vertex
+//         //     .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
+//         // program
+//         //     .fragment
+//         //     .read(|unit| program.gl.attach_shader(&program.object, &unit.object))?;
+//         program.node()
+//         // Node::make(|back| {
+//         //     program.vertex = program.vertex.backed(back)?;
+//         //     program.fragment = program.fragment.backed(back)?;
+//         //     Ok(program)
+//         // })
+//     }
+// }

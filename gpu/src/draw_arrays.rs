@@ -1,8 +1,9 @@
 use super::*;
 
 /// Draw arrays with WebGL.
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
+#[attr_alias::eval]
+#[derive(Builder, Debug, Make!)]
+#[attr_alias(build)]
 pub struct DrawArrays {
     gl: WGLRC,
     program: Node<Program>,
@@ -26,12 +27,6 @@ pub struct DrawArrays {
     rasterizer_discard: bool,
     #[builder(default)]
     tick: Hub<i32>,
-}
-
-impl DrawArraysBuilder {
-    pub fn make(self) -> Result<Node<DrawArrays>> {
-        self.build()?.node()
-    }
 }
 
 impl DrawArrays {
@@ -59,6 +54,10 @@ impl Act for DrawArrays {
         self.program.act().await?;
         self.program.read(|unit| unit.use_())?;
         for bufferer in &self.writers {
+            // let wow = bufferer.clone().hub();
+            // wow.base().await?;
+            // let hey = Apex::Void(bufferer.clone().into());
+            // let huh = wow.solve().await?;
             bufferer.act().await?;
         }
         self.vao.act().await?;

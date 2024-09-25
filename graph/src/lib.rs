@@ -46,6 +46,22 @@ use std::{
     rc::Rc,
 };
 
+// #[macro_use]
+// pub extern crate macro_rules_attribute;
+
+#[macro_export]
+macro_rules! Make {(
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident $tt:tt
+) => (
+    impl paste!{[<$Unit "Builder">]} {
+        pub fn make(self) -> Result<Node<$Unit>> {
+            self.build()?.node()
+        }
+    }
+)}
+
 pub mod adapt;
 pub mod hub;
 pub mod lake;

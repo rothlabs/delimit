@@ -1,8 +1,8 @@
 use super::*;
 
-/// Draw elements on WebGL canvas.
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
+#[attr_alias::eval]
+#[derive(Builder, Debug, Make!)]
+#[attr_alias(build)]
 pub struct DrawElements {
     gl: WGLRC,
     program: Node<Program>,
@@ -15,12 +15,6 @@ pub struct DrawElements {
     /// Number of values to skip before drawing.
     #[builder(default)]
     offset: Hub<i32>,
-}
-
-impl DrawElementsBuilder {
-    pub fn make(self) -> Result<Node<DrawElements>> {
-        self.build()?.node()
-    }
 }
 
 impl DrawElements {
