@@ -12,7 +12,6 @@ edition = "2021"
     paste = "1.0"
     macro_rules_attribute = "0.2.0"
     graph = { path = "../graph", features = ["oneThread"], default-features = false }
-    # text = { path = "../text", default-features = false }
 
 [dependencies.web-sys]
     version = "0.3.70"
