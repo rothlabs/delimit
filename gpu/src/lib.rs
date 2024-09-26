@@ -1,48 +1,41 @@
 pub use anyhow::anyhow;
 pub use buffer::*;
-pub use buffer_reader::BufferReader;
-pub use bufferer::Bufferer;
-pub use canvas::Canvas;
-pub use draw_arrays::DrawArrays;
-pub use draw_elements::DrawElements;
-pub use program::Program;
-pub use shader::Shader;
-pub use tfo::Tfo;
-pub use vao::Vao;
-pub use vertex_attribute::VertexAttribute;
+pub use buffer_reader::*;
+pub use bufferer::*;
+pub use canvas::*;
+pub use draw_arrays::*;
+pub use draw_elements::*;
+pub use program::*;
+pub use shader::*;
+pub use tfo::*;
+pub use vao::*;
+pub use vertex_attribute::*;
+pub use texture::*;
 
-#[macro_use]
-extern crate macro_rules_attribute;
-
-use buffer_reader::*;
-use bufferer::*;
 use derive_builder::Builder;
-use draw_arrays::*;
-use draw_elements::*;
 use graph::*;
 use paste::paste;
-use program::*;
-use texture::*;
-use tfo::*;
 use vao_writer::*;
-use vertex_attribute::*;
 use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
-pub mod buffer;
-pub mod buffer_reader;
-pub mod bufferer;
-pub mod program;
 pub mod shader;
-pub mod texture;
-pub mod tfo;
-pub mod vao;
-pub mod vao_writer;
 
+mod buffer;
+mod buffer_reader;
+mod bufferer;
+mod program;
+mod texture;
+mod tfo;
+mod vao;
+mod vao_writer;
 mod canvas;
 mod draw_arrays;
 mod draw_elements;
 mod vertex_attribute;
+
+#[macro_use]
+extern crate macro_rules_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 

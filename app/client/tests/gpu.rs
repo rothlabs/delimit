@@ -1,6 +1,5 @@
 use gpu::*;
 use graph::*;
-use texture::Texture;
 
 pub fn make_canvas() -> Result<Gpu> {
     let canvas = Canvas::new();

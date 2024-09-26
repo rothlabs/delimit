@@ -50,6 +50,7 @@ impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
         self.stems.poll().await?;
         self.program.act().await?;
+        // TODO: use wrapper of WebGlProgram directly
         self.program.read(|unit| unit.use_())?;
         self.vao.bind();
         if let Some(tfo) = &self.tfo {

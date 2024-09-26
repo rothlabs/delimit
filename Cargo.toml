@@ -1,5 +1,5 @@
 [workspace]
-    members = ["app/server", "graph", "text", "repo"]
+    members = ["app/server", "graph", "text", "repo", "dom"]
     exclude = ["app/client", "gpu"]
     resolver = "2" 
 

@@ -28,6 +28,7 @@ impl View<'_> {
         }
     }
     pub fn path(&self) -> Option<&Path> {
+        // TODO: use macro_rules to reduce this
         match self {
             Self::Void(x) => x.path(),
             Self::String(x) => x.path(),
@@ -53,6 +54,7 @@ impl View<'_> {
         Ok(apex)
     }
     pub fn set(self, apex: Apex) -> Result<Self> {
+        // TODO: use macro_rules to reduce this
         match self {
             Self::Void(x) => {
                 if let Apex::Void(y) = apex {
