@@ -6,9 +6,9 @@ use super::*;
 #[attr_alias(build)]
 pub struct DrawArrays {
     gl: WGLRC,
+    #[builder(default, setter(each(name = "stem", into)))]
+    stems: Vec<Apex>,
     program: Node<Program>,
-    #[builder(default, setter(each(name = "writer")))]
-    writers: Vec<Node<Bufferer>>,
     #[builder(default = "WGLRC::TRIANGLES")]
     pub mode: u32,
     /// Vertex array object, collection of buffer attributes.
@@ -25,8 +25,6 @@ pub struct DrawArrays {
     tfo: Option<Tfo>,
     #[builder(default)]
     rasterizer_discard: bool,
-    #[builder(default)]
-    tick: Hub<i32>,
 }
 
 impl DrawArrays {
@@ -50,16 +48,9 @@ impl DrawArrays {
 
 impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
-        self.tick.base().await.unwrap_or_default();
+        self.stems.poll().await?;
         self.program.act().await?;
         self.program.read(|unit| unit.use_())?;
-        for bufferer in &self.writers {
-            // let wow = bufferer.clone().hub();
-            // wow.base().await?;
-            // let hey = Apex::Void(bufferer.clone().into());
-            // let huh = wow.solve().await?;
-            bufferer.act().await?;
-        }
         self.vao.act().await?;
         let first = self.first.base().await.unwrap_or_default();
         let count = self.count.base().await.unwrap_or_default();
@@ -76,13 +67,11 @@ impl Act for DrawArrays {
         Ok(())
     }
     fn backed(&mut self, back: &Back) -> Result<()> {
+        self.stems.back(back)?;
         self.program.back(back)?;
         self.vao.back(back)?;
         self.first.back(back)?;
         self.count.back(back)?;
-        self.instances.back(back)?;
-        // TODO: replace writers and tick with generic Hub<()>
-        self.writers.back(back)?;
-        self.tick.back(back)
+        self.instances.back(back)
     }
 }

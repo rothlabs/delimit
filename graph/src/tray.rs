@@ -5,7 +5,6 @@ use std::hash::{Hash, Hasher};
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Tray<T> {
-    None,
     Path(Path),
     Base(T),
 }
@@ -39,7 +38,6 @@ impl<T: Hash> Hash for Tray<T> {
         match self {
             Self::Path(path) => path.hash(state),
             Self::Base(data) => data.hash(state),
-            _ => (),
         }
     }
 }

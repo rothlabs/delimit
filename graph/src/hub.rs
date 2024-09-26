@@ -31,10 +31,7 @@ where
     Ploy(Ploy<T>),
 }
 
-impl<T> Hub<T>
-where
-    T: Payload,
-{
+impl<T: Payload> Hub<T> {
     pub fn none() -> Self {
         Self::default()
     }
@@ -147,10 +144,10 @@ where
     }
 
     /// Read tray of hub.
-    pub fn read<'a, O, F: FnOnce(&T) -> O + 'a + IsSend>(
-        &'a self,
-        read: F,
-    ) -> GraphFuture<'a, Result<O>> {
+    pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>> 
+    where 
+        F: FnOnce(&T) -> O + 'a + IsSend
+    {
         Box::pin(async move {
             match self {
                 Self::Tray(tray) => {
@@ -166,7 +163,6 @@ where
         })
     }
 
-    /// Base value. The graph is solved down to the base.
     pub fn base(&self) -> GraphFuture<Result<T>> {
         Box::pin(async move {
             match self {
@@ -179,12 +175,14 @@ where
             }
         })
     }
+
+    pub async fn poll(&self) -> Result<()> {
+        self.base().await?;
+        Ok(())
+    } 
 }
 
-impl<T> Backed for Hub<T>
-where
-    T: Payload,
-{
+impl<T: Payload> Backed for Hub<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
             Self::Tray(tray) => Ok(Self::Tray(tray.clone())),
@@ -194,12 +192,9 @@ where
     }
 }
 
-impl<T> Default for Hub<T>
-where
-    T: Payload,
-{
+impl<T: Payload> Default for Hub<T> {
     fn default() -> Self {
-        Self::Tray(Tray::None)
+        Self::Tray(Tray::Base(T::default()))
     }
 }
 
@@ -211,10 +206,7 @@ where
     fn down(&self, rank: u64) -> impl Future<Output = Result<Vec<Hub<T>>>> + IsSend;
 }
 
-impl<T> SolveDown<T> for Vec<Hub<T>>
-where
-    T: Payload,
-{
+impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
     async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
         let mut out = vec![];
         for hub in self {

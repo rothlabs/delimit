@@ -5,8 +5,9 @@ use super::*;
 #[attr_alias(build)]
 pub struct DrawElements {
     gl: WGLRC,
+    #[builder(default, setter(each(name = "stem", into)))]
+    stems: Vec<Apex>,
     program: Node<Program>,
-    buffers: Vec<Node<Bufferer>>,
     /// Vertex array object, collection of buffer attributes.
     vao: Node<Vao>,
     /// Number of values to draw.
@@ -29,11 +30,9 @@ impl DrawElements {
 
 impl Act for DrawElements {
     async fn act(&self) -> Result<()> {
+        self.stems.poll().await?;
         self.program.act().await?;
         self.program.read(|program| program.use_())?;
-        for buffer in &self.buffers {
-            buffer.act().await?;
-        }
         self.vao.act().await?;
         let count = self.count.base().await.unwrap_or_default();
         let offset = self.offset.base().await.unwrap_or_default();
@@ -41,8 +40,8 @@ impl Act for DrawElements {
         Ok(())
     }
     fn backed(&mut self, back: &Back) -> Result<()> {
+        self.stems.back(back)?;
         self.program.back(back)?;
-        self.buffers.back(back)?;
         self.vao.back(back)?;
         self.count.back(back)?;
         self.offset.back(back)

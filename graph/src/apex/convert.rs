@@ -21,6 +21,12 @@ impl From<Hub<()>> for Apex {
     }
 }
 
+impl From<&Hub<i32>> for Apex {
+    fn from(value: &Hub<i32>) -> Self {
+        Apex::I32(value.clone())
+    }
+}
+
 impl From<&str> for Apex {
     fn from(value: &str) -> Self {
         Apex::String(value.into())

@@ -21,6 +21,8 @@ impl Default for Apex {
     }
 }
 
+
+
 impl Apex {
     pub async fn hydrate(&self) -> Result<()> {
         let space = Space::new(vec![], self)?;
@@ -40,6 +42,18 @@ impl Apex {
             }
         }
         Ok(())
+    }
+    pub async fn poll(&self) -> Result<()> {
+        match self {
+            Self::Void(x) => x.poll().await,
+            Self::String(x) => x.poll().await,
+            Self::U8(x) => x.poll().await,
+            Self::I32(x) => x.poll().await,
+            Self::Vu8(x) => x.poll().await,
+            Self::Vu16(x) => x.poll().await,
+            Self::Vf32(x) => x.poll().await,
+            Self::Vf64(x) => x.poll().await,
+        }
     }
     pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
         match self {
@@ -176,5 +190,18 @@ impl Backed for Apex {
             Self::Vf64(x) => Self::Vf64(x.backed(back)?),
         };
         Ok(apex)
+    }
+}
+
+pub trait Poll {
+    fn poll(&self) -> impl Future<Output = Result<()>> + IsSend;
+}
+
+impl Poll for Vec<Apex> {
+    async fn poll(&self) -> Result<()> {
+        for hub in self {
+            hub.poll().await?;
+        }
+        Ok(())
     }
 }

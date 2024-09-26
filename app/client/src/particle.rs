@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 impl Sim {
     pub async fn particles(&self, tick: impl Into<Hub<i32>>) -> Result<ParticlesBuilder> {
-        let tick = tick.into();
+        let tick = &tick.into();
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
         let prog = self
@@ -57,22 +57,22 @@ impl Sim {
         let draw0 = self
             .gpu
             .draw_arrays(prog.clone())
+            .stem(tick)
             .mode(WGLRC::POINTS)
             .vao(vao0)
             .tfo(tfo1)
             .count(point_count)
             .instances(1)
-            .tick(&tick)
             .make()?;
         let draw1 = self
             .gpu
             .draw_arrays(prog)
+            .stem(tick)
             .mode(WGLRC::POINTS)
             .vao(vao1)
             .tfo(tfo0)
             .count(point_count)
             .instances(1)
-            .tick(&tick)
             .make()?;
 
         let seg_count = 1000;
@@ -122,13 +122,13 @@ impl Sim {
         let basis_draw = self
             .gpu
             .draw_arrays(program)
+            .stem(tick)
             .mode(WGLRC::POINTS)
             .vao(vao)
             .tfo(tfo)
             .rasterizer_discard(true)
             .count(seg_count)
             .instances(curve_count)
-            .tick(&tick)
             .make()?;
 
         let vert = self.gpu.vertex_shader(CURVE)?;
@@ -153,11 +153,11 @@ impl Sim {
         let curve_draw = self
             .gpu
             .draw_arrays(prog)
+            .stem(tick)
             .mode(WGLRC::POINTS)
             .vao(vao)
             .count(seg_count) //////////////////////////////////////////
             .instances(curve_count)
-            .tick(&tick)
             .make()?;
 
         let particles = ParticlesBuilder::default()
