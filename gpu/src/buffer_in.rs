@@ -4,18 +4,13 @@ use web_sys::{window, WebGlSync};
 
 use super::*;
 
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
+#[derive(Builder, Debug, Node!, Vf32!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct BufferIn {
     buffer: Buffer,
     size: Hub<i32>,
+    // TODO: replaces with list of apex actors
     draw: Node<DrawArrays>,
-}
-
-impl BufferInBuilder {
-    pub fn make(self) -> Result<Hub<Vf32>> {
-        self.build()?.hub()
-    }
 }
 
 impl Solve for BufferIn {

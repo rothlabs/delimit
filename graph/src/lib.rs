@@ -48,17 +48,58 @@ use std::{
 };
 
 #[macro_export]
-macro_rules! Make {(
+macro_rules! Node {
+    (
     $(#[$attr:meta])*
     $pub:vis
     struct $Unit:ident $tt:tt
-) => (
-    impl paste!{[<$Unit "Builder">]} {
-        pub fn make(self) -> Result<Node<$Unit>> {
-            self.build()?.node()
+) => {
+        impl paste!{[<$Unit "Builder">]} {
+            pub fn node(self) -> Result<Node<$Unit>> {
+                match self.build() {
+                    Ok(value) => Ok(value.node()?),
+                    Err(err) => Err(anyhow!(err.to_string()))?
+                }
+            }
         }
-    }
-)}
+    };
+}
+
+#[macro_export]
+macro_rules! Apex {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident $tt:tt
+) => {
+        impl paste!{[<$Unit "Builder">]} {
+            pub fn apex(self) -> Result<Apex> {
+                match self.build() {
+                    Ok(value) => Ok(value.node()?.hub().into()),
+                    Err(err) => Err(anyhow!(err.to_string()))?
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! Vf32 {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident $tt:tt
+) => {
+        impl paste!{[<$Unit "Builder">]} {
+            pub fn hub(self) -> Result<Hub<Vf32>> {
+                match self.build() {
+                    Ok(value) => Ok(value.node()?.hub()),
+                    Err(err) => Err(anyhow!(err.to_string()))?
+                }
+            }
+        }
+    };
+}
 
 pub mod adapt;
 pub mod hub;

@@ -21,8 +21,6 @@ impl Default for Apex {
     }
 }
 
-
-
 impl Apex {
     pub async fn hydrate(&self) -> Result<()> {
         let space = Space::new(vec![], self)?;

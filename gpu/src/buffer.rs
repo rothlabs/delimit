@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Builder, Clone, Debug)]
-#[builder(pattern = "owned", build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "graph::Error"), pattern = "owned")]
 pub struct Buffer {
     pub gl: WGLRC,
     pub object: WebGlBuffer,

@@ -1,8 +1,8 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-#[derive(Builder, Debug)]
-#[builder(setter(into), build_fn(error = "graph::Error"))]
+#[derive(Builder, Debug, Node!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct Texture {
     gl: WGLRC,
     object: WebGlTexture,
@@ -14,19 +14,6 @@ pub struct Texture {
     /// Vertical pixel count.
     #[builder(default)]
     height: Hub<i32>,
-}
-
-impl TextureBuilder {
-    pub fn make(&self) -> Result<Node<Texture>> {
-        self.build()?.node()
-        // let mut texture = self.build()?;
-        // Node::make(|back| {
-        //     texture.array = texture.array.backed(back)?;
-        //     texture.width = texture.width.backed(back)?;
-        //     texture.height = texture.height.backed(back)?;
-        //     Ok(texture)
-        // })
-    }
 }
 
 impl Texture {

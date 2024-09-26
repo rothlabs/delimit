@@ -1,8 +1,8 @@
 use super::*;
 
 /// Draw arrays with WebGL.
-#[derive(Builder, Debug, Make!)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
+#[derive(Builder, Debug, Node!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct DrawArrays {
     gl: WGLRC,
     #[builder(default, setter(each(name = "stem", into)))]
@@ -41,7 +41,8 @@ impl DrawArrays {
         let first = self.first.base().await.unwrap_or_default();
         let count = self.count.base().await.unwrap_or_default();
         let instances = self.instances.base().await.unwrap_or_default().max(1);
-        self.gl.draw_arrays_instanced(self.mode, first, count, instances);
+        self.gl
+            .draw_arrays_instanced(self.mode, first, count, instances);
     }
 }
 

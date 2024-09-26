@@ -144,9 +144,9 @@ impl<T: Payload> Hub<T> {
     }
 
     /// Read tray of hub.
-    pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>> 
-    where 
-        F: FnOnce(&T) -> O + 'a + IsSend
+    pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>>
+    where
+        F: FnOnce(&T) -> O + 'a + IsSend,
     {
         Box::pin(async move {
             match self {
@@ -179,7 +179,7 @@ impl<T: Payload> Hub<T> {
     pub async fn poll(&self) -> Result<()> {
         self.base().await?;
         Ok(())
-    } 
+    }
 }
 
 impl<T: Payload> Backed for Hub<T> {

@@ -15,13 +15,13 @@ pub use vertex_attribute::VertexAttribute;
 extern crate macro_rules_attribute;
 
 use buffer::BufferBuilder;
-use bufferer::BuffererBuilder;
 use buffer_in::BufferInBuilder;
-use paste::paste;
+use bufferer::BuffererBuilder;
 use derive_builder::Builder;
 use draw_arrays::DrawArraysBuilder;
 use draw_elements::DrawElementsBuilder;
 use graph::*;
+use paste::paste;
 use program::ProgramBuilder;
 use texture::*;
 use tfo::TfoBuilder;
@@ -94,7 +94,10 @@ impl Gpu {
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
-        let vao = Vao { gl: self.gl.clone(), object };
+        let vao = Vao {
+            gl: self.gl.clone(),
+            object,
+        };
         Ok(vao)
     }
     pub fn tfo(&self) -> Result<TfoBuilder> {
@@ -115,8 +118,7 @@ impl Gpu {
         Ok(TextureBuilder::default()
             .gl(self.gl.clone())
             .object(object)
-            .array(array)
-            .clone())
+            .array(array))
     }
     pub fn draw_arrays(&self, program: Node<Program>) -> DrawArraysBuilder {
         DrawArraysBuilder::default()
@@ -159,8 +161,6 @@ impl Gpu {
 // }
 
 // make!{DrawElements}
-
-
 
 // pub fn vao(&self, attributes: impl Into<Attributes>) -> Result<VaoBuilder> {
 //     let object = self

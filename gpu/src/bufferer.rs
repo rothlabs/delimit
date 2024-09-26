@@ -1,8 +1,7 @@
 use super::*;
 
-#[attr_alias::eval]
-#[derive(Builder, Debug, Make!)]
-#[attr_alias(build)]
+#[derive(Builder, Debug, Node!, Apex!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct Bufferer {
     buffer: Buffer,
     array: Apex,

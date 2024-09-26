@@ -2,8 +2,8 @@ use super::*;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
-#[derive(Builder, Debug, Make!)]
-#[builder(pattern = "owned", build_fn(error = "graph::Error"), setter(into))]
+#[derive(Builder, Debug, Node!, Apex!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct VaoWriter {
     object: Vao,
     #[builder(setter(each(name = "attribute")))]

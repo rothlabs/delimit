@@ -1,8 +1,7 @@
 use super::*;
 
-#[attr_alias::eval]
-#[derive(Builder, Debug, Make!)]
-#[attr_alias(build)]
+#[derive(Builder, Debug, Node!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct DrawElements {
     gl: WGLRC,
     #[builder(default, setter(each(name = "stem", into)))]
@@ -26,7 +25,8 @@ impl Act for DrawElements {
         let count = self.count.base().await.unwrap_or_default();
         let offset = self.offset.base().await.unwrap_or_default();
         self.vao.bind();
-        self.gl.draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
+        self.gl
+            .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
         self.vao.unbind();
         Ok(())
     }
@@ -37,7 +37,6 @@ impl Act for DrawElements {
         self.offset.back(back)
     }
 }
-
 
 // impl DrawElements {
 //     // TODO: Make it so this can be async!!!!

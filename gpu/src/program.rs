@@ -2,9 +2,8 @@ use super::*;
 use web_sys::WebGlProgram;
 
 /// GPU program based on vertex and fragment shaders.
-#[attr_alias::eval]
-#[derive(Builder, Debug, Make!)]
-#[attr_alias(build)]
+#[derive(Builder, Debug, Node!)]
+#[builder(pattern = "owned", setter(into))]
 pub struct Program {
     gl: WGLRC,
     object: WebGlProgram,
@@ -59,7 +58,6 @@ impl Act for Program {
 // let outs: Vec<String> = self.outputs.iter().map(Hub::base).collect()?;
 // let outputs = Array::from_iter(outs.into_iter());
 // let outputs = Array::from_iter(self.outputs.iter().map(|x| Hub::base));
-
 
 // impl ProgramBuilder {
 //     pub fn make(&mut self) -> Result<Node<Program>> {

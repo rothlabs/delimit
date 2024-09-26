@@ -11,7 +11,7 @@ impl Sim {
             .out("out_pos")
             .out("out_vel")
             .out_type(WGLRC::SEPARATE_ATTRIBS)
-            .make()?;
+            .node()?;
         let point_count = 16 * 20;
         let mut point_array = vec![];
         for _ in 0..point_count {
@@ -24,13 +24,13 @@ impl Sim {
             vel_array.push(random_float() * 0.002);
         }
         let pos_buff0 = self.gpu.buffer()?;
-        pos_buff0.writer().array(point_array).make()?.act().await?;
+        pos_buff0.writer().array(point_array).node()?.act().await?;
         let vel_buff0 = self.gpu.buffer()?;
-        vel_buff0.writer().array(vel_array).make()?.act().await?;
-        let pos0 = pos_buff0.attribute().size(2).stride(8).make()?;
-        let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).make()?;
+        vel_buff0.writer().array(vel_array).node()?.act().await?;
+        let pos0 = pos_buff0.attribute().size(2).stride(8).node()?;
+        let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).node()?;
         let vao0 = self.gpu.vao()?;
-        let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).make()?.hub();
+        let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).apex()?;
         let tfo0 = self
             .gpu
             .tfo()?
@@ -41,20 +41,20 @@ impl Sim {
         pos_buff1
             .writer()
             .array(point_count * 8)
-            .make()?
+            .node()?
             .act()
             .await?;
         let vel_buff1 = self.gpu.buffer()?;
         vel_buff1
             .writer()
             .array(point_count * 8)
-            .make()?
+            .node()?
             .act()
             .await?;
-        let pos1 = pos_buff1.attribute().size(2).stride(8).make()?;
-        let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).make()?;
+        let pos1 = pos_buff1.attribute().size(2).stride(8).node()?;
+        let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).node()?;
         let vao1 = self.gpu.vao()?;
-        let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).make()?.hub();
+        let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).apex()?;
         let tfo1 = self.gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
         let draw0 = self
             .gpu
@@ -62,12 +62,11 @@ impl Sim {
             .mode(WGLRC::POINTS)
             .stem(tick)
             .stem(vao_writer0)
-            // .stem(vao_writer0)
             .vao(vao0)
             .tfo(tfo1)
             .count(point_count)
             .instances(1)
-            .make()?;
+            .node()?;
         let draw1 = self
             .gpu
             .draw_arrays(prog)
@@ -78,7 +77,7 @@ impl Sim {
             .tfo(tfo0)
             .count(point_count)
             .instances(1)
-            .make()?;
+            .node()?;
 
         let seg_count = 1000;
         let vertex = self.gpu.vertex_shader(NURBS)?;
@@ -90,7 +89,7 @@ impl Sim {
             .out("position1")
             .out("position2")
             .out("position3")
-            .make()?;
+            .node()?;
         let mut curve_array = vec![];
         let order = 16;
         let curve_count = point_count / order;
@@ -102,26 +101,26 @@ impl Sim {
             ]);
         }
         let nurbs_buff = self.gpu.buffer()?;
-        nurbs_buff.writer().array(curve_array).make()?.act().await?;
+        nurbs_buff.writer().array(curve_array).node()?.act().await?;
         #[rustfmt::skip]
         let attribs = vec![
-            nurbs_buff.attribute().size(1).stride(132).divisor(1).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(4).divisor(1).index(1).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(20).divisor(1).index(2).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(36).divisor(1).index(3).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(52).divisor(1).index(4).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(68).divisor(1).index(5).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(84).divisor(1).index(6).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).make()?,
-            nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).make()?,
+            nurbs_buff.attribute().size(1).stride(132).divisor(1).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(4).divisor(1).index(1).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(20).divisor(1).index(2).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(36).divisor(1).index(3).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(52).divisor(1).index(4).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(68).divisor(1).index(5).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(84).divisor(1).index(6).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).node()?,
+            nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).node()?,
         ];
         let vao = self.gpu.vao()?;
-        let vao_writer = vao.writer().attributes(attribs).make()?.hub();
+        let vao_writer = vao.writer().attributes(attribs).apex()?;
         let basis_buf = self.gpu.buffer()?;
         basis_buf
             .writer()
             .array(4 * order * seg_count * curve_count)
-            .make()?
+            .node()?
             .act()
             .await?;
         let tfo = self.gpu.tfo()?.buffer(&basis_buf).make()?;
@@ -136,28 +135,28 @@ impl Sim {
             .rasterizer_discard(true)
             .count(seg_count)
             .instances(curve_count)
-            .make()?;
+            .node()?;
 
         let vert = self.gpu.vertex_shader(CURVE)?;
         let frag = self.gpu.fragment_shader(CURVE_FRAG)?;
-        let prog = self.gpu.program(vert, frag)?.make()?;
+        let prog = self.gpu.program(vert, frag)?.node()?;
         #[rustfmt::skip]
         let attribs = vec![
-            pos_buff0.attribute().size(4).stride(16).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(16).index(1).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(32).index(2).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(48).index(3).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(64).index(4).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(80).index(5).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(96).index(6).divisor(1).make()?,
-            pos_buff0.attribute().size(4).stride(16).offset(112).index(7).divisor(1).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(0).index(8).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(16).index(9).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(32).index(10).make()?,
-            basis_buf.attribute().size(4).stride(64).offset(48).index(11).make()?,
+            pos_buff0.attribute().size(4).stride(16).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(16).index(1).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(32).index(2).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(48).index(3).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(64).index(4).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(80).index(5).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(96).index(6).divisor(1).node()?,
+            pos_buff0.attribute().size(4).stride(16).offset(112).index(7).divisor(1).node()?,
+            basis_buf.attribute().size(4).stride(64).offset(0).index(8).node()?,
+            basis_buf.attribute().size(4).stride(64).offset(16).index(9).node()?,
+            basis_buf.attribute().size(4).stride(64).offset(32).index(10).node()?,
+            basis_buf.attribute().size(4).stride(64).offset(48).index(11).node()?,
         ];
         let vao = self.gpu.vao()?;
-        let vao_writer = vao.writer().attributes(attribs).make()?.hub();
+        let vao_writer = vao.writer().attributes(attribs).apex()?;
         let curve_draw = self
             .gpu
             .draw_arrays(prog)
@@ -167,7 +166,7 @@ impl Sim {
             .vao(vao)
             .count(seg_count) //////////////////////////////////////////
             .instances(curve_count)
-            .make()?;
+            .node()?;
 
         let particles = ParticlesBuilder::default()
             // .gpu(self.gpu.clone())
