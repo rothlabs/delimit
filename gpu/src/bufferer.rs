@@ -1,16 +1,11 @@
 use super::*;
 
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
+#[attr_alias::eval]
+#[derive(Builder, Debug, Make!)]
+#[attr_alias(build)]
 pub struct Bufferer {
     buffer: Buffer,
     array: Apex,
-}
-
-impl BuffererBuilder {
-    pub fn make(self) -> Result<Node<Bufferer>> {
-        self.build()?.node()
-    }
 }
 
 impl Bufferer {

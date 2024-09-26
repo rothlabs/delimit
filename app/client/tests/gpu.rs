@@ -71,12 +71,14 @@ pub async fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
 
 pub async fn draw_arrays_basic(gpu: &Gpu) -> Result<()> {
     let (program, _) = make_basic_program(&gpu)?;
-    let (buffer, writer) = make_basic_buffer(&gpu)?;
+    let (buffer, buffer_writer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).make()?;
-    let vao = gpu.vao()?.attribute(att).make()?;
+    let vao = gpu.vao()?;
+    let vao_writer = vao.writer().attribute(att).make()?;
     let draw_arrays = gpu
         .draw_arrays(program)
-        .stem(writer.hub())
+        .stem(buffer_writer.hub())
+        .stem(vao_writer.hub())
         .vao(vao)
         .count(3)
         .make()?;
@@ -93,11 +95,13 @@ pub async fn draw_elements_basic(
     let index_buffer = gpu.buffer()?.index();
     let index_bufferer = index_buffer.writer().array(index_array).make()?;
     let att = buffer.attribute().size(3).make()?;
-    let vao = gpu.vao()?.attribute(att).index(index_buffer).make()?;
+    let vao = gpu.vao()?;
+    let vao_writer = vao.writer().attribute(att).index(index_buffer).make()?;
     let elements = gpu
         .draw_elements(program)
         .stem(bufferer.clone().hub())
         .stem(index_bufferer.hub())
+        .stem(vao_writer.hub())
         .vao(vao)
         .count(3)
         .make()?;
@@ -120,7 +124,8 @@ pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements
         .offset(12)
         .make()?;
     let vao = gpu
-        .vao()?
+        .vao()?;
+    let vao_writer = vao.writer()
         .attributes(vec![pos, uv])
         .index(index_buffer)
         .make()?;
@@ -129,6 +134,7 @@ pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements
         .draw_elements(program)
         .stem(bufferer.hub())
         .stem(index_bufferer.hub())
+        .stem(vao_writer.hub())
         .vao(vao)
         .count(3)
         .make()?;
@@ -193,7 +199,7 @@ pub fn make_vertex_array_object() -> Result<()> {
     let gpu = make_canvas()?;
     let (buffer, _) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).make()?;
-    gpu.vao()?.attribute(att);
+    gpu.vao()?.writer().attribute(att);
     Ok(())
 }
 
@@ -259,7 +265,8 @@ pub async fn transform_feedback() -> Result<()> {
         .make()?;
     let (buffer, bufferer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).make()?;
-    let vao = gpu.vao()?.attribute(att).make()?;
+    let vao = gpu.vao()?;
+    let vao_writer = vao.writer().attribute(att).make()?;
     let target = gpu.buffer()?;
     let sizer = target.writer().array(36).make()?;
     let tfo = gpu.tfo()?.buffer(&target).make()?;
@@ -267,6 +274,7 @@ pub async fn transform_feedback() -> Result<()> {
         .draw_arrays(program)
         .stem(bufferer.hub())
         .stem(sizer.hub())
+        .stem(vao_writer.hub())
         .vao(vao)
         .tfo(tfo)
         .rasterizer_discard(true)
@@ -329,7 +337,8 @@ pub async fn nurbs_shader() -> Result<()> {
             .index(4)
             .make()?,
     ];
-    let vao = gpu.vao()?.attributes(attribs).make()?;
+    let vao = gpu.vao()?;
+    let vao_writer = vao.writer().attributes(attribs).make()?;
     let target = gpu.buffer()?;
     let sizer = target.writer().array(1000).make()?;
     let tfo = gpu.tfo()?.buffer(&target).make()?;
@@ -337,6 +346,7 @@ pub async fn nurbs_shader() -> Result<()> {
         .draw_arrays(program)
         .mode(WGLRC::POINTS)
         .stem(bufferer.hub())
+        .stem(vao_writer.hub())
         .stem(sizer.hub())
         .vao(vao)
         .tfo(tfo)

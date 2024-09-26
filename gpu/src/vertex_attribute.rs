@@ -1,8 +1,9 @@
 use super::*;
 
 /// Tell the GPU how to read from a buffer
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", build_fn(error = "graph::Error"), setter(into))]
+#[attr_alias::eval]
+#[derive(Builder, Debug, Make!)]
+#[attr_alias(build)]
 pub struct VertexAttribute {
     // gl: WGLRC,
     buffer: Buffer,
@@ -22,12 +23,6 @@ pub struct VertexAttribute {
     offset: Hub<i32>,
     #[builder(default)]
     divisor: Hub<i32>,
-}
-
-impl VertexAttributeBuilder {
-    pub fn make(self) -> Result<Node<VertexAttribute>> {
-        self.build()?.node()
-    }
 }
 
 impl Act for VertexAttribute {

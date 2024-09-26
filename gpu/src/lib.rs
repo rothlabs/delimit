@@ -25,7 +25,7 @@ use graph::*;
 use program::ProgramBuilder;
 use texture::*;
 use tfo::TfoBuilder;
-use vao::*;
+use vao_writer::*;
 use vertex_attribute::VertexAttributeBuilder;
 use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
@@ -38,6 +38,7 @@ pub mod shader;
 pub mod texture;
 pub mod tfo;
 pub mod vao;
+pub mod vao_writer;
 
 mod canvas;
 mod draw_arrays;
@@ -88,13 +89,13 @@ impl Gpu {
             .build()?;
         Ok(buffer)
     }
-    pub fn vao(&self) -> Result<VaoBuilder> {
+    pub fn vao(&self) -> Result<Vao> {
         let object = self
             .gl
             .create_vertex_array()
             .ok_or(anyhow!("failed to create vertex array object"))?;
-        let builder = VaoBuilder::default().gl(self.gl.clone()).object(object);
-        Ok(builder)
+        let vao = Vao { gl: self.gl.clone(), object };
+        Ok(vao)
     }
     pub fn tfo(&self) -> Result<TfoBuilder> {
         let object = self

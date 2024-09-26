@@ -29,7 +29,8 @@ impl Sim {
         vel_buff0.writer().array(vel_array).make()?.act().await?;
         let pos0 = pos_buff0.attribute().size(2).stride(8).make()?;
         let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).make()?;
-        let vao0 = self.gpu.vao()?.attributes(vec![pos0, vel0]).make()?;
+        let vao0 = self.gpu.vao()?;
+        let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).make()?.hub();
         let tfo0 = self
             .gpu
             .tfo()?
@@ -52,13 +53,16 @@ impl Sim {
             .await?;
         let pos1 = pos_buff1.attribute().size(2).stride(8).make()?;
         let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).make()?;
-        let vao1 = self.gpu.vao()?.attributes(vec![pos1, vel1]).make()?;
+        let vao1 = self.gpu.vao()?;
+        let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).make()?.hub();
         let tfo1 = self.gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
         let draw0 = self
             .gpu
             .draw_arrays(prog.clone())
-            .stem(tick)
             .mode(WGLRC::POINTS)
+            .stem(tick)
+            .stem(vao_writer0)
+            // .stem(vao_writer0)
             .vao(vao0)
             .tfo(tfo1)
             .count(point_count)
@@ -67,8 +71,9 @@ impl Sim {
         let draw1 = self
             .gpu
             .draw_arrays(prog)
-            .stem(tick)
             .mode(WGLRC::POINTS)
+            .stem(tick)
+            .stem(vao_writer1)
             .vao(vao1)
             .tfo(tfo0)
             .count(point_count)
@@ -110,7 +115,8 @@ impl Sim {
             nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).make()?,
             nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).make()?,
         ];
-        let vao = self.gpu.vao()?.attributes(attribs).make()?;
+        let vao = self.gpu.vao()?;
+        let vao_writer = vao.writer().attributes(attribs).make()?.hub();
         let basis_buf = self.gpu.buffer()?;
         basis_buf
             .writer()
@@ -122,8 +128,9 @@ impl Sim {
         let basis_draw = self
             .gpu
             .draw_arrays(program)
-            .stem(tick)
             .mode(WGLRC::POINTS)
+            .stem(tick)
+            .stem(vao_writer)
             .vao(vao)
             .tfo(tfo)
             .rasterizer_discard(true)
@@ -149,12 +156,14 @@ impl Sim {
             basis_buf.attribute().size(4).stride(64).offset(32).index(10).make()?,
             basis_buf.attribute().size(4).stride(64).offset(48).index(11).make()?,
         ];
-        let vao = self.gpu.vao()?.attributes(attribs).make()?;
+        let vao = self.gpu.vao()?;
+        let vao_writer = vao.writer().attributes(attribs).make()?.hub();
         let curve_draw = self
             .gpu
             .draw_arrays(prog)
-            .stem(tick)
             .mode(WGLRC::POINTS)
+            .stem(tick)
+            .stem(vao_writer)
             .vao(vao)
             .count(seg_count) //////////////////////////////////////////
             .instances(curve_count)

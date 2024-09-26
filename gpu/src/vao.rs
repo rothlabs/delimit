@@ -3,17 +3,10 @@ use web_sys::WebGlVertexArrayObject;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
-#[attr_alias::eval]
-#[derive(Builder, Debug, Make!)]
-#[attr_alias(build)]
+#[derive(Clone, Debug)]
 pub struct Vao {
-    gl: WGLRC,
-    object: WebGlVertexArrayObject,
-    #[builder(setter(each(name = "attribute")))]
-    attributes: Vec<Node<VertexAttribute>>,
-    /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
-    #[builder(default)]
-    index: Option<Buffer>,
+    pub gl: WGLRC,
+    pub object: WebGlVertexArrayObject,
 }
 
 impl Vao {
@@ -23,21 +16,13 @@ impl Vao {
     pub fn unbind(&self) {
         self.gl.bind_vertex_array(None);
     }
+    pub fn writer(&self) -> VaoWriterBuilder {
+        VaoWriterBuilder::default().object(self)
+    }
 }
 
-impl Act for Vao {
-    async fn act(&self) -> Result<()> {
-        self.bind();
-        for attribute in &self.attributes {
-            attribute.act().await?;
-        }
-        if let Some(buffer) = &self.index {
-            buffer.bind();
-        }
-        self.unbind();
-        Ok(())
-    }
-    fn backed(&mut self, back: &Back) -> Result<()> {
-        self.attributes.back(back)
+impl From<&Vao> for Vao {
+    fn from(value: &Vao) -> Self {
+        value.clone()
     }
 }
