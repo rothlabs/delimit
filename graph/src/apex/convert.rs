@@ -27,6 +27,12 @@ impl From<&Hub<i32>> for Apex {
     }
 }
 
+impl From<Hub<Vf32>> for Apex {
+    fn from(value: Hub<Vf32>) -> Self {
+        Apex::Vf32(value)
+    }
+}
+
 impl From<&str> for Apex {
     fn from(value: &str) -> Self {
         Apex::String(value.into())

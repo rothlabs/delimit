@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Node!, Apex!)]
+#[derive(Builder, Debug, Unit!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Bufferer {
     buffer: Buffer,

@@ -23,8 +23,8 @@ impl Buffer {
     pub fn writer(&self) -> BuffererBuilder {
         BuffererBuilder::default().buffer(self)
     }
-    pub fn reader(&self) -> BufferInBuilder {
-        BufferInBuilder::default().buffer(self)
+    pub fn reader(&self) -> BufferReaderBuilder {
+        BufferReaderBuilder::default().buffer(self)
     }
     pub fn attribute(&self) -> VertexAttributeBuilder {
         VertexAttributeBuilder::default().buffer(self)

@@ -48,56 +48,55 @@ use std::{
 };
 
 #[macro_export]
-macro_rules! Node {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident $tt:tt
-) => {
-        impl paste!{[<$Unit "Builder">]} {
-            pub fn node(self) -> Result<Node<$Unit>> {
-                match self.build() {
-                    Ok(value) => Ok(value.node()?),
-                    Err(err) => Err(anyhow!(err.to_string()))?
-                }
+macro_rules! node_and_apex {
+    ($Unit:ident) => {
+        pub fn node(self) -> Result<Node<$Unit>> {
+            match self.build() {
+                Ok(value) => Ok(value.node()?),
+                Err(err) => Err(anyhow!(err.to_string()))?,
+            }
+        }
+        pub fn apex(self) -> Result<Apex> {
+            Ok(self.hub()?.into())
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! build_methods {
+    ($Unit:ident $Base:ident) => {
+        impl paste! {[<$Unit "Builder">]} {
+            node_and_apex!($Unit);
+            pub fn hub(self) -> Result<Hub<$Base>> {
+                Ok(self.node()?.hub())
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! Apex {
+macro_rules! Unit {
     (
     $(#[$attr:meta])*
     $pub:vis
     struct $Unit:ident $tt:tt
-) => {
-        impl paste!{[<$Unit "Builder">]} {
-            pub fn apex(self) -> Result<Apex> {
-                match self.build() {
-                    Ok(value) => Ok(value.node()?.hub().into()),
-                    Err(err) => Err(anyhow!(err.to_string()))?
-                }
+    ) => {
+        impl paste! {[<$Unit "Builder">]} {
+            node_and_apex!($Unit);
+            pub fn hub(self) -> Result<Hub<()>> {
+                Ok(self.node()?.hub())
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! Vf32 {
-    (
+macro_rules! Vf32 {(
     $(#[$attr:meta])*
     $pub:vis
     struct $Unit:ident $tt:tt
 ) => {
-        impl paste!{[<$Unit "Builder">]} {
-            pub fn hub(self) -> Result<Hub<Vf32>> {
-                match self.build() {
-                    Ok(value) => Ok(value.node()?.hub()),
-                    Err(err) => Err(anyhow!(err.to_string()))?
-                }
-            }
-        }
+        build_methods!($Unit Vf32);
     };
 }
 

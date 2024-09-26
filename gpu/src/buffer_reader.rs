@@ -1,19 +1,18 @@
 use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{window, WebGlSync};
-
 use super::*;
 
-#[derive(Builder, Debug, Node!, Vf32!)]
+#[derive(Builder, Debug, Vf32!)]
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferIn {
+pub struct BufferReader {
     buffer: Buffer,
     size: Hub<i32>,
     // TODO: replaces with list of apex actors
     draw: Node<DrawArrays>,
 }
 
-impl Solve for BufferIn {
+impl Solve for BufferReader {
     type Base = Vf32;
     async fn solve(&self) -> Result<Hub<Vf32>> {
         self.draw.act().await?;

@@ -1,7 +1,7 @@
 use super::*;
 use web_sys::WebGlTexture;
 
-#[derive(Builder, Debug, Node!)]
+#[derive(Builder, Debug, Unit!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Texture {
     gl: WGLRC,

@@ -1,6 +1,6 @@
 pub use anyhow::anyhow;
-pub use buffer::Buffer;
-pub use buffer_in::BufferIn;
+pub use buffer::*;
+pub use buffer_reader::BufferReader;
 pub use bufferer::Bufferer;
 pub use canvas::Canvas;
 pub use draw_arrays::DrawArrays;
@@ -14,24 +14,23 @@ pub use vertex_attribute::VertexAttribute;
 #[macro_use]
 extern crate macro_rules_attribute;
 
-use buffer::BufferBuilder;
-use buffer_in::BufferInBuilder;
-use bufferer::BuffererBuilder;
+use buffer_reader::*;
+use bufferer::*;
 use derive_builder::Builder;
-use draw_arrays::DrawArraysBuilder;
-use draw_elements::DrawElementsBuilder;
+use draw_arrays::*;
+use draw_elements::*;
 use graph::*;
 use paste::paste;
-use program::ProgramBuilder;
+use program::*;
 use texture::*;
-use tfo::TfoBuilder;
+use tfo::*;
 use vao_writer::*;
-use vertex_attribute::VertexAttributeBuilder;
+use vertex_attribute::*;
 use wasm_bindgen::prelude::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod buffer;
-pub mod buffer_in;
+pub mod buffer_reader;
 pub mod bufferer;
 pub mod program;
 pub mod shader;
