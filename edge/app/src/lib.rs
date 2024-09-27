@@ -37,8 +37,8 @@ mod prelude {
                 .unwrap()
                 .dyn_into::<HtmlCanvasElement>()
                 .unwrap();
-            canvas.set_width(1200);
-            canvas.set_height(900);
+            canvas.set_width(200);
+            canvas.set_height(200);
             Self {
                 gpu: Gpu {
                     gl: canvas

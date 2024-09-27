@@ -1,0 +1,4 @@
+[workspace]
+    members = ["app", "gpu", "dom"]
+    # exclude = ["host"]
+    resolver = "2" 

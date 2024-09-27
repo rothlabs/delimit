@@ -1,6 +1,6 @@
 [workspace]
-    members = ["app/server", "graph", "text", "repo"]
-    exclude = ["app/client", "gpu", "dom"]
+    members = ["app", "graph", "text", "repo"]
+    # exclude = ["app/client", "gpu", "dom"]
     resolver = "2" 
 
 # [workspace.dependencies]

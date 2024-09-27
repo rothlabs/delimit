@@ -19,9 +19,9 @@
     gloo-timers = { version = "0.3.0", features = ["futures"] }
     gloo-render = "0.2.0"
     derive_builder = "0.20.0"
-    graph = { path = "../../graph", features = ["oneThread"], default-features = false } 
-    text = { path = "../../text" }
-    gpu = { path = "../../gpu" }
+    graph = { path = "../../core/graph", features = ["oneThread"], default-features = false } 
+    text = { path = "../../core/text" }
+    gpu = { path = "../gpu" }
 
 [dependencies.web-sys] 
     version = "0.3.70"

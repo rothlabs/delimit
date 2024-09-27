@@ -14,7 +14,7 @@ use tokio::fs::File;
 use tokio::net::TcpListener;
 use tokio_util::io::ReaderStream;
 
-use config::{CLIENT, STATIC};
+use config::{CLIENT, ASSET};
 use index::index;
 
 mod config;
@@ -95,7 +95,7 @@ fn not_found() -> RequestResult {
 }
 
 async fn static_file(path: &str) -> RequestResult {
-    send_file(STATIC.to_owned() + path).await
+    send_file(ASSET.to_owned() + path).await
 }
 
 async fn client_file(path: &str) -> RequestResult {
