@@ -6,6 +6,7 @@ pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
 pub use hub::{DealItem, Hub, SolveDown};
+use js_sys::wasm_bindgen::JsValue;
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
@@ -155,8 +156,16 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
+    #[error("Js Error ({0})")]
+    Js(String),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
+}
+
+impl From<JsValue> for Error {
+    fn from(value: JsValue) -> Self {
+        Error::Js(format!("{:?}", value))
+    }
 }
 
 pub fn no_back(source: &str) -> Result<()> {

@@ -3,7 +3,6 @@
     version = "0.1.0"
     authors = ["Julian Erickson <julian@rothlabs.com>"]
     edition = "2021"
-    # resolver = "2"
 
 [lib]
     crate-type = ["cdylib", "rlib"]
@@ -20,7 +19,7 @@
     gloo-render = "0.2.0"
     derive_builder = "0.20.0"
     graph = { path = "../../core/graph", features = ["oneThread"], default-features = false } 
-    text = { path = "../../core/text" }
+    dom = { path = "../dom" }
     gpu = { path = "../gpu" }
 
 [dependencies.web-sys] 

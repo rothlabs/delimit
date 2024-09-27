@@ -1,14 +1,24 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+pub use text::*;
+
+use web_sys::{Document, Element};
+use derive_builder::Builder;
+use graph::*;
+use paste::paste;
+pub use anyhow::anyhow;
+
+mod text;
+
+#[macro_use]
+extern crate macro_rules_attribute;
+
+struct Dom {
+    pub document: Document,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+impl Dom {
+    pub fn text(&self) -> Result<TextBuilder> {
+        let element = self.document.create_element("p")?;
+        self.document.append_child(&element)?;
+        Ok(TextBuilder::default().element(element))
     }
 }
