@@ -1,19 +1,22 @@
+use dom::{Element, Result};
 use gpu::*;
 use graph::*;
 
 pub fn make_canvas() -> Result<Gpu> {
-    let canvas = Canvas::new();
-    canvas.read(|unit| unit.gpu())
+    Element::body()?.element("canvas")?.canvas()?.gpu()
+    // let canvas = Canvas::new();
+    // canvas.read(|unit| unit.gpu())
 }
 
-pub async fn make_canvas_on_body() -> Result<Gpu> {
-    let canvas = Canvas::new();
-    let gpu = canvas.read(|unit| {
-        unit.add_to_body();
-        unit.gpu()
-    })?;
-    canvas.act().await?;
-    Ok(gpu)
+pub fn make_canvas_on_body() -> Result<Gpu> {
+    Element::body()?.stem("canvas")?.canvas()?.gpu()
+    // let canvas = Canvas::new();
+    // let gpu = canvas.read(|unit| {
+    //     unit.add_to_body();
+    //     unit.gpu()
+    // })?;
+    // canvas.act().await?;
+    // Ok(gpu)
 }
 
 pub fn make_basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
@@ -24,7 +27,7 @@ pub fn make_basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
     Ok((program, fragment_source))
 }
 
-pub fn make_tex_program(gpu: &Gpu) -> Result<Node<Program>> {
+pub fn make_tex_program(gpu: &Gpu) -> graph::Result<Node<Program>> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
     gpu.program(vertex, fragment)?.node()
@@ -203,20 +206,20 @@ pub fn make_vertex_array_object() -> Result<()> {
 }
 
 pub async fn draw_arrays() -> Result<()> {
-    let gpu = make_canvas_on_body().await?;
+    let gpu = make_canvas_on_body()?;
     draw_arrays_basic(&gpu).await?;
     Ok(())
 }
 
 pub async fn draw_elements() -> Result<()> {
-    let gpu = make_canvas_on_body().await?;
+    let gpu = make_canvas_on_body()?;
     draw_elements_basic(&gpu).await?;
     Ok(())
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
 pub async fn draw_elements_react_to_shader_source() -> Result<()> {
-    let gpu = make_canvas_on_body().await?;
+    let gpu = make_canvas_on_body()?;
     let (_draw, shader_source, _buff) = draw_elements_basic(&gpu).await?;
     shader_source
         .write(|source| *source = shader::basic::FRAGMENT_GREEN.to_owned())
@@ -225,7 +228,7 @@ pub async fn draw_elements_react_to_shader_source() -> Result<()> {
 }
 
 pub async fn draw_elements_react_to_buffer_array() -> Result<()> {
-    let gpu = make_canvas_on_body().await?;
+    let gpu = make_canvas_on_body()?;
     let (_elements, _shader, buffer) = draw_elements_basic(&gpu).await?;
     let array: Vec<f32> = vec![0.1, 0.8, 0., 0.9, 0.8, 0., 0.9, 0., 0.];
     buffer.write(|pack| pack.unit.array(array)).await?;
@@ -248,7 +251,7 @@ pub async fn shader_source_error() -> Result<()> {
 }
 
 pub async fn draw_elements_textured() -> Result<()> {
-    let gpu = make_canvas_on_body().await?;
+    let gpu = make_canvas_on_body()?;
     draw_elements_textured_basic(&gpu).await?;
     Ok(())
 }

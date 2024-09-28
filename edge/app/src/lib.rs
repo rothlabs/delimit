@@ -15,7 +15,6 @@ macro_rules! console_log {
 }
 
 mod demo;
-mod window;
 
 #[derive(Error, Debug)]
 pub enum Error {

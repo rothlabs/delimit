@@ -3,18 +3,12 @@
 #![cfg(target_arch = "wasm32")]
 
 extern crate wasm_bindgen_test;
-use graph::Result;
+use dom::Result;
 use wasm_bindgen_test::*;
 
 mod gpu;
 
 wasm_bindgen_test_configure!(run_in_browser);
-
-// #[wasm_bindgen_test]
-// fn wow_test() -> Result<()> {
-//     console_log!("nice!");
-//     Ok(())
-// }
 
 #[wasm_bindgen_test]
 fn make_vertex_shader() -> Result<()> {

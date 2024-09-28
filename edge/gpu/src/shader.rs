@@ -3,9 +3,6 @@ use web_sys::WebGlShader;
 
 pub mod basic;
 
-#[cfg(test)]
-mod tests;
-
 #[derive(Debug)]
 pub struct Shader {
     pub gl: WGLRC,

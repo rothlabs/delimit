@@ -13,6 +13,7 @@ edition = "2021"
     macro_rules_attribute = "0.2.0"
     thiserror = "1.0"
     graph = { path = "../../core/graph", features = ["oneThread"], default-features = false }
+    gpu = { path = "../gpu" }
 
 [dependencies.web-sys]
     version = "0.3.70"
