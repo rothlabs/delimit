@@ -1,7 +1,7 @@
-use crate::prelude::*;
+use super::*;
 
-impl Sim {
-    pub async fn particles(&self, tick: impl Into<Hub<i32>>) -> Result<ParticlesBuilder> {
+impl Demo {
+    pub async fn nurbs(&self, tick: impl Into<Hub<i32>>) -> graph::Result<NurbsBuilder> {
         let tick = &tick.into();
         let vert = self.gpu.vertex_shader(PARTICLES)?;
         let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
@@ -164,47 +164,36 @@ impl Sim {
             .stem(tick)
             .stem(vao_writer)
             .vao(vao)
-            .count(seg_count) //////////////////////////////////////////
+            .count(seg_count)
             .instances(curve_count)
             .node()?;
 
-        let particles = ParticlesBuilder::default()
-            // .gpu(self.gpu.clone())
+        let nurbs = NurbsBuilder::default()
             .draw0(draw0)
             .draw1(draw1)
             .basis(basis_draw)
             .curve(curve_draw)
-            // .reader(reader)
             .tick(tick);
-        Ok(particles)
+        Ok(nurbs)
     }
 }
 
-#[derive(Builder, Debug)]
-#[builder(pattern = "owned", setter(into), build_fn(error = "graph::Error"))]
-pub struct Particles {
-    // gpu: Gpu,
+#[derive(Builder, Debug, Unit!)]
+#[builder(pattern = "owned", setter(into))]
+pub struct Nurbs {
     tick: Hub<i32>,
     draw0: Node<DrawArrays>,
     draw1: Node<DrawArrays>,
     basis: Node<DrawArrays>,
     curve: Node<DrawArrays>,
-    // reader: Hub<Vf32>,
 }
 
-impl ParticlesBuilder {
-    pub fn make(self) -> Result<Node<Particles>> {
-        self.build()?.node()
-    }
-}
-
-impl Act for Particles {
-    fn backed(&mut self, back: &Back) -> Result<()> {
+impl Act for Nurbs {
+    fn backed(&mut self, back: &Back) -> graph::Result<()> {
         self.tick = self.tick.backed(back)?;
         Ok(())
     }
-    async fn act(&self) -> Result<()> {
-        // self.gpu.gl.clear(WGLRC::COLOR_BUFFER_BIT);
+    async fn act(&self) -> graph::Result<()> {
         if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
             self.basis.act().await?;
@@ -212,7 +201,6 @@ impl Act for Particles {
         } else {
             self.draw1.act().await?;
         }
-        // console_log!("basis: {:?}", self.reader.base().await?);
         Ok(())
     }
 }

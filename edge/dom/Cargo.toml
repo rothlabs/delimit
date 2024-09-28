@@ -11,6 +11,7 @@ edition = "2021"
     derive_builder = "0.20.0"
     paste = "1.0"
     macro_rules_attribute = "0.2.0"
+    thiserror = "1.0"
     graph = { path = "../../core/graph", features = ["oneThread"], default-features = false }
 
 [dependencies.web-sys]

@@ -1,5 +1,5 @@
 [package]
-    name = "client"
+    name = "app"
     version = "0.1.0"
     authors = ["Julian Erickson <julian@rothlabs.com>"]
     edition = "2021"
@@ -15,9 +15,13 @@
     wasm-bindgen-futures = "0.4.43"
     console_error_panic_hook = { version = "0.1.7", optional = true }
     getrandom = {version = "0.2", features = ["js"]}
+    thiserror = "1.0"
+    anyhow = "1.0.86"
     gloo-timers = { version = "0.3.0", features = ["futures"] }
     gloo-render = "0.2.0"
     derive_builder = "0.20.0"
+    paste = "1.0"
+    macro_rules_attribute = "0.2.0"
     graph = { path = "../../core/graph", features = ["oneThread"], default-features = false } 
     dom = { path = "../dom" }
     gpu = { path = "../gpu" }

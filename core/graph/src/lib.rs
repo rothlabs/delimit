@@ -6,7 +6,6 @@ pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
 pub use hub::{DealItem, Hub, SolveDown};
-use js_sys::wasm_bindgen::JsValue;
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
@@ -50,13 +49,13 @@ use std::{
 #[macro_export]
 macro_rules! node_and_apex {
     ($Unit:ident) => {
-        pub fn node(self) -> Result<Node<$Unit>> {
+        pub fn node(self) -> crate::Result<Node<$Unit>> {
             match self.build() {
                 Ok(value) => Ok(value.node()?),
                 Err(err) => Err(anyhow!(err.to_string()))?,
             }
         }
-        pub fn apex(self) -> Result<Apex> {
+        pub fn apex(self) -> crate::Result<Apex> {
             Ok(self.hub()?.into())
         }
     };
@@ -67,7 +66,7 @@ macro_rules! build_methods {
     ($Unit:ident $Base:ident) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> Result<Hub<$Base>> {
+            pub fn hub(self) -> crate::Result<Hub<$Base>> {
                 Ok(self.node()?.hub())
             }
         }
@@ -83,7 +82,7 @@ macro_rules! Unit {
     ) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> Result<Hub<()>> {
+            pub fn hub(self) -> crate::Result<Hub<()>> {
                 Ok(self.node()?.hub())
             }
         }
@@ -156,17 +155,23 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
-    #[error("Js Error ({0})")]
-    Js(String),
+    // #[error("Js Error ({0})")]
+    // Js(String),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
 
-impl From<JsValue> for Error {
-    fn from(value: JsValue) -> Self {
-        Error::Js(format!("{:?}", value))
-    }
-}
+// impl From<JsValue> for Error {
+//     fn from(value: JsValue) -> Self {
+//         Error::Js(format!("{:?}", value))
+//     }
+// }
+
+// impl From<Element> for Error {
+//     fn from(value: Element) -> Self {
+//         Error::Js(format!("{:?}", value))
+//     }
+// }
 
 pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
