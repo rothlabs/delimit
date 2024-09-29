@@ -27,7 +27,7 @@ pub struct DrawArrays {
 }
 
 impl DrawArrays {
-    async fn rasterize_switch(&self) -> Result<()> {
+    async fn rasterizer_switch(&self) -> Result<()> {
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
             self.draw().await;
@@ -55,10 +55,10 @@ impl Act for DrawArrays {
         self.vao.bind();
         if let Some(tfo) = &self.tfo {
             tfo.begin(self.mode);
-            self.rasterize_switch().await?;
+            self.rasterizer_switch().await?;
             tfo.end();
         } else {
-            self.rasterize_switch().await?;
+            self.rasterizer_switch().await?;
         }
         self.vao.unbind();
         Ok(())

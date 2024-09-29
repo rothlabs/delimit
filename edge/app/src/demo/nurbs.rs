@@ -3,7 +3,9 @@ use super::*;
 #[derive(Builder, Make!)]
 #[builder(pattern = "owned")]
 pub struct Demo {
-    #[builder(default = "2000.0")]
+    #[builder(default = "20")]
+    curves: i32,
+    #[builder(default = "5000.0")]
     duration: f64,
     #[builder(default = "300")]
     width: u32,
@@ -11,26 +13,36 @@ pub struct Demo {
     height: u32,
 }
 
-
 impl Demo {
+    pub fn start(self) {
+        spawn_local(async move {self.run().await.unwrap()})
+    }
     pub async fn run(&self) -> dom::Result<()> {
         let window = Window::new()?;
         let doc = window.document()?;
         let tick = 0.leaf();
         let _nurbs = self.nurbs(&doc, &tick).await?;
         let start = doc.time()?;
+        let mut last = start;
         loop {
             let time = window.request_animation_frame().await?.as_f64().result()?;
             if time - start > self.duration {
                 break;
             }
-            tick.write(|x| *x += 1).await?;
+            if time - last > 1000. / 60. {
+                last = time;
+                tick.write(|x| *x += 1).await?;
+            }
         }
         Ok(())
     }
-    pub async fn nurbs(&self, doc: &Document, tick: impl Into<Hub<i32>>) -> dom::Result<Node<Nurbs>> {
+    pub async fn nurbs(
+        &self,
+        doc: &Document,
+        tick: impl Into<Hub<i32>>,
+    ) -> dom::Result<Node<Nurbs>> {
         let canvas = doc.body()?.stem("canvas")?.canvas()?;
-        canvas.set_size(self.width, self.height);   
+        canvas.set_size(self.width, self.height);
         let gpu = canvas.gpu()?;
         let tick = &tick.into();
         let vert = gpu.vertex_shader(PARTICLES)?;
@@ -41,7 +53,8 @@ impl Demo {
             .out("out_vel")
             .out_type(WGLRC::SEPARATE_ATTRIBS)
             .node()?;
-        let point_count = 16 * 20;
+        let order = 16;
+        let point_count = order * self.curves;
         let mut point_array = vec![];
         for _ in 0..point_count {
             point_array.push(random_float());
@@ -49,8 +62,8 @@ impl Demo {
         }
         let mut vel_array = vec![];
         for _ in 0..point_count {
-            vel_array.push(random_float() * 0.002);
-            vel_array.push(random_float() * 0.002);
+            vel_array.push(random_float() * 0.01);
+            vel_array.push(random_float() * 0.01);
         }
         let pos_buff0 = gpu.buffer()?;
         pos_buff0.writer().array(point_array).node()?.act().await?;
@@ -60,11 +73,7 @@ impl Demo {
         let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).node()?;
         let vao0 = gpu.vao()?;
         let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).apex()?;
-        let tfo0 = gpu
-            .tfo()?
-            .buffer(&pos_buff0)
-            .buffer(&vel_buff0)
-            .make()?;
+        let tfo0 = gpu.tfo()?.buffer(&pos_buff0).buffer(&vel_buff0).make()?;
         let pos_buff1 = gpu.buffer()?;
         pos_buff1
             .writer()
@@ -93,6 +102,7 @@ impl Demo {
             .tfo(tfo1)
             .count(point_count)
             .instances(1)
+            .rasterizer_discard(true)
             .node()?;
         let draw1 = gpu
             .draw_arrays(prog)
@@ -116,7 +126,6 @@ impl Demo {
             .out("position3")
             .node()?;
         let mut curve_array = vec![];
-        let order = 16;
         let curve_count = point_count / order;
         for _ in 0..curve_count {
             curve_array.push(order as f32);
@@ -152,13 +161,13 @@ impl Demo {
         let basis_draw = gpu
             .draw_arrays(program)
             .mode(WGLRC::POINTS)
-            .stem(tick)
+            // .stem(tick) // enable this to calculate basis on every tick
             .stem(vao_writer)
             .vao(vao)
             .tfo(tfo)
-            .rasterizer_discard(true)
             .count(seg_count)
             .instances(curve_count)
+            .rasterizer_discard(true)
             .node()?;
 
         let vert = gpu.vertex_shader(CURVE)?;
@@ -192,6 +201,7 @@ impl Demo {
             .node()?;
 
         let nurbs = NurbsBuilder::default()
+            .gl(gpu)
             .draw0(draw0)
             .draw1(draw1)
             .basis(basis_draw)
@@ -206,6 +216,7 @@ impl Demo {
 #[derive(Builder, Debug, Unit!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Nurbs {
+    gl: Gpu,
     tick: Hub<i32>,
     draw0: Node<DrawArrays>,
     draw1: Node<DrawArrays>,
@@ -215,15 +226,20 @@ pub struct Nurbs {
 
 impl Act for Nurbs {
     fn backed(&mut self, back: &Back) -> graph::Result<()> {
+        self.draw0.back(back)?;
+        self.draw1.back(back)?;
+        self.basis.back(back)?;
+        self.curve.back(back)?;
         self.tick.back(back)
     }
     async fn act(&self) -> graph::Result<()> {
         if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
+        } else {
+            self.gl.clear();
+            self.draw1.act().await?;
             self.basis.act().await?;
             self.curve.act().await?;
-        } else {
-            self.draw1.act().await?;
         }
         Ok(())
     }
@@ -363,8 +379,7 @@ void main() {
     position3 = vec4(pos[12], pos[13], pos[14], pos[15]);
 }";
 
-
 // for _ in 0..100 {
-        //     tick.write(|x| *x += 1).await.unwrap();
-        //     TimeoutFuture::new(16).await;
-        // }
+//     tick.write(|x| *x += 1).await.unwrap();
+//     TimeoutFuture::new(16).await;
+// }

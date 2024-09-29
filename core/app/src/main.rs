@@ -14,7 +14,7 @@ use tokio::fs::File;
 use tokio::net::TcpListener;
 use tokio_util::io::ReaderStream;
 
-use config::{WASM, ASSET};
+use config::{ASSET, WASM};
 use index::index;
 
 mod config;

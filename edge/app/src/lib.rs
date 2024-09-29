@@ -1,11 +1,12 @@
-use thiserror::Error;
-use wasm_bindgen::prelude::*;
 use derive_builder::{Builder, UninitializedFieldError};
+use dom::*;
 use gpu::*;
 use graph::*;
-use dom::*;
-use web_sys::js_sys::Math::random;
 use paste::paste;
+use thiserror::Error;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::spawn_local;
+use web_sys::js_sys::Math::random;
 
 #[allow(unused_macros)]
 macro_rules! console_log {
@@ -50,10 +51,16 @@ impl From<Error> for JsValue {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[wasm_bindgen(start)]
-pub async fn entry() -> Result<()> {
+pub fn entry() -> Result<()> {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
-    demo::nurbs::DemoBuilder::default().duration(10000.).width(1200).height(900).make()?.run().await?;
+    demo::nurbs::DemoBuilder::default()
+        .curves(80)
+        .duration(50000.)
+        .width(1200)
+        .height(900)
+        .make()?
+        .start();
     Ok(())
 }
 
@@ -69,9 +76,3 @@ extern "C" {
 
 #[macro_use]
 extern crate macro_rules_attribute;
-
-// pub trait ToResult<T> {
-//     fn result(&self) -> Result<T> {
-//         self.
-//     }
-// }

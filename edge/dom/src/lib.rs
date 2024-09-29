@@ -1,17 +1,20 @@
 pub use text::*;
 
+use anyhow::anyhow;
+use derive_builder::Builder;
+use gpu::*;
+use graph::*;
+use paste::paste;
 use thiserror::Error;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{js_sys::{Object, Promise}, window, HtmlCanvasElement, HtmlElement};
-use derive_builder::Builder;
-use graph::*;
-use paste::paste;
-use anyhow::anyhow;
-use gpu::*;
+use web_sys::{
+    js_sys::{Object, Promise},
+    window, HtmlCanvasElement, HtmlElement,
+};
 
-mod text;
 mod canvas;
+mod text;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -68,7 +71,7 @@ fn no_html_element() -> Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct Window {
-    object: web_sys::Window
+    object: web_sys::Window,
 }
 
 impl Window {
@@ -90,16 +93,22 @@ impl Window {
 
 #[derive(Clone)]
 pub struct Document {
-    object: web_sys::Document
+    object: web_sys::Document,
 }
 
 impl Document {
     pub fn body(&self) -> Result<Element> {
         let object = self.object.body().ok_or(no_html_element())?;
-        Ok(Element { document: self.clone(), object })
+        Ok(Element {
+            document: self.clone(),
+            object,
+        })
     }
     pub fn element(&self, name: &str) -> Result<HtmlElement> {
-        let object = self.object.create_element(name)?.dyn_into::<HtmlElement>()?;
+        let object = self
+            .object
+            .create_element(name)?
+            .dyn_into::<HtmlElement>()?;
         Ok(object)
     }
     pub fn time(&self) -> Result<f64> {
@@ -116,7 +125,7 @@ pub struct Element {
 impl Element {
     pub fn canvas(&self) -> Result<canvas::Canvas> {
         let object = self.object.clone().dyn_into::<HtmlCanvasElement>()?;
-        Ok(canvas::Canvas{object})
+        Ok(canvas::Canvas { object })
     }
     pub fn element(&self, name: &str) -> Result<Self> {
         let object = self.document.element(name)?;
@@ -128,7 +137,10 @@ impl Element {
         self.down(object)
     }
     fn down(&self, object: HtmlElement) -> Result<Self> {
-        Ok(Self {document: self.document.clone(), object})
+        Ok(Self {
+            document: self.document.clone(),
+            object,
+        })
     }
 }
 

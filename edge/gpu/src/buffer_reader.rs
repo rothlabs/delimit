@@ -1,7 +1,7 @@
+use super::*;
 use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{window, WebGlSync};
-use super::*;
 
 #[derive(Builder, Debug, Vf32!)]
 #[builder(pattern = "owned", setter(into))]

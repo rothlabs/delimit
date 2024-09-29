@@ -1,20 +1,26 @@
+use web_sys::js_sys::Reflect;
 use super::*;
 
 pub struct Canvas {
-    pub object: HtmlCanvasElement
+    pub object: HtmlCanvasElement,
 }
 
 impl Canvas {
     pub fn gpu(&self) -> Result<Gpu> {
-        let gl = self.object.get_context("webgl2")?.ok_or(no_object())?.dyn_into::<WGLRC>()?;
-        Ok(Gpu{gl})
+        let context_options = Object::new();
+        Reflect::set(&context_options, &"preserveDrawingBuffer".into(), &true.into())?;
+        let gl = self
+            .object
+            .get_context_with_context_options("webgl2", &context_options)?
+            .ok_or(no_object())?
+            .dyn_into::<WGLRC>()?;
+        Ok(Gpu { gl })
     }
     pub fn set_size(&self, width: u32, height: u32) {
         self.object.set_width(width);
         self.object.set_height(height);
     }
 }
-
 
 // use super::*;
 // use web_sys::{window, HtmlCanvasElement};

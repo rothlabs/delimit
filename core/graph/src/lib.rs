@@ -63,7 +63,7 @@ macro_rules! node_and_apex {
     ($Unit:ident) => {
         make_func!($Unit);
         pub fn node(self) -> graph::Result<Node<$Unit>> {
-            Ok(self.make()?.node()?)
+            self.make()?.node()
         }
         pub fn apex(self) -> graph::Result<Apex> {
             Ok(self.hub()?.into())

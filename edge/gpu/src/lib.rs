@@ -6,10 +6,10 @@ pub use draw_arrays::*;
 pub use draw_elements::*;
 pub use program::*;
 pub use shader::*;
+pub use texture::*;
 pub use tfo::*;
 pub use vao::*;
 pub use vertex_attribute::*;
-pub use texture::*;
 
 use derive_builder::Builder;
 use graph::*;
@@ -22,13 +22,13 @@ pub mod shader;
 mod buffer;
 mod buffer_reader;
 mod bufferer;
+mod draw_arrays;
+mod draw_elements;
 mod program;
 mod texture;
 mod tfo;
 mod vao;
 mod vao_writer;
-mod draw_arrays;
-mod draw_elements;
 mod vertex_attribute;
 
 #[macro_use]
@@ -48,6 +48,9 @@ impl From<WGLRC> for Gpu {
 }
 
 impl Gpu {
+    pub fn clear(&self) {
+        self.gl.clear(WGLRC::COLOR_BUFFER_BIT);
+    }
     pub fn vertex_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }

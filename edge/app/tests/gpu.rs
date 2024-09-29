@@ -4,11 +4,21 @@ use gpu::*;
 use graph::*;
 
 pub fn gpu() -> Result<Gpu> {
-    Window::new()?.document()?.body()?.element("canvas")?.canvas()?.gpu()
+    Window::new()?
+        .document()?
+        .body()?
+        .element("canvas")?
+        .canvas()?
+        .gpu()
 }
 
 pub fn gpu_on_canvas() -> Result<Gpu> {
-    Window::new()?.document()?.body()?.stem("canvas")?.canvas()?.gpu()
+    Window::new()?
+        .document()?
+        .body()?
+        .stem("canvas")?
+        .canvas()?
+        .gpu()
 }
 
 pub fn basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
@@ -117,9 +127,9 @@ pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements
         .stride(20)
         .offset(12)
         .node()?;
-    let vao = gpu
-        .vao()?;
-    let vao_writer = vao.writer()
+    let vao = gpu.vao()?;
+    let vao_writer = vao
+        .writer()
         .attributes(vec![pos, uv])
         .index(index_buffer)
         .apex()?;
@@ -282,8 +292,8 @@ pub async fn transform_feedback() -> Result<()> {
     Ok(())
 }
 
-pub async fn nurbs() -> app::Result<()> {
-    demo::nurbs::DemoBuilder::default().make()?.run().await?;
+pub fn nurbs() -> app::Result<()> {
+    demo::nurbs::DemoBuilder::default().make()?.start();
     Ok(())
 }
 
@@ -298,9 +308,9 @@ pub async fn nurbs() -> app::Result<()> {
 //         .node()?;
 //     #[rustfmt::skip]
 //     let knots: Vec<f32> = vec![
-//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1., 
-//         6.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    0.,   0.,   1.,   1.,    1.,   1.,   1.,   1., 
-//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1., 
+//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1.,
+//         6.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    0.,   0.,   1.,   1.,    1.,   1.,   1.,   1.,
+//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1.,
 //     ];
 //     let buffer = gpu.buffer()?;
 //     let bufferer = buffer.writer().array(knots).apex()?;
