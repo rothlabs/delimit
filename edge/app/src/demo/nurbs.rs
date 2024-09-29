@@ -15,7 +15,7 @@ pub struct Demo {
 
 impl Demo {
     pub fn start(self) {
-        spawn_local(async move {self.run().await.unwrap()})
+        spawn_local(async move { self.run().await.unwrap() })
     }
     pub async fn run(&self) -> dom::Result<()> {
         let window = Window::new()?;

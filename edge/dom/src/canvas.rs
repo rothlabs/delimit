@@ -1,5 +1,5 @@
-use web_sys::js_sys::Reflect;
 use super::*;
+use web_sys::js_sys::Reflect;
 
 pub struct Canvas {
     pub object: HtmlCanvasElement,
@@ -8,7 +8,11 @@ pub struct Canvas {
 impl Canvas {
     pub fn gpu(&self) -> Result<Gpu> {
         let context_options = Object::new();
-        Reflect::set(&context_options, &"preserveDrawingBuffer".into(), &true.into())?;
+        Reflect::set(
+            &context_options,
+            &"preserveDrawingBuffer".into(),
+            &true.into(),
+        )?;
         let gl = self
             .object
             .get_context_with_context_options("webgl2", &context_options)?
