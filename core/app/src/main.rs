@@ -14,15 +14,15 @@ use tokio::fs::File;
 use tokio::net::TcpListener;
 use tokio_util::io::ReaderStream;
 
-use config::{CLIENT, ASSET};
+use config::{WASM, ASSET};
 use index::index;
 
 mod config;
 mod index;
 
 const BOOT: &str = "/boot.js";
-pub const INIT: &str = "/client.js";
-const MAIN: &str = "/client_bg.wasm";
+const INIT: &str = "/app.js";
+const MAIN: &str = "/app_bg.wasm";
 
 static NOTFOUND: &[u8] = b"Not Found";
 
@@ -74,9 +74,9 @@ async fn handle(req: Request<Incoming>) -> RequestResult {
     println!("request");
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/") => text(index().await.unwrap()),
-        (&Method::GET, BOOT) => static_file(BOOT).await,
-        (&Method::GET, INIT) => client_file(INIT).await,
-        (&Method::GET, MAIN) => client_file(MAIN).await,
+        (&Method::GET, BOOT) => asset_file(BOOT).await,
+        (&Method::GET, INIT) => wasm_file(INIT).await,
+        (&Method::GET, MAIN) => wasm_file(MAIN).await,
         _ => not_found(),
     }
 }
@@ -94,12 +94,12 @@ fn not_found() -> RequestResult {
         .unwrap())
 }
 
-async fn static_file(path: &str) -> RequestResult {
+async fn asset_file(path: &str) -> RequestResult {
     send_file(ASSET.to_owned() + path).await
 }
 
-async fn client_file(path: &str) -> RequestResult {
-    send_file(CLIENT.to_owned() + path).await
+async fn wasm_file(path: &str) -> RequestResult {
+    send_file(WASM.to_owned() + path).await
 }
 
 async fn send_file(path: String) -> RequestResult {

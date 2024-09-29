@@ -56,11 +56,6 @@ pub async fn default_bay() -> Result<Hub<()>> {
     let importmap = Element::new().open(tag).item(raw).close()?.hub()?;
     bay.insert("importmap", importmap)?;
 
-    let att = Attribute::new().name("id").content("canvas").hub()?;
-    let tag = Tag::new().name("canvas").attribute(att).hub()?;
-    let canvas = Element::new().open(tag).close()?.hub()?;
-    bay.insert("canvas", canvas)?;
-
     let src = Attribute::new().name("src").content("/boot.js").hub()?;
     let module = Attribute::new().name("type").content("module").hub()?;
     let tag = Tag::new()
@@ -93,7 +88,6 @@ pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
     let body = Element::new()
         .open(bay.get("body")?.pathed("body").string()?)
         .item(bay.get("title")?.pathed("title").string()?)
-        .item(bay.get("canvas")?.pathed("canvas").string()?)
         .item(bay.get("boot")?.pathed("boot").string()?)
         .close()?
         .import(WORLD_ALL)
@@ -117,13 +111,13 @@ pub struct Importmap {
 
 #[derive(Serialize)]
 pub struct Imports {
-    init: String,
+    app: String,
 }
 
 impl Default for Imports {
     fn default() -> Self {
         Self {
-            init: "/client.js".into(),
+            app: "/app.js".into(),
         }
     }
 }
@@ -138,13 +132,11 @@ Delimit
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Roth Labs LLC">
 <script type="importmap">
-{"imports":{"init":"/client.js"}}
+{"imports":{"app":"/app.js"}}
 </script>
 </head>
 <body>
 Delimit
-<canvas id="canvas">
-</canvas>
 <script src="/boot.js" type="module">
 </script>
 </body>
@@ -160,13 +152,11 @@ html mutated
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Roth Labs LLC">
 <script type="importmap">
-{"imports":{"init":"/client.js"}}
+{"imports":{"app":"/app.js"}}
 </script>
 </head>
 <body>
 Delimit
-<canvas id="canvas">
-</canvas>
 <script src="/boot.js" type="module">
 </script>
 </body>
@@ -182,13 +172,11 @@ plain mutated
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Roth Labs LLC">
 <script type="importmap">
-{"imports":{"init":"/client.js"}}
+{"imports":{"app":"/app.js"}}
 </script>
 </head>
 <body>
 Delimit
-<canvas id="canvas">
-</canvas>
 <script src="/boot.js" type="module">
 </script>
 </body>

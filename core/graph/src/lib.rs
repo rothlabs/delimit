@@ -47,15 +47,25 @@ use std::{
 };
 
 #[macro_export]
-macro_rules! node_and_apex {
+macro_rules! make_func {
     ($Unit:ident) => {
-        pub fn node(self) -> crate::Result<Node<$Unit>> {
+        pub fn make(self) -> graph::Result<$Unit> {
             match self.build() {
-                Ok(value) => Ok(value.node()?),
+                Ok(value) => Ok(value),
                 Err(err) => Err(anyhow!(err.to_string()))?,
             }
         }
-        pub fn apex(self) -> crate::Result<Apex> {
+    };
+}
+
+#[macro_export]
+macro_rules! node_and_apex {
+    ($Unit:ident) => {
+        make_func!($Unit);
+        pub fn node(self) -> graph::Result<Node<$Unit>> {
+            Ok(self.make()?.node()?)
+        }
+        pub fn apex(self) -> graph::Result<Apex> {
             Ok(self.hub()?.into())
         }
     };
@@ -66,9 +76,22 @@ macro_rules! build_methods {
     ($Unit:ident $Base:ident) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> crate::Result<Hub<$Base>> {
+            pub fn hub(self) -> graph::Result<Hub<$Base>> {
                 Ok(self.node()?.hub())
             }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! Make {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident $tt:tt
+    ) => {
+        impl paste! {[<$Unit "Builder">]} {
+            make_func!($Unit);
         }
     };
 }
@@ -82,7 +105,7 @@ macro_rules! Unit {
     ) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> crate::Result<Hub<()>> {
+            pub fn hub(self) -> graph::Result<Hub<()>> {
                 Ok(self.node()?.hub())
             }
         }

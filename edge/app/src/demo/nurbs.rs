@@ -1,12 +1,41 @@
 use super::*;
 
+#[derive(Builder, Make!)]
+#[builder(pattern = "owned")]
+pub struct Demo {
+    #[builder(default = "2000.0")]
+    duration: f64,
+    #[builder(default = "300")]
+    width: u32,
+    #[builder(default = "150")]
+    height: u32,
+}
+
+
 impl Demo {
-    pub async fn nurbs(&self, tick: impl Into<Hub<i32>>) -> graph::Result<NurbsBuilder> {
+    pub async fn run(&self) -> dom::Result<()> {
+        let window = Window::new()?;
+        let doc = window.document()?;
+        let tick = 0.leaf();
+        let _nurbs = self.nurbs(&doc, &tick).await?;
+        let start = doc.time()?;
+        loop {
+            let time = window.request_animation_frame().await?.as_f64().result()?;
+            if time - start > self.duration {
+                break;
+            }
+            tick.write(|x| *x += 1).await?;
+        }
+        Ok(())
+    }
+    pub async fn nurbs(&self, doc: &Document, tick: impl Into<Hub<i32>>) -> dom::Result<Node<Nurbs>> {
+        let canvas = doc.body()?.stem("canvas")?.canvas()?;
+        canvas.set_size(self.width, self.height);   
+        let gpu = canvas.gpu()?;
         let tick = &tick.into();
-        let vert = self.gpu.vertex_shader(PARTICLES)?;
-        let frag = self.gpu.fragment_shader(PARTICLES_FRAG)?;
-        let prog = self
-            .gpu
+        let vert = gpu.vertex_shader(PARTICLES)?;
+        let frag = gpu.fragment_shader(PARTICLES_FRAG)?;
+        let prog = gpu
             .program(vert, frag)?
             .out("out_pos")
             .out("out_vel")
@@ -23,28 +52,27 @@ impl Demo {
             vel_array.push(random_float() * 0.002);
             vel_array.push(random_float() * 0.002);
         }
-        let pos_buff0 = self.gpu.buffer()?;
+        let pos_buff0 = gpu.buffer()?;
         pos_buff0.writer().array(point_array).node()?.act().await?;
-        let vel_buff0 = self.gpu.buffer()?;
+        let vel_buff0 = gpu.buffer()?;
         vel_buff0.writer().array(vel_array).node()?.act().await?;
         let pos0 = pos_buff0.attribute().size(2).stride(8).node()?;
         let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).node()?;
-        let vao0 = self.gpu.vao()?;
+        let vao0 = gpu.vao()?;
         let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).apex()?;
-        let tfo0 = self
-            .gpu
+        let tfo0 = gpu
             .tfo()?
             .buffer(&pos_buff0)
             .buffer(&vel_buff0)
             .make()?;
-        let pos_buff1 = self.gpu.buffer()?;
+        let pos_buff1 = gpu.buffer()?;
         pos_buff1
             .writer()
             .array(point_count * 8)
             .node()?
             .act()
             .await?;
-        let vel_buff1 = self.gpu.buffer()?;
+        let vel_buff1 = gpu.buffer()?;
         vel_buff1
             .writer()
             .array(point_count * 8)
@@ -53,11 +81,10 @@ impl Demo {
             .await?;
         let pos1 = pos_buff1.attribute().size(2).stride(8).node()?;
         let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).node()?;
-        let vao1 = self.gpu.vao()?;
+        let vao1 = gpu.vao()?;
         let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).apex()?;
-        let tfo1 = self.gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
-        let draw0 = self
-            .gpu
+        let tfo1 = gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
+        let draw0 = gpu
             .draw_arrays(prog.clone())
             .mode(WGLRC::POINTS)
             .stem(tick)
@@ -67,8 +94,7 @@ impl Demo {
             .count(point_count)
             .instances(1)
             .node()?;
-        let draw1 = self
-            .gpu
+        let draw1 = gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
             .stem(tick)
@@ -80,10 +106,9 @@ impl Demo {
             .node()?;
 
         let seg_count = 1000;
-        let vertex = self.gpu.vertex_shader(NURBS)?;
-        let fragment = self.gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
-        let program = self
-            .gpu
+        let vertex = gpu.vertex_shader(NURBS)?;
+        let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
+        let program = gpu
             .program(vertex, fragment)?
             .out("position0")
             .out("position1")
@@ -100,7 +125,7 @@ impl Demo {
                 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
             ]);
         }
-        let nurbs_buff = self.gpu.buffer()?;
+        let nurbs_buff = gpu.buffer()?;
         nurbs_buff.writer().array(curve_array).node()?.act().await?;
         #[rustfmt::skip]
         let attribs = vec![
@@ -114,18 +139,17 @@ impl Demo {
             nurbs_buff.attribute().size(4).stride(132).offset(100).divisor(1).index(7).node()?,
             nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).node()?,
         ];
-        let vao = self.gpu.vao()?;
+        let vao = gpu.vao()?;
         let vao_writer = vao.writer().attributes(attribs).apex()?;
-        let basis_buf = self.gpu.buffer()?;
+        let basis_buf = gpu.buffer()?;
         basis_buf
             .writer()
             .array(4 * order * seg_count * curve_count)
             .node()?
             .act()
             .await?;
-        let tfo = self.gpu.tfo()?.buffer(&basis_buf).make()?;
-        let basis_draw = self
-            .gpu
+        let tfo = gpu.tfo()?.buffer(&basis_buf).make()?;
+        let basis_draw = gpu
             .draw_arrays(program)
             .mode(WGLRC::POINTS)
             .stem(tick)
@@ -137,9 +161,9 @@ impl Demo {
             .instances(curve_count)
             .node()?;
 
-        let vert = self.gpu.vertex_shader(CURVE)?;
-        let frag = self.gpu.fragment_shader(CURVE_FRAG)?;
-        let prog = self.gpu.program(vert, frag)?.node()?;
+        let vert = gpu.vertex_shader(CURVE)?;
+        let frag = gpu.fragment_shader(CURVE_FRAG)?;
+        let prog = gpu.program(vert, frag)?.node()?;
         #[rustfmt::skip]
         let attribs = vec![
             pos_buff0.attribute().size(4).stride(16).divisor(1).node()?,
@@ -155,10 +179,9 @@ impl Demo {
             basis_buf.attribute().size(4).stride(64).offset(32).index(10).node()?,
             basis_buf.attribute().size(4).stride(64).offset(48).index(11).node()?,
         ];
-        let vao = self.gpu.vao()?;
+        let vao = gpu.vao()?;
         let vao_writer = vao.writer().attributes(attribs).apex()?;
-        let curve_draw = self
-            .gpu
+        let curve_draw = gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
             .stem(tick)
@@ -173,7 +196,9 @@ impl Demo {
             .draw1(draw1)
             .basis(basis_draw)
             .curve(curve_draw)
-            .tick(tick);
+            .tick(tick)
+            .node()?;
+        nurbs.act().await?;
         Ok(nurbs)
     }
 }
@@ -190,8 +215,7 @@ pub struct Nurbs {
 
 impl Act for Nurbs {
     fn backed(&mut self, back: &Back) -> graph::Result<()> {
-        self.tick = self.tick.backed(back)?;
-        Ok(())
+        self.tick.back(back)
     }
     async fn act(&self) -> graph::Result<()> {
         if self.tick.base().await? % 2 == 0 {
@@ -223,7 +247,7 @@ void main() {
         out_vel.y = -out_vel.y;
     }
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
-    gl_PointSize = 3.;
+    gl_PointSize = 2.;
 }";
 
 pub const PARTICLES_FRAG: &str = r"#version 300 es
@@ -258,7 +282,7 @@ void main() {
     out_pos.y += c0.w*bC[0] + c1.w*bC[1] + c2.w*bC[2] + c3.w*bC[3];
     out_pos.y += c4.w*bD[0] + c5.w*bD[1] + c6.w*bD[2] + c7.w*bD[3];
     gl_Position = vec4(out_pos.x, out_pos.y, 0., 1.);
-    gl_PointSize = 2.;
+    gl_PointSize = 1.;
 }";
 
 // out_pos.x =  c0.x*bA[0] + c1.x*bA[1] + c2.x*bA[2] + c3.x*bA[3];
@@ -338,3 +362,9 @@ void main() {
     position2 = vec4(pos[8], pos[9], pos[10], pos[11]);
     position3 = vec4(pos[12], pos[13], pos[14], pos[15]);
 }";
+
+
+// for _ in 0..100 {
+        //     tick.write(|x| *x += 1).await.unwrap();
+        //     TimeoutFuture::new(16).await;
+        // }

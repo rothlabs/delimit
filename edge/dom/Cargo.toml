@@ -20,4 +20,5 @@ edition = "2021"
     features = [
         'Window', 
         'Document', 
+        'DocumentTimeline',
     ]

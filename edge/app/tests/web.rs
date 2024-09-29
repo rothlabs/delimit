@@ -11,6 +11,13 @@ mod gpu;
 wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
+async fn nurbs() -> app::Result<()> {
+    gpu::nurbs().await?;
+    Ok(())
+}
+
+
+#[wasm_bindgen_test]
 fn make_vertex_shader() -> Result<()> {
     gpu::make_vertex_shader()
 }
@@ -87,11 +94,5 @@ async fn draw_elements_textured() -> Result<()> {
 #[wasm_bindgen_test]
 async fn transform_feedback() -> Result<()> {
     gpu::transform_feedback().await?;
-    Ok(())
-}
-
-#[wasm_bindgen_test]
-async fn nurbs_shader() -> Result<()> {
-    gpu::nurbs_shader().await?;
     Ok(())
 }
