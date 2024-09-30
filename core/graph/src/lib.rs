@@ -22,6 +22,12 @@ pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use thiserror;
+pub use thiserror::Error as ThisError;
+pub use anyhow::Error as anyError;
+pub use anyhow::anyhow;
+pub use paste::paste;
+
 
 use aim::*;
 use derive_builder::UninitializedFieldError;

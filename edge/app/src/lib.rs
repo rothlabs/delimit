@@ -2,13 +2,11 @@ use std::borrow::Cow;
 
 use derive_builder::{Builder, UninitializedFieldError};
 use dom::*;
-use gpu::*;
 use graph::*;
-use paste::paste;
-use thiserror::Error;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::js_sys::Math::random;
+use webgl::*;
 use wgpu::SurfaceTarget;
 
 #[allow(unused_macros)]
@@ -18,7 +16,7 @@ macro_rules! console_log {
 
 pub mod demo;
 
-#[derive(Error, Debug)]
+#[derive(ThisError, Debug)]
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
@@ -29,7 +27,7 @@ pub enum Error {
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
-    Any(#[from] anyhow::Error),
+    Any(#[from] anyError),
 }
 
 impl From<JsValue> for Error {
@@ -58,7 +56,11 @@ pub async fn entry() -> Result<()> {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
 
-    let canvas = Window::new()?.document()?.body()?.stem("canvas")?.canvas()?;
+    let canvas = Window::new()?
+        .document()?
+        .body()?
+        .stem("canvas")?
+        .canvas()?;
 
     let instance = wgpu::Instance::default();
     let surface_target = SurfaceTarget::Canvas(canvas.object);
@@ -78,8 +80,7 @@ pub async fn entry() -> Result<()> {
                 label: None,
                 required_features: wgpu::Features::empty(),
                 // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
-                required_limits: wgpu::Limits::default()
-                    .using_resolution(adapter.limits()),
+                required_limits: wgpu::Limits::default().using_resolution(adapter.limits()),
                 memory_hints: wgpu::MemoryHints::MemoryUsage,
             },
             None,
@@ -122,12 +123,10 @@ pub async fn entry() -> Result<()> {
         cache: None,
     });
 
-    let config = surface
-        .get_default_config(&adapter, 300, 150)
-        .unwrap();
+    let config = surface.get_default_config(&adapter, 300, 150).unwrap();
     surface.configure(&device, &config);
 
-    ///////////////////// Render 
+    ///////////////////// Render
     let frame = surface
         .get_current_texture()
         .expect("Failed to acquire next swap chain texture");
@@ -135,25 +134,22 @@ pub async fn entry() -> Result<()> {
         .texture
         .create_view(&wgpu::TextureViewDescriptor::default());
     let mut encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: None,
-        });
+        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
     {
-        let mut rpass =
-            encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: None,
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-                timestamp_writes: None,
-                occlusion_query_set: None,
-            });
+        let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: None,
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+        });
         rpass.set_pipeline(&render_pipeline);
         rpass.draw(0..3, 0..1);
     }
@@ -162,13 +158,13 @@ pub async fn entry() -> Result<()> {
 
     console_log!("Adapter: {:?}", adapter.get_info());
 
-    // demo::nurbs::DemoBuilder::default()
-    //     .curves(40)
-    //     .duration(5000.)
-    //     .width(1200)
-    //     .height(900)
-    //     .make()?
-    //     .start();
+    demo::nurbs::DemoBuilder::default()
+        .curves(40)
+        .duration(5000.)
+        .width(1200)
+        .height(900)
+        .make()?
+        .start();
     Ok(())
 }
 

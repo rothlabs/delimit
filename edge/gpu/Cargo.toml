@@ -6,29 +6,13 @@ edition = "2021"
 [dependencies]
     wasm-bindgen = "0.2.93"
     wasm-bindgen-futures = "0.4.43"
-    gloo-timers = { version = "0.3.0", features = ["futures"] }
-    anyhow = "1.0.86"
-    derive_builder = "0.20.0"
-    paste = "1.0"
+    derive_builder = "0.20.1"
     macro_rules_attribute = "0.2.0"
+    wgpu = "22.1.0"
     graph = { path = "../../core/graph", features = ["oneThread"], default-features = false }
 
 [dependencies.web-sys]
     version = "0.3.70"
     features = [
-        'Window', 
-        'Document', 
-        'HtmlCanvasElement' ,
-        'OffscreenCanvas',
-        'WebGlRenderingContext', 
-        'WebGl2RenderingContext', 
-        'WebGlProgram', 
-        'WebGlShader', 
-        'WebGlBuffer', 
-        'WebGlFramebuffer', 
-        'WebGlVertexArrayObject',
-        'WebGlTransformFeedback',
-        'WebGlUniformLocation',
-        'WebGlTexture',
-        'WebGlSync',
+        'HtmlCanvasElement'
     ]

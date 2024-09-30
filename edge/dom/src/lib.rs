@@ -1,17 +1,15 @@
 pub use text::*;
 
-use anyhow::anyhow;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
-use paste::paste;
-use thiserror::Error;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
     js_sys::{Object, Promise},
     window, HtmlCanvasElement, HtmlElement,
 };
+use webgl::*;
 
 mod canvas;
 mod text;
@@ -19,10 +17,12 @@ mod text;
 #[macro_use]
 extern crate macro_rules_attribute;
 
-#[derive(Error, Debug)]
+#[derive(ThisError, Debug)]
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
+    #[error(transparent)]
+    Gpu(#[from] gpu::Error),
     #[error("JsValue Error ({0})")]
     JsValue(String),
     #[error("Object Error ({0})")]
@@ -32,7 +32,7 @@ pub enum Error {
     #[error("HtmlElement Error ({0})")]
     HtmlElement(String),
     #[error(transparent)]
-    Any(#[from] anyhow::Error),
+    Any(#[from] anyError),
 }
 
 impl From<JsValue> for Error {

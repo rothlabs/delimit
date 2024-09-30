@@ -1,27 +1,27 @@
 use app::demo;
 use dom::{Result, Window};
-use gpu::*;
 use graph::*;
+use webgl::*;
 
-pub fn gpu() -> Result<Gpu> {
+pub fn gpu() -> Result<WebGl> {
     Window::new()?
         .document()?
         .body()?
         .element("canvas")?
         .canvas()?
-        .gpu()
+        .webgl()
 }
 
-pub fn gpu_on_canvas() -> Result<Gpu> {
+pub fn gpu_on_canvas() -> Result<WebGl> {
     Window::new()?
         .document()?
         .body()?
         .stem("canvas")?
         .canvas()?
-        .gpu()
+        .webgl()
 }
 
-pub fn basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
+pub fn basic_program(gpu: &WebGl) -> Result<(Node<Program>, Leaf<String>)> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX).unwrap();
     let fragment_source = shader::basic::FRAGMENT_RED.leaf();
     let fragment = gpu.fragment_shader(&fragment_source).unwrap();
@@ -29,13 +29,13 @@ pub fn basic_program(gpu: &Gpu) -> Result<(Node<Program>, Leaf<String>)> {
     Ok((program, fragment_source))
 }
 
-pub fn make_tex_program(gpu: &Gpu) -> graph::Result<Node<Program>> {
+pub fn make_tex_program(gpu: &WebGl) -> graph::Result<Node<Program>> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
     gpu.program(vertex, fragment)?.node()
 }
 
-pub fn make_basic_buffer(gpu: &Gpu) -> Result<(Buffer, Node<Bufferer>)> {
+pub fn make_basic_buffer(gpu: &WebGl) -> Result<(Buffer, Node<Bufferer>)> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         0.,  0.,  0.,
@@ -47,7 +47,7 @@ pub fn make_basic_buffer(gpu: &Gpu) -> Result<(Buffer, Node<Bufferer>)> {
     Ok((buffer, bufferer))
 }
 
-pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<(Buffer, Node<Bufferer>)> {
+pub fn make_vertex_color_buffer(gpu: &WebGl) -> Result<(Buffer, Node<Bufferer>)> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         // xyz             // uv
@@ -60,7 +60,7 @@ pub fn make_vertex_color_buffer(gpu: &Gpu) -> Result<(Buffer, Node<Bufferer>)> {
     Ok((buffer, bufferer))
 }
 
-pub async fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
+pub async fn make_basic_texture(gpu: &WebGl) -> Result<Node<Texture>> {
     #[rustfmt::skip]
     let array: Vec<u8> = vec![
         128,128,128,		230,25,75,			60,180,75,			255,225,25,
@@ -73,7 +73,7 @@ pub async fn make_basic_texture(gpu: &Gpu) -> Result<Node<Texture>> {
     Ok(texture)
 }
 
-pub async fn draw_arrays_basic(gpu: &Gpu) -> Result<()> {
+pub async fn draw_arrays_basic(gpu: &WebGl) -> Result<()> {
     let (program, _) = basic_program(&gpu)?;
     let (buffer, buffer_writer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).node()?;
@@ -91,7 +91,7 @@ pub async fn draw_arrays_basic(gpu: &Gpu) -> Result<()> {
 }
 
 pub async fn draw_elements_basic(
-    gpu: &Gpu,
+    gpu: &WebGl,
 ) -> Result<(Node<DrawElements>, Leaf<String>, Node<Bufferer>)> {
     let (program, vertex_source) = basic_program(&gpu)?;
     let (buffer, bufferer) = make_basic_buffer(&gpu)?;
@@ -113,7 +113,7 @@ pub async fn draw_elements_basic(
     Ok((elements, vertex_source, bufferer))
 }
 
-pub async fn draw_elements_textured_basic(gpu: &Gpu) -> Result<Node<DrawElements>> {
+pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElements>> {
     let program = make_tex_program(&gpu)?;
     let (buffer, bufferer) = make_vertex_color_buffer(&gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];

@@ -6,7 +6,15 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn gpu(&self) -> Result<Gpu> {
+    pub fn set_size(&self, width: u32, height: u32) {
+        self.object.set_width(width);
+        self.object.set_height(height);
+    }
+    pub async fn gpu(&self) -> Result<Gpu> {
+        let gpu = Gpu::from_canvas(self.object.clone()).await?;
+        Ok(gpu)
+    }
+    pub fn webgl(&self) -> Result<WebGl> {
         let context_options = Object::new();
         Reflect::set(
             &context_options,
@@ -18,11 +26,7 @@ impl Canvas {
             .get_context_with_context_options("webgl2", &context_options)?
             .ok_or(no_object())?
             .dyn_into::<WGLRC>()?;
-        Ok(Gpu { gl })
-    }
-    pub fn set_size(&self, width: u32, height: u32) {
-        self.object.set_width(width);
-        self.object.set_height(height);
+        Ok(WebGl { gl })
     }
 }
 

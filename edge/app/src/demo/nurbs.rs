@@ -43,7 +43,7 @@ impl Demo {
     ) -> dom::Result<Node<Nurbs>> {
         let canvas = doc.body()?.stem("canvas")?.canvas()?;
         canvas.set_size(self.width, self.height);
-        let gpu = canvas.gpu()?;
+        let gpu = canvas.webgl()?;
         let tick = &tick.into();
         let vert = gpu.vertex_shader(PARTICLES)?;
         let frag = gpu.fragment_shader(PARTICLES_FRAG)?;
@@ -216,7 +216,7 @@ impl Demo {
 #[derive(Builder, Debug, Unit!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Nurbs {
-    gl: Gpu,
+    gl: WebGl,
     tick: Hub<i32>,
     draw0: Node<DrawArrays>,
     draw1: Node<DrawArrays>,
