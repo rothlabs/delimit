@@ -102,19 +102,6 @@ macro_rules! Make {
     };
 }
 
-// #[macro_export]
-// macro_rules! Make {
-//     (
-//     $(#[$attr:meta])*
-//     $pub:vis
-//     struct $Unit:ident<$lt:lifetime> $tt:tt
-//     ) => {
-//         impl<'a> DemoBuilder<'a> {
-//             make_func!($Unit);
-//         }
-//     };
-// }
-
 #[macro_export]
 macro_rules! Unit {
     (
@@ -123,14 +110,6 @@ macro_rules! Unit {
     struct $Unit:ident $tt:tt
     ) => {
         impl paste! {[<$Unit "Builder">]} {
-            node_and_apex!($Unit);
-            pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.node()?.hub())
-            }
-        }
-    };
-    ($Unit:ident<'_>) => {
-        impl paste! {[<$Unit "Builder">]<'static>} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<()>> {
                 Ok(self.node()?.hub())
@@ -205,23 +184,9 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
-    // #[error("Js Error ({0})")]
-    // Js(String),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
-
-// impl From<JsValue> for Error {
-//     fn from(value: JsValue) -> Self {
-//         Error::Js(format!("{:?}", value))
-//     }
-// }
-
-// impl From<Element> for Error {
-//     fn from(value: Element) -> Self {
-//         Error::Js(format!("{:?}", value))
-//     }
-// }
 
 pub fn no_back(source: &str) -> Result<()> {
     Err(Error::NoBack(source.into()))
@@ -250,6 +215,13 @@ impl<T> Unit for T where T: Solve + SendSync + Debug {}
 
 pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
+
+/// Graph reference counter
+#[cfg(not(feature = "oneThread"))]
+pub type Grc<T> = Arc<T>;
+/// Graph reference counter
+#[cfg(feature = "oneThread")]
+pub type Grc<T> = Rc<T>;
 
 #[cfg(not(feature = "oneThread"))]
 pub type Pointer<T> = Arc<RwLock<T>>;
@@ -404,6 +376,31 @@ impl<T: Backed> BackIt for T {
         Ok(())
     }
 }
+
+// #[macro_export]
+// macro_rules! Make {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident<$lt:lifetime> $tt:tt
+//     ) => {
+//         impl<'a> DemoBuilder<'a> {
+//             make_func!($Unit);
+//         }
+//     };
+// }
+
+// ($Unit:ident<'_>) => {
+//     impl paste! {[<$Unit "Builder">]<'static>} {
+//         node_and_apex!($Unit);
+//         pub fn hub(self) -> graph::Result<Hub<()>> {
+//             Ok(self.node()?.hub())
+//         }
+//     }
+// };
+
+
+
 
 // pub trait ErrorToJsValue {
 //     fn js_err(&self)

@@ -8,8 +8,8 @@
     license = "none"
 
 
-[lib]
-    crate-type = ["cdylib", "rlib"]
+# [lib]
+#     crate-type = ["rlib"]
 
 [features]
     default = ["console_error_panic_hook"]
@@ -48,6 +48,11 @@
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
+
+
+# [lib]
+# crate-type = ["cdylib", "rlib"]
+
 
     # The `console_error_panic_hook` crate provides better debugging of panics by
     # logging them with `console.error`. This is great for development, but requires

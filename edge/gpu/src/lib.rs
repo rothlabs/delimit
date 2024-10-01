@@ -1,14 +1,21 @@
+pub use wgpu;
+pub use buffer_writer::*;
+
 use derive_builder::{Builder, UninitializedFieldError};
 use graph::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 use buffer::*;
 use pipe::*;
+use bind::*;
 
 mod buffer;
 mod pipe;
 mod bind;
 mod buffer_writer;
+
+#[macro_use]
+extern crate macro_rules_attribute;
 
 #[derive(ThisError, Debug)]
 pub enum Error {
@@ -26,8 +33,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub struct Gpu {
-    pub device: Device,
-    pub queue: Queue,
+    pub device: Grc<Device>,
+    pub queue: Grc<Queue>,
 }
 
 impl Gpu {
@@ -56,7 +63,7 @@ impl Gpu {
             )
             .await
             .expect("Failed to create device");
-        Ok(Self { device, queue })
+        Ok(Self { device: device.into(), queue: queue.into() })
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
         self.device.create_shader_module(source)
@@ -64,8 +71,16 @@ impl Gpu {
     pub fn buffer(&self) -> BufferBuilder {
         BufferBuilder::default().device(&self.device)
     }
+    pub fn buffer_writer(&self) -> BufferWriterBuilder {
+        BufferWriterBuilder::default().queue(self.queue.clone())
+    }
+    pub fn bind_group(&self) -> BindGroupBuilder {
+        BindGroupBuilder::default().device(&self.device)
+    }
+    pub fn bind_group_layout(&self) -> BindGroupLayoutBuilder {
+        BindGroupLayoutBuilder::default().device(&self.device)
+    }
     pub fn compute(&self) -> ComputeBuilder {
-        // self.queue.write_buffer(buffer, offset, data);
         ComputeBuilder::default().device(&self.device)
     }
     pub fn encoder(&self) -> CommandEncoder {

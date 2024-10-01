@@ -13,6 +13,8 @@ use webgl::*;
 
 mod canvas;
 mod text;
+// #[cfg(test)]
+// mod tests;
 
 #[macro_use]
 extern crate macro_rules_attribute;
