@@ -1,6 +1,14 @@
+use derive_builder::{Builder, UninitializedFieldError};
 use graph::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
+use buffer::*;
+use pipe::*;
+
+mod buffer;
+mod pipe;
+mod bind;
+mod buffer_writer;
 
 #[derive(ThisError, Debug)]
 pub enum Error {
@@ -8,8 +16,8 @@ pub enum Error {
     Graph(#[from] graph::Error),
     #[error(transparent)]
     CreateSurfaceError(#[from] CreateSurfaceError),
-    // #[error(transparent)]
-    // Uninit(#[from] UninitializedFieldError),
+    #[error(transparent)]
+    Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Any(#[from] anyError),
 }
@@ -49,5 +57,18 @@ impl Gpu {
             .await
             .expect("Failed to create device");
         Ok(Self { device, queue })
+    }
+    pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
+        self.device.create_shader_module(source)
+    }
+    pub fn buffer(&self) -> BufferBuilder {
+        BufferBuilder::default().device(&self.device)
+    }
+    pub fn compute(&self) -> ComputeBuilder {
+        // self.queue.write_buffer(buffer, offset, data);
+        ComputeBuilder::default().device(&self.device)
+    }
+    pub fn encoder(&self) -> CommandEncoder {
+        self.device.create_command_encoder(&CommandEncoderDescriptor { label: None })
     }
 }
