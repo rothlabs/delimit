@@ -24,6 +24,15 @@ impl<'a> Encoder<'a> {
     }
 }
 
+pub struct Compute<'a> {
+    inner: ComputePass<'a>,
+    encoder: Encoder<'a>,
+}
+
+impl<'a> Compute<'a> {
+    
+}
+
 pub struct SourceBuffer<'a> {
     encoder: Encoder<'a>,
     buffer: &'a Buffer,
