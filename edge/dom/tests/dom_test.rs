@@ -63,25 +63,25 @@ async fn make_compute_pipeline() -> dom::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(wgpu::include_wgsl!("compute.wgsl"));
     let pipe = gpu.compute().shader(&shader).entry("main").make()?;
-    let storage = storage_buffer(&gpu, 36)?;
-    let stage = gpu
-        .buffer()
-        .label("stage")
-        .size(36)
-        .map_read()
-        .make()?;
-    let writer = storage.writer().data(basic_u32()).make()?;
-    writer.act().await?;
-    let bind_group = gpu.bind_group().pipe(&pipe).entry(0, &storage).make()?;
+    let size = 36;
+    let storage = storage_buffer(&gpu, size)?;
+    let stage = gpu.buffer().label("stage").size(size).map_read().make()?;
+    storage.writer().data(basic_u32()).make()?.act().await?;
+    let bind_group = gpu.bind_group().pipeline(&pipe).entry(0, &storage).make()?;
+
     let mut encoder = gpu.encoder();
-    {
-        let mut cpass = encoder.compute();
-        cpass.set_pipeline(&pipe);
-        cpass.set_bind_group(0, &bind_group, &[]);
-        cpass.insert_debug_marker("compute collatz iterations");
-        cpass.dispatch_workgroups(9, 1, 1);
-    }
-    encoder.copy_buffer(&storage).to_buffer(&stage).size(36).submit();
+    encoder
+        .compute()
+        .pipeline(&pipe)
+        .bind_group(0, &bind_group, &[])
+        .debug("compute collatz iterations")
+        .dispatch(9, 1, 1);
+    encoder
+        .copy_buffer(&storage)
+        .destination(&stage)
+        .size(size)
+        .submit();
+
     let buffer_slice = stage.slice(..);
     let (sender, receiver) = flume::bounded(1);
     buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
@@ -96,10 +96,10 @@ async fn make_compute_pipeline() -> dom::Result<()> {
         // dropped before we unmap the buffer.
         drop(data);
         stage.unmap(); // Unmaps buffer from memory
-                                // If you are familiar with C++ these 2 lines can be thought of similarly to:
-                                //   delete myPointer;
-                                //   myPointer = NULL;
-                                // It effectively frees the memory
+                       // If you are familiar with C++ these 2 lines can be thought of similarly to:
+                       //   delete myPointer;
+                       //   myPointer = NULL;
+                       // It effectively frees the memory
 
         // Returns data from buffer
         // Some(result)
@@ -127,8 +127,6 @@ async fn make_compute_pipeline() -> dom::Result<()> {
 //     let writer = buffer.writer().data(data).node()?;
 //     Ok(writer)
 // }
-
-
 
 // let mut encoder = gpu.encoder();
 //     {

@@ -1,22 +1,22 @@
 pub use buffer::Buffer;
 pub use buffer::*;
+pub use bytemuck;
+pub use flume;
 pub use wgpu;
 pub use wgpu::BufferUsages;
-pub use flume;
-pub use bytemuck;
 
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
+use encoder::*;
 use graph::*;
 use pipe::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-use encoder::*;
 
 mod bind;
 mod buffer;
-mod pipe;
 mod encoder;
+mod pipe;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -91,9 +91,10 @@ impl Gpu {
     }
     pub fn encoder(&self) -> Encoder {
         Encoder {
-            inner: self.device
-                    .create_command_encoder(&CommandEncoderDescriptor { label: None }),
-            queue: &self.queue
+            inner: self
+                .device
+                .create_command_encoder(&CommandEncoderDescriptor { label: None }),
+            queue: &self.queue,
         }
     }
     // pub fn encoder(&self) -> CommandEncoder {
