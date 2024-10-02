@@ -1,11 +1,14 @@
+use std::ops::Deref;
+
 use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-pub struct Buffer<'a> {
+pub struct BufferRubric<'a> {
     device: &'a Device,
-    #[builder(default)]
+    queue: Grc<wgpu::Queue>,
+    #[builder(default, setter(strip_option))]
     label: Option<&'a str>,
     size: u64,
     usage: BufferUsages,
@@ -13,8 +16,8 @@ pub struct Buffer<'a> {
     mapped_at_creation: bool,
 }
 
-impl BufferBuilder<'_> {
-    pub fn make(self) -> Result<Grc<wgpu::Buffer>> {
+impl BufferRubricBuilder<'_> {
+    pub fn make(self) -> Result<Buffer> {
         let built = self.build()?;
         let descriptor = BufferDescriptor {
             label: built.label,
@@ -22,11 +25,76 @@ impl BufferBuilder<'_> {
             usage: built.usage,
             mapped_at_creation: built.mapped_at_creation,
         };
-        let value = built.device.create_buffer(&descriptor);
-        Ok(value.into())
+        let buffer = built.device.create_buffer(&descriptor);
+        Ok(Buffer {
+            inner: buffer.into(),
+            queue: built.queue,
+        })
+    }
+    pub fn map_read(self) -> Self {
+        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
     }
 }
 
+#[derive(Clone)]
+pub struct Buffer {
+    inner: Grc<wgpu::Buffer>,
+    queue: Grc<wgpu::Queue>,
+}
+
+impl Buffer {
+    pub fn resource(&self) -> BindingResource {
+        self.inner.as_entire_binding()
+    }
+    pub fn writer(&self) -> BufferWriterBuilder {
+        BufferWriterBuilder::default()
+            .queue(self.queue.clone())
+            .buffer(self.inner.clone())
+    }
+}
+
+impl Deref for Buffer {
+    type Target = wgpu::Buffer;
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+#[derive(Builder, Debug, Unit!)]
+#[builder(pattern = "owned", setter(into))]
+pub struct BufferWriter {
+    queue: Grc<wgpu::Queue>,
+    buffer: Grc<wgpu::Buffer>,
+    #[builder(default)]
+    offset: Hub<u64>,
+    data: Hub<Vec<u32>>,
+}
+
+impl Act for BufferWriter {
+    async fn act(&self) -> graph::Result<()> {
+        let offset = self.offset.base().await?;
+        self.data
+            .read(|data| {
+                let slice = bytemuck::cast_slice(data);
+                self.queue.write_buffer(&self.buffer, offset, slice);
+            })
+            .await
+    }
+    fn backed(&mut self, back: &Back) -> graph::Result<()> {
+        self.offset.back(back)?;
+        self.data.back(back)
+    }
+}
+
+// pub trait BufferWriterFrom {
+//     fn writer(&self) -> BufferWriterBuilder;
+// }
+
+// impl BufferWriterFrom for Grc<BufferRubric> {
+//     fn writer(&self) -> BufferWriterBuilder {
+//         BufferWriterBuilder::default().q
+//     }
+// }
 
 // #[derive(Builder, Debug)]
 // #[builder(pattern = "owned", build_fn(error = "crate::Error"))]

@@ -11,7 +11,7 @@ pub struct Compute<'a> {
     shader: &'a ShaderModule,
     entry: &'a str,
     #[builder(default)]
-    cache: Option<&'a PipelineCache>
+    cache: Option<&'a PipelineCache>,
 }
 
 impl ComputeBuilder<'_> {

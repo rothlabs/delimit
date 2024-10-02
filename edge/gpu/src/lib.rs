@@ -1,18 +1,22 @@
+pub use buffer::Buffer;
+pub use buffer::*;
 pub use wgpu;
-pub use buffer_writer::*;
+pub use wgpu::BufferUsages;
+pub use flume;
+pub use bytemuck;
 
+use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use graph::*;
+use pipe::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-use buffer::*;
-use pipe::*;
-use bind::*;
+use encoder::*;
 
+mod bind;
 mod buffer;
 mod pipe;
-mod bind;
-mod buffer_writer;
+mod encoder;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -63,16 +67,18 @@ impl Gpu {
             )
             .await
             .expect("Failed to create device");
-        Ok(Self { device: device.into(), queue: queue.into() })
+        Ok(Self {
+            device: device.into(),
+            queue: queue.into(),
+        })
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
         self.device.create_shader_module(source)
     }
-    pub fn buffer(&self) -> BufferBuilder {
-        BufferBuilder::default().device(&self.device)
-    }
-    pub fn buffer_writer(&self) -> BufferWriterBuilder {
-        BufferWriterBuilder::default().queue(self.queue.clone())
+    pub fn buffer(&self) -> BufferRubricBuilder {
+        BufferRubricBuilder::default()
+            .device(&self.device)
+            .queue(self.queue.clone())
     }
     pub fn bind_group(&self) -> BindGroupBuilder {
         BindGroupBuilder::default().device(&self.device)
@@ -83,7 +89,18 @@ impl Gpu {
     pub fn compute(&self) -> ComputeBuilder {
         ComputeBuilder::default().device(&self.device)
     }
-    pub fn encoder(&self) -> CommandEncoder {
-        self.device.create_command_encoder(&CommandEncoderDescriptor { label: None })
+    pub fn encoder(&self) -> Encoder {
+        Encoder {
+            inner: self.device
+                    .create_command_encoder(&CommandEncoderDescriptor { label: None }),
+            queue: &self.queue
+        }
     }
+    // pub fn encoder(&self) -> CommandEncoder {
+    //     self.device
+    //         .create_command_encoder(&CommandEncoderDescriptor { label: None })
+    // }
+    // pub fn submit(&self, encoder: CommandEncoder) -> SubmissionIndex {
+    //     self.queue.submit(Some(encoder.finish()))
+    // }
 }

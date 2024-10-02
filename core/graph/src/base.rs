@@ -5,6 +5,10 @@ use std::ops::Deref;
 #[derive(Default, PartialEq, Clone, Debug, Serialize, Deserialize)]
 pub struct Vf32(pub Vec<f32>);
 
+// impl Vf32 {
+//     pub fn inner(&)
+// }
+
 impl Hash for Vf32 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0
