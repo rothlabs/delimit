@@ -51,6 +51,14 @@ impl Buffer {
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
     }
+    pub async fn read<T: bytemuck::Pod>(&self) -> Result<Vec<T>> {
+        let buffer_slice = self.inner.slice(..);
+        let (sender, receiver) = flume::bounded(1);
+        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+        receiver.recv_async().await??;
+        let data = buffer_slice.get_mapped_range();
+        Ok(bytemuck::cast_slice(&data).to_vec())
+    } 
 }
 
 impl Deref for Buffer {
@@ -62,15 +70,18 @@ impl Deref for Buffer {
 
 #[derive(Builder, Debug, Unit!)]
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferWriter {
+pub struct BufferWriter<T: 'static + Payload> {
     queue: Grc<wgpu::Queue>,
     buffer: Grc<wgpu::Buffer>,
     #[builder(default)]
     offset: Hub<u64>,
-    data: Hub<Vec<u32>>,
+    data: Hub<Vec<T>>,
 }
 
-impl Act for BufferWriter {
+impl<T> Act for BufferWriter<T> 
+where 
+    T: Payload + bytemuck::NoUninit
+{
     async fn act(&self) -> graph::Result<()> {
         let offset = self.offset.base().await?;
         self.data

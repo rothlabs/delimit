@@ -30,6 +30,10 @@ pub enum Error {
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
+    Recieve(#[from] flume::RecvError),
+    #[error(transparent)]
+    BufferAsync(#[from] BufferAsyncError),
+    #[error(transparent)]
     Any(#[from] anyError),
 }
 
@@ -97,6 +101,8 @@ impl Gpu {
             queue: &self.queue,
         }
     }
+}
+
     // pub fn encoder(&self) -> CommandEncoder {
     //     self.device
     //         .create_command_encoder(&CommandEncoderDescriptor { label: None })
@@ -104,4 +110,3 @@ impl Gpu {
     // pub fn submit(&self, encoder: CommandEncoder) -> SubmissionIndex {
     //     self.queue.submit(Some(encoder.finish()))
     // }
-}

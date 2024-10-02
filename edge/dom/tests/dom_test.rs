@@ -59,7 +59,7 @@ async fn make_buffer() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn make_compute_pipeline() -> dom::Result<()> {
+async fn compute_collatz_iterations() -> dom::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(wgpu::include_wgsl!("compute.wgsl"));
     let pipe = gpu.compute().shader(&shader).entry("main").make()?;
@@ -68,7 +68,6 @@ async fn make_compute_pipeline() -> dom::Result<()> {
     let stage = gpu.buffer().label("stage").size(size).map_read().make()?;
     storage.writer().data(basic_u32()).make()?.act().await?;
     let bind_group = gpu.bind_group().pipeline(&pipe).entry(0, &storage).make()?;
-
     let mut encoder = gpu.encoder();
     encoder
         .compute()
@@ -81,33 +80,9 @@ async fn make_compute_pipeline() -> dom::Result<()> {
         .destination(&stage)
         .size(size)
         .submit();
-
-    let buffer_slice = stage.slice(..);
-    let (sender, receiver) = flume::bounded(1);
-    buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-    // gpu.device.poll(wgpu::Maintain::wait()).panic_on_timeout();
-    if let Ok(Ok(())) = receiver.recv_async().await {
-        // Gets contents of buffer
-        let data = buffer_slice.get_mapped_range();
-        // Since contents are got in bytes, this converts these bytes back to u32
-        let result: Vec<u32> = bytemuck::cast_slice(&data).to_vec();
-
-        // With the current interface, we have to make sure all mapped views are
-        // dropped before we unmap the buffer.
-        drop(data);
-        stage.unmap(); // Unmaps buffer from memory
-                       // If you are familiar with C++ these 2 lines can be thought of similarly to:
-                       //   delete myPointer;
-                       //   myPointer = NULL;
-                       // It effectively frees the memory
-
-        // Returns data from buffer
-        // Some(result)
-        console_log!("result: {:?}", result);
-        Ok(())
-    } else {
-        panic!("failed to run compute on gpu!")
-    }
+    let out: Vec<u32> = stage.read().await?;
+    console_log!("result: {:?}", out);
+    Ok(())
 }
 
 // #[wasm_bindgen_test]
