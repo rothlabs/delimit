@@ -20,18 +20,18 @@ hash_base!(u8);
 hash_base!(u16);
 hash_base!(u32);
 hash_base!(u64);
-hash_base!(Vec<u8>);
-hash_base!(Vec<u16>);
-hash_base!(Vec<u32>);
-hash_base!(Vec<u64>);
+// hash_base!(Vec<u8>);
+// hash_base!(Vec<u16>);
+// hash_base!(Vec<u32>);
+// hash_base!(Vec<u64>);
 hash_base!(i8);
 hash_base!(i16);
 hash_base!(i32);
 hash_base!(i64);
-hash_base!(Vec<i8>);
-hash_base!(Vec<i16>);
-hash_base!(Vec<i32>);
-hash_base!(Vec<i64>);
+// hash_base!(Vec<i8>);
+// hash_base!(Vec<i16>);
+// hash_base!(Vec<i32>);
+// hash_base!(Vec<i64>);
 
 impl HashGraph for f32 {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
@@ -45,19 +45,26 @@ impl HashGraph for f64 {
     }
 }
 
-impl HashGraph for Vec<f32> {
+impl<T: bytemuck::NoUninit> HashGraph for Vec<T> {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         let slice: &[u8] = bytemuck::cast_slice(self);
         std::hash::Hash::hash(slice, state);
     }
 }
 
-impl HashGraph for Vec<f64> {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
-        let slice: &[u8] = bytemuck::cast_slice(self);
-        std::hash::Hash::hash(slice, state);
-    }
-}
+// impl HashGraph for Vec<f32> {
+//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+//         let slice: &[u8] = bytemuck::cast_slice(self);
+//         std::hash::Hash::hash(slice, state);
+//     }
+// }
+
+// impl HashGraph for Vec<f64> {
+//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+//         let slice: &[u8] = bytemuck::cast_slice(self);
+//         std::hash::Hash::hash(slice, state);
+//     }
+// }
 
 pub trait CastSlice {
     fn slice<B>(&self) -> &[B]

@@ -18,14 +18,37 @@ pub trait IntoLeaf<T> {
     fn leaf(self) -> Leaf<T>;
 }
 
-impl IntoLeaf<Vec<f32>> for Vec<f32> {
-    fn leaf(self) -> Leaf<Vec<f32>> {
+impl<T: Payload> IntoLeaf<T> for T {
+    fn leaf(self) -> Leaf<T> {
         Leaf::new(self)
     }
 }
 
-impl IntoLeaf<i32> for i32 {
-    fn leaf(self) -> Leaf<i32> {
-        Leaf::new(self)
-    }
-}
+// pub trait VecIntoLeaf<T> {
+//     /// Move into Leaf.
+//     fn leaf(self) -> Leaf<Vec<T>>;
+// }
+
+// impl<T: Payload> VecIntoLeaf<T> for Vec<T> {
+//     fn leaf(self) -> Leaf<Vec<T>> {
+//         Leaf::new(self)
+//     }
+// }
+
+// impl IntoLeaf<Vec<f32>> for Vec<f32> {
+//     fn leaf(self) -> Leaf<Vec<f32>> {
+//         Leaf::new(self)
+//     }
+// }
+
+// impl IntoLeaf<i32> for i32 {
+//     fn leaf(self) -> Leaf<i32> {
+//         Leaf::new(self)
+//     }
+// }
+
+// impl<T: Payload> IntoLeaf<T> for Vec<T> {
+//     fn leaf(self) -> Leaf<Vec<T>> {
+//         Leaf::new(self)
+//     }
+// }

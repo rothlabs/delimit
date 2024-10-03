@@ -160,13 +160,17 @@ macro_rules! UnitGp {
 }
 
 #[macro_export]
-macro_rules! UnitGpO {
+macro_rules! UnitVec {
     (
     $(#[$attr:meta])*
     $pub:vis
     struct $Unit:ident<T: Payload> $tt:tt
     ) => {
-        impl<T: Payload + CastSlice + AnyBitPattern> paste! {[<$Unit "Builder">]<T>} {
+        impl<T> paste! {[<$Unit "Builder">]<T>} 
+        where 
+            T: Payload + AnyBitPattern,
+            Vec<T>: Payload
+        {
             pub fn make(self) -> graph::Result<$Unit<T>> {
                 match self.build() {
                     Ok(value) => Ok(value),
@@ -179,7 +183,7 @@ macro_rules! UnitGpO {
             // pub fn apex(self) -> graph::Result<Apex> {
             //     Ok(self.hub()?.into())
             // }
-            pub fn hub(self) -> graph::Result<Hub<T>> {
+            pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
                 Ok(self.node()?.hub())
             }
         }
@@ -369,6 +373,15 @@ where
         Node::from_unit(self)
     }
 }
+
+// impl<T> IntoNode for Vec<T>
+// where
+//     Vec<T>: 'static + Unit,
+// {
+//     fn node(self) -> Result<Node<Self>> {
+//         Node::from_unit(self)
+//     }
+// }
 
 pub trait IntoPloy
 where

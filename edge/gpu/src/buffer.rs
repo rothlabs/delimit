@@ -96,30 +96,32 @@ where
     }
 }
 
-// #[derive(Builder, Debug, UnitGpO!)]
-// #[builder(pattern = "owned", setter(into))]
-// pub struct BufferReader<T: Payload> {
-//     buffer: Grc<wgpu::Buffer>,
-//     phantom: PhantomData<T>,
-// }
+#[derive(Builder, Debug, UnitVec!)]
+#[builder(pattern = "owned", setter(into))]
+pub struct BufferReader<T: Payload> {
+    buffer: Grc<wgpu::Buffer>,
+    phantom: PhantomData<T>,
+}
 
-// impl<T> Solve for BufferReader<T> 
-// where 
-//     T: Payload + AnyBitPattern
-// {
-//     type Base = T;
-//     async fn solve(&self) -> graph::Result<Hub<T>> {
-//         let buffer_slice = self.buffer.slice(..);
-//         let (sender, receiver) = flume::bounded(1);
-//         buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-//         let wow = receiver.recv_async().await?;
-//         let data = buffer_slice.get_mapped_range();
-//         let out: Vec<T> = bytemuck::cast_slice(&data).to_vec();
-//         Ok(bytemuck::cast_slice(&data).to_vec())
-//     }
-//     // fn backed(&mut self, back: &Back) -> graph::Result<()> {
-//     //     self.offset.back(back)?;
-//     //     self.data.back(back)
-//     // }
-// }
+impl<T> Solve for BufferReader<T> 
+where 
+    T: Payload + AnyBitPattern,
+    Vec<T>: Payload
+{
+    type Base = Vec<T>;
+    async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
+        let buffer_slice = self.buffer.slice(..);
+        let (sender, receiver) = flume::bounded(1);
+        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+        let wow = receiver.recv_async().await?;
+        let data = buffer_slice.get_mapped_range();
+        let out: Vec<T> = bytemuck::cast_slice(&data).to_vec();
+        let hub = out.leaf().hub();
+        Ok(hub)
+    }
+    // fn backed(&mut self, back: &Back) -> graph::Result<()> {
+    //     self.offset.back(back)?;
+    //     self.data.back(back)
+    // }
+}
 
