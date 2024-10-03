@@ -9,6 +9,15 @@ pub enum Tray<T> {
     Base(T),
 }
 
+impl<T: HashGraph> HashGraph for Tray<T> {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::Path(path) => path.hash(state),
+            Self::Base(data) => data.hash_graph(state),
+        }
+    }
+}
+
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
@@ -33,11 +42,11 @@ where
     }
 }
 
-impl<T: Hash> Hash for Tray<T> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            Self::Path(path) => path.hash(state),
-            Self::Base(data) => data.hash(state),
-        }
-    }
-}
+// impl<T: Hash> Hash for Tray<T> {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//         match self {
+//             Self::Path(path) => path.hash(state),
+//             Self::Base(data) => data.hash(state),
+//         }
+//     }
+// }

@@ -1,3 +1,4 @@
+use super::*;
 use serde::{Deserialize, Serialize};
 
 /// Runtime-only ID. Used to easily distinguish between hub instances.
@@ -11,7 +12,7 @@ pub type Id = u64;
 pub type Key = String;
 
 /// Path to hub. It stands in place of actual hubes in serial form.
-#[derive(Clone, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Hash, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Path {
     Hash(u64),
@@ -19,6 +20,17 @@ pub enum Path {
     Local(Vec<Key>),
     Upper(Upper<Vec<Key>>),
 }
+
+// impl HashGraph for Path {
+//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+//         match self {
+//             Self::Hash(x) => x.hash(state),
+//             Self::World(x) => x.hash(state),
+//             Self::Local(x) => x.hash(state),
+//             Self::Upper(x) => x.hash(state),
+//         }
+//     }
+// }
 
 impl From<&str> for Path {
     fn from(value: &str) -> Self {

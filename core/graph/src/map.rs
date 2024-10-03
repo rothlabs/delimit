@@ -40,10 +40,28 @@ impl Map {
     }
 }
 
-impl Hash for Map {
-    fn hash<H: Hasher>(&self, state: &mut H) {
+impl HashGraph for Map {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
         let mut pairs: Vec<_> = self.0.iter().collect();
         pairs.sort_by_key(|i| i.0);
-        Hash::hash(&pairs, state);
+        for (key, apex) in pairs {
+            key.hash(state);
+            apex.hash_graph(state);
+        }
+        // HashGraph::hash_graph(&pairs, state);
     }
 }
+
+// impl HashGraph for Vec<(&String, &Apex)> {
+//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+//         self.0.hash(state);
+//     }
+// }
+
+// impl Hash for Map {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//         let mut pairs: Vec<_> = self.0.iter().collect();
+//         pairs.sort_by_key(|i| i.0);
+//         Hash::hash(&pairs, state);
+//     }
+// }

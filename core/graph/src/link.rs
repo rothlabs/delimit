@@ -74,18 +74,31 @@ where
     }
 }
 
-impl<E: ?Sized> Hash for Link<E>
+impl<E: ?Sized> HashGraph for Link<E>
 where
     Self: Solve,
 {
-    fn hash<H: Hasher>(&self, state: &mut H) {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state)
         } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
-            hash.hash(state)
+            hash.hash_graph(state)
         }
     }
 }
+
+// impl<E: ?Sized> Hash for Link<E>
+// where
+//     Self: Solve,
+// {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//         if let Some(path) = &self.path {
+//             path.hash(state)
+//         } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
+//             hash.hash_graph(state)
+//         }
+//     }
+// }
 
 impl<E: ?Sized> Serialize for Link<E>
 where

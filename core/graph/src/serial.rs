@@ -21,18 +21,18 @@ pub trait DeserializeUnit: Debug + SendSync {
     fn deserialize(&self, serial_node: &Serial) -> Result<Apex>;
 }
 
-pub trait ToHash {
+pub trait Digest {
     /// Hash to digest number.
     fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;
 }
 
-impl<H> ToHash for H
+impl<H> Digest for H
 where
-    H: Hash,
+    H: HashGraph,
 {
     /// Hash to digest number.
     fn digest(&self, state: &mut UnitHasher) -> Result<Gain> {
-        self.hash(state);
+        self.hash_graph(state);
         state.finish().gain()
     }
 }

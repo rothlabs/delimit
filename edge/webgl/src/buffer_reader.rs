@@ -13,8 +13,8 @@ pub struct BufferReader {
 }
 
 impl Solve for BufferReader {
-    type Base = Vf32;
-    async fn solve(&self) -> Result<Hub<Vf32>> {
+    type Base = Vec<f32>;
+    async fn solve(&self) -> Result<Hub<Vec<f32>>> {
         self.draw.act().await?;
         let sync = self
             .buffer

@@ -3,7 +3,7 @@ use super::*;
 mod convert;
 mod variant;
 
-#[derive(Clone, PartialEq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum Apex {
     Void(Hub<()>),
     String(Hub<String>),
@@ -11,8 +11,23 @@ pub enum Apex {
     I32(Hub<i32>),
     Vu8(Hub<Vec<u8>>),
     Vu16(Hub<Vec<u16>>),
-    Vf32(Hub<Vf32>),
-    Vf64(Hub<Vf64>),
+    Vf32(Hub<Vec<f32>>),
+    Vf64(Hub<Vec<f64>>),
+}
+
+impl HashGraph for Apex {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::Void(x) => x.hash_graph(state),
+            Self::String(x) => x.hash_graph(state),
+            Self::U8(x) => x.hash_graph(state),
+            Self::I32(x) => x.hash_graph(state),
+            Self::Vu8(x) => x.hash_graph(state),
+            Self::Vu16(x) => x.hash_graph(state),
+            Self::Vf32(x) => x.hash_graph(state),
+            Self::Vf64(x) => x.hash_graph(state),
+        }
+    }
 }
 
 impl Default for Apex {

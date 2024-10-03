@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Hash, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug, GraphHash!)]
 pub struct Element {
     html_element: u8,
     open: Hub<String>,

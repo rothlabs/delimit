@@ -18,9 +18,9 @@ pub trait IntoLeaf<T> {
     fn leaf(self) -> Leaf<T>;
 }
 
-impl IntoLeaf<Vf32> for Vec<f32> {
-    fn leaf(self) -> Leaf<Vf32> {
-        Leaf::new(Vf32(self))
+impl IntoLeaf<Vec<f32>> for Vec<f32> {
+    fn leaf(self) -> Leaf<Vec<f32>> {
+        Leaf::new(self)
     }
 }
 

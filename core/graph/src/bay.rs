@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Hash, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug)]
 pub struct Bay {
     bay: u8,
     map: Map,
@@ -32,5 +32,12 @@ impl Solve for Bay {
             Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
+    }
+}
+
+impl HashGraph for Bay {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        self.bay.hash(state);
+        self.map.hash_graph(state);
     }
 }

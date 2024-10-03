@@ -20,7 +20,7 @@ pub enum Error {
 }
 
 /// Primary graph part.
-#[derive(Clone, PartialEq, Hash, Serialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Debug)]
 #[serde(untagged)]
 pub enum Hub<T>
 where
@@ -29,6 +29,16 @@ where
     Tray(Tray<T>),
     Leaf(Leaf<T>),
     Ploy(Ploy<T>),
+}
+
+impl<T: 'static + Payload + HashGraph> HashGraph for Hub<T> {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::Tray(x) => x.hash_graph(state),
+            Self::Leaf(x) => x.hash_graph(state),
+            Self::Ploy(x) => x.hash_graph(state),
+        }
+    }
 }
 
 impl<T: Payload> Hub<T> {
@@ -213,5 +223,21 @@ impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
             out.push(hub.down(rank).await?);
         }
         Ok(out)
+    }
+}
+
+impl<T: Payload> HashGraph for Vec<Hub<T>> {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        for hub in self {
+            hub.hash_graph(state);
+        }
+    }
+}
+
+impl<T: Payload> HashGraph for Option<T> {
+    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        if let Some(x) = self {
+            x.hash_graph(state);
+        }
     }
 }

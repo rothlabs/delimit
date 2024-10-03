@@ -23,7 +23,7 @@ impl<T: Payload> Leaf<T> {
             digest.gain()
         } else {
             let mut state = DefaultHasher::new();
-            self.base.hash(&mut state);
+            self.base.hash_graph(&mut state);
             let digest = state.finish();
             self.digest = Some(digest);
             digest.gain()

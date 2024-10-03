@@ -10,8 +10,8 @@ pub enum View<'a> {
     I32(&'a mut Hub<i32>),
     Vu8(&'a mut Hub<Vec<u8>>),
     Vu16(&'a mut Hub<Vec<u16>>),
-    Vf32(&'a mut Hub<Vf32>),
-    Vf64(&'a mut Hub<Vf64>),
+    Vf32(&'a mut Hub<Vec<f32>>),
+    Vf64(&'a mut Hub<Vec<f64>>),
 }
 
 impl View<'_> {

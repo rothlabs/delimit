@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Hash, Serialize, Deserialize, Debug)]
+#[derive(Default, Serialize, Deserialize, Debug, GraphHash!)]
 pub struct Attribute {
     html_attribute: u8,
     name: Hub<String>,

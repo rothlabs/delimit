@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Hash, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize, GraphHash!)]
 pub struct List {
     plain_list: u8,
     items: Vec<Hub<String>>,

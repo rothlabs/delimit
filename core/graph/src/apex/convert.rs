@@ -27,9 +27,15 @@ impl From<&Hub<i32>> for Apex {
     }
 }
 
-impl From<Hub<Vf32>> for Apex {
-    fn from(value: Hub<Vf32>) -> Self {
+impl From<Hub<Vec<f32>>> for Apex {
+    fn from(value: Hub<Vec<f32>>) -> Self {
         Apex::Vf32(value)
+    }
+}
+
+impl From<Hub<Vec<f64>>> for Apex {
+    fn from(value: Hub<Vec<f64>>) -> Self {
+        Apex::Vf64(value)
     }
 }
 

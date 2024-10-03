@@ -1,6 +1,6 @@
 pub use adapt::{Adapt, AdaptMut};
 pub use apex::{Apex, Poll};
-pub use base::{Vf32, Vf64, CastSlice};
+pub use base::{HashGraph, CastSlice};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -15,7 +15,7 @@ pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
 };
-pub use serial::{DeserializeUnit, ToHash, ToSerial, UnitHasher};
+pub use serial::{DeserializeUnit, Digest, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
 pub use tray::Tray;
@@ -79,7 +79,7 @@ macro_rules! node_and_apex {
 
 #[macro_export]
 macro_rules! build_methods {
-    ($Unit:ident $Base:ident) => {
+    ($Unit:ident $Base:ty) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<$Base>> {
@@ -128,7 +128,7 @@ macro_rules! Vf32 {(
     $pub:vis
     struct $Unit:ident $tt:tt
 ) => {
-        build_methods!($Unit Vf32);
+        build_methods!($Unit Vec<f32>);
     };
 }
 
@@ -181,6 +181,25 @@ macro_rules! UnitGpO {
             // }
             pub fn hub(self) -> graph::Result<Hub<T>> {
                 Ok(self.node()?.hub())
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! GraphHash {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident {
+        $($field:ident: $typ:ty),* $(,)*
+    }
+    ) => {
+        impl HashGraph for $Unit {
+            fn hash_graph<H: std::hash::Hasher>(&self, state: &mut H) {
+                $(
+                    self.$field.hash_graph(state);
+                 )*
             }
         }
     };
@@ -273,8 +292,8 @@ impl<T> IsSend for T {}
 pub trait Unit: Solve + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + SendSync + Debug {}
 
-pub trait Payload: 'static + Default + Clone + Hash + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T:  'static + Default + Clone + Hash + Serialize + Debug + SendSync {}
+pub trait Payload: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T:  'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]

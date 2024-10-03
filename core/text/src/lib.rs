@@ -6,3 +6,6 @@ pub mod html;
 pub mod plain;
 
 pub const PLAIN: u64 = 1;
+
+#[macro_use]
+extern crate macro_rules_attribute;
