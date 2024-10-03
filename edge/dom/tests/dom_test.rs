@@ -32,12 +32,12 @@ fn storage_buffer(gpu: &Gpu, size: u64) -> gpu::Result<Buffer> {
 }
 
 // #[rustfmt::skip]
-// fn basic_data() -> Vec<f32> {
+// fn basic_f32() -> Vf32 {
 //     vec![
 //         1., 2., 3.,
 //         4., 5., 6.,
 //         7., 8., 9.,
-//     ]
+//     ].into()
 // }
 
 #[rustfmt::skip]

@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::{marker::PhantomData, ops::Deref};
 
 use super::*;
 
@@ -46,7 +46,7 @@ impl Buffer {
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
-    pub fn writer(&self) -> BufferWriterBuilder {
+    pub fn writer<T: Payload>(&self) -> BufferWriterBuilder<T> {
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
@@ -68,26 +68,25 @@ impl Deref for Buffer {
     }
 }
 
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, UnitGp!)]
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferWriter<T: 'static + Payload> {
+pub struct BufferWriter<T: Payload> {
     queue: Grc<wgpu::Queue>,
     buffer: Grc<wgpu::Buffer>,
     #[builder(default)]
     offset: Hub<u64>,
-    data: Hub<Vec<T>>,
+    data: Hub<T>,
 }
 
 impl<T> Act for BufferWriter<T> 
 where 
-    T: Payload + bytemuck::NoUninit
+    T: Payload + CastSlice
 {
     async fn act(&self) -> graph::Result<()> {
         let offset = self.offset.base().await?;
         self.data
             .read(|data| {
-                let slice = bytemuck::cast_slice(data);
-                self.queue.write_buffer(&self.buffer, offset, slice);
+                self.queue.write_buffer(&self.buffer, offset, data.slice());
             })
             .await
     }
@@ -97,36 +96,30 @@ where
     }
 }
 
-// pub trait BufferWriterFrom {
-//     fn writer(&self) -> BufferWriterBuilder;
-// }
+#[derive(Builder, Debug, UnitGpO!)]
+#[builder(pattern = "owned", setter(into))]
+pub struct BufferReader<T: Payload> {
+    buffer: Grc<wgpu::Buffer>,
+    phantom: PhantomData<T>,
+}
 
-// impl BufferWriterFrom for Grc<BufferRubric> {
-//     fn writer(&self) -> BufferWriterBuilder {
-//         BufferWriterBuilder::default().q
-//     }
-// }
+impl<T> Solve for BufferReader<T> 
+where 
+    T: Payload + AnyBitPattern
+{
+    type Base = T;
+    async fn solve(&self) -> graph::Result<Hub<T>> {
+        let buffer_slice = self.buffer.slice(..);
+        let (sender, receiver) = flume::bounded(1);
+        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+        let wow = receiver.recv_async().await?;
+        let data = buffer_slice.get_mapped_range();
+        let out: Vec<T> = bytemuck::cast_slice(&data).to_vec();
+        Ok(bytemuck::cast_slice(&data).to_vec())
+    }
+    // fn backed(&mut self, back: &Back) -> graph::Result<()> {
+    //     self.offset.back(back)?;
+    //     self.data.back(back)
+    // }
+}
 
-// #[derive(Builder, Debug)]
-// #[builder(pattern = "owned", build_fn(error = "crate::Error"))]
-// pub struct Buffer<'a> {
-//     device: &'a Device,
-//     label: Option<&'a str>,
-//     size: u64,
-//     usage: BufferUsages,
-//     mapped_at_creation: bool,
-// }
-
-// impl BufferBuilder<'_> {
-//     pub fn make(self) -> Result<wgpu::Buffer> {
-//         let built = self.build()?;
-//         let descriptor = BufferDescriptor {
-//             label: built.label,
-//             size: built.size,
-//             usage: built.usage,
-//             mapped_at_creation: built.mapped_at_creation,
-//         };
-//         let value = built.device.create_buffer(&descriptor);
-//         Ok(value)
-//     }
-// }

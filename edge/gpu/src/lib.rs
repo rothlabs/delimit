@@ -1,6 +1,6 @@
 pub use buffer::Buffer;
 pub use buffer::*;
-pub use bytemuck;
+pub use bytemuck::*;
 pub use flume;
 pub use wgpu;
 pub use wgpu::BufferUsages;

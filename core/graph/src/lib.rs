@@ -1,6 +1,6 @@
 pub use adapt::{Adapt, AdaptMut};
 pub use apex::{Apex, Poll};
-pub use base::{Vf32, Vf64};
+pub use base::{Vf32, Vf64, CastSlice};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -89,6 +89,8 @@ macro_rules! build_methods {
     };
 }
 
+
+
 #[macro_export]
 macro_rules! Make {
     (
@@ -96,8 +98,10 @@ macro_rules! Make {
     $pub:vis
     struct $Unit:ident $tt:tt
     ) => {
-        impl DemoBuilder {
-            make_func!($Unit);
+        paste! {
+            impl [<$Unit "Builder">] {
+                make_func!($Unit);
+            }
         }
     };
 }
@@ -125,6 +129,60 @@ macro_rules! Vf32 {(
     struct $Unit:ident $tt:tt
 ) => {
         build_methods!($Unit Vf32);
+    };
+}
+
+#[macro_export]
+macro_rules! UnitGp {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident<T: Payload> $tt:tt
+    ) => {
+        impl<T: Payload + CastSlice> paste! {[<$Unit "Builder">]<T>} {
+            pub fn make(self) -> graph::Result<$Unit<T>> {
+                match self.build() {
+                    Ok(value) => Ok(value),
+                    Err(err) => Err(anyhow!(err.to_string()))?,
+                }
+            }
+            pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
+                self.make()?.node()
+            }
+            pub fn apex(self) -> graph::Result<Apex> {
+                Ok(self.hub()?.into())
+            }
+            pub fn hub(self) -> graph::Result<Hub<()>> {
+                Ok(self.node()?.hub())
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! UnitGpO {
+    (
+    $(#[$attr:meta])*
+    $pub:vis
+    struct $Unit:ident<T: Payload> $tt:tt
+    ) => {
+        impl<T: Payload + CastSlice + AnyBitPattern> paste! {[<$Unit "Builder">]<T>} {
+            pub fn make(self) -> graph::Result<$Unit<T>> {
+                match self.build() {
+                    Ok(value) => Ok(value),
+                    Err(err) => Err(anyhow!(err.to_string()))?,
+                }
+            }
+            pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
+                self.make()?.node()
+            }
+            // pub fn apex(self) -> graph::Result<Apex> {
+            //     Ok(self.hub()?.into())
+            // }
+            pub fn hub(self) -> graph::Result<Hub<T>> {
+                Ok(self.node()?.hub())
+            }
+        }
     };
 }
 
@@ -185,6 +243,8 @@ pub enum Error {
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
+    Recieve(#[from] flume::RecvError),
+    #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
 
@@ -213,8 +273,8 @@ impl<T> IsSend for T {}
 pub trait Unit: Solve + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + SendSync + Debug {}
 
-pub trait Payload: Default + Clone + Hash + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T: Default + Clone + Hash + Serialize + Debug + SendSync {}
+pub trait Payload: 'static + Default + Clone + Hash + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T:  'static + Default + Clone + Hash + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]
@@ -398,6 +458,21 @@ impl<T: Backed> BackIt for T {
 //         }
 //     }
 // };
+
+// #[macro_export]
+// macro_rules! Make2 {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident $(<$($lt:tt),+>)? $tt:tt
+//     ) => {
+//         paste! {
+//             impl $(<$($lt:tt),+>)? [<$Unit "Builder">] {
+//                 make_func!($Unit);
+//             }
+//         }
+//     };
+// }
 
 
 

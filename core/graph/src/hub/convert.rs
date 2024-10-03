@@ -64,9 +64,15 @@ impl From<Vec<u32>> for Hub<Vec<u32>> {
     }
 }
 
+impl From<Vf32> for Hub<Vf32> {
+    fn from(value: Vf32) -> Self {
+        Hub::Leaf(Leaf::new(value))
+    }
+}
+
 impl From<Vec<f32>> for Hub<Vf32> {
     fn from(value: Vec<f32>) -> Self {
-        Hub::Leaf(Leaf::new(Vf32(value)))
+        Hub::Leaf(Leaf::new(value.into()))
     }
 }
 
