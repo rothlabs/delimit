@@ -5,13 +5,11 @@
     edition = "2021"
 
 [features]
-    default = ['dep:tokio', 'dep:parking_lot', 'dep:futures']
+    default = ['dep:parking_lot']
     oneThread = []
 
 [dependencies]
     js-sys = "0.3.70"
-    futures = { version = "0.3.3", optional = true }
-    tokio = { version = "1.40.0", features = ["full"], optional = true }
     parking_lot = { version = "0.12", features = ["send_guard"], optional = true }
     serde = { version = "1.0", features = ["derive"] }
     serde_json = "1.0"
@@ -22,3 +20,6 @@
     derive_builder = "0.20.1"
     bytemuck = "1.18.0"
     flume = "0.11.0"
+
+# futures = { version = "0.3.3", optional = true }
+    # tokio = { version = "1.40.0", features = ["full"], optional = true }

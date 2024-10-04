@@ -84,38 +84,3 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 //         7., 8., 9.,
 //     ].into()
 // }
-
-// let reader: Node<BufferReader<u32>> = stage.reader().node()?;
-// let out = reader.solve().await?.base().await?;
-
-// #[wasm_bindgen_test]
-// async fn make_buffer_writer() -> dom::Result<()> {
-//     let gpu = gpu().await?;
-//     storage_buffer_with_writer(&gpu)?;
-//     Ok(())
-// }
-
-// fn buffer_writer(buffer: Buffer, data ) -> dom::Result<Node<BufferWriter>> {
-//     #[rustfmt::skip]
-//     let data: Vec<f32> = vec![
-//         0., 0., 0.,
-//         1., 0., 0.,
-//         0., 1., 0.,
-//     ];
-//     let writer = buffer.writer().data(data).node()?;
-//     Ok(writer)
-// }
-
-// let mut encoder = gpu.encoder();
-//     {
-//         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
-//             label: None,
-//             timestamp_writes: None,
-//         });
-//         cpass.set_pipeline(&pipe);
-//         cpass.set_bind_group(0, &bind_group, &[]);
-//         cpass.insert_debug_marker("compute collatz iterations");
-//         cpass.dispatch_workgroups(9, 1, 1);
-//     }
-//     encoder.copy_buffer_to_buffer(&storage, 0, &stage, 0, 36);
-//     gpu.submit(encoder);

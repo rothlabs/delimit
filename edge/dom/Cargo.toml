@@ -10,9 +10,9 @@ edition = "2021"
     gloo-timers = { version = "0.3.0", features = ["futures"] }
     derive_builder = "0.20.0"
     macro_rules_attribute = "0.2.0"
-    graph = { path = "../../core/graph", features = ["oneThread"], default-features = false }
     gpu = { path = "../gpu" }
     webgl = { path = "../webgl" }
+    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
 
 [dependencies.web-sys]
     version = "0.3.70"

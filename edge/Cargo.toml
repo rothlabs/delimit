@@ -1,4 +1,3 @@
 [workspace]
     members = ["app", "webgl", "dom", "gpu"]
-    # exclude = ["host"]
     resolver = "2" 

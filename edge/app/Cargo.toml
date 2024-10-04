@@ -7,9 +7,8 @@
     repository = "https://github.com/rothlabs/delimit"
     license = "none"
 
-
-# [lib]
-#     crate-type = ["rlib"]
+[lib]
+    crate-type = ["cdylib", "rlib"]
 
 [features]
     default = ["console_error_panic_hook"]
@@ -24,9 +23,9 @@
     derive_builder = "0.20.0"
     macro_rules_attribute = "0.2.0"
     wgpu = {version = "22.1.0" }
-    graph = { path = "../../core/graph", features = ["oneThread"], default-features = false } 
     dom = { path = "../dom" }
     webgl = { path = "../webgl" }
+    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
 
 [dependencies.web-sys] 
     version = "0.3.70"
@@ -48,10 +47,6 @@
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
-
-
-# [lib]
-# crate-type = ["cdylib", "rlib"]
 
 
     # The `console_error_panic_hook` crate provides better debugging of panics by
