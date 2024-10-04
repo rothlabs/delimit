@@ -1,8 +1,14 @@
+pub use shader::*;
+
 use std::num::NonZero;
 use super::*;
 
+mod shader;
+
 #[derive(Builder, Debug)]
-#[builder(pattern = "owned", build_fn(error = "crate::Error"))]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
 pub struct ComputeSetup<'a> {
     device: &'a Device,
     #[builder(default)]
@@ -32,7 +38,9 @@ impl ComputeSetupBuilder<'_> {
 }
 
 #[derive(Builder, Debug)]
-#[builder(pattern = "owned", build_fn(error = "crate::Error"))]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
 pub struct RenderSetup<'a> {
     device: &'a Device,
     #[builder(default)]

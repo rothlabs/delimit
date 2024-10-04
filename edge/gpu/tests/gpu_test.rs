@@ -2,8 +2,6 @@
 
 #![cfg(target_arch = "wasm32")]
 
-extern crate wasm_bindgen_test;
-
 use dom::*;
 use gpu::*;
 use graph::*;
@@ -72,7 +70,17 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .size(size)
         .submit();
     let out: Vec<u32> = stage.reader().hub()?.base().await?;
-    console_log!("result: {:?}", out);
+    assert_eq!(out, vec![2, 4, 6, 8, 10, 12, 14, 16, 18]);
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_triangle() -> dom::Result<()> {
+    let gpu = gpu().await?;
+    let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
+    let vertex = gpu.vertex(&shader).entry("vs_main").make()?;
+    let fragment = gpu.fragment(&shader).entry("fs_main").make()?;
+    let pipe = gpu.render().vertex(vertex).fragment(fragment).make()?;
     Ok(())
 }
 

@@ -3,15 +3,16 @@ use super::*;
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
 pub struct BindGroup<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
-    #[builder(default, setter(strip_option))]
+    #[builder(default)]
     layout: Option<&'a wgpu::BindGroupLayout>,
     #[builder(default)]
     entries: Vec<BindGroupEntry<'a>>,
-    #[builder(default, setter(strip_option))]
+    #[builder(default)]
     pipeline: Option<&'a ComputePipeline>,
 }
 

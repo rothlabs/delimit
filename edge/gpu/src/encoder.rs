@@ -1,4 +1,9 @@
+pub use render::*;
+
+use std::ops::Range;
 use super::*;
+
+mod render;
 
 pub struct Encoder<'a> {
     pub inner: CommandEncoder,
@@ -12,6 +17,10 @@ impl<'a> Encoder<'a> {
             timestamp_writes: None,
         });
         Compute(inner)
+    }
+    pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> Render<'_> {
+        let inner = self.inner.begin_render_pass(descriptor);
+        Render::new(inner)
     }
     pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'a> {
         SourceBuffer {

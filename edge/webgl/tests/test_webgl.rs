@@ -1,5 +1,13 @@
-use app::demo;
-use dom::{Result, Window};
+//! Test suite for the Web and headless browsers.
+
+#![cfg(target_arch = "wasm32")]
+
+use dom::Result;
+use wasm_bindgen_test::*;
+
+wasm_bindgen_test_configure!(run_in_browser);
+
+use dom::Window;
 use graph::*;
 use webgl::*;
 
@@ -150,6 +158,7 @@ pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElemen
 ////////////////////////////////////// Tests
 //////////////////////////////////////
 
+#[wasm_bindgen_test]
 pub fn make_vertex_shader() -> Result<()> {
     let gpu = gpu()?;
     if let Err(memo) = gpu.vertex_shader(shader::basic::VERTEX) {
@@ -158,6 +167,7 @@ pub fn make_vertex_shader() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub fn make_fragment_shader() -> Result<()> {
     let gpu = gpu()?;
     if let Err(memo) = gpu.fragment_shader(shader::basic::FRAGMENT_RED) {
@@ -166,18 +176,21 @@ pub fn make_fragment_shader() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub fn make_program() -> Result<()> {
     let gpu = gpu()?;
     basic_program(&gpu)?;
     Ok(())
 }
 
-pub fn make_buffer() -> Result<Node<Bufferer>> {
+#[wasm_bindgen_test]
+pub fn make_buffer() -> Result<()> {
     let gpu = gpu()?;
-    let (_, bufferer) = make_basic_buffer(&gpu)?;
-    Ok(bufferer)
+    let (_, _) = make_basic_buffer(&gpu)?;
+    Ok(())
 }
 
+#[wasm_bindgen_test]
 pub fn make_index_buffer() -> Result<()> {
     let gpu = gpu()?;
     let array: Vec<u16> = vec![0, 1, 2];
@@ -186,6 +199,7 @@ pub fn make_index_buffer() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub fn make_vertex_attribute() -> Result<()> {
     let gpu = gpu()?;
     let (buffer, _) = make_basic_buffer(&gpu)?;
@@ -199,6 +213,7 @@ pub fn make_vertex_attribute() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub fn make_vertex_array_object() -> Result<()> {
     let gpu = gpu()?;
     let (buffer, _) = make_basic_buffer(&gpu)?;
@@ -207,12 +222,14 @@ pub fn make_vertex_array_object() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub async fn draw_arrays() -> Result<()> {
     let gpu = gpu_on_canvas()?;
     draw_arrays_basic(&gpu).await?;
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub async fn draw_elements() -> Result<()> {
     let gpu = gpu_on_canvas()?;
     draw_elements_basic(&gpu).await?;
@@ -220,6 +237,7 @@ pub async fn draw_elements() -> Result<()> {
 }
 
 /// Because elements has not been dropped yet, it should react to the change of shader source.
+#[wasm_bindgen_test]
 pub async fn draw_elements_react_to_shader_source() -> Result<()> {
     let gpu = gpu_on_canvas()?;
     let (_draw, shader_source, _buff) = draw_elements_basic(&gpu).await?;
@@ -229,6 +247,7 @@ pub async fn draw_elements_react_to_shader_source() -> Result<()> {
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub async fn draw_elements_react_to_buffer_array() -> Result<()> {
     let gpu = gpu_on_canvas()?;
     let (_elements, _shader, buffer) = draw_elements_basic(&gpu).await?;
@@ -239,6 +258,7 @@ pub async fn draw_elements_react_to_buffer_array() -> Result<()> {
 
 /// Because elements has not been dropped yet, it should react to the change of shader source
 /// and attempt to compile the shader. Error is expected.
+#[wasm_bindgen_test]
 pub async fn shader_source_error() -> Result<()> {
     let gpu = gpu()?;
     let (_elements, shader_source, _buff) = draw_elements_basic(&gpu).await?;
@@ -252,12 +272,14 @@ pub async fn shader_source_error() -> Result<()> {
     }
 }
 
+#[wasm_bindgen_test]
 pub async fn draw_elements_textured() -> Result<()> {
     let gpu = gpu_on_canvas()?;
     draw_elements_textured_basic(&gpu).await?;
     Ok(())
 }
 
+#[wasm_bindgen_test]
 pub async fn transform_feedback() -> Result<()> {
     let gpu = gpu()?;
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_FEEDBACK)?;
@@ -289,76 +311,87 @@ pub async fn transform_feedback() -> Result<()> {
     Ok(())
 }
 
-pub fn nurbs() -> app::Result<()> {
-    demo::nurbs::DemoBuilder::default().make()?.start();
-    Ok(())
-}
 
-// pub async fn nurbs_shader() -> Result<()> {
-//     let gpu = gpu()?;
-//     let vertex = gpu.vertex_shader(shader::basic::NURBS)?;
-//     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_EMPTY)?;
-//     let program = gpu
-//         .program(vertex, fragment)?
-//         .out("position0")
-//         .out("position1")
-//         .node()?;
-//     #[rustfmt::skip]
-//     let knots: Vec<f32> = vec![
-//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1.,
-//         6.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    0.,   0.,   1.,   1.,    1.,   1.,   1.,   1.,
-//         8.,     0.,   0.,   0.,   0.,    0.,   0.,   0.,   0.,    1.,   1.,   1.,   1.,    1.,   1.,   1.,   1.,
-//     ];
-//     let buffer = gpu.buffer()?;
-//     let bufferer = buffer.writer().array(knots).apex()?;
 
-//     let attribs = vec![
-//         buffer.attribute().size(1).stride(68).node()?,
-//         buffer
-//             .attribute()
-//             .size(4)
-//             .stride(68)
-//             .offset(4)
-//             .index(1)
-//             .node()?,
-//         buffer
-//             .attribute()
-//             .size(4)
-//             .stride(68)
-//             .offset(20)
-//             .index(2)
-//             .node()?,
-//         buffer
-//             .attribute()
-//             .size(4)
-//             .stride(68)
-//             .offset(36)
-//             .index(3)
-//             .node()?,
-//         buffer
-//             .attribute()
-//             .size(4)
-//             .stride(68)
-//             .offset(52)
-//             .index(4)
-//             .node()?,
-//     ];
-//     let vao = gpu.vao()?;
-//     let vao_writer = vao.writer().attributes(attribs).apex()?;
-//     let target = gpu.buffer()?;
-//     let sizer = target.writer().array(1000).apex()?;
-//     let tfo = gpu.tfo()?.buffer(&target).make()?;
-//     let draw = gpu
-//         .draw_arrays(program)
-//         .mode(WGLRC::POINTS)
-//         .stem(bufferer)
-//         .stem(vao_writer)
-//         .stem(sizer)
-//         .vao(vao)
-//         .tfo(tfo)
-//         .rasterizer_discard(true)
-//         .count(3)
-//         .node()?;
-//     target.reader().size(100).draw(draw).node()?;
+
+
+
+// #[wasm_bindgen_test]
+// fn make_vertex_shader() -> Result<()> {
+//     gpu::make_vertex_shader()
+// }
+
+// #[wasm_bindgen_test]
+// fn make_fragment_shader() -> Result<()> {
+//     gpu::make_fragment_shader()
+// }
+
+// #[wasm_bindgen_test]
+// fn make_program() -> Result<()> {
+//     gpu::make_program()
+// }
+
+// #[wasm_bindgen_test]
+// fn make_buffer() -> Result<()> {
+//     gpu::make_buffer()?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// fn make_index_buffer() -> Result<()> {
+//     gpu::make_index_buffer()
+// }
+
+// #[wasm_bindgen_test]
+// fn make_vertex_attribute() -> Result<()> {
+//     gpu::make_vertex_attribute()?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// fn make_vertex_array_object() -> Result<()> {
+//     gpu::make_vertex_array_object()?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn draw_arrays() -> Result<()> {
+//     gpu::draw_arrays().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn draw_elements() -> Result<()> {
+//     gpu::draw_elements().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn draw_elements_react_to_shader_source() -> Result<()> {
+//     gpu::draw_elements_react_to_shader_source().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn draw_elements_react_to_buffer_array() -> Result<()> {
+//     gpu::draw_elements_react_to_buffer_array().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn shader_source_error() -> Result<()> {
+//     gpu::shader_source_error().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn draw_elements_textured() -> Result<()> {
+//     gpu::draw_elements_textured().await?;
+//     Ok(())
+// }
+
+// #[wasm_bindgen_test]
+// async fn transform_feedback() -> Result<()> {
+//     gpu::transform_feedback().await?;
 //     Ok(())
 // }

@@ -9,14 +9,14 @@ use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encoder::*;
 use graph::*;
-use pipe::*;
+use pipeline::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
 mod bind;
 mod buffer;
 mod encoder;
-mod pipe;
+mod pipeline;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -43,6 +43,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct Gpu {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
+    targets: Vec<Option<ColorTargetState>>,
 }
 
 impl Gpu {
@@ -71,9 +72,12 @@ impl Gpu {
             )
             .await
             .expect("Failed to create device");
+        let swapchain_capabilities = surface.get_capabilities(&adapter);
+        let format = swapchain_capabilities.formats[0];
         Ok(Self {
             device: device.into(),
             queue: queue.into(),
+            targets: vec![Some(format.into())],
         })
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
@@ -93,6 +97,9 @@ impl Gpu {
     pub fn compute(&self) -> ComputeSetupBuilder {
         ComputeSetupBuilder::default().device(&self.device)
     }
+    pub fn render(&self) -> RenderSetupBuilder {
+        RenderSetupBuilder::default().device(&self.device)
+    }
     pub fn encoder(&self) -> Encoder {
         Encoder {
             inner: self
@@ -100,6 +107,12 @@ impl Gpu {
                 .create_command_encoder(&CommandEncoderDescriptor { label: None }),
             queue: &self.queue,
         }
+    }
+    pub fn vertex<'a>(&self, shader: &'a ShaderModule) -> VertexSetupBuilder<'a> {
+        VertexSetupBuilder::default().module(shader)
+    }
+    pub fn fragment<'a>(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
+        FragmentSetupBuilder::default().module(shader).targets(&self.targets)
     }
 }
 

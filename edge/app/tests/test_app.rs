@@ -2,13 +2,14 @@
 
 #![cfg(target_arch = "wasm32")]
 
-use dom::*;
+// extern crate wasm_bindgen_test;
+use app::demo;
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
-fn make_canvas() -> Result<()> {
-    Window::new()?.document()?.body()?.stem("canvas")?.canvas()?;
+fn demo_nurbs() -> app::Result<()> {
+    demo::nurbs::DemoBuilder::default().make()?.start();
     Ok(())
 }
