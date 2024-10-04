@@ -69,18 +69,19 @@ pub struct BufferWriter<T: Payload> {
     buffer: Grc<wgpu::Buffer>,
     #[builder(default)]
     offset: Hub<u64>,
-    data: Hub<T>,
+    data: Hub<Vec<T>>,
 }
 
 impl<T> Act for BufferWriter<T>
 where
-    T: Payload + CastSlice,
+    T: Payload + bytemuck::Pod,// + CastSlice,
 {
     async fn act(&self) -> graph::Result<()> {
         let offset = self.offset.base().await?;
         self.data
             .read(|data| {
-                self.queue.write_buffer(&self.buffer, offset, data.slice());
+                //let slice: &[u8] = bytemuck::cast_slice(data);
+                //self.queue.write_buffer(&self.buffer, offset, data.slice());
             })
             .await
     }

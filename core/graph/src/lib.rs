@@ -136,7 +136,7 @@ macro_rules! UnitGp {
     $pub:vis
     struct $Unit:ident<T: Payload> $tt:tt
     ) => {
-        impl<T: Payload + CastSlice> paste! {[<$Unit "Builder">]<T>} {
+        impl<T: Payload> paste! {[<$Unit "Builder">]<T>} {
             pub fn make(self) -> graph::Result<$Unit<T>> {
                 match self.build() {
                     Ok(value) => Ok(value),
@@ -146,9 +146,9 @@ macro_rules! UnitGp {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            pub fn apex(self) -> graph::Result<Apex> {
-                Ok(self.hub()?.into())
-            }
+            // pub fn apex(self) -> graph::Result<Apex> {
+            //     Ok(self.hub()?.into())
+            // }
             pub fn hub(self) -> graph::Result<Hub<()>> {
                 Ok(self.node()?.hub())
             }
