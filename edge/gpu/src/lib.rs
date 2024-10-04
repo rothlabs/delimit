@@ -103,10 +103,10 @@ impl Gpu {
     }
 }
 
-    // pub fn encoder(&self) -> CommandEncoder {
-    //     self.device
-    //         .create_command_encoder(&CommandEncoderDescriptor { label: None })
-    // }
-    // pub fn submit(&self, encoder: CommandEncoder) -> SubmissionIndex {
-    //     self.queue.submit(Some(encoder.finish()))
-    // }
+// pub fn encoder(&self) -> CommandEncoder {
+//     self.device
+//         .create_command_encoder(&CommandEncoderDescriptor { label: None })
+// }
+// pub fn submit(&self, encoder: CommandEncoder) -> SubmissionIndex {
+//     self.queue.submit(Some(encoder.finish()))
+// }

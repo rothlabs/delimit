@@ -20,18 +20,10 @@ hash_base!(u8);
 hash_base!(u16);
 hash_base!(u32);
 hash_base!(u64);
-// hash_base!(Vec<u8>);
-// hash_base!(Vec<u16>);
-// hash_base!(Vec<u32>);
-// hash_base!(Vec<u64>);
 hash_base!(i8);
 hash_base!(i16);
 hash_base!(i32);
 hash_base!(i64);
-// hash_base!(Vec<i8>);
-// hash_base!(Vec<i16>);
-// hash_base!(Vec<i32>);
-// hash_base!(Vec<i64>);
 
 impl HashGraph for f32 {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
@@ -52,6 +44,30 @@ impl<T: bytemuck::NoUninit> HashGraph for Vec<T> {
     }
 }
 
+pub trait CastSlice {
+    fn slice<B>(&self) -> &[B]
+    where
+        B: bytemuck::AnyBitPattern;
+}
+
+impl CastSlice for Vec<u32> {
+    fn slice<B>(&self) -> &[B]
+    where
+        B: bytemuck::AnyBitPattern,
+    {
+        bytemuck::cast_slice(self)
+    }
+}
+
+impl CastSlice for Vec<f32> {
+    fn slice<B>(&self) -> &[B]
+    where
+        B: bytemuck::AnyBitPattern,
+    {
+        bytemuck::cast_slice(self)
+    }
+}
+
 // impl HashGraph for Vec<f32> {
 //     fn hash_graph<H: Hasher>(&self, state: &mut H) {
 //         let slice: &[u8] = bytemuck::cast_slice(self);
@@ -65,33 +81,6 @@ impl<T: bytemuck::NoUninit> HashGraph for Vec<T> {
 //         std::hash::Hash::hash(slice, state);
 //     }
 // }
-
-pub trait CastSlice {
-    fn slice<B>(&self) -> &[B]
-    where
-        B: bytemuck::AnyBitPattern;
-}
-
-impl CastSlice for Vec<u32> {
-    fn slice<B>(&self) -> &[B]
-        where
-            B: bytemuck::AnyBitPattern {
-        bytemuck::cast_slice(self)
-    }
-}
-
-impl CastSlice for Vec<f32> {
-    fn slice<B>(&self) -> &[B]
-        where
-            B: bytemuck::AnyBitPattern {
-        bytemuck::cast_slice(self)
-    }
-}
-
-
-
-
-
 
 // use std::ops::Deref;
 

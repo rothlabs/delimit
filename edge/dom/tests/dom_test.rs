@@ -80,10 +80,13 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .destination(&stage)
         .size(size)
         .submit();
-    let out: Vec<u32> = stage.read().await?;
+    let out: Vec<u32> = stage.reader().hub()?.base().await?;
     console_log!("result: {:?}", out);
     Ok(())
 }
+
+// let reader: Node<BufferReader<u32>> = stage.reader().node()?;
+// let out = reader.solve().await?.base().await?;
 
 // #[wasm_bindgen_test]
 // async fn make_buffer_writer() -> dom::Result<()> {

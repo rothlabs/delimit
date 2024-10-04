@@ -1,5 +1,4 @@
 use std::{marker::PhantomData, ops::Deref};
-
 use super::*;
 
 #[derive(Builder, Debug)]
@@ -51,14 +50,9 @@ impl Buffer {
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
     }
-    pub async fn read<T: bytemuck::Pod>(&self) -> Result<Vec<T>> {
-        let buffer_slice = self.inner.slice(..);
-        let (sender, receiver) = flume::bounded(1);
-        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-        receiver.recv_async().await??;
-        let data = buffer_slice.get_mapped_range();
-        Ok(bytemuck::cast_slice(&data).to_vec())
-    } 
+    pub fn reader<T: Payload>(&self) -> BufferReaderBuilder<T> {
+        BufferReaderBuilder::default().buffer(self.inner.clone())
+    }
 }
 
 impl Deref for Buffer {
@@ -78,9 +72,9 @@ pub struct BufferWriter<T: Payload> {
     data: Hub<T>,
 }
 
-impl<T> Act for BufferWriter<T> 
-where 
-    T: Payload + CastSlice
+impl<T> Act for BufferWriter<T>
+where
+    T: Payload + CastSlice,
 {
     async fn act(&self) -> graph::Result<()> {
         let offset = self.offset.base().await?;
@@ -98,30 +92,43 @@ where
 
 #[derive(Builder, Debug, UnitVec!)]
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferReader<T: Payload> {
+pub struct BufferReader<T> {
     buffer: Grc<wgpu::Buffer>,
+    #[builder(default, setter(each(name = "stem", into)))]
+    stems: Vec<Apex>,
+    #[builder(default)]
     phantom: PhantomData<T>,
 }
 
-impl<T> Solve for BufferReader<T> 
-where 
-    T: Payload + AnyBitPattern,
-    Vec<T>: Payload
+impl<T> Solve for BufferReader<T>
+where
+    T: AnyBitPattern,
+    Vec<T>: Payload,
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
-        let buffer_slice = self.buffer.slice(..);
+        self.stems.poll().await?;
+        let slice = self.buffer.slice(..);
         let (sender, receiver) = flume::bounded(1);
-        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-        let wow = receiver.recv_async().await?;
-        let data = buffer_slice.get_mapped_range();
-        let out: Vec<T> = bytemuck::cast_slice(&data).to_vec();
-        let hub = out.leaf().hub();
-        Ok(hub)
+        slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+        if let Err(err) = receiver.recv_async().await? {
+            return Err(anyhow!(err))?;
+        }
+        let data = slice.get_mapped_range();
+        let out = bytemuck::cast_slice(&data).to_vec();
+        Ok(out.leaf().hub())
     }
-    // fn backed(&mut self, back: &Back) -> graph::Result<()> {
-    //     self.offset.back(back)?;
-    //     self.data.back(back)
-    // }
+    fn backed(&mut self, _: &Back) -> graph::Result<()> {
+        Ok(())
+    }
 }
 
+
+// pub async fn read<T: bytemuck::Pod>(&self) -> Result<Vec<T>> {
+//     let buffer_slice = self.inner.slice(..);
+//     let (sender, receiver) = flume::bounded(1);
+//     buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+//     receiver.recv_async().await??;
+//     let data = buffer_slice.get_mapped_range();
+//     Ok(bytemuck::cast_slice(&data).to_vec())
+// }

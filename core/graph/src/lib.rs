@@ -1,6 +1,8 @@
 pub use adapt::{Adapt, AdaptMut};
+pub use anyhow::anyhow;
+pub use anyhow::Error as anyError;
 pub use apex::{Apex, Poll};
-pub use base::{HashGraph, CastSlice};
+pub use base::{CastSlice, HashGraph};
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -10,6 +12,7 @@ pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
+pub use paste::paste;
 pub use ploy::{Based, Engage, Ploy, PloyEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
@@ -18,16 +21,12 @@ pub use react::{
 pub use serial::{DeserializeUnit, Digest, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
+pub use thiserror;
+pub use thiserror::Error as ThisError;
 pub use tray::Tray;
 pub use view::View;
 pub use view_vec::ViewVec;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
-pub use thiserror;
-pub use thiserror::Error as ThisError;
-pub use anyhow::Error as anyError;
-pub use anyhow::anyhow;
-pub use paste::paste;
-
 
 use aim::*;
 use derive_builder::UninitializedFieldError;
@@ -88,8 +87,6 @@ macro_rules! build_methods {
         }
     };
 }
-
-
 
 #[macro_export]
 macro_rules! Make {
@@ -164,12 +161,12 @@ macro_rules! UnitVec {
     (
     $(#[$attr:meta])*
     $pub:vis
-    struct $Unit:ident<T: Payload> $tt:tt
+    struct $Unit:ident<T> $tt:tt
     ) => {
-        impl<T> paste! {[<$Unit "Builder">]<T>} 
-        where 
+        impl<T> paste! {[<$Unit "Builder">]<T>}
+        where
             T: Payload + AnyBitPattern,
-            Vec<T>: Payload
+            Vec<T>: Payload,
         {
             pub fn make(self) -> graph::Result<$Unit<T>> {
                 match self.build() {
@@ -297,7 +294,7 @@ pub trait Unit: Solve + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + SendSync + Debug {}
 
 pub trait Payload: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T:  'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]
@@ -505,9 +502,6 @@ impl<T: Backed> BackIt for T {
 //         }
 //     };
 // }
-
-
-
 
 // pub trait ErrorToJsValue {
 //     fn js_err(&self)

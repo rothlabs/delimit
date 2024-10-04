@@ -285,10 +285,7 @@ pub async fn transform_feedback() -> Result<()> {
         .count(3)
         .node()?;
     let reader = target.reader().size(6).draw(draw).hub()?;
-    assert_eq!(
-        vec![1.0, 2.0, 1.0, 2.0, 1.0, 2.0],
-        reader.base().await?
-    );
+    assert_eq!(vec![1.0, 2.0, 1.0, 2.0, 1.0, 2.0], reader.base().await?);
     Ok(())
 }
 
