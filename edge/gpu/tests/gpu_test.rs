@@ -77,10 +77,15 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 #[wasm_bindgen_test]
 async fn draw_triangle() -> dom::Result<()> {
     let gpu = gpu().await?;
+    let surface = gpu.surface();
     let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
     let vertex = gpu.vertex(&shader).entry("vs_main").make()?;
-    let fragment = gpu.fragment(&shader).entry("fs_main").make()?;
+    let fragment = surface.fragment(&shader).entry("fs_main").make()?;
+    let view = surface.view();
+    let attachment = gpu.attachment().view(&view).make()?;
     let pipe = gpu.render().vertex(vertex).fragment(fragment).make()?;
+    let mut encoder = gpu.encoder();
+    // encoder.render(descriptor);
     Ok(())
 }
 

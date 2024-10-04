@@ -44,7 +44,6 @@ pub struct Gpu<'a> {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
     surface: Surface<'a>,
-    targets: Vec<Option<ColorTargetState>>,
 }
 
 impl<'a> Gpu<'a> {
@@ -73,14 +72,14 @@ impl<'a> Gpu<'a> {
             )
             .await
             .expect("Failed to create device");
-        let swapchain_capabilities = surface.get_capabilities(&adapter);
-        let format = swapchain_capabilities.formats[0];
         Ok(Self {
             device: device.into(),
             queue: queue.into(),
-            surface,
-            targets: vec![Some(format.into())],
+            surface: Surface::new(surface, &adapter),
         })
+    }
+    pub fn surface(&'a self) -> &'a Surface<'a> {
+        &self.surface
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
         self.device.create_shader_module(source)
@@ -114,9 +113,44 @@ impl<'a> Gpu<'a> {
         VertexSetupBuilder::default().module(shader)
     }
     pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
-        FragmentSetupBuilder::default().module(shader).targets(&self.targets)
+        FragmentSetupBuilder::default().module(shader)
+    }
+    pub fn attachment(&self) -> RenderAttachmentBuilder {
+        RenderAttachmentBuilder::default()
     }
 }
+
+#[derive(Debug)]
+pub struct Surface<'a> {
+    inner: wgpu::Surface<'a>,
+    targets: Vec<Option<ColorTargetState>>,
+    view_descriptor: TextureViewDescriptor<'a>,
+}
+
+impl<'a> Surface<'a> {
+    pub fn new(inner: wgpu::Surface<'a>, adapter: &Adapter) -> Self {
+        let swapchain_capabilities = inner.get_capabilities(&adapter);
+        let format = swapchain_capabilities.formats[0];
+        let view_descriptor = TextureViewDescriptor::default();
+        Self { inner, targets: vec![Some(format.into())], view_descriptor }
+    }
+    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
+        FragmentSetupBuilder::default().module(shader).targets(&self.targets)
+    }
+    pub fn view(&self) -> TextureView {
+        let frame = self.inner
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        frame.texture.create_view(&self.view_descriptor)
+    }  
+    // pub fn attachment(&self) -> RenderPassColorAttachment {
+    //     let wow = RenderAttachmentBuilder::default().view(&self.view()).make();
+    //     wow.unwrap()
+    // }
+}
+
+
+
 
 // pub fn encoder(&self) -> CommandEncoder {
 //     self.device

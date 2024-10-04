@@ -16,7 +16,7 @@ impl<'a> Render<'a> {
         self.0.insert_debug_marker(label);
         self
     }
-    pub fn dispatch(mut self, vertices: Range<u32>, instances: Range<u32>) -> Self {
+    pub fn draw(mut self, vertices: Range<u32>, instances: Range<u32>) -> Self {
         self.0.draw(vertices, instances);
         self
     }
@@ -25,6 +25,7 @@ impl<'a> Render<'a> {
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
 pub struct RenderAttachment<'a> {
     view: &'a TextureView,
     #[builder(default)]
@@ -46,24 +47,32 @@ impl<'a> RenderAttachmentBuilder<'a> {
     }
 }
 
-// #[derive(Builder, Debug)]
-// #[builder(pattern = "owned")]
-// #[builder(build_fn(error = "crate::Error"))]
-// pub struct RenderSetup<'a> {
-//     // module: &'a ShaderModule,
-//     // entry: &'a str,
-//     // #[builder(default)]
-//     // compilation_options: PipelineCompilationOptions<'a>,
-//     // #[builder(default)]
-//     // buffers: &'a [VertexBufferLayout<'a>],
-// }
+#[derive(Builder, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
+pub struct RenderPassSetup<'a> {
+    #[builder(default)]
+    label: Option<&'a str>,
+    attachments: &'a [Option<RenderPassColorAttachment<'a>>],
+    #[builder(default)]
+    depth_stencil: Option<RenderPassDepthStencilAttachment<'a>>,
+    #[builder(default)]
+    timestamps: Option<RenderPassTimestampWrites<'a>>,
+    #[builder(default)]
+    occlusion_query: Option<&'a QuerySet>,
+}
 
-// impl<'a> RenderSetupBuilder<'a> {
-//     pub fn make(self) -> Result<RenderPassDescriptor<'a>> {
-//         let built = self.build()?;
-//         let state = RenderPassDescriptor {
-            
-//         };
-//         Ok(state)
-//     }
-// }
+impl<'a> RenderPassSetupBuilder<'a> {
+    pub fn make(self) -> Result<RenderPassDescriptor<'a>> {
+        let built = self.build()?;
+        let descriptor = RenderPassDescriptor {
+            label: built.label,
+            color_attachments: built.attachments,
+            depth_stencil_attachment: built.depth_stencil,
+            timestamp_writes: built.timestamps,
+            occlusion_query_set: built.occlusion_query,
+        };
+        Ok(descriptor)
+    }
+}
