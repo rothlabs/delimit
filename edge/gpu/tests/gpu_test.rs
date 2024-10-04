@@ -9,7 +9,7 @@ use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-async fn gpu() -> dom::Result<Gpu> {
+async fn gpu<'a>() -> dom::Result<Gpu<'a>> {
     let canvas = Window::new()?
         .document()?
         .body()?

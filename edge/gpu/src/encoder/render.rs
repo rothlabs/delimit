@@ -22,6 +22,30 @@ impl<'a> Render<'a> {
     }
 }
 
+#[derive(Builder, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+pub struct RenderAttachment<'a> {
+    view: &'a TextureView,
+    #[builder(default)]
+    resolve_target: Option<&'a TextureView>
+}
+
+impl<'a> RenderAttachmentBuilder<'a> {
+    pub fn make(self) -> Result<RenderPassColorAttachment<'a>> {
+        let built = self.build()?;
+        let state = RenderPassColorAttachment {
+            view: built.view,
+            resolve_target: built.resolve_target,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
+                store: wgpu::StoreOp::Store,
+            },
+        };
+        Ok(state)
+    }
+}
+
 // #[derive(Builder, Debug)]
 // #[builder(pattern = "owned")]
 // #[builder(build_fn(error = "crate::Error"))]

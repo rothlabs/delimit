@@ -40,13 +40,14 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
-pub struct Gpu {
+pub struct Gpu<'a> {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
+    surface: Surface<'a>,
     targets: Vec<Option<ColorTargetState>>,
 }
 
-impl Gpu {
+impl<'a> Gpu<'a> {
     pub async fn from_canvas(canvas: HtmlCanvasElement) -> Result<Self> {
         let instance = Instance::default();
         let surface_target = SurfaceTarget::Canvas(canvas);
@@ -77,6 +78,7 @@ impl Gpu {
         Ok(Self {
             device: device.into(),
             queue: queue.into(),
+            surface,
             targets: vec![Some(format.into())],
         })
     }
@@ -108,10 +110,10 @@ impl Gpu {
             queue: &self.queue,
         }
     }
-    pub fn vertex<'a>(&self, shader: &'a ShaderModule) -> VertexSetupBuilder<'a> {
+    pub fn vertex(&self, shader: &'a ShaderModule) -> VertexSetupBuilder<'a> {
         VertexSetupBuilder::default().module(shader)
     }
-    pub fn fragment<'a>(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
+    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
         FragmentSetupBuilder::default().module(shader).targets(&self.targets)
     }
 }
