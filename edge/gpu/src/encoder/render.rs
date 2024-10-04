@@ -54,6 +54,7 @@ impl<'a> RenderAttachmentBuilder<'a> {
 pub struct RenderPassSetup<'a> {
     #[builder(default)]
     label: Option<&'a str>,
+    #[builder(setter(each(name = "attach")))]
     attachments: &'a [Option<RenderPassColorAttachment<'a>>],
     #[builder(default)]
     depth_stencil: Option<RenderPassDepthStencilAttachment<'a>>,

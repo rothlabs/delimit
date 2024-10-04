@@ -41,7 +41,7 @@ impl ComputeSetupBuilder<'_> {
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
-pub struct RenderSetup<'a> {
+pub struct RenderPipeSetup<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
@@ -61,7 +61,7 @@ pub struct RenderSetup<'a> {
     cache: Option<&'a PipelineCache>,
 }
 
-impl RenderSetupBuilder<'_> {
+impl RenderPipeSetupBuilder<'_> {
     pub fn make(self) -> Result<RenderPipeline> {
         let built = self.build()?;
         let descriptor = RenderPipelineDescriptor {

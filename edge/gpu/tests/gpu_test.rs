@@ -9,12 +9,17 @@ use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
+fn body() -> dom::Result<Element> {
+    Window::new()?.document()?.body()
+}
+
 async fn gpu<'a>() -> dom::Result<Gpu<'a>> {
-    let canvas = Window::new()?
-        .document()?
-        .body()?
-        .element("canvas")?
-        .canvas()?;
+    let canvas = body()?.element("canvas")?.canvas()?;
+    canvas.gpu().await
+}
+
+async fn gpu_with_canvas<'a>() -> dom::Result<Gpu<'a>> {
+    let canvas = body()?.stem("canvas")?.canvas()?;
     canvas.gpu().await
 }
 
@@ -76,16 +81,18 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn draw_triangle() -> dom::Result<()> {
-    let gpu = gpu().await?;
+    let gpu = gpu_with_canvas().await?;
     let surface = gpu.surface();
     let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
     let vertex = gpu.vertex(&shader).entry("vs_main").make()?;
     let fragment = surface.fragment(&shader).entry("fs_main").make()?;
     let view = surface.view();
-    let attachment = gpu.attachment().view(&view).make()?;
-    let pipe = gpu.render().vertex(vertex).fragment(fragment).make()?;
+    let attachments = vec![Some(gpu.attachment().view(&view).make()?)];
+    let pipe = gpu.render_pipe().vertex(vertex).fragment(fragment).make()?;
+    let pass = gpu.render_pass().attachments(&attachments).make()?;
     let mut encoder = gpu.encoder();
-    // encoder.render(descriptor);
+    encoder.render(&pass).pipeline(&pipe).draw(0..3, 0..1);
+    encoder.submit();
     Ok(())
 }
 

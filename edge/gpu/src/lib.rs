@@ -9,14 +9,14 @@ use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encoder::*;
 use graph::*;
-use pipeline::*;
+use pipe::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
 mod bind;
 mod buffer;
 mod encoder;
-mod pipeline;
+mod pipe;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -73,9 +73,9 @@ impl<'a> Gpu<'a> {
             .await
             .expect("Failed to create device");
         Ok(Self {
+            surface: Surface::new(surface, &adapter, &device),
             device: device.into(),
             queue: queue.into(),
-            surface: Surface::new(surface, &adapter),
         })
     }
     pub fn surface(&'a self) -> &'a Surface<'a> {
@@ -98,8 +98,11 @@ impl<'a> Gpu<'a> {
     pub fn compute(&self) -> ComputeSetupBuilder {
         ComputeSetupBuilder::default().device(&self.device)
     }
-    pub fn render(&self) -> RenderSetupBuilder {
-        RenderSetupBuilder::default().device(&self.device)
+    pub fn render_pipe(&self) -> RenderPipeSetupBuilder {
+        RenderPipeSetupBuilder::default().device(&self.device)
+    }
+    pub fn render_pass(&self) -> RenderPassSetupBuilder {
+        RenderPassSetupBuilder::default()
     }
     pub fn encoder(&self) -> Encoder {
         Encoder {
@@ -125,14 +128,17 @@ pub struct Surface<'a> {
     inner: wgpu::Surface<'a>,
     targets: Vec<Option<ColorTargetState>>,
     view_descriptor: TextureViewDescriptor<'a>,
+    config: SurfaceConfiguration,
 }
 
 impl<'a> Surface<'a> {
-    pub fn new(inner: wgpu::Surface<'a>, adapter: &Adapter) -> Self {
+    pub fn new(inner: wgpu::Surface<'a>, adapter: &Adapter, device: &Device) -> Self {
         let swapchain_capabilities = inner.get_capabilities(&adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();
-        Self { inner, targets: vec![Some(format.into())], view_descriptor }
+        let config = inner.get_default_config(&adapter, 300, 150).unwrap();
+        inner.configure(&device, &config);
+        Self { inner, targets: vec![Some(format.into())], view_descriptor, config }
     }
     pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
         FragmentSetupBuilder::default().module(shader).targets(&self.targets)
@@ -143,12 +149,17 @@ impl<'a> Surface<'a> {
             .expect("Failed to acquire next swap chain texture");
         frame.texture.create_view(&self.view_descriptor)
     }  
-    // pub fn attachment(&self) -> RenderPassColorAttachment {
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.config.width = width.max(1);
+        self.config.height = height.max(1);
+        // surface.configure(&device, &config);
+    }
+}
+
+// pub fn attachment(&self) -> RenderPassColorAttachment {
     //     let wow = RenderAttachmentBuilder::default().view(&self.view()).make();
     //     wow.unwrap()
     // }
-}
-
 
 
 
