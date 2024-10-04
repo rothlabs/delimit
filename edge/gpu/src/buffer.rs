@@ -4,7 +4,7 @@ use super::*;
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-pub struct BufferRubric<'a> {
+pub struct BufferSetup<'a> {
     device: &'a Device,
     queue: Grc<wgpu::Queue>,
     #[builder(default, setter(strip_option))]
@@ -15,7 +15,7 @@ pub struct BufferRubric<'a> {
     mapped_at_creation: bool,
 }
 
-impl BufferRubricBuilder<'_> {
+impl BufferSetupBuilder<'_> {
     pub fn make(self) -> Result<Buffer> {
         let built = self.build()?;
         let descriptor = BufferDescriptor {

@@ -79,8 +79,8 @@ impl Gpu {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
         self.device.create_shader_module(source)
     }
-    pub fn buffer(&self) -> BufferRubricBuilder {
-        BufferRubricBuilder::default()
+    pub fn buffer(&self) -> BufferSetupBuilder {
+        BufferSetupBuilder::default()
             .device(&self.device)
             .queue(self.queue.clone())
     }
@@ -90,8 +90,8 @@ impl Gpu {
     pub fn bind_group_layout(&self) -> BindGroupLayoutBuilder {
         BindGroupLayoutBuilder::default().device(&self.device)
     }
-    pub fn compute(&self) -> ComputeBuilder {
-        ComputeBuilder::default().device(&self.device)
+    pub fn compute(&self) -> ComputeSetupBuilder {
+        ComputeSetupBuilder::default().device(&self.device)
     }
     pub fn encoder(&self) -> Encoder {
         Encoder {

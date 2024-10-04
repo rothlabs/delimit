@@ -4,17 +4,26 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-    wasm-bindgen = "0.2.93"
-    wasm-bindgen-futures = "0.4.43"
+    # wasm-bindgen = "0.2.93"
+    # wasm-bindgen-futures = "0.4.43"
+    # getrandom = {version = "0.2", features = ["js"]}
     derive_builder = "0.20.1"
     macro_rules_attribute = "0.2.0"
     wgpu = "22.1.0"
     bytemuck = "1.18.0"
     flume = "0.11.0"
-    graph = { path = "../../core/graph", features = ["oneThread"], default-features = false }
 
-[dependencies.web-sys]
-    version = "0.3.70"
-    features = [
-        'HtmlCanvasElement'
-    ]
+[dependencies.graph]
+    path = "../../core/graph"
+    default-features = false 
+    # features = ["oneThread"] 
+
+# [dependencies.web-sys]
+#     version = "0.3.70"
+#     features = [
+#         'HtmlCanvasElement'
+#     ]
+
+[dev-dependencies]
+    wasm-bindgen-test = "0.3.43"
+    dom = { path = "../dom" }
