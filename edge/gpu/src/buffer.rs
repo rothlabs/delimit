@@ -45,12 +45,12 @@ impl Buffer {
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
-    pub fn writer<T: Payload>(&self) -> BufferWriterBuilder<T> {
+    pub fn writer<T: Payload + Pod>(&self) -> BufferWriterBuilder<T> {
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
     }
-    pub fn reader<T: Payload>(&self) -> BufferReaderBuilder<T> {
+    pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
         BufferReaderBuilder::default().buffer(self.inner.clone())
     }
 }
@@ -62,9 +62,9 @@ impl Deref for Buffer {
     }
 }
 
-#[derive(Builder, Debug, UnitGp!)]
+#[derive(Builder, Debug, Output!)]
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferWriter<T: Payload> {
+pub struct BufferWriter<T: Payload + Pod> {
     queue: Grc<wgpu::Queue>,
     buffer: Grc<wgpu::Buffer>,
     #[builder(default)]
@@ -74,14 +74,13 @@ pub struct BufferWriter<T: Payload> {
 
 impl<T> Act for BufferWriter<T>
 where
-    T: Payload + bytemuck::Pod,// + CastSlice,
+    T: Payload + Pod,
 {
     async fn act(&self) -> graph::Result<()> {
         let offset = self.offset.base().await?;
         self.data
             .read(|data| {
-                //let slice: &[u8] = bytemuck::cast_slice(data);
-                //self.queue.write_buffer(&self.buffer, offset, data.slice());
+                self.queue.write_buffer(&self.buffer, offset, cast_slice(data));
             })
             .await
     }
@@ -91,7 +90,7 @@ where
     }
 }
 
-#[derive(Builder, Debug, UnitVec!)]
+#[derive(Builder, Debug, Input!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferReader<T> {
     buffer: Grc<wgpu::Buffer>,

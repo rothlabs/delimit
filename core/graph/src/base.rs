@@ -37,36 +37,36 @@ impl HashGraph for f64 {
     }
 }
 
-impl<T: bytemuck::NoUninit> HashGraph for Vec<T> {
+impl<T: bytemuck::Pod> HashGraph for Vec<T> {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         let slice: &[u8] = bytemuck::cast_slice(self);
         std::hash::Hash::hash(slice, state);
     }
 }
 
-pub trait CastSlice {
-    fn slice<B>(&self) -> &[B]
-    where
-        B: bytemuck::AnyBitPattern;
-}
+// pub trait CastSlice {
+//     fn slice<B>(&self) -> &[B]
+//     where
+//         B: bytemuck::AnyBitPattern;
+// }
 
-impl CastSlice for Vec<u32> {
-    fn slice<B>(&self) -> &[B]
-    where
-        B: bytemuck::AnyBitPattern,
-    {
-        bytemuck::cast_slice(self)
-    }
-}
+// impl CastSlice for Vec<u32> {
+//     fn slice<B>(&self) -> &[B]
+//     where
+//         B: bytemuck::AnyBitPattern,
+//     {
+//         bytemuck::cast_slice(self)
+//     }
+// }
 
-impl CastSlice for Vec<f32> {
-    fn slice<B>(&self) -> &[B]
-    where
-        B: bytemuck::AnyBitPattern,
-    {
-        bytemuck::cast_slice(self)
-    }
-}
+// impl CastSlice for Vec<f32> {
+//     fn slice<B>(&self) -> &[B]
+//     where
+//         B: bytemuck::AnyBitPattern,
+//     {
+//         bytemuck::cast_slice(self)
+//     }
+// }
 
 // impl HashGraph for Vec<f32> {
 //     fn hash_graph<H: Hasher>(&self, state: &mut H) {

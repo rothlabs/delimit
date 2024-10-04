@@ -2,7 +2,7 @@ pub use adapt::{Adapt, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
 pub use apex::{Apex, Poll};
-pub use base::{CastSlice, HashGraph};
+pub use base::HashGraph;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -130,13 +130,16 @@ macro_rules! Vf32 {(
 }
 
 #[macro_export]
-macro_rules! UnitGp {
+macro_rules! Output {
     (
     $(#[$attr:meta])*
     $pub:vis
-    struct $Unit:ident<T: Payload> $tt:tt
+    struct $Unit:ident<T: Payload + Pod> $tt:tt
     ) => {
-        impl<T: Payload> paste! {[<$Unit "Builder">]<T>} {
+        impl<T> paste! {[<$Unit "Builder">]<T>} 
+        where
+            T: Payload + Pod,
+        {
             pub fn make(self) -> graph::Result<$Unit<T>> {
                 match self.build() {
                     Ok(value) => Ok(value),
@@ -146,9 +149,9 @@ macro_rules! UnitGp {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            // pub fn apex(self) -> graph::Result<Apex> {
-            //     Ok(self.hub()?.into())
-            // }
+            pub fn apex(self) -> graph::Result<Apex> {
+                Ok(self.hub()?.into())
+            }
             pub fn hub(self) -> graph::Result<Hub<()>> {
                 Ok(self.node()?.hub())
             }
@@ -157,7 +160,7 @@ macro_rules! UnitGp {
 }
 
 #[macro_export]
-macro_rules! UnitVec {
+macro_rules! Input {
     (
     $(#[$attr:meta])*
     $pub:vis
@@ -177,9 +180,6 @@ macro_rules! UnitVec {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            // pub fn apex(self) -> graph::Result<Apex> {
-            //     Ok(self.hub()?.into())
-            // }
             pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
                 Ok(self.node()?.hub())
             }
