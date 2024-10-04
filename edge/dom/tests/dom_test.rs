@@ -9,6 +9,10 @@ wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
 fn make_canvas() -> Result<()> {
-    Window::new()?.document()?.body()?.stem("canvas")?.canvas()?;
+    Window::new()?
+        .document()?
+        .body()?
+        .stem("canvas")?
+        .canvas()?;
     Ok(())
 }

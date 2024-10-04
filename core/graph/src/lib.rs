@@ -136,7 +136,7 @@ macro_rules! Output {
     $pub:vis
     struct $Unit:ident<T: Payload + Pod> $tt:tt
     ) => {
-        impl<T> paste! {[<$Unit "Builder">]<T>} 
+        impl<T> paste! {[<$Unit "Builder">]<T>}
         where
             T: Payload + Pod,
         {

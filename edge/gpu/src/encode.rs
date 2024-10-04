@@ -1,8 +1,9 @@
+pub use render::RenderBuilder;
 pub use render::*;
 
-use std::ops::Range;
 use super::*;
 
+mod pass;
 mod render;
 
 pub struct Encoder<'a> {
@@ -11,16 +12,15 @@ pub struct Encoder<'a> {
 }
 
 impl<'a> Encoder<'a> {
-    pub fn compute(&mut self) -> Compute<'_> {
-        let inner = self.inner.begin_compute_pass(&ComputePassDescriptor {
-            label: None,
-            timestamp_writes: None,
-        });
-        Compute(inner)
+    pub fn compute(&mut self) -> pass::Compute<'_> {
+        let pass = self
+            .inner
+            .begin_compute_pass(&ComputePassDescriptor::default());
+        pass::Compute::new(pass)
     }
-    pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> Render<'_> {
-        let inner = self.inner.begin_render_pass(descriptor);
-        Render::new(inner)
+    pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> pass::Render<'_> {
+        let pass = self.inner.begin_render_pass(descriptor);
+        pass::Render::new(pass)
     }
     pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'a> {
         SourceBuffer {
@@ -31,29 +31,6 @@ impl<'a> Encoder<'a> {
     }
     pub fn submit(self) -> SubmissionIndex {
         self.queue.submit(Some(self.inner.finish()))
-    }
-}
-
-pub struct Compute<'a>(
-    ComputePass<'a>, // encoder: Encoder<'a>,
-);
-
-impl<'a> Compute<'a> {
-    pub fn pipeline(mut self, pipeline: &ComputePipeline) -> Self {
-        self.0.set_pipeline(pipeline);
-        self
-    }
-    pub fn bind_group(mut self, index: u32, bind_group: &wgpu::BindGroup, offsets: &[u32]) -> Self {
-        self.0.set_bind_group(index, bind_group, offsets);
-        self
-    }
-    pub fn debug(mut self, label: &str) -> Self {
-        self.0.insert_debug_marker(label);
-        self
-    }
-    pub fn dispatch(mut self, x: u32, y: u32, z: u32) -> Self {
-        self.0.dispatch_workgroups(x, y, z);
-        self
     }
 }
 
@@ -99,8 +76,3 @@ impl<'a> DestinationBuffer<'a> {
         self.source.encoder
     }
 }
-
-// pub fn copy_buffer_to_buffer(mut self, source: &Buffer, source_offset: BufferAddress, destination: &Buffer, destination_offset: BufferAddress, copy_size: BufferAddress) -> Self {
-//     self.inner.copy_buffer_to_buffer(source, source_offset, destination, destination_offset, copy_size);
-//     self
-// }

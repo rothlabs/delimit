@@ -13,7 +13,7 @@ pub struct BindGroup<'a> {
     #[builder(default)]
     entries: Vec<BindGroupEntry<'a>>,
     #[builder(default)]
-    pipeline: Option<&'a ComputePipeline>,
+    pipe: Option<&'a ComputePipeline>,
 }
 
 impl BindGroup<'_> {
@@ -32,7 +32,7 @@ impl<'a> BindGroupBuilder<'a> {
         let built = self.build()?;
         if let Some(layout) = built.layout {
             Ok(built.make(layout))
-        } else if let Some(pipe) = built.pipeline {
+        } else if let Some(pipe) = built.pipe {
             Ok(built.make(&pipe.get_bind_group_layout(0)))
         } else {
             Err(anyhow!("no layout for bind group"))?

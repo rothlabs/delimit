@@ -1,5 +1,39 @@
-use std::{marker::PhantomData, ops::Deref};
+pub use reader::*;
+pub use writer::*;
+
 use super::*;
+use std::ops::Deref;
+
+mod reader;
+mod writer;
+
+#[derive(Clone)]
+pub struct Buffer {
+    inner: Grc<wgpu::Buffer>,
+    queue: Grc<wgpu::Queue>,
+}
+
+impl Buffer {
+    pub fn resource(&self) -> BindingResource {
+        self.inner.as_entire_binding()
+    }
+    pub fn writer<T: Payload + Pod>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> {
+        BufferWriterBuilder::default()
+            .queue(self.queue.clone())
+            .buffer(self.inner.clone())
+            .data(data)
+    }
+    pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
+        BufferReaderBuilder::default().buffer(self.inner.clone())
+    }
+}
+
+impl Deref for Buffer {
+    type Target = wgpu::Buffer;
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
@@ -30,105 +64,12 @@ impl BufferSetupBuilder<'_> {
             queue: built.queue,
         })
     }
-    pub fn map_read(self) -> Self {
+    pub fn map_read(self) -> Result<Buffer> {
         self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
+            .make()
+    }
+    pub fn storage_copy(self) -> Result<Buffer> {
+        self.usage(BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST)
+            .make()
     }
 }
-
-#[derive(Clone)]
-pub struct Buffer {
-    inner: Grc<wgpu::Buffer>,
-    queue: Grc<wgpu::Queue>,
-}
-
-impl Buffer {
-    pub fn resource(&self) -> BindingResource {
-        self.inner.as_entire_binding()
-    }
-    pub fn writer<T: Payload + Pod>(&self) -> BufferWriterBuilder<T> {
-        BufferWriterBuilder::default()
-            .queue(self.queue.clone())
-            .buffer(self.inner.clone())
-    }
-    pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
-        BufferReaderBuilder::default().buffer(self.inner.clone())
-    }
-}
-
-impl Deref for Buffer {
-    type Target = wgpu::Buffer;
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-#[derive(Builder, Debug, Output!)]
-#[builder(pattern = "owned", setter(into))]
-pub struct BufferWriter<T: Payload + Pod> {
-    queue: Grc<wgpu::Queue>,
-    buffer: Grc<wgpu::Buffer>,
-    #[builder(default)]
-    offset: Hub<u64>,
-    data: Hub<Vec<T>>,
-}
-
-impl<T> Act for BufferWriter<T>
-where
-    T: Payload + Pod,
-{
-    async fn act(&self) -> graph::Result<()> {
-        let offset = self.offset.base().await?;
-        self.data
-            .read(|data| {
-                self.queue.write_buffer(&self.buffer, offset, cast_slice(data));
-            })
-            .await
-    }
-    fn backed(&mut self, back: &Back) -> graph::Result<()> {
-        self.offset.back(back)?;
-        self.data.back(back)
-    }
-}
-
-#[derive(Builder, Debug, Input!)]
-#[builder(pattern = "owned", setter(into))]
-pub struct BufferReader<T> {
-    buffer: Grc<wgpu::Buffer>,
-    #[builder(default, setter(each(name = "stem", into)))]
-    stems: Vec<Apex>,
-    #[builder(default)]
-    phantom: PhantomData<T>,
-}
-
-impl<T> Solve for BufferReader<T>
-where
-    T: AnyBitPattern,
-    Vec<T>: Payload,
-{
-    type Base = Vec<T>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
-        self.stems.poll().await?;
-        let slice = self.buffer.slice(..);
-        let (sender, receiver) = flume::bounded(1);
-        slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-        if let Err(err) = receiver.recv_async().await? {
-            return Err(anyhow!(err))?;
-        }
-        let data = slice.get_mapped_range();
-        let out = bytemuck::cast_slice(&data).to_vec();
-        Ok(out.leaf().hub())
-    }
-    fn backed(&mut self, _: &Back) -> graph::Result<()> {
-        Ok(())
-    }
-}
-
-
-// pub async fn read<T: bytemuck::Pod>(&self) -> Result<Vec<T>> {
-//     let buffer_slice = self.inner.slice(..);
-//     let (sender, receiver) = flume::bounded(1);
-//     buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-//     receiver.recv_async().await??;
-//     let data = buffer_slice.get_mapped_range();
-//     Ok(bytemuck::cast_slice(&data).to_vec())
-// }

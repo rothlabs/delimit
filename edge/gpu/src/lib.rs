@@ -7,16 +7,18 @@ pub use wgpu::BufferUsages;
 
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
-use encoder::*;
+use encode::*;
 use graph::*;
 use pipe::*;
+use surface::Surface;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
 mod bind;
 mod buffer;
-mod encoder;
+mod encode;
 mod pipe;
+mod surface;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -24,15 +26,9 @@ extern crate macro_rules_attribute;
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error(transparent)]
-    Graph(#[from] graph::Error),
-    #[error(transparent)]
     CreateSurfaceError(#[from] CreateSurfaceError),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
-    #[error(transparent)]
-    Recieve(#[from] flume::RecvError),
-    #[error(transparent)]
-    BufferAsync(#[from] BufferAsyncError),
     #[error(transparent)]
     Any(#[from] anyError),
 }
@@ -84,10 +80,11 @@ impl<'a> Gpu<'a> {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
         self.device.create_shader_module(source)
     }
-    pub fn buffer(&self) -> BufferSetupBuilder {
+    pub fn buffer(&self, size: u64) -> BufferSetupBuilder {
         BufferSetupBuilder::default()
             .device(&self.device)
             .queue(self.queue.clone())
+            .size(size)
     }
     pub fn bind_group(&self) -> BindGroupBuilder {
         BindGroupBuilder::default().device(&self.device)
@@ -95,14 +92,21 @@ impl<'a> Gpu<'a> {
     pub fn bind_group_layout(&self) -> BindGroupLayoutBuilder {
         BindGroupLayoutBuilder::default().device(&self.device)
     }
-    pub fn compute(&self) -> ComputeSetupBuilder {
-        ComputeSetupBuilder::default().device(&self.device)
+    pub fn compute_pipe(&self, shader: &'a ShaderModule) -> pipe::ComputeBuilder {
+        pipe::ComputeBuilder::default()
+            .device(&self.device)
+            .shader(shader)
     }
-    pub fn render_pipe(&self) -> RenderPipeSetupBuilder {
-        RenderPipeSetupBuilder::default().device(&self.device)
+    pub fn render_pipe(&self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+        pipe::RenderBuilder::default()
+            .device(&self.device)
+            .vertex(vertex)
     }
-    pub fn render_pass(&self) -> RenderPassSetupBuilder {
-        RenderPassSetupBuilder::default()
+    pub fn render_pass(
+        &self,
+        attachments: &'a [Option<RenderPassColorAttachment<'a>>],
+    ) -> encode::RenderBuilder {
+        encode::RenderBuilder::default().attachments(attachments)
     }
     pub fn encoder(&self) -> Encoder {
         Encoder {
@@ -112,61 +116,27 @@ impl<'a> Gpu<'a> {
             queue: &self.queue,
         }
     }
-    pub fn vertex(&self, shader: &'a ShaderModule) -> VertexSetupBuilder<'a> {
-        VertexSetupBuilder::default().module(shader)
+    pub fn vertex(&self, shader: &'a ShaderModule) -> VertexBuilder<'a> {
+        VertexBuilder::default().module(shader)
     }
-    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
-        FragmentSetupBuilder::default().module(shader)
+    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
+        FragmentBuilder::default().module(shader)
     }
-    pub fn attachment(&self) -> RenderAttachmentBuilder {
-        RenderAttachmentBuilder::default()
-    }
-}
-
-#[derive(Debug)]
-pub struct Surface<'a> {
-    inner: wgpu::Surface<'a>,
-    targets: Vec<Option<ColorTargetState>>,
-    view_descriptor: TextureViewDescriptor<'a>,
-    config: SurfaceConfiguration,
-}
-
-impl<'a> Surface<'a> {
-    pub fn new(inner: wgpu::Surface<'a>, adapter: &Adapter, device: &Device) -> Self {
-        let swapchain_capabilities = inner.get_capabilities(&adapter);
-        let format = swapchain_capabilities.formats[0];
-        let view_descriptor = TextureViewDescriptor::default();
-        let config = inner.get_default_config(&adapter, 300, 150).unwrap();
-        inner.configure(&device, &config);
-        Self { inner, targets: vec![Some(format.into())], view_descriptor, config }
-    }
-    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentSetupBuilder<'a> {
-        FragmentSetupBuilder::default().module(shader).targets(&self.targets)
-    }
-    pub fn view(&self) -> TextureView {
-        let frame = self.inner
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture");
-        frame.texture.create_view(&self.view_descriptor)
-    }  
-    pub fn resize(&mut self, width: u32, height: u32) {
-        self.config.width = width.max(1);
-        self.config.height = height.max(1);
-        // surface.configure(&device, &config);
+    pub fn attachment(&self, view: &'a TextureView) -> ColorAttachmentBuilder {
+        ColorAttachmentBuilder::default().view(view)
     }
 }
 
-// pub fn attachment(&self) -> RenderPassColorAttachment {
-    //     let wow = RenderAttachmentBuilder::default().view(&self.view()).make();
-    //     wow.unwrap()
-    // }
-
-
-
-// pub fn encoder(&self) -> CommandEncoder {
-//     self.device
-//         .create_command_encoder(&CommandEncoderDescriptor { label: None })
-// }
-// pub fn submit(&self, encoder: CommandEncoder) -> SubmissionIndex {
-//     self.queue.submit(Some(encoder.finish()))
+// #[derive(ThisError, Debug)]
+// pub enum Error {
+//     #[error(transparent)]
+//     Graph(#[from] graph::Error),
+//     #[error(transparent)]
+//     CreateSurfaceError(#[from] CreateSurfaceError),
+//     #[error(transparent)]
+//     Uninit(#[from] UninitializedFieldError),
+//     #[error(transparent)]
+//     BufferAsync(#[from] BufferAsyncError),
+//     #[error(transparent)]
+//     Any(#[from] anyError),
 // }

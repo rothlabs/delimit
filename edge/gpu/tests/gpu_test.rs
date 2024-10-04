@@ -23,17 +23,6 @@ async fn gpu_with_canvas<'a>() -> dom::Result<Gpu<'a>> {
     canvas.gpu().await
 }
 
-fn vertex_buffer(gpu: &Gpu, size: u64) -> gpu::Result<Buffer> {
-    gpu.buffer().size(size).usage(BufferUsages::VERTEX).make()
-}
-
-fn storage_buffer(gpu: &Gpu, size: u64) -> gpu::Result<Buffer> {
-    gpu.buffer()
-        .size(size)
-        .usage(BufferUsages::STORAGE | BufferUsages::COPY_DST | BufferUsages::COPY_SRC)
-        .make()
-}
-
 #[rustfmt::skip]
 fn basic_vec_u32() -> Vec<u32> {
     vec![
@@ -46,9 +35,9 @@ fn basic_vec_u32() -> Vec<u32> {
 // Tests ///////////////////////////////
 
 #[wasm_bindgen_test]
-async fn make_buffer() -> dom::Result<()> {
+async fn make_vertex_buffer() -> dom::Result<()> {
     let gpu = gpu().await?;
-    vertex_buffer(&gpu, 36)?;
+    gpu.buffer(1024).usage(BufferUsages::VERTEX).make()?;
     Ok(())
 }
 
@@ -56,17 +45,17 @@ async fn make_buffer() -> dom::Result<()> {
 async fn compute_collatz_iterations() -> dom::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(wgpu::include_wgsl!("compute.wgsl"));
-    let pipe = gpu.compute().shader(&shader).entry("main").make()?;
+    let pipe = gpu.compute_pipe(&shader).entry("main").make()?;
     let size = 36;
-    let storage = storage_buffer(&gpu, size)?;
-    let stage = gpu.buffer().label("stage").size(size).map_read().make()?;
-    storage.writer().data(basic_vec_u32()).make()?.act().await?;
-    let bind_group = gpu.bind_group().pipeline(&pipe).entry(0, &storage).make()?;
+    let storage = gpu.buffer(size).storage_copy()?;
+    let stage = gpu.buffer(size).label("stage").map_read()?;
+    storage.writer(basic_vec_u32()).make()?.act().await?;
+    let bind_group = gpu.bind_group().pipe(&pipe).entry(0, &storage).make()?;
     let mut encoder = gpu.encoder();
     encoder
         .compute()
-        .pipeline(&pipe)
-        .bind_group(0, &bind_group, &[])
+        .pipe(&pipe)
+        .bind(0, &bind_group, &[])
         .debug("compute collatz iterations")
         .dispatch(9, 1, 1);
     encoder
@@ -81,17 +70,19 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn draw_triangle() -> dom::Result<()> {
+    // setup:
     let gpu = gpu_with_canvas().await?;
     let surface = gpu.surface();
     let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
     let vertex = gpu.vertex(&shader).entry("vs_main").make()?;
     let fragment = surface.fragment(&shader).entry("fs_main").make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    // render loop:
     let view = surface.view();
-    let attachments = vec![Some(gpu.attachment().view(&view).make()?)];
-    let pipe = gpu.render_pipe().vertex(vertex).fragment(fragment).make()?;
-    let pass = gpu.render_pass().attachments(&attachments).make()?;
+    let attachments = gpu.attachment(&view).list()?;
+    let pass = gpu.render_pass(&attachments).make()?;
     let mut encoder = gpu.encoder();
-    encoder.render(&pass).pipeline(&pipe).draw(0..3, 0..1);
+    encoder.render(&pass).pipe(&pipe).draw(0..3, 0..1);
     encoder.submit();
     Ok(())
 }

@@ -311,11 +311,6 @@ pub async fn transform_feedback() -> Result<()> {
     Ok(())
 }
 
-
-
-
-
-
 // #[wasm_bindgen_test]
 // fn make_vertex_shader() -> Result<()> {
 //     gpu::make_vertex_shader()

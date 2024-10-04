@@ -3,7 +3,7 @@ use super::*;
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-pub struct VertexSetup<'a> {
+pub struct Vertex<'a> {
     module: &'a ShaderModule,
     entry: &'a str,
     #[builder(default)]
@@ -12,7 +12,7 @@ pub struct VertexSetup<'a> {
     buffers: &'a [VertexBufferLayout<'a>],
 }
 
-impl<'a> VertexSetupBuilder<'a> {
+impl<'a> VertexBuilder<'a> {
     pub fn make(self) -> Result<VertexState<'a>> {
         let built = self.build()?;
         let state = VertexState {
@@ -28,7 +28,7 @@ impl<'a> VertexSetupBuilder<'a> {
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-pub struct FragmentSetup<'a> {
+pub struct Fragment<'a> {
     module: &'a ShaderModule,
     entry: &'a str,
     #[builder(default)]
@@ -37,7 +37,7 @@ pub struct FragmentSetup<'a> {
     targets: &'a [Option<ColorTargetState>],
 }
 
-impl<'a> FragmentSetupBuilder<'a> {
+impl<'a> FragmentBuilder<'a> {
     pub fn make(self) -> Result<FragmentState<'a>> {
         let built = self.build()?;
         let state = FragmentState {
