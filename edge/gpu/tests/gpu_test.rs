@@ -69,12 +69,12 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).label("stage").map_read()?;
     storage.writer(basic_vec_u32()).make()?.act().await?;
-    let bind_group = gpu.bind_group().pipe(&pipe).entry(0, &storage).make()?;
+    let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
     let mut encoder = gpu.encoder();
     encoder
         .compute()
         .pipe(&pipe)
-        .bind(0, &bind_group, &[])
+        .bind(0, &bind, &[])
         .debug("compute collatz iterations")
         .dispatch(9, 1, 1);
     encoder
@@ -83,7 +83,6 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .size(size)
         .submit();
     let out: Vec<u32> = stage.reader().hub()?.base().await?;
-    // console_log!("{:?}", out);
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
@@ -94,17 +93,17 @@ async fn compute_nurbs() -> dom::Result<()> {
     let shader = gpu.shader(wgpu::include_wgsl!("nurbs.wgsl"));
     let pipe = gpu.compute_pipe(&shader).entry("main").make()?;
     let count = 128;
-    let size = count * 4;
+    let size = 4 * count as u64;
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
-    // storage.writer(vec![0.0_f32; 128]).make()?.act().await?;
-    let bind_group = gpu.bind_group().pipe(&pipe).entry(0, &storage).make()?;
+    let bind_layout = gpu.bind_layout().make()?;
+    let bind = gpu.bind().layout(&bind_layout).entry(0, &storage).make()?;
     let mut encoder = gpu.encoder();
     encoder
         .compute()
         .pipe(&pipe)
-        .bind(0, &bind_group, &[])
-        .dispatch(count as u32, 1, 1);
+        .bind(0, &bind, &[])
+        .dispatch(count, 1, 1);
     encoder
         .copy_buffer(&storage)
         .destination(&stage)
@@ -112,7 +111,6 @@ async fn compute_nurbs() -> dom::Result<()> {
         .submit();
     let out: Vec<f32> = stage.reader().hub()?.base().await?;
     console_log!("nurbs: {:?}, length: {}", out, out.len());
-    // assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
 

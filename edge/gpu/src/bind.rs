@@ -1,10 +1,12 @@
+use std::num::NonZero;
+
 use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
-pub struct BindGroup<'a> {
+pub struct Bind<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
@@ -16,7 +18,7 @@ pub struct BindGroup<'a> {
     pipe: Option<&'a ComputePipeline>,
 }
 
-impl BindGroup<'_> {
+impl Bind<'_> {
     fn make(self, layout: &wgpu::BindGroupLayout) -> wgpu::BindGroup {
         let descriptor = BindGroupDescriptor {
             label: self.label,
@@ -27,7 +29,7 @@ impl BindGroup<'_> {
     }
 }
 
-impl<'a> BindGroupBuilder<'a> {
+impl<'a> BindBuilder<'a> {
     pub fn make(self) -> Result<wgpu::BindGroup> {
         let built = self.build()?;
         if let Some(layout) = built.layout {
@@ -53,22 +55,81 @@ impl<'a> BindGroupBuilder<'a> {
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-pub struct BindGroupLayout<'a> {
+pub struct BindLayout<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
-    #[builder(default, setter(each(name = "entry")))]
+    #[builder(default)] // , setter(each(name = "entry")
     entries: &'a [BindGroupLayoutEntry],
 }
 
-impl BindGroupLayoutBuilder<'_> {
+impl<'a> BindLayoutBuilder<'a> {
     pub fn make(self) -> Result<wgpu::BindGroupLayout> {
         let built = self.build()?;
         let descriptor = BindGroupLayoutDescriptor {
             label: built.label,
             entries: built.entries,
         };
-        let value = built.device.create_bind_group_layout(&descriptor);
-        Ok(value)
+        let out = built.device.create_bind_group_layout(&descriptor);
+        Ok(out)
+    }
+    pub fn entry(self) -> BindLayoutEntryBuilder<'a> {
+        BindLayoutEntryBuilder::default().upper(self)
+    }
+}
+
+#[derive(Builder)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
+pub struct BindLayoutEntry<'a> {
+    #[builder(default)]
+    upper: Option<BindLayoutBuilder<'a>>,
+    binding: u32,
+    visibility: ShaderStages,
+    ty: BindingType,
+    #[builder(default)]
+    count: Option<NonZero<u32>>,
+}
+
+impl<'a> BindLayoutEntryBuilder<'a> {
+    pub fn make(self) -> Result<wgpu::BindGroupLayoutEntry> {
+        let built = self.build()?;
+        let out = wgpu::BindGroupLayoutEntry {
+            binding: built.binding,
+            visibility: built.visibility,
+            ty: built.ty,
+            count: built.count,
+        };
+        Ok(out)
+    }
+    pub fn buffer(self) -> BufferBindingBuilder<'a> {
+        BufferBindingBuilder::default().upper(self)
+    }
+}
+
+#[derive(Builder)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "crate::Error"))]
+#[builder(setter(strip_option))]
+pub struct BufferBinding<'a> {
+    #[builder(default)]
+    upper: Option<BindLayoutEntryBuilder<'a>>,
+    ty: BufferBindingType,
+    #[builder(default)]
+    has_dynamic_offset: bool,
+    #[builder(default)]
+    min_binding_size: Option<NonZero<u64>>,
+}
+
+impl<'a> BufferBindingBuilder<'a> {
+    pub fn make(self) -> Result<wgpu::BindingType> {
+        let built = self.build()?;
+        let out = wgpu::BindingType::Buffer {
+            ty: built.ty,
+            has_dynamic_offset: built.has_dynamic_offset,
+            min_binding_size: built.min_binding_size,
+        };
+        Ok(out)
     }
 }

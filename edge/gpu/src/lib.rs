@@ -86,11 +86,11 @@ impl<'a> Gpu<'a> {
             .queue(self.queue.clone())
             .size(size)
     }
-    pub fn bind_group(&self) -> BindGroupBuilder {
-        BindGroupBuilder::default().device(&self.device)
+    pub fn bind(&self) -> BindBuilder {
+        BindBuilder::default().device(&self.device)
     }
-    pub fn bind_group_layout(&self) -> BindGroupLayoutBuilder {
-        BindGroupLayoutBuilder::default().device(&self.device)
+    pub fn bind_layout(&self) -> BindLayoutBuilder {
+        BindLayoutBuilder::default().device(&self.device)
     }
     pub fn compute_pipe(&self, shader: &'a ShaderModule) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()
