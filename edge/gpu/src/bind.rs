@@ -72,26 +72,3 @@ impl BindGroupLayoutBuilder<'_> {
         Ok(value)
     }
 }
-
-// pub fn make(self) -> Result<wgpu::BindGroup> {
-//     let built = self.build()?;
-//     let mut layout = built.layout;
-//     if layout.is_none() {
-//         if let Some(pipe) = built.pipe {
-//             let crap = pipe.get_bind_group_layout(0);
-
-//             layout = Some(&crap);
-//         }
-//     }
-//     if let Some(layout) = layout {
-//         let descriptor = BindGroupDescriptor {
-//             label: built.label,
-//             layout, //: built.layout,
-//             entries: &built.entries,
-//         };
-//         let value = built.device.create_bind_group(&descriptor);
-//         Ok(value)
-//     } else {
-//         Err(anyhow!("no layout for bind group"))?
-//     }
-// }

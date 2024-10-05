@@ -112,7 +112,7 @@ impl<'a> Gpu<'a> {
         Encoder {
             inner: self
                 .device
-                .create_command_encoder(&CommandEncoderDescriptor { label: None }),
+                .create_command_encoder(&CommandEncoderDescriptor::default()),
             queue: &self.queue,
         }
     }

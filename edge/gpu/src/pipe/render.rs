@@ -13,11 +13,11 @@ pub struct Render<'a> {
     layout: Option<&'a PipelineLayout>,
     vertex: VertexState<'a>,
     fragment: Option<FragmentState<'a>>,
-    #[builder(default = "PrimitiveState::default()")]
+    #[builder(default)]
     primitive: PrimitiveState,
     #[builder(default)]
     depth_stencil: Option<DepthStencilState>,
-    #[builder(default = "MultisampleState::default()")]
+    #[builder(default)]
     multisample: MultisampleState,
     #[builder(default)]
     multiview: Option<NonZero<u32>>,
@@ -43,3 +43,6 @@ impl RenderBuilder<'_> {
         Ok(value)
     }
 }
+
+//#[builder(default = "PrimitiveState::default()")]
+//#[builder(default = "MultisampleState::default()")]
