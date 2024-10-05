@@ -73,18 +73,18 @@ impl<'a> BindLayoutBuilder<'a> {
         let out = built.device.create_bind_group_layout(&descriptor);
         Ok(out)
     }
-    pub fn entry(self) -> BindLayoutEntryBuilder<'a> {
-        BindLayoutEntryBuilder::default().upper(self)
-    }
+    // pub fn entry(self) -> BindLayoutEntryBuilder<'a> {
+    //     BindLayoutEntryBuilder::default().upper(self)
+    // }
 }
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
-pub struct BindLayoutEntry<'a> {
-    #[builder(default)]
-    upper: Option<BindLayoutBuilder<'a>>,
+pub struct BindEntry {
+    // #[builder(default)]
+    // upper: Option<BindLayoutBuilder<'a>>,
     binding: u32,
     visibility: ShaderStages,
     ty: BindingType,
@@ -92,7 +92,7 @@ pub struct BindLayoutEntry<'a> {
     count: Option<NonZero<u32>>,
 }
 
-impl<'a> BindLayoutEntryBuilder<'a> {
+impl BindEntryBuilder {
     pub fn make(self) -> Result<wgpu::BindGroupLayoutEntry> {
         let built = self.build()?;
         let out = wgpu::BindGroupLayoutEntry {
@@ -103,18 +103,18 @@ impl<'a> BindLayoutEntryBuilder<'a> {
         };
         Ok(out)
     }
-    pub fn buffer(self) -> BufferBindingBuilder<'a> {
-        BufferBindingBuilder::default().upper(self)
-    }
+    // pub fn buffer(self) -> BufferBindingBuilder<'a> {
+    //     BufferBindingBuilder::default().upper(self)
+    // }
 }
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
-pub struct BufferBinding<'a> {
-    #[builder(default)]
-    upper: Option<BindLayoutEntryBuilder<'a>>,
+pub struct BufferBinding {
+    // #[builder(default)]
+    // upper: Option<BindLayoutEntryBuilder<'a>>,
     ty: BufferBindingType,
     #[builder(default)]
     has_dynamic_offset: bool,
@@ -122,7 +122,7 @@ pub struct BufferBinding<'a> {
     min_binding_size: Option<NonZero<u64>>,
 }
 
-impl<'a> BufferBindingBuilder<'a> {
+impl BufferBindingBuilder {
     pub fn make(self) -> Result<wgpu::BindingType> {
         let built = self.build()?;
         let out = wgpu::BindingType::Buffer {

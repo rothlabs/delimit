@@ -96,7 +96,8 @@ async fn compute_nurbs() -> dom::Result<()> {
     let size = 4 * count as u64;
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
-    let bind_layout = gpu.bind_layout().make()?;
+    let entry = gpu.bind_entry().make()?;
+    let bind_layout = gpu.bind_layout(&[entry]).make()?;
     let bind = gpu.bind().layout(&bind_layout).entry(0, &storage).make()?;
     let mut encoder = gpu.encoder();
     encoder

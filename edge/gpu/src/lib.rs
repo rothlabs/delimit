@@ -89,8 +89,14 @@ impl<'a> Gpu<'a> {
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
     }
-    pub fn bind_layout(&self) -> BindLayoutBuilder {
-        BindLayoutBuilder::default().device(&self.device)
+    pub fn bind_layout(&self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
+        BindLayoutBuilder::default().device(&self.device).entries(entries)
+    }
+    pub fn bind_entry(&self) -> BindEntryBuilder {
+        BindEntryBuilder::default()
+    }
+    pub fn buffer_binding(&self) -> BufferBindingBuilder {
+        BufferBindingBuilder::default()
     }
     pub fn compute_pipe(&self, shader: &'a ShaderModule) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()
