@@ -64,7 +64,7 @@ pub struct BindLayout<'a> {
 }
 
 impl<'a> BindLayoutBuilder<'a> {
-    pub fn make(self) -> Result<wgpu::BindGroupLayout> {
+    pub fn make(self) -> Result<BindGroupLayout> {
         let built = self.build()?;
         let descriptor = BindGroupLayoutDescriptor {
             label: built.label,

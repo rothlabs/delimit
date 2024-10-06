@@ -30,13 +30,12 @@ impl<'a> VertexBuilder<'a> {
 #[builder(build_fn(error = "crate::Error"))]
 // #[builder(setter(strip_option))]
 pub struct Fragment<'a> {
-    shader: &'a Shader<'a>,
+    shader: &'a ShaderModule,
     entry: &'a str,
     #[builder(default)]
     compilation_options: PipelineCompilationOptions<'a>,
     #[builder(default)]
     targets: &'a [Option<ColorTargetState>],
-    local_surface: &'a crate::Surface<'a>,
 }
 
 impl<'a> FragmentBuilder<'a> {
@@ -49,12 +48,5 @@ impl<'a> FragmentBuilder<'a> {
             targets: built.targets,
         };
         Ok(state)
-    }
-    pub fn surface(self) -> Result<FragmentState<'a>> {
-        if let Some(surface) = self.local_surface {
-            self.targets(surface.targets()).make()
-        } else {
-            self.make()
-        }
     }
 }

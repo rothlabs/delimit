@@ -4,8 +4,7 @@ use std::ops::Deref;
 #[derive(Clone)]
 pub struct Shader<'a> {
     pub inner: Grc<ShaderModule>,
-    pub surface: &'a crate::Surface<'a>,
-    // pub device: Grc<Device>,
+    pub device: &'a Device,
 }
 
 impl<'a> Shader<'a> {
@@ -13,7 +12,13 @@ impl<'a> Shader<'a> {
         VertexBuilder::default().shader(self).entry(entry)
     }
     pub fn fragment(&'a self, entry: &'a str) -> FragmentBuilder<'a> {
-        FragmentBuilder::default().shader(self).entry(entry).local_surface(self.surface)
+        FragmentBuilder::default().shader(self).entry(entry)
+    }
+    pub fn compute(&'a self, entry: &'a str) -> pipe::ComputeBuilder {
+        pipe::ComputeBuilder::default()
+            .device(self.device)
+            .shader(self)
+            .entry(entry)
     }
 }
 

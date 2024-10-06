@@ -82,9 +82,8 @@ impl<'a> Gpu<'a> {
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader{
+            device: &self.device,
             inner: self.device.create_shader_module(source).into(),
-            surface: &self.surface
-            // device: self.device.clone(),
         }
     }
     pub fn buffer(&self, size: u64) -> BufferSetupBuilder {
@@ -126,11 +125,6 @@ impl<'a> Gpu<'a> {
     pub fn pipe_layout(&self) -> pipe::LayoutBuilder {
         pipe::LayoutBuilder::default().device(&self.device)
     }
-    pub fn compute_pipe(&self, shader: &'a ShaderModule) -> pipe::ComputeBuilder {
-        pipe::ComputeBuilder::default()
-            .device(&self.device)
-            .shader(shader)
-    }
     pub fn render_pipe(&self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
         pipe::RenderBuilder::default()
             .device(&self.device)
@@ -150,12 +144,6 @@ impl<'a> Gpu<'a> {
             queue: &self.queue,
         }
     }
-    // pub fn vertex(&self, shader: &'a ShaderModule) -> VertexBuilder<'a> {
-    //     VertexBuilder::default().module(shader)
-    // }
-    // pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
-    //     FragmentBuilder::default().module(shader)
-    // }
     pub fn attachment(&self, view: &'a TextureView) -> ColorAttachmentBuilder {
         ColorAttachmentBuilder::default().view(view)
     }

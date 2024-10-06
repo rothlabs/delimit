@@ -46,9 +46,10 @@ async fn draw_triangle() -> dom::Result<()> {
     // setup:
     let gpu = gpu_with_canvas().await?;
     let surface = gpu.surface();
+    let targets = surface.targets();
     let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
     let vertex = shader.vertex("vs_main").make()?;
-    let fragment = shader.fragment("fs_main").surface()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
     // render loop:
     let view = surface.view();
@@ -64,7 +65,7 @@ async fn draw_triangle() -> dom::Result<()> {
 async fn compute_collatz_iterations() -> dom::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(wgpu::include_wgsl!("collatz.wgsl"));
-    let pipe = gpu.compute_pipe(&shader).entry("main").make()?;
+    let pipe = shader.compute("main").make()?;
     let size = 36;
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).label("stage").map_read()?;
@@ -96,7 +97,6 @@ async fn compute_nurbs() -> dom::Result<()> {
     let config = gpu.unifrom_buffer(&[count]);
     let basis = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
-
     let config_bind = gpu.uniform().make()?;
     let config_entry = gpu.bind_entry(0, config_bind).compute()?;
     let basis_bind = gpu.storage(false).make()?;
@@ -108,10 +108,8 @@ async fn compute_nurbs() -> dom::Result<()> {
         .entry(0, &config)
         .entry(1, &basis)
         .make()?;
-
-    let pipe_layout = gpu.pipe_layout().bind_group_layouts(&[&bind_layout]).make()?;
-    let pipe = gpu.compute_pipe(&shader).layout(&pipe_layout).entry("main").make()?;
-
+    let pipe_layout = gpu.pipe_layout().bind_layouts(&[&bind_layout]).make()?;
+    let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mut encoder = gpu.encoder();
     encoder
         .compute()
