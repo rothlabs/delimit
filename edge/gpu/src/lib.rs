@@ -3,15 +3,16 @@ pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
 use util::DeviceExt;
-pub use wgpu;
+// pub use wgpu;
 pub use wgpu::BufferUsages;
 
+use shader::*;
+use surface::Surface;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
 use graph::*;
 use pipe::*;
-use surface::Surface;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
@@ -20,6 +21,7 @@ mod buffer;
 mod encode;
 mod pipe;
 mod surface;
+mod shader;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -36,7 +38,7 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct Gpu<'a> {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
@@ -78,8 +80,12 @@ impl<'a> Gpu<'a> {
     pub fn surface(&'a self) -> &'a Surface<'a> {
         &self.surface
     }
-    pub fn shader(&self, source: ShaderModuleDescriptor) -> ShaderModule {
-        self.device.create_shader_module(source)
+    pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
+        Shader{
+            inner: self.device.create_shader_module(source).into(),
+            surface: &self.surface
+            // device: self.device.clone(),
+        }
     }
     pub fn buffer(&self, size: u64) -> BufferSetupBuilder {
         BufferSetupBuilder::default()
@@ -108,8 +114,8 @@ impl<'a> Gpu<'a> {
             .device(&self.device)
             .entries(entries)
     }
-    pub fn bind_entry(&self, binding: u32) -> BindEntryBuilder {
-        BindEntryBuilder::default().binding(binding)
+    pub fn bind_entry(&self, binding: u32, ty: BindingType) -> BindEntryBuilder {
+        BindEntryBuilder::default().binding(binding).ty(ty)
     }
     pub fn uniform(&self) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Uniform)
@@ -144,12 +150,12 @@ impl<'a> Gpu<'a> {
             queue: &self.queue,
         }
     }
-    pub fn vertex(&self, shader: &'a ShaderModule) -> VertexBuilder<'a> {
-        VertexBuilder::default().module(shader)
-    }
-    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
-        FragmentBuilder::default().module(shader)
-    }
+    // pub fn vertex(&self, shader: &'a ShaderModule) -> VertexBuilder<'a> {
+    //     VertexBuilder::default().module(shader)
+    // }
+    // pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
+    //     FragmentBuilder::default().module(shader)
+    // }
     pub fn attachment(&self, view: &'a TextureView) -> ColorAttachmentBuilder {
         ColorAttachmentBuilder::default().view(view)
     }

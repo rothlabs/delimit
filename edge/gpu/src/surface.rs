@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct Surface<'a> {
     inner: wgpu::Surface<'a>,
     targets: Vec<Option<ColorTargetState>>,
@@ -22,11 +22,14 @@ impl<'a> Surface<'a> {
             config,
         }
     }
-    pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
-        FragmentBuilder::default()
-            .module(shader)
-            .targets(&self.targets)
+    pub fn targets(&'a self) -> &'a [Option<ColorTargetState>] {
+        &self.targets
     }
+    // pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
+    //     FragmentBuilder::default()
+    //         .module(shader)
+    //         .targets(&self.targets)
+    // }
     pub fn view(&self) -> TextureView {
         let frame = self
             .inner

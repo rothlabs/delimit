@@ -47,8 +47,8 @@ async fn draw_triangle() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let surface = gpu.surface();
     let shader = gpu.shader(wgpu::include_wgsl!("triangle.wgsl"));
-    let vertex = gpu.vertex(&shader).entry("vs_main").make()?;
-    let fragment = surface.fragment(&shader).entry("fs_main").make()?;
+    let vertex = shader.vertex("vs_main").make()?;
+    let fragment = shader.fragment("fs_main").surface()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
     // render loop:
     let view = surface.view();
@@ -98,9 +98,9 @@ async fn compute_nurbs() -> dom::Result<()> {
     let stage = gpu.buffer(size).map_read()?;
 
     let config_bind = gpu.uniform().make()?;
-    let config_entry = gpu.bind_entry(0).ty(config_bind).compute()?;
+    let config_entry = gpu.bind_entry(0, config_bind).compute()?;
     let basis_bind = gpu.storage(false).make()?;
-    let basis_entry = gpu.bind_entry(1).ty(basis_bind).compute()?;
+    let basis_entry = gpu.bind_entry(1, basis_bind).compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
     let bind = gpu
         .bind()
