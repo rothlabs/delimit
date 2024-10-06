@@ -9,8 +9,8 @@ mod writer;
 
 #[derive(Clone)]
 pub struct Buffer {
-    inner: Grc<wgpu::Buffer>,
-    queue: Grc<wgpu::Queue>,
+    pub inner: Grc<wgpu::Buffer>,
+    pub queue: Grc<wgpu::Queue>,
 }
 
 impl Buffer {

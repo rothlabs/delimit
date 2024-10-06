@@ -2,6 +2,7 @@ pub use buffer::Buffer;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
+use util::DeviceExt;
 pub use wgpu;
 pub use wgpu::BufferUsages;
 
@@ -86,17 +87,38 @@ impl<'a> Gpu<'a> {
             .queue(self.queue.clone())
             .size(size)
     }
+    pub fn unifrom_buffer<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+        let inner = self
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("Uniform Buffer"),
+                contents: bytemuck::cast_slice(data),
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            });
+        Buffer {
+            inner: inner.into(),
+            queue: self.queue.clone(),
+        }
+    }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
     }
     pub fn bind_layout(&self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
-        BindLayoutBuilder::default().device(&self.device).entries(entries)
+        BindLayoutBuilder::default()
+            .device(&self.device)
+            .entries(entries)
     }
-    pub fn bind_entry(&self) -> BindEntryBuilder {
-        BindEntryBuilder::default()
+    pub fn bind_entry(&self, binding: u32) -> BindEntryBuilder {
+        BindEntryBuilder::default().binding(binding)
     }
-    pub fn buffer_binding(&self) -> BufferBindingBuilder {
-        BufferBindingBuilder::default()
+    pub fn uniform(&self) -> BufferBindingBuilder {
+        BufferBindingBuilder::default().ty(BufferBindingType::Uniform)
+    }
+    pub fn storage(&self, read_only: bool) -> BufferBindingBuilder {
+        BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
+    }
+    pub fn pipe_layout(&self) -> pipe::LayoutBuilder {
+        pipe::LayoutBuilder::default().device(&self.device)
     }
     pub fn compute_pipe(&self, shader: &'a ShaderModule) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()

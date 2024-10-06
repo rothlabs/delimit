@@ -12,5 +12,5 @@ fn main(
     @builtin(global_invocation_id) 
     index: vec3<u32>
 ) {
-    basis[index.x] = f32(index.x) / f32(count);
+    basis[index.x] = f32(index.x) / f32(count - 1);
 }

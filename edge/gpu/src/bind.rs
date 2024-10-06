@@ -93,15 +93,18 @@ pub struct BindEntry {
 }
 
 impl BindEntryBuilder {
-    pub fn make(self) -> Result<wgpu::BindGroupLayoutEntry> {
+    pub fn make(self) -> Result<BindGroupLayoutEntry> {
         let built = self.build()?;
-        let out = wgpu::BindGroupLayoutEntry {
+        let out = BindGroupLayoutEntry {
             binding: built.binding,
             visibility: built.visibility,
             ty: built.ty,
             count: built.count,
         };
         Ok(out)
+    }
+    pub fn compute(self) -> Result<BindGroupLayoutEntry> {
+        self.visibility(ShaderStages::COMPUTE).make()
     }
     // pub fn buffer(self) -> BufferBindingBuilder<'a> {
     //     BufferBindingBuilder::default().upper(self)

@@ -91,14 +91,27 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 async fn compute_nurbs() -> dom::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(wgpu::include_wgsl!("nurbs.wgsl"));
-    let pipe = gpu.compute_pipe(&shader).entry("main").make()?;
     let count = 128;
     let size = 4 * count as u64;
-    let storage = gpu.buffer(size).storage_copy()?;
+    let config = gpu.unifrom_buffer(&[count]);
+    let basis = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
-    let entry = gpu.bind_entry().make()?;
-    let bind_layout = gpu.bind_layout(&[entry]).make()?;
-    let bind = gpu.bind().layout(&bind_layout).entry(0, &storage).make()?;
+
+    let config_bind = gpu.uniform().make()?;
+    let config_entry = gpu.bind_entry(0).ty(config_bind).compute()?;
+    let basis_bind = gpu.storage(false).make()?;
+    let basis_entry = gpu.bind_entry(1).ty(basis_bind).compute()?;
+    let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
+    let bind = gpu
+        .bind()
+        .layout(&bind_layout)
+        .entry(0, &config)
+        .entry(1, &basis)
+        .make()?;
+
+    let pipe_layout = gpu.pipe_layout().bind_group_layouts(&[&bind_layout]).make()?;
+    let pipe = gpu.compute_pipe(&shader).layout(&pipe_layout).entry("main").make()?;
+
     let mut encoder = gpu.encoder();
     encoder
         .compute()
@@ -106,7 +119,7 @@ async fn compute_nurbs() -> dom::Result<()> {
         .bind(0, &bind, &[])
         .dispatch(count, 1, 1);
     encoder
-        .copy_buffer(&storage)
+        .copy_buffer(&basis)
         .destination(&stage)
         .size(size)
         .submit();
