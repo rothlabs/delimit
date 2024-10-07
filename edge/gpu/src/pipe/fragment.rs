@@ -17,7 +17,7 @@ impl<'a> FragmentBuilder<'a> {
     pub fn make(self) -> Result<FragmentState<'a>> {
         let built = self.build()?;
         let state = FragmentState {
-            module: &built.shader,
+            module: built.shader,
             entry_point: built.entry,
             compilation_options: built.compilation_options,
             targets: built.targets,

@@ -3,7 +3,6 @@ use super::*;
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-// #[builder(setter(into))]
 pub struct Vertex<'a> {
     shader: &'a ShaderModule,
     entry: &'a str,
@@ -34,16 +33,16 @@ pub struct Layout<'a> {
     array_stride: u64,
     #[builder(default)]
     step_mode: VertexStepMode,
-    attributes: &'a [VertexAttribute]
+    attributes: &'a [VertexAttribute],
 }
 
 impl<'a> LayoutBuilder<'a> {
     pub fn make(self) -> Result<VertexBufferLayout<'a>> {
         let built = self.build()?;
-        let out = VertexBufferLayout { 
-            array_stride: built.array_stride, 
-            step_mode: built.step_mode, 
-            attributes: built.attributes 
+        let out = VertexBufferLayout {
+            array_stride: built.array_stride,
+            step_mode: built.step_mode,
+            attributes: built.attributes,
         };
         Ok(out)
     }

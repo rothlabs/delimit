@@ -3,7 +3,6 @@ pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
 use util::DeviceExt;
-// pub use wgpu;
 pub use wgpu::BufferUsages;
 
 use bind::*;
@@ -13,6 +12,7 @@ use graph::*;
 use pipe::*;
 use shader::*;
 use surface::Surface;
+use texture::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
@@ -22,6 +22,7 @@ mod encode;
 mod pipe;
 mod shader;
 mod surface;
+mod texture;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -71,10 +72,11 @@ impl<'a> Gpu<'a> {
             )
             .await
             .expect("Failed to create device");
+        let grc_device = Grc::new(device);
         Ok(Self {
-            surface: Surface::new(surface, &adapter, &device),
-            device: device.into(),
+            device: grc_device.clone(),
             queue: queue.into(),
+            surface: Surface::new(surface, &adapter, grc_device),
         })
     }
     pub fn surface(&'a self) -> &'a Surface<'a> {
@@ -98,7 +100,7 @@ impl<'a> Gpu<'a> {
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Uniform Buffer"),
                 contents: bytemuck::cast_slice(data),
-                usage,//: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+                usage, //: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
             });
         Buffer {
             inner: inner.into(),
@@ -160,6 +162,9 @@ impl<'a> Gpu<'a> {
     }
     pub fn vertex_layout(&self, array_stride: u64) -> pipe::vertex::LayoutBuilder {
         pipe::vertex::LayoutBuilder::default().array_stride(array_stride)
+    }
+    pub fn multisample(&self, count: u32) -> MultisampleBuilder {
+        MultisampleBuilder::default().count(count)
     }
 }
 
