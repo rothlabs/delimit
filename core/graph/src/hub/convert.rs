@@ -64,6 +64,7 @@ impl From<Vec<u32>> for Hub<Vec<u32>> {
     }
 }
 
+
 impl From<Vec<f32>> for Hub<Vec<f32>> {
     fn from(value: Vec<f32>) -> Self {
         Hub::Leaf(Leaf::new(value))
@@ -97,6 +98,12 @@ impl From<u32> for Hub<u32> {
 
 impl From<i32> for Hub<i32> {
     fn from(value: i32) -> Self {
+        Hub::Tray(Tray::Base(value))
+    }
+}
+
+impl From<f64> for Hub<f64> {
+    fn from(value: f64) -> Self {
         Hub::Tray(Tray::Base(value))
     }
 }

@@ -8,11 +8,18 @@ pub enum View<'a> {
     String(&'a mut Hub<String>),
     U8(&'a mut Hub<u8>),
     I32(&'a mut Hub<i32>),
+    F64(&'a mut Hub<f64>),
     Vu8(&'a mut Hub<Vec<u8>>),
     Vu16(&'a mut Hub<Vec<u16>>),
     Vf32(&'a mut Hub<Vec<f32>>),
     Vf64(&'a mut Hub<Vec<f64>>),
 }
+
+// macro_rules! Wow {
+//     () => {
+        
+//     };
+// }
 
 impl View<'_> {
     pub fn apex(self) -> Apex {
@@ -21,6 +28,7 @@ impl View<'_> {
             Self::String(x) => Apex::String(x.clone()),
             Self::U8(x) => Apex::U8(x.clone()),
             Self::I32(x) => Apex::I32(x.clone()),
+            Self::F64(x) => Apex::F64(x.clone()),
             Self::Vu8(x) => Apex::Vu8(x.clone()),
             Self::Vu16(x) => Apex::Vu16(x.clone()),
             Self::Vf32(x) => Apex::Vf32(x.clone()),
@@ -34,6 +42,7 @@ impl View<'_> {
             Self::String(x) => x.path(),
             Self::U8(x) => x.path(),
             Self::I32(x) => x.path(),
+            Self::F64(x) => x.path(),
             Self::Vu8(x) => x.path(),
             Self::Vu16(x) => x.path(),
             Self::Vf32(x) => x.path(),
@@ -46,6 +55,7 @@ impl View<'_> {
             Self::String(x) => Apex::String(x.backed(back)?),
             Self::U8(x) => Apex::U8(x.backed(back)?),
             Self::I32(x) => Apex::I32(x.backed(back)?),
+            Self::F64(x) => Apex::F64(x.backed(back)?),
             Self::Vu8(x) => Apex::Vu8(x.backed(back)?),
             Self::Vu16(x) => Apex::Vu16(x.backed(back)?),
             Self::Vf32(x) => Apex::Vf32(x.backed(back)?),
@@ -78,6 +88,12 @@ impl View<'_> {
                 if let Apex::I32(y) = apex {
                     *x = y;
                     return Ok(Self::I32(x));
+                }
+            }
+            Self::F64(x) => {
+                if let Apex::F64(y) = apex {
+                    *x = y;
+                    return Ok(Self::F64(x));
                 }
             }
             Self::Vu8(x) => {

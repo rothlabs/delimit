@@ -7,6 +7,7 @@ impl From<&Apex> for Apex {
             Apex::String(x) => Apex::String(x.clone()),
             Apex::U8(x) => Apex::U8(x.clone()),
             Apex::I32(x) => Apex::I32(x.clone()),
+            Apex::F64(x) => Apex::F64(x.clone()),
             Apex::Vu8(x) => Apex::Vu8(x.clone()),
             Apex::Vu16(x) => Apex::Vu16(x.clone()),
             Apex::Vf32(x) => Apex::Vf32(x.clone()),

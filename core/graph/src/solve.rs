@@ -13,7 +13,10 @@ pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend;
+    // async fn solve(&self) -> Result<Hub<Self::Base>>;
+    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
+        async { solve_ok() }
+    }
     fn reckon(&self, _: Task) -> Result<Gain> {
         Err(anyhow!("reckon not defined"))?
     }
@@ -75,6 +78,22 @@ impl<T: Act + SendSync> Solve for T {
         self.reckon(task)
     }
 }
+
+// pub trait Inert {
+//     fn reckon(&self, task: Task) -> Result<Gain>;
+// }
+
+// impl<T: Inert + SendSync> Act for T {
+//     async fn act(&self) -> Result<()> {
+//         Ok(())
+//     }
+//     fn backed(&mut self, back: &Back) -> Result<()> {
+//         self.backed(back)
+//     }
+//     fn reckon(&self, task: Task) -> Result<Gain> {
+//         self.reckon(task)
+//     }
+// }
 
 pub trait SolveMut {
     type Base: 'static + Payload;

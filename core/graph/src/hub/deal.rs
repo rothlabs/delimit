@@ -22,6 +22,12 @@ impl DealItem for Vec<Hub<String>> {
     }
 }
 
+impl DealItem for Vec<Hub<f64>> {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.vec(key, self.into())
+    }
+}
+
 impl DealItem for Option<Hub<String>> {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         if let Some(x) = self {

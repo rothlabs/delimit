@@ -5,3 +5,9 @@ impl<'a> From<&'a mut Vec<Hub<String>>> for ViewVec<'a> {
         Self::String(x)
     }
 }
+
+impl<'a> From<&'a mut Vec<Hub<f64>>> for ViewVec<'a> {
+    fn from(x: &'a mut Vec<Hub<f64>>) -> Self {
+        Self::F64(x)
+    }
+}
