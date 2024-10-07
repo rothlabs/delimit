@@ -1,0 +1,14 @@
+[package]
+name = "mech"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+    derive_builder = "0.20.1"
+    macro_rules_attribute = "0.2.0"
+    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    gpu = { path = "../gpu" }
+
+[dev-dependencies]
+    wasm-bindgen-test = "0.3.43"
+    dom = { path = "../dom" }
