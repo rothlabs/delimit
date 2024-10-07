@@ -8,7 +8,6 @@ pub struct Layout<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
-    #[builder(default)]
     bind_layouts: &'a [&'a BindGroupLayout],
     #[builder(default)]
     push_constant_ranges: &'a [PushConstantRange],

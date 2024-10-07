@@ -7,7 +7,7 @@ var<uniform> count: u32;
 var<storage, read_write> basis: array<f32>;
 
 @compute
-@workgroup_size(64)
+@workgroup_size(8)
 fn main(
     @builtin(global_invocation_id) 
     index: vec3<u32>

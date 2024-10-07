@@ -6,13 +6,13 @@ use util::DeviceExt;
 // pub use wgpu;
 pub use wgpu::BufferUsages;
 
-use shader::*;
-use surface::Surface;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
 use graph::*;
 use pipe::*;
+use shader::*;
+use surface::Surface;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
@@ -20,8 +20,8 @@ mod bind;
 mod buffer;
 mod encode;
 mod pipe;
-mod surface;
 mod shader;
+mod surface;
 
 #[macro_use]
 extern crate macro_rules_attribute;
@@ -81,7 +81,7 @@ impl<'a> Gpu<'a> {
         &self.surface
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
-        Shader{
+        Shader {
             device: &self.device,
             inner: self.device.create_shader_module(source).into(),
         }
@@ -92,18 +92,24 @@ impl<'a> Gpu<'a> {
             .queue(self.queue.clone())
             .size(size)
     }
-    pub fn unifrom_buffer<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+    fn buffer_init<T: NoUninit>(&self, data: &[T], usage: BufferUsages) -> crate::Buffer {
         let inner = self
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Uniform Buffer"),
                 contents: bytemuck::cast_slice(data),
-                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                usage,//: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
             });
         Buffer {
             inner: inner.into(),
             queue: self.queue.clone(),
         }
+    }
+    pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+        self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
+    }
+    pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+        self.buffer_init(data, BufferUsages::VERTEX)
     }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
@@ -122,8 +128,10 @@ impl<'a> Gpu<'a> {
     pub fn storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
-    pub fn pipe_layout(&self) -> pipe::LayoutBuilder {
-        pipe::LayoutBuilder::default().device(&self.device)
+    pub fn pipe_layout(&self, bind_layout: &'a [&'a BindGroupLayout]) -> pipe::LayoutBuilder {
+        pipe::LayoutBuilder::default()
+            .device(&self.device)
+            .bind_layouts(bind_layout)
     }
     pub fn render_pipe(&self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
         pipe::RenderBuilder::default()
@@ -146,6 +154,12 @@ impl<'a> Gpu<'a> {
     }
     pub fn attachment(&self, view: &'a TextureView) -> ColorAttachmentBuilder {
         ColorAttachmentBuilder::default().view(view)
+    }
+    pub fn lines(&self) -> PrimitiveBuilder {
+        PrimitiveBuilder::default().topology(PrimitiveTopology::LineList)
+    }
+    pub fn vertex_layout(&self, array_stride: u64) -> pipe::vertex::LayoutBuilder {
+        pipe::vertex::LayoutBuilder::default().array_stride(array_stride)
     }
 }
 

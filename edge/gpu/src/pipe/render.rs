@@ -12,6 +12,7 @@ pub struct Render<'a> {
     #[builder(default)]
     layout: Option<&'a PipelineLayout>,
     vertex: VertexState<'a>,
+    #[builder(default)]
     fragment: Option<FragmentState<'a>>,
     #[builder(default)]
     primitive: PrimitiveState,

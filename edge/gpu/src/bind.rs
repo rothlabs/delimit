@@ -40,7 +40,7 @@ impl<'a> BindBuilder<'a> {
             Err(anyhow!("no layout for bind group"))?
         }
     }
-    pub fn entry(mut self, binding: u32, buffer: &'a crate::Buffer) -> Self {
+    pub fn entry(mut self, binding: u32, buffer: &'a Buffer) -> Self {
         let resource = buffer.resource();
         if let Some(mut entries) = self.entries {
             entries.push(BindGroupEntry { binding, resource });
@@ -59,7 +59,7 @@ pub struct BindLayout<'a> {
     device: &'a Device,
     #[builder(default)]
     label: Option<&'a str>,
-    #[builder(default)] // , setter(each(name = "entry")
+    #[builder(default)]
     entries: &'a [BindGroupLayoutEntry],
 }
 
@@ -73,9 +73,6 @@ impl<'a> BindLayoutBuilder<'a> {
         let out = built.device.create_bind_group_layout(&descriptor);
         Ok(out)
     }
-    // pub fn entry(self) -> BindLayoutEntryBuilder<'a> {
-    //     BindLayoutEntryBuilder::default().upper(self)
-    // }
 }
 
 #[derive(Builder)]
@@ -83,8 +80,6 @@ impl<'a> BindLayoutBuilder<'a> {
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
 pub struct BindEntry {
-    // #[builder(default)]
-    // upper: Option<BindLayoutBuilder<'a>>,
     binding: u32,
     visibility: ShaderStages,
     ty: BindingType,
@@ -106,9 +101,6 @@ impl BindEntryBuilder {
     pub fn compute(self) -> Result<BindGroupLayoutEntry> {
         self.visibility(ShaderStages::COMPUTE).make()
     }
-    // pub fn buffer(self) -> BufferBindingBuilder<'a> {
-    //     BufferBindingBuilder::default().upper(self)
-    // }
 }
 
 #[derive(Builder)]
@@ -116,8 +108,6 @@ impl BindEntryBuilder {
 #[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
 pub struct BufferBinding {
-    // #[builder(default)]
-    // upper: Option<BindLayoutEntryBuilder<'a>>,
     ty: BufferBindingType,
     #[builder(default)]
     has_dynamic_offset: bool,
@@ -126,13 +116,20 @@ pub struct BufferBinding {
 }
 
 impl BufferBindingBuilder {
-    pub fn make(self) -> Result<wgpu::BindingType> {
+    pub fn make(self) -> Result<BindingType> {
         let built = self.build()?;
-        let out = wgpu::BindingType::Buffer {
+        let out = BindingType::Buffer {
             ty: built.ty,
             has_dynamic_offset: built.has_dynamic_offset,
             min_binding_size: built.min_binding_size,
         };
+        Ok(out)
+    }
+    pub fn entry(self, binding: u32) -> Result<BindEntryBuilder> {
+        let binding_type = self.make()?;
+        let out = BindEntryBuilder::default()
+            .binding(binding)
+            .ty(binding_type);
         Ok(out)
     }
 }

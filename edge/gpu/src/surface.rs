@@ -25,11 +25,6 @@ impl<'a> Surface<'a> {
     pub fn targets(&'a self) -> &'a [Option<ColorTargetState>] {
         &self.targets
     }
-    // pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
-    //     FragmentBuilder::default()
-    //         .module(shader)
-    //         .targets(&self.targets)
-    // }
     pub fn view(&self) -> TextureView {
         let frame = self
             .inner
@@ -43,3 +38,9 @@ impl<'a> Surface<'a> {
         // surface.configure(&device, &config);
     }
 }
+
+    // pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
+    //     FragmentBuilder::default()
+    //         .module(shader)
+    //         .targets(&self.targets)
+    // }

@@ -37,6 +37,10 @@ impl<'a> Render<'a> {
         self.0.set_pipeline(pipeline);
         self
     }
+    pub fn vertex(mut self, slot: u32, buffer_slice: BufferSlice) -> Self {
+        self.0.set_vertex_buffer(slot, buffer_slice);
+        self
+    }
     pub fn debug(mut self, label: &str) -> Self {
         self.0.insert_debug_marker(label);
         self
