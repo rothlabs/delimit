@@ -16,26 +16,50 @@ impl<'a> From<&'a mut Apex> for View<'a> {
     }
 }
 
-impl<'a> From<&'a mut Hub<()>> for View<'a> {
-    fn from(x: &'a mut Hub<()>) -> Self {
-        Self::Void(x)
-    }
-}
+// impl<'a> From<&'a mut Hub<()>> for View<'a> {
+//     fn from(x: &'a mut Hub<()>) -> Self {
+//         Self::Void(x)
+//     }
+// }
 
-impl<'a> From<&'a mut Hub<String>> for View<'a> {
-    fn from(x: &'a mut Hub<String>) -> Self {
-        Self::String(x)
-    }
-}
+// impl<'a> From<&'a mut Hub<String>> for View<'a> {
+//     fn from(x: &'a mut Hub<String>) -> Self {
+//         Self::String(x)
+//     }
+// }
 
-impl<'a> From<&'a mut Hub<i32>> for View<'a> {
-    fn from(x: &'a mut Hub<i32>) -> Self {
-        Self::I32(x)
-    }
-}
+// impl<'a> From<&'a mut Hub<i32>> for View<'a> {
+//     fn from(x: &'a mut Hub<i32>) -> Self {
+//         Self::I32(x)
+//     }
+// }
 
-impl<'a> From<&'a mut Hub<f64>> for View<'a> {
-    fn from(x: &'a mut Hub<f64>) -> Self {
-        Self::F64(x)
-    }
-}
+// impl<'a> From<&'a mut Hub<f64>> for View<'a> {
+//     fn from(x: &'a mut Hub<f64>) -> Self {
+//         Self::F64(x)
+//     }
+// }
+
+// VecView:
+
+// impl<'a> From<&'a mut Vec<Hub<String>>> for ViewVec<'a> {
+//     fn from(x: &'a mut Vec<Hub<String>>) -> Self {
+//         Self::String(x)
+//     }
+// }
+
+// impl<'a> From<&'a mut Vec<Hub<f64>>> for ViewVec<'a> {
+//     fn from(x: &'a mut Vec<Hub<f64>>) -> Self {
+//         Self::F64(x)
+//     }
+// }
+
+// macro_rules! ViewFrom {
+//     ($($Variant:ident)*) => {
+//         impl<'a> From<&'a mut Vec<Hub<f64>>> for ViewVec<'a> {
+//             fn from(x: &'a mut Vec<Hub<f64>>) -> Self {
+//                 Self::F64(x)
+//             }
+//         }
+//     };
+// }

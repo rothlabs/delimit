@@ -24,8 +24,7 @@ pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task}
 pub use thiserror;
 pub use thiserror::Error as ThisError;
 pub use tray::Tray;
-pub use view::View;
-pub use view_vec::ViewVec;
+pub use view::{View, ViewVec};
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
@@ -232,7 +231,6 @@ mod scope;
 mod tests;
 mod tray;
 mod view;
-mod view_vec;
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
