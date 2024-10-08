@@ -81,7 +81,7 @@ macro_rules! build_methods {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<$Base>> {
-                Ok(self.node()?.wing()?.into())
+                Ok(self.make()?.wing()?.into())
             }
         }
     };
@@ -112,7 +112,7 @@ macro_rules! Unit {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.node()?.wing()?.into())
+                Ok(self.make()?.wing()?.into())
             }
         }
     };
@@ -152,7 +152,7 @@ macro_rules! Output {
                 Ok(self.hub()?.into())
             }
             pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.node()?.wing()?.into())
+                Ok(self.make()?.wing()?.into())
             }
         }
     };
@@ -180,7 +180,8 @@ macro_rules! Input {
                 self.make()?.node()
             }
             pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-                Ok(self.node()?.wing()?.into())
+                Ok(self.make()?.wing()?.into())
+                //Ok(self.node()?.wing()?.into())
             }
         }
     };
@@ -422,6 +423,12 @@ where
         Node::wing_from_unit(self)
     }
 }
+
+// impl<T> From<Node<T>> for Wing<T> {
+//     fn from(value: Node<T>) -> Self {
+        
+//     }
+// }
 
 // pub trait IntoHubFromWing {
 //     type Base: Payload;

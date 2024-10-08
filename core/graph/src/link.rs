@@ -79,7 +79,7 @@ where
 
 impl<E> Link<E>
 where
-    Self: Solve,
+    Self: SolveLink,
 {
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
@@ -191,6 +191,20 @@ where
     /// Copy the link with unit type erased.  
     pub fn as_ploy(&self) -> Ploy<E::Base> {
         Ploy {
+            edge: self.edge.clone(),
+            path: self.path.clone(),
+            rank: self.rank,
+        }
+    }
+}
+
+impl<E> Link<E>
+where
+    E: 'static + Employ,
+{
+    /// Copy the link with unit type erased.  
+    pub fn as_wing(&self) -> Wing<E::Base> {
+        Wing {
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
@@ -335,7 +349,7 @@ where
     // }
 }
 
-impl<T> Solve for Wing<T>
+impl<T> SolveLink for Wing<T>
 where
     T: 'static + Payload,
 {
@@ -347,6 +361,19 @@ where
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
 }
+
+// impl<T> Solve for Wing<T>
+// where
+//     T: 'static + Payload,
+// {
+//     type Base = T;
+//     async fn solve(&self) -> Result<Hub<Self::Base>> {
+//         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+//     }
+//     // fn reckon(&self, task: Task) -> Result<Gain> {
+//     //     read_part(&self.edge, |edge| edge.reckon(task))?
+//     // }
+// }
 
 impl<E> Adapt for Link<E>
 where

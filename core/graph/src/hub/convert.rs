@@ -9,6 +9,7 @@ where
     }
 }
 
+// TODO: make same for wing
 impl<T, U> From<Node<U>> for Hub<T>
 where
     T: 'static + Payload,
