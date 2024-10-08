@@ -55,7 +55,6 @@ impl Solve for Element {
             Task::Rank => 2.gain(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

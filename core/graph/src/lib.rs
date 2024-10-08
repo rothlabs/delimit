@@ -1,13 +1,13 @@
 pub use adapt::{Adapt, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
-pub use apex::{Apex, Poll};
+pub use apex::{Apex, Poll, View, ViewVec, DealItem};
 pub use base::HashGraph;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
-pub use hub::{DealItem, Hub, SolveDown};
+pub use hub::{Hub, SolveDown};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
@@ -24,7 +24,7 @@ pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task}
 pub use thiserror;
 pub use thiserror::Error as ThisError;
 pub use tray::Tray;
-pub use view::{View, ViewVec};
+// pub use view::{View, ViewVec};
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;
@@ -230,7 +230,7 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
-mod view;
+// mod view;
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;

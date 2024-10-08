@@ -6,7 +6,6 @@ pub enum Task<'a> {
     Rank,
     Serial,
     Digest(&'a mut UnitHasher),
-    React,
     // for graph internals
     None,
     Hash,

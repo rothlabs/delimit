@@ -13,7 +13,6 @@ pub trait Solve {
     type Base: 'static + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    // async fn solve(&self) -> Result<Hub<Self::Base>>;
     fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
         async { solve_ok() }
     }

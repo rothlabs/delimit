@@ -59,7 +59,6 @@ impl Solve for List {
             Task::Rank => 1.gain(),
             Task::Serial => self.serial(),
             Task::Digest(state) => self.digest(state),
-            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

@@ -18,9 +18,6 @@ impl Bay {
 
 impl Solve for Bay {
     type Base = ();
-    // async fn solve(&self) -> Result<Hub<()>> {
-    //     solve_ok()
-    // }
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.map.deal(deal)?;
         Ok(())
@@ -29,7 +26,6 @@ impl Solve for Bay {
         match task {
             Task::Digest(state) => self.digest(state),
             Task::Serial => self.serial(),
-            Task::React => reckon_ok(),
             _ => task.no_handler(self),
         }
     }

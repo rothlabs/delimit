@@ -1,10 +1,7 @@
-pub use deal::*;
-
 use super::*;
 use thiserror::Error;
 
 mod convert;
-mod deal;
 mod deserialize;
 mod get;
 mod set;

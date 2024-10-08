@@ -1,12 +1,22 @@
 use graph::*;
 
 pub struct Vector {
-    unit: Vec<Hub<f64>>
+    units: Vec<Hub<f64>>
 }
 
 impl Solve for Vector {
-    type Base = ();
+    type Base = Vec<f64>;
+    async fn solve(&self) -> Result<Hub<Vec<f64>>> {
+        let mut out = vec![];
+        for unit in &self.units {
+            out.push(unit.base().await?);
+        }
+        Ok(out.leaf().hub())
+    }
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.unit.deal("unit", deal)
+        self.units.deal("units", deal)
+    }
+    fn backed(&mut self, back: &Back) -> Result<()> {
+        self.units.back(back)
     }
 }

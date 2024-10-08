@@ -1,36 +1,6 @@
 use super::*;
 
-mod convert;
 mod variant;
-
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub enum Apex {
-    Void(Hub<()>),
-    String(Hub<String>),
-    U8(Hub<u8>),
-    I32(Hub<i32>),
-    F64(Hub<f64>),
-    Vu8(Hub<Vec<u8>>),
-    Vu16(Hub<Vec<u16>>),
-    Vf32(Hub<Vec<f32>>),
-    Vf64(Hub<Vec<f64>>),
-}
-
-impl HashGraph for Apex {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
-        match self {
-            Self::Void(x) => x.hash_graph(state),
-            Self::String(x) => x.hash_graph(state),
-            Self::U8(x) => x.hash_graph(state),
-            Self::I32(x) => x.hash_graph(state),
-            Self::F64(x) => x.hash_graph(state),
-            Self::Vu8(x) => x.hash_graph(state),
-            Self::Vu16(x) => x.hash_graph(state),
-            Self::Vf32(x) => x.hash_graph(state),
-            Self::Vf64(x) => x.hash_graph(state),
-        }
-    }
-}
 
 impl Default for Apex {
     fn default() -> Self {
@@ -58,166 +28,6 @@ impl Apex {
         }
         Ok(())
     }
-    pub async fn poll(&self) -> Result<()> {
-        match self {
-            Self::Void(x) => x.poll().await,
-            Self::String(x) => x.poll().await,
-            Self::U8(x) => x.poll().await,
-            Self::I32(x) => x.poll().await,
-            Self::F64(x) => x.poll().await,
-            Self::Vu8(x) => x.poll().await,
-            Self::Vu16(x) => x.poll().await,
-            Self::Vf32(x) => x.poll().await,
-            Self::Vf64(x) => x.poll().await,
-        }
-    }
-    pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
-        match self {
-            Self::Void(x) => x.get(aim),
-            Self::String(x) => x.get(aim),
-            Self::U8(x) => x.get(aim),
-            Self::I32(x) => x.get(aim),
-            Self::F64(x) => x.get(aim),
-            Self::Vu8(x) => x.get(aim),
-            Self::Vu16(x) => x.get(aim),
-            Self::Vf32(x) => x.get(aim),
-            Self::Vf64(x) => x.get(aim),
-        }
-    }
-    pub async fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
-        match self {
-            Self::Void(x) => x.set(aim, apex).await,
-            Self::String(x) => x.set(aim, apex).await,
-            Self::U8(x) => x.set(aim, apex).await,
-            Self::I32(x) => x.set(aim, apex).await,
-            Self::F64(x) => x.set(aim, apex).await,
-            Self::Vu8(x) => x.set(aim, apex).await,
-            Self::Vu16(x) => x.set(aim, apex).await,
-            Self::Vf32(x) => x.set(aim, apex).await,
-            Self::Vf64(x) => x.set(aim, apex).await,
-        }
-    }
-    pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        match self {
-            Self::Void(x) => x.adapt_get(deal),
-            Self::String(x) => x.adapt_get(deal),
-            Self::U8(x) => x.adapt_get(deal),
-            Self::I32(x) => x.adapt_get(deal),
-            Self::F64(x) => x.adapt_get(deal),
-            Self::Vu8(x) => x.adapt_get(deal),
-            Self::Vu16(x) => x.adapt_get(deal),
-            Self::Vf32(x) => x.adapt_get(deal),
-            Self::Vf64(x) => x.adapt_get(deal),
-        }
-    }
-    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        match self {
-            Self::Void(x) => x.transient_set(deal),
-            Self::String(x) => x.transient_set(deal),
-            Self::U8(x) => x.transient_set(deal),
-            Self::I32(x) => x.transient_set(deal),
-            Self::F64(x) => x.transient_set(deal),
-            Self::Vu8(x) => x.transient_set(deal),
-            Self::Vu16(x) => x.transient_set(deal),
-            Self::Vf32(x) => x.transient_set(deal),
-            Self::Vf64(x) => x.transient_set(deal),
-        }
-    }
-    pub fn tray_path(&self) -> Option<&Path> {
-        match self {
-            Self::Void(x) => x.path(),
-            Self::String(x) => x.path(),
-            Self::U8(x) => x.path(),
-            Self::I32(x) => x.path(),
-            Self::F64(x) => x.path(),
-            Self::Vu8(x) => x.path(),
-            Self::Vu16(x) => x.path(),
-            Self::Vf32(x) => x.path(),
-            Self::Vf64(x) => x.path(),
-        }
-    }
-    pub fn pathed(&self, path: impl Into<Path>) -> Self {
-        match self {
-            Self::Void(x) => Self::Void(x.pathed(path)),
-            Self::String(x) => Self::String(x.pathed(path)),
-            Self::U8(x) => Self::U8(x.pathed(path)),
-            Self::I32(x) => Self::I32(x.pathed(path)),
-            Self::F64(x) => Self::F64(x.pathed(path)),
-            Self::Vu8(x) => Self::Vu8(x.pathed(path)),
-            Self::Vu16(x) => Self::Vu16(x.pathed(path)),
-            Self::Vf32(x) => Self::Vf32(x.pathed(path)),
-            Self::Vf64(x) => Self::Vf64(x.pathed(path)),
-        }
-    }
-    pub fn imports(&self) -> Result<Vec<Import>> {
-        match self {
-            Self::Void(x) => x.imports(),
-            Self::String(x) => x.imports(),
-            Self::U8(x) => x.imports(),
-            Self::I32(x) => x.imports(),
-            Self::F64(x) => x.imports(),
-            Self::Vu8(x) => x.imports(),
-            Self::Vu16(x) => x.imports(),
-            Self::Vf32(x) => x.imports(),
-            Self::Vf64(x) => x.imports(),
-        }
-    }
-    pub fn all(&self) -> Result<Vec<Apex>> {
-        match self {
-            Self::Void(x) => x.all(),
-            Self::String(x) => x.all(),
-            Self::U8(x) => x.all(),
-            Self::I32(x) => x.all(),
-            Self::F64(x) => x.all(),
-            Self::Vu8(x) => x.all(),
-            Self::Vu16(x) => x.all(),
-            Self::Vf32(x) => x.all(),
-            Self::Vf64(x) => x.all(),
-        }
-    }
-    pub fn insert_in_lake(&self, lake: &mut Lake) -> Result<()> {
-        match self {
-            Self::Void(x) => lake.insert_stem(x),
-            Self::String(x) => lake.insert_stem(x),
-            Self::U8(x) => lake.insert_stem(x),
-            Self::I32(x) => lake.insert_stem(x),
-            Self::F64(x) => lake.insert_stem(x),
-            Self::Vu8(x) => lake.insert_stem(x),
-            Self::Vu16(x) => lake.insert_stem(x),
-            Self::Vf32(x) => lake.insert_stem(x),
-            Self::Vf64(x) => lake.insert_stem(x),
-        }
-    }
-    pub fn grow_from_lake(&self, lake: &mut Lake, ring: &mut Ring) -> Result<()> {
-        match self {
-            Self::Void(x) => lake.grow(x, ring),
-            Self::String(x) => lake.grow(x, ring),
-            Self::U8(x) => lake.grow(x, ring),
-            Self::I32(x) => lake.grow(x, ring),
-            Self::F64(x) => lake.grow(x, ring),
-            Self::Vu8(x) => lake.grow(x, ring),
-            Self::Vu16(x) => lake.grow(x, ring),
-            Self::Vf32(x) => lake.grow(x, ring),
-            Self::Vf64(x) => lake.grow(x, ring),
-        }
-    }
-}
-
-impl Backed for Apex {
-    fn backed(&self, back: &Back) -> Result<Self> {
-        let apex = match self {
-            Self::Void(x) => Self::Void(x.backed(back)?),
-            Self::String(x) => Self::String(x.backed(back)?),
-            Self::U8(x) => Self::U8(x.backed(back)?),
-            Self::I32(x) => Self::I32(x.backed(back)?),
-            Self::F64(x) => Self::F64(x.backed(back)?),
-            Self::Vu8(x) => Self::Vu8(x.backed(back)?),
-            Self::Vu16(x) => Self::Vu16(x.backed(back)?),
-            Self::Vf32(x) => Self::Vf32(x.backed(back)?),
-            Self::Vf64(x) => Self::Vf64(x.backed(back)?),
-        };
-        Ok(apex)
-    }
 }
 
 pub trait Poll {
@@ -232,3 +42,281 @@ impl Poll for Vec<Apex> {
         Ok(())
     }
 }
+
+impl From<&str> for Apex {
+    fn from(value: &str) -> Self {
+        Apex::String(value.into())
+    }
+}
+
+pub trait DealItem {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
+}
+
+macro_rules! ImplViewVec {
+    ($($Variant:ident $type_:ty)*) => {
+
+        $(impl Hub<$type_> {
+            pub fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+                deal.one(key, self.into())
+            }
+        })*
+
+        $(impl DealItem for Option<Hub<$type_>> {
+            fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+                if let Some(hub) = self {
+                    deal.one(key, hub.into())
+                } else {
+                    Ok(())
+                }
+            }
+        })*
+
+        $(impl DealItem for Vec<Hub<$type_>> {
+            fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+                deal.vec(key, self.into())
+            }
+        })*
+
+        ////////
+        
+        #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+        pub enum Apex {
+            $($Variant(Hub<$type_>),)*
+        }
+
+        impl From<&Apex> for Apex {
+            fn from(value: &Apex) -> Self {
+                match value {
+                    $(Apex::$Variant(hub) => Apex::$Variant(hub.clone()),)*
+                }
+            }
+        }
+
+        $(impl From<Hub<$type_>> for Apex {
+            fn from(value: Hub<$type_>) -> Self {
+                Apex::$Variant(value)
+            }
+        })*
+
+        $(impl From<&Hub<$type_>> for Apex {
+            fn from(value: &Hub<$type_>) -> Self {
+                Apex::$Variant(value.clone())
+            }
+        })*
+
+        $(impl From<$type_> for Apex {
+            fn from(value: $type_) -> Self {
+                Apex::$Variant(value.into())
+            }
+        })*
+
+        impl HashGraph for Apex {
+            fn hash_graph<H: Hasher>(&self, state: &mut H) {
+                match self {
+                    $(Self::$Variant(x) => x.hash_graph(state),)*
+                }
+            }
+        }
+
+        impl Backed for Apex {
+            fn backed(&self, back: &Back) -> Result<Self> {
+                let apex = match self {
+                    $(Self::$Variant(x) => Self::$Variant(x.backed(back)?),)*
+                };
+                Ok(apex)
+            }
+        }
+
+        impl Apex {
+            pub async fn poll(&self) -> Result<()> {
+                match self {
+                    $(Self::$Variant(x) => x.poll().await,)*
+                }
+            }
+            pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
+                match self {
+                    $(Self::$Variant(x) => x.get(aim),)*
+                }
+            }
+            pub async fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {
+                match self {
+                    $(Self::$Variant(x) => x.set(aim, apex).await,)*
+                }
+            }
+            pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+                match self {
+                    $(Self::$Variant(x) => x.adapt_get(deal),)*
+                }
+            }
+            pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+                match self {
+                    $(Self::$Variant(x) => x.transient_set(deal),)*
+                }
+            }
+            pub fn tray_path(&self) -> Option<&Path> {
+                match self {
+                    $(Self::$Variant(x) => x.path(),)*
+                }
+            }
+            pub fn pathed(&self, path: impl Into<Path>) -> Self {
+                match self {
+                    $(Self::$Variant(x) => Self::$Variant(x.pathed(path)),)*
+                }
+            }
+            pub fn imports(&self) -> Result<Vec<Import>> {
+                match self {
+                    $(Self::$Variant(x) => x.imports(),)*
+                }
+            }
+            pub fn all(&self) -> Result<Vec<Apex>> {
+                match self {
+                    $(Self::$Variant(x) => x.all(),)*
+                }
+            }
+            pub fn insert_in_lake(&self, lake: &mut Lake) -> Result<()> {
+                match self {
+                    $(Self::$Variant(x) => lake.insert_stem(x),)*
+                }
+            }
+            pub fn grow_from_lake(&self, lake: &mut Lake, ring: &mut Ring) -> Result<()> {
+                match self {
+                    $(Self::$Variant(x) => lake.grow(x, ring),)*
+                }
+            }
+        }
+
+        pub enum View<'a> {
+            $($Variant(&'a mut Hub<$type_>),)*
+        }
+
+        impl<'a> From<&'a mut Apex> for View<'a> {
+            fn from(value: &'a mut Apex) -> Self {
+                match value {
+                    $(Apex::$Variant(x) => View::$Variant(x),)*
+                }
+            }
+        }
+
+        $(impl<'a> From<&'a mut Hub<$type_>> for View<'a> {
+            fn from(x: &'a mut Hub<$type_>) -> Self {
+                Self::$Variant(x)
+            }
+        })*
+
+        impl View<'_> {
+            pub fn apex(self) -> Apex {
+                match self {
+                    $(Self::$Variant(x) => Apex::$Variant(x.clone()),)*
+                }
+            }
+            pub fn path(&self) -> Option<&Path> {
+                // TODO: use macro_rules to reduce this
+                match self {
+                    $(Self::$Variant(x) => x.path(),)*
+                }
+            }
+            pub fn backed(&self, back: &Back) -> Result<Apex> {
+                Ok(match self {
+                    $(Self::$Variant(x) => Apex::$Variant(x.backed(back)?),)*
+                })
+            }
+            pub fn set(self, apex: Apex) -> Result<Self> {
+                // TODO: use macro_rules to reduce this
+                match self {
+                    $(Self::$Variant(x) => {
+                        if let Apex::$Variant(y) = apex {
+                            *x = y;
+                            return Ok(Self::$Variant(x));
+                        }
+                    })*
+                };
+                Err(anyhow!("view and apex types do not match"))?
+            }
+        }
+
+        pub enum ViewVec<'a> {
+            $($Variant(&'a mut Vec<Hub<$type_>>),)*
+        }
+
+        $(impl<'a> From<&'a mut Vec<Hub<$type_>>> for ViewVec<'a> {
+            fn from(x: &'a mut Vec<Hub<$type_>>) -> Self {
+                Self::$Variant(x)
+            }
+        })*
+
+        impl<'a> ViewVec<'a> {
+            pub fn len(&self) -> usize {
+                match self {
+                    $(Self::$Variant(x) => x.len(),)*
+                }
+            }
+            pub fn views(self) -> Vec<View<'a>> {
+                let mut views = vec![];
+                match self {
+                    $(Self::$Variant(hubs) => {
+                        for hub in hubs {
+                            views.push(hub.into());
+                        }
+                    },)*
+                };
+                views
+            }
+            pub fn set(self, i: usize, apex: Apex) -> Result<Self> {
+                if i >= self.len() {
+                    return Err(anyhow!("index out of bounds"))?;
+                }
+                match self {
+                    $(Self::$Variant(x) => {
+                        if let Apex::$Variant(y) = apex {
+                            x[i] = y;
+                            return Ok(Self::$Variant(x));
+                        }
+                    },)*
+                };
+                Err(anyhow!("view and apex types do not match"))?
+            }
+            pub fn apex(&self, i: usize) -> Result<Apex> {
+                if i >= self.len() {
+                    return Err(anyhow!("index out of bounds"))?;
+                }
+                let apex = match self {
+                    $(Self::$Variant(x) => Apex::$Variant(x[i].clone()),)*
+                };
+                Ok(apex)
+            }
+            pub fn all(&self) -> Vec<Apex> {
+                let mut apexes = vec![];
+                match self {
+                    $(Self::$Variant(x) => {
+                        for hub in x.iter() {
+                            apexes.push(Apex::$Variant(hub.clone()))
+                        }
+                    },)*
+                };
+                apexes
+            }
+        }
+    };
+}
+
+ImplViewVec!(
+    Void ()
+    String String
+    U8 u8
+    U16 u16
+    U32 u32
+    I8 i8
+    I16 i16
+    I32 i32
+    F32 f32
+    F64 f64
+    Vu8 Vec<u8>
+    Vu16 Vec<u16>
+    Vu32 Vec<u32>
+    Vi8 Vec<i8>
+    Vi16 Vec<i16>
+    Vi32 Vec<i32>
+    Vf32 Vec<f32>
+    Vf64 Vec<f64>
+);
