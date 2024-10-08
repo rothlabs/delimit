@@ -69,9 +69,9 @@ macro_rules! node_and_apex {
         pub fn node(self) -> graph::Result<Node<$Unit>> {
             self.make()?.node()
         }
-        // pub fn apex(self) -> graph::Result<Apex> {
-        //     Ok(self.hub()?.into())
-        // }
+        pub fn apex(self) -> graph::Result<Apex> {
+            Ok(self.hub()?.into())
+        }
     };
 }
 
@@ -80,9 +80,9 @@ macro_rules! build_methods {
     ($Unit:ident $Base:ty) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            // pub fn hub(self) -> graph::Result<Hub<$Base>> {
-            //     Ok(self.node()?.hub())
-            // }
+            pub fn hub(self) -> graph::Result<Hub<$Base>> {
+                Ok(self.node()?.wing()?.into())
+            }
         }
     };
 }
@@ -111,9 +111,9 @@ macro_rules! Unit {
     ) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            // pub fn hub(self) -> graph::Result<Hub<()>> {
-            //     Ok(self.node()?.hub())
-            // }
+            pub fn hub(self) -> graph::Result<Hub<()>> {
+                Ok(self.node()?.wing()?.into())
+            }
         }
     };
 }
@@ -148,12 +148,12 @@ macro_rules! Output {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            // pub fn apex(self) -> graph::Result<Apex> {
-            //     Ok(self.hub()?.into())
-            // }
-            // pub fn hub(self) -> graph::Result<Hub<()>> {
-            //     Ok(self.node()?.hub())
-            // }
+            pub fn apex(self) -> graph::Result<Apex> {
+                Ok(self.hub()?.into())
+            }
+            pub fn hub(self) -> graph::Result<Hub<()>> {
+                Ok(self.node()?.wing()?.into())
+            }
         }
     };
 }
@@ -179,9 +179,9 @@ macro_rules! Input {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            // pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-            //     Ok(self.node()?.hub())
-            // }
+            pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
+                Ok(self.node()?.wing()?.into())
+            }
         }
     };
 }
@@ -394,6 +394,19 @@ where
     }
 }
 
+pub trait IntoHub {
+    type Base: Payload;
+    /// Move into `Hub`
+    fn hub(self) -> Result<Hub<Self::Base>>;
+}
+
+impl<T: IntoPloy> IntoHub for T {
+    type Base = T::Base;
+    fn hub(self) -> Result<Hub<Self::Base>> {
+        Ok(self.ploy()?.into())
+    }
+}
+
 pub trait IntoWing
 where
     Self: Solve,
@@ -410,18 +423,18 @@ where
     }
 }
 
-pub trait IntoHub {
-    type Base: Payload;
-    /// Move into `Hub`
-    fn hub(self) -> Result<Hub<Self::Base>>;
-}
+// pub trait IntoHubFromWing {
+//     type Base: Payload;
+//     /// Move into `Hub`
+//     fn wing_hub(self) -> Result<Hub<Self::Base>>;
+// }
 
-impl<T: IntoPloy> IntoHub for T {
-    type Base = T::Base;
-    fn hub(self) -> Result<Hub<Self::Base>> {
-        Ok(self.ploy()?.into())
-    }
-}
+// impl<T: IntoWing> IntoHubFromWing for T {
+//     type Base = T::Base;
+//     fn wing_hub(self) -> Result<Hub<Self::Base>> {
+//         Ok(self.wing()?.into())
+//     }
+// }
 
 pub trait ToItem {
     type Item;

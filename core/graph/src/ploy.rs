@@ -32,3 +32,24 @@ pub trait Employed {
     fn backed(&self, back: &Back) -> WingEdge<Self::Base>;
     fn rank(&self) -> Result<u16>;
 }
+
+impl<T: Payload> Serialize for Wing<T> {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        serializer.serialize_unit()
+    }
+}
+
+// impl<T: Payload> Serialize for Hub<T> {
+//     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         match self {
+//             Self::Tray(x) => x.serialize(serializer),
+//             Self::Leaf(x) => x.serialize(serializer),
+//             Self::Ploy(x) => x.serialize(serializer),
+//             Self::Wing(_) => serializer.serialize_unit(),
+//         }
+//     }
+// }

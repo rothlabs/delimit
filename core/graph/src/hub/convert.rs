@@ -28,6 +28,15 @@ where
     }
 }
 
+impl<T> From<Wing<T>> for Hub<T>
+where
+    T: Payload,
+{
+    fn from(wing: Wing<T>) -> Self {
+        Hub::Wing(wing)
+    }
+}
+
 impl<T> From<Leaf<T>> for Hub<T>
 where
     T: Payload,

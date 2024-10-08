@@ -307,6 +307,10 @@ where
     // fn reckon(&self, task: Task) -> Result<Gain> {
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
+    // TODO: Remove
+    fn backed(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl<T> Solve for Ploy<T>
@@ -320,6 +324,10 @@ where
     // fn reckon(&self, task: Task) -> Result<Gain> {
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
+    // TODO: Remove
+    fn backed(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl<T> Solve for Wing<T>
@@ -333,6 +341,10 @@ where
     // fn reckon(&self, task: Task) -> Result<Gain> {
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
+    // TODO: Remove
+    fn backed(&mut self, _: &Back) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl<E> Adapt for Link<E>

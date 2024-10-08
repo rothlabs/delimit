@@ -23,6 +23,7 @@ pub enum Hub<T: Payload> {
     Tray(Tray<T>),
     Leaf(Leaf<T>),
     Ploy(Ploy<T>),
+    Wing(Wing<T>),
 }
 
 impl<T> HashGraph for Hub<T> 
@@ -34,6 +35,7 @@ where
             Self::Tray(x) => x.hash_graph(state),
             Self::Leaf(x) => x.hash_graph(state),
             Self::Ploy(x) => x.hash_graph(state),
+            Self::Wing(_) => (),
         }
     }
 }
@@ -47,6 +49,7 @@ impl<T: Payload> Hub<T> {
     pub async fn main(&self) -> Result<Hub<T>> {
         match self {
             Self::Ploy(ploy) => ploy.solve().await,
+            Self::Wing(wing) => wing.solve().await,
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -92,6 +95,7 @@ impl<T: Payload> Hub<T> {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.get_serial(),
             Self::Ploy(ploy) => ploy.get_serial(),
+            Self::Wing(wing) => wing.serial(),
         }
     }
 
@@ -100,6 +104,9 @@ impl<T: Payload> Hub<T> {
         if let Self::Ploy(ploy) = self {
             ploy.adapt_get(deal)?;
         }
+        // if let Self::Wing(wing) = self {
+        //     wing.adapt_get(deal)?;
+        // }
         Ok(())
     }
 
@@ -125,6 +132,7 @@ impl<T: Payload> Hub<T> {
             Self::Tray(tray) => Self::Tray(tray.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.pathed(path.into())),
             Self::Ploy(ploy) => Self::Ploy(ploy.pathed(path.into())),
+            Self::Wing(wing) => Self::Wing(wing.pathed(path.into())),
         }
     }
 
@@ -167,6 +175,7 @@ impl<T: Payload> Hub<T> {
                 }
                 Self::Leaf(leaf) => leaf.read(read),
                 Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
+                Self::Wing(wing) => wing.solve().await?.read(read).await,
             }
         })
     }
@@ -180,6 +189,7 @@ impl<T: Payload> Hub<T> {
                 },
                 Self::Leaf(leaf) => leaf.read(|base| base.clone()),
                 Self::Ploy(ploy) => ploy.solve().await?.base().await,
+                Self::Wing(wing) => wing.solve().await?.base().await,
             }
         })
     }
@@ -196,6 +206,7 @@ impl<T: Payload> Backed for Hub<T> {
             Self::Tray(tray) => Ok(Self::Tray(tray.clone())),
             Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
             Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
+            Self::Wing(wing) => Ok(Self::Wing(wing.backed(back)?)),
         }
     }
 }

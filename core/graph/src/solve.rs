@@ -85,22 +85,6 @@ impl<T: Act + SendSync> Solve for T {
     }
 }
 
-// pub trait Inert {
-//     fn reckon(&self, task: Task) -> Result<Gain>;
-// }
-
-// impl<T: Inert + SendSync> Act for T {
-//     async fn act(&self) -> Result<()> {
-//         Ok(())
-//     }
-//     fn backed(&mut self, back: &Back) -> Result<()> {
-//         self.backed(back)
-//     }
-//     fn reckon(&self, task: Task) -> Result<Gain> {
-//         self.reckon(task)
-//     }
-// }
-
 pub trait SolveMut {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
@@ -120,3 +104,20 @@ pub trait SolveMut {
     //     Err(anyhow!("reckon not defined"))?
     // }
 }
+
+
+// pub trait Inert {
+//     fn reckon(&self, task: Task) -> Result<Gain>;
+// }
+
+// impl<T: Inert + SendSync> Act for T {
+//     async fn act(&self) -> Result<()> {
+//         Ok(())
+//     }
+//     fn backed(&mut self, back: &Back) -> Result<()> {
+//         self.backed(back)
+//     }
+//     fn reckon(&self, task: Task) -> Result<Gain> {
+//         self.reckon(task)
+//     }
+// }

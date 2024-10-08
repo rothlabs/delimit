@@ -111,6 +111,12 @@ macro_rules! ImplViewVec {
             }
         })*
 
+        $(impl From<Wing<$type_>> for Apex {
+            fn from(value: Wing<$type_>) -> Self {
+                Apex::$Variant(value.into())
+            }
+        })*
+
         impl HashGraph for Apex {
             fn hash_graph<H: Hasher>(&self, state: &mut H) {
                 match self {

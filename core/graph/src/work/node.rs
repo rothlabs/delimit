@@ -13,36 +13,6 @@ pub struct Node<U: Solve> {
     serial: Option<String>,
 }
 
-// impl<U: Solve> Node<U> {
-//     fn rank(&self) -> Option<u64> {
-//         if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
-//             Some(rank)
-//         } else {
-//             None
-//         }
-//     }
-//     // fn digest(&mut self) -> Result<Gain> {
-//     //     if let Some(digest) = &self.digest {
-//     //         Ok(digest.clone())
-//     //     } else {
-//     //         let mut state = UnitHasher::default();
-//     //         self.imports.hash(&mut state);
-//     //         let digest = self.unit.reckon(Task::Digest(&mut state))?;
-//     //         self.digest = Some(digest.clone());
-//     //         Ok(digest)
-//     //     }
-//     // }
-//     // fn serial(&mut self) -> Result<Gain> {
-//     //     if let Some(serial) = &self.serial {
-//     //         Ok(serial.clone())
-//     //     } else {
-//     //         let serial = self.serial();//self.unit.reckon(Task::Serial)?;
-//     //         self.serial = Some(serial.clone());
-//     //         Ok(serial)
-//     //     }
-//     // }
-// }
-
 impl<U> SolveMut for Node<U>
 where
     U: Solve + IsSend,
@@ -159,3 +129,34 @@ where
         })
     }
 }
+
+
+// impl<U: Solve> Node<U> {
+//     fn rank(&self) -> Option<u64> {
+//         if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
+//             Some(rank)
+//         } else {
+//             None
+//         }
+//     }
+//     // fn digest(&mut self) -> Result<Gain> {
+//     //     if let Some(digest) = &self.digest {
+//     //         Ok(digest.clone())
+//     //     } else {
+//     //         let mut state = UnitHasher::default();
+//     //         self.imports.hash(&mut state);
+//     //         let digest = self.unit.reckon(Task::Digest(&mut state))?;
+//     //         self.digest = Some(digest.clone());
+//     //         Ok(digest)
+//     //     }
+//     // }
+//     // fn serial(&mut self) -> Result<Gain> {
+//     //     if let Some(serial) = &self.serial {
+//     //         Ok(serial.clone())
+//     //     } else {
+//     //         let serial = self.serial();//self.unit.reckon(Task::Serial)?;
+//     //         self.serial = Some(serial.clone());
+//     //         Ok(serial)
+//     //     }
+//     // }
+// }
