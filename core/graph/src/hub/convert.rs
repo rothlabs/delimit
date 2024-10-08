@@ -12,7 +12,7 @@ where
 // TODO: make same for wing
 impl<T, U> From<Node<U>> for Hub<T>
 where
-    T: 'static + Payload,
+    T: Payload,
     U: 'static + Unit<Base = T>  + HashGraph + Serialize,
 {
     fn from(node: Node<U>) -> Self {

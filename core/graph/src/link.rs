@@ -77,17 +77,17 @@ where
     }
 }
 
-impl<E> Link<E>
-where
-    Self: SolveLink,
-{
-    pub async fn act(&self) -> Result<()> {
-        match self.solve().await {
-            Ok(_) => Ok(()),
-            Err(err) => Err(err),
-        }
-    }
-}
+// impl<E> Link<E>
+// where
+//     Self: SolveLink,
+// {
+//     pub async fn act(&self) -> Result<()> {
+//         match self.solve().await {
+//             Ok(_) => Ok(()),
+//             Err(err) => Err(err),
+//         }
+//     }
+// }
 
 impl<E> HashGraph for Link<E>
 where
@@ -308,72 +308,29 @@ where
     }
 }
 
-impl<E> SolveLink for Link<E>
-where
-    E: Solve + SendSync,
-{
-    type Base = E::Base;
-    async fn solve(&self) -> Result<Hub<Self::Base>> {
+impl<E: Solve> Link<E> {
+    pub async fn solve(&self) -> Result<Hub<E::Base>> {
+        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+    }
+    pub async fn act(&self) -> Result<()> {
+        match self.solve().await {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err),
+        }
+    }
+}
+
+impl<T: Payload> Ploy<T> {
+    pub async fn solve(&self) -> Result<Hub<T>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
 }
 
-// impl<E> Solve for Link<E>
-// where
-//     E: Solve + SendSync,
-// {
-//     type Base = E::Base;
-//     async fn solve(&self) -> Result<Hub<Self::Base>> {
-//         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
-//     }
-    
-//     // fn reckon(&self, task: Task) -> Result<Gain> {
-//     //     read_part(&self.edge, |edge| edge.reckon(task))?
-//     // }
-//     // TODO: Remove
-//     fn backed(&mut self, _: &Back) -> Result<()> {
-//         Ok(())
-//     }
-// }
-
-impl<T> Solve for Ploy<T>
-where
-    T: 'static + Payload,
-{
-    type Base = T;
-    async fn solve(&self) -> Result<Hub<Self::Base>> {
+impl<T: Payload> Wing<T> {
+    pub async fn solve(&self) -> Result<Hub<T>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     read_part(&self.edge, |edge| edge.reckon(task))?
-    // }
 }
-
-impl<T> SolveLink for Wing<T>
-where
-    T: 'static + Payload,
-{
-    type Base = T;
-    async fn solve(&self) -> Result<Hub<Self::Base>> {
-        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
-    }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     read_part(&self.edge, |edge| edge.reckon(task))?
-    // }
-}
-
-// impl<T> Solve for Wing<T>
-// where
-//     T: 'static + Payload,
-// {
-//     type Base = T;
-//     async fn solve(&self) -> Result<Hub<Self::Base>> {
-//         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
-//     }
-//     // fn reckon(&self, task: Task) -> Result<Gain> {
-//     //     read_part(&self.edge, |edge| edge.reckon(task))?
-//     // }
-// }
 
 impl<E> Adapt for Link<E>
 where
