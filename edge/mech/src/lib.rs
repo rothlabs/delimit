@@ -16,7 +16,22 @@ impl Solve for Vector {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.units.deal("units", deal)
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
-        self.units.back(back)
+}
+
+pub struct Matrix {
+    vectors: Vec<Hub<Vec<f64>>>
+}
+
+impl Solve for Matrix {
+    type Base = Vec<f64>;
+    async fn solve(&self) -> Result<Hub<Vec<f64>>> {
+        let mut out = vec![];
+        for vector in &self.vectors {
+            out.extend(vector.base().await?);
+        }
+        Ok(out.leaf().hub())
+    }
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.vectors.deal("vectors", deal)
     }
 }

@@ -29,7 +29,7 @@ where
         let out = bytemuck::cast_slice(&data).to_vec();
         Ok(out.leaf().hub())
     }
-    fn backed(&mut self, _: &Back) -> graph::Result<()> {
-        Ok(())
+    fn backed(&mut self, back: &Back) -> graph::Result<()> {
+        self.stems.back(back)
     }
 }
