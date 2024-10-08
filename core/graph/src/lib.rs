@@ -505,6 +505,22 @@ pub trait ReckonMut {
     fn get_serial(&mut self) -> Result<String>;
 }
 
+pub trait SolveLink {
+    type Base: 'static + Payload;
+    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
+        async { solve_ok() }
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 // #[macro_export]
 // macro_rules! Make {

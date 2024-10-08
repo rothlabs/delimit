@@ -83,6 +83,7 @@ impl<T: Payload> Hub<T> {
         match self {
             Self::Leaf(leaf) => leaf.get_hash(),
             Self::Ploy(ploy) => ploy.get_hash(),
+            Self::Wing(_) => Ok(0),
             // Self::Leaf(leaf) => leaf.reckon(Task::Hash),
             // Self::Ploy(ploy) => ploy.reckon(Task::Hash),
             _ => Err(Error::NotNode)?,

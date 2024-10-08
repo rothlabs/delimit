@@ -105,7 +105,6 @@ where
 
 impl<E> Serialize for Link<E>
 where
-    //Self: Solve,
     E: Reckon + ?Sized
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -295,7 +294,7 @@ where
     }
 }
 
-impl<E> Solve for Link<E>
+impl<E> SolveLink for Link<E>
 where
     E: Solve + SendSync,
 {
@@ -303,15 +302,25 @@ where
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
-    
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     read_part(&self.edge, |edge| edge.reckon(task))?
-    // }
-    // TODO: Remove
-    fn backed(&mut self, _: &Back) -> Result<()> {
-        Ok(())
-    }
 }
+
+// impl<E> Solve for Link<E>
+// where
+//     E: Solve + SendSync,
+// {
+//     type Base = E::Base;
+//     async fn solve(&self) -> Result<Hub<Self::Base>> {
+//         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+//     }
+    
+//     // fn reckon(&self, task: Task) -> Result<Gain> {
+//     //     read_part(&self.edge, |edge| edge.reckon(task))?
+//     // }
+//     // TODO: Remove
+//     fn backed(&mut self, _: &Back) -> Result<()> {
+//         Ok(())
+//     }
+// }
 
 impl<T> Solve for Ploy<T>
 where
@@ -324,10 +333,6 @@ where
     // fn reckon(&self, task: Task) -> Result<Gain> {
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
-    // TODO: Remove
-    fn backed(&mut self, _: &Back) -> Result<()> {
-        Ok(())
-    }
 }
 
 impl<T> Solve for Wing<T>
@@ -341,10 +346,6 @@ where
     // fn reckon(&self, task: Task) -> Result<Gain> {
     //     read_part(&self.edge, |edge| edge.reckon(task))?
     // }
-    // TODO: Remove
-    fn backed(&mut self, _: &Back) -> Result<()> {
-        Ok(())
-    }
 }
 
 impl<E> Adapt for Link<E>
