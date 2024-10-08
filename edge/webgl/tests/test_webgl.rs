@@ -89,7 +89,7 @@ pub async fn draw_arrays_basic(gpu: &WebGl) -> Result<()> {
     let vao_writer = vao.writer().attribute(att).apex()?;
     let draw_arrays = gpu
         .draw_arrays(program)
-        .stem(buffer_writer.as_wing())
+        .stem(buffer_writer.wing())
         .stem(vao_writer)
         .vao(vao)
         .count(3)
@@ -111,7 +111,7 @@ pub async fn draw_elements_basic(
     let vao_writer = vao.writer().attribute(att).index(index_buffer).apex()?;
     let elements = gpu
         .draw_elements(program)
-        .stem(bufferer.clone().as_wing())
+        .stem(bufferer.clone().wing())
         .stem(index_bufferer)
         .stem(vao_writer)
         .vao(vao)
@@ -144,7 +144,7 @@ pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElemen
     let _texture = make_basic_texture(&gpu).await?;
     let elements = gpu
         .draw_elements(program)
-        .stem(bufferer.as_wing())
+        .stem(bufferer.wing())
         .stem(index_bufferer)
         .stem(vao_writer)
         .vao(vao)
@@ -298,7 +298,7 @@ pub async fn transform_feedback() -> Result<()> {
     let tfo = gpu.tfo()?.buffer(&target).make()?;
     let draw = gpu
         .draw_arrays(program)
-        .stem(bufferer.as_wing())
+        .stem(bufferer.wing())
         .stem(sizer)
         .stem(vao_writer)
         .vao(vao)

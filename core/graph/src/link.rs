@@ -203,7 +203,7 @@ where
     E: 'static + Employ,
 {
     /// Copy the link with unit type erased.  
-    pub fn as_wing(&self) -> Wing<E::Base> {
+    pub fn wing(&self) -> Wing<E::Base> {
         Wing {
             edge: self.edge.clone(),
             path: self.path.clone(),
