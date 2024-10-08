@@ -22,13 +22,13 @@ impl Solve for Bay {
         self.map.deal(deal)?;
         Ok(())
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        match task {
-            Task::Digest(state) => self.digest(state),
-            Task::Serial => self.serial(),
-            _ => task.no_handler(self),
-        }
-    }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     match task {
+    //         Task::Digest(state) => self.digest(state),
+    //         Task::Serial => self.serial(),
+    //         _ => task.no_handler(self),
+    //     }
+    // }
 }
 
 impl HashGraph for Bay {

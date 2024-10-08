@@ -50,12 +50,15 @@ impl Solve for Element {
         self.close.deal("close", deal)?;
         Ok(())
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        match task {
-            Task::Rank => 2.gain(),
-            Task::Serial => self.serial(),
-            Task::Digest(state) => self.digest(state),
-            _ => task.no_handler(self),
-        }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     match task {
+    //         Task::Rank => 2.gain(),
+    //         Task::Serial => self.serial(),
+    //         Task::Digest(state) => self.digest(state),
+    //         _ => task.no_handler(self),
+    //     }
+    // }
+    fn rank(&self) -> u16 {
+        2
     }
 }

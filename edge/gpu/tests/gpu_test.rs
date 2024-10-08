@@ -161,6 +161,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .size(size)
         .submit();
     let out: Vec<u32> = stage.reader().hub()?.base().await?;
+    // let out: Vec<u32> = stage.reader().node().unwrap().ba;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }

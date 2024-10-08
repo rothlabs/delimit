@@ -12,7 +12,7 @@ where
 impl<T, U> From<Node<U>> for Hub<T>
 where
     T: 'static + Payload,
-    U: 'static + Unit<Base = T>,
+    U: 'static + Unit<Base = T>  + HashGraph + Serialize,
 {
     fn from(node: Node<U>) -> Self {
         Hub::Ploy(node.as_ploy())

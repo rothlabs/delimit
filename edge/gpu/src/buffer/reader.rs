@@ -1,7 +1,7 @@
 use super::*;
 use std::marker::PhantomData;
 
-#[derive(Builder, Debug, Input!)]
+#[derive(Builder, Debug)] // , Input!
 #[builder(pattern = "owned")]
 pub struct BufferReader<T> {
     buffer: Grc<wgpu::Buffer>,
@@ -9,6 +9,27 @@ pub struct BufferReader<T> {
     stems: Vec<Apex>,
     #[builder(default)]
     phantom: PhantomData<T>,
+}
+
+impl<T> BufferReaderBuilder<T>
+where
+    T: Payload + AnyBitPattern,
+    Vec<T>: Payload,
+{
+    pub fn make(self) -> graph::Result<BufferReader<T>> {
+        match self.build() {
+            Ok(value) => Ok(value),
+            Err(err) => Err(anyhow!(err.to_string()))?,
+        }
+    }
+    pub fn node(self) -> graph::Result<Node<BufferReader<T>>> {
+        self.make()?.node()
+    }
+    pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
+        let node = self.node()?;
+        let hub = node.hub();
+        Ok(hub)
+    }
 }
 
 impl<T> Solve for BufferReader<T>

@@ -45,7 +45,7 @@ where
     C: 'static + FromSnap + UpdateMut + AddRoot,
 {
     type Unit = C::Unit;
-    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
         let (rank, cusp) = C::from_snap(unit)?;
         Ok((
             rank,
@@ -70,12 +70,15 @@ where
         })?
         .await
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(&self.root);
-            cusp.reckon(task)
-        })?
+    fn rank(&self) -> u16 {
+        read_part(&self.cusp, |cusp| cusp.rank()).unwrap()
     }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     write_part(&self.cusp, |mut cusp| {
+    //         cusp.add_root(&self.root);
+    //         cusp.reckon(task)
+    //     })?
+    // }
 }
 
 impl<C> Adapt for Edge<C>
@@ -101,7 +104,7 @@ where
 
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
+    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
@@ -120,11 +123,29 @@ where
             cusp: self.cusp.clone(),
         })
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(&self.root);
-            cusp.reckon(task)
-        })?
+    fn rank(&self) -> Result<u16> {
+        read_part(&self.cusp, |cusp| cusp.rank())
+    }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     write_part(&self.cusp, |mut cusp| {
+    //         cusp.add_root(&self.root);
+    //         cusp.reckon(task)
+    //     })?
+    // }
+}
+
+impl<C> Reckon for Edge<C> 
+where 
+    C: ReckonMut
+{
+    fn get_imports(&self) -> Result<Vec<Import>> {
+        read_part(&self.cusp, |cusp| cusp.get_imports())?
+    }
+    fn get_hash(&self) -> Result<u64> {
+        write_part(&self.cusp, |mut cusp| cusp.get_hash())?
+    }
+    fn get_serial(&self) -> Result<String> {
+        write_part(&self.cusp, |mut cusp| cusp.get_serial())?
     }
 }
 

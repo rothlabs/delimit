@@ -69,9 +69,9 @@ macro_rules! node_and_apex {
         pub fn node(self) -> graph::Result<Node<$Unit>> {
             self.make()?.node()
         }
-        pub fn apex(self) -> graph::Result<Apex> {
-            Ok(self.hub()?.into())
-        }
+        // pub fn apex(self) -> graph::Result<Apex> {
+        //     Ok(self.hub()?.into())
+        // }
     };
 }
 
@@ -80,9 +80,9 @@ macro_rules! build_methods {
     ($Unit:ident $Base:ty) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> graph::Result<Hub<$Base>> {
-                Ok(self.node()?.hub())
-            }
+            // pub fn hub(self) -> graph::Result<Hub<$Base>> {
+            //     Ok(self.node()?.hub())
+            // }
         }
     };
 }
@@ -111,9 +111,9 @@ macro_rules! Unit {
     ) => {
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
-            pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.node()?.hub())
-            }
+            // pub fn hub(self) -> graph::Result<Hub<()>> {
+            //     Ok(self.node()?.hub())
+            // }
         }
     };
 }
@@ -148,12 +148,12 @@ macro_rules! Output {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            pub fn apex(self) -> graph::Result<Apex> {
-                Ok(self.hub()?.into())
-            }
-            pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.node()?.hub())
-            }
+            // pub fn apex(self) -> graph::Result<Apex> {
+            //     Ok(self.hub()?.into())
+            // }
+            // pub fn hub(self) -> graph::Result<Hub<()>> {
+            //     Ok(self.node()?.hub())
+            // }
         }
     };
 }
@@ -179,9 +179,9 @@ macro_rules! Input {
             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
                 self.make()?.node()
             }
-            pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-                Ok(self.node()?.hub())
-            }
+            // pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
+            //     Ok(self.node()?.hub())
+            // }
         }
     };
 }
@@ -387,7 +387,7 @@ where
 
 impl<T> IntoPloy for T
 where
-    T: 'static + Unit,
+    T: 'static + Unit + HashGraph + Serialize,
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
@@ -441,12 +441,12 @@ pub trait SetRoot {
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)>;
+    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)>;
 }
 
 pub trait WorkFromSnap {
     type Unit;
-    fn from_snap(unit: Snap<Self::Unit>) -> (Option<u64>, Self);
+    fn from_snap(unit: Snap<Self::Unit>) -> (Option<u16>, Self);
 }
 
 pub trait Clear {
@@ -463,6 +463,19 @@ impl<T: Backed> BackIt for T {
         Ok(())
     }
 }
+
+pub trait Reckon {
+    fn get_imports(&self) -> Result<Vec<Import>>;
+    fn get_hash(&self) -> Result<u64>;
+    fn get_serial(&self) -> Result<String>;
+}
+
+pub trait ReckonMut {
+    fn get_imports(&self) -> Result<Vec<Import>>;
+    fn get_hash(&mut self) -> Result<u64>;
+    fn get_serial(&mut self) -> Result<String>;
+}
+
 
 // #[macro_export]
 // macro_rules! Make {

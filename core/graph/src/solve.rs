@@ -16,9 +16,12 @@ pub trait Solve {
     fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
         async { solve_ok() }
     }
-    fn reckon(&self, _: Task) -> Result<Gain> {
-        Err(anyhow!("reckon not defined"))?
+    fn rank(&self) -> u16 {
+        0
     }
+    // fn reckon(&self, _: Task) -> Result<Gain> {
+    //     Err(anyhow!("reckon not defined"))?
+    // }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("adapt not defined"))?
     }
@@ -62,6 +65,7 @@ pub trait Act {
     fn reckon(&self, _: Task) -> Result<Gain> {
         Err(anyhow!("reckon not defined"))?
     }
+    // fn rank(&self) -> u16;
 }
 
 impl<T: Act + SendSync> Solve for T {
@@ -73,8 +77,11 @@ impl<T: Act + SendSync> Solve for T {
     fn backed(&mut self, back: &Back) -> Result<()> {
         self.backed(back)
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        self.reckon(task)
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     self.reckon(task)
+    // }
+    fn rank(&self) -> u16 {
+        0
     }
 }
 
@@ -106,7 +113,10 @@ pub trait SolveMut {
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
-    fn reckon(&mut self, _: Task) -> Result<Gain> {
-        Err(anyhow!("reckon not defined"))?
+    fn rank(&self) -> u16 {
+        0 //Err(anyhow!("reckon not defined"))?
     }
+    // fn reckon(&mut self, _: Task) -> Result<Gain> {
+    //     Err(anyhow!("reckon not defined"))?
+    // }
 }

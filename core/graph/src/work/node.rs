@@ -9,39 +9,39 @@ pub struct Node<U: Solve> {
     imports: Vec<Import>,
     unit: U,
     main: Option<Hub<U::Base>>,
-    digest: Option<Gain>,
-    serial: Option<Gain>,
+    digest: Option<u64>,
+    serial: Option<String>,
 }
 
-impl<U: Solve> Node<U> {
-    fn rank(&self) -> Option<u64> {
-        if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
-            Some(rank)
-        } else {
-            None
-        }
-    }
-    fn digest(&mut self) -> Result<Gain> {
-        if let Some(digest) = &self.digest {
-            Ok(digest.clone())
-        } else {
-            let mut state = UnitHasher::default();
-            self.imports.hash(&mut state);
-            let digest = self.unit.reckon(Task::Digest(&mut state))?;
-            self.digest = Some(digest.clone());
-            Ok(digest)
-        }
-    }
-    fn serial(&mut self) -> Result<Gain> {
-        if let Some(serial) = &self.serial {
-            Ok(serial.clone())
-        } else {
-            let serial = self.unit.reckon(Task::Serial)?;
-            self.serial = Some(serial.clone());
-            Ok(serial)
-        }
-    }
-}
+// impl<U: Solve> Node<U> {
+//     fn rank(&self) -> Option<u64> {
+//         if let Ok(Gain::U64(rank)) = self.unit.reckon(Task::Rank) {
+//             Some(rank)
+//         } else {
+//             None
+//         }
+//     }
+//     // fn digest(&mut self) -> Result<Gain> {
+//     //     if let Some(digest) = &self.digest {
+//     //         Ok(digest.clone())
+//     //     } else {
+//     //         let mut state = UnitHasher::default();
+//     //         self.imports.hash(&mut state);
+//     //         let digest = self.unit.reckon(Task::Digest(&mut state))?;
+//     //         self.digest = Some(digest.clone());
+//     //         Ok(digest)
+//     //     }
+//     // }
+//     // fn serial(&mut self) -> Result<Gain> {
+//     //     if let Some(serial) = &self.serial {
+//     //         Ok(serial.clone())
+//     //     } else {
+//     //         let serial = self.serial();//self.unit.reckon(Task::Serial)?;
+//     //         self.serial = Some(serial.clone());
+//     //         Ok(serial)
+//     //     }
+//     // }
+// }
 
 impl<U> SolveMut for Node<U>
 where
@@ -65,19 +65,48 @@ where
     fn back(&mut self, back: &Back) -> Result<()> {
         self.unit.backed(back)
     }
-    fn reckon(&mut self, task: Task) -> Result<Gain> {
-        match task {
-            Task::Hash => self.digest(),
-            Task::Serial => self.serial(),
-            Task::Imports => self.imports.gain(),
-            _ => self.unit.reckon(task),
+    // fn reckon(&mut self, task: Task) -> Result<Gain> {
+    //     match task {
+    //         Task::Hash => self.digest(),
+    //         Task::Serial => self.serial(),
+    //         Task::Imports => self.imports.gain(),
+    //         _ => self.unit.reckon(task),
+    //     }
+    // }
+}
+
+impl<U> ReckonMut for Node<U> 
+where 
+    U: Solve + HashGraph + Serialize
+{
+    fn get_imports(&self) -> Result<Vec<Import>> {
+        Ok(self.imports.clone())
+    }
+    fn get_hash(&mut self) -> Result<u64> {
+        if let Some(digest) = self.digest {
+            Ok(digest)
+        } else {
+            let mut state = DefaultHasher::new();
+            self.unit.hash_graph(&mut state);
+            let digest = state.finish();
+            self.digest = Some(digest);
+            Ok(digest)
+        }
+    }
+    fn get_serial(&mut self) -> Result<String> {
+        if let Some(serial) = &self.serial {
+            Ok(serial.clone())
+        } else {
+            let serial = self.unit.serial()?;//self.unit.reckon(Task::Serial)?;
+            self.serial = Some(serial.clone());
+            Ok(serial)
         }
     }
 }
 
 impl<U: Solve> WorkFromSnap for Node<U> {
     type Unit = U;
-    fn from_snap(snap: Snap<Self::Unit>) -> (Option<u64>, Self) {
+    fn from_snap(snap: Snap<Self::Unit>) -> (Option<u16>, Self) {
         let node = Self {
             unit: snap.unit,
             imports: snap.imports,
@@ -85,7 +114,7 @@ impl<U: Solve> WorkFromSnap for Node<U> {
             digest: None,
             serial: None,
         };
-        (node.rank(), node)
+        (Some(node.unit.rank()), node)
     }
 }
 

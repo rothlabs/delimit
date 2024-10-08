@@ -28,7 +28,7 @@ pub type Node<U> = Link<edge::Node<U>>;
 pub struct Link<E: ?Sized> {
     edge: Pointer<E>,
     path: Option<Path>,
-    rank: Option<u64>,
+    rank: Option<u16>,
 }
 
 impl<E: ?Sized> fmt::Debug for Link<E> {
@@ -37,7 +37,7 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-impl<U: 'static + Unit> Node<U> {
+impl<U: 'static + Unit + HashGraph + Serialize> Node<U> {
     pub fn hub(self) -> Hub<U::Base> {
         self.into()
     }
@@ -57,8 +57,23 @@ impl<E: ?Sized> Link<E> {
             rank: self.rank,
         }
     }
-    pub fn rank(&self) -> Option<u64> {
+    pub fn rank(&self) -> Option<u16> {
         self.rank
+    }
+}
+
+impl<E> Link<E> 
+where 
+    E: Reckon + ?Sized
+{
+    pub fn get_imports(&self) -> Result<Vec<Import>> {
+        read_part(&self.edge, |edge| edge.get_imports())?
+    }
+    pub fn get_hash(&self) -> Result<u64> {
+        read_part(&self.edge, |edge| edge.get_hash())?
+    }
+    pub fn get_serial(&self) -> Result<String> {
+        read_part(&self.edge, |edge| edge.get_serial())?
     }
 }
 
@@ -74,35 +89,24 @@ where
     }
 }
 
-impl<E: ?Sized> HashGraph for Link<E>
+impl<E> HashGraph for Link<E>
 where
-    Self: Solve,
+    E: Reckon + ?Sized,
 {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
-            path.hash(state)
-        } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
-            hash.hash_graph(state)
+            path.hash(state);
+        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {//if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
+            hash.hash_graph(state);
+            // read_part(&self.edge, |edge| edge.get_hash()).unwrap().unwrap().hash_graph(state)
         }
     }
 }
 
-// impl<E: ?Sized> Hash for Link<E>
-// where
-//     Self: Solve,
-// {
-//     fn hash<H: Hasher>(&self, state: &mut H) {
-//         if let Some(path) = &self.path {
-//             path.hash(state)
-//         } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
-//             hash.hash_graph(state)
-//         }
-//     }
-// }
-
-impl<E: ?Sized> Serialize for Link<E>
+impl<E> Serialize for Link<E>
 where
-    Self: Solve,
+    //Self: Solve,
+    E: Reckon + ?Sized
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -110,7 +114,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
+        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {// Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
             serializer.serialize_str("ERROR(serialization)")
@@ -273,9 +277,10 @@ where
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        read_part(&self.edge, |edge| edge.reckon(task))?
-    }
+    
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     read_part(&self.edge, |edge| edge.reckon(task))?
+    // }
 }
 
 impl<T> Solve for Ploy<T>
@@ -286,9 +291,9 @@ where
     async fn solve(&self) -> Result<Hub<Self::Base>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        read_part(&self.edge, |edge| edge.reckon(task))?
-    }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     read_part(&self.edge, |edge| edge.reckon(task))?
+    // }
 }
 
 impl<E> Adapt for Link<E>

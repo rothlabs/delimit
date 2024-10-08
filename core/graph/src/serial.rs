@@ -3,7 +3,7 @@ use std::fmt;
 
 pub trait ToSerial {
     /// Serialize to string.
-    fn serial(&self) -> Result<Gain>;
+    fn serial(&self) -> Result<String>;
 }
 
 impl<S> ToSerial for S
@@ -11,8 +11,8 @@ where
     S: Serialize,
 {
     /// Serialize to string.
-    fn serial(&self) -> Result<Gain> {
-        serde_json::to_string(self)?.gain()
+    fn serial(&self) -> Result<String> {
+        Ok(serde_json::to_string(self)?)
     }
 }
 

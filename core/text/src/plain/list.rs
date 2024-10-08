@@ -54,12 +54,16 @@ impl Solve for List {
         self.separator.deal("separator", deal)?;
         Ok(())
     }
-    fn reckon(&self, task: Task) -> Result<Gain> {
-        match task {
-            Task::Rank => 1.gain(),
-            Task::Serial => self.serial(),
-            Task::Digest(state) => self.digest(state),
-            _ => task.no_handler(self),
-        }
+    fn rank(&self) -> u16 {
+        PLAIN
     }
 }
+
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     match task {
+    //         Task::Rank => 1.gain(),
+    //         Task::Serial => self.serial(),
+    //         Task::Digest(state) => self.digest(state),
+    //         _ => task.no_handler(self),
+    //     }
+    // }

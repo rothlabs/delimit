@@ -19,16 +19,16 @@ pub enum Error {
 /// Primary graph part.
 #[derive(Clone, PartialEq, Serialize, Debug)]
 #[serde(untagged)]
-pub enum Hub<T>
-where
-    T: 'static + Payload,
-{
+pub enum Hub<T: Payload> {
     Tray(Tray<T>),
     Leaf(Leaf<T>),
     Ploy(Ploy<T>),
 }
 
-impl<T: 'static + Payload + HashGraph> HashGraph for Hub<T> {
+impl<T> HashGraph for Hub<T> 
+where 
+    T: Payload + HashGraph
+{
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         match self {
             Self::Tray(x) => x.hash_graph(state),
@@ -53,7 +53,8 @@ impl<T: Payload> Hub<T> {
 
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
-            Self::Ploy(ploy) => ploy.reckon(Task::Imports)?.imports(),
+            Self::Ploy(ploy) => ploy.get_imports(),
+            // Self::Ploy(ploy) => ploy.reckon(Task::Imports)?.imports(),
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -77,21 +78,21 @@ impl<T: Payload> Hub<T> {
     /// Get hash digest number of hub.
     pub fn digest(&self) -> Result<u64> {
         match self {
-            Self::Leaf(leaf) => leaf.reckon(Task::Hash),
-            Self::Ploy(ploy) => ploy.reckon(Task::Hash),
+            Self::Leaf(leaf) => leaf.get_hash(),
+            Self::Ploy(ploy) => ploy.get_hash(),
+            // Self::Leaf(leaf) => leaf.reckon(Task::Hash),
+            // Self::Ploy(ploy) => ploy.reckon(Task::Hash),
             _ => Err(Error::NotNode)?,
-        }?
-        .u64()
+        }
     }
 
     /// Get serial string of hub.
     pub fn serial(&self) -> Result<String> {
         match self {
             Self::Tray(tray) => tray.serial(),
-            Self::Leaf(leaf) => leaf.reckon(Task::Serial),
-            Self::Ploy(ploy) => ploy.reckon(Task::Serial),
-        }?
-        .string()
+            Self::Leaf(leaf) => leaf.get_serial(),
+            Self::Ploy(ploy) => ploy.get_serial(),
+        }
     }
 
     /// Replace stems according to the Trade deal.
@@ -128,7 +129,7 @@ impl<T: Payload> Hub<T> {
     }
 
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
-    pub fn rank(&self) -> Option<u64> {
+    pub fn rank(&self) -> Option<u16> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
             _ => None,
@@ -136,7 +137,7 @@ impl<T: Payload> Hub<T> {
     }
 
     /// Solve down to the given graph rank.
-    pub async fn down(&self, target: u64) -> Result<Hub<T>> {
+    pub async fn down(&self, target: u16) -> Result<Hub<T>> {
         let mut hub = self.clone();
         let mut rank = hub.rank();
         while let Some(current) = rank {
@@ -210,11 +211,11 @@ where
     T: 'static + Payload,
 {
     /// Solve down to the given graph rank.
-    fn down(&self, rank: u64) -> impl Future<Output = Result<Vec<Hub<T>>>> + IsSend;
+    fn down(&self, rank: u16) -> impl Future<Output = Result<Vec<Hub<T>>>> + IsSend;
 }
 
 impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
-    async fn down(&self, rank: u64) -> Result<Vec<Hub<T>>> {
+    async fn down(&self, rank: u16) -> Result<Vec<Hub<T>>> {
         let mut out = vec![];
         for hub in self {
             out.push(hub.down(rank).await?);

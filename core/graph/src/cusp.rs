@@ -33,7 +33,7 @@ where
     W: 'static + WorkFromSnap + Clear + ReactMut + SolveMut + SendSync,
 {
     type Unit = W::Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u64>, Pointer<Self>)> {
+    fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
         let (rank, work) = W::from_snap(snap);
         let (cusp, back) = cusp_pointer(Self {
             work,
@@ -42,6 +42,18 @@ where
         });
         write_part(&cusp, |mut cusp| cusp.set_back(back))??;
         Ok((rank, cusp))
+    }
+}
+
+impl<W: ReckonMut> ReckonMut for Cusp<W> {
+    fn get_imports(&self) -> Result<Vec<Import>> {
+        self.work.get_imports()
+    }
+    fn get_hash(&mut self) -> Result<u64> {
+        self.work.get_hash()
+    }
+    fn get_serial(&mut self) -> Result<String> {
+        self.work.get_serial()
     }
 }
 
@@ -130,9 +142,12 @@ where
     fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
         Box::pin(async move { self.work.solve().await })
     }
-    fn reckon(&mut self, task: Task) -> Result<Gain> {
-        self.work.reckon(task)
+    fn rank(&self) -> u16 {
+        self.work.rank()
     }
+    // fn reckon(&mut self, task: Task) -> Result<Gain> {
+    //     self.work.reckon(task)
+    // }
 }
 
 impl<W> AdaptMut for Cusp<W>
