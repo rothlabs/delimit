@@ -126,12 +126,32 @@ where
     fn rank(&self) -> Result<u16> {
         read_part(&self.cusp, |cusp| cusp.rank())
     }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     write_part(&self.cusp, |mut cusp| {
-    //         cusp.add_root(&self.root);
-    //         cusp.reckon(task)
-    //     })?
-    // }
+}
+
+impl<C> Employed for Edge<C>
+where
+    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
+{
+    type Base = C::Base;
+    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
+        Box::pin(async move {
+            write_part(&self.cusp, |mut cusp| async move {
+                cusp.add_root(&self.root);
+                cusp.solve().await
+            })?
+            .await
+        })
+    }
+    fn backed(&self, back: &Back) -> WingEdge<Self::Base> {
+        edge_pointer(Self {
+            root: None,
+            back: Some(back.clone()),
+            cusp: self.cusp.clone(),
+        })
+    }
+    fn rank(&self) -> Result<u16> {
+        read_part(&self.cusp, |cusp| cusp.rank())
+    }
 }
 
 impl<C> Reckon for Edge<C> 

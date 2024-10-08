@@ -159,6 +159,20 @@ where
 
 impl<E> Link<E>
 where
+    E: 'static + FromSnap + Employ,
+{
+    pub fn wing_from_unit(unit: E::Unit) -> Result<Wing<E::Base>> {
+        let (rank, edge) = E::from_snap(unit.into())?;
+        Ok(Wing {
+            path: None,
+            rank,
+            edge,
+        })
+    }
+}
+
+impl<E> Link<E>
+where
     E: 'static + FromSnap + Engage,
 {
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
@@ -230,6 +244,18 @@ impl<T: Payload> Backed for Ploy<T> {
     }
 }
 
+impl<T: Payload> Backed for Wing<T> {
+    fn backed(&self, back: &Back) -> Result<Self> {
+        read_part(&self.edge, |edge| {
+            Ok(Self {
+                edge: edge.backed(back),
+                path: self.path.clone(),
+                rank: self.rank,
+            })
+        })?
+    }
+}
+
 impl<E: Read> Link<E> {
     /// Read payload of Link.
     pub fn read<F, O>(&self, read: F) -> Result<O>
@@ -284,6 +310,19 @@ where
 }
 
 impl<T> Solve for Ploy<T>
+where
+    T: 'static + Payload,
+{
+    type Base = T;
+    async fn solve(&self) -> Result<Hub<Self::Base>> {
+        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+    }
+    // fn reckon(&self, task: Task) -> Result<Gain> {
+    //     read_part(&self.edge, |edge| edge.reckon(task))?
+    // }
+}
+
+impl<T> Solve for Wing<T>
 where
     T: 'static + Payload,
 {

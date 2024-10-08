@@ -13,7 +13,7 @@ pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use paste::paste;
-pub use ploy::{Based, Engage, Ploy, PloyEdge};
+pub use ploy::{Based, Engage, Ploy, PloyEdge, Employ, Employed, Wing, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -391,6 +391,22 @@ where
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
+    }
+}
+
+pub trait IntoWing
+where
+    Self: Solve,
+{
+    fn wing(self) -> Result<Wing<Self::Base>>;
+}
+
+impl<T> IntoWing for T
+where
+    T: 'static + Unit
+{
+    fn wing(self) -> Result<Wing<Self::Base>> {
+        Node::wing_from_unit(self)
     }
 }
 

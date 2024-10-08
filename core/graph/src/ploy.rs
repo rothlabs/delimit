@@ -16,3 +16,19 @@ pub trait Based {
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
     fn rank(&self) -> Result<u16>;
 }
+
+
+pub type Wing<T> = Link<dyn Employ<Base = T>>;
+
+pub type WingEdge<T> = Pointer<dyn Employ<Base = T>>;
+
+
+pub trait Employ: Employed + Adapt + Update + SetRoot + Debug {}
+impl<E> Employ for E where E: Employed + Adapt + Update + SetRoot + Debug {}
+
+pub trait Employed {
+    type Base: Payload;
+    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
+    fn backed(&self, back: &Back) -> WingEdge<Self::Base>;
+    fn rank(&self) -> Result<u16>;
+}
