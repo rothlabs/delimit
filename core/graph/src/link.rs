@@ -37,11 +37,11 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-impl<U: 'static + Unit + HashGraph + Serialize> Node<U> {
-    pub fn hub(self) -> Hub<U::Base> {
-        self.into()
-    }
-}
+// impl<U: 'static + Unit + HashGraph + Serialize> Node<U> {
+//     pub fn hub(self) -> Hub<U::Base> {
+//         self.into()
+//     }
+// }
 
 impl<T: Payload> Leaf<T> {
     pub fn hub(self) -> Hub<T> {

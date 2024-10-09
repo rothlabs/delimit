@@ -78,10 +78,11 @@ macro_rules! node_and_apex {
 #[macro_export]
 macro_rules! build_methods {
     ($Unit:ident $Base:ty) => {
+        impl WingOnly for $Unit {}
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<$Base>> {
-                Ok(self.make()?.wing()?.into())
+                self.make()?.hub()
             }
         }
     };
@@ -109,10 +110,11 @@ macro_rules! Unit {
     $pub:vis
     struct $Unit:ident $tt:tt
     ) => {
+        impl WingOnly for $Unit {}
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.make()?.wing()?.into())
+                self.make()?.hub()
             }
         }
     };
@@ -135,6 +137,7 @@ macro_rules! Output {
     $pub:vis
     struct $Unit:ident<T: Payload + Pod> $tt:tt
     ) => {
+        impl<T: Payload + Pod> WingOnly for $Unit<T> {}
         impl<T> paste! {[<$Unit "Builder">]<T>}
         where
             T: Payload + Pod,
@@ -152,7 +155,7 @@ macro_rules! Output {
                 Ok(self.hub()?.into())
             }
             pub fn hub(self) -> graph::Result<Hub<()>> {
-                Ok(self.make()?.wing()?.into())
+                self.make()?.hub()
             }
         }
     };
@@ -165,6 +168,7 @@ macro_rules! Input {
     $pub:vis
     struct $Unit:ident<T> $tt:tt
     ) => {
+        impl<T> WingOnly for $Unit<T> {}
         impl<T> paste! {[<$Unit "Builder">]<T>}
         where
             T: Payload + AnyBitPattern,
@@ -180,8 +184,7 @@ macro_rules! Input {
                 self.make()?.node()
             }
             pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-                Ok(self.make()?.wing()?.into())
-                //Ok(self.node()?.wing()?.into())
+                self.make()?.hub()
             }
         }
     };
@@ -417,31 +420,43 @@ where
 
 impl<T> IntoWing for T
 where
-    T: 'static + Unit
+    T: 'static + Unit + WingOnly
 {
     fn wing(self) -> Result<Wing<Self::Base>> {
         Node::wing_from_unit(self)
     }
 }
 
-// impl<T> From<Node<T>> for Wing<T> {
-//     fn from(value: Node<T>) -> Self {
-        
-//     }
-// }
+pub trait IntoWingHub {
+    type Base: Payload;
+    /// Move into `Hub`
+    fn hub(self) -> Result<Hub<Self::Base>>;
+}
 
-// pub trait IntoHubFromWing {
-//     type Base: Payload;
-//     /// Move into `Hub`
-//     fn wing_hub(self) -> Result<Hub<Self::Base>>;
-// }
+impl<T: IntoWing> IntoWingHub for T {
+    type Base = T::Base;
+    fn hub(self) -> Result<Hub<Self::Base>> {
+        Ok(self.wing()?.into())
+    }
+}
 
-// impl<T: IntoWing> IntoHubFromWing for T {
-//     type Base = T::Base;
-//     fn wing_hub(self) -> Result<Hub<Self::Base>> {
-//         Ok(self.wing()?.into())
-//     }
-// }
+pub trait WingOnly {}
+
+pub trait LinkToWingHub {
+    type Base: Payload;
+    fn hub(&self) -> Hub<Self::Base>;
+}
+
+// TODO: make the same for LinkToPloyHub
+impl<E> LinkToWingHub for Link<E> 
+where 
+    E: 'static + Employ,
+{
+    type Base = E::Base;
+    fn hub(&self) -> Hub<Self::Base> {
+        self.wing().into()
+    }
+}
 
 pub trait ToItem {
     type Item;

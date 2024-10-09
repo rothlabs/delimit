@@ -43,15 +43,24 @@ impl Poll for Vec<Apex> {
     }
 }
 
+pub trait DealItem {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
+}
+
 impl From<&str> for Apex {
     fn from(value: &str) -> Self {
         Apex::String(value.into())
     }
 }
 
-pub trait DealItem {
-    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
-}
+// impl From<Link<dyn 'static + Employ<Base = ()>>> for Apex 
+// // where 
+// //     E: 'static + Employ<Base = ()>,
+// {
+//     fn from(node: Link<dyn 'static + Employ<Base = ()>>) -> Self {
+//         Apex::Void(node.into())
+//     }
+// }
 
 macro_rules! ImplViewVec {
     ($($Variant:ident $type_:ty)*) => {
@@ -84,6 +93,15 @@ macro_rules! ImplViewVec {
         pub enum Apex {
             $($Variant(Hub<$type_>),)*
         }
+
+        // $(impl<E> From<Link<E>> for Apex 
+        // where 
+        //     E: 'static + Employ<Base = $type_>,
+        // {
+        //     fn from(node: Link<E>) -> Self {
+        //         Apex::$Variant(node.wing().into())
+        //     }
+        // })*
 
         impl From<&Apex> for Apex {
             fn from(value: &Apex) -> Self {

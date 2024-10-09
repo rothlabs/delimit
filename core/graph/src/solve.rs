@@ -19,9 +19,6 @@ pub trait Solve {
     fn rank(&self) -> u16 {
         0
     }
-    // fn reckon(&self, _: Task) -> Result<Gain> {
-    //     Err(anyhow!("reckon not defined"))?
-    // }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("adapt not defined"))?
     }
@@ -65,7 +62,6 @@ pub trait Act {
     fn reckon(&self, _: Task) -> Result<Gain> {
         Err(anyhow!("reckon not defined"))?
     }
-    // fn rank(&self) -> u16;
 }
 
 impl<T: Act + SendSync> Solve for T {
@@ -77,9 +73,6 @@ impl<T: Act + SendSync> Solve for T {
     fn backed(&mut self, back: &Back) -> Result<()> {
         self.backed(back)
     }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     self.reckon(task)
-    // }
     fn rank(&self) -> u16 {
         0
     }
