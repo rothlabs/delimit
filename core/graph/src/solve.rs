@@ -59,9 +59,6 @@ pub trait Act {
     fn backed(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
-    fn reckon(&self, _: Task) -> Result<Gain> {
-        Err(anyhow!("reckon not defined"))?
-    }
 }
 
 impl<T: Act + SendSync> Solve for T {

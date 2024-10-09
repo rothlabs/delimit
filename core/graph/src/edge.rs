@@ -58,6 +58,7 @@ where
     }
 }
 
+// TODO: make this a different trait for edge?!
 impl<C> Solve for Edge<C>
 where
     C: SolveMut + AddRoot + SendSync,
