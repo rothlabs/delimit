@@ -7,6 +7,7 @@ pub struct BufferReader<T> {
     buffer: Grc<wgpu::Buffer>,
     #[builder(default, setter(each(name = "stem", into)))]
     stems: Vec<Apex>,
+    wow: Hub<u8>,
     #[builder(default)]
     phantom: PhantomData<T>,
 }
@@ -30,6 +31,7 @@ where
         Ok(out.leaf().hub())
     }
     fn backed(&mut self, back: &Back) -> graph::Result<()> {
+        // self.wow.b
         self.stems.back(back)
     }
 }

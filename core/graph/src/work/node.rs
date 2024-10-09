@@ -35,14 +35,6 @@ where
     fn back(&mut self, back: &Back) -> Result<()> {
         self.unit.backed(back)
     }
-    // fn reckon(&mut self, task: Task) -> Result<Gain> {
-    //     match task {
-    //         Task::Hash => self.digest(),
-    //         Task::Serial => self.serial(),
-    //         Task::Imports => self.imports.gain(),
-    //         _ => self.unit.reckon(task),
-    //     }
-    // }
 }
 
 impl<U> ReckonMut for Node<U> 

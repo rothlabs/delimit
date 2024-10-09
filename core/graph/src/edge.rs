@@ -71,15 +71,6 @@ where
         })?
         .await
     }
-    fn rank(&self) -> u16 {
-        read_part(&self.cusp, |cusp| cusp.rank()).unwrap()
-    }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     write_part(&self.cusp, |mut cusp| {
-    //         cusp.add_root(&self.root);
-    //         cusp.reckon(task)
-    //     })?
-    // }
 }
 
 impl<C> Adapt for Edge<C>
