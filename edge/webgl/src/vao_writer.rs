@@ -25,7 +25,7 @@ impl Act for VaoWriter {
         self.object.unbind();
         Ok(())
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.attributes.back(back)
     }
 }

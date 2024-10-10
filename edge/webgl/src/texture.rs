@@ -23,7 +23,7 @@ impl Texture {
     }
     fn vec_u8(&self, array: &Vec<u8>, width: i32, height: i32) -> Result<()> {
         let pixels = unsafe { Uint8Array::view(array.as_slice()) };
-        // TODO: use PIXEL_UNPACK_ buffer bind and following pbo offset:
+        // use PIXEL_UNPACK_ buffer bind and following pbo offset:
         // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
         if let Err(memo) = self
             .gl
@@ -62,7 +62,7 @@ impl Act for Texture {
             _ => Err(anyhow!("wrong apex"))?,
         }
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.array.back(back)?;
         self.width.back(back)?;
         self.height.back(back)

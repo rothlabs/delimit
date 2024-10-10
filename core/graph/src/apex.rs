@@ -235,7 +235,6 @@ macro_rules! ImplViewVec {
                 }
             }
             pub fn path(&self) -> Option<&Path> {
-                // TODO: use macro_rules to reduce this
                 match self {
                     $(Self::$Variant(x) => x.path(),)*
                 }
@@ -246,7 +245,6 @@ macro_rules! ImplViewVec {
                 })
             }
             pub fn set(self, apex: Apex) -> Result<Self> {
-                // TODO: use macro_rules to reduce this
                 match self {
                     $(Self::$Variant(x) => {
                         if let Apex::$Variant(y) = apex {

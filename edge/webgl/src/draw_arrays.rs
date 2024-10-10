@@ -63,7 +63,7 @@ impl Act for DrawArrays {
         self.vao.unbind();
         Ok(())
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.stems.back(back)?;
         self.program.back(back)?;
         self.first.back(back)?;

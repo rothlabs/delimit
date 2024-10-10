@@ -44,7 +44,7 @@ impl Act for VertexAttribute {
         self.buffer.unbind();
         Ok(())
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.index.back(back)?;
         self.size.back(back)?;
         self.stride.back(back)?;

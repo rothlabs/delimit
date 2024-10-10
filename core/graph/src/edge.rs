@@ -58,7 +58,6 @@ where
     }
 }
 
-// TODO: make this a different trait for edge?!
 impl<C> Solve for Edge<C>
 where
     C: SolveMut + AddRoot + SendSync,
@@ -115,14 +114,11 @@ where
             cusp: self.cusp.clone(),
         })
     }
-    fn rank(&self) -> Result<u16> {
-        read_part(&self.cusp, |cusp| cusp.rank())
-    }
 }
 
 impl<C> Employed for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + Debug,
+    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug, 
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
@@ -140,9 +136,6 @@ where
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })
-    }
-    fn rank(&self) -> Result<u16> {
-        read_part(&self.cusp, |cusp| cusp.rank())
     }
 }
 

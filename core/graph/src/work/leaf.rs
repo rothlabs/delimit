@@ -55,15 +55,8 @@ impl<T> BaseMut for Leaf<T> {
 
 impl<T: Payload> SolveMut for Leaf<T> {
     type Base = ();
-    fn rank(&self) -> u16 {
-        0
-    }
-    // fn reckon(&mut self, task: Task) -> Result<Gain> {
-    //     match task {
-    //         Task::Serial => self.serial(),
-    //         Task::Hash => self.digest(),
-    //         _ => task.no_handler(self),
-    //     }
+    // fn rank(&self) -> u16 {
+    //     0
     // }
 }
 

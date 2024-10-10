@@ -45,7 +45,7 @@ impl Act for Shader {
             Err(anyhow!(memo))?
         }
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.source.back(back)
     }
 }

@@ -22,7 +22,7 @@ pub trait Solve {
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("adapt not defined"))?
     }
-    fn backed(&mut self, _: &Back) -> Result<()> {
+    fn back(&mut self, _: &Back) -> Result<()> {
         Err(anyhow!("back not defined"))?
     }
 }
@@ -56,7 +56,7 @@ where
 
 pub trait Act {
     fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
-    fn backed(&mut self, _: &Back) -> Result<()> {
+    fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
 }
@@ -67,8 +67,8 @@ impl<T: Act + SendSync> Solve for T {
         self.act().await?;
         solve_ok()
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
-        self.backed(back)
+    fn back(&mut self, back: &Back) -> Result<()> {
+        self.back(back)
     }
     fn rank(&self) -> u16 {
         0
@@ -87,11 +87,8 @@ pub trait SolveMut {
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
-    fn rank(&self) -> u16 {
-        0 //Err(anyhow!("reckon not defined"))?
-    }
-    // fn reckon(&mut self, _: Task) -> Result<Gain> {
-    //     Err(anyhow!("reckon not defined"))?
+    // fn rank(&self) -> u16 {
+    //     0 //Err(anyhow!("reckon not defined"))?
     // }
 }
 

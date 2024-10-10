@@ -49,7 +49,7 @@ impl Act for Program {
             Err(anyhow!(memo))?
         }
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.vertex.back(back)?;
         self.fragment.back(back)
     }

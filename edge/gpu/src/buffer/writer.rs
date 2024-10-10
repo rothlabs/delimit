@@ -23,7 +23,7 @@ where
             })
             .await
     }
-    fn backed(&mut self, back: &Back) -> graph::Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.offset.back(back)?;
         self.data.back(back)
     }

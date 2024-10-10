@@ -13,6 +13,8 @@ pub struct Node<U: Solve> {
     serial: Option<String>,
 }
 
+impl<U: Solve + WingOnly> WingOnly for Node<U> {}
+
 impl<U> SolveMut for Node<U>
 where
     U: Solve + IsSend,
@@ -33,7 +35,7 @@ where
         self.unit.adapt(deal)
     }
     fn back(&mut self, back: &Back) -> Result<()> {
-        self.unit.backed(back)
+        self.unit.back(back)
     }
 }
 

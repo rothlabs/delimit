@@ -13,6 +13,8 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
+impl<W: WingOnly> WingOnly for Cusp<W> {}
+
 impl<W> FromBase for Cusp<W>
 where
     W: 'static + WorkFromBase + Clear + ReactMut + SendSync,
@@ -142,12 +144,6 @@ where
     fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
         Box::pin(async move { self.work.solve().await })
     }
-    fn rank(&self) -> u16 {
-        self.work.rank()
-    }
-    // fn reckon(&mut self, task: Task) -> Result<Gain> {
-    //     self.work.reckon(task)
-    // }
 }
 
 impl<W> AdaptMut for Cusp<W>

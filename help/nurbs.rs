@@ -46,5 +46,5 @@ pub fn plot(&self, u: f32) -> (usize, ([f32; 4], [f32; 4])) {
         basis.1[i] = (basis.1[i] * sum.0 - basis.0[i] * sum.1) * weights[i] / sum.0 / sum.0;
         basis.0[i] *= weights[i] / sum.0;
     }
-    (knot_index, basis) // TODO: make basis a matrix so it can be multiplied by controls as a matrix
+    (knot_index, basis)
 }

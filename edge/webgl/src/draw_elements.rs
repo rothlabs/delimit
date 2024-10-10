@@ -30,20 +30,10 @@ impl Act for DrawElements {
         self.vao.unbind();
         Ok(())
     }
-    fn backed(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> Result<()> {
         self.stems.back(back)?;
         self.program.back(back)?;
         self.count.back(back)?;
         self.offset.back(back)
     }
 }
-
-// impl DrawElements {
-//     // TODO: Make it so this can be async!!!!
-//     fn draw(&self, vao: &Vao, count: i32, offset: i32) {
-//         vao.bind();
-//         self.gl
-//             .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
-//         vao.unbind();
-//     }
-// }

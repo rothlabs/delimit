@@ -198,12 +198,28 @@ where
     }
 }
 
+// pub trait AsPloyHub {
+//     type Base: Payload;
+//     fn hub(&self) -> Hub<Self::Base>;
+// }
+
+
+// impl<E> AsPloyHub for Link<E> 
+// where 
+//     E: 'static + Engage,
+// {
+//     type Base = E::Base;
+//     fn hub(&self) -> Hub<Self::Base> {
+//         self.as_ploy().into()
+//     }
+// }
+
 impl<E> Link<E>
 where
     E: 'static + Employ,
 {
     /// Copy the link with unit type erased.  
-    pub fn wing(&self) -> Wing<E::Base> {
+    pub fn as_wing(&self) -> Wing<E::Base> {
         Wing {
             edge: self.edge.clone(),
             path: self.path.clone(),

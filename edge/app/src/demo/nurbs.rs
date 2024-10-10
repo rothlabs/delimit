@@ -225,7 +225,7 @@ pub struct Nurbs {
 }
 
 impl Act for Nurbs {
-    fn backed(&mut self, back: &Back) -> graph::Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.draw0.back(back)?;
         self.draw1.back(back)?;
         self.basis.back(back)?;

@@ -9,17 +9,6 @@ where
     }
 }
 
-// TODO: make same for wing
-impl<T, U> From<Node<U>> for Hub<T>
-where
-    T: Payload,
-    U: 'static + Unit<Base = T>  + HashGraph + Serialize,
-{
-    fn from(node: Node<U>) -> Self {
-        Hub::Ploy(node.as_ploy())
-    }
-}
-
 impl<T> From<Ploy<T>> for Hub<T>
 where
     T: Payload,
@@ -67,3 +56,13 @@ impl<T: Payload> From<T> for Hub<T> {
         Hub::Tray(Tray::Base(value))
     }
 }
+
+// impl<T, U> From<Node<U>> for Hub<T>
+// where
+//     T: Payload,
+//     U: 'static + Unit<Base = T>  + HashGraph + Serialize,
+// {
+//     fn from(node: Node<U>) -> Self {
+//         Hub::Ploy(node.as_ploy())
+//     }
+// }
