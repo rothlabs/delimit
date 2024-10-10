@@ -288,19 +288,19 @@ impl<T: Payload> Wing<T> {
     }
 }
 
-impl<E> Adapt for Link<E>
+impl<E> Link<E>
 where
-    E: Adapt + ?Sized + SendSync,
+    E: AdaptEdge + ?Sized + SendSync,
 {
-    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+    pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?
     }
-    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
+    pub fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             read_part(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
         })
     }
-    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         read_part(&self.edge, |edge| edge.transient_set(deal))?
     }
 }

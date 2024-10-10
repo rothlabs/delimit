@@ -1,4 +1,4 @@
-pub use adapt::{Adapt, AdaptMut};
+pub use adapt::{AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
 pub use apex::{Apex, DealItem, Poll, View, ViewVec};

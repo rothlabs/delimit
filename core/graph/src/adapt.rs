@@ -14,6 +14,15 @@ pub enum Error {
 }
 
 pub trait Adapt {
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Err(anyhow!("adapt not defined"))?
+    }
+    fn back(&mut self, _: &Back) -> Result<()> {
+        Err(anyhow!("back not defined"))?
+    }
+}
+
+pub trait AdaptEdge {
     /// For graph internals to handle alter calls
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
     /// For graph internals to handle alter calls

@@ -72,7 +72,7 @@ where
     }
 }
 
-impl<C> Adapt for Edge<C>
+impl<C> AdaptEdge for Edge<C>
 where
     C: AdaptMut + UpdateMut + AddRoot,
 {

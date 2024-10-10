@@ -7,8 +7,8 @@ pub type Ploy<T> = Link<dyn Engage<Base = T>>;
 pub type PloyEdge<T> = Pointer<dyn Engage<Base = T>>;
 
 /// General engagement of Ploy with erased unit type.
-pub trait Engage: Based + Adapt + Update + SetRoot + Reckon + Debug {}
-impl<E> Engage for E where E: Based + Adapt + Update + SetRoot + Reckon + Debug {}
+pub trait Engage: Based + AdaptEdge + Update + SetRoot + Reckon + Debug {}
+impl<E> Engage for E where E: Based + AdaptEdge + Update + SetRoot + Reckon + Debug {}
 
 pub trait Based {
     type Base: Payload;
@@ -20,8 +20,8 @@ pub type Wing<T> = Link<dyn Employ<Base = T>>;
 
 pub type WingEdge<T> = Pointer<dyn Employ<Base = T>>;
 
-pub trait Employ: Employed + Adapt + Update + SetRoot + Debug {}
-impl<E> Employ for E where E: Employed + Adapt + Update + SetRoot + Debug {}
+pub trait Employ: Employed + AdaptEdge + Update + SetRoot + Debug {}
+impl<E> Employ for E where E: Employed + AdaptEdge + Update + SetRoot + Debug {}
 
 pub trait Employed {
     type Base: Payload;

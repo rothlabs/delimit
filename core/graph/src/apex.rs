@@ -59,16 +59,6 @@ impl DealItem for Vec<Apex> {
     }
 }
 
-// pub trait DealItem2 {
-//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
-// }
-
-// impl DealItem2 for Vec<Hub<T>> {
-//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-//         deal.vec(key, self.into())
-//     }
-// }
-
 impl From<&str> for Apex {
     fn from(value: &str) -> Self {
         Apex::String(value.into())
