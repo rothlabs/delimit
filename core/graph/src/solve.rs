@@ -56,6 +56,7 @@ where
 
 pub trait Act {
     fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
+    // fn adapt(&mut self, _: &mut dyn Deal) -> Result<()>;
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
@@ -67,6 +68,9 @@ impl<T: Act + SendSync> Solve for T {
         self.act().await?;
         solve_ok()
     }
+    // fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+    //     self.adapt(deal)
+    // }
     fn back(&mut self, back: &Back) -> Result<()> {
         self.back(back)
     }

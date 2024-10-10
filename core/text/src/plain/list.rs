@@ -59,6 +59,13 @@ impl Solve for List {
     }
 }
 
+
+
+
+
+
+
+
 // fn reckon(&self, task: Task) -> Result<Gain> {
 //     match task {
 //         Task::Rank => 1.gain(),

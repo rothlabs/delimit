@@ -47,6 +47,28 @@ pub trait DealItem {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
+impl DealItem for Apex {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.one(key, View::Apex(self))
+    }
+}
+
+// impl DealItem for Vec<Apex> {
+//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+//         deal.vec(key, self)
+//     }
+// }
+
+// pub trait DealItem2 {
+//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
+// }
+
+// impl DealItem2 for Vec<Hub<T>> {
+//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+//         deal.vec(key, self.into())
+//     }
+// }
+
 impl From<&str> for Apex {
     fn from(value: &str) -> Self {
         Apex::String(value.into())
@@ -158,6 +180,11 @@ macro_rules! ImplViewVec {
                     $(Self::$Variant(x) => x.poll().await,)*
                 }
             }
+            pub fn path(&self) -> Option<&Path> {
+                match self {
+                    $(Self::$Variant(x) => x.path(),)*
+                }
+            }
             pub fn get(&self, aim: impl Into<Aim>) -> Result<Apex> {
                 match self {
                     $(Self::$Variant(x) => x.get(aim),)*
@@ -211,6 +238,7 @@ macro_rules! ImplViewVec {
         }
 
         pub enum View<'a> {
+            Apex(&'a mut Apex),
             $($Variant(&'a mut Hub<$type_>),)*
         }
 
@@ -231,21 +259,28 @@ macro_rules! ImplViewVec {
         impl View<'_> {
             pub fn apex(self) -> Apex {
                 match self {
+                    Self::Apex(x) => x.clone(),
                     $(Self::$Variant(x) => Apex::$Variant(x.clone()),)*
                 }
             }
             pub fn path(&self) -> Option<&Path> {
                 match self {
+                    Self::Apex(x) => x.path(),
                     $(Self::$Variant(x) => x.path(),)*
                 }
             }
             pub fn backed(&self, back: &Back) -> Result<Apex> {
                 Ok(match self {
+                    Self::Apex(x) => x.backed(back)?,
                     $(Self::$Variant(x) => Apex::$Variant(x.backed(back)?),)*
                 })
             }
             pub fn set(self, apex: Apex) -> Result<Self> {
                 match self {
+                    Self::Apex(x) => {
+                        *x = apex;
+                        return Ok(Self::Apex(x));
+                    },
                     $(Self::$Variant(x) => {
                         if let Apex::$Variant(y) = apex {
                             *x = y;
@@ -258,6 +293,7 @@ macro_rules! ImplViewVec {
         }
 
         pub enum ViewVec<'a> {
+            // Apex(&'a mut Apex),
             $($Variant(&'a mut Vec<Hub<$type_>>),)*
         }
 
@@ -328,6 +364,7 @@ ImplViewVec!(
     U8 u8
     U16 u16
     U32 u32
+    U64 u64
     I8 i8
     I16 i16
     I32 i32

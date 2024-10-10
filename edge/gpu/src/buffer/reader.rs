@@ -29,10 +29,27 @@ where
         let out = bytemuck::cast_slice(&data).to_vec();
         Ok(out.leaf().hub())
     }
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.stems.back(back)
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.stems.deal(deal)
     }
+    // fn back(&mut self, back: &Back) -> graph::Result<()> {
+    //     self.stems.back(back)
+    // }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // impl<T> BufferReaderBuilder<T>
 // where
