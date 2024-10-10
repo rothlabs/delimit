@@ -49,13 +49,15 @@ impl Solve for List {
         self.items[last].read(|x| base += x).await?;
         Ok(base.leaf().hub())
     }
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.items.deal("items", deal)?;
-        self.separator.deal("separator", deal)?;
-        Ok(())
-    }
     fn rank(&self) -> u16 {
         PLAIN
+    }
+}
+
+impl Adapt for List {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+        self.items.deal("items", deal)?;
+        self.separator.deal("separator", deal)
     }
 }
 

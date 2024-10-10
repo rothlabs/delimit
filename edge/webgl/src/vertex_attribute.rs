@@ -44,6 +44,9 @@ impl Act for VertexAttribute {
         self.buffer.unbind();
         Ok(())
     }
+}
+
+impl Adapt for VertexAttribute {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.index.back(back)?;
         self.size.back(back)?;

@@ -30,6 +30,9 @@ impl Act for DrawElements {
         self.vao.unbind();
         Ok(())
     }
+}
+
+impl Adapt for DrawElements {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.stems.back(back)?;
         self.program.back(back)?;

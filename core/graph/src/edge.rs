@@ -60,7 +60,7 @@ where
 
 impl<C> Solve for Edge<C>
 where
-    C: SolveMut + AddRoot + SendSync,
+    C: SolveAdapt + AddRoot + SendSync,
 {
     type Base = C::Base;
     async fn solve(&self) -> Result<Hub<Self::Base>> {
@@ -95,7 +95,7 @@ where
 
 impl<C> Based for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
+    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
@@ -118,7 +118,7 @@ where
 
 impl<C> Employed for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug,
+    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {

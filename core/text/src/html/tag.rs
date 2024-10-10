@@ -31,21 +31,16 @@ impl Solve for Tag {
             .hub()?;
         List::new().push("<").push(&items).push(">").hub()
     }
+    fn rank(&self) -> u16 {
+        2
+    }
+}
+
+impl Adapt for Tag {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.name.deal("name", deal)?;
         self.attributes.deal("attributes", deal)?;
         Ok(())
-    }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     match task {
-    //         Task::Rank => 2.gain(),
-    //         Task::Serial => self.serial(),
-    //         Task::Digest(state) => self.digest(state),
-    //         _ => task.no_handler(self),
-    //     }
-    // }
-    fn rank(&self) -> u16 {
-        2
     }
 }
 

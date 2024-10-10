@@ -46,6 +46,9 @@ impl Act for Bufferer {
         self.buffer.unbind();
         Ok(())
     }
+}
+
+impl Adapt for Bufferer {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.array.back(back)
     }

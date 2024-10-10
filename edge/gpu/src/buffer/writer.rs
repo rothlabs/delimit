@@ -23,10 +23,12 @@ where
             })
             .await
     }
-    // fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
-    //     self.offset.deal("offset", deal)?;
-    //     self.data.deal(deal)
-    // }
+}
+
+impl<T> Adapt for BufferWriter<T> 
+where
+    T: Payload + Pod,
+{
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.offset.back(back)?;
         self.data.back(back)

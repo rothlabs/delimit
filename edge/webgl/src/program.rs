@@ -49,6 +49,9 @@ impl Act for Program {
             Err(anyhow!(memo))?
         }
     }
+}
+
+impl Adapt for Program {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.vertex.back(back)?;
         self.fragment.back(back)

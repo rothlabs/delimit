@@ -62,6 +62,9 @@ impl Act for Texture {
             _ => Err(anyhow!("wrong apex"))?,
         }
     }
+}
+
+impl Adapt for Texture {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.array.back(back)?;
         self.width.back(back)?;

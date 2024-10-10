@@ -13,6 +13,9 @@ impl Solve for Vector {
         }
         Ok(out.leaf().hub())
     }
+}
+
+impl Adapt for Vector {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.units.deal("units", deal)
     }
@@ -31,6 +34,9 @@ impl Solve for Matrix {
         }
         Ok(out.leaf().hub())
     }
+}
+
+impl Adapt for Matrix {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.vectors.deal("vectors", deal)
     }

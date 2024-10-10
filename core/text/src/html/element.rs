@@ -44,21 +44,16 @@ impl Solve for Element {
         }
         element.hub()
     }
+    fn rank(&self) -> u16 {
+        2
+    }
+}
+
+impl Adapt for Element {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.open.deal("open", deal)?;
         self.items.deal("items", deal)?;
         self.close.deal("close", deal)?;
         Ok(())
-    }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     match task {
-    //         Task::Rank => 2.gain(),
-    //         Task::Serial => self.serial(),
-    //         Task::Digest(state) => self.digest(state),
-    //         _ => task.no_handler(self),
-    //     }
-    // }
-    fn rank(&self) -> u16 {
-        2
     }
 }

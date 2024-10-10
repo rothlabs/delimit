@@ -14,3 +14,9 @@ impl Act for Text {
         Ok(())
     }
 }
+
+impl Adapt for Text {
+    fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
+        self.content.deal("content", deal)
+    }
+}

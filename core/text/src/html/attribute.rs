@@ -31,21 +31,16 @@ impl Solve for Attribute {
             .push(r#"""#)
             .hub()
     }
+    fn rank(&self) -> u16 {
+        2
+    }
+}
+
+impl Adapt for Attribute {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.name.deal("name", deal)?;
         self.content.deal("content", deal)?;
         Ok(())
-    }
-    // fn reckon(&self, task: Task) -> Result<Gain> {
-    //     match task {
-    //         Task::Rank => 2.gain(),
-    //         Task::Serial => self.serial(),
-    //         Task::Digest(state) => self.digest(state),
-    //         _ => task.no_handler(self),
-    //     }
-    // }
-    fn rank(&self) -> u16 {
-        2
     }
 }
 

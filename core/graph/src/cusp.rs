@@ -32,7 +32,7 @@ where
 
 impl<W> FromSnap for Cusp<W>
 where
-    W: 'static + WorkFromSnap + Clear + ReactMut + SolveMut + SendSync,
+    W: 'static + WorkFromSnap + Clear + ReactMut + SolveAdapt + SendSync,
 {
     type Unit = W::Unit;
     fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
@@ -59,7 +59,7 @@ impl<W: ReckonMut> ReckonMut for Cusp<W> {
     }
 }
 
-impl<W: SolveMut> Cusp<W> {
+impl<W: SolveAdapt> Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
         if self.work.adapt(&mut back).is_err() {
             self.work.back(&back)?;
@@ -136,9 +136,9 @@ where
     }
 }
 
-impl<W> SolveMut for Cusp<W>
+impl<W> SolveAdapt for Cusp<W>
 where
-    W: SolveMut + SendSync,
+    W: SolveAdapt + SendSync,
 {
     type Base = W::Base;
     fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
@@ -148,7 +148,7 @@ where
 
 impl<W> AdaptMut for Cusp<W>
 where
-    W: SolveMut + Clear,
+    W: SolveAdapt + Clear,
 {
     fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.work.adapt(deal)

@@ -225,13 +225,6 @@ pub struct Nurbs {
 }
 
 impl Act for Nurbs {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.draw0.back(back)?;
-        self.draw1.back(back)?;
-        self.basis.back(back)?;
-        self.curve.back(back)?;
-        self.tick.back(back)
-    }
     async fn act(&self) -> graph::Result<()> {
         if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
@@ -242,6 +235,16 @@ impl Act for Nurbs {
             self.curve.act().await?;
         }
         Ok(())
+    }
+}
+
+impl Adapt for Nurbs {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
+        self.draw0.back(back)?;
+        self.draw1.back(back)?;
+        self.basis.back(back)?;
+        self.curve.back(back)?;
+        self.tick.back(back)
     }
 }
 

@@ -29,6 +29,9 @@ where
         let out = bytemuck::cast_slice(&data).to_vec();
         Ok(out.leaf().hub())
     }
+}
+
+impl<T> Adapt for BufferReader<T> {
     fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
         self.stems.deal("stems", deal)
     }

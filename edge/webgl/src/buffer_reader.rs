@@ -35,6 +35,9 @@ impl Solve for BufferReader {
         self.buffer.unbind();
         Ok(array.leaf().hub())
     }
+}
+
+impl Adapt for BufferReader {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.size.back(back)
     }

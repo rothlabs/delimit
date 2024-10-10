@@ -2,30 +2,11 @@ pub use gain::*;
 pub use task::*;
 
 use super::*;
-use anyhow::anyhow;
 use std::future::Future;
 use thiserror::Error;
 
 mod gain;
 mod task;
-
-pub trait Solve {
-    type Base: 'static + Payload;
-    /// Solve a task.
-    /// The hub will run computations or return existing results.
-    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
-        async { solve_ok() }
-    }
-    fn rank(&self) -> u16 {
-        0
-    }
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Err(anyhow!("adapt not defined"))?
-    }
-    fn back(&mut self, _: &Back) -> Result<()> {
-        Err(anyhow!("back not defined"))?
-    }
-}
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -43,6 +24,30 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+pub trait Solve {
+    type Base: 'static + Payload;
+    /// Solve a task.
+    /// The hub will run computations or return existing results.
+    fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
+        async { solve_ok() }
+    }
+    fn rank(&self) -> u16 {
+        0
+    }
+}
+
+pub trait Act {
+    fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
+}
+
+impl<T: Act + SendSync> Solve for T {
+    type Base = ();
+    async fn solve(&self) -> Result<Hub<()>> {
+        self.act().await?;
+        solve_ok()
+    }
+}
+
 pub fn reckon_ok() -> Result<Gain> {
     Ok(Gain::None)
 }
@@ -54,57 +59,16 @@ where
     Ok(Hub::none())
 }
 
-pub trait Act {
-    fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
-    // fn adapt(&mut self, _: &mut dyn Deal) -> Result<()>;
-    fn back(&mut self, _: &Back) -> Result<()> {
-        Ok(())
-    }
-}
-
-impl<T: Act + SendSync> Solve for T {
-    type Base = ();
-    async fn solve(&self) -> Result<Hub<()>> {
-        self.act().await?;
-        solve_ok()
-    }
-    // fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-    //     self.adapt(deal)
-    // }
-    fn back(&mut self, back: &Back) -> Result<()> {
-        self.back(back)
-    }
-    fn rank(&self) -> u16 {
-        0
-    }
-}
-
-pub trait SolveMut {
+pub trait SolveAdapt {
     type Base: 'static + Payload;
     /// For graph internals to handle solve calls
     fn solve(&mut self) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move { solve_ok() })
     }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Ok(())
+        Err(anyhow!("SolveAdapt::adapt not implemented"))?
     }
     fn back(&mut self, _: &Back) -> Result<()> {
-        Ok(())
+        Err(anyhow!("SolveAdapt::back not implemented"))?
     }
 }
-
-// pub trait Inert {
-//     fn reckon(&self, task: Task) -> Result<Gain>;
-// }
-
-// impl<T: Inert + SendSync> Act for T {
-//     async fn act(&self) -> Result<()> {
-//         Ok(())
-//     }
-//     fn backed(&mut self, back: &Back) -> Result<()> {
-//         self.backed(back)
-//     }
-//     fn reckon(&self, task: Task) -> Result<Gain> {
-//         self.reckon(task)
-//     }
-// }

@@ -15,9 +15,9 @@ pub struct Node<U: Solve> {
 
 impl<U: Solve + WingOnly> WingOnly for Node<U> {}
 
-impl<U> SolveMut for Node<U>
+impl<U> SolveAdapt for Node<U>
 where
-    U: Solve + IsSend,
+    U: Solve + Adapt + IsSend,
 {
     type Base = U::Base;
     fn solve(&mut self) -> GraphFuture<Result<Hub<U::Base>>> {
@@ -112,7 +112,7 @@ impl<U: Solve> WriteUnitWork for Node<U> {
 
 impl<U> ReactMut for Node<U>
 where
-    U: Solve + IsSend,
+    U: Solve + Adapt + IsSend,
 {
     fn react(&mut self) -> GraphFuture<Result<()>> {
         Box::pin(async move {

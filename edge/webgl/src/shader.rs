@@ -45,6 +45,9 @@ impl Act for Shader {
             Err(anyhow!(memo))?
         }
     }
+}
+
+impl Adapt for Shader {
     fn back(&mut self, back: &Back) -> Result<()> {
         self.source.back(back)
     }

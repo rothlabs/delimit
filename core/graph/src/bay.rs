@@ -18,9 +18,15 @@ impl Bay {
 
 impl Solve for Bay {
     type Base = ();
+    // fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+    //     self.map.deal(deal)?;
+    //     Ok(())
+    // }
+}
+
+impl Adapt for Bay {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.map.deal(deal)?;
-        Ok(())
+        self.map.deal(deal)
     }
 }
 

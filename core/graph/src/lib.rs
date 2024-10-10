@@ -1,4 +1,4 @@
-pub use adapt::{AdaptEdge, AdaptMut};
+pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
 pub use apex::{Apex, DealItem, Poll, View, ViewVec};
@@ -20,7 +20,7 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, Digest, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveMut, Task};
+pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveAdapt, Task};
 pub use thiserror;
 pub use thiserror::Error as ThisError;
 pub use tray::Tray;
@@ -292,8 +292,8 @@ pub trait IsSend {}
 #[cfg(feature = "oneThread")]
 impl<T> IsSend for T {}
 
-pub trait Unit: Solve + SendSync + Debug {}
-impl<T> Unit for T where T: Solve + SendSync + Debug {}
+pub trait Unit: Solve + Adapt + SendSync + Debug {}
+impl<T> Unit for T where T: Solve + Adapt + SendSync + Debug {}
 
 pub trait Payload: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
