@@ -11,7 +11,11 @@ pub struct Leaf<T> {
 
 impl<T: Payload> Leaf<T> {
     pub fn new(base: T) -> Self {
-        Self { base, digest: None, serial: None }
+        Self {
+            base,
+            digest: None,
+            serial: None,
+        }
     }
     pub fn hub(self) -> Hub<T> {
         Hub::Leaf(link::Leaf::new(self.base))
@@ -35,7 +39,11 @@ impl<T: Payload> Leaf<T> {
 impl<T> WorkFromBase for Leaf<T> {
     type Base = T;
     fn from_base(base: Self::Base) -> Self {
-        Self { base, digest: None, serial: None }
+        Self {
+            base,
+            digest: None,
+            serial: None,
+        }
     }
 }
 

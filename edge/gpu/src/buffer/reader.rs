@@ -1,7 +1,7 @@
 use super::*;
 use std::marker::PhantomData;
 
-#[derive(Builder, Debug, Input!)] 
+#[derive(Builder, Debug, Input!)]
 #[builder(pattern = "owned")]
 pub struct BufferReader<T> {
     buffer: Grc<wgpu::Buffer>,

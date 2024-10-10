@@ -7,4 +7,3 @@ use wasm_bindgen_test::*;
 // use wgpu::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
-

@@ -118,7 +118,7 @@ where
 
 impl<C> Employed for Edge<C>
 where
-    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug, 
+    C: 'static + SolveMut + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
@@ -139,9 +139,9 @@ where
     }
 }
 
-impl<C> Reckon for Edge<C> 
-where 
-    C: ReckonMut
+impl<C> Reckon for Edge<C>
+where
+    C: ReckonMut,
 {
     fn get_imports(&self) -> Result<Vec<Import>> {
         read_part(&self.cusp, |cusp| cusp.get_imports())?

@@ -1,7 +1,7 @@
 use graph::*;
 
 pub struct Vector {
-    units: Vec<Hub<f64>>
+    units: Vec<Hub<f64>>,
 }
 
 impl Solve for Vector {
@@ -19,7 +19,7 @@ impl Solve for Vector {
 }
 
 pub struct Matrix {
-    vectors: Vec<Hub<Vec<f64>>>
+    vectors: Vec<Hub<Vec<f64>>>,
 }
 
 impl Solve for Matrix {

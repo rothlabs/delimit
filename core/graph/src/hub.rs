@@ -28,9 +28,9 @@ pub enum Hub<T: Payload> {
     Wing(Wing<T>),
 }
 
-impl<T> HashGraph for Hub<T> 
-where 
-    T: Payload + HashGraph
+impl<T> HashGraph for Hub<T>
+where
+    T: Payload + HashGraph,
 {
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         match self {

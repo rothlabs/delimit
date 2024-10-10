@@ -56,9 +56,9 @@ impl<E: ?Sized> Link<E> {
     }
 }
 
-impl<E> Link<E> 
-where 
-    E: Reckon + ?Sized
+impl<E> Link<E>
+where
+    E: Reckon + ?Sized,
 {
     pub fn get_imports(&self) -> Result<Vec<Import>> {
         read_part(&self.edge, |edge| edge.get_imports())?
@@ -71,18 +71,6 @@ where
     }
 }
 
-// impl<E> Link<E>
-// where
-//     Self: SolveLink,
-// {
-//     pub async fn act(&self) -> Result<()> {
-//         match self.solve().await {
-//             Ok(_) => Ok(()),
-//             Err(err) => Err(err),
-//         }
-//     }
-// }
-
 impl<E> HashGraph for Link<E>
 where
     E: Reckon + ?Sized,
@@ -90,7 +78,8 @@ where
     fn hash_graph<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state);
-        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {//if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
+        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {
+            //if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             hash.hash_graph(state);
             // read_part(&self.edge, |edge| edge.get_hash()).unwrap().unwrap().hash_graph(state)
         }
@@ -99,7 +88,7 @@ where
 
 impl<E> Serialize for Link<E>
 where
-    E: Reckon + ?Sized
+    E: Reckon + ?Sized,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -107,7 +96,8 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {// Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
+        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {
+            // Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
             serializer.serialize_str("ERROR(serialization)")
@@ -345,7 +335,6 @@ where
     }
 }
 
-
 impl<E> Link<E>
 where
     E: 'static + Employ,
@@ -360,8 +349,8 @@ where
     }
 }
 
-impl<E> ToPloyHub for Link<E> 
-where 
+impl<E> ToPloyHub for Link<E>
+where
     E: 'static + Engage,
 {
     type Base = E::Base;
@@ -370,8 +359,8 @@ where
     }
 }
 
-impl<E> ToWingHub for Link<E> 
-where 
+impl<E> ToWingHub for Link<E>
+where
     E: 'static + Employ,
 {
     type Base = E::Base;

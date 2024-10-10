@@ -53,8 +53,8 @@ impl From<&str> for Apex {
     }
 }
 
-// impl From<Link<dyn 'static + Employ<Base = ()>>> for Apex 
-// // where 
+// impl From<Link<dyn 'static + Employ<Base = ()>>> for Apex
+// // where
 // //     E: 'static + Employ<Base = ()>,
 // {
 //     fn from(node: Link<dyn 'static + Employ<Base = ()>>) -> Self {
@@ -88,14 +88,14 @@ macro_rules! ImplViewVec {
         })*
 
         ////////
-        
+
         #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
         pub enum Apex {
             $($Variant(Hub<$type_>),)*
         }
 
-        // $(impl<E> From<Link<E>> for Apex 
-        // where 
+        // $(impl<E> From<Link<E>> for Apex
+        // where
         //     E: 'static + Employ<Base = $type_>,
         // {
         //     fn from(node: Link<E>) -> Self {
@@ -268,7 +268,7 @@ macro_rules! ImplViewVec {
         })*
 
         impl<'a> ViewVec<'a> {
-            pub fn len(&self) -> usize {
+            fn len(&self) -> usize {
                 match self {
                     $(Self::$Variant(x) => x.len(),)*
                 }

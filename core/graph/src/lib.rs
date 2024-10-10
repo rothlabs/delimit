@@ -1,7 +1,7 @@
 pub use adapt::{Adapt, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
-pub use apex::{Apex, Poll, View, ViewVec, DealItem};
+pub use apex::{Apex, DealItem, Poll, View, ViewVec};
 pub use base::HashGraph;
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -13,7 +13,7 @@ pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use paste::paste;
-pub use ploy::{Based, Engage, Ploy, PloyEdge, Employ, Employed, Wing, WingEdge};
+pub use ploy::{Based, Employ, Employed, Engage, Ploy, PloyEdge, Wing, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -411,7 +411,7 @@ where
 
 impl<T> IntoWing for T
 where
-    T: 'static + Unit + WingOnly
+    T: 'static + Unit + WingOnly,
 {
     fn wing(self) -> Result<Wing<Self::Base>> {
         Node::wing_from_unit(self)
@@ -501,15 +501,6 @@ pub trait ReckonMut {
     fn get_hash(&mut self) -> Result<u64>;
     fn get_serial(&mut self) -> Result<String>;
 }
-
-
-
-
-
-
-
-
-
 
 // #[macro_export]
 // macro_rules! Make {

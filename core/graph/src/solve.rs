@@ -92,7 +92,6 @@ pub trait SolveMut {
     // }
 }
 
-
 // pub trait Inert {
 //     fn reckon(&self, task: Task) -> Result<Gain>;
 // }

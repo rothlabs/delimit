@@ -39,9 +39,9 @@ where
     }
 }
 
-impl<U> ReckonMut for Node<U> 
-where 
-    U: Solve + HashGraph + Serialize
+impl<U> ReckonMut for Node<U>
+where
+    U: Solve + HashGraph + Serialize,
 {
     fn get_imports(&self) -> Result<Vec<Import>> {
         Ok(self.imports.clone())
@@ -61,7 +61,7 @@ where
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
-            let serial = self.unit.serial()?;//self.unit.reckon(Task::Serial)?;
+            let serial = self.unit.serial()?; //self.unit.reckon(Task::Serial)?;
             self.serial = Some(serial.clone());
             Ok(serial)
         }
@@ -123,7 +123,6 @@ where
         })
     }
 }
-
 
 // impl<U: Solve> Node<U> {
 //     fn rank(&self) -> Option<u64> {
