@@ -53,11 +53,11 @@ impl DealItem for Apex {
     }
 }
 
-// impl DealItem for Vec<Apex> {
-//     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
-//         deal.vec(key, self)
-//     }
-// }
+impl DealItem for Vec<Apex> {
+    fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
+        deal.vec(key, ViewVec::Apex(self))
+    }
+}
 
 // pub trait DealItem2 {
 //     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
@@ -293,7 +293,7 @@ macro_rules! ImplViewVec {
         }
 
         pub enum ViewVec<'a> {
-            // Apex(&'a mut Apex),
+            Apex(&'a mut Vec<Apex>),
             $($Variant(&'a mut Vec<Hub<$type_>>),)*
         }
 
@@ -306,12 +306,18 @@ macro_rules! ImplViewVec {
         impl<'a> ViewVec<'a> {
             fn len(&self) -> usize {
                 match self {
+                    Self::Apex(x) => x.len(),
                     $(Self::$Variant(x) => x.len(),)*
                 }
             }
             pub fn views(self) -> Vec<View<'a>> {
                 let mut views = vec![];
                 match self {
+                    Self::Apex(apexes) => {
+                        for apex in apexes {
+                            views.push(View::Apex(apex));
+                        }
+                    } ,
                     $(Self::$Variant(hubs) => {
                         for hub in hubs {
                             views.push(hub.into());
@@ -325,6 +331,10 @@ macro_rules! ImplViewVec {
                     return Err(anyhow!("index out of bounds"))?;
                 }
                 match self {
+                    Self::Apex(x) => {
+                        x[i] = apex;
+                        return Ok(Self::Apex(x));
+                    },
                     $(Self::$Variant(x) => {
                         if let Apex::$Variant(y) = apex {
                             x[i] = y;
@@ -339,6 +349,7 @@ macro_rules! ImplViewVec {
                     return Err(anyhow!("index out of bounds"))?;
                 }
                 let apex = match self {
+                    Self::Apex(x) => x[i].clone(),
                     $(Self::$Variant(x) => Apex::$Variant(x[i].clone()),)*
                 };
                 Ok(apex)
@@ -346,6 +357,11 @@ macro_rules! ImplViewVec {
             pub fn all(&self) -> Vec<Apex> {
                 let mut apexes = vec![];
                 match self {
+                    Self::Apex(x) => {
+                        for apex in x.iter() {
+                            apexes.push(apex.clone())
+                        }
+                    },
                     $(Self::$Variant(x) => {
                         for hub in x.iter() {
                             apexes.push(Apex::$Variant(hub.clone()))

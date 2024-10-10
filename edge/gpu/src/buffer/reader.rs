@@ -29,12 +29,9 @@ where
         let out = bytemuck::cast_slice(&data).to_vec();
         Ok(out.leaf().hub())
     }
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.stems.deal(deal)
+    fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
+        self.stems.deal("stems", deal)
     }
-    // fn back(&mut self, back: &Back) -> graph::Result<()> {
-    //     self.stems.back(back)
-    // }
 }
 
 

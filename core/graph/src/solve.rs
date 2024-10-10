@@ -91,9 +91,6 @@ pub trait SolveMut {
     fn back(&mut self, _: &Back) -> Result<()> {
         Ok(())
     }
-    // fn rank(&self) -> u16 {
-    //     0 //Err(anyhow!("reckon not defined"))?
-    // }
 }
 
 // pub trait Inert {
