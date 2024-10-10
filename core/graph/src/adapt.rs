@@ -15,10 +15,10 @@ pub enum Error {
 
 pub trait Adapt {
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Err(anyhow!("adapt not defined"))?
+        Err(anyhow!("Adapt::adapt not implemented"))?
     }
     fn back(&mut self, _: &Back) -> Result<()> {
-        Err(anyhow!("back not defined"))?
+        Err(anyhow!("Adapt::back not implemented"))?
     }
 }
 

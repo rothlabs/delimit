@@ -37,20 +37,6 @@ impl<T> Adapt for BufferReader<T> {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // impl<T> BufferReaderBuilder<T>
 // where
 //     T: Payload + AnyBitPattern,

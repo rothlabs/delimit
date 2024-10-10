@@ -25,7 +25,7 @@ where
     }
 }
 
-impl<T> Adapt for BufferWriter<T> 
+impl<T> Adapt for BufferWriter<T>
 where
     T: Payload + Pod,
 {

@@ -22,9 +22,13 @@ pub enum Error {
 #[derive(Clone, PartialEq, Serialize, Debug)]
 #[serde(untagged)]
 pub enum Hub<T: Payload> {
+    /// A base value or Path
     Tray(Tray<T>),
+    /// Graph leaf node
     Leaf(Leaf<T>),
+    /// Node with type-erased unit. Can be serialized.
     Ploy(Ploy<T>),
+    /// Node with type-erased unit. Cannot be serialized.
     Wing(Wing<T>),
 }
 
@@ -59,7 +63,6 @@ impl<T: Payload> Hub<T> {
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
             Self::Ploy(ploy) => ploy.get_imports(),
-            // Self::Ploy(ploy) => ploy.reckon(Task::Imports)?.imports(),
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -86,8 +89,6 @@ impl<T: Payload> Hub<T> {
             Self::Leaf(leaf) => leaf.get_hash(),
             Self::Ploy(ploy) => ploy.get_hash(),
             Self::Wing(_) => Ok(0),
-            // Self::Leaf(leaf) => leaf.reckon(Task::Hash),
-            // Self::Ploy(ploy) => ploy.reckon(Task::Hash),
             _ => Err(Error::NotNode)?,
         }
     }
@@ -104,28 +105,27 @@ impl<T: Payload> Hub<T> {
 
     /// Replace stems according to the Trade deal.
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        if let Self::Ploy(ploy) = self {
-            ploy.adapt_get(deal)?;
+        match self {
+            Self::Ploy(ploy) => ploy.adapt_get(deal),
+            Self::Wing(wing) => wing.adapt_get(deal),
+            _ => Ok(()),
         }
-        // if let Self::Wing(wing) = self {
-        //     wing.adapt_get(deal)?;
-        // }
-        Ok(())
     }
 
     /// Replace stems according to the Trade deal.
     pub async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
-        if let Self::Ploy(ploy) = self {
-            ploy.adapt_set(deal).await?;
+        match self {
+            Self::Ploy(ploy) => ploy.adapt_set(deal).await,
+            Self::Wing(wing) => wing.adapt_set(deal).await,
+            _ => Ok(()),
         }
-        Ok(())
     }
 
     pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        if let Self::Ploy(ploy) = self {
-            ploy.transient_set(deal)
-        } else {
-            Ok(Ring::new())
+        match self {
+            Self::Ploy(ploy) => ploy.transient_set(deal),
+            Self::Wing(wing) => wing.transient_set(deal),
+            _ => Ok(Ring::new()),
         }
     }
 
@@ -143,11 +143,12 @@ impl<T: Payload> Hub<T> {
     pub fn rank(&self) -> Option<u16> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
+            Self::Wing(wing) => wing.rank(),
             _ => None,
         }
     }
 
-    /// Solve down to the given graph rank.
+    /// Solve down to the given graph rank (level).
     pub async fn down(&self, target: u16) -> Result<Hub<T>> {
         let mut hub = self.clone();
         let mut rank = hub.rank();
@@ -162,7 +163,6 @@ impl<T: Payload> Hub<T> {
         Ok(hub)
     }
 
-    /// Read tray of hub.
     pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>>
     where
         F: FnOnce(&T) -> O + 'a + IsSend,
