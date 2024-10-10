@@ -57,6 +57,16 @@ impl<T: Payload> From<T> for Hub<T> {
     }
 }
 
+pub trait ToPloyHub {
+    type Base: Payload;
+    fn hub(&self) -> Hub<Self::Base>;
+}
+
+pub trait ToWingHub {
+    type Base: Payload;
+    fn hub(&self) -> Hub<Self::Base>;
+}
+
 // impl<T, U> From<Node<U>> for Hub<T>
 // where
 //     T: Payload,

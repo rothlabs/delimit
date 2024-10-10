@@ -37,12 +37,6 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-// impl<U: 'static + Unit + HashGraph + Serialize> Node<U> {
-//     pub fn hub(self) -> Hub<U::Base> {
-//         self.into()
-//     }
-// }
-
 impl<T: Payload> Leaf<T> {
     pub fn hub(self) -> Hub<T> {
         self.into()
@@ -181,50 +175,6 @@ where
             rank,
             edge,
         })
-    }
-}
-
-impl<E> Link<E>
-where
-    E: 'static + Engage,
-{
-    /// Copy the link with unit type erased.  
-    pub fn as_ploy(&self) -> Ploy<E::Base> {
-        Ploy {
-            edge: self.edge.clone(),
-            path: self.path.clone(),
-            rank: self.rank,
-        }
-    }
-}
-
-// pub trait AsPloyHub {
-//     type Base: Payload;
-//     fn hub(&self) -> Hub<Self::Base>;
-// }
-
-
-// impl<E> AsPloyHub for Link<E> 
-// where 
-//     E: 'static + Engage,
-// {
-//     type Base = E::Base;
-//     fn hub(&self) -> Hub<Self::Base> {
-//         self.as_ploy().into()
-//     }
-// }
-
-impl<E> Link<E>
-where
-    E: 'static + Employ,
-{
-    /// Copy the link with unit type erased.  
-    pub fn as_wing(&self) -> Wing<E::Base> {
-        Wing {
-            edge: self.edge.clone(),
-            path: self.path.clone(),
-            rank: self.rank,
-        }
     }
 }
 
@@ -378,5 +328,54 @@ impl<T: Backed> Backed for Option<T> {
         } else {
             Ok(None)
         }
+    }
+}
+
+impl<E> Link<E>
+where
+    E: 'static + Engage,
+{
+    /// Copy the link with unit type erased.  
+    pub fn as_ploy(&self) -> Ploy<E::Base> {
+        Ploy {
+            edge: self.edge.clone(),
+            path: self.path.clone(),
+            rank: self.rank,
+        }
+    }
+}
+
+
+impl<E> Link<E>
+where
+    E: 'static + Employ,
+{
+    /// Copy the link with unit type erased.  
+    pub fn as_wing(&self) -> Wing<E::Base> {
+        Wing {
+            edge: self.edge.clone(),
+            path: self.path.clone(),
+            rank: self.rank,
+        }
+    }
+}
+
+impl<E> ToPloyHub for Link<E> 
+where 
+    E: 'static + Engage,
+{
+    type Base = E::Base;
+    fn hub(&self) -> Hub<Self::Base> {
+        self.as_ploy().into()
+    }
+}
+
+impl<E> ToWingHub for Link<E> 
+where 
+    E: 'static + Employ,
+{
+    type Base = E::Base;
+    fn hub(&self) -> Hub<Self::Base> {
+        self.as_wing().into()
     }
 }

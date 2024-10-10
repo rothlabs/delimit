@@ -28,7 +28,8 @@ pub async fn main() -> graph::Result<()> {
     let addr: SocketAddr = ([127, 0, 0, 1], 3000).into();
     let listener = TcpListener::bind(addr).await?;
     println!("Listening on http://{}", addr);
-    let ace = Leaf::new(0_u8).hub();
+    let wow = Leaf::new(0_u8);
+    let ace = wow.hub();
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);

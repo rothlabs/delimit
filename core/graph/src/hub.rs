@@ -1,3 +1,5 @@
+pub use convert::{ToPloyHub, ToWingHub};
+
 use super::*;
 use thiserror::Error;
 

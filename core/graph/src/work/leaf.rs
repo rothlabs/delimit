@@ -53,12 +53,12 @@ impl<T> BaseMut for Leaf<T> {
     }
 }
 
-impl<T: Payload> SolveMut for Leaf<T> {
-    type Base = ();
-    // fn rank(&self) -> u16 {
-    //     0
-    // }
-}
+// impl<T: Payload> SolveMut for Leaf<T> {
+//     type Base = ();
+//     // fn rank(&self) -> u16 {
+//     //     0
+//     // }
+// }
 
 impl<T: Payload> ReckonMut for Leaf<T> {
     fn get_imports(&self) -> Result<Vec<Import>> {

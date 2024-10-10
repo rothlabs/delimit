@@ -7,7 +7,7 @@ pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
-pub use hub::{Hub, SolveDown};
+pub use hub::{Hub, SolveDown, ToPloyHub, ToWingHub};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
@@ -373,15 +373,6 @@ where
     }
 }
 
-// impl<T> IntoNode for Vec<T>
-// where
-//     Vec<T>: 'static + Unit,
-// {
-//     fn node(self) -> Result<Node<Self>> {
-//         Node::from_unit(self)
-//     }
-// }
-
 pub trait IntoPloy
 where
     Self: Solve,
@@ -441,37 +432,6 @@ impl<T: IntoWing> IntoWingHub for T {
 }
 
 pub trait WingOnly {}
-
-pub trait LinkToPloyHub {
-    type Base: Payload;
-    fn hub(&self) -> Hub<Self::Base>;
-}
-
-// TODO: make the same for LinkToPloyHub
-impl<E> LinkToPloyHub for Link<E> 
-where 
-    E: 'static + Engage,
-{
-    type Base = E::Base;
-    fn hub(&self) -> Hub<Self::Base> {
-        self.as_ploy().into()
-    }
-}
-
-pub trait LinkToWingHub {
-    type Base: Payload;
-    fn hub(&self) -> Hub<Self::Base>;
-}
-
-impl<E> LinkToWingHub for Link<E> 
-where 
-    E: 'static + Employ,
-{
-    type Base = E::Base;
-    fn hub(&self) -> Hub<Self::Base> {
-        self.as_wing().into()
-    }
-}
 
 pub trait ToItem {
     type Item;
