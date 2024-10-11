@@ -1,5 +1,8 @@
 use derive_node::Adapt;
 use graph::*;
+use gpu::*;
+
+mod nurbs;
 
 const BASE: u16 = 1;
 
@@ -10,7 +13,7 @@ pub struct Vector {
 
 impl Solve for Vector {
     type Base = Vec<f64>;
-    async fn solve(&self) -> Result<Hub<Vec<f64>>> {
+    async fn solve(&self) -> graph::Result<Hub<Vec<f64>>> {
         let mut vector = vec![];
         for unit in &self.units {
             vector.push(unit.base().await?);
@@ -29,7 +32,7 @@ pub struct Matrix {
 
 impl Solve for Matrix {
     type Base = Vec<f64>;
-    async fn solve(&self) -> Result<Hub<Vec<f64>>> {
+    async fn solve(&self) -> graph::Result<Hub<Vec<f64>>> {
         let mut matrix = vec![];
         for vector in &self.vectors {
             matrix.extend(vector.base().await?);

@@ -2,9 +2,9 @@ pub use buffer::Buffer;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
-use util::DeviceExt;
-pub use wgpu::BufferUsages;
+pub use wgpu::{BufferUsages, include_wgsl};
 
+use util::DeviceExt;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
@@ -43,6 +43,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct Gpu<'a> {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
+    // pub adapter: Grc<Adapter>,
     surface: Surface<'a>,
 }
 
