@@ -2,7 +2,7 @@ pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
 pub use apex::{Apex, DealItem, Poll, View, ViewVec};
-pub use base::HashGraph;
+pub use base::Digest;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -18,9 +18,9 @@ pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
 };
-pub use serial::{DeserializeUnit, Digest, ToSerial, UnitHasher};
+pub use serial::{DeserializeUnit, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{reckon_ok, solve_ok, Act, Gain, IntoGain, Solve, SolveAdapt, Task};
+pub use solve::{solve_ok, Act, Solve, SolveAdapt};
 pub use thiserror;
 pub use thiserror::Error as ThisError;
 pub use tray::Tray;
@@ -190,25 +190,6 @@ macro_rules! Input {
     };
 }
 
-#[macro_export]
-macro_rules! GraphHash {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident {
-        $($field:ident: $typ:ty),* $(,)*
-    }
-    ) => {
-        impl HashGraph for $Unit {
-            fn hash_graph<H: std::hash::Hasher>(&self, state: &mut H) {
-                $(
-                    self.$field.hash_graph(state);
-                 )*
-            }
-        }
-    };
-}
-
 pub mod adapt;
 pub mod hub;
 pub mod lake;
@@ -295,8 +276,8 @@ impl<T> IsSend for T {}
 pub trait Unit: Solve + Adapt + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + Adapt + SendSync + Debug {}
 
-pub trait Payload: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T: 'static + Default + Clone + HashGraph + Serialize + Debug + SendSync {}
+pub trait Payload: 'static + Default + Clone + Digest + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T: 'static + Default + Clone + Digest + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]
@@ -382,7 +363,7 @@ where
 
 impl<T> IntoPloy for T
 where
-    T: 'static + Unit + HashGraph + Serialize,
+    T: 'static + Unit + Digest + Serialize,
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
@@ -501,6 +482,32 @@ pub trait ReckonMut {
     fn get_hash(&mut self) -> Result<u64>;
     fn get_serial(&mut self) -> Result<String>;
 }
+
+// #[macro_export]
+// macro_rules! GraphHash {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident {
+//         $($field:ident: $typ:ty),* $(,)*
+//     }
+//     ) => {
+//         impl Digest for $Unit {
+//             fn digest<H: std::hash::Hasher>(&self, state: &mut H) {
+//                 $(
+//                     self.$field.digest(state);
+//                  )*
+//             }
+//         }
+//     };
+// }
+
+
+
+
+
+
+
 
 // #[macro_export]
 // macro_rules! Make {

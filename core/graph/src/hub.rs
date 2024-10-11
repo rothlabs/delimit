@@ -32,15 +32,15 @@ pub enum Hub<T: Payload> {
     Wing(Wing<T>),
 }
 
-impl<T> HashGraph for Hub<T>
+impl<T> Digest for Hub<T>
 where
-    T: Payload + HashGraph,
+    T: Payload + Digest,
 {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         match self {
-            Self::Tray(x) => x.hash_graph(state),
-            Self::Leaf(x) => x.hash_graph(state),
-            Self::Ploy(x) => x.hash_graph(state),
+            Self::Tray(x) => x.digest(state),
+            Self::Leaf(x) => x.digest(state),
+            Self::Ploy(x) => x.digest(state),
             Self::Wing(_) => (),
         }
     }
@@ -84,7 +84,7 @@ impl<T: Payload> Hub<T> {
     }
 
     /// Get hash digest number of hub.
-    pub fn digest(&self) -> Result<u64> {
+    pub fn get_hash(&self) -> Result<u64> {
         match self {
             Self::Leaf(leaf) => leaf.get_hash(),
             Self::Ploy(ploy) => ploy.get_hash(),
@@ -238,18 +238,18 @@ impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
     }
 }
 
-impl<T: Payload> HashGraph for Vec<Hub<T>> {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl<T: Payload> Digest for Vec<Hub<T>> {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         for hub in self {
-            hub.hash_graph(state);
+            hub.digest(state);
         }
     }
 }
 
-impl<T: Payload> HashGraph for Option<T> {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl<T: Payload> Digest for Option<T> {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         if let Some(x) = self {
-            x.hash_graph(state);
+            x.digest(state);
         }
     }
 }

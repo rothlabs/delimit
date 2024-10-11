@@ -2,12 +2,14 @@
 name = "mech"
 version = "0.1.0"
 edition = "2021"
+resolver = "2" 
 
 [dependencies]
     derive_builder = "0.20.1"
     macro_rules_attribute = "0.2.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     gpu = { path = "../gpu" }
+    derive_node = { path = "../../core/derive_node" }
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"

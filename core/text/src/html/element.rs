@@ -1,8 +1,8 @@
 use super::*;
 
-#[derive(Default, Serialize, Deserialize, Debug, GraphHash!)]
+#[derive(Default, Serialize, Deserialize, Debug, Adapt, Digest)]
 pub struct Element {
-    html_element: u8,
+    html_element: (),
     open: Hub<String>,
     items: Vec<Hub<String>>,
     close: Option<Hub<String>>,
@@ -46,14 +46,5 @@ impl Solve for Element {
     }
     fn rank(&self) -> u16 {
         2
-    }
-}
-
-impl Adapt for Element {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.open.deal("open", deal)?;
-        self.items.deal("items", deal)?;
-        self.close.deal("close", deal)?;
-        Ok(())
     }
 }

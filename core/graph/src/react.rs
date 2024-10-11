@@ -98,7 +98,7 @@ impl PartialEq for Root {
 
 impl Hash for Root {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.id.hash_graph(state)
+        self.id.digest(state)
     }
 }
 

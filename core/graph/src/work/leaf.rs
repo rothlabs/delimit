@@ -28,7 +28,7 @@ impl<T: Payload> Leaf<T> {
 //             digest
 //         } else {
 //             let mut state = DefaultHasher::new();
-//             self.base.hash_graph(&mut state);
+//             self.base.digest(&mut state);
 //             let digest = state.finish();
 //             self.digest = Some(digest);
 //             digest
@@ -77,7 +77,7 @@ impl<T: Payload> ReckonMut for Leaf<T> {
             Ok(digest)
         } else {
             let mut state = DefaultHasher::new();
-            self.base.hash_graph(&mut state);
+            self.base.digest(&mut state);
             let digest = state.finish();
             self.digest = Some(digest);
             Ok(digest)
@@ -89,7 +89,7 @@ impl<T: Payload> ReckonMut for Leaf<T> {
             Ok(serial.clone())
         } else {
             // let mut state = DefaultHasher::new();
-            // self.base.hash_graph(&mut state);
+            // self.base.digest(&mut state);
             let serial = self.serial()?;
             self.serial = Some(serial.clone());
             Ok(serial)

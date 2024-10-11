@@ -1,8 +1,8 @@
 use super::*;
 
-#[derive(Default, Serialize, Deserialize, Debug, GraphHash!)]
+#[derive(Default, Serialize, Deserialize, Adapt, Digest, Debug)]
 pub struct Tag {
-    html_tag: u8,
+    html_tag: (),
     name: Hub<String>,
     attributes: Vec<Hub<String>>,
 }
@@ -33,14 +33,6 @@ impl Solve for Tag {
     }
     fn rank(&self) -> u16 {
         2
-    }
-}
-
-impl Adapt for Tag {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.name.deal("name", deal)?;
-        self.attributes.deal("attributes", deal)?;
-        Ok(())
     }
 }
 

@@ -21,8 +21,8 @@ pub enum Path {
     Upper(Upper<Vec<Key>>),
 }
 
-// impl HashGraph for Path {
-//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+// impl Digest for Path {
+//     fn digest<H: Hasher>(&self, state: &mut H) {
 //         match self {
 //             Self::Hash(x) => x.hash(state),
 //             Self::World(x) => x.hash(state),

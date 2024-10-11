@@ -1,5 +1,7 @@
+use derive_node::Adapt;
 use graph::*;
 
+#[derive(Adapt)]
 pub struct Vector {
     units: Vec<Hub<f64>>,
 }
@@ -15,12 +17,13 @@ impl Solve for Vector {
     }
 }
 
-impl Adapt for Vector {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.units.deal("units", deal)
-    }
-}
+// impl Adapt for Vector {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.units.deal("units", deal)
+//     }
+// }
 
+#[derive(Adapt)]
 pub struct Matrix {
     vectors: Vec<Hub<Vec<f64>>>,
 }
@@ -36,8 +39,8 @@ impl Solve for Matrix {
     }
 }
 
-impl Adapt for Matrix {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.vectors.deal("vectors", deal)
-    }
-}
+// impl Adapt for Matrix {
+//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
+//         self.vectors.deal("vectors", deal)
+//     }
+// }

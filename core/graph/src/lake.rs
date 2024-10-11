@@ -58,7 +58,7 @@ impl Lake {
             imports: hub.imports().unwrap_or_default(),
             unit: hub.serial()?,
         };
-        self.nodes.insert(hub.digest()?, serial);
+        self.nodes.insert(hub.get_hash()?, serial);
         for apex in &hub.all().unwrap_or_default() {
             apex.insert_in_lake(self)?;
         }

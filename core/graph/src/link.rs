@@ -71,17 +71,17 @@ where
     }
 }
 
-impl<E> HashGraph for Link<E>
+impl<E> Digest for Link<E>
 where
     E: Reckon + ?Sized,
 {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state);
         } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {
             //if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
-            hash.hash_graph(state);
-            // read_part(&self.edge, |edge| edge.get_hash()).unwrap().unwrap().hash_graph(state)
+            hash.digest(state);
+            // read_part(&self.edge, |edge| edge.get_hash()).unwrap().unwrap().digest(state)
         }
     }
 }

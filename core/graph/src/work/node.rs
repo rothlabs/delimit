@@ -41,7 +41,7 @@ where
 
 impl<U> ReckonMut for Node<U>
 where
-    U: Solve + HashGraph + Serialize,
+    U: Solve + Digest + Serialize,
 {
     fn get_imports(&self) -> Result<Vec<Import>> {
         Ok(self.imports.clone())
@@ -51,7 +51,7 @@ where
             Ok(digest)
         } else {
             let mut state = DefaultHasher::new();
-            self.unit.hash_graph(&mut state);
+            self.unit.digest(&mut state);
             let digest = state.finish();
             self.digest = Some(digest);
             Ok(digest)

@@ -1,8 +1,8 @@
 use super::*;
 
-#[derive(Default, Serialize, Deserialize, Debug, GraphHash!)]
+#[derive(Default, Serialize, Deserialize, Debug, Adapt, Digest)]
 pub struct Attribute {
-    html_attribute: u8,
+    html_attribute: (),
     name: Hub<String>,
     content: Hub<String>,
 }
@@ -33,14 +33,6 @@ impl Solve for Attribute {
     }
     fn rank(&self) -> u16 {
         2
-    }
-}
-
-impl Adapt for Attribute {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.name.deal("name", deal)?;
-        self.content.deal("content", deal)?;
-        Ok(())
     }
 }
 

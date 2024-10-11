@@ -47,6 +47,12 @@ pub trait DealItem {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()>;
 }
 
+impl DealItem for () {
+    fn deal(&mut self, _: &str, _: &mut dyn Deal) -> Result<()> {
+        Ok(())
+    }
+}
+
 impl DealItem for Apex {
     fn deal(&mut self, key: &str, deal: &mut dyn Deal) -> Result<()> {
         deal.one(key, View::Apex(self))
@@ -147,10 +153,10 @@ macro_rules! ImplViewVec {
             }
         })*
 
-        impl HashGraph for Apex {
-            fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        impl Digest for Apex {
+            fn digest<H: Hasher>(&self, state: &mut H) {
                 match self {
-                    $(Self::$Variant(x) => x.hash_graph(state),)*
+                    $(Self::$Variant(x) => x.digest(state),)*
                 }
             }
         }

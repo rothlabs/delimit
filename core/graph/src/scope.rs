@@ -130,7 +130,7 @@ impl Deal for Scope<'_> {
 
 impl Hash for Space {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id.hash_graph(state);
+        self.id.digest(state);
     }
 }
 

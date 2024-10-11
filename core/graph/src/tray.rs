@@ -9,11 +9,11 @@ pub enum Tray<T> {
     Base(T),
 }
 
-impl<T: HashGraph> HashGraph for Tray<T> {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl<T: Digest> Digest for Tray<T> {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         match self {
             Self::Path(path) => path.hash(state),
-            Self::Base(data) => data.hash_graph(state),
+            Self::Base(data) => data.digest(state),
         }
     }
 }

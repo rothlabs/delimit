@@ -70,7 +70,7 @@ pub trait ToWingHub {
 // impl<T, U> From<Node<U>> for Hub<T>
 // where
 //     T: Payload,
-//     U: 'static + Unit<Base = T>  + HashGraph + Serialize,
+//     U: 'static + Unit<Base = T>  + Digest + Serialize,
 // {
 //     fn from(node: Node<U>) -> Self {
 //         Hub::Ploy(node.as_ploy())

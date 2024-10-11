@@ -1,8 +1,8 @@
 use super::*;
 
-#[derive(Default, Debug, Serialize, Deserialize, GraphHash!)]
+#[derive(Serialize, Deserialize, Adapt, Digest, Default, Debug)]
 pub struct List {
-    plain_list: u8,
+    plain_list: (),
     items: Vec<Hub<String>>,
     separator: Hub<String>,
 }
@@ -53,19 +53,3 @@ impl Solve for List {
         PLAIN
     }
 }
-
-impl Adapt for List {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-        self.items.deal("items", deal)?;
-        self.separator.deal("separator", deal)
-    }
-}
-
-// fn reckon(&self, task: Task) -> Result<Gain> {
-//     match task {
-//         Task::Rank => 1.gain(),
-//         Task::Serial => self.serial(),
-//         Task::Digest(state) => self.digest(state),
-//         _ => task.no_handler(self),
-//     }
-// }

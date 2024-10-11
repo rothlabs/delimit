@@ -30,9 +30,9 @@ impl Adapt for Bay {
     }
 }
 
-impl HashGraph for Bay {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl Digest for Bay {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         self.bay.hash(state);
-        self.map.hash_graph(state);
+        self.map.digest(state);
     }
 }

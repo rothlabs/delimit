@@ -21,22 +21,6 @@ pub trait DeserializeUnit: Debug + SendSync {
     fn deserialize(&self, serial_node: &Serial) -> Result<Apex>;
 }
 
-pub trait Digest {
-    /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;
-}
-
-impl<H> Digest for H
-where
-    H: HashGraph,
-{
-    /// Hash to digest number.
-    fn digest(&self, state: &mut UnitHasher) -> Result<Gain> {
-        self.hash_graph(state);
-        state.finish().gain()
-    }
-}
-
 pub struct UnitHasher(Box<dyn Hasher>);
 
 impl Default for UnitHasher {
@@ -59,6 +43,23 @@ impl fmt::Debug for UnitHasher {
         f.debug_tuple("UnitHasher").finish()
     }
 }
+
+
+// pub trait Digest {
+//     /// Hash to digest number.
+//     fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;
+// }
+
+// impl<H> Digest for H
+// where
+//     H: Digest,
+// {
+//     /// Hash to digest number.
+//     fn digest(&self, state: &mut UnitHasher) -> Result<Gain> {
+//         self.digest(state);
+//         state.finish().gain()
+//     }
+// }
 
 // impl fmt::Display for Task<'_> {
 //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

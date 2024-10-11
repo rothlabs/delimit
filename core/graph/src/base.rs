@@ -1,13 +1,13 @@
 use super::*;
 
-pub trait HashGraph {
-    fn hash_graph<H: Hasher>(&self, state: &mut H);
+pub trait Digest {
+    fn digest<H: Hasher>(&self, state: &mut H);
 }
 
 macro_rules! hash_base {
     ($ty:ty) => {
-        impl HashGraph for $ty {
-            fn hash_graph<H: Hasher>(&self, state: &mut H) {
+        impl Digest for $ty {
+            fn digest<H: Hasher>(&self, state: &mut H) {
                 std::hash::Hash::hash(self, state);
             }
         }
@@ -25,20 +25,20 @@ hash_base!(i16);
 hash_base!(i32);
 hash_base!(i64);
 
-impl HashGraph for f32 {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl Digest for f32 {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         std::hash::Hash::hash(&self.to_bits(), state);
     }
 }
 
-impl HashGraph for f64 {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl Digest for f64 {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         std::hash::Hash::hash(&self.to_bits(), state);
     }
 }
 
-impl<T: bytemuck::Pod> HashGraph for Vec<T> {
-    fn hash_graph<H: Hasher>(&self, state: &mut H) {
+impl<T: bytemuck::Pod> Digest for Vec<T> {
+    fn digest<H: Hasher>(&self, state: &mut H) {
         let slice: &[u8] = bytemuck::cast_slice(self);
         std::hash::Hash::hash(slice, state);
     }
@@ -68,15 +68,15 @@ impl<T: bytemuck::Pod> HashGraph for Vec<T> {
 //     }
 // }
 
-// impl HashGraph for Vec<f32> {
-//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+// impl Digest for Vec<f32> {
+//     fn digest<H: Hasher>(&self, state: &mut H) {
 //         let slice: &[u8] = bytemuck::cast_slice(self);
 //         std::hash::Hash::hash(slice, state);
 //     }
 // }
 
-// impl HashGraph for Vec<f64> {
-//     fn hash_graph<H: Hasher>(&self, state: &mut H) {
+// impl Digest for Vec<f64> {
+//     fn digest<H: Hasher>(&self, state: &mut H) {
 //         let slice: &[u8] = bytemuck::cast_slice(self);
 //         std::hash::Hash::hash(slice, state);
 //     }

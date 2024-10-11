@@ -1,7 +1,7 @@
 [workspace]
-    members = ["app", "graph", "text", "repo"]
-    # exclude = ["app/client", "gpu", "dom"]
+    members = ["app", "graph", "text", "repo", "derive_node"]
     resolver = "2" 
+
 
 # [workspace.dependencies]
 #     # graph2 = {path = "graph", features = ["oneThread"]}
