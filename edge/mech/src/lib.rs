@@ -1,6 +1,8 @@
 use derive_node::Adapt;
 use graph::*;
 
+const BASE: u16 = 1;
+
 #[derive(Adapt)]
 pub struct Vector {
     units: Vec<Hub<f64>>,
@@ -9,19 +11,16 @@ pub struct Vector {
 impl Solve for Vector {
     type Base = Vec<f64>;
     async fn solve(&self) -> Result<Hub<Vec<f64>>> {
-        let mut out = vec![];
+        let mut vector = vec![];
         for unit in &self.units {
-            out.push(unit.base().await?);
+            vector.push(unit.base().await?);
         }
-        Ok(out.leaf().hub())
+        Ok(vector.leaf().hub())
+    }
+    fn rank(&self) -> u16 {
+        BASE
     }
 }
-
-// impl Adapt for Vector {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.units.deal("units", deal)
-//     }
-// }
 
 #[derive(Adapt)]
 pub struct Matrix {
@@ -31,16 +30,13 @@ pub struct Matrix {
 impl Solve for Matrix {
     type Base = Vec<f64>;
     async fn solve(&self) -> Result<Hub<Vec<f64>>> {
-        let mut out = vec![];
+        let mut matrix = vec![];
         for vector in &self.vectors {
-            out.extend(vector.base().await?);
+            matrix.extend(vector.base().await?);
         }
-        Ok(out.leaf().hub())
+        Ok(matrix.leaf().hub())
+    }
+    fn rank(&self) -> u16 {
+        BASE
     }
 }
-
-// impl Adapt for Matrix {
-//     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-//         self.vectors.deal("vectors", deal)
-//     }
-// }
