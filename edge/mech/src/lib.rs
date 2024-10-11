@@ -18,7 +18,7 @@ impl Solve for Vector {
         for unit in &self.units {
             vector.push(unit.base().await?);
         }
-        Ok(vector.leaf().hub())
+        Ok(vector.into_leaf().hub())
     }
     fn rank(&self) -> u16 {
         BASE
@@ -37,7 +37,7 @@ impl Solve for Matrix {
         for vector in &self.vectors {
             matrix.extend(vector.base().await?);
         }
-        Ok(matrix.leaf().hub())
+        Ok(matrix.into_leaf().hub())
     }
     fn rank(&self) -> u16 {
         BASE

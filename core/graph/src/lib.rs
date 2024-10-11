@@ -1,7 +1,7 @@
 pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
-pub use apex::{Apex, DealItem, Poll, View, ViewVec};
+pub use apex::{Apex, DealItem, Depend, View, ViewVec};
 pub use base::Digest;
 pub use bay::Bay;
 pub use cusp::Cusp;

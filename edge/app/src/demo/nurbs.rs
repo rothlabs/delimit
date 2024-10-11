@@ -20,7 +20,7 @@ impl Demo {
     pub async fn run(&self) -> dom::Result<()> {
         let window = Window::new()?;
         let doc = window.document()?;
-        let tick = 0.leaf();
+        let tick = 0.into_leaf();
         let _nurbs = self.nurbs(&doc, &tick).await?;
         let start = doc.time()?;
         let mut last = start;

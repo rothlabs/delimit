@@ -30,14 +30,14 @@ impl Apex {
     }
 }
 
-pub trait Poll {
-    fn poll(&self) -> impl Future<Output = Result<()>> + IsSend;
+pub trait Depend {
+    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend;
 }
 
-impl Poll for Vec<Apex> {
-    async fn poll(&self) -> Result<()> {
+impl Depend for Vec<Apex> {
+    async fn depend(&self) -> Result<()> {
         for hub in self {
-            hub.poll().await?;
+            hub.depend().await?;
         }
         Ok(())
     }
@@ -171,9 +171,9 @@ macro_rules! ImplViewVec {
         }
 
         impl Apex {
-            pub async fn poll(&self) -> Result<()> {
+            pub async fn depend(&self) -> Result<()> {
                 match self {
-                    $(Self::$Variant(x) => x.poll().await,)*
+                    $(Self::$Variant(x) => x.depend().await,)*
                 }
             }
             pub fn path(&self) -> Option<&Path> {

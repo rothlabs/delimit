@@ -12,14 +12,14 @@ fn body() -> dom::Result<Element> {
     Window::new()?.document()?.body()
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<Gpu<'a>> {
+async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
     let canvas = body()?.stem("canvas")?.canvas()?;
     canvas.gpu().await
 }
 
 #[wasm_bindgen_test]
 async fn nurbs() -> dom::Result<()> {
-    let gpu = gpu_with_canvas().await?;
+    let (gpu, _) = gpu_with_canvas().await?;
     let shader = gpu.shader(include_wgsl!("../src/shader/nurbs.wgsl"));
     let order = 3;
     let count = 64;

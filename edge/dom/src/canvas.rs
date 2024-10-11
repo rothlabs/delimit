@@ -10,7 +10,7 @@ impl Canvas {
         self.object.set_width(width);
         self.object.set_height(height);
     }
-    pub async fn gpu<'a>(&self) -> Result<Gpu<'a>> {
+    pub async fn gpu<'a>(&self) -> Result<(Gpu, Surface<'a>)> {
         let gpu = Gpu::from_canvas(self.object.clone()).await?;
         Ok(gpu)
     }

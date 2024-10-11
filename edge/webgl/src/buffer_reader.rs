@@ -33,7 +33,7 @@ impl Solve for BufferReader {
             .gl
             .get_buffer_sub_data_with_i32_and_array_buffer_view(WGLRC::ARRAY_BUFFER, 0, &view);
         self.buffer.unbind();
-        Ok(array.leaf().hub())
+        Ok(array.into_leaf().hub())
     }
 }
 

@@ -197,7 +197,7 @@ impl<T: Payload> Hub<T> {
         })
     }
 
-    pub async fn poll(&self) -> Result<()> {
+    pub async fn depend(&self) -> Result<()> {
         self.base().await?;
         Ok(())
     }

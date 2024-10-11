@@ -19,7 +19,7 @@ pub struct DrawElements {
 
 impl Act for DrawElements {
     async fn act(&self) -> Result<()> {
-        self.stems.poll().await?;
+        self.stems.depend().await?;
         self.program.act().await?;
         self.program.read(|program| program.use_())?;
         let count = self.count.base().await.unwrap_or_default();

@@ -14,12 +14,12 @@ fn body() -> dom::Result<Element> {
     Window::new()?.document()?.body()
 }
 
-async fn gpu<'a>() -> dom::Result<Gpu<'a>> {
+async fn gpu<'a>() -> dom::Result<(Gpu, gpu::Surface<'a>)> {
     let canvas = body()?.element("canvas")?.canvas()?;
     canvas.gpu().await
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<Gpu<'a>> {
+async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, gpu::Surface<'a>)> {
     let canvas = body()?.stem("canvas")?.canvas()?;
     canvas.gpu().await
 }
@@ -48,7 +48,7 @@ fn line_data() -> Vec<f32> {
 
 #[wasm_bindgen_test]
 async fn make_vertex_buffer() -> dom::Result<()> {
-    let gpu = gpu().await?;
+    let (gpu, _) = gpu().await?;
     gpu.buffer(1024).usage(BufferUsages::VERTEX).make()?;
     Ok(())
 }
@@ -56,8 +56,7 @@ async fn make_vertex_buffer() -> dom::Result<()> {
 #[wasm_bindgen_test]
 async fn draw_triangle() -> dom::Result<()> {
     // setup:
-    let gpu = gpu_with_canvas().await?;
-    let surface = gpu.surface();
+    let (gpu, surface) = gpu_with_canvas().await?;
     let targets = surface.targets();
     let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
     let vertex = shader.vertex("vs_main").make()?;
@@ -77,8 +76,7 @@ const LINE_SHADER: ShaderModuleDescriptor = include_wgsl!("../src/shader/line.wg
 
 #[wasm_bindgen_test]
 async fn draw_lines() -> dom::Result<()> {
-    let gpu = gpu_with_canvas().await?;
-    let surface = gpu.surface();
+    let (gpu, surface) = gpu_with_canvas().await?;
     let targets = surface.targets();
     let shader = gpu.shader(LINE_SHADER);
     let prim = gpu.lines().make()?;
@@ -107,8 +105,7 @@ async fn draw_lines() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn draw_msaa_lines() -> dom::Result<()> {
-    let gpu = gpu_with_canvas().await?;
-    let surface = gpu.surface();
+    let (gpu, surface) = gpu_with_canvas().await?;
     let targets = surface.targets();
     let shader = gpu.shader(LINE_SHADER);
     let prim = gpu.lines().make()?;
@@ -140,7 +137,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn compute_collatz_iterations() -> dom::Result<()> {
-    let gpu = gpu().await?;
+    let (gpu, _) = gpu().await?;
     let shader = gpu.shader(include_wgsl!("collatz.wgsl"));
     let pipe = shader.compute("main").make()?;
     let size = 36;
@@ -168,7 +165,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn index_fraction() -> dom::Result<()> {
-    let gpu = gpu().await?;
+    let (gpu, _) = gpu().await?;
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
@@ -186,17 +183,21 @@ async fn index_fraction() -> dom::Result<()> {
         .make()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-    let mut encoder = gpu.encoder();
-    encoder
-        .compute()
-        .pipe(&pipe)
-        .bind(0, &bind, &[])
-        .dispatch(count, 1, 1);
-    encoder
-        .copy_buffer(&basis)
-        .destination(&stage)
-        .size(size)
-        .submit();
+
+    // let pipe_leaf = pipe.into_leaf();
+    let dispatcher = gpu.dispatcher().pipe(pipe).bind(bind).count(count).stage((basis.into_leaf(), stage.into_leaf())).node()?;
+
+    // let mut encoder = gpu.encoder();
+    // encoder
+    //     .compute()
+    //     .pipe(&pipe)
+    //     .bind(0, &bind, &[])
+    //     .dispatch(count, 1, 1);
+    // encoder
+    //     .copy_buffer(&basis)
+    //     .destination(&stage)
+    //     .size(size)
+    //     .submit();
     let out: Vec<f32> = stage.reader().hub()?.base().await?;
     assert_eq!(
         out,

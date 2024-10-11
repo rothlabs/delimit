@@ -10,31 +10,10 @@ pub struct Leaf<T> {
 }
 
 impl<T: Payload> Leaf<T> {
-    pub fn new(base: T) -> Self {
-        Self {
-            base,
-            digest: None,
-            serial: None,
-        }
-    }
     pub fn hub(self) -> Hub<T> {
         Hub::Leaf(link::Leaf::new(self.base))
     }
 }
-
-// impl<T: Payload> Leaf<T> {
-//     fn digest(&mut self) -> u64 {
-//         if let Some(digest) = self.digest {
-//             digest
-//         } else {
-//             let mut state = DefaultHasher::new();
-//             self.base.digest(&mut state);
-//             let digest = state.finish();
-//             self.digest = Some(digest);
-//             digest
-//         }
-//     }
-// }
 
 impl<T> WorkFromBase for Leaf<T> {
     type Base = T;
@@ -61,13 +40,6 @@ impl<T> BaseMut for Leaf<T> {
     }
 }
 
-// impl<T: Payload> SolveMut for Leaf<T> {
-//     type Base = ();
-//     // fn rank(&self) -> u16 {
-//     //     0
-//     // }
-// }
-
 impl<T: Payload> ReckonMut for Leaf<T> {
     fn get_imports(&self) -> Result<Vec<Import>> {
         Ok(vec![])
@@ -82,14 +54,11 @@ impl<T: Payload> ReckonMut for Leaf<T> {
             self.digest = Some(digest);
             Ok(digest)
         }
-        // Ok(self.digest())
     }
     fn get_serial(&mut self) -> Result<String> {
         if let Some(serial) = &self.serial {
             Ok(serial.clone())
         } else {
-            // let mut state = DefaultHasher::new();
-            // self.base.digest(&mut state);
             let serial = self.serial()?;
             self.serial = Some(serial.clone());
             Ok(serial)
@@ -105,3 +74,33 @@ impl<T> Clear for Leaf<T> {
 }
 
 impl<T> ReactMut for Leaf<T> {}
+
+
+// impl<T: Payload> SolveMut for Leaf<T> {
+//     type Base = ();
+//     // fn rank(&self) -> u16 {
+//     //     0
+//     // }
+// }
+
+    // pub fn new(base: T) -> Self {
+    //     Self {
+    //         base,
+    //         digest: None,
+    //         serial: None,
+    //     }
+    // }
+
+    // impl<T: Payload> Leaf<T> {
+//     fn digest(&mut self) -> u64 {
+//         if let Some(digest) = self.digest {
+//             digest
+//         } else {
+//             let mut state = DefaultHasher::new();
+//             self.base.digest(&mut state);
+//             let digest = state.finish();
+//             self.digest = Some(digest);
+//             digest
+//         }
+//     }
+// }

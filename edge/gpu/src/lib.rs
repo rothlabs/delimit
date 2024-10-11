@@ -3,15 +3,15 @@ pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
 pub use wgpu::{BufferUsages, include_wgsl};
+pub use surface::Surface;
+pub use encode::*;
 
 use util::DeviceExt;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
-use encode::*;
 use graph::*;
 use pipe::*;
 use shader::*;
-use surface::Surface;
 use texture::*;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
@@ -39,16 +39,15 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-// #[derive(Debug)]
-pub struct Gpu<'a> {
+#[derive(Clone, Debug)]
+pub struct Gpu {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
     // pub adapter: Grc<Adapter>,
-    surface: Surface<'a>,
 }
 
-impl<'a> Gpu<'a> {
-    pub async fn from_canvas(canvas: HtmlCanvasElement) -> Result<Self> {
+impl Gpu {
+    pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<(Self, Surface<'a>)> {
         let instance = Instance::default();
         let surface_target = SurfaceTarget::Canvas(canvas);
         let surface = instance.create_surface(surface_target)?;
@@ -74,14 +73,12 @@ impl<'a> Gpu<'a> {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        Ok(Self {
+        Ok((Self {
             device: grc_device.clone(),
             queue: queue.into(),
-            surface: Surface::new(surface, &adapter, grc_device),
-        })
-    }
-    pub fn surface(&'a self) -> &'a Surface<'a> {
-        &self.surface
+            // adapter: adapter.into(),
+            //surface: Surface::new(surface, &adapter, grc_device),
+        }, Surface::new(surface, &adapter, grc_device)))
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
@@ -117,7 +114,7 @@ impl<'a> Gpu<'a> {
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
     }
-    pub fn bind_layout(&self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
+    pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
         BindLayoutBuilder::default()
             .device(&self.device)
             .entries(entries)
@@ -131,18 +128,18 @@ impl<'a> Gpu<'a> {
     pub fn storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
-    pub fn pipe_layout(&self, bind_layout: &'a [&'a BindGroupLayout]) -> pipe::LayoutBuilder {
+    pub fn pipe_layout<'a>(&'a self, bind_layout: &'a [&'a BindGroupLayout]) -> pipe::LayoutBuilder {
         pipe::LayoutBuilder::default()
             .device(&self.device)
             .bind_layouts(bind_layout)
     }
-    pub fn render_pipe(&self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+    pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
         pipe::RenderBuilder::default()
             .device(&self.device)
             .vertex(vertex)
     }
-    pub fn render_pass(
-        &self,
+    pub fn render_pass<'a>(
+        &'a self,
         attachments: &'a [Option<RenderPassColorAttachment<'a>>],
     ) -> encode::RenderBuilder {
         encode::RenderBuilder::default().attachments(attachments)
@@ -155,7 +152,7 @@ impl<'a> Gpu<'a> {
             queue: &self.queue,
         }
     }
-    pub fn attachment(&self, view: &'a TextureView) -> ColorAttachmentBuilder {
+    pub fn attachment<'a>(&'a self, view: &'a TextureView) -> ColorAttachmentBuilder {
         ColorAttachmentBuilder::default().view(view)
     }
     pub fn lines(&self) -> PrimitiveBuilder {
@@ -166,6 +163,9 @@ impl<'a> Gpu<'a> {
     }
     pub fn multisample(&self, count: u32) -> MultisampleBuilder {
         MultisampleBuilder::default().count(count)
+    }
+    pub fn dispatcher(&self) -> DispatcherBuilder {
+        DispatcherBuilder::default().gpu(self.clone())
     }
 }
 

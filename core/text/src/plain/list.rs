@@ -47,7 +47,7 @@ impl Solve for List {
             base += &separator;
         }
         self.items[last].read(|x| base += x).await?;
-        Ok(base.leaf().hub())
+        Ok(base.into_leaf().hub())
     }
     fn rank(&self) -> u16 {
         PLAIN

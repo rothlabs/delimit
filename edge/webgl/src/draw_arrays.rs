@@ -48,7 +48,7 @@ impl DrawArrays {
 
 impl Act for DrawArrays {
     async fn act(&self) -> Result<()> {
-        self.stems.poll().await?;
+        self.stems.depend().await?;
         self.program.act().await?;
         // TODO: use wrapper of WebGlProgram directly
         self.program.read(|unit| unit.use_())?;

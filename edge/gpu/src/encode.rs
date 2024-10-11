@@ -1,10 +1,12 @@
 pub use render::RenderBuilder;
 pub use render::*;
+pub use dispatcher::*;
 
 use super::*;
 
 mod pass;
 mod render;
+mod dispatcher;
 
 pub struct Encoder<'a> {
     pub inner: CommandEncoder,
@@ -22,7 +24,7 @@ impl<'a> Encoder<'a> {
         let pass = self.inner.begin_render_pass(descriptor);
         pass::Render::new(pass)
     }
-    pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'a> {
+    pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'_> {
         SourceBuffer {
             encoder: self,
             buffer,

@@ -18,7 +18,7 @@ where
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
-        self.stems.poll().await?;
+        self.stems.depend().await?;
         let slice = self.buffer.slice(..);
         let (sender, receiver) = flume::bounded(1);
         slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
@@ -27,7 +27,7 @@ where
         }
         let data = slice.get_mapped_range();
         let out = bytemuck::cast_slice(&data).to_vec();
-        Ok(out.leaf().hub())
+        Ok(out.into_leaf().hub())
     }
 }
 

@@ -15,14 +15,21 @@ impl ToLeaf<String> for str {
 
 pub trait IntoLeaf<T> {
     /// Move into Leaf.
-    fn leaf(self) -> Leaf<T>;
+    fn into_leaf(self) -> Leaf<T>;
 }
 
-impl<T: Payload> IntoLeaf<T> for T {
-    fn leaf(self) -> Leaf<T> {
+impl<T: 'static + SendSync> IntoLeaf<T> for T {
+    fn into_leaf(self) -> Leaf<T> {
         Leaf::new(self)
     }
 }
+
+impl<T: 'static + SendSync> From<T> for Leaf<T> {
+    fn from(value: T) -> Self {
+        Leaf::new(value)
+    }
+}
+
 
 // pub trait VecIntoLeaf<T> {
 //     /// Move into Leaf.
