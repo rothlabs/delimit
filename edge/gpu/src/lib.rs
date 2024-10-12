@@ -2,17 +2,17 @@ pub use buffer::Buffer;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
-pub use wgpu::{BufferUsages, include_wgsl};
 pub use surface::Surface;
-pub use encode::*;
+pub use wgpu::{include_wgsl, BufferUsages};
 
-use util::DeviceExt;
+use encode::*;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use graph::*;
 use pipe::*;
 use shader::*;
 use texture::*;
+use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
@@ -73,12 +73,15 @@ impl Gpu {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        Ok((Self {
-            device: grc_device.clone(),
-            queue: queue.into(),
-            // adapter: adapter.into(),
-            //surface: Surface::new(surface, &adapter, grc_device),
-        }, Surface::new(surface, &adapter, grc_device)))
+        Ok((
+            Self {
+                device: grc_device.clone(),
+                queue: queue.into(),
+                // adapter: adapter.into(),
+                //surface: Surface::new(surface, &adapter, grc_device),
+            },
+            Surface::new(surface, &adapter, grc_device),
+        ))
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
@@ -128,7 +131,10 @@ impl Gpu {
     pub fn storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
-    pub fn pipe_layout<'a>(&'a self, bind_layout: &'a [&'a BindGroupLayout]) -> pipe::LayoutBuilder {
+    pub fn pipe_layout<'a>(
+        &'a self,
+        bind_layout: &'a [&'a BindGroupLayout],
+    ) -> pipe::LayoutBuilder {
         pipe::LayoutBuilder::default()
             .device(&self.device)
             .bind_layouts(bind_layout)

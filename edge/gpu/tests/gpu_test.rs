@@ -183,21 +183,14 @@ async fn index_fraction() -> dom::Result<()> {
         .make()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-
-    // let pipe_leaf = pipe.into_leaf();
-    let dispatcher = gpu.dispatcher().pipe(pipe).bind(bind).count(count).stage((basis.into_leaf(), stage.into_leaf())).node()?;
-
-    // let mut encoder = gpu.encoder();
-    // encoder
-    //     .compute()
-    //     .pipe(&pipe)
-    //     .bind(0, &bind, &[])
-    //     .dispatch(count, 1, 1);
-    // encoder
-    //     .copy_buffer(&basis)
-    //     .destination(&stage)
-    //     .size(size)
-    //     .submit();
+    let dispatcher = gpu
+        .dispatcher()
+        .pipe(pipe)
+        .bind(bind)
+        .count(count)
+        .stage((basis.inner(), stage.inner()))
+        .node()?;
+    dispatcher.act().await?;
     let out: Vec<f32> = stage.reader().hub()?.base().await?;
     assert_eq!(
         out,

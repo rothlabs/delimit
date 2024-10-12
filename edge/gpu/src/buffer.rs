@@ -14,6 +14,9 @@ pub struct Buffer {
 }
 
 impl Buffer {
+    pub fn inner(&self) -> Grc<wgpu::Buffer> {
+        self.inner.clone()
+    }
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
