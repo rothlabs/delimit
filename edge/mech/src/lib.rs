@@ -1,6 +1,6 @@
 use derive_node::Adapt;
-use graph::*;
 use gpu::*;
+use graph::*;
 
 mod nurbs;
 

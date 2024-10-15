@@ -33,7 +33,9 @@ async fn nurbs() -> dom::Result<()> {
     let knots_entry = gpu.storage(false).entry(1)?.compute()?;
     let weights_entry = gpu.storage(false).entry(2)?.compute()?;
     let basis_entry = gpu.storage(false).entry(3)?.compute()?;
-    let bind_layout = gpu.bind_layout(&[config_entry, knots_entry, weights_entry, basis_entry]).make()?;
+    let bind_layout = gpu
+        .bind_layout(&[config_entry, knots_entry, weights_entry, basis_entry])
+        .make()?;
     let bind = gpu
         .bind()
         .layout(&bind_layout)

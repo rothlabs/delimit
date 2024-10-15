@@ -158,7 +158,6 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .size(size)
         .submit();
     let out: Vec<u32> = stage.reader().hub()?.base().await?;
-    // let out: Vec<u32> = stage.reader().node().unwrap().ba;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
@@ -189,8 +188,8 @@ async fn index_fraction() -> dom::Result<()> {
         .bind(bind)
         .count(count)
         .stage((basis.inner(), stage.inner()))
-        .node()?;
-    dispatcher.act().await?;
+        .hub()?;
+    dispatcher.depend().await?;
     let out: Vec<f32> = stage.reader().hub()?.base().await?;
     assert_eq!(
         out,

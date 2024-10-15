@@ -5,9 +5,9 @@ pub use flume;
 pub use surface::Surface;
 pub use wgpu::{include_wgsl, BufferUsages};
 
-use encode::*;
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
+use encode::*;
 use graph::*;
 use pipe::*;
 use shader::*;
