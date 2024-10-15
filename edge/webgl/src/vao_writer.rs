@@ -10,7 +10,7 @@ pub struct VaoWriter {
     attributes: Vec<Node<VertexAttribute>>,
     /// for ELEMENT_ARRAY_BUFFER only (ARRAY_BUFFER has no effect)
     #[builder(default)]
-    index: Option<Buffer>,
+    index: Option<buffer::Buffer>,
 }
 
 impl Act for VaoWriter {

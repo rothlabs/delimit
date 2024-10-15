@@ -5,6 +5,7 @@ use super::*;
 pub struct BufferWriter<T: Payload + Pod> {
     queue: Grc<wgpu::Queue>,
     buffer: Grc<wgpu::Buffer>,
+    // buffer: Hub<graph::Buffer>,
     #[builder(default)]
     offset: Hub<u64>,
     data: Hub<Vec<T>>,

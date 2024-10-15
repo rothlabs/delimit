@@ -6,7 +6,7 @@ use web_sys::{window, WebGlSync};
 #[derive(Builder, Debug, Vf32!)]
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferReader {
-    buffer: Buffer,
+    buffer: buffer::Buffer,
     size: Hub<i32>,
     // TODO: replaces with list of apex actors
     draw: Node<DrawArrays>,

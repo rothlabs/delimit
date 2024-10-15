@@ -44,6 +44,58 @@ impl<T: bytemuck::Pod> Digest for Vec<T> {
     }
 }
 
+#[derive(Default, Debug, Clone)]
+pub struct Buffer {
+    id: u64,
+    inner: Option<Grc<wgpu::Buffer>>,
+}
+
+impl Buffer {
+    pub fn inner(&self) -> Result<&wgpu::Buffer> {
+        if let Some(inner) = &self.inner {
+            Ok(inner)
+        } else {
+            Err(anyhow!("no inner graph buffer"))?
+        }
+    }
+}
+
+impl Digest for Buffer {
+    fn digest<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+impl Serialize for Buffer {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        serializer.serialize_unit()
+    }
+}
+
+impl From<Grc<wgpu::Buffer>> for Buffer {
+    fn from(value: Grc<wgpu::Buffer>) -> Self {
+        Self {
+            id: rand::random(),
+            inner: Some(value)
+        }
+    }
+}
+
+
+// impl Deref for Buffer {
+//     type Target = wgpu::Buffer;
+//     fn deref(&self) -> &Self::Target {
+//         &self.inner
+//     }
+// }
+
+
+
+
+
+
 // pub trait CastSlice {
 //     fn slice<B>(&self) -> &[B]
 //     where

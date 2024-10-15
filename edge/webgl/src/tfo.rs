@@ -9,7 +9,7 @@ pub struct Tfo {
     gl: WGLRC,
     object: WebGlTransformFeedback,
     #[builder(setter(each(name = "buffer", into)))]
-    buffers: Vec<Buffer>,
+    buffers: Vec<buffer::Buffer>,
 }
 
 impl TfoBuilder {

@@ -3,8 +3,10 @@ use std::marker::PhantomData;
 
 #[derive(Builder, Debug, Input!)]
 #[builder(pattern = "owned")]
+#[builder(setter(into))]
 pub struct BufferReader<T> {
-    buffer: Grc<wgpu::Buffer>,
+    // buffer: Grc<wgpu::Buffer>,
+    buffer: Hub<graph::Buffer>,
     #[builder(default, setter(each(name = "stem", into)))]
     stems: Vec<Apex>,
     #[builder(default)]
@@ -19,7 +21,8 @@ where
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
         self.stems.depend().await?;
-        let slice = self.buffer.slice(..);
+        let buffer = self.buffer.base().await?;
+        let slice = buffer.inner()?.slice(..);
         let (sender, receiver) = flume::bounded(1);
         slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
         if let Err(err) = receiver.recv_async().await? {

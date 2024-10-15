@@ -1,4 +1,5 @@
 pub use buffer::*;
+pub use buffer::Buffer;
 pub use buffer_reader::*;
 pub use bufferer::*;
 pub use draw_arrays::*;
@@ -16,8 +17,8 @@ use vao_writer::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
 
 pub mod shader;
+pub mod buffer;
 
-mod buffer;
 mod buffer_reader;
 mod bufferer;
 mod draw_arrays;
@@ -68,7 +69,7 @@ impl WebGl {
             .vertex(vertex)
             .fragment(fragment))
     }
-    pub fn buffer(&self) -> Result<Buffer> {
+    pub fn buffer(&self) -> Result<buffer::Buffer> {
         let buffer = self
             .gl
             .create_buffer()

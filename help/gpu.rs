@@ -35,7 +35,7 @@ pub fn make_tex_program(gpu: &WebGl) -> graph::Result<Node<Program>> {
     gpu.program(vertex, fragment)?.node()
 }
 
-pub fn make_basic_buffer(gpu: &WebGl) -> Result<(Buffer, Node<Bufferer>)> {
+pub fn make_basic_buffer(gpu: &WebGl) -> Result<(buffer::Buffer, Node<Bufferer>)> {
     #[rustfmt::skip]
     let array: Vec<f32> = vec![
         0.,  0.,  0.,

@@ -5,7 +5,7 @@ use super::*;
 #[builder(pattern = "owned", setter(into))]
 pub struct VertexAttribute {
     // gl: WGLRC,
-    buffer: Buffer,
+    buffer: buffer::Buffer,
     #[builder(default = "WGLRC::FLOAT")]
     type_: u32,
     /// Location in vertex shader. `layout(location = index)`

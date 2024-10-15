@@ -57,6 +57,12 @@ impl<T: Payload> From<T> for Hub<T> {
     }
 }
 
+impl From<Grc<wgpu::Buffer>> for Hub<Buffer> {
+    fn from(value: Grc<wgpu::Buffer>) -> Self {
+        Hub::Tray(Tray::Base(value.into()))
+    }
+}
+
 pub trait ToPloyHub {
     type Base: Payload;
     fn hub(&self) -> Hub<Self::Base>;

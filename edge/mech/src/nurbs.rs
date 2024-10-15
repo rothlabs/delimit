@@ -11,8 +11,10 @@ impl Nurbs {
         let count = 64;
         let size = 4 * count as u64;
         let config = self.gpu.buffer_uniform(&[order, count]);
+        // to be looked up from Gpu by key
         let knots = self.gpu.buffer(size).storage_copy()?;
         let weights = self.gpu.buffer(size).storage_copy()?;
+        // new buffer to be put into Gpu and key returned from dispatcher
         let basis = self.gpu.buffer(size).storage_copy()?;
         let stage = self.gpu.buffer(size).map_read()?;
         let config_entry = self.gpu.uniform().entry(0)?.compute()?;
