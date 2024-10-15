@@ -8,6 +8,7 @@ pub struct Dispatcher {
     pipe: Grc<ComputePipeline>,
     bind: Grc<BindGroup>,
     count: Hub<u32>,
+    target: Hub<graph::Buffer>,
     stage: Option<(Grc<wgpu::Buffer>, Grc<wgpu::Buffer>)>,
     #[builder(default, setter(each(name = "stem", into)))]
     stems: Vec<Apex>,

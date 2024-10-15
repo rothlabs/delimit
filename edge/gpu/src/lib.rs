@@ -4,6 +4,7 @@ pub use bytemuck::*;
 pub use flume;
 pub use surface::Surface;
 pub use wgpu::{include_wgsl, BufferUsages};
+pub use encode::Dispatcher;
 
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
