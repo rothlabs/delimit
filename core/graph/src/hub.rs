@@ -212,9 +212,15 @@ impl<T: Payload> Hub<T> {
         })
     }
 
-    pub async fn depend(&self) -> Result<()> {
-        self.base().await?;
-        Ok(())
+    pub fn depend(&self) -> GraphFuture<Result<()>> {
+        Box::pin(async move {
+            match self {
+                Self::Tray(_) => Ok(()),
+                Self::Leaf(leaf) => leaf.read(|_| ()),
+                Self::Ploy(ploy) => ploy.solve().await?.depend().await,
+                Self::Wing(wing) => wing.solve().await?.depend().await,
+            }
+        })
     }
 }
 
@@ -237,7 +243,8 @@ impl<T: Payload> Backed for Hub<T> {
 
 impl<T: Payload> Default for Hub<T> {
     fn default() -> Self {
-        Self::Tray(Tray::Path(Path::Hash(0)))
+        Self::Tray(Tray::None)
+        // Self::Tray(Tray::Path(Path::Hash(0)))
     }
 }
 
@@ -259,13 +266,13 @@ impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
     }
 }
 
-impl<T: Payload> Digest for Vec<Hub<T>> {
-    fn digest<H: Hasher>(&self, state: &mut H) {
-        for hub in self {
-            hub.digest(state);
-        }
-    }
-}
+// impl<T: Payload> Digest for Vec<Hub<T>> {
+//     fn digest<H: Hasher>(&self, state: &mut H) {
+//         for hub in self {
+//             hub.digest(state);
+//         }
+//     }
+// }
 
 impl<T: Payload> Digest for Option<T> {
     fn digest<H: Hasher>(&self, state: &mut H) {

@@ -45,6 +45,22 @@ pub fn digest_derive(item: TokenStream) -> TokenStream {
                 }
             }
         },
+        Data::Enum(syn::DataEnum {variants, ..}) => {
+            let variant_idents = variants.iter().map(|item| &item.ident ).collect::<Vec<_>>();
+            // let variant_fields = variants.iter().map(|item| &item.fields ).collect::<Vec<_>>();
+            quote! {
+                #[automatically_derived]
+                impl Digest for #struct_identifier {
+                    fn digest<H: std::hash::Hasher>(&self, state: &mut H) {
+                        match self {
+                            #(
+                                Self::#variant_idents(x) => x.digest(state),
+                            )*
+                        }
+                    }
+                }
+            }
+        },
         _ => unimplemented!()
     }.into()
 }

@@ -16,7 +16,7 @@ where
     T: Payload + Pod,
 {
     async fn act(&self) -> graph::Result<()> {
-        let offset = self.offset.base().await?;
+        let offset = self.offset.base().await.unwrap_or_default();
         self.data
             .read(|data| {
                 self.queue

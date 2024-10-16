@@ -4,6 +4,14 @@ pub trait Digest {
     fn digest<H: Hasher>(&self, state: &mut H);
 }
 
+impl<T: Digest> Digest for Vec<T> {
+    fn digest<H: Hasher>(&self, state: &mut H) {
+        for item in self {
+            item.digest(state);
+        }
+    }
+}
+
 macro_rules! hash_base {
     ($ty:ty) => {
         impl Digest for $ty {
@@ -37,12 +45,12 @@ impl Digest for f64 {
     }
 }
 
-impl<T: bytemuck::Pod> Digest for Vec<T> {
-    fn digest<H: Hasher>(&self, state: &mut H) {
-        let slice: &[u8] = bytemuck::cast_slice(self);
-        std::hash::Hash::hash(slice, state);
-    }
-}
+// impl<T: bytemuck::Pod> Digest for Vec<T> {
+//     fn digest<H: Hasher>(&self, state: &mut H) {
+//         let slice: &[u8] = bytemuck::cast_slice(self);
+//         std::hash::Hash::hash(slice, state);
+//     }
+// }
 
 #[derive(Default, Debug, Clone)]
 pub struct Buffer {
