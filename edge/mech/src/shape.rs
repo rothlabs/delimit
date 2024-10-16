@@ -3,28 +3,29 @@ use serde::Serialize;
 
 use super::*;
 
-#[derive(Builder, Debug, Digest, Serialize)]
+#[derive(Builder, Clone, Digest, Serialize, Debug)]
 #[builder(pattern = "owned")]
 pub struct Shape {
     rule: Rule,
     frame: Hub<graph::Buffer>,
-    controls: Vec<Control>,
+    control: Control,
     // plots: Node<gpu::Dispatcher>,
 }
 
-impl Solve for Shape {
-    type Base = ();
-}
+// impl Solve for Shape {
+//     type Base = ();
+// }
 
-impl Adapt for Shape {}
+// impl Adapt for Shape {}
 
-#[derive(Debug, Digest, Serialize)]
+#[derive(Clone, Digest, Serialize, Debug)]
 pub enum Control {
-    Shape(Hub<Node<Shape>>),
+    Shapes(Vec<Hub<Shape>>),
     Buffer(Hub<graph::Buffer>),
+    // Vector(Hub<Vec<f64>>),
 }
 
-#[derive(Debug, Digest, Serialize)]
+#[derive(Clone, Digest, Serialize, Debug)]
 pub enum Rule {
     NURBS(Hub<u8>)
 }
