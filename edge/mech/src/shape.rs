@@ -3,11 +3,11 @@ use serde::Serialize;
 
 use super::*;
 
-#[derive(Builder, Clone, Digest, Serialize, Debug)]
+#[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 pub struct Shape {
     rule: Rule,
-    frame: Hub<graph::Buffer>,
+    frame: Hub<Buffer>,
     control: Control,
     // plots: Node<gpu::Dispatcher>,
 }
@@ -18,10 +18,10 @@ pub struct Shape {
 
 // impl Adapt for Shape {}
 
-#[derive(Clone, Digest, Serialize, Debug)]
+#[derive(Clone, Debug)]
 pub enum Control {
     Shapes(Vec<Hub<Shape>>),
-    Buffer(Hub<graph::Buffer>),
+    Buffer(Hub<Buffer>),
     // Vector(Hub<Vec<f64>>),
 }
 

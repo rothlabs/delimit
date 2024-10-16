@@ -2,7 +2,7 @@ pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
 pub use apex::{Apex, DealItem, Depend, View, ViewVec};
-pub use base::{Digest, Buffer};
+pub use base::Digest;
 pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
@@ -348,6 +348,7 @@ where
 impl<T> IntoNode for T
 where
     T: 'static + Unit,
+    T::Base: Clone
 {
     fn node(self) -> Result<Node<Self>> {
         Node::from_unit(self)
@@ -364,6 +365,7 @@ where
 impl<T> IntoPloy for T
 where
     T: 'static + Unit + Digest + Serialize,
+    T::Base: Clone + Debug
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
@@ -371,12 +373,16 @@ where
 }
 
 pub trait IntoHub {
-    type Base: Payload;
+    type Base;//: Payload;
     /// Move into `Hub`
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
-impl<T: IntoPloy> IntoHub for T {
+impl<T> IntoHub for T 
+where 
+    T: IntoPloy,
+    // T::Base: Debug,
+{
     type Base = T::Base;
     fn hub(self) -> Result<Hub<Self::Base>> {
         Ok(self.ploy()?.into())
@@ -393,6 +399,7 @@ where
 impl<T> IntoWing for T
 where
     T: 'static + Unit + WingOnly,
+    T::Base: Clone + Debug
 {
     fn wing(self) -> Result<Wing<Self::Base>> {
         Node::wing_from_unit(self)
@@ -400,12 +407,16 @@ where
 }
 
 pub trait IntoWingHub {
-    type Base: Payload;
+    type Base;//: Payload;
     /// Move into `Hub`
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
-impl<T: IntoWing> IntoWingHub for T {
+impl<T> IntoWingHub for T 
+where 
+    T: IntoWing,
+    // T::Base: Clone + Debug
+{
     type Base = T::Base;
     fn hub(self) -> Result<Hub<Self::Base>> {
         Ok(self.wing()?.into())

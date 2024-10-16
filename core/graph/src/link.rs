@@ -37,7 +37,7 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-impl<T: Payload> Leaf<T> {
+impl<T> Leaf<T> {
     pub fn hub(self) -> Hub<T> {
         self.into()
     }
@@ -201,7 +201,7 @@ where
     }
 }
 
-impl<T: Payload> Backed for Ploy<T> {
+impl<T> Backed for Ploy<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
             Ok(Self {
@@ -213,7 +213,7 @@ impl<T: Payload> Backed for Ploy<T> {
     }
 }
 
-impl<T: Payload> Backed for Wing<T> {
+impl<T> Backed for Wing<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
             Ok(Self {
@@ -276,13 +276,13 @@ impl<E: Solve> Link<E> {
     }
 }
 
-impl<T: Payload> Ploy<T> {
+impl<T: SendSync> Ploy<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
 }
 
-impl<T: Payload> Wing<T> {
+impl<T: SendSync> Wing<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }

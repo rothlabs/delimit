@@ -7,7 +7,7 @@ use std::ops::Deref;
 mod reader;
 mod writer;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Buffer {
     pub inner: Grc<wgpu::Buffer>,
     pub queue: Grc<wgpu::Queue>,
@@ -27,7 +27,7 @@ impl Buffer {
             .data(data)
     }
     pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
-        BufferReaderBuilder::default().buffer(self.inner.clone())
+        BufferReaderBuilder::default().buffer(self.clone())
     }
 }
 

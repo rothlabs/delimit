@@ -18,6 +18,7 @@ impl<U: Solve + WingOnly> WingOnly for Node<U> {}
 impl<U> SolveAdapt for Node<U>
 where
     U: Solve + Adapt + IsSend,
+    U::Base: Clone
 {
     type Base = U::Base;
     fn solve(&mut self) -> GraphFuture<Result<Hub<U::Base>>> {
@@ -113,6 +114,7 @@ impl<U: Solve> WriteUnitWork for Node<U> {
 impl<U> ReactMut for Node<U>
 where
     U: Solve + Adapt + IsSend,
+    U::Base: Clone
 {
     fn react(&mut self) -> GraphFuture<Result<()>> {
         Box::pin(async move {

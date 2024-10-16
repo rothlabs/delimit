@@ -25,6 +25,7 @@ impl<U> Snap<U> {
 impl<U> Snap<U>
 where
     U: 'static + Unit + Digest + Serialize,
+    U::Base: Clone + Debug
 {
     pub fn hub(self) -> Result<Hub<U::Base>> {
         Ok(Node::ploy_from_snap(self)?.into())

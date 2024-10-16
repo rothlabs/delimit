@@ -11,7 +11,7 @@ pub trait Engage: Based + AdaptEdge + Update + SetRoot + Reckon + Debug {}
 impl<E> Engage for E where E: Based + AdaptEdge + Update + SetRoot + Reckon + Debug {}
 
 pub trait Based {
-    type Base: Payload;
+    type Base;//: Payload;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
 }
@@ -24,7 +24,7 @@ pub trait Employ: Employed + AdaptEdge + Update + SetRoot + Debug {}
 impl<E> Employ for E where E: Employed + AdaptEdge + Update + SetRoot + Debug {}
 
 pub trait Employed {
-    type Base: Payload;
+    type Base;//: Payload;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
     fn backed(&self, back: &Back) -> WingEdge<Self::Base>;
 }

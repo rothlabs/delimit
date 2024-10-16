@@ -25,7 +25,7 @@ pub enum Error {
 }
 
 pub trait Solve {
-    type Base: 'static + Payload;
+    type Base: 'static + SendSync;// + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
     fn solve(&self) -> impl Future<Output = Result<Hub<Self::Base>>> + IsSend {
@@ -54,13 +54,13 @@ impl<T: Act + SendSync> Solve for T {
 
 pub fn solve_ok<T>() -> Result<Hub<T>>
 where
-    T: 'static + Payload,
+    T: 'static + SendSync//+ Payload,
 {
     Ok(Hub::none())
 }
 
 pub trait SolveAdapt {
-    type Base: 'static + Payload;
+    type Base: 'static + SendSync;//Payload;
     /// For graph internals to handle solve calls
     fn solve(&mut self) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move { solve_ok() })
