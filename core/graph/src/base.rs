@@ -52,7 +52,7 @@ impl Digest for f64 {
 //     }
 // }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Buffer {
     id: u64,
     inner: Option<Grc<wgpu::Buffer>>,

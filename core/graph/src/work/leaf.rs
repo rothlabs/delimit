@@ -40,7 +40,8 @@ impl<T> BaseMut for Leaf<T> {
     }
 }
 
-impl<T: Payload> ReckonMut for Leaf<T> {
+// was T: Payload
+impl<T: Digest + Serialize> ReckonMut for Leaf<T> {
     fn get_imports(&self) -> Result<Vec<Import>> {
         Ok(vec![])
     }

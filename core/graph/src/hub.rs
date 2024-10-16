@@ -19,9 +19,9 @@ pub enum Error {
 }
 
 /// Primary graph part.
-#[derive(Clone, PartialEq, Serialize, Debug)]
-#[serde(untagged)]
-pub enum Hub<T: Payload> {
+#[derive(Clone, PartialEq, Debug)] // Serialize
+// #[serde(untagged)]
+pub enum Hub<T> { // : Payload
     /// A base value or Path
     Tray(Tray<T>),
     /// Graph leaf node
@@ -32,22 +32,25 @@ pub enum Hub<T: Payload> {
     Wing(Wing<T>),
 }
 
-// impl<T> Serialize for Hub<T> {
-//     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-//         where
-//             S: serde::Serializer {
-//         match self {
-//             Self::Tray(x) => x.serialize(),
-//             Self::Leaf(x) => x.digest(state),
-//             Self::Ploy(x) => x.digest(state),
-//             Self::Wing(_) => (),
-//         }
-//     }
-// }
+impl<T> Serialize for Hub<T> 
+where 
+    T: Digest + Serialize
+{
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        match self {
+            Self::Tray(x) => x.serialize(serializer),
+            Self::Leaf(x) => x.serialize(serializer),
+            Self::Ploy(x) => x.serialize(serializer),
+            Self::Wing(_) => serializer.serialize_unit(),
+        }
+    }
+}
 
 impl<T> Digest for Hub<T>
 where
-    T: Payload + Digest,
+    T: Digest + Serialize,
 {
     fn digest<H: Hasher>(&self, state: &mut H) {
         match self {
