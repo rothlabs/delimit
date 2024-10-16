@@ -276,8 +276,8 @@ impl<T> IsSend for T {}
 pub trait Unit: Solve + Adapt + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + Adapt + SendSync + Debug {}
 
-pub trait Payload: 'static + Default + Clone + Digest + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T: 'static + Default + Clone + Digest + Serialize + Debug + SendSync {}
+pub trait Payload: 'static + Clone + Digest + Serialize + Debug + SendSync {}
+impl<T> Payload for T where T: 'static + Clone + Digest + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]

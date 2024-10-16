@@ -32,6 +32,19 @@ pub enum Hub<T: Payload> {
     Wing(Wing<T>),
 }
 
+// impl<T> Serialize for Hub<T> {
+//     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+//         where
+//             S: serde::Serializer {
+//         match self {
+//             Self::Tray(x) => x.serialize(),
+//             Self::Leaf(x) => x.digest(state),
+//             Self::Ploy(x) => x.digest(state),
+//             Self::Wing(_) => (),
+//         }
+//     }
+// }
+
 impl<T> Digest for Hub<T>
 where
     T: Payload + Digest,
@@ -163,6 +176,8 @@ impl<T: Payload> Hub<T> {
         Ok(hub)
     }
 
+    // Could use a loop instead of recursion and remove the Box::pin(async move {
+        // see Hub::down
     pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>>
     where
         F: FnOnce(&T) -> O + 'a + IsSend,
@@ -214,9 +229,15 @@ impl<T: Payload> Backed for Hub<T> {
     }
 }
 
+// impl<T: Payload> Default for Hub<T> {
+//     fn default() -> Self {
+//         Self::Tray(Tray::Base(T::default()))
+//     }
+// }
+
 impl<T: Payload> Default for Hub<T> {
     fn default() -> Self {
-        Self::Tray(Tray::Base(T::default()))
+        Self::Tray(Tray::Path(Path::Hash(0)))
     }
 }
 

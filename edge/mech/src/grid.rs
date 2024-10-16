@@ -11,6 +11,11 @@ impl Solve for Grid {
         // for shape in self.shapes {
 
         // }
-        0
+        let shape = ShapeBuilder::default().build().unwrap().node()?;
+        let hub = Hub::Tray(Tray::Base(shape));
+        // let test = hub.base().await?;
+        Ok(hub)
     }
 }
+
+// Ok(Hub::Leaf(Leaf::new(shape)))
