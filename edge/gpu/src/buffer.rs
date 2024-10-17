@@ -7,10 +7,12 @@ use std::ops::Deref;
 mod reader;
 mod writer;
 
+/// TODO: make separate BufferView that holds this Buffer and Mutators 
 #[derive(Clone, Debug)]
 pub struct Buffer {
     pub inner: Grc<wgpu::Buffer>,
     pub queue: Grc<wgpu::Queue>,
+    pub stems: Vec<Hub<()>>,
 }
 
 impl Buffer {
@@ -65,6 +67,7 @@ impl BufferSetupBuilder<'_> {
         Ok(Buffer {
             inner: buffer.into(),
             queue: built.queue,
+            stems: vec![]
         })
     }
     pub fn map_read(self) -> Result<Buffer> {

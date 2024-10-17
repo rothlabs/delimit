@@ -1,5 +1,5 @@
 [workspace]
-    members = ["app", "graph", "text", "repo", "derive_node"]
+    members = ["app", "graph", "text", "repo", "node_derive"]
     resolver = "2" 
 
 

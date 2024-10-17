@@ -1,4 +1,4 @@
-use derive_node::Adapt;
+use node_derive::Adapt;
 use gpu::*;
 use graph::*;
 use shape::*;

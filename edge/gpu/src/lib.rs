@@ -47,6 +47,9 @@ pub struct Gpu {
     // pub adapter: Grc<Adapter>,
 }
 
+#[derive(Clone, Debug)]
+pub struct Mutation;
+
 impl Gpu {
     pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<(Self, Surface<'a>)> {
         let instance = Instance::default();
@@ -107,6 +110,7 @@ impl Gpu {
         Buffer {
             inner: inner.into(),
             queue: self.queue.clone(),
+            stems: vec![],
         }
     }
     pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {

@@ -73,17 +73,17 @@ pub trait ToWingHub {
     fn hub(&self) -> Hub<Self::Base>;
 }
 
-pub trait IntoHub {
-    type Base;
-    fn hub(self) -> Hub<Self::Base>;
-}
+// pub trait IntoHub {
+//     type Base;
+//     fn hub(self) -> Hub<Self::Base>;
+// }
 
-impl<T> IntoHub for T {
-    type Base = T;
-    fn hub(self) -> Hub<Self::Base> {
-        Hub::Tray(Tray::Base(self))
-    }
-}
+// impl<T> IntoHub for T {
+//     type Base = T;
+//     fn hub(self) -> Hub<Self::Base> {
+//         Hub::Tray(Tray::Base(self))
+//     }
+// }
 
 
 // impl<T, U> From<Node<U>> for Hub<T>

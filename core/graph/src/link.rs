@@ -362,6 +362,7 @@ where
 impl<E> ToWingHub for Link<E>
 where
     E: 'static + Employ,
+    // E::Base: WingOnly
 {
     type Base = E::Base;
     fn hub(&self) -> Hub<Self::Base> {

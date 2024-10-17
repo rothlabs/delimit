@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, Unit!)] 
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Dispatcher {
@@ -14,7 +14,23 @@ pub struct Dispatcher {
     stems: Vec<Apex>,
 }
 
+// impl WingOnly for Dispatcher {}
+
+// impl DispatcherBuilder {
+//     pub fn make(self) -> graph::Result<Dispatcher> {
+//         match self.build() {
+//             Ok(value) => Ok(value),
+//             Err(err) => Err(anyhow!(err.to_string()))?,
+//         }
+//     }
+//     pub fn wow(self) -> graph::Result<Hub<()>> {
+//         let wow = self.make()?.node()?.as_wing();
+//         wow.hub()
+//     }
+// }
+
 impl Act for Dispatcher {
+    // type Base = Mutation;
     async fn act(&self) -> graph::Result<()> {
         self.stems.depend().await?;
         let count = self.count.base().await?;
@@ -36,6 +52,7 @@ impl Act for Dispatcher {
             encoder.submit();
         }
         Ok(())
+        // Ok(Mutation{}.into())
     }
 }
 
@@ -45,6 +62,41 @@ impl Adapt for Dispatcher {
         // self.stage.b
     }
 }
+
+// impl Solve for Dispatcher {
+//     type Base = Mutation;
+//     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+//         self.stems.depend().await?;
+//         let count = self.count.base().await?;
+//         // self.pipe.read(|pipe| {
+//         //     self.bind.read(|bind| {
+//         let mut encoder = self.gpu.encoder();
+//         encoder
+//             .compute()
+//             .pipe(&self.pipe)
+//             .bind(0, &self.bind, &[])
+//             .dispatch(count, 1, 1);
+//         if let Some((storage, stage)) = &self.stage {
+//             encoder
+//                 .copy_buffer(storage)
+//                 .destination(stage)
+//                 .size(4 * count as u64)
+//                 .submit();
+//         } else {
+//             encoder.submit();
+//         }
+//         Ok(Mutation{}.into())
+//     }
+// }
+
+
+
+
+
+
+
+
+
 
 // use super::*;
 

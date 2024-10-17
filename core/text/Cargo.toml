@@ -10,7 +10,7 @@
     derive_builder = "0.20.0"
     macro_rules_attribute = "0.2.0"
     graph = { path = "../graph" }
-    derive_node = { path = "../derive_node" }
+    node_derive = { path = "../node_derive" }
 
 [dev-dependencies]
 tokio = { version = "1.40.0", features = ["test-util"] }

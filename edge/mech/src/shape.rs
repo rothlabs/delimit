@@ -1,6 +1,3 @@
-use derive_node::Digest;
-use serde::Serialize;
-
 use super::*;
 
 #[derive(Builder, Clone, Debug)]
@@ -22,10 +19,9 @@ pub struct Shape {
 pub enum Control {
     Shapes(Vec<Hub<Shape>>),
     Buffer(Hub<Buffer>),
-    // Vector(Hub<Vec<f64>>),
 }
 
-#[derive(Clone, Digest, Serialize, Debug)]
+#[derive(Clone, Debug)]
 pub enum Rule {
     NURBS(Hub<u8>)
 }

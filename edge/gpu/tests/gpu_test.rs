@@ -5,6 +5,7 @@
 use dom::*;
 use gpu::*;
 use graph::*;
+// use hub::IntoHub;
 use wasm_bindgen_test::*;
 use wgpu::*;
 
@@ -189,6 +190,7 @@ async fn index_fraction() -> dom::Result<()> {
         .count(count)
         .stage((basis.inner(), stage.inner()))
         .hub()?;
+        // .make()?.hub()?;
     dispatcher.depend().await?;
     let out: Vec<f32> = stage.reader().hub()?.base().await?;
     assert_eq!(
