@@ -144,16 +144,16 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let size = 36;
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).label("stage").map_read()?;
-    storage.writer(basic_vec_u32()).make()?.act().await?;
     let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
+    gpu.writer(storage.clone()).data(basic_vec_u32()).make()?.act().await?;
     let mutator = gpu
         .dispatcher()
         .pipe(pipe)
         .bind(bind)
         .count(9)
-        .stage((storage.hub(), stage.inner()))
+        .stage((storage.into(), stage.clone().into()))
         .hub()?;
-    let out = stage.reader::<u32>().mutator(mutator).hub()?.base().await?;
+    let out = gpu.reader::<u32>(stage).mutator(mutator).hub()?.base().await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
@@ -183,9 +183,9 @@ async fn index_fraction() -> dom::Result<()> {
         .pipe(pipe)
         .bind(bind)
         .count(count)
-        .stage((basis.inner(), stage.inner()))
+        .stage((basis.into(), stage.clone().into()))
         .hub()?;
-    let out: Vec<f32> = stage.reader().mutator(mutator).hub()?.base().await?;
+    let out: Vec<f32> = gpu.reader(stage).mutator(mutator).hub()?.base().await?;
     assert_eq!(
         out,
         vec![

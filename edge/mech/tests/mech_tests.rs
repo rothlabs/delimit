@@ -57,7 +57,7 @@ async fn nurbs() -> dom::Result<()> {
         .destination(&stage)
         .size(size)
         .submit();
-    let out: Vec<f32> = stage.reader().hub()?.base().await?;
+    let out: Vec<f32> = gpu.reader(stage).hub()?.base().await?;
     assert_eq!(
         out,
         vec![

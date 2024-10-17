@@ -1,4 +1,4 @@
-pub use buffer::Buffer;
+// pub use buffer::Buffer;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
@@ -97,10 +97,10 @@ impl Gpu {
     pub fn buffer(&self, size: u64) -> BufferSetupBuilder {
         BufferSetupBuilder::default()
             .device(&self.device)
-            .queue(self.queue.clone())
+            // .queue(self.queue.clone())
             .size(size)
     }
-    fn buffer_init<T: NoUninit>(&self, data: &[T], usage: BufferUsages) -> crate::Buffer {
+    fn buffer_init<T: NoUninit>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
         let inner = self
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -108,16 +108,17 @@ impl Gpu {
                 contents: bytemuck::cast_slice(data),
                 usage, //: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
             });
-        Buffer {
-            inner: inner.into(),
-            queue: self.queue.clone(),
-            // mutator: None,
-        }
+            inner.into()
+        // Buffer {
+        //     inner: inner.into(),
+        //     queue: self.queue.clone(),
+        //     // mutator: None,
+        // }
     }
-    pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+    pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
     }
-    pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {
+    pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
     }
     pub fn bind(&self) -> BindBuilder {
@@ -178,6 +179,14 @@ impl Gpu {
     }
     pub fn dispatcher(&self) -> DispatcherBuilder {
         DispatcherBuilder::default().gpu(self.clone())
+    }
+    pub fn writer<T>(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> BufferWriterBuilder<T> {
+        BufferWriterBuilder::default()
+            .queue(self.queue.clone())
+            .buffer(buffer)
+    }
+    pub fn reader<T>(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
+        BufferReaderBuilder::default().buffer(buffer)
     }
 }
 

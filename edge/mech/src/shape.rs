@@ -4,7 +4,7 @@ use super::*;
 #[builder(pattern = "owned")]
 pub struct Shape {
     rule: Rule,
-    frame: Hub<Buffer>,
+    frame: Hub<Grc<Buffer>>,
     control: Control,
     // plots: Node<gpu::Dispatcher>,
 }
@@ -18,7 +18,7 @@ pub struct Shape {
 #[derive(Clone, Debug)]
 pub enum Control {
     Shapes(Vec<Hub<Shape>>),
-    Buffer(Hub<Buffer>),
+    Buffer(Hub<Grc<Buffer>>),
 }
 
 #[derive(Clone, Debug)]

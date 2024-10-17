@@ -42,7 +42,7 @@ impl Nurbs {
             .pipe(pipe)
             .bind(bind)
             .count(count)
-            .stage((basis.inner(), stage.inner()))
+            .stage((basis.into(), stage.into()))
             .hub();
         dispatcher.map_err(|err| gpu::Error::Any(anyhow!("{err}")))
     }

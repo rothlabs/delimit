@@ -2,6 +2,7 @@ use node_derive::Adapt;
 use gpu::*;
 use graph::*;
 use shape::*;
+use wgpu::*;
 use derive_builder::Builder;
 
 mod nurbs;

@@ -9,7 +9,7 @@ pub struct Dispatcher {
     bind: Grc<BindGroup>,
     count: Hub<u32>,
     // target: Hub<graph::Buffer>,
-    stage: Option<(Hub<crate::Buffer>, Hub<crate::Buffer>)>,
+    stage: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
     mutators: Vec<Hub<Mutation>>,
 }

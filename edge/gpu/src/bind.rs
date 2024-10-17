@@ -41,7 +41,7 @@ impl<'a> BindBuilder<'a> {
         }
     }
     pub fn entry(mut self, binding: u32, buffer: &'a Buffer) -> Self {
-        let resource = buffer.resource();
+        let resource = buffer.as_entire_binding();
         if let Some(mut entries) = self.entries {
             entries.push(BindGroupEntry { binding, resource });
             self.entries = Some(entries);
