@@ -1,7 +1,6 @@
 use super::*;
-use std::marker::PhantomData;
 
-#[derive(Builder, Debug)] // , Input!
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct BufferReader<T> {
@@ -10,30 +9,7 @@ pub struct BufferReader<T> {
     #[builder(default, setter(each(name = "stem", into)))]
     stems: Vec<Apex>,
     #[builder(default)]
-    phantom: PhantomData<T>,
-}
-
-
-impl<T> GateTag for BufferReader<T> {}
-
-impl<T> BufferReaderBuilder<T>
-where
-    T: 'static + Clone + Debug,
-    BufferReader<T>: Solve,
-    <BufferReader<T> as Solve>::Base: Clone + Debug,
-{
-    pub fn make(self) -> graph::Result<BufferReader<T>> {
-        match self.build() {
-            Ok(value) => Ok(value),
-            Err(err) => Err(anyhow!(err.to_string()))?,
-        }
-    }
-    pub fn node(self) -> graph::Result<Node<BufferReader<T>>> {
-        self.make()?.node()
-    }
-    pub fn hub(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
-        Ok(self.make()?.gate()?.into())
-    }
+    phantom: std::marker::PhantomData<T>,
 }
 
 impl<T> Solve for BufferReader<T>

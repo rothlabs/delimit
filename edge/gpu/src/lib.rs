@@ -16,7 +16,7 @@ use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-use node_derive::{Gate, Reader};
+use node_derive::Gate;
 
 mod bind;
 mod buffer;

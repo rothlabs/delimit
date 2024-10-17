@@ -8,62 +8,53 @@ use syn::Data;
 pub fn gate_derive(item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::DeriveInput);
     let unit = &input.ident;
+    let params = &input.generics.params;
     let builder = format_ident!("{}Builder", unit);
     match &input.data {
         Data::Struct(_) => {
-            quote! {
-                #[automatically_derived]
-                impl GateTag for #unit {}
-                #[automatically_derived]
-                impl #builder 
-                where 
-                    #unit: Solve
-                {
-                    pub fn make(self) -> graph::Result<#unit> {
-                        match self.build() {
-                            Ok(value) => Ok(value),
-                            Err(err) => Err(anyhow!(err.to_string()))?,
+            if params.is_empty() {
+                quote! {
+                    #[automatically_derived]
+                    impl GateTag for #unit {}
+                    #[automatically_derived]
+                    impl #builder {
+                        pub fn make(self) -> graph::Result<#unit> {
+                            match self.build() {
+                                Ok(value) => Ok(value),
+                                Err(err) => Err(anyhow!(err.to_string()))?,
+                            }
                         }
-                    }
-                    pub fn node(self) -> graph::Result<Node<#unit>> {
-                        self.make()?.node()
-                    }
-                    pub fn hub(self) -> graph::Result<Hub<<#unit as Solve>::Base>> {
-                        Ok(self.make()?.gate()?.into())
+                        pub fn node(self) -> graph::Result<Node<#unit>> {
+                            self.make()?.node()
+                        }
+                        pub fn hub(self) -> graph::Result<Hub<<#unit as Solve>::Base>> {
+                            Ok(self.make()?.gate()?.into())
+                        }
                     }
                 }
-            }
-        },
-        _ => unimplemented!()
-    }.into()
-}
-
-#[proc_macro_derive(Reader)]
-pub fn reader_derive(item: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(item as syn::DeriveInput);
-    let unit = &input.ident;
-    let builder = format_ident!("{}Builder", unit);
-    match &input.data {
-        Data::Struct(_) => {
-            quote! {
-                #[automatically_derived]
-                impl<T> GateTag for #unit<T> {}
-                #[automatically_derived]
-                impl<T: AnyBitPattern> #builder<T>
-                where
-                    #unit<T>: Solve
-                {
-                    pub fn make(self) -> graph::Result<#unit<T>> {
-                        match self.build() {
-                            Ok(value) => Ok(value),
-                            Err(err) => Err(anyhow!(err.to_string()))?,
+            } else {
+                quote! {
+                    #[automatically_derived]
+                    impl<T> GateTag for #unit<T> {}
+                    #[automatically_derived]
+                    impl<T> #builder<T>
+                    where
+                        T: 'static + Clone + std::fmt::Debug,
+                        #unit<T>: Solve,
+                        <#unit<T> as Solve>::Base: Clone + std::fmt::Debug,
+                    {
+                        pub fn make(self) -> graph::Result<#unit<T>> {
+                            match self.build() {
+                                Ok(value) => Ok(value),
+                                Err(err) => Err(anyhow!(err.to_string()))?,
+                            }
                         }
-                    }
-                    pub fn node(self) -> graph::Result<Node<#unit<T>>> {
-                        self.make()?.node()
-                    }
-                    pub fn hub(self) -> graph::Result<Hub<<#unit<T> as Solve>::Base>> {
-                        Ok(self.make()?.gate()?.into())
+                        pub fn node(self) -> graph::Result<Node<#unit<T>>> {
+                            self.make()?.node()
+                        }
+                        pub fn hub(self) -> graph::Result<Hub<<#unit<T> as Solve>::Base>> {
+                            Ok(self.make()?.gate()?.into())
+                        }
                     }
                 }
             }
