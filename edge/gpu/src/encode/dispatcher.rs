@@ -10,14 +10,14 @@ pub struct Dispatcher {
     count: Hub<u32>,
     // target: Hub<graph::Buffer>,
     stage: Option<(Grc<wgpu::Buffer>, Grc<wgpu::Buffer>)>,
-    #[builder(default, setter(each(name = "stem", into)))]
-    stems: Vec<Apex>,
+    #[builder(default, setter(each(name = "mutator", into)))]
+    mutators: Vec<Hub<Mutation>>,
 }
 
 impl Solve for Dispatcher {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
-        self.stems.depend().await?;
+        self.mutators.depend().await?;
         let count = self.count.base().await?;
         // self.pipe.read(|pipe| {
         //     self.bind.read(|bind| {
@@ -42,6 +42,7 @@ impl Solve for Dispatcher {
 
 impl Adapt for Dispatcher {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
+        self.mutators.back(back)?;
         self.count.back(back)
         // self.stage.b
     }

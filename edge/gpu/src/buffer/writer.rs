@@ -4,8 +4,7 @@ use super::*;
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferWriter<T> { // : Payload + Pod
     queue: Grc<wgpu::Queue>,
-    buffer: Grc<wgpu::Buffer>,
-    // buffer: Hub<graph::Buffer>,
+    buffer: Hub<Buffer>,
     #[builder(default)]
     offset: Hub<u64>,
     data: Hub<Vec<T>>,
@@ -16,11 +15,12 @@ where
     T: Pod + Debug,
 {
     async fn act(&self) -> graph::Result<()> {
+        let buffer = self.buffer.base().await?;
         let offset = self.offset.base().await.unwrap_or_default();
         self.data
             .read(|data| {
                 self.queue
-                    .write_buffer(&self.buffer, offset, cast_slice(data));
+                    .write_buffer(&buffer, offset, cast_slice(data));
             })
             .await
     }

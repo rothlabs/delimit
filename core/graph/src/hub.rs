@@ -154,18 +154,6 @@ where
 }
 
 impl<T: Payload> Hub<T> {
-    // pub fn none() -> Self {
-    //     Self::default()
-    // }
-
-    // pub async fn main(&self) -> Result<Hub<T>> {
-    //     match self {
-    //         Self::Ploy(ploy) => ploy.solve().await,
-    //         // Self::Gate(gate) => gate.solve().await,
-    //         _ => Err(Error::NotPloy)?,
-    //     }
-    // }
-
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
             Self::Ploy(ploy) => ploy.get_imports(),
@@ -244,77 +232,6 @@ impl<T: Payload> Hub<T> {
             Self::Gate(gate) => Self::Gate(gate.pathed(path.into())),
         }
     }
-
-    // /// Get rank of hub. Rank 1 hubes produce leaf hubes.
-    // pub fn rank(&self) -> Option<u16> {
-    //     match self {
-    //         Self::Ploy(ploy) => ploy.rank(),
-    //         Self::Gate(gate) => gate.rank(),
-    //         _ => None,
-    //     }
-    // }
-
-    // /// Solve down to the given graph rank (level).
-    // pub async fn down(&self, target: u16) -> Result<Hub<T>> {
-    //     let mut hub = self.clone();
-    //     let mut rank = hub.rank();
-    //     while let Some(current) = rank {
-    //         if current > target {
-    //             hub = hub.main().await?;
-    //             rank = hub.rank();
-    //         } else {
-    //             rank = None;
-    //         }
-    //     }
-    //     Ok(hub)
-    // }
-
-    // // Could use a loop instead of recursion and remove the Box::pin(async move {
-    //     // see Hub::down
-    // pub fn read<'a, O, F>(&'a self, read: F) -> GraphFuture<'a, Result<O>>
-    // where
-    //     F: FnOnce(&T) -> O + 'a + IsSend,
-    // {
-    //     Box::pin(async move {
-    //         match self {
-    //             Self::Tray(tray) => {
-    //                 if let Tray::Base(base) = tray {
-    //                     Ok(read(base))
-    //                 } else {
-    //                     Err(tray.wrong_variant("Base"))?
-    //                 }
-    //             }
-    //             Self::Leaf(leaf) => leaf.read(read),
-    //             Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-    //             Self::Gate(gate) => gate.solve().await?.read(read).await,
-    //         }
-    //     })
-    // }
-
-    // pub fn base(&self) -> GraphFuture<Result<T>> {
-    //     Box::pin(async move {
-    //         match self {
-    //             Self::Tray(tray) => match tray {
-    //                 Tray::Base(base) => Ok(base.clone()),
-    //                 tray => Err(tray.wrong_variant("Base"))?,
-    //             },
-    //             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
-    //             Self::Ploy(ploy) => ploy.solve().await?.base().await,
-    //             Self::Gate(gate) => gate.solve().await?.base().await,
-    //         }
-    //     })
-    // }
-
-    // pub fn depend(&self) -> GraphFuture<Result<()>> {
-    //     Box::pin(async move {
-    //         match self {
-    //             Self::Tray(_) => Ok(()),
-    //             Self::Leaf(leaf) => leaf.read(|_| ()),
-    //             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-    //             Self::Gate(gate) => gate.solve().await?.depend().await,
-    //         }
-    //     })
-    // }
 }
 
 impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
@@ -338,6 +255,18 @@ impl<T> Default for Hub<T> {
     fn default() -> Self {
         Self::Tray(Tray::None)
         // Self::Tray(Tray::Path(Path::Hash(0)))
+    }
+}
+
+impl<T> Depend for Vec<Hub<T>> 
+where 
+    T: SendSync + Debug + Clone,
+{
+    async fn depend(&self) -> Result<()> {
+        for hub in self {
+            hub.depend().await?;
+        }
+        Ok(())
     }
 }
 

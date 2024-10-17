@@ -1,7 +1,7 @@
 pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use anyhow::Error as anyError;
-pub use apex::{Apex, DealItem, Depend, View, ViewVec};
+pub use apex::{Apex, DealItem, View, ViewVec};
 pub use base::Digest;
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -350,6 +350,10 @@ pub trait ReckonMut {
     fn get_imports(&self) -> Result<Vec<Import>>;
     fn get_hash(&mut self) -> Result<u64>;
     fn get_serial(&mut self) -> Result<String>;
+}
+
+pub trait Depend {
+    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend;
 }
 
 pub trait PloyTag {}

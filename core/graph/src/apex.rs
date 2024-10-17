@@ -30,9 +30,7 @@ impl Apex {
     }
 }
 
-pub trait Depend {
-    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend;
-}
+
 
 impl Depend for Vec<Apex> {
     async fn depend(&self) -> Result<()> {

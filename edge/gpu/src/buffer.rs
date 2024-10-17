@@ -26,13 +26,16 @@ impl Buffer {
     pub fn inner(&self) -> Grc<wgpu::Buffer> {
         self.inner.clone()
     }
+    // pub fn inner(&self) -> Grc<wgpu::Buffer> {
+    //     self.inner.clone()
+    // }
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
     pub fn writer<T>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> {
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
-            .buffer(self.inner.clone())
+            .buffer(self.clone())
             .data(data)
     }
     pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
