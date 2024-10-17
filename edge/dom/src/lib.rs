@@ -17,9 +17,6 @@ mod text;
 // #[cfg(test)]
 // mod tests;
 
-#[macro_use]
-extern crate macro_rules_attribute;
-
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error(transparent)]

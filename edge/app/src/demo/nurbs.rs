@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Make!)]
+#[derive(Builder)]
 #[builder(pattern = "owned")]
 pub struct Demo {
     #[builder(default = "20")]
@@ -11,6 +11,15 @@ pub struct Demo {
     width: u32,
     #[builder(default = "150")]
     height: u32,
+}
+
+impl DemoBuilder {
+    pub fn make(self) -> graph::Result<Demo> {
+        match self.build() {
+            Ok(value) => Ok(value),
+            Err(err) => Err(anyhow!(err.to_string()))?,
+        }
+    }
 }
 
 impl Demo {

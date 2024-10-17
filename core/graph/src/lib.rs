@@ -50,146 +50,6 @@ use std::{
     rc::Rc,
 };
 
-#[macro_export]
-macro_rules! make_func {
-    ($Unit:ident) => {
-        pub fn make(self) -> graph::Result<$Unit> {
-            match self.build() {
-                Ok(value) => Ok(value),
-                Err(err) => Err(anyhow!(err.to_string()))?,
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! node_and_apex {
-    ($Unit:ident) => {
-        make_func!($Unit);
-        pub fn node(self) -> graph::Result<Node<$Unit>> {
-            self.make()?.node()
-        }
-        pub fn apex(self) -> graph::Result<Apex> {
-            Ok(self.hub()?.into())
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! build_methods {
-    ($Unit:ident $Base:ty) => {
-        impl GateTag for $Unit {}
-        impl paste! {[<$Unit "Builder">]} {
-            node_and_apex!($Unit);
-            pub fn hub(self) -> graph::Result<Hub<$Base>> {
-                self.make()?.hub()
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! Make {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident $tt:tt
-    ) => {
-        paste! {
-            impl [<$Unit "Builder">] {
-                make_func!($Unit);
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! Unit {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident $tt:tt
-    ) => {
-        impl GateTag for $Unit {}
-        impl paste! {[<$Unit "Builder">]} {
-            node_and_apex!($Unit);
-            pub fn hub(self) -> graph::Result<Hub<()>> {
-                self.make()?.hub()
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! Vf32 {(
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident $tt:tt
-) => {
-        build_methods!($Unit Vec<f32>);
-    };
-}
-
-#[macro_export]
-macro_rules! Output {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident<T: Payload + Pod> $tt:tt
-    ) => {
-        impl<T: Payload + Pod> GateTag for $Unit<T> {}
-        impl<T> paste! {[<$Unit "Builder">]<T>}
-        where
-            T: Payload + Pod,
-        {
-            pub fn make(self) -> graph::Result<$Unit<T>> {
-                match self.build() {
-                    Ok(value) => Ok(value),
-                    Err(err) => Err(anyhow!(err.to_string()))?,
-                }
-            }
-            pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
-                self.make()?.node()
-            }
-            pub fn apex(self) -> graph::Result<Apex> {
-                Ok(self.hub()?.into())
-            }
-            pub fn hub(self) -> graph::Result<Hub<()>> {
-                self.make()?.hub()
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! Input {
-    (
-    $(#[$attr:meta])*
-    $pub:vis
-    struct $Unit:ident<T> $tt:tt
-    ) => {
-        impl<T> GateTag for $Unit<T> {}
-        impl<T> paste! {[<$Unit "Builder">]<T>}
-        where
-            T: Payload + AnyBitPattern,
-            Vec<T>: Payload,
-        {
-            pub fn make(self) -> graph::Result<$Unit<T>> {
-                match self.build() {
-                    Ok(value) => Ok(value),
-                    Err(err) => Err(anyhow!(err.to_string()))?,
-                }
-            }
-            pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
-                self.make()?.node()
-            }
-            pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-                self.make()?.hub()
-            }
-        }
-    };
-}
-
 pub mod adapt;
 pub mod hub;
 pub mod lake;
@@ -495,6 +355,160 @@ pub trait ReckonMut {
 pub trait PloyTag {}
 
 pub trait GateTag {}
+
+
+// #[macro_export]
+// macro_rules! make_func {
+//     ($Unit:ident) => {
+//         pub fn make(self) -> graph::Result<$Unit> {
+//             match self.build() {
+//                 Ok(value) => Ok(value),
+//                 Err(err) => Err(anyhow!(err.to_string()))?,
+//             }
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! node_and_apex {
+//     ($Unit:ident) => {
+//         make_func!($Unit);
+//         pub fn node(self) -> graph::Result<Node<$Unit>> {
+//             self.make()?.node()
+//         }
+//         pub fn apex(self) -> graph::Result<Apex> {
+//             Ok(self.hub()?.into())
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! build_methods {
+//     ($Unit:ident $Base:ty) => {
+//         impl GateTag for $Unit {}
+//         impl paste! {[<$Unit "Builder">]} {
+//             node_and_apex!($Unit);
+//             pub fn hub(self) -> graph::Result<Hub<$Base>> {
+//                 self.make()?.hub()
+//             }
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! Make {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident $tt:tt
+//     ) => {
+//         paste! {
+//             impl [<$Unit "Builder">] {
+//                 make_func!($Unit);
+//             }
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! Unit {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident $tt:tt
+//     ) => {
+//         impl GateTag for $Unit {}
+//         impl paste! {[<$Unit "Builder">]} {
+//             node_and_apex!($Unit);
+//             pub fn hub(self) -> graph::Result<Hub<()>> {
+//                 self.make()?.hub()
+//             }
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! Vf32 {(
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident $tt:tt
+// ) => {
+//         build_methods!($Unit Vec<f32>);
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! Output {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident<T: Payload + Pod> $tt:tt
+//     ) => {
+//         impl<T: Payload + Pod> GateTag for $Unit<T> {}
+//         impl<T> paste! {[<$Unit "Builder">]<T>}
+//         where
+//             T: Payload + Pod,
+//         {
+//             pub fn make(self) -> graph::Result<$Unit<T>> {
+//                 match self.build() {
+//                     Ok(value) => Ok(value),
+//                     Err(err) => Err(anyhow!(err.to_string()))?,
+//                 }
+//             }
+//             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
+//                 self.make()?.node()
+//             }
+//             pub fn apex(self) -> graph::Result<Apex> {
+//                 Ok(self.hub()?.into())
+//             }
+//             pub fn hub(self) -> graph::Result<Hub<()>> {
+//                 self.make()?.hub()
+//             }
+//         }
+//     };
+// }
+
+// #[macro_export]
+// macro_rules! Input {
+//     (
+//     $(#[$attr:meta])*
+//     $pub:vis
+//     struct $Unit:ident<T> $tt:tt
+//     ) => {
+//         impl<T> GateTag for $Unit<T> {}
+//         impl<T> paste! {[<$Unit "Builder">]<T>}
+//         where
+//             T: Payload + AnyBitPattern,
+//             Vec<T>: Payload,
+//         {
+//             pub fn make(self) -> graph::Result<$Unit<T>> {
+//                 match self.build() {
+//                     Ok(value) => Ok(value),
+//                     Err(err) => Err(anyhow!(err.to_string()))?,
+//                 }
+//             }
+//             pub fn node(self) -> graph::Result<Node<$Unit<T>>> {
+//                 self.make()?.node()
+//             }
+//             pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
+//                 self.make()?.hub()
+//             }
+//         }
+//     };
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

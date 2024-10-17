@@ -7,7 +7,6 @@ resolver = "2"
 [dependencies]
     serde = { version = "1.0", features = ["derive"] }
     derive_builder = "0.20.1"
-    macro_rules_attribute = "0.2.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     gpu = { path = "../gpu" }
     node_derive = { path = "../../core/node_derive" }

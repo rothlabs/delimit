@@ -179,9 +179,6 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[macro_use]
-extern crate macro_rules_attribute;
-
 pub const SHADER: &str = r"
 @vertex
 fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) vec4<f32> {

@@ -31,9 +31,6 @@ mod vao;
 mod vao_writer;
 mod vertex_attribute;
 
-#[macro_use]
-extern crate macro_rules_attribute;
-
 pub type WGLRC = WebGl2RenderingContext;
 
 #[derive(Debug, Clone)]
