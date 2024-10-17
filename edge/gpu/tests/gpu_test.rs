@@ -146,19 +146,14 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let stage = gpu.buffer(size).label("stage").map_read()?;
     storage.writer(basic_vec_u32()).make()?.act().await?;
     let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
-    let mut encoder = gpu.encoder();
-    encoder
-        .compute()
-        .pipe(&pipe)
-        .bind(0, &bind, &[])
-        .debug("compute collatz iterations")
-        .dispatch(9, 1, 1);
-    encoder
-        .copy_buffer(&storage)
-        .destination(&stage)
-        .size(size)
-        .submit();
-    let out: Vec<u32> = stage.reader().hub()?.base().await?;
+    let mutator = gpu
+        .dispatcher()
+        .pipe(pipe)
+        .bind(bind)
+        .count(9)
+        .stage((storage.inner(), stage.inner()))
+        .hub()?;
+    let out = stage.reader::<u32>().mutator(mutator).hub()?.base().await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
@@ -183,16 +178,14 @@ async fn index_fraction() -> dom::Result<()> {
         .make()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-    let dispatcher = gpu
+    let mutator = gpu
         .dispatcher()
         .pipe(pipe)
         .bind(bind)
         .count(count)
         .stage((basis.inner(), stage.inner()))
         .hub()?;
-        // .make()?.hub()?;
-    dispatcher.depend().await?;
-    let out: Vec<f32> = stage.reader().hub()?.base().await?;
+    let out: Vec<f32> = stage.reader().mutator(mutator).hub()?.base().await?;
     assert_eq!(
         out,
         vec![
@@ -202,6 +195,20 @@ async fn index_fraction() -> dom::Result<()> {
     );
     Ok(())
 }
+
+    // let mut encoder = gpu.encoder();
+    // encoder
+    //     .compute()
+    //     .pipe(&pipe)
+    //     .bind(0, &bind, &[])
+    //     .debug("compute collatz iterations")
+    //     .dispatch(9, 1, 1);
+    // encoder
+    //     .copy_buffer(&storage)
+    //     .destination(&stage)
+    //     .size(size)
+    //     .submit();
+
 
 // #[rustfmt::skip]
 // fn basic_f32() -> Vec<f32> {

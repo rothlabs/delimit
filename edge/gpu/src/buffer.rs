@@ -12,26 +12,30 @@ mod writer;
 pub struct Buffer {
     pub inner: Grc<wgpu::Buffer>,
     pub queue: Grc<wgpu::Queue>,
-    pub stems: Vec<Hub<()>>,
+    // pub mutator: Option<Hub<Mutation>>,
 }
 
 impl Buffer {
+    // pub async fn depend(&self) -> graph::Result<Mutation> {
+    //     if let Some(mutator) = &self.mutator {
+    //         mutator.base().await
+    //     } else {
+    //         Ok(Mutation)
+    //     }
+    // }
     pub fn inner(&self) -> Grc<wgpu::Buffer> {
         self.inner.clone()
     }
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
-    pub fn writer<T>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> { // : Payload + Pod
+    pub fn writer<T>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> {
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
             .data(data)
     }
-    pub fn reader<T>(&self) -> BufferReaderBuilder<T> 
-    // where 
-    //     Vec<T>: Pod
-    {
+    pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
         BufferReaderBuilder::default().buffer(self.clone())
     }
 }
@@ -70,7 +74,7 @@ impl BufferSetupBuilder<'_> {
         Ok(Buffer {
             inner: buffer.into(),
             queue: built.queue,
-            stems: vec![]
+            // mutator: None
         })
     }
     pub fn map_read(self) -> Result<Buffer> {

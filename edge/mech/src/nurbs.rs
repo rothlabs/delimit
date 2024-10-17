@@ -5,7 +5,7 @@ pub struct Nurbs {
 }
 
 impl Nurbs {
-    async fn dispatcher(&self) -> gpu::Result<Hub<()>> {
+    async fn dispatcher(&self) -> gpu::Result<Hub<Mutation>> {
         let shader = self.gpu.shader(include_wgsl!("shader/nurbs.wgsl"));
         let order = 3;
         let count = 64;
@@ -49,8 +49,8 @@ impl Nurbs {
 }
 
 impl Solve for Nurbs {
-    type Base = ();
-    async fn solve(&self) -> graph::Result<Hub<()>> {
+    type Base = Mutation;
+    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.dispatcher()
             .await
             .map_err(|err| graph::Error::Any(anyhow!("{err}")))

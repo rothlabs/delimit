@@ -4,10 +4,8 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct BufferReader<T> {
-    // buffer: Grc<wgpu::Buffer>,
+    mutator: Hub<Mutation>,
     buffer: Hub<crate::Buffer>,
-    #[builder(default, setter(each(name = "stem", into)))]
-    stems: Vec<Apex>,
     #[builder(default)]
     phantom: std::marker::PhantomData<T>,
 }
@@ -18,7 +16,7 @@ where
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
-        self.stems.depend().await?;
+        self.mutator.base().await?;
         let buffer = self.buffer.base().await?;
         let slice = buffer.slice(..);
         let (sender, receiver) = flume::bounded(1);
@@ -33,10 +31,20 @@ where
 }
 
 impl<T> Adapt for BufferReader<T> {
-    fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
-        self.stems.deal("stems", deal)
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
+        self.mutator.back(back)?;
+        self.buffer.back(back)
     }
 }
+
+// buffer: Grc<wgpu::Buffer>,
+
+// #[builder(default, setter(each(name = "stem", into)))]
+    // stems: Vec<Hub<Mutation>>,
+
+// fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
+//     self.stems.deal("stems", deal)
+// }
 
 // impl<T> BufferReaderBuilder<T>
 // where

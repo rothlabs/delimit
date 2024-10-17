@@ -111,7 +111,7 @@ impl Gpu {
         Buffer {
             inner: inner.into(),
             queue: self.queue.clone(),
-            stems: vec![],
+            // mutator: None,
         }
     }
     pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> crate::Buffer {

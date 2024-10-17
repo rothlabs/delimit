@@ -14,24 +14,9 @@ pub struct Dispatcher {
     stems: Vec<Apex>,
 }
 
-// impl GateTag for Dispatcher {}
-
-// impl DispatcherBuilder {
-//     pub fn make(self) -> graph::Result<Dispatcher> {
-//         match self.build() {
-//             Ok(value) => Ok(value),
-//             Err(err) => Err(anyhow!(err.to_string()))?,
-//         }
-//     }
-//     pub fn wow(self) -> graph::Result<Hub<()>> {
-//         let wow = self.make()?.node()?.as_gate();
-//         wow.hub()
-//     }
-// }
-
-impl Act for Dispatcher {
-    // type Base = Mutation;
-    async fn act(&self) -> graph::Result<()> {
+impl Solve for Dispatcher {
+    type Base = Mutation;
+    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.stems.depend().await?;
         let count = self.count.base().await?;
         // self.pipe.read(|pipe| {
@@ -51,8 +36,7 @@ impl Act for Dispatcher {
         } else {
             encoder.submit();
         }
-        Ok(())
-        // Ok(Mutation{}.into())
+        Ok(Mutation.into())
     }
 }
 
