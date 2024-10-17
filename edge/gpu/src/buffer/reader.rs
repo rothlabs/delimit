@@ -5,7 +5,7 @@ use super::*;
 #[builder(setter(into))]
 pub struct BufferReader<T> {
     mutator: Hub<Mutation>,
-    buffer: Hub<Buffer>,
+    buffer: Hub<crate::Buffer>,
     #[builder(default)]
     phantom: std::marker::PhantomData<T>,
 }

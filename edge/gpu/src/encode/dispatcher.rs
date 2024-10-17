@@ -9,7 +9,7 @@ pub struct Dispatcher {
     bind: Grc<BindGroup>,
     count: Hub<u32>,
     // target: Hub<graph::Buffer>,
-    stage: Option<(Grc<wgpu::Buffer>, Grc<wgpu::Buffer>)>,
+    stage: Option<(Hub<crate::Buffer>, Hub<crate::Buffer>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
     mutators: Vec<Hub<Mutation>>,
 }
@@ -28,9 +28,11 @@ impl Solve for Dispatcher {
             .bind(0, &self.bind, &[])
             .dispatch(count, 1, 1);
         if let Some((storage, stage)) = &self.stage {
+            let storage = storage.base().await?;
+            let stage = stage.base().await?;
             encoder
-                .copy_buffer(storage)
-                .destination(stage)
+                .copy_buffer(&storage)
+                .destination(&stage)
                 .size(4 * count as u64)
                 .submit();
         } else {

@@ -151,7 +151,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .pipe(pipe)
         .bind(bind)
         .count(9)
-        .stage((storage.inner(), stage.inner()))
+        .stage((storage.hub(), stage.inner()))
         .hub()?;
     let out = stage.reader::<u32>().mutator(mutator).hub()?.base().await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
