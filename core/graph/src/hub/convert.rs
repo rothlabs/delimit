@@ -18,12 +18,12 @@ impl<T> From<Ploy<T>> for Hub<T>
     }
 }
 
-impl<T> From<Wing<T>> for Hub<T>
+impl<T> From<Gate<T>> for Hub<T>
 // where
 //     T: Payload,
 {
-    fn from(wing: Wing<T>) -> Self {
-        Hub::Wing(wing)
+    fn from(gate: Gate<T>) -> Self {
+        Hub::Gate(gate)
     }
 }
 
@@ -57,20 +57,14 @@ impl<T> From<T> for Hub<T> {
     }
 }
 
-// impl From<Grc<wgpu::Buffer>> for Hub<Buffer> {
-//     fn from(value: Grc<wgpu::Buffer>) -> Self {
-//         Hub::Tray(Tray::Base(value.into()))
-//     }
-// }
-
 pub trait ToPloyHub {
     type Base;//: Payload;
-    fn hub(&self) -> Hub<Self::Base>;
+    fn to_ploy_hub(&self) -> Hub<Self::Base>;
 }
 
-pub trait ToWingHub {
+pub trait ToGateHub {
     type Base; //: Payload;
-    fn hub(&self) -> Hub<Self::Base>;
+    fn to_gate_hub(&self) -> Hub<Self::Base>;
 }
 
 // pub trait IntoHub {
@@ -85,6 +79,12 @@ pub trait ToWingHub {
 //     }
 // }
 
+
+// impl From<Grc<wgpu::Buffer>> for Hub<Buffer> {
+//     fn from(value: Grc<wgpu::Buffer>) -> Self {
+//         Hub::Tray(Tray::Base(value.into()))
+//     }
+// }
 
 // impl<T, U> From<Node<U>> for Hub<T>
 // where

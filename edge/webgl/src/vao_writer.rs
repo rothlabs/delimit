@@ -2,7 +2,7 @@ use super::*;
 
 /// Vertex Array Object
 /// Stores attribute settings and element array buffer target
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct VaoWriter {
     object: Vao,

@@ -144,9 +144,9 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Employ,
 {
-    pub fn wing_from_unit(unit: E::Unit) -> Result<Wing<E::Base>> {
+    pub fn wing_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
-        Ok(Wing {
+        Ok(Gate {
             path: None,
             rank,
             edge,
@@ -213,7 +213,7 @@ impl<T> Backed for Ploy<T> {
     }
 }
 
-impl<T> Backed for Wing<T> {
+impl<T> Backed for Gate<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         read_part(&self.edge, |edge| {
             Ok(Self {
@@ -282,7 +282,7 @@ impl<T: SendSync> Ploy<T> {
     }
 }
 
-impl<T: SendSync> Wing<T> {
+impl<T: SendSync> Gate<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
         read_part(&self.edge, |edge| async move { edge.solve().await })?.await
     }
@@ -340,8 +340,8 @@ where
     E: 'static + Employ,
 {
     /// Copy the link with unit type erased.  
-    pub fn as_wing(&self) -> Wing<E::Base> {
-        Wing {
+    pub fn as_gate(&self) -> Gate<E::Base> {
+        Gate {
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
@@ -352,20 +352,21 @@ where
 impl<E> ToPloyHub for Link<E>
 where
     E: 'static + Engage,
+    // E::Base: PloyTag
 {
     type Base = E::Base;
-    fn hub(&self) -> Hub<Self::Base> {
+    fn to_ploy_hub(&self) -> Hub<Self::Base> {
         self.as_ploy().into()
     }
 }
 
-impl<E> ToWingHub for Link<E>
+impl<E> ToGateHub for Link<E>
 where
     E: 'static + Employ,
-    // E::Base: WingOnly
+    // E::Base: GateTag
 {
     type Base = E::Base;
-    fn hub(&self) -> Hub<Self::Base> {
-        self.as_wing().into()
+    fn to_gate_hub(&self) -> Hub<Self::Base> {
+        self.as_gate().into()
     }
 }

@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct DrawElements {
     gl: WGLRC,
@@ -16,6 +16,40 @@ pub struct DrawElements {
     #[builder(default)]
     offset: Hub<i32>,
 }
+
+// impl GateTag for DrawElements {}
+
+// impl DrawElementsBuilder 
+// where 
+//     DrawElements: Solve
+// {
+//     pub fn make(self) -> graph::Result<DrawElements> {
+//         match self.build() {
+//             Ok(value) => Ok(value),
+//             Err(err) => Err(anyhow!(err.to_string()))?,
+//         }
+//     }
+//     pub fn hub(self) -> graph::Result<Hub<<DrawElements as Solve>::Base>> {
+//         Ok(self.make()?.gate()?.into())
+//     }
+// }
+
+// impl IntoHub for Node<DrawArrays> 
+// where 
+//     DrawArrays: Solve
+// {
+//     type Base = DrawArrays::Base;
+//     fn gate(self) -> Result<Gate<Self::Base>> {
+//         Ok(self.as_gate()?.into())
+//     }
+// }
+// where
+//     #ident: Solve
+// {
+//     pub fn huby(self) -> graph::Result<Hub<<#ident as Solve>::Base>> {
+//         Ok(self.as_gate()?.into())
+//     }
+// }
 
 impl Act for DrawElements {
     async fn act(&self) -> Result<()> {

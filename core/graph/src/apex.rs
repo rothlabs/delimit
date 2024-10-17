@@ -117,7 +117,7 @@ macro_rules! ImplViewVec {
         //     E: 'static + Employ<Base = $type_>,
         // {
         //     fn from(node: Link<E>) -> Self {
-        //         Apex::$Variant(node.wing().into())
+        //         Apex::$Variant(node.gate().into())
         //     }
         // })*
 
@@ -147,8 +147,8 @@ macro_rules! ImplViewVec {
             }
         })*
 
-        $(impl From<Wing<$type_>> for Apex {
-            fn from(value: Wing<$type_>) -> Self {
+        $(impl From<Gate<$type_>> for Apex {
+            fn from(value: Gate<$type_>) -> Self {
                 Apex::$Variant(value.into())
             }
         })*

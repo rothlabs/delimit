@@ -15,6 +15,7 @@ use derive_builder::Builder;
 use graph::*;
 use vao_writer::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
+use node_derive::Gate;
 
 pub mod shader;
 pub mod buffer;

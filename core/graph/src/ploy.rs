@@ -16,7 +16,7 @@ pub trait Based {
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
 }
 
-pub type Wing<T> = Link<dyn Employ<Base = T>>;
+pub type Gate<T> = Link<dyn Employ<Base = T>>;
 
 pub type WingEdge<T> = Pointer<dyn Employ<Base = T>>;
 
@@ -29,7 +29,7 @@ pub trait Employed {
     fn backed(&self, back: &Back) -> WingEdge<Self::Base>;
 }
 
-impl<T: Payload> Serialize for Wing<T> {
+impl<T: Payload> Serialize for Gate<T> {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

@@ -1,7 +1,7 @@
 use super::*;
 use std::marker::PhantomData;
 
-#[derive(Builder, Debug, Input!)]
+#[derive(Builder, Debug)] // , Input!
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct BufferReader<T> {
@@ -13,10 +13,32 @@ pub struct BufferReader<T> {
     phantom: PhantomData<T>,
 }
 
+
+impl<T> GateTag for BufferReader<T> {}
+
+impl<T> BufferReaderBuilder<T>
+where
+    T: 'static + Clone + Debug,
+    BufferReader<T>: Solve,
+    <BufferReader<T> as Solve>::Base: Clone + Debug,
+{
+    pub fn make(self) -> graph::Result<BufferReader<T>> {
+        match self.build() {
+            Ok(value) => Ok(value),
+            Err(err) => Err(anyhow!(err.to_string()))?,
+        }
+    }
+    pub fn node(self) -> graph::Result<Node<BufferReader<T>>> {
+        self.make()?.node()
+    }
+    pub fn hub(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
+        Ok(self.make()?.gate()?.into())
+    }
+}
+
 impl<T> Solve for BufferReader<T>
 where
-    T: AnyBitPattern,
-    Vec<T>: Payload,
+    T: Pod,
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
@@ -56,7 +78,7 @@ impl<T> Adapt for BufferReader<T> {
 //     }
 //     pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
 //         let node = self.node()?;
-//         let hub = node.wing()?;
+//         let hub = node.gate()?;
 //         Ok(hub.into())
 //     }
 // }

@@ -13,7 +13,7 @@ pub struct Node<U: Solve> {
     serial: Option<String>,
 }
 
-impl<U: Solve + WingOnly> WingOnly for Node<U> {}
+impl<U: Solve + GateTag> GateTag for Node<U> {}
 
 impl<U> SolveAdapt for Node<U>
 where

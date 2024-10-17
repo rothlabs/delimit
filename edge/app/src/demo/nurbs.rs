@@ -72,7 +72,7 @@ impl Demo {
         let pos0 = pos_buff0.attribute().size(2).stride(8).node()?;
         let vel0 = vel_buff0.attribute().size(2).stride(8).index(1).node()?;
         let vao0 = gpu.vao()?;
-        let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).apex()?;
+        let vao_writer0 = vao0.writer().attributes(vec![pos0, vel0]).hub()?;
         let tfo0 = gpu.tfo()?.buffer(&pos_buff0).buffer(&vel_buff0).make()?;
         let pos_buff1 = gpu.buffer()?;
         pos_buff1
@@ -91,7 +91,7 @@ impl Demo {
         let pos1 = pos_buff1.attribute().size(2).stride(8).node()?;
         let vel1 = vel_buff1.attribute().size(2).stride(8).index(1).node()?;
         let vao1 = gpu.vao()?;
-        let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).apex()?;
+        let vao_writer1 = vao1.writer().attributes(vec![pos1, vel1]).hub()?;
         let tfo1 = gpu.tfo()?.buffer(pos_buff1).buffer(vel_buff1).make()?;
         let draw0 = gpu
             .draw_arrays(prog.clone())
@@ -149,7 +149,7 @@ impl Demo {
             nurbs_buff.attribute().size(4).stride(132).offset(116).divisor(1).index(8).node()?,
         ];
         let vao = gpu.vao()?;
-        let vao_writer = vao.writer().attributes(attribs).apex()?;
+        let vao_writer = vao.writer().attributes(attribs).hub()?;
         let basis_buf = gpu.buffer()?;
         basis_buf
             .writer()
@@ -189,7 +189,7 @@ impl Demo {
             basis_buf.attribute().size(4).stride(64).offset(48).index(11).node()?,
         ];
         let vao = gpu.vao()?;
-        let vao_writer = vao.writer().attributes(attribs).apex()?;
+        let vao_writer = vao.writer().attributes(attribs).hub()?;
         let curve_draw = gpu
             .draw_arrays(prog)
             .mode(WGLRC::POINTS)
@@ -213,7 +213,7 @@ impl Demo {
     }
 }
 
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Nurbs {
     gl: WebGl,

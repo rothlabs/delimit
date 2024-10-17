@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Unit!)] 
+#[derive(Builder, Debug, Gate)] 
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Dispatcher {
@@ -14,7 +14,7 @@ pub struct Dispatcher {
     stems: Vec<Apex>,
 }
 
-// impl WingOnly for Dispatcher {}
+// impl GateTag for Dispatcher {}
 
 // impl DispatcherBuilder {
 //     pub fn make(self) -> graph::Result<Dispatcher> {
@@ -24,7 +24,7 @@ pub struct Dispatcher {
 //         }
 //     }
 //     pub fn wow(self) -> graph::Result<Hub<()>> {
-//         let wow = self.make()?.node()?.as_wing();
+//         let wow = self.make()?.node()?.as_gate();
 //         wow.hub()
 //     }
 // }

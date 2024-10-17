@@ -87,10 +87,10 @@ pub async fn draw_arrays_basic(gpu: &WebGl) -> Result<()> {
     let (buffer, buffer_writer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).node()?;
     let vao = gpu.vao()?;
-    let vao_writer = vao.writer().attribute(att).apex()?;
+    let vao_writer = vao.writer().attribute(att).hub()?;
     let draw_arrays = gpu
         .draw_arrays(program)
-        .stem(buffer_writer.hub())
+        .stem(buffer_writer.to_gate_hub())
         .stem(vao_writer)
         .vao(vao)
         .count(3)
@@ -106,13 +106,13 @@ pub async fn draw_elements_basic(
     let (buffer, bufferer) = make_basic_buffer(&gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.buffer()?.index();
-    let index_bufferer = index_buffer.writer().array(index_array).apex()?;
+    let index_bufferer = index_buffer.writer().array(index_array).hub()?;
     let att = buffer.attribute().size(3).node()?;
     let vao = gpu.vao()?;
-    let vao_writer = vao.writer().attribute(att).index(index_buffer).apex()?;
+    let vao_writer = vao.writer().attribute(att).index(index_buffer).hub()?;
     let elements = gpu
         .draw_elements(program)
-        .stem(bufferer.hub())
+        .stem(bufferer.to_gate_hub())
         .stem(index_bufferer)
         .stem(vao_writer)
         .vao(vao)
@@ -127,7 +127,7 @@ pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElemen
     let (buffer, bufferer) = make_vertex_color_buffer(&gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.buffer()?.index();
-    let index_bufferer = index_buffer.writer().array(index_array).apex()?;
+    let index_bufferer = index_buffer.writer().array(index_array).hub()?;
     let pos = buffer.attribute().size(3).stride(20).node()?;
     let uv = buffer
         .attribute()
@@ -141,11 +141,11 @@ pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElemen
         .writer()
         .attributes(vec![pos, uv])
         .index(index_buffer)
-        .apex()?;
+        .hub()?;
     let _texture = make_basic_texture(&gpu).await?;
     let elements = gpu
         .draw_elements(program)
-        .stem(bufferer.hub())
+        .stem(bufferer.to_gate_hub())
         .stem(index_bufferer)
         .stem(vao_writer)
         .vao(vao)
@@ -293,13 +293,13 @@ pub async fn transform_feedback() -> Result<()> {
     let (buffer, bufferer) = make_basic_buffer(&gpu)?;
     let att = buffer.attribute().size(3).node()?;
     let vao = gpu.vao()?;
-    let vao_writer = vao.writer().attribute(att).apex()?;
+    let vao_writer = vao.writer().attribute(att).hub()?;
     let target = gpu.buffer()?;
-    let sizer = target.writer().array(36).apex()?;
+    let sizer = target.writer().array(36).hub()?;
     let tfo = gpu.tfo()?.buffer(&target).make()?;
     let draw = gpu
         .draw_arrays(program)
-        .stem(bufferer.hub())
+        .stem(bufferer.to_gate_hub())
         .stem(sizer)
         .stem(vao_writer)
         .vao(vao)

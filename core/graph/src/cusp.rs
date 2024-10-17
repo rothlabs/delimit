@@ -13,7 +13,7 @@ pub struct Cusp<W> {
     back: Option<Back>,
 }
 
-impl<W: WingOnly> WingOnly for Cusp<W> {}
+impl<W: GateTag> GateTag for Cusp<W> {}
 
 impl<W> FromBase for Cusp<W>
 where

@@ -9,6 +9,9 @@ pub struct Element {
 }
 
 impl Element {
+    pub fn hub(self) -> graph::Result<Hub<String>> {
+        Ok(self.ploy()?.into())
+    }
     pub fn new() -> Self {
         Self::default()
     }

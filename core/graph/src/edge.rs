@@ -118,7 +118,7 @@ where
 
 impl<C> Employed for Edge<C>
 where
-    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + WingOnly + Debug,
+    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + Debug + GateTag,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {

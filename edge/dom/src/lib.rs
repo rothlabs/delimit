@@ -10,6 +10,7 @@ use web_sys::{
     window, HtmlCanvasElement, HtmlElement,
 };
 use webgl::*;
+use node_derive::Gate;
 
 mod canvas;
 mod text;

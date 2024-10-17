@@ -1,4 +1,4 @@
-pub use convert::{ToPloyHub, ToWingHub};
+pub use convert::{ToPloyHub, ToGateHub};
 
 use super::*;
 use thiserror::Error;
@@ -29,7 +29,7 @@ pub enum Hub<T> { // : Payload
     /// Node with type-erased unit. Can be serialized.
     Ploy(Ploy<T>),
     /// Node with type-erased unit. Cannot be serialized.
-    Wing(Wing<T>),
+    Gate(Gate<T>),
 }
 
 impl<T> Serialize for Hub<T> 
@@ -43,7 +43,7 @@ where
             Self::Tray(x) => x.serialize(serializer),
             Self::Leaf(x) => x.serialize(serializer),
             Self::Ploy(x) => x.serialize(serializer),
-            Self::Wing(_) => serializer.serialize_unit(),
+            Self::Gate(_) => serializer.serialize_unit(),
         }
     }
 }
@@ -57,7 +57,7 @@ where
             Self::Tray(x) => x.digest(state),
             Self::Leaf(x) => x.digest(state),
             Self::Ploy(x) => x.digest(state),
-            Self::Wing(_) => (),
+            Self::Gate(_) => (),
         }
     }
 }
@@ -71,7 +71,7 @@ impl<T> Hub<T> {
     pub fn rank(&self) -> Option<u16> {
         match self {
             Self::Ploy(ploy) => ploy.rank(),
-            Self::Wing(wing) => wing.rank(),
+            Self::Gate(gate) => gate.rank(),
             _ => None,
         }
     }
@@ -85,7 +85,7 @@ where
     pub async fn main(&self) -> Result<Hub<T>> {
         match self {
             Self::Ploy(ploy) => ploy.solve().await,
-            // Self::Wing(wing) => wing.solve().await,
+            // Self::Gate(gate) => gate.solve().await,
             _ => Err(Error::NotPloy)?,
         }
     }
@@ -122,7 +122,7 @@ where
                 }
                 Self::Leaf(leaf) => leaf.read(read),
                 Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-                Self::Wing(wing) => wing.solve().await?.read(read).await,
+                Self::Gate(gate) => gate.solve().await?.read(read).await,
             }
         })
     }
@@ -136,7 +136,7 @@ where
                 },
                 Self::Leaf(leaf) => leaf.read(|base| base.clone()),
                 Self::Ploy(ploy) => ploy.solve().await?.base().await,
-                Self::Wing(wing) => wing.solve().await?.base().await,
+                Self::Gate(gate) => gate.solve().await?.base().await,
             }
         })
     }
@@ -147,7 +147,7 @@ where
                 Self::Tray(_) => Ok(()),
                 Self::Leaf(leaf) => leaf.read(|_| ()),
                 Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-                Self::Wing(wing) => wing.solve().await?.depend().await,
+                Self::Gate(gate) => gate.solve().await?.depend().await,
             }
         })
     }
@@ -161,7 +161,7 @@ impl<T: Payload> Hub<T> {
     // pub async fn main(&self) -> Result<Hub<T>> {
     //     match self {
     //         Self::Ploy(ploy) => ploy.solve().await,
-    //         // Self::Wing(wing) => wing.solve().await,
+    //         // Self::Gate(gate) => gate.solve().await,
     //         _ => Err(Error::NotPloy)?,
     //     }
     // }
@@ -194,7 +194,7 @@ impl<T: Payload> Hub<T> {
         match self {
             Self::Leaf(leaf) => leaf.get_hash(),
             Self::Ploy(ploy) => ploy.get_hash(),
-            Self::Wing(_) => Ok(0),
+            Self::Gate(_) => Ok(0),
             _ => Err(Error::NotNode)?,
         }
     }
@@ -205,7 +205,7 @@ impl<T: Payload> Hub<T> {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.get_serial(),
             Self::Ploy(ploy) => ploy.get_serial(),
-            Self::Wing(wing) => wing.serial(),
+            Self::Gate(gate) => gate.serial(),
         }
     }
 
@@ -213,7 +213,7 @@ impl<T: Payload> Hub<T> {
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt_get(deal),
-            Self::Wing(wing) => wing.adapt_get(deal),
+            Self::Gate(gate) => gate.adapt_get(deal),
             _ => Ok(()),
         }
     }
@@ -222,7 +222,7 @@ impl<T: Payload> Hub<T> {
     pub async fn adapt_set(&self, deal: &mut dyn Deal) -> Result<()> {
         match self {
             Self::Ploy(ploy) => ploy.adapt_set(deal).await,
-            Self::Wing(wing) => wing.adapt_set(deal).await,
+            Self::Gate(gate) => gate.adapt_set(deal).await,
             _ => Ok(()),
         }
     }
@@ -230,7 +230,7 @@ impl<T: Payload> Hub<T> {
     pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         match self {
             Self::Ploy(ploy) => ploy.transient_set(deal),
-            Self::Wing(wing) => wing.transient_set(deal),
+            Self::Gate(gate) => gate.transient_set(deal),
             _ => Ok(Ring::new()),
         }
     }
@@ -241,7 +241,7 @@ impl<T: Payload> Hub<T> {
             Self::Tray(tray) => Self::Tray(tray.clone()),
             Self::Leaf(leaf) => Self::Leaf(leaf.pathed(path.into())),
             Self::Ploy(ploy) => Self::Ploy(ploy.pathed(path.into())),
-            Self::Wing(wing) => Self::Wing(wing.pathed(path.into())),
+            Self::Gate(gate) => Self::Gate(gate.pathed(path.into())),
         }
     }
 
@@ -249,7 +249,7 @@ impl<T: Payload> Hub<T> {
     // pub fn rank(&self) -> Option<u16> {
     //     match self {
     //         Self::Ploy(ploy) => ploy.rank(),
-    //         Self::Wing(wing) => wing.rank(),
+    //         Self::Gate(gate) => gate.rank(),
     //         _ => None,
     //     }
     // }
@@ -286,7 +286,7 @@ impl<T: Payload> Hub<T> {
     //             }
     //             Self::Leaf(leaf) => leaf.read(read),
     //             Self::Ploy(ploy) => ploy.solve().await?.read(read).await,
-    //             Self::Wing(wing) => wing.solve().await?.read(read).await,
+    //             Self::Gate(gate) => gate.solve().await?.read(read).await,
     //         }
     //     })
     // }
@@ -300,7 +300,7 @@ impl<T: Payload> Hub<T> {
     //             },
     //             Self::Leaf(leaf) => leaf.read(|base| base.clone()),
     //             Self::Ploy(ploy) => ploy.solve().await?.base().await,
-    //             Self::Wing(wing) => wing.solve().await?.base().await,
+    //             Self::Gate(gate) => gate.solve().await?.base().await,
     //         }
     //     })
     // }
@@ -311,19 +311,19 @@ impl<T: Payload> Hub<T> {
     //             Self::Tray(_) => Ok(()),
     //             Self::Leaf(leaf) => leaf.read(|_| ()),
     //             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-    //             Self::Wing(wing) => wing.solve().await?.depend().await,
+    //             Self::Gate(gate) => gate.solve().await?.depend().await,
     //         }
     //     })
     // }
 }
 
-impl<T: Payload> Backed for Hub<T> {
+impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
         match self {
             Self::Tray(tray) => Ok(Self::Tray(tray.clone())),
             Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
             Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
-            Self::Wing(wing) => Ok(Self::Wing(wing.backed(back)?)),
+            Self::Gate(gate) => Ok(Self::Gate(gate.backed(back)?)),
         }
     }
 }

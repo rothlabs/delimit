@@ -3,7 +3,7 @@ use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{window, WebGlSync};
 
-#[derive(Builder, Debug, Vf32!)]
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferReader {
     buffer: buffer::Buffer,

@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Unit!)]
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Bufferer {
     buffer: buffer::Buffer,

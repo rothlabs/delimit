@@ -7,13 +7,13 @@ pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
-pub use hub::{Hub, SolveDown, ToPloyHub, ToWingHub};
+pub use hub::{Hub, SolveDown, ToPloyHub, ToGateHub};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use paste::paste;
-pub use ploy::{Based, Employ, Employed, Engage, Ploy, PloyEdge, Wing, WingEdge};
+pub use ploy::{Based, Employ, Employed, Engage, Ploy, PloyEdge, Gate, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -78,7 +78,7 @@ macro_rules! node_and_apex {
 #[macro_export]
 macro_rules! build_methods {
     ($Unit:ident $Base:ty) => {
-        impl WingOnly for $Unit {}
+        impl GateTag for $Unit {}
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<$Base>> {
@@ -110,7 +110,7 @@ macro_rules! Unit {
     $pub:vis
     struct $Unit:ident $tt:tt
     ) => {
-        impl WingOnly for $Unit {}
+        impl GateTag for $Unit {}
         impl paste! {[<$Unit "Builder">]} {
             node_and_apex!($Unit);
             pub fn hub(self) -> graph::Result<Hub<()>> {
@@ -137,7 +137,7 @@ macro_rules! Output {
     $pub:vis
     struct $Unit:ident<T: Payload + Pod> $tt:tt
     ) => {
-        impl<T: Payload + Pod> WingOnly for $Unit<T> {}
+        impl<T: Payload + Pod> GateTag for $Unit<T> {}
         impl<T> paste! {[<$Unit "Builder">]<T>}
         where
             T: Payload + Pod,
@@ -168,7 +168,7 @@ macro_rules! Input {
     $pub:vis
     struct $Unit:ident<T> $tt:tt
     ) => {
-        impl<T> WingOnly for $Unit<T> {}
+        impl<T> GateTag for $Unit<T> {}
         impl<T> paste! {[<$Unit "Builder">]<T>}
         where
             T: Payload + AnyBitPattern,
@@ -378,52 +378,50 @@ pub trait IntoHub {
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
-impl<T> IntoHub for T 
-where 
-    T: IntoPloy,
-    // T::Base: Debug,
-{
-    type Base = T::Base;
-    fn hub(self) -> Result<Hub<Self::Base>> {
-        Ok(self.ploy()?.into())
-    }
-}
+// impl<T> IntoHub for T 
+// where 
+//     T: IntoPloy,
+//     // T::Base: Debug,
+// {
+//     type Base = T::Base;
+//     fn hub(self) -> Result<Hub<Self::Base>> {
+//         Ok(self.ploy()?.into())
+//     }
+// }
 
-pub trait IntoWing
+pub trait IntoGate
 where
     Self: Solve,
 {
-    fn wing(self) -> Result<Wing<Self::Base>>;
+    fn gate(self) -> Result<Gate<Self::Base>>;
 }
 
-impl<T> IntoWing for T
+impl<T> IntoGate for T
 where
-    T: 'static + Unit + WingOnly,
+    T: 'static + Unit + GateTag,
     T::Base: Clone + Debug
 {
-    fn wing(self) -> Result<Wing<Self::Base>> {
+    fn gate(self) -> Result<Gate<Self::Base>> {
         Node::wing_from_unit(self)
     }
 }
 
-pub trait IntoWingHub {
-    type Base;//: Payload;
-    /// Move into `Hub`
-    fn hub(self) -> Result<Hub<Self::Base>>;
-}
+// pub trait IntoGateHub {
+//     type Base;//: Payload;
+//     /// Move into `Hub`
+//     fn hub(self) -> Result<Hub<Self::Base>>;
+// }
 
-impl<T> IntoWingHub for T 
-where 
-    T: IntoWing,
-    // T::Base: Clone + Debug
-{
-    type Base = T::Base;
-    fn hub(self) -> Result<Hub<Self::Base>> {
-        Ok(self.wing()?.into())
-    }
-}
-
-pub trait WingOnly {}
+// impl<T> IntoGateHub for T 
+// where 
+//     T: IntoGate,
+//     // T::Base: Clone + Debug
+// {
+//     type Base = T::Base;
+//     fn hub(self) -> Result<Hub<Self::Base>> {
+//         Ok(self.gate()?.into())
+//     }
+// }
 
 pub trait ToItem {
     type Item;
@@ -493,6 +491,12 @@ pub trait ReckonMut {
     fn get_hash(&mut self) -> Result<u64>;
     fn get_serial(&mut self) -> Result<String>;
 }
+
+pub trait PloyTag {}
+
+pub trait GateTag {}
+
+
 
 // #[macro_export]
 // macro_rules! GraphHash {

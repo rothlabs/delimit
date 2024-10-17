@@ -26,6 +26,7 @@
     dom = { path = "../dom" }
     webgl = { path = "../webgl" }
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    node_derive = { path = "../../core/node_derive" }
 
 [dependencies.web-sys] 
     version = "0.3.70"

@@ -9,6 +9,7 @@ edition = "2021"
     derive_builder = "0.20.1"
     macro_rules_attribute = "0.2.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    node_derive = { path = "../../core/node_derive" }
 
 [dependencies.web-sys]
     version = "0.3.70"

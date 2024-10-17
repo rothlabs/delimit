@@ -2,7 +2,7 @@ pub use reader::*;
 pub use writer::*;
 
 use super::*;
-use std::ops::Deref;
+use std::{fmt::Debug, ops::Deref};
 
 mod reader;
 mod writer;
@@ -22,13 +22,16 @@ impl Buffer {
     pub fn resource(&self) -> BindingResource {
         self.inner.as_entire_binding()
     }
-    pub fn writer<T: Payload + Pod>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> {
+    pub fn writer<T>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> { // : Payload + Pod
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
             .buffer(self.inner.clone())
             .data(data)
     }
-    pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
+    pub fn reader<T>(&self) -> BufferReaderBuilder<T> 
+    // where 
+    //     Vec<T>: Pod
+    {
         BufferReaderBuilder::default().buffer(self.clone())
     }
 }
