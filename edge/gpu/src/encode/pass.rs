@@ -13,7 +13,7 @@ impl<'a> Compute<'a> {
         self.0.set_pipeline(pipeline);
         self
     }
-    pub fn bind(mut self, index: u32, bind_group: &wgpu::BindGroup, offsets: &[u32]) -> Self {
+    pub fn bind(mut self, index: u32, bind_group: &BindGroup, offsets: &[u32]) -> Self {
         self.0.set_bind_group(index, bind_group, offsets);
         self
     }

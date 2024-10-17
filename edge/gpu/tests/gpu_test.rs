@@ -151,7 +151,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .pipe(pipe)
         .bind(bind)
         .count(9)
-        .stage((storage.into(), stage.clone().into()))
+        .stage(storage, stage.clone())
         .hub()?;
     let out = gpu.reader::<u32>(stage).mutator(mutator).hub()?.base().await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
@@ -183,7 +183,7 @@ async fn index_fraction() -> dom::Result<()> {
         .pipe(pipe)
         .bind(bind)
         .count(count)
-        .stage((basis.into(), stage.clone().into()))
+        .stage(basis, stage.clone())
         .hub()?;
     let out: Vec<f32> = gpu.reader(stage).mutator(mutator).hub()?.base().await?;
     assert_eq!(

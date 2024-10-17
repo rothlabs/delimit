@@ -42,14 +42,26 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Debug)]
+pub struct Mutation;
+
+#[derive(Clone, Debug)]
+pub struct Hedge {
+    pub buffer: Hub<Grc<Buffer>>,
+    pub mutator: Hub<Mutation>
+}
+
+#[derive(Clone, Debug)]
+pub enum Table {
+    Hedge(Hedge),
+    Array(Hub<Vec<f64>>),
+}
+
+#[derive(Clone, Debug)]
 pub struct Gpu {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
     // pub adapter: Grc<Adapter>,
 }
-
-#[derive(Clone, Debug)]
-pub struct Mutation;
 
 impl Gpu {
     pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<(Self, Surface<'a>)> {

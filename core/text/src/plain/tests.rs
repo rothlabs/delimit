@@ -7,7 +7,7 @@ fn new_list(ace: &Leaf<String>) -> Result<Node<List>> {
 #[tokio::test]
 async fn read_from_list() -> Result<()> {
     let string_leaf = "ace".leaf();
-    let text_node = new_list(&string_leaf)?.to_ploy_hub();
+    let text_node = new_list(&string_leaf)?.hub();
     text_node
         .read(|string| assert_eq!(string, "str, ace"))
         .await

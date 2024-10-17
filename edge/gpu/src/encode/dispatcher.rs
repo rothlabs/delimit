@@ -8,10 +8,15 @@ pub struct Dispatcher {
     pipe: Grc<ComputePipeline>,
     bind: Grc<BindGroup>,
     count: Hub<u32>,
-    // target: Hub<graph::Buffer>,
-    stage: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
+    staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
     mutators: Vec<Hub<Mutation>>,
+}
+
+impl DispatcherBuilder {
+    pub fn stage(self, storage: impl Into<Hub<Grc<Buffer>>>, stage: impl Into<Hub<Grc<Buffer>>>) -> Self {
+        self.staging((storage.into(), stage.into()))
+    }
 }
 
 impl Solve for Dispatcher {
@@ -19,15 +24,13 @@ impl Solve for Dispatcher {
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.mutators.depend().await?;
         let count = self.count.base().await?;
-        // self.pipe.read(|pipe| {
-        //     self.bind.read(|bind| {
         let mut encoder = self.gpu.encoder();
         encoder
             .compute()
             .pipe(&self.pipe)
             .bind(0, &self.bind, &[])
             .dispatch(count, 1, 1);
-        if let Some((storage, stage)) = &self.stage {
+        if let Some((storage, stage)) = &self.staging {
             let storage = storage.base().await?;
             let stage = stage.base().await?;
             encoder
@@ -46,7 +49,6 @@ impl Adapt for Dispatcher {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.mutators.back(back)?;
         self.count.back(back)
-        // self.stage.b
     }
 }
 

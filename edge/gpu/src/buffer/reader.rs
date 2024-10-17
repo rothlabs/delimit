@@ -36,33 +36,3 @@ impl<T> Adapt for BufferReader<T> {
         self.buffer.back(back)
     }
 }
-
-// buffer: Grc<wgpu::Buffer>,
-
-// #[builder(default, setter(each(name = "stem", into)))]
-    // stems: Vec<Hub<Mutation>>,
-
-// fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
-//     self.stems.deal("stems", deal)
-// }
-
-// impl<T> BufferReaderBuilder<T>
-// where
-//     T: Payload + AnyBitPattern,
-//     Vec<T>: Payload,
-// {
-//     pub fn make(self) -> graph::Result<BufferReader<T>> {
-//         match self.build() {
-//             Ok(value) => Ok(value),
-//             Err(err) => Err(anyhow!(err.to_string()))?,
-//         }
-//     }
-//     pub fn node(self) -> graph::Result<Node<BufferReader<T>>> {
-//         self.make()?.node()
-//     }
-//     pub fn hub(self) -> graph::Result<Hub<Vec<T>>> {
-//         let node = self.node()?;
-//         let hub = node.gate()?;
-//         Ok(hub.into())
-//     }
-// }

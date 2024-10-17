@@ -24,7 +24,7 @@ impl<'a> Encoder<'a> {
         let pass = self.inner.begin_render_pass(descriptor);
         pass::Render::new(pass)
     }
-    pub fn copy_buffer(self, buffer: &'a wgpu::Buffer) -> SourceBuffer<'_> {
+    pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'_> {
         SourceBuffer {
             encoder: self,
             buffer,
@@ -38,7 +38,7 @@ impl<'a> Encoder<'a> {
 
 pub struct SourceBuffer<'a> {
     encoder: Encoder<'a>,
-    buffer: &'a wgpu::Buffer,
+    buffer: &'a Buffer,
     offset: BufferAddress,
 }
 
@@ -47,7 +47,7 @@ impl<'a> SourceBuffer<'a> {
         self.offset = offset;
         self
     }
-    pub fn destination(self, dest: &'a wgpu::Buffer) -> DestinationBuffer<'a> {
+    pub fn destination(self, dest: &'a Buffer) -> DestinationBuffer<'a> {
         DestinationBuffer {
             source: self,
             destination: dest,
@@ -58,7 +58,7 @@ impl<'a> SourceBuffer<'a> {
 
 pub struct DestinationBuffer<'a> {
     source: SourceBuffer<'a>,
-    destination: &'a wgpu::Buffer,
+    destination: &'a Buffer,
     offset: BufferAddress,
 }
 

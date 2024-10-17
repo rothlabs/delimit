@@ -59,39 +59,10 @@ impl<T> From<T> for Hub<T> {
 
 pub trait ToPloyHub {
     type Base;//: Payload;
-    fn to_ploy_hub(&self) -> Hub<Self::Base>;
+    fn hub(&self) -> Hub<Self::Base>;
 }
 
 pub trait ToGateHub {
     type Base; //: Payload;
-    fn to_gate_hub(&self) -> Hub<Self::Base>;
+    fn hub(&self) -> Hub<Self::Base>;
 }
-
-// pub trait IntoHub {
-//     type Base;
-//     fn hub(self) -> Hub<Self::Base>;
-// }
-
-// impl<T> IntoHub for T {
-//     type Base = T;
-//     fn hub(self) -> Hub<Self::Base> {
-//         Hub::Tray(Tray::Base(self))
-//     }
-// }
-
-
-// impl From<Grc<wgpu::Buffer>> for Hub<Buffer> {
-//     fn from(value: Grc<wgpu::Buffer>) -> Self {
-//         Hub::Tray(Tray::Base(value.into()))
-//     }
-// }
-
-// impl<T, U> From<Node<U>> for Hub<T>
-// where
-//     T: Payload,
-//     U: 'static + Unit<Base = T>  + Digest + Serialize,
-// {
-//     fn from(node: Node<U>) -> Self {
-//         Hub::Ploy(node.as_ploy())
-//     }
-// }

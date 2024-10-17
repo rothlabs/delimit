@@ -11,7 +11,7 @@ pub struct Bind<'a> {
     #[builder(default)]
     label: Option<&'a str>,
     #[builder(default)]
-    layout: Option<&'a wgpu::BindGroupLayout>,
+    layout: Option<&'a BindGroupLayout>,
     #[builder(default)]
     entries: Vec<BindGroupEntry<'a>>,
     #[builder(default)]
@@ -19,7 +19,7 @@ pub struct Bind<'a> {
 }
 
 impl Bind<'_> {
-    fn make(self, layout: &wgpu::BindGroupLayout) -> wgpu::BindGroup {
+    fn make(self, layout: &BindGroupLayout) -> BindGroup {
         let descriptor = BindGroupDescriptor {
             label: self.label,
             layout,
@@ -30,7 +30,7 @@ impl Bind<'_> {
 }
 
 impl<'a> BindBuilder<'a> {
-    pub fn make(self) -> Result<wgpu::BindGroup> {
+    pub fn make(self) -> Result<BindGroup> {
         let built = self.build()?;
         if let Some(layout) = built.layout {
             Ok(built.make(layout))

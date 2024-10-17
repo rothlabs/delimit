@@ -355,7 +355,7 @@ where
     // E::Base: PloyTag
 {
     type Base = E::Base;
-    fn to_ploy_hub(&self) -> Hub<Self::Base> {
+    fn hub(&self) -> Hub<Self::Base> {
         self.as_ploy().into()
     }
 }
@@ -366,7 +366,7 @@ where
     // E::Base: GateTag
 {
     type Base = E::Base;
-    fn to_gate_hub(&self) -> Hub<Self::Base> {
+    fn hub(&self) -> Hub<Self::Base> {
         self.as_gate().into()
     }
 }

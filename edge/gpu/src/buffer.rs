@@ -11,7 +11,6 @@ mod writer;
 #[builder(build_fn(error = "crate::Error"))]
 pub struct BufferSetup<'a> {
     device: &'a Device,
-    // queue: Grc<wgpu::Queue>,
     #[builder(default, setter(strip_option))]
     label: Option<&'a str>,
     size: u64,
