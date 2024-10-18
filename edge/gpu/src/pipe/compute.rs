@@ -17,7 +17,7 @@ pub struct Compute<'a> {
 }
 
 impl ComputeBuilder<'_> {
-    pub fn make(self) -> Result<ComputePipeline> {
+    pub fn make(self) -> Result<Grc<ComputePipeline>> {
         let built = self.build()?;
         let descriptor = ComputePipelineDescriptor {
             label: built.label,
@@ -28,6 +28,6 @@ impl ComputeBuilder<'_> {
             cache: built.cache,
         };
         let value = built.device.create_compute_pipeline(&descriptor);
-        Ok(value)
+        Ok(value.into())
     }
 }

@@ -144,7 +144,8 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let size = 36;
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).label("stage").map_read()?;
-    let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
+    //let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
+    let bind = gpu.binder().pipe(pipe.clone()).entry(0, storage.clone()).hub()?;
     gpu.writer(storage.clone()).data(basic_vec_u32()).make()?.act().await?;
     let mutator = gpu
         .dispatcher()
@@ -170,14 +171,15 @@ async fn index_fraction() -> dom::Result<()> {
     let config_entry = gpu.uniform().entry(0)?.compute()?;
     let basis_entry = gpu.storage(false).entry(1)?.compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
-    let bind = gpu
-        .bind()
-        .layout(&bind_layout)
-        .entry(0, &config)
-        .entry(1, &basis)
-        .make()?;
-    // let wow = Hub::Tray(Tray::Base(Grc::new(bind_layout)));
-    // let bind = gpu.binder().layout(wow).entry(0, config).entry(1, basis).hub()?;
+    // let bind = gpu
+    //     .bind()
+    //     .layout(&bind_layout)
+    //     .entry(0, &config)
+    //     .entry(1, &basis)
+    //     .make()?;
+    //let wow = Hub::Tray(Tray::Base(Grc::new(bind_layout)));
+    // let wow = Grc::new(bind_layout);
+    let bind = gpu.binder().layout(bind_layout.clone()).entry(0, config).entry(1, basis.clone()).hub()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu

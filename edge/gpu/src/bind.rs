@@ -64,14 +64,14 @@ pub struct BindLayout<'a> {
 }
 
 impl<'a> BindLayoutBuilder<'a> {
-    pub fn make(self) -> Result<BindGroupLayout> {
+    pub fn make(self) -> Result<Grc<BindGroupLayout>> {
         let built = self.build()?;
         let descriptor = BindGroupLayoutDescriptor {
             label: built.label,
             entries: built.entries,
         };
         let out = built.device.create_bind_group_layout(&descriptor);
-        Ok(out)
+        Ok(out.into())
     }
 }
 

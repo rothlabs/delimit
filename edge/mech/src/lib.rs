@@ -1,12 +1,13 @@
+pub use shape::*;
+pub use plot::*;
+
 use node_derive::Adapt;
 use gpu::*;
 use graph::*;
-use shape::*;
 use derive_builder::Builder;
 
-// mod nurbs;
+mod plot;
 mod shape;
-mod grid;
 
 const BASE: u16 = 1;
 

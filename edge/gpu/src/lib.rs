@@ -202,7 +202,7 @@ impl Gpu {
         DispatcherBuilder::default().gpu(self.clone())
     }
     pub fn binder(&self) -> BinderBuilder {
-        BinderBuilder::default()
+        BinderBuilder::default().gpu(self.clone())
     }
 }
 
