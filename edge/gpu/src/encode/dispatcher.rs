@@ -6,7 +6,7 @@ use super::*;
 pub struct Dispatcher {
     gpu: Gpu,
     pipe: Grc<ComputePipeline>,
-    bind: Grc<BindGroup>,
+    bind: Hub<Grc<BindGroup>>,
     count: Hub<u32>,
     staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
@@ -23,12 +23,13 @@ impl Solve for Dispatcher {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.mutators.depend().await?;
+        let bind = self.bind.base().await?;
         let count = self.count.base().await?;
         let mut encoder = self.gpu.encoder();
         encoder
             .compute()
             .pipe(&self.pipe)
-            .bind(0, &self.bind, &[])
+            .bind(0, &bind, &[])
             .dispatch(count, 1, 1);
         if let Some((storage, stage)) = &self.staging {
             let storage = storage.base().await?;

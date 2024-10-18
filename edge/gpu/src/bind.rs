@@ -4,7 +4,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Bind<'a> {
     device: &'a Device,
@@ -19,18 +19,18 @@ pub struct Bind<'a> {
 }
 
 impl Bind<'_> {
-    fn make(self, layout: &BindGroupLayout) -> BindGroup {
+    fn make(self, layout: &BindGroupLayout) -> Grc<BindGroup> {
         let descriptor = BindGroupDescriptor {
             label: self.label,
             layout,
             entries: &self.entries,
         };
-        self.device.create_bind_group(&descriptor)
+        self.device.create_bind_group(&descriptor).into()
     }
 }
 
 impl<'a> BindBuilder<'a> {
-    pub fn make(self) -> Result<BindGroup> {
+    pub fn make(self) -> graph::Result<Grc<BindGroup>> {
         let built = self.build()?;
         if let Some(layout) = built.layout {
             Ok(built.make(layout))

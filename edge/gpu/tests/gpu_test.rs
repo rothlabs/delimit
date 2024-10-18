@@ -176,6 +176,8 @@ async fn index_fraction() -> dom::Result<()> {
         .entry(0, &config)
         .entry(1, &basis)
         .make()?;
+    // let wow = Hub::Tray(Tray::Base(Grc::new(bind_layout)));
+    // let bind = gpu.binder().layout(wow).entry(0, config).entry(1, basis).hub()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu

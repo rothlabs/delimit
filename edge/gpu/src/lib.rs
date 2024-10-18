@@ -1,4 +1,4 @@
-// pub use buffer::Buffer;
+pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
@@ -18,6 +18,7 @@ use web_sys::HtmlCanvasElement;
 use wgpu::*;
 use node_derive::Gate;
 
+mod binder;
 mod bind;
 mod buffer;
 mod encode;
@@ -189,9 +190,6 @@ impl Gpu {
     pub fn multisample(&self, count: u32) -> MultisampleBuilder {
         MultisampleBuilder::default().count(count)
     }
-    pub fn dispatcher(&self) -> DispatcherBuilder {
-        DispatcherBuilder::default().gpu(self.clone())
-    }
     pub fn writer<T>(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> BufferWriterBuilder<T> {
         BufferWriterBuilder::default()
             .queue(self.queue.clone())
@@ -199,6 +197,12 @@ impl Gpu {
     }
     pub fn reader<T>(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
         BufferReaderBuilder::default().buffer(buffer)
+    }
+    pub fn dispatcher(&self) -> DispatcherBuilder {
+        DispatcherBuilder::default().gpu(self.clone())
+    }
+    pub fn binder(&self) -> BinderBuilder {
+        BinderBuilder::default()
     }
 }
 
