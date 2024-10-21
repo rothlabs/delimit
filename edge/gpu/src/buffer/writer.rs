@@ -1,9 +1,10 @@
-use std::fmt::Debug;
 use super::*;
+use std::fmt::Debug;
 
-#[derive(Builder, Debug, Gate)] // , Output!
+#[derive(Builder, Gate, Debug)] // , Output!
 #[builder(pattern = "owned", setter(into))]
-pub struct BufferWriter<T> { // : Payload + Pod
+pub struct BufferWriter<T> {
+    // : Payload + Pod
     queue: Grc<wgpu::Queue>,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default)]
@@ -20,8 +21,7 @@ where
         let offset = self.offset.base().await.unwrap_or_default();
         self.data
             .read(|data| {
-                self.queue
-                    .write_buffer(&buffer, offset, cast_slice(data));
+                self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
             .await
     }
@@ -29,7 +29,7 @@ where
 
 impl<T> Adapt for BufferWriter<T>
 where
-    T: 'static + Clone, 
+    T: 'static + Clone,
 {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.offset.back(back)?;

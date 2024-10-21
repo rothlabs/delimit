@@ -3,6 +3,7 @@ pub use text::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
+use node_derive::Gate;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
@@ -10,7 +11,6 @@ use web_sys::{
     window, HtmlCanvasElement, HtmlElement,
 };
 use webgl::*;
-use node_derive::Gate;
 
 mod canvas;
 mod text;

@@ -9,8 +9,8 @@ wasm_bindgen_test_configure!(run_in_browser);
 
 use dom::Window;
 use graph::*;
-use webgl::*;
 use webgl::Buffer;
+use webgl::*;
 
 pub fn gpu() -> Result<WebGl> {
     Window::new()?

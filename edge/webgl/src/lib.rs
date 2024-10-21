@@ -1,5 +1,5 @@
-pub use buffer::*;
 pub use buffer::Buffer;
+pub use buffer::*;
 pub use buffer_reader::*;
 pub use bufferer::*;
 pub use draw_arrays::*;
@@ -13,12 +13,12 @@ pub use vertex_attribute::*;
 
 use derive_builder::Builder;
 use graph::*;
+use node_derive::Gate;
 use vao_writer::*;
 use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
-use node_derive::Gate;
 
-pub mod shader;
 pub mod buffer;
+pub mod shader;
 
 mod buffer_reader;
 mod bufferer;

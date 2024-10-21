@@ -19,8 +19,8 @@ pub struct DrawElements {
 
 // impl GateTag for DrawElements {}
 
-// impl DrawElementsBuilder 
-// where 
+// impl DrawElementsBuilder
+// where
 //     DrawElements: Solve
 // {
 //     pub fn make(self) -> graph::Result<DrawElements> {
@@ -34,8 +34,8 @@ pub struct DrawElements {
 //     }
 // }
 
-// impl IntoHub for Node<DrawArrays> 
-// where 
+// impl IntoHub for Node<DrawArrays>
+// where
 //     DrawArrays: Solve
 // {
 //     type Base = DrawArrays::Base;

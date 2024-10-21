@@ -8,7 +8,7 @@ mod writer;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 pub struct BufferSetup<'a> {
     device: &'a Device,
     #[builder(default, setter(strip_option))]
@@ -20,7 +20,7 @@ pub struct BufferSetup<'a> {
 }
 
 impl BufferSetupBuilder<'_> {
-    pub fn make(self) -> Result<Grc<Buffer>> {
+    pub fn make(self) -> graph::Result<Grc<Buffer>> {
         let built = self.build()?;
         let descriptor = BufferDescriptor {
             label: built.label,
@@ -31,23 +31,23 @@ impl BufferSetupBuilder<'_> {
         let buffer = built.device.create_buffer(&descriptor);
         Ok(buffer.into())
     }
-    pub fn map_read(self) -> Result<Grc<Buffer>> {
+    pub fn map_read(self) -> graph::Result<Grc<Buffer>> {
         self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
             .make()
     }
-    pub fn storage_copy(self) -> Result<Grc<Buffer>> {
+    pub fn storage_copy(self) -> graph::Result<Grc<Buffer>> {
         self.usage(BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST)
             .make()
     }
 }
 
 // Ok(Buffer {
-        //     inner: buffer.into(),
-        //     queue: built.queue,
-        //     // mutator: None
-        // })
+//     inner: buffer.into(),
+//     queue: built.queue,
+//     // mutator: None
+// })
 
-// /// TODO: make separate BufferView that holds this Buffer and Mutators 
+// /// TODO: make separate BufferView that holds this Buffer and Mutators
 // #[derive(Clone, Debug)]
 // pub struct Buffer {
 //     pub inner: Grc<wgpu::Buffer>,

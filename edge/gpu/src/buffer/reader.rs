@@ -1,14 +1,25 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
-#[builder(setter(into))]
+#[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
+    staging: Option<Hub<Grc<Buffer>>>,
     mutator: Hub<Mutation>,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default)]
     phantom: std::marker::PhantomData<T>,
 }
+
+// impl<T> BufferReaderBuilder<T> {
+//     pub fn stage(
+//         self,
+//         storage: impl Into<Hub<Grc<Buffer>>>,
+//         stage: impl Into<Hub<Grc<Buffer>>>,
+//     ) -> Self {
+//         self.staging((storage.into(), stage.into()))
+//     }
+// }
 
 impl<T> Solve for BufferReader<T>
 where

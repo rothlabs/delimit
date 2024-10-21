@@ -1,25 +1,25 @@
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
+pub use encode::Dispatcher;
 pub use flume;
 pub use surface::Surface;
 pub use wgpu::{include_wgsl, BufferUsages};
-pub use encode::Dispatcher;
 
 use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
 use graph::*;
+use node_derive::Gate;
 use pipe::*;
 use shader::*;
 use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-use node_derive::Gate;
 
-mod binder;
 mod bind;
+mod binder;
 mod buffer;
 mod encode;
 mod pipe;
@@ -48,7 +48,7 @@ pub struct Mutation;
 #[derive(Clone, Debug)]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
-    pub mutator: Hub<Mutation>
+    pub mutator: Hub<Mutation>,
 }
 
 #[derive(Clone, Debug)]
@@ -121,7 +121,7 @@ impl Gpu {
                 contents: bytemuck::cast_slice(data),
                 usage, //: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
             });
-            inner.into()
+        inner.into()
         // Buffer {
         //     inner: inner.into(),
         //     queue: self.queue.clone(),

@@ -66,16 +66,39 @@ pub fn gate_derive(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(Adapt)]
 pub fn adapt_derive(item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::DeriveInput);
-    let struct_identifier = &input.ident;
+    let unit = &input.ident;
     match &input.data {
-        Data::Struct(syn::DataStruct { fields, .. }) => {
-            let field_idents = fields.iter().map(|item| item.ident.as_ref().unwrap()).collect::<Vec<_>>();
+        Data::Struct(struct_) => {
+            let fields = struct_.fields.iter().map(|item| item.ident.as_ref().unwrap()).collect::<Vec<_>>();
             quote! {
                 #[automatically_derived]
-                impl Adapt for #struct_identifier {
+                impl Adapt for #unit {
                     fn adapt(&mut self, deal: &mut dyn Deal) -> graph::Result<()> {
                         #(
-                            self.#field_idents.deal(stringify!(#field_idents), deal)?;
+                            self.#fields.deal(stringify!(#fields), deal)?;
+                        )*
+                        Ok(())
+                    }
+                }
+            }
+        },
+        _ => unimplemented!()
+    }.into()
+}
+
+#[proc_macro_derive(Back)]
+pub fn back_derive(item: TokenStream) -> TokenStream {
+    let input = syn::parse_macro_input!(item as syn::DeriveInput);
+    let unit = &input.ident;
+    match &input.data {
+        Data::Struct(struct_) => {
+            let fields = struct_.fields.iter().map(|item| item.ident.as_ref().unwrap()).collect::<Vec<_>>();
+            quote! {
+                #[automatically_derived]
+                impl Adapt for #unit {
+                    fn back(&mut self, back: &Back) -> graph::Result<()> {
+                        #(
+                            self.#fields.back(back)?;
                         )*
                         Ok(())
                     }
@@ -89,13 +112,13 @@ pub fn adapt_derive(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(Digest)]
 pub fn digest_derive(item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item as syn::DeriveInput);
-    let struct_identifier = &input.ident;
+    let unit = &input.ident;
     match &input.data {
         Data::Struct(syn::DataStruct { fields, .. }) => {
             let field_idents = fields.iter().map(|item| item.ident.as_ref().unwrap()).collect::<Vec<_>>();
             quote! {
                 #[automatically_derived]
-                impl Digest for #struct_identifier {
+                impl Digest for #unit {
                     fn digest<H: std::hash::Hasher>(&self, state: &mut H) {
                         #(
                             self.#field_idents.digest(state);
@@ -109,7 +132,7 @@ pub fn digest_derive(item: TokenStream) -> TokenStream {
             // let variant_fields = variants.iter().map(|item| &item.fields ).collect::<Vec<_>>();
             quote! {
                 #[automatically_derived]
-                impl Digest for #struct_identifier {
+                impl Digest for #unit {
                     fn digest<H: std::hash::Hasher>(&self, state: &mut H) {
                         match self {
                             #(

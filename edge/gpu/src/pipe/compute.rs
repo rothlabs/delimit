@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Compute<'a> {
     device: &'a Device,
@@ -17,7 +17,7 @@ pub struct Compute<'a> {
 }
 
 impl ComputeBuilder<'_> {
-    pub fn make(self) -> Result<Grc<ComputePipeline>> {
+    pub fn make(self) -> graph::Result<Grc<ComputePipeline>> {
         let built = self.build()?;
         let descriptor = ComputePipelineDescriptor {
             label: built.label,

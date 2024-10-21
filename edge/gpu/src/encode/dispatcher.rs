@@ -1,20 +1,24 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)] 
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Dispatcher {
     gpu: Gpu,
     pipe: Grc<ComputePipeline>,
     bind: Hub<Grc<BindGroup>>,
-    count: Hub<u32>,
+    count: Hub<u64>,
     staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
     mutators: Vec<Hub<Mutation>>,
 }
 
 impl DispatcherBuilder {
-    pub fn stage(self, storage: impl Into<Hub<Grc<Buffer>>>, stage: impl Into<Hub<Grc<Buffer>>>) -> Self {
+    pub fn stage(
+        self,
+        storage: impl Into<Hub<Grc<Buffer>>>,
+        stage: impl Into<Hub<Grc<Buffer>>>,
+    ) -> Self {
         self.staging((storage.into(), stage.into()))
     }
 }
@@ -30,7 +34,7 @@ impl Solve for Dispatcher {
             .compute()
             .pipe(&self.pipe)
             .bind(0, &bind, &[])
-            .dispatch(count, 1, 1);
+            .dispatch(count as u32, 1, 1);
         if let Some((storage, stage)) = &self.staging {
             let storage = storage.base().await?;
             let stage = stage.base().await?;
@@ -78,15 +82,6 @@ impl Adapt for Dispatcher {
 //         Ok(Mutation{}.into())
 //     }
 // }
-
-
-
-
-
-
-
-
-
 
 // use super::*;
 

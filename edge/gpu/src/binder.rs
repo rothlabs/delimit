@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)] 
+#[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 // #[builder(setter(strip_option))]
@@ -48,7 +48,6 @@ impl Adapt for Binder {
         Ok(())
     }
 }
-
 
 // impl Solve for Binder {
 //     type Base = Grc<BindGroup>;

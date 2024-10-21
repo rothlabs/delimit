@@ -145,8 +145,16 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let storage = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).label("stage").map_read()?;
     //let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
-    let bind = gpu.binder().pipe(pipe.clone()).entry(0, storage.clone()).hub()?;
-    gpu.writer(storage.clone()).data(basic_vec_u32()).make()?.act().await?;
+    let bind = gpu
+        .binder()
+        .pipe(pipe.clone())
+        .entry(0, storage.clone())
+        .hub()?;
+    gpu.writer(storage.clone())
+        .data(basic_vec_u32())
+        .make()?
+        .act()
+        .await?;
     let mutator = gpu
         .dispatcher()
         .pipe(pipe)
@@ -154,7 +162,12 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .count(9)
         .stage(storage, stage.clone())
         .hub()?;
-    let out = gpu.reader::<u32>(stage).mutator(mutator).hub()?.base().await?;
+    let out = gpu
+        .reader::<u32>(stage)
+        .mutator(mutator)
+        .hub()?
+        .base()
+        .await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
     Ok(())
 }
@@ -179,7 +192,12 @@ async fn index_fraction() -> dom::Result<()> {
     //     .make()?;
     //let wow = Hub::Tray(Tray::Base(Grc::new(bind_layout)));
     // let wow = Grc::new(bind_layout);
-    let bind = gpu.binder().layout(bind_layout.clone()).entry(0, config).entry(1, basis.clone()).hub()?;
+    let bind = gpu
+        .binder()
+        .layout(bind_layout.clone())
+        .entry(0, config)
+        .entry(1, basis.clone())
+        .hub()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu
@@ -200,19 +218,18 @@ async fn index_fraction() -> dom::Result<()> {
     Ok(())
 }
 
-    // let mut encoder = gpu.encoder();
-    // encoder
-    //     .compute()
-    //     .pipe(&pipe)
-    //     .bind(0, &bind, &[])
-    //     .debug("compute collatz iterations")
-    //     .dispatch(9, 1, 1);
-    // encoder
-    //     .copy_buffer(&storage)
-    //     .destination(&stage)
-    //     .size(size)
-    //     .submit();
-
+// let mut encoder = gpu.encoder();
+// encoder
+//     .compute()
+//     .pipe(&pipe)
+//     .bind(0, &bind, &[])
+//     .debug("compute collatz iterations")
+//     .dispatch(9, 1, 1);
+// encoder
+//     .copy_buffer(&storage)
+//     .destination(&stage)
+//     .size(size)
+//     .submit();
 
 // #[rustfmt::skip]
 // fn basic_f32() -> Vec<f32> {

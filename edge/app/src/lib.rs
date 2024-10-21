@@ -3,12 +3,12 @@ use std::borrow::Cow;
 use derive_builder::{Builder, UninitializedFieldError};
 use dom::*;
 use graph::*;
+use node_derive::Gate;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::js_sys::Math::random;
 use webgl::*;
 use wgpu::SurfaceTarget;
-use node_derive::Gate;
 
 #[allow(unused_macros)]
 macro_rules! console_log {
