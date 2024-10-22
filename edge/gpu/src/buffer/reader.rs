@@ -4,7 +4,6 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
-    // staging: Option<Hub<Grc<Buffer>>>,
     gpu: Gpu,
     mutator: Hub<Mutation>,
     storage: Hub<Grc<Buffer>>,
@@ -12,16 +11,6 @@ pub struct BufferReader<T> {
     #[builder(default)]
     phantom: std::marker::PhantomData<T>,
 }
-
-// impl<T> BufferReaderBuilder<T> {
-//     pub fn stage(
-//         self,
-//         storage: impl Into<Hub<Grc<Buffer>>>,
-//         stage: impl Into<Hub<Grc<Buffer>>>,
-//     ) -> Self {
-//         self.staging((storage.into(), stage.into()))
-//     }
-// }
 
 impl<T> Solve for BufferReader<T>
 where
@@ -56,3 +45,15 @@ impl<T> Adapt for BufferReader<T> {
         self.stage.back(back)
     }
 }
+
+// staging: Option<Hub<Grc<Buffer>>>,
+
+// impl<T> BufferReaderBuilder<T> {
+//     pub fn stage(
+//         self,
+//         storage: impl Into<Hub<Grc<Buffer>>>,
+//         stage: impl Into<Hub<Grc<Buffer>>>,
+//     ) -> Self {
+//         self.staging((storage.into(), stage.into()))
+//     }
+// }

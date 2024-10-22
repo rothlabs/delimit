@@ -1,10 +1,10 @@
 use super::*;
 use std::fmt::Debug;
 
-#[derive(Builder, Gate, Debug)] // , Output!
-#[builder(pattern = "owned", setter(into))]
+#[derive(Builder, Gate, Debug)]
+#[builder(pattern = "owned")]
+#[builder(setter(into))]
 pub struct BufferWriter<T> {
-    // : Payload + Pod
     queue: Grc<wgpu::Queue>,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default)]

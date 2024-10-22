@@ -1,5 +1,3 @@
-use std::num::NonZero;
-
 use super::*;
 
 #[derive(Builder, Clone, Debug)]
@@ -11,7 +9,7 @@ pub struct Shape {
     #[builder(default = "2")]
     dimension: u8,
     rule: Rule,
-    plan: Hub<Table>,
+    plan: Table,
     control: Control,
     #[builder(default)]
     bounds: Vec<Shape>,
@@ -26,7 +24,7 @@ pub struct Shape {
 // }
 
 impl Shape {
-    pub async fn grid(&self, count: u32) -> graph::Result<Hub<Hedge>> {
+    pub async fn grid(&self, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
         // let table = self.table.base().await?;
         // if let Table::Hedge(hedge) = table {
         //     let buffer = hedge.buffer.base().await?;
@@ -38,19 +36,16 @@ impl Shape {
         // }
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
-    async fn nurbs_grid(&self, order: u32, count: u32) -> graph::Result<Hub<Hedge>> {
-        let setup = self.gpu.buffer_uniform(&[order, count]);
-        let plan = self.plan.base().await?;
-        if let Table::Hedge(hedge) = plan {
-            let plan = hedge.buffer.base().await?;
-            let size = plan.size() * (count as u64) * 2 / 3;
-            let basis = self.gpu.buffer(size).storage_copy()?;
+    async fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
+        let setup = self.gpu.buffer_uniform().unit(order).unit(count.clone()).hub()?;
+        if let Table::Hedge(plan) = &self.plan {
+            let basis = self.gpu.sizer(plan.buffer.clone()).mul(count.clone()).mul(2).div(3).hub()?;
             let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
             let plan_entry = self.gpu.storage(true).entry(1)?.compute()?;
             let basis_entry = self.gpu.storage(false).entry(2)?.compute()?;
             let bind_layout = self
                 .gpu
-                .bind_layout(&[plan_entry, basis_entry, setup_entry])
+                .bind_layout(&[setup_entry, plan_entry, basis_entry])
                 .make()?;
             let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
             let nurbs_shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
@@ -60,14 +55,13 @@ impl Shape {
                 .binder()
                 .layout(bind_layout)
                 .entry(0, setup)
-                .entry(1, plan)
+                .entry(1, plan.buffer.clone())
                 .entry(2, basis.clone())
                 .hub()?;
             let basis_dispatcher = self
                 .gpu
-                .dispatcher()
-                .mutator(hedge.mutator)
-                .pipe(pipe)
+                .dispatcher(pipe)
+                .mutator(plan.mutator.clone())
                 .bind(binder)
                 .count(count)
                 .hub()?;
@@ -76,7 +70,7 @@ impl Shape {
             //     .dispatcher()
             //     .mutator(basis_dispatcher)
             return Ok(Hedge {
-                buffer: basis.into(),
+                buffer: basis,
                 mutator: basis_dispatcher,
             }
             .into());
@@ -95,12 +89,12 @@ pub enum Rule {
 #[derive(Clone, Debug)]
 pub enum Control {
     Shape(Vec<Shape>),
-    Table(Hub<Table>),
+    Table(Table),
 }
 
 #[derive(Clone, Debug)]
 pub struct Instance {
-    pub table: Hub<Table>,
+    pub table: Table,
     pub layout: Layout,
     pub instance: Option<Box<Instance>>,
 }

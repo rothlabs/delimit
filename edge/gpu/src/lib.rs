@@ -1,3 +1,5 @@
+use std::default;
+
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
@@ -113,7 +115,7 @@ impl Gpu {
             // .queue(self.queue.clone())
             .size(size)
     }
-    fn buffer_init<T: NoUninit>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
+    fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> { // NoUninit
         let inner = self
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -128,10 +130,13 @@ impl Gpu {
         //     // mutator: None,
         // }
     }
-    pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
-        self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
+    // pub fn buffer_uniform<T: Pod>(&self, data: &[T]) -> Grc<Buffer> { // NoUninit
+    //     self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
+    // } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
+    pub fn buffer_uniform<T: Pod>(&self) -> BufferUniformBuilder<T> { // NoUninit
+        BufferUniformBuilder::default().gpu(self.clone())
     } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
-    pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
+    pub fn buffer_vertex<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
     }
     // pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
@@ -201,8 +206,11 @@ impl Gpu {
     pub fn reader<T>(&self, storage: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
         BufferReaderBuilder::default().gpu(self.clone()).storage(storage)
     }
-    pub fn dispatcher(&self) -> DispatcherBuilder {
-        DispatcherBuilder::default().gpu(self.clone())
+    pub fn sizer(&self, root: impl Into<Hub<Grc<Buffer>>>) -> BufferSizerBuilder {
+        BufferSizerBuilder::default().gpu(self.clone()).root(root)
+    }
+    pub fn dispatcher(&self, pipe: Grc<ComputePipeline>) -> DispatcherBuilder {
+        DispatcherBuilder::default().gpu(self.clone()).pipe(pipe)
     }
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())

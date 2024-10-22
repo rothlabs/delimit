@@ -156,8 +156,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .base()
         .await?;
     let mutator = gpu
-        .dispatcher()
-        .pipe(pipe)
+        .dispatcher(pipe)
         .bind(bind)
         .count(9)
         // .stage(storage, stage.clone())
@@ -179,7 +178,7 @@ async fn index_fraction() -> dom::Result<()> {
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
-    let config = gpu.buffer_uniform(&[count]);
+    let config = gpu.buffer_uniform().unit(count).hub()?;
     let basis = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
     let config_entry = gpu.uniform().entry(0)?.compute()?;
@@ -202,8 +201,7 @@ async fn index_fraction() -> dom::Result<()> {
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu
-        .dispatcher()
-        .pipe(pipe)
+        .dispatcher(pipe)
         .bind(bind)
         .count(count)
         // .stage(basis, stage.clone())

@@ -11,9 +11,8 @@ pub struct Grid {
 impl Solve for Grid {
     type Base = Hedge;
     async fn solve(&self) -> graph::Result<Hub<Hedge>> {
-        let count = self.count.base().await?;
         let shape = self.shape.base().await?;
-        shape.grid(count).await
+        shape.grid(self.count.clone()).await
     }
 }
 
