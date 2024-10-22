@@ -2,20 +2,20 @@ use super::*;
 
 #[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
-#[builder(setter(into))]
+#[builder(setter(into, strip_option))]
 pub struct Dispatcher {
     gpu: Gpu,
+    #[builder(default)]
+    root: Option<Hub<Mutation>>,
     pipe: Grc<ComputePipeline>,
     bind: Hub<Grc<BindGroup>>,
     count: Hub<u32>,
-    #[builder(default, setter(each(name = "mutator", into)))]
-    mutators: Vec<Hub<Mutation>>,
 }
 
 impl Solve for Dispatcher {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
-        self.mutators.depend().await?;
+        self.root.depend().await?;
         let bind = self.bind.base().await?;
         let count = self.count.base().await?;
         let mut encoder = self.gpu.encoder();
@@ -31,10 +31,70 @@ impl Solve for Dispatcher {
 
 impl Adapt for Dispatcher {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.mutators.back(back)?;
+        self.root.back(back)?;
+        self.bind.back(back)?;
         self.count.back(back)
     }
 }
+
+
+// #[derive(Builder, Debug, Gate)]
+// #[builder(pattern = "owned")]
+// #[builder(setter(into))]
+// pub struct Dispatcher {
+//     gpu: Gpu,
+//     pipe: Grc<ComputePipeline>,
+//     bind: Hub<Grc<BindGroup>>,
+//     count: Hub<u32>,
+//     #[builder(default, setter(each(name = "mutator", into)))]
+//     mutators: Vec<Hub<Mutation>>,
+// }
+
+// impl Solve for Dispatcher {
+//     type Base = Mutation;
+//     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+//         self.mutators.depend().await?;
+//         let bind = self.bind.base().await?;
+//         let count = self.count.base().await?;
+//         let mut encoder = self.gpu.encoder();
+//         encoder
+//             .compute()
+//             .pipe(&self.pipe)
+//             .bind(0, &bind, &[])
+//             .dispatch(count, 1, 1);
+//         encoder.submit();
+//         Ok(Mutation.into())
+//     }
+// }
+
+// impl Adapt for Dispatcher {
+//     fn back(&mut self, back: &Back) -> graph::Result<()> {
+//         self.mutators.back(back)?;
+//         self.count.back(back)
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
 // #[builder(default, setter(each(name = "mutator", into)))]

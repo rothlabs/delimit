@@ -141,16 +141,16 @@ where
         })
     }
 
-    pub fn depend(&self) -> GraphFuture<Result<()>> {
-        Box::pin(async move {
-            match self {
-                Self::Tray(_) => Ok(()),
-                Self::Leaf(leaf) => leaf.read(|_| ()),
-                Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-                Self::Gate(gate) => gate.solve().await?.depend().await,
-            }
-        })
-    }
+    // pub fn depend(&self) -> GraphFuture<Result<()>> {
+    //     Box::pin(async move {
+    //         match self {
+    //             Self::Tray(_) => Ok(()),
+    //             Self::Leaf(leaf) => leaf.read(|_| ()),
+    //             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
+    //             Self::Gate(gate) => gate.solve().await?.depend().await,
+    //         }
+    //     })
+    // }
 }
 
 impl<T: Payload> Hub<T> {
@@ -258,6 +258,22 @@ impl<T> Default for Hub<T> {
     }
 }
 
+impl<T> Depend for Hub<T> 
+where 
+    T: SendSync + Debug + Clone,
+{
+    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend {
+        Box::pin(async move {
+            match self {
+                Self::Tray(_) => Ok(()),
+                Self::Leaf(leaf) => leaf.read(|_| ()),
+                Self::Ploy(ploy) => ploy.solve().await?.depend().await,
+                Self::Gate(gate) => gate.solve().await?.depend().await,
+            }
+        })
+    }
+}
+
 impl<T> Depend for Vec<Hub<T>> 
 where 
     T: SendSync + Debug + Clone,
@@ -266,6 +282,15 @@ where
         for hub in self {
             hub.depend().await?;
         }
+        Ok(())
+    }
+}
+
+impl<T: Depend + SendSync> Depend for Option<T> {
+    async fn depend(&self) -> Result<()> {
+        if let Some(item) = self {
+            item.depend().await?;
+        } 
         Ok(())
     }
 }

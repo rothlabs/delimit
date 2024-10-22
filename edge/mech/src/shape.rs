@@ -24,19 +24,19 @@ pub struct Shape {
 // }
 
 impl Shape {
-    pub async fn grid(&self, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
+    pub fn grid(&self, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
         // let table = self.table.base().await?;
         // if let Table::Hedge(hedge) = table {
         //     let buffer = hedge.buffer.base().await?;
         //     let size = buffer.size() * count / 3;
         //     let basis = self.gpu.buffer(size).storage_copy()?;
         if let Rule::Nurbs(order) = self.rule {
-            return self.nurbs_grid(order, count).await;
+            return self.nurbs_grid(order, count);
         }
         // }
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
-    async fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
+    fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
         let setup = self.gpu.buffer_uniform().unit(order).unit(count.clone()).hub()?;
         if let Table::Hedge(plan) = &self.plan {
             let basis = self.gpu.sizer(plan.buffer.clone()).mul(count.clone()).mul(2).div(3).hub()?;
@@ -61,7 +61,7 @@ impl Shape {
             let basis_dispatcher = self
                 .gpu
                 .dispatcher(pipe)
-                .mutator(plan.mutator.clone())
+                .root(plan.mutator.clone())
                 .bind(binder)
                 .count(count)
                 .hub()?;

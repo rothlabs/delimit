@@ -12,7 +12,7 @@ impl Solve for Grid {
     type Base = Hedge;
     async fn solve(&self) -> graph::Result<Hub<Hedge>> {
         let shape = self.shape.base().await?;
-        shape.grid(self.count.clone()).await
+        shape.grid(self.count.clone())
     }
 }
 
