@@ -10,8 +10,8 @@ pub struct Shape {
     gpu: Gpu,
     #[builder(default = "2")]
     dimension: u8,
-    table: Hub<Table>,
     rule: Rule,
+    plan: Hub<Table>,
     control: Control,
     #[builder(default)]
     bounds: Vec<Shape>,
@@ -39,22 +39,18 @@ impl Shape {
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
     async fn nurbs_grid(&self, order: u32, count: u32) -> graph::Result<Hub<Hedge>> {
-        let config = self.gpu.buffer_uniform(&[order, count]);
-        let table = self.table.base().await?;
-        if let Table::Hedge(hedge) = table {
-            let nurbs = hedge.buffer.base().await?;
-            let size = nurbs.size() * (count as u64) / 3;
+        let setup = self.gpu.buffer_uniform(&[order, count]);
+        let plan = self.plan.base().await?;
+        if let Table::Hedge(hedge) = plan {
+            let plan = hedge.buffer.base().await?;
+            let size = plan.size() * (count as u64) * 2 / 3;
             let basis = self.gpu.buffer(size).storage_copy()?;
-            let nurbs_entry = self.gpu.storage(true).entry(0)?.compute()?;
-            let basis_entry = self.gpu.storage(false).entry(1)?.compute()?;
-            let config_entry = self
-                .gpu
-                .uniform()
-                .entry(2)?
-                .compute()?;
+            let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
+            let plan_entry = self.gpu.storage(true).entry(1)?.compute()?;
+            let basis_entry = self.gpu.storage(false).entry(2)?.compute()?;
             let bind_layout = self
                 .gpu
-                .bind_layout(&[nurbs_entry, basis_entry, config_entry])
+                .bind_layout(&[plan_entry, basis_entry, setup_entry])
                 .make()?;
             let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
             let nurbs_shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
@@ -63,9 +59,9 @@ impl Shape {
                 .gpu
                 .binder()
                 .layout(bind_layout)
-                .entry(0, nurbs)
-                .entry(1, basis.clone())
-                .entry(2, config)
+                .entry(0, setup)
+                .entry(1, plan)
+                .entry(2, basis.clone())
                 .hub()?;
             let basis_dispatcher = self
                 .gpu

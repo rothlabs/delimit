@@ -36,7 +36,7 @@ async fn nurbs() -> dom::Result<()> {
     let shape = ShapeBuilder::default()
         .gpu(gpu.clone())
         .rule(Rule::Nurbs(3))
-        .table(Table::Hedge(hedge))
+        .plan(Table::Hedge(hedge))
         .control(Control::Shape(vec![]))
         .build()?;
     let plot = plot::GridBuilder::default()
@@ -45,7 +45,7 @@ async fn nurbs() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    let stage = gpu.buffer(count as u64 * size / 3).map_read()?;
+    let stage = gpu.buffer(count as u64 * size * 2 / 3).map_read()?;
     let out: Vec<f32> = gpu
         .reader(plot.buffer)
         .mutator(plot.mutator)
@@ -56,8 +56,8 @@ async fn nurbs() -> dom::Result<()> {
     assert_eq!(
         out,
         vec![
-            1.0, 0.0, 0.0, 0.5625, 0.375, 0.0625, 0.25, 0.5, 0.25, 0.0625, 0.375, 0.5625, 0.0, 0.0,
-            1.0
+            1.0, 0.0, 0.0, -2.0, 2.0, 0.0, 0.5625, 0.375, 0.0625, -1.5, 1.0, 0.5, 0.25, 0.5, 0.25,
+            -1.0, 0.0, 1.0, 0.0625, 0.375, 0.5625, -0.5, -1.0, 1.5, 0.0, 0.0, 1.0, 0.0, -2.0, 2.0
         ]
     );
     Ok(())

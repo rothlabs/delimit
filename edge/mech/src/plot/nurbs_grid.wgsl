@@ -1,48 +1,79 @@
-struct Config {
+struct Setup {
     order: u32,
     count: u32,
 };
 
-@group(0) @binding(0) var<storage, read> nurbs: array<f32>;
-@group(0) @binding(1) var<storage, read_write> basis0: array<f32>;
-@group(0) @binding(2) var<uniform> config: Config;
+@group(0) @binding(0) var<uniform> setup: Setup;
+@group(0) @binding(1) var<storage, read> plan: array<f32>;
+@group(0) @binding(2) var<storage, read_write> basis: array<f32>;
 
 @compute
-@workgroup_size(1)
+@workgroup_size(64)
 fn main(
     @builtin(global_invocation_id) 
     global: vec3<u32>
 ) {
-    let curve_index = global.x / config.count;
-    let plot_index = global.x % config.count;
-    let param = f32(plot_index) / f32(config.count - 1);
-    let degree = config.order - 1;
-    let row_len = config.order * 3;
-    let knot_index = curve_index * row_len + degree;
-    let basis_index = (curve_index + plot_index) * config.order + degree;
-    for (var i = 1u; i < config.order; i++) {
-        basis0[basis_index - i] = 0.;
+    // prelude
+    let plan_index = global.x / setup.count;
+    let plot_index = global.x % setup.count;
+    let order = setup.order;
+    let degree = order - 1;
+    let row_len = order * 3;
+    let row = plan_index * row_len;
+
+    // parameter and indices
+    let parameter = f32(plot_index) / f32(setup.count - 1);
+    let knot_index = row + degree;
+    let weight_index = row + row_len - 1;
+    let basis_index = (plan_index + plot_index) * order * 2 + degree;
+
+    // basis reset [0., 0., 0., ..., 1.]
+    basis[basis_index] = 1.;
+    for (var i = 1u; i < order; i++) {
+        basis[basis_index - i] = 0.;
     }
-    basis0[basis_index] = 1.;
-    for (var deg = 1u; deg < config.order; deg++) {
+
+    // knot interpolation
+    for (var deg = 1u; deg < order; deg++) {
         for (var i = 0u; i < deg + 1; i++) {
             let k0 = knot_index + i; 
             let k1 = k0 + 1;
-            let b0 = basis_index + i - deg;
-            let b1 = b0 + 1;
-            var position = 0.;
-            //var velocity = 0.;
-            if basis0[b0] > 0. {
-                let distance = nurbs[k0] - nurbs[k0 - deg];
-                position += basis0[b0] * (param - nurbs[k0 - deg]) / distance; 
-                //velocity += basis0[b0] * f32(deg) / distance;
+            let n0 = basis_index + i - deg;
+            let n1 = n0 + 1;
+            var basis0 = 0.;
+            var basis1 = 0.;
+            if basis[n0] > 0. {
+                let distance = plan[k0] - plan[k0 - deg];
+                basis0 += basis[n0] * (parameter - plan[k0 - deg]) / distance; 
+                basis1 += basis[n0] * f32(deg) / distance;
             }
-            if basis0[b1] > 0. && b1 <= basis_index {
-                let distance = nurbs[k1] - nurbs[k1 - deg];
-                position += basis0[b1] * (nurbs[k1] - param) / distance;
-                //velocity -= basis0[b1] * f32(deg) / distance;
+            if basis[n1] > 0. && n1 <= basis_index {
+                let distance = plan[k1] - plan[k1 - deg];
+                basis0 += basis[n1] * (plan[k1] - parameter) / distance;
+                basis1 -= basis[n1] * f32(deg) / distance;
             } 
-            basis0[b0] = position; 
+            basis[n0        ] = basis0; 
+            basis[n0 + order] = basis1;
         }
+    }
+
+    // weighted sum
+    var sum0 = 0.;
+    var sum1 = 0.;
+    for (var i = 0u; i < order; i++) {
+        let wi = weight_index - i;
+        let b0 = basis_index - i;
+        let b1 = b0 + order;
+        sum0 += basis[b0] * plan[wi];
+        sum1 += basis[b1] * plan[wi];
+    }
+
+    // rational
+    for (var i = 0u; i < order; i++) {
+        let wi = weight_index - i;
+        let b0 = basis_index - i;
+        let b1 = b0 + order;
+        basis[b1] = (basis[b1] * sum0 - basis[b0] * sum1) * plan[wi] / sum0 / sum0;
+        basis[b0] *= plan[wi] / sum0;
     }
 }
