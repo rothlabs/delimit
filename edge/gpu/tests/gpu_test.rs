@@ -156,7 +156,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .base()
         .await?;
     let mutator = gpu
-        .computer()
+        .compute()
         .pipe(pipe)
         .bind(bind)
         .dispatch(9)
@@ -202,7 +202,7 @@ async fn index_fraction() -> dom::Result<()> {
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu
-        .computer()
+        .compute()
         .pipe(pipe)
         .bind(bind)
         .dispatch(count)

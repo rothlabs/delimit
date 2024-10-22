@@ -60,7 +60,7 @@ impl Shape {
                 .hub()?;
             let basis_computer = self
                 .gpu
-                .computer()
+                .compute()
                 .root(plan.mutator.clone())
                 .pipe(pipe)
                 .bind(bind)

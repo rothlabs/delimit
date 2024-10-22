@@ -3,7 +3,7 @@ use std::default;
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
-pub use encode::Computer;
+// pub use encode::Compute;
 pub use flume;
 pub use surface::Surface;
 pub use wgpu::{include_wgsl, BufferUsages};
@@ -212,8 +212,8 @@ impl Gpu {
     // pub fn dispatcher(&self, pipe: Grc<ComputePipeline>) -> ComputerBuilder {
     //     ComputerBuilder::default().gpu(self.clone()).pipe(pipe)
     // }
-    pub fn computer(&self) -> ComputerBuilder {
-        ComputerBuilder::default().gpu(self.clone())
+    pub fn compute(&self) -> encode::ComputeBuilder {
+        encode::ComputeBuilder::default().gpu(self.clone())
     }
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())

@@ -3,7 +3,7 @@ use super::*;
 #[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Computer {
+pub struct Compute {
     gpu: Gpu,
     #[builder(default)]
     root: Option<Hub<Mutation>>,
@@ -11,7 +11,7 @@ pub struct Computer {
     commands: Vec<Command>,
 }
 
-impl ComputerBuilder {
+impl ComputeBuilder {
     pub fn pipe(self, pipe: Grc<ComputePipeline>) -> Self {
         self.cmd(Command::Pipe(pipe))
     }
@@ -23,7 +23,7 @@ impl ComputerBuilder {
     }
 }
 
-impl Solve for Computer {
+impl Solve for Compute {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.root.depend().await?;
@@ -49,7 +49,7 @@ impl Solve for Computer {
     }
 }
 
-impl Adapt for Computer {
+impl Adapt for Compute {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         for cmd in &mut self.commands {
             match cmd {

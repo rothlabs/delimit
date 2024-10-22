@@ -1,10 +1,10 @@
-pub use dispatcher::*;
+pub use compute::ComputeBuilder;
 pub use render::RenderBuilder;
 pub use render::*;
 
 use super::*;
 
-mod dispatcher;
+mod compute;
 mod pass;
 mod render;
 

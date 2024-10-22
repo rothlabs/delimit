@@ -1,4 +1,4 @@
-pub use compute::*;
+pub use compute::ComputeBuilder;
 pub use fragment::*;
 pub use layout::*;
 pub use render::RenderBuilder;
