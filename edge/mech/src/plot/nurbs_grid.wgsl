@@ -23,7 +23,7 @@ fn main(
     for (var i = 1u; i < config.order; i++) {
         basis0[basis_index - i] = 0.;
     }
-    basis0[basis_index] = 1.; //f32(plot_index);// + 0.1;
+    basis0[basis_index] = 1.;
     for (var deg = 1u; deg < config.order; deg++) {
         for (var i = 0u; i < deg + 1; i++) {
             let k0 = knot_index + i; 
@@ -31,17 +31,18 @@ fn main(
             let b0 = basis_index + i - deg;
             let b1 = b0 + 1;
             var position = 0.;
+            //var velocity = 0.;
             if basis0[b0] > 0. {
                 let distance = nurbs[k0] - nurbs[k0 - deg];
                 position += basis0[b0] * (param - nurbs[k0 - deg]) / distance; 
+                //velocity += basis0[b0] * f32(deg) / distance;
             }
-            // make sure the basis0 buffer starts like this: [0,0,1,  0,0,1,  0,0,1]
-            if b1 <= basis_index && basis0[b1] > 0. { // (basis0[b1] > 0. || (deg == 1 && i == 0))
+            if basis0[b1] > 0. && b1 <= basis_index {
                 let distance = nurbs[k1] - nurbs[k1 - deg];
                 position += basis0[b1] * (nurbs[k1] - param) / distance;
+                //velocity -= basis0[b1] * f32(deg) / distance;
             } 
             basis0[b0] = position; 
         }
     }
-    // basis0[basis_index] = 37.; 
 }

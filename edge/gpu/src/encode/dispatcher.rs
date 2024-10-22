@@ -8,20 +8,9 @@ pub struct Dispatcher {
     pipe: Grc<ComputePipeline>,
     bind: Hub<Grc<BindGroup>>,
     count: Hub<u32>,
-    // staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
     #[builder(default, setter(each(name = "mutator", into)))]
     mutators: Vec<Hub<Mutation>>,
 }
-
-// impl DispatcherBuilder {
-//     pub fn stage(
-//         self,
-//         storage: impl Into<Hub<Grc<Buffer>>>,
-//         stage: impl Into<Hub<Grc<Buffer>>>,
-//     ) -> Self {
-//         self.staging((storage.into(), stage.into()))
-//     }
-// }
 
 impl Solve for Dispatcher {
     type Base = Mutation;
@@ -36,17 +25,6 @@ impl Solve for Dispatcher {
             .bind(0, &bind, &[])
             .dispatch(count, 1, 1);
         encoder.submit();
-        // if let Some((storage, stage)) = &self.staging {
-        //     let storage = storage.base().await?;
-        //     let stage = stage.base().await?;
-        //     encoder
-        //         .copy_buffer(&storage)
-        //         .destination(&stage)
-        //         .size(4 * count as u64)
-        //         .submit();
-        // } else {
-        //     encoder.submit();
-        // }
         Ok(Mutation.into())
     }
 }
@@ -57,6 +35,34 @@ impl Adapt for Dispatcher {
         self.count.back(back)
     }
 }
+
+// staging: Option<(Hub<Grc<Buffer>>, Hub<Grc<Buffer>>)>,
+// #[builder(default, setter(each(name = "mutator", into)))]
+// mutators: Vec<Hub<Mutation>>,
+
+// if let Some((storage, stage)) = &self.staging {
+        //     let storage = storage.base().await?;
+        //     let stage = stage.base().await?;
+        //     encoder
+        //         .copy_buffer(&storage)
+        //         .destination(&stage)
+        //         .size(4 * count as u64)
+        //         .submit();
+        // } else {
+        //     encoder.submit();
+        // }
+
+// impl DispatcherBuilder {
+//     pub fn stage(
+//         self,
+//         storage: impl Into<Hub<Grc<Buffer>>>,
+//         stage: impl Into<Hub<Grc<Buffer>>>,
+//     ) -> Self {
+//         self.staging((storage.into(), stage.into()))
+//     }
+// }
+
+
 
 // impl Solve for Dispatcher {
 //     type Base = Mutation;

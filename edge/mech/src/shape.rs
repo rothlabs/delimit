@@ -39,8 +39,6 @@ impl Shape {
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
     async fn nurbs_grid(&self, order: u32, count: u32) -> graph::Result<Hub<Hedge>> {
-        let shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
-        // console_log!("count {count}");
         let config = self.gpu.buffer_uniform(&[order, count]);
         let table = self.table.base().await?;
         if let Table::Hedge(hedge) = table {
@@ -52,7 +50,6 @@ impl Shape {
             let config_entry = self
                 .gpu
                 .uniform()
-                .min_binding_size(NonZero::new(8).unwrap())
                 .entry(2)?
                 .compute()?;
             let bind_layout = self
@@ -60,7 +57,8 @@ impl Shape {
                 .bind_layout(&[nurbs_entry, basis_entry, config_entry])
                 .make()?;
             let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
-            let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+            let nurbs_shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
+            let pipe = nurbs_shader.compute("main").layout(&pipe_layout).make()?;
             let binder = self
                 .gpu
                 .binder()
@@ -69,7 +67,7 @@ impl Shape {
                 .entry(1, basis.clone())
                 .entry(2, config)
                 .hub()?;
-            let mutator = self
+            let basis_dispatcher = self
                 .gpu
                 .dispatcher()
                 .mutator(hedge.mutator)
@@ -77,9 +75,13 @@ impl Shape {
                 .bind(binder)
                 .count(count)
                 .hub()?;
+            // let transform_dispatcher = self
+            //     .gpu
+            //     .dispatcher()
+            //     .mutator(basis_dispatcher)
             return Ok(Hedge {
                 buffer: basis.into(),
-                mutator,
+                mutator: basis_dispatcher,
             }
             .into());
         }
