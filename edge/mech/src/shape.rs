@@ -50,7 +50,7 @@ impl Shape {
             let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
             let nurbs_shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
             let pipe = nurbs_shader.compute("main").layout(&pipe_layout).make()?;
-            let binder = self
+            let bind = self
                 .gpu
                 .binder()
                 .layout(bind_layout)
@@ -58,20 +58,21 @@ impl Shape {
                 .entry(1, plan.buffer.clone())
                 .entry(2, basis.clone())
                 .hub()?;
-            let basis_dispatcher = self
+            let basis_computer = self
                 .gpu
-                .dispatcher(pipe)
+                .computer()
                 .root(plan.mutator.clone())
-                .bind(binder)
-                .count(count)
+                .pipe(pipe)
+                .bind(bind)
+                .dispatch(count)
                 .hub()?;
             // let transform_dispatcher = self
             //     .gpu
-            //     .dispatcher()
+            //     .computer()
             //     .mutator(basis_dispatcher)
             return Ok(Hedge {
                 buffer: basis,
-                mutator: basis_dispatcher,
+                mutator: basis_computer,
             }
             .into());
         }

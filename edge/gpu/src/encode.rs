@@ -14,11 +14,12 @@ pub struct Encoder<'a> {
 }
 
 impl<'a> Encoder<'a> {
-    pub fn compute(&mut self) -> pass::Compute<'_> {
+    pub fn compute(&mut self) -> ComputePass {// pass::Compute<'_> {
         let pass = self
             .inner
             .begin_compute_pass(&ComputePassDescriptor::default());
-        pass::Compute::new(pass)
+        pass
+        // pass::Compute::new(pass)
     }
     pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> pass::Render<'_> {
         let pass = self.inner.begin_render_pass(descriptor);

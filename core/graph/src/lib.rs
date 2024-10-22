@@ -340,6 +340,20 @@ impl<T: Backed> BackIt for T {
     }
 }
 
+// impl<T: 'static + Clone + SendSync> BackIt for Hub<T> {
+//     fn back(&mut self, back: &Back) -> Result<()> {
+//         *self = self.backed(back)?;
+//         Ok(())
+//     }
+// }
+
+// impl<T: Backed> BackIt for Vec<T> {
+//     fn back(&mut self, back: &Back) -> Result<()> {
+//         *self = self.backed(back)?;
+//         Ok(())
+//     }
+// }
+
 pub trait Reckon {
     fn get_imports(&self) -> Result<Vec<Import>>;
     fn get_hash(&self) -> Result<u64>;

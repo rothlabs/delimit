@@ -156,9 +156,10 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .base()
         .await?;
     let mutator = gpu
-        .dispatcher(pipe)
+        .computer()
+        .pipe(pipe)
         .bind(bind)
-        .count(9)
+        .dispatch(9)
         // .stage(storage, stage.clone())
         .hub()?;
     let out = gpu
@@ -201,9 +202,10 @@ async fn index_fraction() -> dom::Result<()> {
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu
-        .dispatcher(pipe)
+        .computer()
+        .pipe(pipe)
         .bind(bind)
-        .count(count)
+        .dispatch(count)
         // .stage(basis, stage.clone())
         .hub()?;
     let out: Vec<f32> = gpu.reader(basis).stage(stage).mutator(mutator).hub()?.base().await?;

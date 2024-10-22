@@ -274,9 +274,9 @@ where
     }
 }
 
-impl<T> Depend for Vec<Hub<T>> 
+impl<T> Depend for Vec<T> 
 where 
-    T: SendSync + Debug + Clone,
+    T: SendSync + Depend,
 {
     async fn depend(&self) -> Result<()> {
         for hub in self {

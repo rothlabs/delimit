@@ -38,7 +38,7 @@ impl Nurbs {
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let dispatcher = self
             .gpu
-            .dispatcher()
+            .computer()
             .pipe(pipe)
             .bind(bind)
             .count(count)
@@ -51,7 +51,7 @@ impl Nurbs {
 impl Solve for Nurbs {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
-        self.dispatcher()
+        self.computer()
             .await
             .map_err(|err| graph::Error::Any(anyhow!("{err}")))
     }
@@ -84,7 +84,7 @@ impl Solve for Nurbs {
 //         let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
 //         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
 //         let dispatcher = self.gpu
-//             .dispatcher()
+//             .computer()
 //             .pipe(pipe)
 //             .bind(bind)
 //             .count(count)

@@ -3,39 +3,124 @@ use super::*;
 #[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Dispatcher {
+pub struct Computer {
     gpu: Gpu,
     #[builder(default)]
     root: Option<Hub<Mutation>>,
-    pipe: Grc<ComputePipeline>,
-    bind: Hub<Grc<BindGroup>>,
-    count: Hub<u32>,
+    #[builder(setter(each(name = "cmd", into)))]
+    commands: Vec<Command>,
 }
 
-impl Solve for Dispatcher {
+impl ComputerBuilder {
+    pub fn pipe(self, pipe: Grc<ComputePipeline>) -> Self {
+        self.cmd(Command::Pipe(pipe))
+    }
+    pub fn bind(self, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.cmd(Command::Bind(bind.into()))
+    }
+    pub fn dispatch(self, count: impl Into<Hub<u32>>) -> Self {
+        self.cmd(Command::Dispatch(count.into()))
+    }
+}
+
+impl Solve for Computer {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.root.depend().await?;
-        let bind = self.bind.base().await?;
-        let count = self.count.base().await?;
         let mut encoder = self.gpu.encoder();
-        encoder
-            .compute()
-            .pipe(&self.pipe)
-            .bind(0, &bind, &[])
-            .dispatch(count, 1, 1);
+        {
+            let mut pass = encoder.compute();
+            for cmd in &self.commands {
+                match cmd {
+                    Command::Pipe(pipe) => pass.set_pipeline(pipe),
+                    Command::Bind(bind) => {
+                        let bind = bind.base().await?;
+                        pass.set_bind_group(0, &bind, &[])
+                    },
+                    Command::Dispatch(count) => {
+                        let count = count.base().await?;
+                        pass.dispatch_workgroups(count, 1, 1)
+                    },
+                }
+            }
+        }
         encoder.submit();
         Ok(Mutation.into())
     }
 }
 
-impl Adapt for Dispatcher {
+impl Adapt for Computer {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.root.back(back)?;
-        self.bind.back(back)?;
-        self.count.back(back)
+        for cmd in &mut self.commands {
+            match cmd {
+                Command::Bind(bind) => bind.back(back),
+                Command::Dispatch(count) => count.back(back),
+                Command::Pipe(_) => Ok(())
+            }?;
+        }
+        self.root.back(back)
     }
 }
+
+#[derive(Debug)]
+enum Command {
+    Pipe(Grc<ComputePipeline>),
+    Bind(Hub<Grc<BindGroup>>),
+    Dispatch(Hub<u32>),
+}
+
+
+
+    // pipe: Grc<ComputePipeline>,
+    // bind: Hub<Grc<BindGroup>>,
+    // count: Hub<u32>,
+
+
+//self.commands.back(back)
+
+// impl Backed for Command {
+//     fn backed(&self, back: &Back) -> graph::Result<Self> {
+//         let backed = match self {
+//             Self::Bind(bind) => Self::Bind(bind.backed(back)?),
+//             Self::Dispatch(count) => Self::Dispatch(count.backed(back)?),
+//             Self::Pipe(pipe) => Self::Pipe(pipe.clone())
+//         };
+//         Ok(backed)
+//     }
+// }
+
+
+
+
+
+// impl BackIt for Command {
+//     fn back(&mut self, back: &Back) -> graph::Result<()> {
+//         match self {
+//             Self::Bind(bind) => bind.back(back),
+//             Self::Dispatch(count) => count.back(back),
+//             Self::Pipe(_) => Ok(())
+//         }
+//     }
+// }
+
+
+// impl Solve for Dispatcher {
+//     type Base = Mutation;
+//     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+//         self.root.depend().await?;
+//         let bind = self.bind.base().await?;
+//         let count = self.count.base().await?;
+//         let mut encoder = self.gpu.encoder();
+//         encoder
+//             .compute()
+//             .pipe(&self.pipe)
+//             .bind(0, &bind, &[])
+//             .dispatch(count, 1, 1);
+//         encoder.submit();
+//         Ok(Mutation.into())
+//     }
+// }
+
 
 
 // #[derive(Builder, Debug, Gate)]
@@ -112,7 +197,7 @@ impl Adapt for Dispatcher {
         //     encoder.submit();
         // }
 
-// impl DispatcherBuilder {
+// impl ComputerBuilder {
 //     pub fn stage(
 //         self,
 //         storage: impl Into<Hub<Grc<Buffer>>>,
