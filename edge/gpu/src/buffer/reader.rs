@@ -4,9 +4,11 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
-    staging: Option<Hub<Grc<Buffer>>>,
+    // staging: Option<Hub<Grc<Buffer>>>,
+    gpu: Gpu,
     mutator: Hub<Mutation>,
-    buffer: Hub<Grc<Buffer>>,
+    storage: Hub<Grc<Buffer>>,
+    stage: Hub<Grc<Buffer>>,
     #[builder(default)]
     phantom: std::marker::PhantomData<T>,
 }
@@ -28,8 +30,14 @@ where
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
         self.mutator.base().await?;
-        let buffer = self.buffer.base().await?;
-        let slice = buffer.slice(..);
+        let storage = self.storage.base().await?;
+        let stage = self.stage.base().await?;
+        self.gpu.encoder()
+            .copy_buffer(&storage)
+            .destination(&stage)
+            .size(stage.size())
+            .submit();
+        let slice = stage.slice(..);
         let (sender, receiver) = flume::bounded(1);
         slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
         if let Err(err) = receiver.recv_async().await? {
@@ -44,6 +52,7 @@ where
 impl<T> Adapt for BufferReader<T> {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.mutator.back(back)?;
-        self.buffer.back(back)
+        self.storage.back(back)?;
+        self.stage.back(back)
     }
 }

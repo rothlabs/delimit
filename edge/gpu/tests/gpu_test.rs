@@ -4,7 +4,7 @@
 
 use dom::*;
 use gpu::*;
-use graph::*;
+// use graph::*;
 // use hub::IntoHub;
 use wasm_bindgen_test::*;
 use wgpu::*;
@@ -152,18 +152,19 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .hub()?;
     gpu.writer(storage.clone())
         .data(basic_vec_u32())
-        .make()?
-        .act()
+        .hub()?
+        .base()
         .await?;
     let mutator = gpu
         .dispatcher()
         .pipe(pipe)
         .bind(bind)
         .count(9)
-        .stage(storage, stage.clone())
+        // .stage(storage, stage.clone())
         .hub()?;
     let out = gpu
-        .reader::<u32>(stage)
+        .reader::<u32>(storage)
+        .stage(stage)
         .mutator(mutator)
         .hub()?
         .base()
@@ -205,9 +206,9 @@ async fn index_fraction() -> dom::Result<()> {
         .pipe(pipe)
         .bind(bind)
         .count(count)
-        .stage(basis, stage.clone())
+        // .stage(basis, stage.clone())
         .hub()?;
-    let out: Vec<f32> = gpu.reader(stage).mutator(mutator).hub()?.base().await?;
+    let out: Vec<f32> = gpu.reader(basis).stage(stage).mutator(mutator).hub()?.base().await?;
     assert_eq!(
         out,
         vec![

@@ -1,9 +1,10 @@
 use super::*;
 
 #[derive(Builder, Gate, Back, Debug)]
+#[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Grid {
-    count: Hub<u64>,
+    count: Hub<u32>,
     shape: Hub<Shape>,
 }
 

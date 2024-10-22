@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use super::*;
 
 #[derive(Builder, Clone, Debug)]
@@ -24,32 +26,38 @@ pub struct Shape {
 // }
 
 impl Shape {
-    pub async fn grid(&self, count: u64) -> graph::Result<Hub<Hedge>> {
+    pub async fn grid(&self, count: u32) -> graph::Result<Hub<Hedge>> {
         // let table = self.table.base().await?;
         // if let Table::Hedge(hedge) = table {
         //     let buffer = hedge.buffer.base().await?;
         //     let size = buffer.size() * count / 3;
         //     let basis = self.gpu.buffer(size).storage_copy()?;
-            if let Rule::Nurbs(order) = self.rule {
-                return self.nurbs_grid(order, count).await
-            }
+        if let Rule::Nurbs(order) = self.rule {
+            return self.nurbs_grid(order, count).await;
+        }
         // }
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
-    async fn nurbs_grid(&self, order: u64, count: u64) -> graph::Result<Hub<Hedge>> {
+    async fn nurbs_grid(&self, order: u32, count: u32) -> graph::Result<Hub<Hedge>> {
         let shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
+        // console_log!("count {count}");
         let config = self.gpu.buffer_uniform(&[order, count]);
         let table = self.table.base().await?;
         if let Table::Hedge(hedge) = table {
             let nurbs = hedge.buffer.base().await?;
-            let size = nurbs.size() * count / 3;
+            let size = nurbs.size() * (count as u64) / 3;
             let basis = self.gpu.buffer(size).storage_copy()?;
-            let nurbs_entry = self.gpu.storage(false).entry(0)?.compute()?;
+            let nurbs_entry = self.gpu.storage(true).entry(0)?.compute()?;
             let basis_entry = self.gpu.storage(false).entry(1)?.compute()?;
-            let config_entry = self.gpu.uniform().entry(2)?.compute()?;
+            let config_entry = self
+                .gpu
+                .uniform()
+                .min_binding_size(NonZero::new(8).unwrap())
+                .entry(2)?
+                .compute()?;
             let bind_layout = self
                 .gpu
-                .bind_layout(&[nurbs_entry, basis_entry,config_entry])
+                .bind_layout(&[nurbs_entry, basis_entry, config_entry])
                 .make()?;
             let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
             let pipe = shader.compute("main").layout(&pipe_layout).make()?;
@@ -69,7 +77,11 @@ impl Shape {
                 .bind(binder)
                 .count(count)
                 .hub()?;
-            return Ok(Hedge{buffer: basis.into(), mutator}.into());
+            return Ok(Hedge {
+                buffer: basis.into(),
+                mutator,
+            }
+            .into());
         }
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
@@ -77,7 +89,7 @@ impl Shape {
 
 #[derive(Clone, Debug)]
 pub enum Rule {
-    Nurbs(u64),
+    Nurbs(u32),
     Extrude,
     Revolve,
 }

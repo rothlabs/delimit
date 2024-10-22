@@ -21,26 +21,47 @@ async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
 #[wasm_bindgen_test]
 async fn nurbs() -> dom::Result<()> {
     let (gpu, _) = gpu_with_canvas().await?;
+    let count = 5;
+    let size = 9 * 4;
+    let storage = gpu.buffer(size).storage_copy()?;
+    let mutator = gpu
+        .writer(storage.clone())
+        ////////// 6 knots                      3 weights
+        .data(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])
+        .hub()?;
+    let hedge = Hedge {
+        buffer: storage.into(),
+        mutator,
+    };
     let shape = ShapeBuilder::default()
-        .gpu(gpu)
+        .gpu(gpu.clone())
         .rule(Rule::Nurbs(3))
-                                //knots                    weights
-        .table(Table::Array(vec![0., 0., 0., 1., 1., 1.,   1., 1., 1.].into()))
+        .table(Table::Hedge(hedge))
+        .control(Control::Shape(vec![]))
         .build()?;
-    let plot = plot::GridBuilder::default().shape(shape).count(4).hub()?;
-
-    let out: Vec<f32> = gpu.reader(stage).hub()?.base().await?;
+    let plot = plot::GridBuilder::default()
+        .shape(shape)
+        .count(count)
+        .hub()?
+        .base()
+        .await?;
+    let stage = gpu.buffer(count as u64 * size / 3).map_read()?;
+    let out: Vec<f32> = gpu
+        .reader(plot.buffer)
+        .mutator(plot.mutator)
+        .stage(stage)
+        .hub()?
+        .base()
+        .await?;
     assert_eq!(
         out,
         vec![
-            0.0, 0.06666667, 0.13333334, 0.20000002, 0.26666668, 0.33333334, 0.40000004, 0.4666667,
-            0.53333336, 0.6, 0.6666667, 0.73333335, 0.8000001, 0.86666673, 0.9333334, 1.0
+            1.0, 0.0, 0.0, 0.5625, 0.375, 0.0625, 0.25, 0.5, 0.25, 0.0625, 0.375, 0.5625, 0.0, 0.0,
+            1.0
         ]
     );
     Ok(())
 }
-
-
 
 // #[wasm_bindgen_test]
 // async fn nurbs() -> dom::Result<()> {

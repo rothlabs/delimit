@@ -130,10 +130,13 @@ impl Gpu {
     }
     pub fn buffer_uniform<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
-    }
+    } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
     pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
     }
+    // pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
+    //     self.buffer_init(data, BufferUsages::VERTEX)
+    // }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
     }
@@ -195,8 +198,8 @@ impl Gpu {
             .queue(self.queue.clone())
             .buffer(buffer)
     }
-    pub fn reader<T>(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
-        BufferReaderBuilder::default().buffer(buffer)
+    pub fn reader<T>(&self, storage: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
+        BufferReaderBuilder::default().gpu(self.clone()).storage(storage)
     }
     pub fn dispatcher(&self) -> DispatcherBuilder {
         DispatcherBuilder::default().gpu(self.clone())

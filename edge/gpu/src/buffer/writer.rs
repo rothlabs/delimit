@@ -12,18 +12,20 @@ pub struct BufferWriter<T> {
     data: Hub<Vec<T>>,
 }
 
-impl<T> Act for BufferWriter<T>
+impl<T> Solve for BufferWriter<T>
 where
     T: Pod + Debug,
 {
-    async fn act(&self) -> graph::Result<()> {
+    type Base = Mutation;
+    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         let buffer = self.buffer.base().await?;
         let offset = self.offset.base().await.unwrap_or_default();
         self.data
             .read(|data| {
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
-            .await
+            .await?;
+        Ok(Mutation{}.into())
     }
 }
 
