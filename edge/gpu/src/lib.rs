@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
@@ -17,6 +19,11 @@ use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
+
+// #[allow(unused_macros)]
+// macro_rules! console_log {
+//     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+// }
 
 mod bind;
 mod binder;
@@ -49,6 +56,21 @@ pub struct Mutation;
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
     pub mutator: Hub<Mutation>,
+}
+
+impl Hedge {
+    pub fn from_data<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self> 
+    where 
+        T: Pod + Debug
+    {
+        let size = data.len() as u64 * 4;
+        let buffer: Hub<Grc<Buffer>> = gpu.buffer(size).storage_copy()?.into();
+        let mutator = gpu.writer(buffer.clone()).data(data).hub()?;
+        Ok(Self {
+            buffer,
+            mutator,
+        })
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -215,6 +237,12 @@ impl Gpu {
     }
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())
+    }
+    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge> 
+    where 
+        T: Pod + Debug
+    {
+        Hedge::from_data(self.clone(), data)
     }
 }
 

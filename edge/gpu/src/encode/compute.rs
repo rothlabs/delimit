@@ -5,8 +5,8 @@ use super::*;
 #[builder(setter(into, strip_option))]
 pub struct Compute {
     gpu: Gpu,
-    #[builder(default)]
-    root: Option<Hub<Mutation>>,
+    #[builder(default, setter(each(name = "root", into)))]
+    roots: Vec<Hub<Mutation>>,
     #[builder(setter(each(name = "cmd", into)))]
     commands: Vec<Command>,
 }
@@ -26,7 +26,7 @@ impl ComputeBuilder {
 impl Solve for Compute {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
-        self.root.depend().await?;
+        self.roots.depend().await?;
         let mut encoder = self.gpu.encoder();
         {
             let mut pass = encoder.compute();
@@ -58,7 +58,7 @@ impl Adapt for Compute {
                 Command::Pipe(_) => Ok(())
             }?;
         }
-        self.root.back(back)
+        self.roots.back(back)
     }
 }
 

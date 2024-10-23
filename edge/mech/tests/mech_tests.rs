@@ -22,22 +22,16 @@ async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
 async fn nurbs() -> dom::Result<()> {
     let (gpu, _) = gpu_with_canvas().await?;
     let count = 5;
-    let size = 9 * 4;
-    let storage = gpu.buffer(size).storage_copy()?;
-    let mutator = gpu
-        .writer(storage.clone())
-        ////////// 6 knots                      3 weights
-        .data(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])
-        .hub()?;
-    let hedge = Hedge {
-        buffer: storage.into(),
-        mutator,
-    };
+    //                        6 knots                      3 weights
+    let plan = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
+    let index = gpu.hedge(vec![0_u32, 1, 2])?;
+    let control = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
     let shape = ShapeBuilder::default()
         .gpu(gpu.clone())
         .rule(Rule::Nurbs(3))
-        .plan(Table::Hedge(hedge))
-        .control(Control::Shape(vec![]))
+        .plan(plan)
+        .index(index)
+        .control(Control::Hedge(control))
         .build()?;
     let plot = plot::GridBuilder::default()
         .shape(shape)
@@ -45,7 +39,8 @@ async fn nurbs() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    let stage = gpu.buffer(count as u64 * size * 2 / 3).map_read()?;
+    let size = plot.buffer.base().await?.size();
+    let stage = gpu.buffer(size).map_read()?;
     let out: Vec<f32> = gpu
         .reader(plot.buffer)
         .mutator(plot.mutator)
@@ -55,13 +50,21 @@ async fn nurbs() -> dom::Result<()> {
         .await?;
     assert_eq!(
         out,
-        vec![
-            1.0, 0.0, 0.0, -2.0, 2.0, 0.0, 0.5625, 0.375, 0.0625, -1.5, 1.0, 0.5, 0.25, 0.5, 0.25,
-            -1.0, 0.0, 1.0, 0.0625, 0.375, 0.5625, -0.5, -1.0, 1.5, 0.0, 0.0, 1.0, 0.0, -2.0, 2.0
-        ]
+        vec![-1.5, -2.5, 4.0, 9.8, -0.56875, -0.45624995, 3.45, 6.55, 0.225, 0.77500004, 2.9, 3.3, 0.88124996, 1.19375, 2.35, 0.049999923, 1.4, 0.8, 1.8, -3.2000003]
     );
     Ok(())
 }
+
+// let plan_buffer = gpu.buffer(size).storage_copy()?;
+// let plan_writer = gpu
+//     .writer(plan_buffer.clone())
+//     ////////// 6 knots                      3 weights
+//     .data(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])
+//     .hub()?;
+// let plan = Hedge {
+//     buffer: plan_buffer.into(),
+//     mutator: plan_writer,
+// };
 
 // #[wasm_bindgen_test]
 // async fn nurbs() -> dom::Result<()> {
