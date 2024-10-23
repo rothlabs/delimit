@@ -27,17 +27,18 @@ fn main(
 
     // index
     let strip_index = global.x / count;
-    let block_index = (strip_index / stride) * order;
+    let block_index = strip_index / stride;
     let local_index = strip_index % stride;
-    let basis_index = block_index * count + (global.x % count) * order * 2;
+    let basis_index = (block_index * count + (global.x % count)) * order * 2;
     let plot_index = global.x * dimension * 2;
+    let idx = block_index * order;
     
     // matrix multiplication
     for (var d = 0u; d < dimension; d++) {
         plot[plot_index + d] = 0.;
         for (var o = 0u; o < order; o++) {
-            let control_index = index[block_index + o] * stride + local_index;
-            let basis0 = basis[basis_index + o * stride];
+            let control_index = (index[idx + o] * stride + local_index) * dimension;
+            let basis0 = basis[basis_index + o]; // basis_index + o * stride
             let control0 = control[control_index + d];
             plot[plot_index + d] += basis0 * control0;
         }
