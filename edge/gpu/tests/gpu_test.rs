@@ -179,7 +179,7 @@ async fn index_fraction() -> dom::Result<()> {
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
-    let config = gpu.buffer_uniform().unit(count).hub()?;
+    let config = gpu.buffer_uniform().field(count).hub()?;
     let basis = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
     let config_entry = gpu.uniform().entry(0)?.compute()?;

@@ -7,7 +7,7 @@ use super::*;
 pub struct Shape {
     gpu: Gpu,
     #[builder(default = "2")]
-    dimension: u8,
+    dimension: u32,
     rule: Rule,
     plan: Table,
     control: Control,
@@ -37,7 +37,7 @@ impl Shape {
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
     fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hub<Hedge>> {
-        let setup = self.gpu.buffer_uniform().unit(order).unit(count.clone()).hub()?;
+        let setup = self.gpu.buffer_uniform().field(order).field(count.clone()).hub()?;
         if let Table::Hedge(plan) = &self.plan {
             let basis = self.gpu.sizer(plan.buffer.clone()).mul(count.clone()).mul(2).div(3).hub()?;
             let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
@@ -58,7 +58,8 @@ impl Shape {
                 .entry(1, plan.buffer.clone())
                 .entry(2, basis.clone())
                 .hub()?;
-            let basis_computer = self
+
+            let mutator = self
                 .gpu
                 .compute()
                 .root(plan.mutator.clone())
@@ -66,13 +67,26 @@ impl Shape {
                 .bind(bind)
                 .dispatch(count)
                 .hub()?;
+            match self.control {
+                Control::Shape(shapes) => {
+
+                },
+                Control::Table(table) => {
+                    match table {
+                        Table::Array(array) => panic!("not implemented"),
+                        Table::Hedge(hedge) => {
+
+                        }
+                    }
+                }
+            }
             // let transform_dispatcher = self
             //     .gpu
             //     .computer()
             //     .mutator(basis_dispatcher)
             return Ok(Hedge {
                 buffer: basis,
-                mutator: basis_computer,
+                mutator,
             }
             .into());
         }

@@ -15,10 +15,3 @@ impl Solve for Grid {
         shape.grid(self.count.clone())
     }
 }
-
-// impl Adapt for Grid {
-//     fn back(&mut self, back: &Back) -> graph::Result<()> {
-//         self.shape.back(back)?;
-//         self.count.back(back)
-//     }
-// }

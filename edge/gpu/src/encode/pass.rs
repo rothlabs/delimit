@@ -1,31 +1,31 @@
 use super::*;
 use std::ops::Range;
 
-pub struct Compute<'a>(
-    ComputePass<'a>, // encoder: Encoder<'a>,
-);
+// pub struct Compute<'a>(
+//     ComputePass<'a>, // encoder: Encoder<'a>,
+// );
 
-impl<'a> Compute<'a> {
-    pub fn new(pass: ComputePass<'a>) -> Self {
-        Self(pass)
-    }
-    pub fn pipe(mut self, pipeline: &ComputePipeline) -> Self {
-        self.0.set_pipeline(pipeline);
-        self
-    }
-    pub fn bind(mut self, index: u32, bind_group: &BindGroup, offsets: &[u32]) -> Self {
-        self.0.set_bind_group(index, bind_group, offsets);
-        self
-    }
-    pub fn debug(mut self, label: &str) -> Self {
-        self.0.insert_debug_marker(label);
-        self
-    }
-    pub fn dispatch(mut self, x: u32, y: u32, z: u32) -> Self {
-        self.0.dispatch_workgroups(x, y, z);
-        self
-    }
-}
+// impl<'a> Compute<'a> {
+//     pub fn new(pass: ComputePass<'a>) -> Self {
+//         Self(pass)
+//     }
+//     pub fn pipe(mut self, pipeline: &ComputePipeline) -> Self {
+//         self.0.set_pipeline(pipeline);
+//         self
+//     }
+//     pub fn bind(mut self, index: u32, bind_group: &BindGroup, offsets: &[u32]) -> Self {
+//         self.0.set_bind_group(index, bind_group, offsets);
+//         self
+//     }
+//     pub fn debug(mut self, label: &str) -> Self {
+//         self.0.insert_debug_marker(label);
+//         self
+//     }
+//     pub fn dispatch(mut self, x: u32, y: u32, z: u32) -> Self {
+//         self.0.dispatch_workgroups(x, y, z);
+//         self
+//     }
+// }
 
 pub struct Render<'a>(RenderPass<'a>);
 

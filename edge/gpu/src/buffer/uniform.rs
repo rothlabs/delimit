@@ -6,8 +6,8 @@ use super::*;
 #[builder(setter(into))]
 pub struct BufferUniform<T> {
     gpu: Gpu,
-    #[builder(setter(each(name = "unit", into)))]
-    units: Vec<Hub<T>>,
+    #[builder(setter(each(name = "field", into)))]
+    fields: Vec<Hub<T>>,
 }
 
 impl<T> Solve for BufferUniform<T> 
@@ -17,7 +17,7 @@ where
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let mut data = vec![];
-        for unit in &self.units {
+        for unit in &self.fields {
             data.push(unit.base().await?);
         }
         //let buffer = self.gpu.buffer_uniform(&data).into();
@@ -31,6 +31,6 @@ where
     T: 'static + Clone,
 {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.units.back(back)
+        self.fields.back(back)
     }
 }

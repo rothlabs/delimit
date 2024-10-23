@@ -25,7 +25,7 @@ fn main(
     let parameter = f32(plot_index) / f32(setup.count - 1);
     let knot_index = row + degree;
     let weight_index = row + row_len - 1;
-    let basis_index = (plan_index + plot_index) * order * 2 + degree;
+    let basis_index = global.x * order * 2 + degree;
 
     // basis reset [0., 0., 0., ..., 1.]
     basis[basis_index] = 1.;
