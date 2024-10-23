@@ -65,11 +65,18 @@ async fn draw_triangle() -> dom::Result<()> {
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
     // render:
     let view = surface.view();
-    let attachments = gpu.attachment(&view).list()?;
-    let pass = gpu.render_pass(&attachments).make()?;
-    let mut encoder = gpu.encoder();
-    encoder.render(&pass).pipe(&pipe).draw(0..3, 0..1);
-    encoder.submit();
+    gpu.commander()
+        .texture_view(view)
+        .render(pipe)
+        .draw(0..3, 0..1)
+        .hub()?
+        .base()
+        .await?;
+    // let attachments = gpu.attachment(&view).list()?;
+    // let pass = gpu.render_pass(&attachments).make()?;
+    // let mut encoder = gpu.encoder();
+    // encoder.render(&pass).pipe(&pipe).draw(0..3, 0..1);
+    // encoder.submit();
     Ok(())
 }
 
@@ -90,17 +97,26 @@ async fn draw_lines() -> dom::Result<()> {
         .fragment(fragment)
         .primitive(prim)
         .make()?;
+    // TODO: make buffer_vertex return Hub<Grc<Buffer>>
     let buffer = gpu.buffer_vertex(&line_data());
     let view = surface.view();
-    let attachments = gpu.attachment(&view).list()?;
-    let pass = gpu.render_pass(&attachments).make()?;
-    let mut encoder = gpu.encoder();
-    encoder
-        .render(&pass)
-        .pipe(&pipe)
-        .vertex(0, buffer.slice(..))
-        .draw(0..4, 0..1);
-    encoder.submit();
+    gpu.commander()
+        .texture_view(view)
+        .render(pipe)
+        .vertex(0, buffer)
+        .draw(0..4, 0..1)
+        .hub()?
+        .base()
+        .await?;
+    // let attachments = gpu.attachment(&view).list()?;
+    // let pass = gpu.render_pass(&attachments).make()?;
+    // let mut encoder = gpu.encoder();
+    // encoder
+    //     .render(&pass)
+    //     .pipe(&pipe)
+    //     .vertex(0, buffer.slice(..))
+    //     .draw(0..4, 0..1);
+    // encoder.submit();
     Ok(())
 }
 
@@ -124,15 +140,15 @@ async fn draw_msaa_lines() -> dom::Result<()> {
     let buffer = gpu.buffer_vertex(&line_data());
     let view = surface.view();
     let texture_view = surface.texture().sample_count(4).view()?;
-    let attachments = gpu.attachment(&texture_view).resolve_target(&view).list()?;
-    let pass = gpu.render_pass(&attachments).make()?;
-    let mut encoder = gpu.encoder();
-    encoder
-        .render(&pass)
-        .pipe(&pipe)
-        .vertex(0, buffer.slice(..))
-        .draw(0..4, 0..1);
-    encoder.submit();
+    gpu.commander()
+        .texture_view(texture_view)
+        .resolve_target(view)
+        .render(pipe)
+        .vertex(0, buffer)
+        .draw(0..4, 0..1)
+        .hub()?
+        .base()
+        .await?;
     Ok(())
 }
 
@@ -156,8 +172,8 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .base()
         .await?;
     let mutator = gpu
-        .compute()
-        .pipe(pipe)
+        .commander()
+        .compute(pipe)
         .bind(bind)
         .dispatch(9)
         // .stage(storage, stage.clone())
@@ -165,7 +181,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let out = gpu
         .reader::<u32>(storage)
         .stage(stage)
-        .mutator(mutator)
+        .root(mutator)
         .hub()?
         .base()
         .await?;
@@ -202,13 +218,19 @@ async fn index_fraction() -> dom::Result<()> {
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let mutator = gpu
-        .compute()
-        .pipe(pipe)
+        .commander()
+        .compute(pipe)
         .bind(bind)
         .dispatch(count)
         // .stage(basis, stage.clone())
         .hub()?;
-    let out: Vec<f32> = gpu.reader(basis).stage(stage).mutator(mutator).hub()?.base().await?;
+    let out: Vec<f32> = gpu
+        .reader(basis)
+        .stage(stage)
+        .root(mutator)
+        .hub()?
+        .base()
+        .await?;
     assert_eq!(
         out,
         vec![

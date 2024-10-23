@@ -34,7 +34,7 @@ impl Solve for Binder {
         if let Some(layout) = &self.layout {
             bind = bind.layout(layout);
         } else if let Some(pipe) = &self.pipe {
-            bind = bind.pipe(&pipe);
+            bind = bind.pipe(pipe);
         }
         Ok(bind.make()?.into())
     }

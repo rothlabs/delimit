@@ -55,21 +55,18 @@ pub struct Mutation;
 #[derive(Clone, Debug)]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
-    pub mutator: Hub<Mutation>,
+    pub root: Hub<Mutation>,
 }
 
 impl Hedge {
-    pub fn from_data<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self> 
-    where 
-        T: Pod + Debug
+    pub fn from_data<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self>
+    where
+        T: Pod + Debug,
     {
         let size = data.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = gpu.buffer(size).storage_copy()?.into();
-        let mutator = gpu.writer(buffer.clone()).data(data).hub()?;
-        Ok(Self {
-            buffer,
-            mutator,
-        })
+        let root = gpu.writer(buffer.clone()).data(data).hub()?;
+        Ok(Self { buffer, root })
     }
 }
 
@@ -135,25 +132,20 @@ impl Gpu {
             // .queue(self.queue.clone())
             .size(size)
     }
-    fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> { // NoUninit
-        let inner = self
+    fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
+        self
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Uniform Buffer"),
                 contents: bytemuck::cast_slice(data),
-                usage, //: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
-            });
-        inner.into()
-        // Buffer {
-        //     inner: inner.into(),
-        //     queue: self.queue.clone(),
-        //     // mutator: None,
-        // }
+                usage,
+            }).into()
     }
     // pub fn buffer_uniform<T: Pod>(&self, data: &[T]) -> Grc<Buffer> { // NoUninit
     //     self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
     // } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
-    pub fn buffer_uniform<T: Pod>(&self) -> BufferUniformBuilder<T> { // NoUninit
+    pub fn buffer_uniform<T: Pod>(&self) -> BufferUniformBuilder<T> {
+        // NoUninit
         BufferUniformBuilder::default().gpu(self.clone())
     } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
     pub fn buffer_vertex<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
@@ -224,23 +216,22 @@ impl Gpu {
             .buffer(buffer)
     }
     pub fn reader<T>(&self, storage: impl Into<Hub<Grc<Buffer>>>) -> BufferReaderBuilder<T> {
-        BufferReaderBuilder::default().gpu(self.clone()).storage(storage)
+        BufferReaderBuilder::default()
+            .gpu(self.clone())
+            .storage(storage)
     }
     pub fn sizer(&self, root: impl Into<Hub<Grc<Buffer>>>) -> BufferSizerBuilder {
         BufferSizerBuilder::default().gpu(self.clone()).root(root)
     }
-    // pub fn dispatcher(&self, pipe: Grc<ComputePipeline>) -> ComputerBuilder {
-    //     ComputerBuilder::default().gpu(self.clone()).pipe(pipe)
-    // }
-    pub fn compute(&self) -> encode::ComputeBuilder {
-        encode::ComputeBuilder::default().gpu(self.clone())
+    pub fn commander(&self) -> encode::CommandBuilder {
+        encode::CommandBuilder::default().gpu(self.clone())
     }
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())
     }
-    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge> 
-    where 
-        T: Pod + Debug
+    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge>
+    where
+        T: Pod + Debug,
     {
         Hedge::from_data(self.clone(), data)
     }

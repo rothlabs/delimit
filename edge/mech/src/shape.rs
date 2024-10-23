@@ -71,9 +71,9 @@ impl Shape {
             .hub()?;
         let compute = self
             .gpu
-            .compute()
-            .root(self.plan.mutator.clone())
-            .pipe(pipe)
+            .commander()
+            .root(self.plan.root.clone())
+            .compute(pipe)
             .bind(bind)
             .dispatch(count.clone());
         match &self.control {
@@ -128,16 +128,16 @@ impl Shape {
                     .entry(4, plot.clone())
                     .hub()?;
                 let mutator = compute
-                    .root(self.index.mutator.clone())
-                    .root(control.mutator.clone())
-                    .pipe(pipe)
+                    .root(self.index.root.clone())
+                    .root(control.root.clone())
+                    .compute(pipe)
                     .bind(bind)
                     .dispatch(count.clone())
                     .hub()?;
-                return Ok(Hedge {
+                Ok(Hedge {
                     buffer: plot,
-                    mutator,
-                });
+                    root: mutator,
+                })
             }
         }
         // Err(anyhow!("grid plot not implemented for this shape"))?

@@ -1,5 +1,5 @@
-use std::fmt::Debug;
 use super::*;
+use std::fmt::Debug;
 
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
@@ -10,7 +10,7 @@ pub struct BufferUniform<T> {
     fields: Vec<Hub<T>>,
 }
 
-impl<T> Solve for BufferUniform<T> 
+impl<T> Solve for BufferUniform<T>
 where
     T: Pod + Debug,
 {
@@ -21,12 +21,15 @@ where
             data.push(unit.base().await?);
         }
         //let buffer = self.gpu.buffer_uniform(&data).into();
-        let buffer = self.gpu.buffer_init(&data, BufferUsages::UNIFORM | BufferUsages::COPY_DST).into();
+        let buffer = self
+            .gpu
+            .buffer_init(&data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
+            .into();
         Ok(buffer)
     }
 }
 
-impl<T> Adapt for BufferUniform<T> 
+impl<T> Adapt for BufferUniform<T>
 where
     T: 'static + Clone,
 {

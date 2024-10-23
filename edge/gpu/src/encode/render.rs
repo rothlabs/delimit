@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Render<'a> {
     #[builder(default)]
@@ -17,7 +17,7 @@ pub struct Render<'a> {
 }
 
 impl<'a> RenderBuilder<'a> {
-    pub fn make(self) -> Result<RenderPassDescriptor<'a>> {
+    pub fn make(self) -> graph::Result<RenderPassDescriptor<'a>> {
         let built = self.build()?;
         let descriptor = RenderPassDescriptor {
             label: built.label,
@@ -32,7 +32,7 @@ impl<'a> RenderBuilder<'a> {
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct ColorAttachment<'a> {
     view: &'a TextureView,
@@ -41,7 +41,7 @@ pub struct ColorAttachment<'a> {
 }
 
 impl<'a> ColorAttachmentBuilder<'a> {
-    pub fn make(self) -> Result<RenderPassColorAttachment<'a>> {
+    pub fn make(self) -> graph::Result<RenderPassColorAttachment<'a>> {
         let built = self.build()?;
         let state = RenderPassColorAttachment {
             view: built.view,
@@ -53,7 +53,7 @@ impl<'a> ColorAttachmentBuilder<'a> {
         };
         Ok(state)
     }
-    pub fn list(self) -> Result<[Option<RenderPassColorAttachment<'a>>; 1]> {
+    pub fn list(self) -> graph::Result<[Option<RenderPassColorAttachment<'a>>; 1]> {
         Ok([Some(self.make()?); 1])
     }
 }

@@ -5,7 +5,7 @@ use super::*;
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
     gpu: Gpu,
-    mutator: Hub<Mutation>,
+    root: Hub<Mutation>,
     storage: Hub<Grc<Buffer>>,
     stage: Hub<Grc<Buffer>>,
     #[builder(default)]
@@ -18,10 +18,11 @@ where
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
-        self.mutator.base().await?;
+        self.root.base().await?;
         let storage = self.storage.base().await?;
         let stage = self.stage.base().await?;
-        self.gpu.encoder()
+        self.gpu
+            .encoder()
             .copy_buffer(&storage)
             .destination(&stage)
             .size(stage.size())
@@ -40,7 +41,7 @@ where
 
 impl<T> Adapt for BufferReader<T> {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.mutator.back(back)?;
+        self.root.back(back)?;
         self.storage.back(back)?;
         self.stage.back(back)
     }

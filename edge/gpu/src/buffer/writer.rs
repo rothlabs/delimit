@@ -25,7 +25,7 @@ where
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
             .await?;
-        Ok(Mutation{}.into())
+        Ok(Mutation {}.into())
     }
 }
 

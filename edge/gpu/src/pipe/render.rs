@@ -27,7 +27,7 @@ pub struct Render<'a> {
 }
 
 impl RenderBuilder<'_> {
-    pub fn make(self) -> Result<RenderPipeline> {
+    pub fn make(self) -> Result<Grc<RenderPipeline>> {
         let built = self.build()?;
         let descriptor = RenderPipelineDescriptor {
             label: built.label,
@@ -41,7 +41,7 @@ impl RenderBuilder<'_> {
             cache: built.cache,
         };
         let value = built.device.create_render_pipeline(&descriptor);
-        Ok(value)
+        Ok(value.into())
     }
 }
 

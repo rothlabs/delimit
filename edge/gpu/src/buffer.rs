@@ -1,14 +1,14 @@
 pub use reader::*;
-pub use writer::*;
 pub use sizer::*;
 pub use uniform::*;
+pub use writer::*;
 
 use super::*;
 
 mod reader;
-mod writer;
 mod sizer;
 mod uniform;
+mod writer;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
@@ -44,70 +44,3 @@ impl BufferSetupBuilder<'_> {
             .make()
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Ok(Buffer {
-//     inner: buffer.into(),
-//     queue: built.queue,
-//     // mutator: None
-// })
-
-// /// TODO: make separate BufferView that holds this Buffer and Mutators
-// #[derive(Clone, Debug)]
-// pub struct Buffer {
-//     pub inner: Grc<wgpu::Buffer>,
-//     pub queue: Grc<wgpu::Queue>,
-//     // pub mutator: Option<Hub<Mutation>>,
-// }
-
-// impl Buffer {
-//     // pub async fn depend(&self) -> graph::Result<Mutation> {
-//     //     if let Some(mutator) = &self.mutator {
-//     //         mutator.base().await
-//     //     } else {
-//     //         Ok(Mutation)
-//     //     }
-//     // }
-//     pub fn inner(&self) -> Grc<wgpu::Buffer> {
-//         self.inner.clone()
-//     }
-//     // pub fn inner(&self) -> Grc<wgpu::Buffer> {
-//     //     self.inner.clone()
-//     // }
-//     pub fn resource(&self) -> BindingResource {
-//         self.inner.as_entire_binding()
-//     }
-//     pub fn writer<T>(&self, data: impl Into<Hub<Vec<T>>>) -> BufferWriterBuilder<T> {
-//         BufferWriterBuilder::default()
-//             .queue(self.queue.clone())
-//             .buffer(self.clone())
-//             .data(data)
-//     }
-//     pub fn reader<T>(&self) -> BufferReaderBuilder<T> {
-//         BufferReaderBuilder::default().buffer(self.clone())
-//     }
-// }
-
-// impl Deref for Buffer {
-//     type Target = wgpu::Buffer;
-//     fn deref(&self) -> &Self::Target {
-//         &self.inner
-//     }
-// }
