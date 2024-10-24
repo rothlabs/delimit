@@ -49,18 +49,6 @@ pub struct Hedge {
     pub root: Hub<Mutation>,
 }
 
-impl Hedge {
-    pub fn new<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self>
-    where
-        T: Pod + Debug,
-    {
-        let size = data.len() as u64 * 4;
-        let buffer: Hub<Grc<Buffer>> = gpu.buffer(size).storage_copy()?.into();
-        let root = gpu.writer(buffer.clone()).data(data).hub()?;
-        Ok(Self { buffer, root })
-    }
-}
-
 #[derive(Clone, Debug)]
 pub enum Table {
     Hedge(Hedge),
@@ -213,13 +201,33 @@ impl Gpu {
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())
     }
-    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge>
+    pub async fn hedge<T>(&self, size: u64, data: impl Into<Hub<Vec<T>>>) -> graph::Result<Hedge>
     where
         T: Pod + Debug,
     {
-        Hedge::new(self.clone(), data)
+        let data = data.into();
+        // let size = data.base().await?.len() as u64 * 4;
+        let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage_copy()?.into();
+        let root = self.writer(buffer.clone()).data(data).hub()?;
+        Ok(Hedge { buffer, root })
+        // Hedge::new(self.clone(), data)
     }
 }
+
+// impl Hedge {
+//     pub async fn new<T>(gpu: Gpu, data: impl Into<Hub<Vec<T>>>) -> graph::Result<Self>
+//     where
+//         T: Pod + Debug,
+//     {
+//         let data = data.into();
+//         let size = data.base().await?.len() as u64 * 4;
+//         let buffer: Hub<Grc<Buffer>> = gpu.buffer(size).storage_copy()?.into();
+//         let root = gpu.writer(buffer.clone()).data(data).hub()?;
+//         Ok(Self { buffer, root })
+//     }
+// }
+
+
 
 // #[derive(ThisError, Debug)]
 // pub enum Error {

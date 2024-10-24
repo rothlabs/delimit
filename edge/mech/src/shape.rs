@@ -67,7 +67,7 @@ impl Shape {
                     .field(count.clone())
                     .field(stride)
                     .field(self.dimension)
-                    .make()?;
+                    .make().await?;
                 let plot = self
                     .gpu
                     .blank(basis.clone())

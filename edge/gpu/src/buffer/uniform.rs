@@ -14,13 +14,14 @@ impl<T> UniformBuilder<T>
 where 
     T: Pod + Debug
 {
-    pub fn make(self) -> graph::Result<Hedge> {
+    pub async fn make(self) -> graph::Result<Hedge> {
         let build = self.build()?;
-        let size = build.fields.len() as u64 * 4;
-        let buffer = build.gpu.buffer(size).uniform()?;
+        // let size = build.fields.len() as u64 * 4;
+        // let buffer = build.gpu.buffer(size).uniform()?;
         let vector = VectorBuilder::default().fields(build.fields).hub()?;
-        let root = build.gpu.writer(buffer.clone()).data(vector).hub()?;
-        Ok(Hedge { buffer: buffer.into(), root })
+        build.gpu.hedge(vector, build.fields.len() as u64 * 4)
+        // let root = build.gpu.writer(buffer.clone()).data(vector).hub()?;
+        // Ok(Hedge { buffer: buffer.into(), root })
     }
 }
 
