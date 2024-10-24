@@ -171,7 +171,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    let mutator = gpu
+    let collatz = gpu
         .commander()
         .compute(pipe)
         .bind(bind)
@@ -181,7 +181,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let out = gpu
         .reader::<u32>(storage)
         .stage(stage)
-        .root(mutator)
+        .root(collatz)
         .hub()?
         .base()
         .await?;
@@ -217,7 +217,7 @@ async fn index_fraction() -> dom::Result<()> {
         .hub()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-    let mutator = gpu
+    let index_compute = gpu
         .commander()
         .compute(pipe)
         .bind(bind)
@@ -227,7 +227,7 @@ async fn index_fraction() -> dom::Result<()> {
     let out: Vec<f32> = gpu
         .reader(basis)
         .stage(stage)
-        .root(mutator)
+        .root(index_compute)
         .hub()?
         .base()
         .await?;

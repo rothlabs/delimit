@@ -46,15 +46,3 @@ impl<T> Adapt for BufferReader<T> {
         self.stage.back(back)
     }
 }
-
-// staging: Option<Hub<Grc<Buffer>>>,
-
-// impl<T> BufferReaderBuilder<T> {
-//     pub fn stage(
-//         self,
-//         storage: impl Into<Hub<Grc<Buffer>>>,
-//         stage: impl Into<Hub<Grc<Buffer>>>,
-//     ) -> Self {
-//         self.staging((storage.into(), stage.into()))
-//     }
-// }

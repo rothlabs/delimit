@@ -20,7 +20,6 @@ where
         for unit in &self.fields {
             data.push(unit.base().await?);
         }
-        //let buffer = self.gpu.buffer_uniform(&data).into();
         let buffer = self
             .gpu
             .buffer_init(&data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)

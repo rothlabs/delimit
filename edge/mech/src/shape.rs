@@ -6,6 +6,7 @@ use super::*;
 #[builder(setter(into, strip_option))]
 pub struct Shape {
     gpu: Gpu,
+    mech: Mech,
     #[builder(default = "2")]
     dimension: u32,
     rule: Rule,
@@ -38,16 +39,16 @@ impl Shape {
         Err(anyhow!("grid plot not implemented for this shape"))?
     }
     fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
-        let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
-        let plan_entry = self.gpu.storage(true).entry(1)?.compute()?;
-        let basis_entry = self.gpu.storage(false).entry(2)?.compute()?;
-        let bind_layout = self
-            .gpu
-            .bind_layout(&[setup_entry, plan_entry, basis_entry])
-            .make()?;
-        let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
-        let shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
-        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        // let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
+        // let plan_entry = self.gpu.storage(true).entry(1)?.compute()?;
+        // let basis_entry = self.gpu.storage(false).entry(2)?.compute()?;
+        // let bind_layout = self
+        //     .gpu
+        //     .bind_layout(&[setup_entry, plan_entry, basis_entry])
+        //     .make()?;
+        // let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
+        // let shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
+        // let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let setup = self
             .gpu
             .buffer_uniform()
@@ -64,7 +65,7 @@ impl Shape {
         let bind = self
             .gpu
             .binder()
-            .layout(bind_layout)
+            .layout(self.mech.programs.nurbs_grid.layout.clone())
             .entry(0, setup)
             .entry(1, self.plan.buffer.clone())
             .entry(2, basis.clone())
@@ -73,7 +74,7 @@ impl Shape {
             .gpu
             .commander()
             .root(self.plan.root.clone())
-            .compute(pipe)
+            .compute(self.mech.programs.nurbs_grid.pipe.clone())
             .bind(bind)
             .dispatch(count.clone());
         match &self.control {
@@ -98,10 +99,10 @@ impl Shape {
                         plot_entry,
                     ])
                     .make()?;
-                let stride = 1;
                 let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
                 let shader = self.gpu.shader(include_wgsl!("plot/control_matrix.wgsl"));
                 let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+                let stride = 1;
                 let setup = self
                     .gpu
                     .buffer_uniform()
@@ -127,7 +128,7 @@ impl Shape {
                     .entry(3, control.buffer.clone())
                     .entry(4, plot.clone())
                     .hub()?;
-                let mutator = compute
+                let root = compute
                     .root(self.index.root.clone())
                     .root(control.root.clone())
                     .compute(pipe)
@@ -136,7 +137,7 @@ impl Shape {
                     .hub()?;
                 Ok(Hedge {
                     buffer: plot,
-                    root: mutator,
+                    root,
                 })
             }
         }
