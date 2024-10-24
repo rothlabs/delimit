@@ -1,0 +1,9 @@
+[package]
+name = "star"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+    derive_builder = "0.20.1"
+    graph = { path = "../graph" }
+    node_derive = {path = "../node_derive"}

@@ -17,6 +17,8 @@ where
 {
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
+        // let vector = VectorBuilder::default();
+
         let mut data = vec![];
         for unit in &self.fields {
             data.push(unit.base().await?);

@@ -75,7 +75,6 @@ mod scope;
 #[cfg(test)]
 mod tests;
 mod tray;
-// mod view;
 
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;

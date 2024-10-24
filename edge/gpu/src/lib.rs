@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
@@ -18,6 +16,8 @@ use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
+use std::fmt::Debug;
+use star::*;
 
 mod bind;
 mod binder;

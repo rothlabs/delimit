@@ -11,6 +11,7 @@ edition = "2021"
     flume = "0.11.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     node_derive = { path = "../../core/node_derive" }
+    star = { path = "../../core/star" }
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
