@@ -28,7 +28,12 @@ impl Shape {
         }
     }
     fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
-        let rig = self.gpu.uniform().field(order).field(count.clone()).make()?;
+        let rig = self
+            .gpu
+            .uniform()
+            .field(order)
+            .field(count.clone())
+            .make()?;
         let basis = self
             .gpu
             .blank(self.span.buffer.clone())
@@ -67,7 +72,7 @@ impl Shape {
                     .field(count.clone())
                     .field(stride)
                     .field(self.dimension)
-                    .make().await?;
+                    .make()?;
                 let plot = self
                     .gpu
                     .blank(basis.clone())

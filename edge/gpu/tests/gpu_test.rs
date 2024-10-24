@@ -155,12 +155,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    let collatz = gpu
-        .command()
-        .compute(pipe)
-        .bind(bind)
-        .dispatch(9)
-        .hub()?;
+    let collatz = gpu.command().compute(pipe).bind(bind).dispatch(9).hub()?;
     let out = gpu
         .reader::<u32>(storage)
         .root(collatz)

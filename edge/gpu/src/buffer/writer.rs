@@ -38,9 +38,6 @@ where
     }
 }
 
-
-
-
 // let size = NonZero::new(buffer.size()).unwrap();
 //                 let mut view = self.queue.write_buffer_with(&buffer, offset, size);
 //                 if let Some(view) = &mut view {

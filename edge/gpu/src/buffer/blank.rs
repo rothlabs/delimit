@@ -33,3 +33,9 @@ impl Adapt for Blank {
         self.divs.back(back)
     }
 }
+
+// #[derive(Clone, Debug)]
+// enum SizeRoot<T> {
+//     Buffer(Hub<Grc<Buffer>>),
+//     Vector(Hub<Vec<T>>),
+// }

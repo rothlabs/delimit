@@ -12,7 +12,7 @@ pub struct BufferReader<T> {
     phantom: std::marker::PhantomData<T>,
 }
 
-impl<T> BufferReaderBuilder<T> 
+impl<T> BufferReaderBuilder<T>
 where
     T: 'static + Clone + Debug,
     BufferReader<T>: Solve,

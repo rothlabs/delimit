@@ -12,12 +12,12 @@ use graph::*;
 use node_derive::*;
 use pipe::*;
 use shader::*;
+use star::*;
+use std::fmt::Debug;
 use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-use std::fmt::Debug;
-use star::*;
 
 mod bind;
 mod binder;
@@ -47,12 +47,6 @@ pub struct Mutation;
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
     pub root: Hub<Mutation>,
-}
-
-#[derive(Clone, Debug)]
-pub enum Table {
-    Hedge(Hedge),
-    Array(Hub<Vec<f64>>),
 }
 
 #[derive(Clone, Debug)]
@@ -201,18 +195,22 @@ impl Gpu {
     pub fn binder(&self) -> BinderBuilder {
         BinderBuilder::default().gpu(self.clone())
     }
-    pub async fn hedge<T>(&self, size: u64, data: impl Into<Hub<Vec<T>>>) -> graph::Result<Hedge>
+    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge>
     where
         T: Pod + Debug,
     {
-        let data = data.into();
-        // let size = data.base().await?.len() as u64 * 4;
+        let size = data.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage_copy()?.into();
         let root = self.writer(buffer.clone()).data(data).hub()?;
         Ok(Hedge { buffer, root })
-        // Hedge::new(self.clone(), data)
     }
 }
+
+// #[derive(Clone, Debug)]
+// pub enum Table {
+//     Hedge(Hedge),
+//     Array(Hub<Vec<f64>>),
+// }
 
 // impl Hedge {
 //     pub async fn new<T>(gpu: Gpu, data: impl Into<Hub<Vec<T>>>) -> graph::Result<Self>
@@ -226,8 +224,6 @@ impl Gpu {
 //         Ok(Self { buffer, root })
 //     }
 // }
-
-
 
 // #[derive(ThisError, Debug)]
 // pub enum Error {
