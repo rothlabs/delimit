@@ -49,14 +49,15 @@ impl Shape {
             .entry(1, self.span.buffer.clone())
             .entry(2, basis.clone())
             .hub()?;
-        let command = self
+        let nurbs = self
             .gpu
             .command()
             .root(rig.root)
             .root(self.span.root.clone())
             .compute(self.mech.grid.basis.nurbs.pipe.clone())
             .bind(bind)
-            .dispatch(count.clone());
+            .dispatch(count.clone())
+            .hub()?;
         match &self.control {
             Control::Shape(shapes) => {
                 let shape = shapes.first().unwrap();
@@ -73,7 +74,7 @@ impl Shape {
                     .field(stride)
                     .field(self.dimension)
                     .make()?;
-                let plot = self
+                let buffer = self
                     .gpu
                     .blank(basis.clone())
                     .mul(self.dimension)
@@ -88,9 +89,12 @@ impl Shape {
                     .entry(1, basis)
                     .entry(2, self.index.buffer.clone())
                     .entry(3, control.buffer.clone())
-                    .entry(4, plot.clone())
+                    .entry(4, buffer.clone())
                     .hub()?;
-                let root = command
+                let root = self
+                    .gpu
+                    .command()
+                    .root(nurbs)
                     .root(rig.root)
                     .root(self.index.root.clone())
                     .root(control.root.clone())
@@ -98,7 +102,7 @@ impl Shape {
                     .bind(bind)
                     .dispatch(count.clone())
                     .hub()?;
-                Ok(Hedge { buffer: plot, root })
+                Ok(Hedge { buffer, root })
             }
         }
         // Err(anyhow!("grid plot not implemented for this shape"))?
