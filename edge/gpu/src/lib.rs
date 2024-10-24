@@ -9,7 +9,7 @@ use bind::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
 use graph::*;
-use node_derive::Gate;
+use node_derive::*;
 use pipe::*;
 use shader::*;
 use texture::*;
@@ -27,9 +27,6 @@ mod pipe;
 mod shader;
 mod surface;
 mod texture;
-
-#[macro_use]
-extern crate macro_rules_attribute;
 
 #[derive(ThisError, Debug)]
 pub enum Error {

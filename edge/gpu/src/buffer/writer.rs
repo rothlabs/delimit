@@ -4,7 +4,7 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct BufferWriter<T> {
-    queue: Grc<wgpu::Queue>,
+    queue: Grc<Queue>,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default)]
     offset: Hub<u64>,
@@ -37,6 +37,9 @@ where
         self.data.back(back)
     }
 }
+
+
+
 
 // let size = NonZero::new(buffer.size()).unwrap();
 //                 let mut view = self.queue.write_buffer_with(&buffer, offset, size);

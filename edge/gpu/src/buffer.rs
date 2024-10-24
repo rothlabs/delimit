@@ -43,4 +43,8 @@ impl BufferRigBuilder<'_> {
         self.usage(BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST)
             .make()
     }
+    pub fn uniform(self) -> graph::Result<Grc<Buffer>> {
+        self.usage(BufferUsages::UNIFORM | BufferUsages::COPY_DST)
+            .make()
+    }
 }

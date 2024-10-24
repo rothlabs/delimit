@@ -178,7 +178,7 @@ async fn index_fraction() -> dom::Result<()> {
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
-    let config = gpu.uniform().field(count).hub()?;
+    let rig = gpu.uniform().field(count).make()?;
     let basis = gpu.buffer(size).storage_copy()?;
     let config_entry = gpu.bind_uniform().entry(0)?.compute()?;
     let basis_entry = gpu.bind_storage(false).entry(1)?.compute()?;
@@ -186,13 +186,14 @@ async fn index_fraction() -> dom::Result<()> {
     let bind = gpu
         .binder()
         .layout(bind_layout.clone())
-        .entry(0, config)
+        .entry(0, rig.buffer)
         .entry(1, basis.clone())
         .hub()?;
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let index_compute = gpu
         .command()
+        .root(rig.root)
         .compute(pipe)
         .bind(bind)
         .dispatch(count)

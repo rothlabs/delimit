@@ -188,6 +188,7 @@ impl<E: ?Sized> PartialEq for Link<E> {
     }
 }
 
+// TODO: impl Backed for Leaf<U> so SendSync is not needed for Backed Hub?
 impl<E> Backed for Link<E>
 where
     E: BackedMid + ?Sized,
