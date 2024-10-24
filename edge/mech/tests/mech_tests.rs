@@ -31,19 +31,18 @@ async fn nurbs() -> dom::Result<()> {
         .index(index)
         .control(Control::Hedge(control))
         .build()?;
+    // TODO: make from Mech
     let plot = plot::GridBuilder::default()
         .shape(shape)
         .count(count)
         .hub()?
         .base()
         .await?;
-    let size = plot.buffer.base().await?.size();
-    let stage = gpu.buffer(size).map_read()?;
     let out: Vec<f32> = gpu
         .reader(plot.buffer)
         .root(plot.root)
-        .stage(stage)
-        .hub()?
+        .staged()
+        .await?
         .base()
         .await?;
     assert_eq!(
@@ -73,3 +72,15 @@ async fn nurbs() -> dom::Result<()> {
     );
     Ok(())
 }
+
+
+
+// let size = plot.buffer.base().await?.size();
+//     let stage = gpu.buffer(size).map_read()?;
+//     let out: Vec<f32> = gpu
+//         .reader(plot.buffer)
+//         .root(plot.root)
+//         .stage(stage)
+//         .hub()?
+//         .base()
+//         .await?;

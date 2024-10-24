@@ -10,7 +10,7 @@ pub struct Uniform<T> {
     fields: Vec<Hub<T>>,
 }
 
-// TODO: make uniform produce a Hedge. The buffer size is constant but the values could change 
+// TODO: make uniform produce a Hedge. The buffer size is constant but the values could change
 impl<T> Solve for Uniform<T>
 where
     T: Pod + Debug,
@@ -38,7 +38,6 @@ where
     }
 }
 
-
 // #[derive(Builder, Gate, Debug)]
 // #[builder(pattern = "owned")]
 // #[builder(setter(into))]
@@ -48,7 +47,7 @@ where
 //     fields: Vec<Hub<T>>,
 // }
 
-// // TODO: make uniform produce a Hedge. The buffer size is constant but the values could change 
+// // TODO: make uniform produce a Hedge. The buffer size is constant but the values could change
 // impl<T> Solve for Uniform<T>
 // where
 //     T: Pod + Debug,

@@ -38,7 +38,6 @@ where
     }
 }
 
-
 // let size = NonZero::new(buffer.size()).unwrap();
 //                 let mut view = self.queue.write_buffer_with(&buffer, offset, size);
 //                 if let Some(view) = &mut view {
@@ -51,16 +50,15 @@ where
 //                     Err(anyhow!("could not write to buffer"))?
 //                 }
 
-
 // let slice = buffer.slice(..);
 //         let (sender, receiver) = flume::bounded(1);
 //         self.data
 //             .read(|data| {
 //                 //self.queue.write_buffer(&buffer, offset, cast_slice(data));
 //                 // TODO: remove this unwrap
-                
+
 //                 slice.map_async(wgpu::MapMode::Write, move |v| sender.send(v).unwrap());
-                
+
 //             })
 //             .await?;
 //         if let Err(err) = receiver.recv_async().await? {
@@ -72,7 +70,6 @@ where
 //             .write(|data| {
 //                 crap = data.as_slice_mut();
 //         }).await?;
-
 
 // #[derive(Builder, Gate, Debug)]
 // #[builder(pattern = "owned")]

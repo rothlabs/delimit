@@ -12,6 +12,24 @@ pub struct BufferReader<T> {
     phantom: std::marker::PhantomData<T>,
 }
 
+impl<T> BufferReaderBuilder<T> 
+where
+    T: 'static + Clone + Debug,
+    BufferReader<T>: Solve,
+    <BufferReader<T> as Solve>::Base: Clone + Debug,
+{
+    pub async fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
+        if let Some(storage) = &self.storage {
+            let size = storage.base().await?.size();
+            if let Some(gpu) = &self.gpu {
+                let stage = gpu.buffer(size).map_read()?;
+                return self.stage(stage).hub();
+            }
+        }
+        Err(anyhow!("uninitialized storage"))?
+    }
+}
+
 impl<T> Solve for BufferReader<T>
 where
     T: Pod,
@@ -34,8 +52,7 @@ where
             return Err(anyhow!(err))?;
         }
         let data = slice.get_mapped_range();
-        let out = bytemuck::cast_slice(&data).to_vec();
-        Ok(out.into_leaf().hub())
+        Ok(cast_slice(&data).to_vec().into_leaf().hub())
     }
 }
 

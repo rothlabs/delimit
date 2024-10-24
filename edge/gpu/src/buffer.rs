@@ -1,12 +1,12 @@
-pub use reader::*;
 pub use blank::*;
+pub use reader::*;
 pub use uniform::*;
 pub use writer::*;
 
 use super::*;
 
-mod reader;
 mod blank;
+mod reader;
 mod uniform;
 mod writer;
 

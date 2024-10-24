@@ -72,11 +72,6 @@ async fn draw_triangle() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    // let attachments = gpu.attachment(&view).list()?;
-    // let pass = gpu.render_pass(&attachments).make()?;
-    // let mut encoder = gpu.encoder();
-    // encoder.render(&pass).pipe(&pipe).draw(0..3, 0..1);
-    // encoder.submit();
     Ok(())
 }
 
@@ -108,15 +103,6 @@ async fn draw_lines() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    // let attachments = gpu.attachment(&view).list()?;
-    // let pass = gpu.render_pass(&attachments).make()?;
-    // let mut encoder = gpu.encoder();
-    // encoder
-    //     .render(&pass)
-    //     .pipe(&pipe)
-    //     .vertex(0, buffer.slice(..))
-    //     .draw(0..4, 0..1);
-    // encoder.submit();
     Ok(())
 }
 
@@ -159,8 +145,6 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let pipe = shader.compute("main").make()?;
     let size = 36;
     let storage = gpu.buffer(size).storage_copy()?;
-    let stage = gpu.buffer(size).label("stage").map_read()?;
-    //let bind = gpu.bind().pipe(&pipe).entry(0, &storage).make()?;
     let bind = gpu
         .binder()
         .pipe(pipe.clone())
@@ -176,13 +160,12 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .compute(pipe)
         .bind(bind)
         .dispatch(9)
-        // .stage(storage, stage.clone())
         .hub()?;
     let out = gpu
         .reader::<u32>(storage)
-        .stage(stage)
         .root(collatz)
-        .hub()?
+        .staged()
+        .await?
         .base()
         .await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
@@ -197,18 +180,9 @@ async fn index_fraction() -> dom::Result<()> {
     let size = 4 * count as u64;
     let config = gpu.uniform().field(count).hub()?;
     let basis = gpu.buffer(size).storage_copy()?;
-    let stage = gpu.buffer(size).map_read()?;
     let config_entry = gpu.bind_uniform().entry(0)?.compute()?;
     let basis_entry = gpu.bind_storage(false).entry(1)?.compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
-    // let bind = gpu
-    //     .bind()
-    //     .layout(&bind_layout)
-    //     .entry(0, &config)
-    //     .entry(1, &basis)
-    //     .make()?;
-    //let wow = Hub::Tray(Tray::Base(Grc::new(bind_layout)));
-    // let wow = Grc::new(bind_layout);
     let bind = gpu
         .binder()
         .layout(bind_layout.clone())
@@ -222,13 +196,12 @@ async fn index_fraction() -> dom::Result<()> {
         .compute(pipe)
         .bind(bind)
         .dispatch(count)
-        // .stage(basis, stage.clone())
         .hub()?;
     let out: Vec<f32> = gpu
         .reader(basis)
-        .stage(stage)
         .root(index_compute)
-        .hub()?
+        .staged()
+        .await?
         .base()
         .await?;
     assert_eq!(

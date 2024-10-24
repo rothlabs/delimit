@@ -63,10 +63,7 @@ impl Command {
         view: &TextureView,
     ) -> graph::Result<()> {
         let attachments = if let Some(target) = &self.resolve_target {
-            self.gpu
-                .attachment(view)
-                .resolve_target(target)
-                .list()?
+            self.gpu.attachment(view).resolve_target(target).list()?
         } else {
             self.gpu.attachment(view).list()?
         };
