@@ -1,9 +1,8 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-// #[builder(setter(strip_option))]
 pub struct Binder {
     gpu: Gpu,
     #[builder(default)]
@@ -11,7 +10,7 @@ pub struct Binder {
     #[builder(default)]
     pipe: Option<Grc<ComputePipeline>>,
     #[builder(default, setter(each(name = "inner_entry", into)))]
-    buffers: Vec<(u32, Hub<Grc<Buffer>>)>,
+    entries: Vec<(u32, Hub<Grc<Buffer>>)>,
 }
 
 impl BinderBuilder {
@@ -25,7 +24,7 @@ impl Solve for Binder {
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         let mut bind = self.gpu.bind();
         let mut buffers = vec![];
-        for (i, buffer) in &self.buffers {
+        for (i, buffer) in &self.entries {
             buffers.push((i, buffer.base().await?));
         }
         for (i, buffer) in &buffers {
@@ -42,43 +41,9 @@ impl Solve for Binder {
 
 impl Adapt for Binder {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        for (_, buffer) in &mut self.buffers {
+        for (_, buffer) in &mut self.entries {
             buffer.back(back)?;
         }
         Ok(())
     }
 }
-
-// impl Solve for Binder {
-//     type Base = Grc<BindGroup>;
-//     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
-//         let mut bind = self.gpu.bind();
-//         let mut buffers = vec![];
-//         for (i, buffer) in &self.buffers {
-//             buffers.push((i, buffer.base().await?));
-//         }
-//         for (i, buffer) in &buffers {
-//             bind = bind.entry(**i, buffer);
-//         }
-//         if let Some(layout) = &self.layout {
-//             //let layout = layout.base().await?;
-//             Ok(bind.layout(layout).make()?.into())
-//         } else if let Some(pipe) = &self.pipe {
-//             //let pipe = pipe.base().await?;
-//             Ok(bind.pipe(&pipe).make()?.into())
-//         } else {
-//             Ok(bind.make()?.into())
-//         }
-//     }
-// }
-
-// impl Adapt for Binder {
-//     fn back(&mut self, back: &Back) -> graph::Result<()> {
-//         self.layout.back(back)?;
-//         self.pipe.back(back)?;
-//         for (_, buffer) in &mut self.buffers {
-//             buffer.back(back)?;
-//         }
-//         Ok(())
-//     }
-// }

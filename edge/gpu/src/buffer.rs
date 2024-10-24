@@ -1,19 +1,19 @@
 pub use reader::*;
-pub use sizer::*;
+pub use blank::*;
 pub use uniform::*;
 pub use writer::*;
 
 use super::*;
 
 mod reader;
-mod sizer;
+mod blank;
 mod uniform;
 mod writer;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
-pub struct BufferSetup<'a> {
+pub struct BufferRig<'a> {
     device: &'a Device,
     #[builder(default, setter(strip_option))]
     label: Option<&'a str>,
@@ -23,7 +23,7 @@ pub struct BufferSetup<'a> {
     mapped_at_creation: bool,
 }
 
-impl BufferSetupBuilder<'_> {
+impl BufferRigBuilder<'_> {
     pub fn make(self) -> graph::Result<Grc<Buffer>> {
         let built = self.build()?;
         let descriptor = BufferDescriptor {

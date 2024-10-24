@@ -28,7 +28,6 @@ impl<'a> VertexBuilder<'a> {
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "crate::Error"))]
-#[builder(setter(strip_option))]
 pub struct Layout<'a> {
     array_stride: u64,
     #[builder(default)]

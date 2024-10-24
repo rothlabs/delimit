@@ -1,4 +1,4 @@
-struct Setup {
+struct Rig {
     order: u32,
     // number of basis in a block
     count: u32,
@@ -7,9 +7,9 @@ struct Setup {
     dimension: u32,
 };
 
-@group(0) @binding(0) var<uniform> setup: Setup;
-@group(0) @binding(1) var<storage, read> index: array<u32>;
-@group(0) @binding(2) var<storage, read> basis: array<f32>;
+@group(0) @binding(0) var<uniform> rig: Rig;
+@group(0) @binding(1) var<storage, read> basis: array<f32>;
+@group(0) @binding(2) var<storage, read> index: array<u32>;
 @group(0) @binding(3) var<storage, read> control: array<f32>;
 @group(0) @binding(4) var<storage, read_write> plot: array<f32>;
 
@@ -20,10 +20,10 @@ fn main(
     global: vec3<u32>
 ) {
     // prelude
-    let order = setup.order;
-    let count = setup.count;
-    let stride = setup.stride;
-    let dimension = setup.dimension;
+    let order = rig.order;
+    let count = rig.count;
+    let stride = rig.stride;
+    let dimension = rig.dimension;
 
     // index
     let strip_index = global.x / count;

@@ -14,39 +14,60 @@ mod shape;
 #[derive(Clone, Debug)]
 pub struct Mech {
     gpu: Gpu,
-    pub programs: ProgramStore,
+    pub grid: MechGrid,
 }
 
 impl Mech {
     pub fn new(gpu: Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
-        let setup_entry = gpu.uniform().entry(0)?.compute()?;
-        let plan_entry = gpu.storage(true).entry(1)?.compute()?;
-        let basis_entry = gpu.storage(false).entry(2)?.compute()?;
+        let shader = gpu.shader(include_wgsl!("plot/grid/basis/nurbs.wgsl"));
+        let rig = gpu.bind_uniform().entry(0)?.compute()?;
+        let span = gpu.bind_storage(true).entry(1)?.compute()?;
+        let basis = gpu.bind_storage(false).entry(2)?.compute()?;
+        let layout = gpu.bind_layout(&[rig, span, basis]).make()?;
+        let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
+        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        let grid_basis_nurbs = Program { layout, pipe };
+
+        let shader = gpu.shader(include_wgsl!("plot/grid/basis/control.wgsl"));
+        let rig = gpu.bind_uniform().entry(0)?.compute()?;
+        let basis = gpu.bind_storage(true).entry(1)?.compute()?;
+        let index = gpu.bind_storage(true).entry(2)?.compute()?;
+        let control = gpu.bind_storage(true).entry(3)?.compute()?;
+        let plot = gpu.bind_storage(false).entry(4)?.compute()?;
         let layout = gpu
-            .bind_layout(&[setup_entry, plan_entry, basis_entry])
+            .bind_layout(&[rig, basis, index, control, plot])
             .make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-        let nurbs_grid = Program::new(layout, pipe);
-        let programs = ProgramStore {
-            nurbs_grid,
-            // control_grid,
-        };
+        let grid_basis_control = Program { layout, pipe };
+
         Ok(Self {
             gpu,
-            programs,
+            grid: MechGrid {
+                basis: MechGridBasis {
+                    nurbs: grid_basis_nurbs,
+                    control: grid_basis_control,
+                },
+            },
         })
     }
     pub fn shape(&self, rule: Rule) -> ShapeBuilder {
-        ShapeBuilder::default().gpu(self.gpu.clone()).mech(self.clone()).rule(rule)
+        ShapeBuilder::default()
+            .gpu(self.gpu.clone())
+            .mech(self.clone())
+            .rule(rule)
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct ProgramStore {
-    pub nurbs_grid: Program,
-    // control_grid: Grc<ComputePipeline>,
+pub struct MechGrid {
+    pub basis: MechGridBasis,
+}
+
+#[derive(Clone, Debug)]
+pub struct MechGridBasis {
+    pub nurbs: Program,
+    pub control: Program,
 }
 
 #[derive(Clone, Debug)]
@@ -54,31 +75,6 @@ pub struct Program {
     pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<ComputePipeline>,
 }
-
-impl Program {
-    fn new(layout: Grc<BindGroupLayout>, pipe: Grc<ComputePipeline>) -> Self {
-        Self { layout, pipe }
-    }
-}
-
-// impl Default for ProgramStore {
-//     fn default() -> Self {
-//         let setup_entry = self.gpu.uniform().entry(0)?.compute()?;
-//         let plan_entry = self.gpu.storage(true).entry(1)?.compute()?;
-//         let basis_entry = self.gpu.storage(false).entry(2)?.compute()?;
-//         let bind_layout = self
-//             .gpu
-//             .bind_layout(&[setup_entry, plan_entry, basis_entry])
-//             .make()?;
-//         let pipe_layout = self.gpu.pipe_layout(&[&bind_layout]).make()?;
-//         let shader = self.gpu.shader(include_wgsl!("plot/nurbs_grid.wgsl"));
-//         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-//         Self {
-//             nurbs_grid,
-//             control_grid
-//         }
-//     }
-// }
 
 const BASE: u16 = 1;
 
@@ -119,3 +115,27 @@ impl Solve for Matrix {
         BASE
     }
 }
+
+// let nurbs_grid = Program::new(layout, pipe);
+//         let programs = ProgramStore {
+//             nurbs_grid,
+//             // control_grid,
+//         };
+
+// #[derive(Clone, Debug)]
+// pub struct ProgramStore {
+//     pub nurbs_grid: Program,
+//     // control_grid: Grc<ComputePipeline>,
+// }
+
+// #[derive(Clone, Debug)]
+// pub struct Program {
+//     pub layout: Grc<BindGroupLayout>,
+//     pub pipe: Grc<ComputePipeline>,
+// }
+
+// impl Program {
+//     fn new(layout: Grc<BindGroupLayout>, pipe: Grc<ComputePipeline>) -> Self {
+//         Self { layout, pipe }
+//     }
+// }

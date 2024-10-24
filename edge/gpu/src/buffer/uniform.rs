@@ -4,13 +4,13 @@ use std::fmt::Debug;
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
-pub struct BufferUniform<T> {
+pub struct Uniform<T> {
     gpu: Gpu,
     #[builder(setter(each(name = "field", into)))]
     fields: Vec<Hub<T>>,
 }
 
-impl<T> Solve for BufferUniform<T>
+impl<T> Solve for Uniform<T>
 where
     T: Pod + Debug,
 {
@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<T> Adapt for BufferUniform<T>
+impl<T> Adapt for Uniform<T>
 where
     T: 'static + Clone,
 {

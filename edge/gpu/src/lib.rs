@@ -3,7 +3,6 @@ use std::fmt::Debug;
 pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
-// pub use encode::Compute;
 pub use flume;
 pub use surface::Surface;
 pub use wgpu::{include_wgsl, BufferUsages};
@@ -19,11 +18,6 @@ use texture::*;
 use util::DeviceExt;
 use web_sys::HtmlCanvasElement;
 use wgpu::*;
-
-// #[allow(unused_macros)]
-// macro_rules! console_log {
-//     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-// }
 
 mod bind;
 mod binder;
@@ -59,7 +53,7 @@ pub struct Hedge {
 }
 
 impl Hedge {
-    pub fn from_data<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self>
+    pub fn new<T>(gpu: Gpu, data: Vec<T>) -> graph::Result<Self>
     where
         T: Pod + Debug,
     {
@@ -126,34 +120,27 @@ impl Gpu {
             inner: self.device.create_shader_module(source).into(),
         }
     }
-    pub fn buffer(&self, size: u64) -> BufferSetupBuilder {
-        BufferSetupBuilder::default()
+    pub fn buffer(&self, size: u64) -> BufferRigBuilder {
+        BufferRigBuilder::default()
             .device(&self.device)
             // .queue(self.queue.clone())
             .size(size)
     }
     fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
-        self
-            .device
+        self.device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Uniform Buffer"),
                 contents: bytemuck::cast_slice(data),
                 usage,
-            }).into()
+            })
+            .into()
     }
-    // pub fn buffer_uniform<T: Pod>(&self, data: &[T]) -> Grc<Buffer> { // NoUninit
-    //     self.buffer_init(data, BufferUsages::UNIFORM | BufferUsages::COPY_DST)
-    // } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
-    pub fn buffer_uniform<T: Pod>(&self) -> BufferUniformBuilder<T> {
-        // NoUninit
-        BufferUniformBuilder::default().gpu(self.clone())
-    } // BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST
+    pub fn uniform<T: Pod>(&self) -> UniformBuilder<T> {
+        UniformBuilder::default().gpu(self.clone())
+    }
     pub fn buffer_vertex<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
     }
-    // pub fn buffer_vertex<T: NoUninit>(&self, data: &[T]) -> Grc<Buffer> {
-    //     self.buffer_init(data, BufferUsages::VERTEX)
-    // }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(&self.device)
     }
@@ -165,10 +152,10 @@ impl Gpu {
     pub fn bind_entry(&self, binding: u32, ty: BindingType) -> BindEntryBuilder {
         BindEntryBuilder::default().binding(binding).ty(ty)
     }
-    pub fn uniform(&self) -> BufferBindingBuilder {
+    pub fn bind_uniform(&self) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Uniform)
     }
-    pub fn storage(&self, read_only: bool) -> BufferBindingBuilder {
+    pub fn bind_storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
     pub fn pipe_layout<'a>(
@@ -220,10 +207,10 @@ impl Gpu {
             .gpu(self.clone())
             .storage(storage)
     }
-    pub fn sizer(&self, root: impl Into<Hub<Grc<Buffer>>>) -> BufferSizerBuilder {
-        BufferSizerBuilder::default().gpu(self.clone()).root(root)
+    pub fn blank(&self, root: impl Into<Hub<Grc<Buffer>>>) -> BlankBuilder {
+        BlankBuilder::default().gpu(self.clone()).root(root)
     }
-    pub fn commander(&self) -> encode::CommandBuilder {
+    pub fn command(&self) -> encode::CommandBuilder {
         encode::CommandBuilder::default().gpu(self.clone())
     }
     pub fn binder(&self) -> BinderBuilder {
@@ -233,7 +220,7 @@ impl Gpu {
     where
         T: Pod + Debug,
     {
-        Hedge::from_data(self.clone(), data)
+        Hedge::new(self.clone(), data)
     }
 }
 

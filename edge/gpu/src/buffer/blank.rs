@@ -3,7 +3,7 @@ use super::*;
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
-pub struct BufferSizer {
+pub struct Blank {
     gpu: Gpu,
     root: Hub<Grc<Buffer>>,
     #[builder(setter(each(name = "mul", into)))]
@@ -12,7 +12,7 @@ pub struct BufferSizer {
     divs: Vec<Hub<u32>>,
 }
 
-impl Solve for BufferSizer {
+impl Solve for Blank {
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let mut size = self.root.base().await?.size();
@@ -22,12 +22,11 @@ impl Solve for BufferSizer {
         for div in &self.divs {
             size /= div.base().await? as u64;
         }
-        let buffer = self.gpu.buffer(size).storage_copy()?.into();
-        Ok(buffer)
+        Ok(self.gpu.buffer(size).storage_copy()?.into())
     }
 }
 
-impl Adapt for BufferSizer {
+impl Adapt for Blank {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.root.back(back)?;
         self.muls.back(back)?;

@@ -1,7 +1,6 @@
 use super::*;
 use std::ops::Range;
 
-/// TODO: make this a general Encoder node
 #[derive(Builder, Debug, Gate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
@@ -58,11 +57,15 @@ impl Command {
         }
         Ok(())
     }
-    async fn render_pass(&self, encoder: &mut Encoder<'_>, view: &TextureView) -> graph::Result<()> {
-        let attachments = if let Some(resolve_target) = &self.resolve_target {
+    async fn render_pass(
+        &self,
+        encoder: &mut Encoder<'_>,
+        view: &TextureView,
+    ) -> graph::Result<()> {
+        let attachments = if let Some(target) = &self.resolve_target {
             self.gpu
                 .attachment(view)
-                .resolve_target(resolve_target)
+                .resolve_target(target)
                 .list()?
         } else {
             self.gpu.attachment(view).list()?

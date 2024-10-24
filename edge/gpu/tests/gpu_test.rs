@@ -65,7 +65,7 @@ async fn draw_triangle() -> dom::Result<()> {
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
     // render:
     let view = surface.view();
-    gpu.commander()
+    gpu.command()
         .texture_view(view)
         .render(pipe)
         .draw(0..3, 0..1)
@@ -100,7 +100,7 @@ async fn draw_lines() -> dom::Result<()> {
     // TODO: make buffer_vertex return Hub<Grc<Buffer>>
     let buffer = gpu.buffer_vertex(&line_data());
     let view = surface.view();
-    gpu.commander()
+    gpu.command()
         .texture_view(view)
         .render(pipe)
         .vertex(0, buffer)
@@ -140,7 +140,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
     let buffer = gpu.buffer_vertex(&line_data());
     let view = surface.view();
     let texture_view = surface.texture().sample_count(4).view()?;
-    gpu.commander()
+    gpu.command()
         .texture_view(texture_view)
         .resolve_target(view)
         .render(pipe)
@@ -172,7 +172,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .base()
         .await?;
     let collatz = gpu
-        .commander()
+        .command()
         .compute(pipe)
         .bind(bind)
         .dispatch(9)
@@ -195,11 +195,11 @@ async fn index_fraction() -> dom::Result<()> {
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
-    let config = gpu.buffer_uniform().field(count).hub()?;
+    let config = gpu.uniform().field(count).hub()?;
     let basis = gpu.buffer(size).storage_copy()?;
     let stage = gpu.buffer(size).map_read()?;
-    let config_entry = gpu.uniform().entry(0)?.compute()?;
-    let basis_entry = gpu.storage(false).entry(1)?.compute()?;
+    let config_entry = gpu.bind_uniform().entry(0)?.compute()?;
+    let basis_entry = gpu.bind_storage(false).entry(1)?.compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
     // let bind = gpu
     //     .bind()
@@ -218,7 +218,7 @@ async fn index_fraction() -> dom::Result<()> {
     let pipe_layout = gpu.pipe_layout(&[&bind_layout]).make()?;
     let pipe = shader.compute("main").layout(&pipe_layout).make()?;
     let index_compute = gpu
-        .commander()
+        .command()
         .compute(pipe)
         .bind(bind)
         .dispatch(count)
