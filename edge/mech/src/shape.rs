@@ -1,4 +1,8 @@
+pub use control::*;
+
 use super::*;
+
+mod control;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
@@ -22,19 +26,19 @@ pub struct Shape {
 impl Shape {
     pub fn grid(&self, count: Hub<u32>) -> graph::Result<Hedge> {
         if let Rule::Nurbs(order) = self.rule {
-            self.nurbs_grid(order, count)
+            self.grid_nurbs(order, count)
         } else {
             Err(anyhow!("grid plot not implemented for this shape"))?
         }
     }
-    fn nurbs_grid(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
+    fn grid_nurbs(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
         let rig = self
             .gpu
             .uniform()
             .field(order)
             .field(count.clone())
             .make()?;
-        let basis = self
+        let buffer = self
             .gpu
             .blank(self.span.buffer.clone())
             .mul(count.clone())
@@ -47,9 +51,9 @@ impl Shape {
             .layout(self.mech.grid.basis.nurbs.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, self.span.buffer.clone())
-            .entry(2, basis.clone())
+            .entry(2, buffer.clone())
             .hub()?;
-        let nurbs = self
+        let root = self
             .gpu
             .command()
             .root(rig.root)
@@ -58,53 +62,17 @@ impl Shape {
             .bind(bind)
             .dispatch(count.clone())
             .hub()?;
-        match &self.control {
-            Control::Shape(shapes) => {
-                let shape = shapes.first().unwrap();
-                let _ = shape.grid(count)?;
-                Err(anyhow!("Control::Shape not implemented"))?
-            }
-            Control::Hedge(control) => {
-                let stride = 1;
-                let rig = self
-                    .gpu
-                    .uniform()
-                    .field(order)
-                    .field(count.clone())
-                    .field(stride)
-                    .field(self.dimension)
-                    .make()?;
-                let buffer = self
-                    .gpu
-                    .blank(basis.clone())
-                    .mul(self.dimension)
-                    .mul(stride)
-                    .div(order)
-                    .hub()?;
-                let bind = self
-                    .gpu
-                    .binder()
-                    .layout(self.mech.grid.basis.control.layout.clone())
-                    .entry(0, rig.buffer)
-                    .entry(1, basis)
-                    .entry(2, self.index.buffer.clone())
-                    .entry(3, control.buffer.clone())
-                    .entry(4, buffer.clone())
-                    .hub()?;
-                let root = self
-                    .gpu
-                    .command()
-                    .root(nurbs)
-                    .root(rig.root)
-                    .root(self.index.root.clone())
-                    .root(control.root.clone())
-                    .compute(self.mech.grid.basis.control.pipe.clone())
-                    .bind(bind)
-                    .dispatch(count.clone())
-                    .hub()?;
-                Ok(Hedge { buffer, root })
-            }
-        }
+        let grid_basis = GridBasis {
+            gpu: self.gpu.clone(),
+            mech: self.mech.clone(),
+            order,
+            count,
+            basis: Hedge { buffer, root },
+            index: self.index.clone(),
+            // control: self.control.clone(),
+            dimension: self.dimension,
+        };
+        self.control.grid_basis(grid_basis)
         // Err(anyhow!("grid plot not implemented for this shape"))?
     }
     // fn control_matrix(&self) -> graph::Result<Hedge> {
@@ -117,12 +85,6 @@ pub enum Rule {
     Nurbs(u32),
     Extrude,
     Revolve,
-}
-
-#[derive(Clone, Debug)]
-pub enum Control {
-    Shape(Vec<Shape>),
-    Hedge(Hedge),
 }
 
 // #[derive(Clone, Debug)]

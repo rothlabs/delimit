@@ -2,6 +2,7 @@ pub use plot::*;
 pub use shape::*;
 
 use derive_builder::Builder;
+use derive_setters::Setters;
 use gpu::*;
 use graph::*;
 use node_derive::*;
