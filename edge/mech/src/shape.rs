@@ -28,7 +28,7 @@ impl Shape {
         if let Rule::Nurbs(order) = self.rule {
             self.grid_nurbs(order, count)
         } else {
-            Err(anyhow!("grid plot not implemented for this shape"))?
+            Err(anyhow!("Only Rule::Nurbs implemented"))?
         }
     }
     fn grid_nurbs(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
@@ -62,22 +62,13 @@ impl Shape {
             .bind(bind)
             .dispatch(count.clone())
             .hub()?;
-        let grid_basis = GridBasis {
-            gpu: self.gpu.clone(),
-            mech: self.mech.clone(),
+        self.control.grid_basis(GridBasis {
+            shape: self,
             order,
             count,
             basis: Hedge { buffer, root },
-            index: self.index.clone(),
-            // control: self.control.clone(),
-            dimension: self.dimension,
-        };
-        self.control.grid_basis(grid_basis)
-        // Err(anyhow!("grid plot not implemented for this shape"))?
+        })
     }
-    // fn control_matrix(&self) -> graph::Result<Hedge> {
-
-    // }
 }
 
 #[derive(Clone, Debug)]
@@ -100,9 +91,3 @@ pub enum Layout {
     Grid,
     Radial,
 }
-
-// impl ShapeBuilder {
-//     pub fn nurbs(self, order: u64) -> Self {
-//         self.rule(Rule::Nurbs(order))
-//     }
-// }

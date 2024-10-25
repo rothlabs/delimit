@@ -1,8 +1,7 @@
 use super::*;
 
 #[derive(Builder, Gate, Debug)]
-#[builder(pattern = "owned")]
-#[builder(setter(into))]
+#[builder(pattern = "owned", setter(into))]
 pub struct BufferWriter<T> {
     queue: Grc<Queue>,
     buffer: Hub<Grc<Buffer>>,

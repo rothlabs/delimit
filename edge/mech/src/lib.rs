@@ -2,7 +2,6 @@ pub use plot::*;
 pub use shape::*;
 
 use derive_builder::Builder;
-use derive_setters::Setters;
 use gpu::*;
 use graph::*;
 use node_derive::*;
@@ -15,7 +14,7 @@ mod shape;
 #[derive(Clone, Debug)]
 pub struct Mech {
     gpu: Gpu,
-    pub grid: MechGrid,
+    grid: MechGrid,
 }
 
 impl Mech {
@@ -62,17 +61,17 @@ impl Mech {
 
 #[derive(Clone, Debug)]
 pub struct MechGrid {
-    pub basis: MechGridBasis,
+    basis: MechGridBasis,
 }
 
 #[derive(Clone, Debug)]
 pub struct MechGridBasis {
-    pub nurbs: Program,
-    pub control: Program,
+    nurbs: Program,
+    control: Program,
 }
 
 #[derive(Clone, Debug)]
 pub struct Program {
-    pub layout: Grc<BindGroupLayout>,
-    pub pipe: Grc<ComputePipeline>,
+    layout: Grc<BindGroupLayout>,
+    pipe: Grc<ComputePipeline>,
 }
