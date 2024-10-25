@@ -16,9 +16,9 @@ pub struct GridBasis<'a> {
 impl Control {
     pub fn grid_basis(&self, grid: GridBasis) -> graph::Result<Hedge> {
         match &self {
-            Control::Shape(shapes) => {
-                let shape = shapes.first().unwrap();
-                let _ = shape.grid(grid.count)?;
+            Control::Shape(_) => {
+                // let shape = shapes.first().unwrap();
+                // let _ = shape.grid(grid.count)?;
                 Err(anyhow!("Control::Shape not implemented"))?
             }
             Control::Hedge(control) => self.grid_basis_hedge(grid, control),
@@ -47,7 +47,7 @@ impl Control {
             .shape
             .gpu
             .bind()
-            .layout(grid.shape.mech.grid.basis.control.layout.clone())
+            .layout(grid.shape.mech.bin.basis.control.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, grid.basis.buffer)
             .entry(2, grid.shape.index.buffer.clone())
@@ -62,7 +62,7 @@ impl Control {
             .root(grid.basis.root)
             .root(grid.shape.index.root.clone())
             .root(hedge.root.clone())
-            .compute(grid.shape.mech.grid.basis.control.pipe.clone())
+            .compute(grid.shape.mech.bin.basis.control.pipe.clone())
             .bind(bind)
             .dispatch(grid.count)
             .hub()?;

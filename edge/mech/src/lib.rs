@@ -14,7 +14,7 @@ mod shape;
 #[derive(Clone, Debug)]
 pub struct Mech {
     gpu: Gpu,
-    grid: MechGrid,
+    bin: MechGrid,
 }
 
 impl Mech {
@@ -43,7 +43,7 @@ impl Mech {
 
         Ok(Self {
             gpu,
-            grid: MechGrid {
+            bin: MechGrid {
                 basis: MechGridBasis {
                     nurbs: grid_basis_nurbs,
                     control: grid_basis_control,
@@ -56,6 +56,13 @@ impl Mech {
             .gpu(self.gpu.clone())
             .mech(self.clone())
             .rule(rule)
+    }
+    pub fn plot<'a>(&'a self, shape: &'a Shape) -> Plot<'a> {
+        Plot {
+            mech: self,
+            gpu: &self.gpu,
+            shape,
+        }
     }
 }
 
