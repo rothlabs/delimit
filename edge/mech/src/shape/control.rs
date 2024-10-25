@@ -58,8 +58,8 @@ impl Control {
             .shape
             .gpu
             .command()
-            .root(grid.basis.root)
             .root(rig.root)
+            .root(grid.basis.root)
             .root(grid.shape.index.root.clone())
             .root(hedge.root.clone())
             .compute(grid.shape.mech.grid.basis.control.pipe.clone())
