@@ -33,6 +33,7 @@ async fn nurbs() -> dom::Result<()> {
         .build()?;
     // TODO: make from Mech
     let plot = plot::GridBuilder::default()
+        .mech(mech)
         .shape(shape)
         .count(count)
         .hub()?

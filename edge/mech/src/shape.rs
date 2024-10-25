@@ -9,8 +9,6 @@ mod control;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
-    gpu: Gpu,
-    mech: Mech,
     pub rule: Rule,
     pub span: Hedge,
     pub index: Hedge,

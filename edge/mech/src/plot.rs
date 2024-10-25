@@ -6,7 +6,7 @@ mod grid;
 
 #[derive(Clone, Debug)]
 pub struct Plot<'a> {
-    pub mech: &'a Mech,
+    pub bin: &'a Bin,
     pub gpu: &'a Gpu,
     pub shape: &'a Shape,
 }
@@ -36,7 +36,7 @@ impl Plot<'_> {
         let bind = self
             .gpu
             .bind()
-            .layout(self.mech.bin.basis.nurbs.layout.clone())
+            .layout(self.bin.plot.grid.basis.nurbs.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, self.shape.span.buffer.clone())
             .entry(2, buffer.clone())
@@ -46,15 +46,81 @@ impl Plot<'_> {
             .command()
             .root(rig.root)
             .root(self.shape.span.root.clone())
-            .compute(self.mech.bin.basis.nurbs.pipe.clone())
+            .compute(self.bin.plot.grid.basis.nurbs.pipe.clone())
             .bind(bind)
             .dispatch(count.clone())
             .hub()?;
-        self.shape.control.grid_basis(GridBasis {
+        GridBasis {
+            bin: self.bin,
+            gpu: self.gpu,
             shape: self.shape,
             order,
             count,
             basis: Hedge { buffer, root },
-        })
+        }.grid_basis()
+
     }
 }
+
+pub struct GridBasis<'a> {
+    pub bin: &'a Bin,
+    pub gpu: &'a Gpu,
+    pub shape: &'a Shape,
+    pub order: u32,
+    pub count: Hub<u32>,
+    pub basis: Hedge,
+}
+
+impl GridBasis<'_> {
+    pub fn grid_basis(&self) -> graph::Result<Hedge> {
+        match &self.shape.control {
+            Control::Shape(_) => {
+                // let shape = shapes.first().unwrap();
+                // let _ = shape.grid(grid.count)?;
+                Err(anyhow!("Control::Shape not implemented"))?
+            }
+            Control::Hedge(control) => self.grid_basis_hedge(control),
+        }
+    }
+    fn grid_basis_hedge(&self, hedge: &Hedge) -> graph::Result<Hedge> {
+        let stride = 1;
+        let rig = self
+            .gpu
+            .uniform()
+            .field(self.order)
+            .field(self.count.clone())
+            .field(stride)
+            .field(self.shape.dimension)
+            .make()?;
+        let buffer = self
+            .gpu
+            .blank(self.basis.buffer.clone())
+            .mul(self.shape.dimension)
+            .mul(stride)
+            .div(self.order)
+            .hub()?;
+        let bind = self
+            .gpu
+            .bind()
+            .layout(self.bin.plot.grid.basis.control.layout.clone())
+            .entry(0, rig.buffer)
+            .entry(1, self.basis.buffer.clone())
+            .entry(2, self.shape.index.buffer.clone())
+            .entry(3, hedge.buffer.clone())
+            .entry(4, buffer.clone())
+            .hub()?;
+        let root = self
+            .gpu
+            .command()
+            .root(rig.root)
+            .root(self.basis.root.clone())
+            .root(self.shape.index.root.clone())
+            .root(hedge.root.clone())
+            .compute(self.bin.plot.grid.basis.control.pipe.clone())
+            .bind(bind)
+            .dispatch(self.count.clone())
+            .hub()?;
+        Ok(Hedge { buffer, root })
+    }
+}
+
