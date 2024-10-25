@@ -1,9 +1,10 @@
 use super::*;
 
-#[derive(Builder, Gate, Debug)]
+#[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Blank {
+    #[back(skip)]
     gpu: Gpu,
     root: Hub<Grc<Buffer>>,
     #[builder(setter(each(name = "mul", into)))]
@@ -25,17 +26,3 @@ impl Solve for Blank {
         Ok(self.gpu.buffer(size).storage_copy()?.into())
     }
 }
-
-impl Adapt for Blank {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.root.back(back)?;
-        self.muls.back(back)?;
-        self.divs.back(back)
-    }
-}
-
-// #[derive(Clone, Debug)]
-// enum SizeRoot<T> {
-//     Buffer(Hub<Grc<Buffer>>),
-//     Vector(Hub<Vec<T>>),
-// }

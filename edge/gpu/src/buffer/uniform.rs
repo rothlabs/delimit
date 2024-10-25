@@ -20,9 +20,6 @@ where
         let buffer: Hub<Grc<Buffer>> = build.gpu.buffer(size).uniform()?.into();
         let vector = VectorBuilder::default().fields(build.fields).hub()?;
         let root = build.gpu.writer(buffer.clone()).data(vector).hub()?;
-        Ok(Hedge {
-            buffer,
-            root,
-        })
+        Ok(Hedge { buffer, root })
     }
 }

@@ -13,12 +13,6 @@ pub struct Binder {
     entries: Vec<(u32, Hub<Grc<Buffer>>)>,
 }
 
-impl BinderBuilder {
-    pub fn entry(self, i: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.inner_entry((i, buffer.into()))
-    }
-}
-
 impl Solve for Binder {
     type Base = Grc<BindGroup>;
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
@@ -45,5 +39,11 @@ impl Adapt for Binder {
             buffer.back(back)?;
         }
         Ok(())
+    }
+}
+
+impl BinderBuilder {
+    pub fn entry(self, i: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
+        self.inner_entry((i, buffer.into()))
     }
 }

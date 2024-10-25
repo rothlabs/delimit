@@ -102,7 +102,6 @@ impl Gpu {
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default()
             .device(&self.device)
-            // .queue(self.queue.clone())
             .size(size)
     }
     fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {

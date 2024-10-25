@@ -1,33 +1,17 @@
 use super::*;
 
-#[derive(Builder, Gate, Debug)]
+#[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
+    #[back(skip)]
     gpu: Gpu,
     root: Hub<Mutation>,
     storage: Hub<Grc<Buffer>>,
     stage: Hub<Grc<Buffer>>,
     #[builder(default)]
+    #[back(skip)]
     phantom: std::marker::PhantomData<T>,
-}
-
-impl<T> BufferReaderBuilder<T>
-where
-    T: 'static + Clone + Debug,
-    BufferReader<T>: Solve,
-    <BufferReader<T> as Solve>::Base: Clone + Debug,
-{
-    pub async fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
-        if let Some(storage) = &self.storage {
-            let size = storage.base().await?.size();
-            if let Some(gpu) = &self.gpu {
-                let stage = gpu.buffer(size).map_read()?;
-                return self.stage(stage).hub();
-            }
-        }
-        Err(anyhow!("uninitialized storage"))?
-    }
 }
 
 impl<T> Solve for BufferReader<T>
@@ -56,10 +40,20 @@ where
     }
 }
 
-impl<T> Adapt for BufferReader<T> {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.root.back(back)?;
-        self.storage.back(back)?;
-        self.stage.back(back)
+impl<T> BufferReaderBuilder<T>
+where
+    T: 'static + Clone + Debug,
+    BufferReader<T>: Solve,
+    <BufferReader<T> as Solve>::Base: Clone + Debug,
+{
+    pub async fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
+        if let Some(storage) = &self.storage {
+            let size = storage.base().await?.size();
+            if let Some(gpu) = &self.gpu {
+                let stage = gpu.buffer(size).map_read()?;
+                return self.stage(stage).hub();
+            }
+        }
+        Err(anyhow!("uninitialized storage"))?
     }
 }

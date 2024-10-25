@@ -1,13 +1,14 @@
 use super::*;
 
-#[derive(Builder, Gate, Debug)]
+#[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferWriter<T> {
+    #[back(skip)]
     queue: Grc<Queue>,
     buffer: Hub<Grc<Buffer>>,
+    data: Hub<Vec<T>>,
     #[builder(default)]
     offset: Hub<u64>,
-    data: Hub<Vec<T>>,
 }
 
 impl<T> Solve for BufferWriter<T>
@@ -27,15 +28,15 @@ where
     }
 }
 
-impl<T> Adapt for BufferWriter<T>
-where
-    T: 'static + Clone,
-{
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.offset.back(back)?;
-        self.data.back(back)
-    }
-}
+// impl<T> Adapt for BufferWriter<T>
+// where
+//     T: 'static + Clone,
+// {
+//     fn back(&mut self, back: &Back) -> graph::Result<()> {
+//         self.offset.back(back)?;
+//         self.data.back(back)
+//     }
+// }
 
 // let size = NonZero::new(buffer.size()).unwrap();
 //                 let mut view = self.queue.write_buffer_with(&buffer, offset, size);
