@@ -1,4 +1,4 @@
-pub use convert::{ToPloyHub, ToGateHub};
+pub use convert::{ToGateHub, ToPloyHub};
 
 use super::*;
 use thiserror::Error;
@@ -20,8 +20,9 @@ pub enum Error {
 
 /// Primary graph part.
 #[derive(Clone, PartialEq, Debug)] // Serialize
-// #[serde(untagged)]
-pub enum Hub<T> { // : Payload
+                                   // #[serde(untagged)]
+pub enum Hub<T> {
+    // : Payload
     /// A base value or Path
     Tray(Tray<T>),
     /// Graph leaf node
@@ -32,13 +33,14 @@ pub enum Hub<T> { // : Payload
     Gate(Gate<T>),
 }
 
-impl<T> Serialize for Hub<T> 
-where 
-    T: Digest + Serialize
+impl<T> Serialize for Hub<T>
+where
+    T: Digest + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         match self {
             Self::Tray(x) => x.serialize(serializer),
             Self::Leaf(x) => x.serialize(serializer),
@@ -77,8 +79,8 @@ impl<T> Hub<T> {
     }
 }
 
-impl<T> Hub<T> 
-where 
+impl<T> Hub<T>
+where
     T: SendSync + Debug + Clone,
 {
     /// Run main hub function. Will return lower rank hub if successful.
@@ -258,8 +260,8 @@ impl<T> Default for Hub<T> {
     }
 }
 
-impl<T> Depend for Hub<T> 
-where 
+impl<T> Depend for Hub<T>
+where
     T: SendSync + Debug + Clone,
 {
     fn depend(&self) -> impl Future<Output = Result<()>> + IsSend {
@@ -274,8 +276,8 @@ where
     }
 }
 
-impl<T> Depend for Vec<T> 
-where 
+impl<T> Depend for Vec<T>
+where
     T: SendSync + Depend,
 {
     async fn depend(&self) -> Result<()> {
@@ -290,7 +292,7 @@ impl<T: Depend + SendSync> Depend for Option<T> {
     async fn depend(&self) -> Result<()> {
         if let Some(item) = self {
             item.depend().await?;
-        } 
+        }
         Ok(())
     }
 }

@@ -76,7 +76,6 @@ impl<T> Clear for Leaf<T> {
 
 impl<T> ReactMut for Leaf<T> {}
 
-
 // impl<T: Payload> SolveMut for Leaf<T> {
 //     type Base = ();
 //     // fn rank(&self) -> u16 {
@@ -84,15 +83,15 @@ impl<T> ReactMut for Leaf<T> {}
 //     // }
 // }
 
-    // pub fn new(base: T) -> Self {
-    //     Self {
-    //         base,
-    //         digest: None,
-    //         serial: None,
-    //     }
-    // }
+// pub fn new(base: T) -> Self {
+//     Self {
+//         base,
+//         digest: None,
+//         serial: None,
+//     }
+// }
 
-    // impl<T: Payload> Leaf<T> {
+// impl<T: Payload> Leaf<T> {
 //     fn digest(&mut self) -> u64 {
 //         if let Some(digest) = self.digest {
 //             digest

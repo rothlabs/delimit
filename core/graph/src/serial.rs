@@ -44,7 +44,6 @@ impl fmt::Debug for UnitHasher {
     }
 }
 
-
 // pub trait Digest {
 //     /// Hash to digest number.
 //     fn digest(&self, state: &mut UnitHasher) -> Result<Gain>;

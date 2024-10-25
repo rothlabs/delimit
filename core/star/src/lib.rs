@@ -1,7 +1,7 @@
-use std::fmt::Debug;
 use derive_builder::*;
 use graph::*;
 use node_derive::*;
+use std::fmt::Debug;
 
 #[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned")]
@@ -11,7 +11,7 @@ pub struct Vector<T> {
 }
 
 impl<T> Solve for Vector<T>
-where 
+where
     T: 'static + Clone + SendSync + Debug,
 {
     type Base = Vec<T>;
@@ -56,10 +56,6 @@ where
 //         1
 //     }
 // }
-
-
-
-
 
 // #[derive(Builder, Adapt, Gate, Debug)]
 // #[builder(pattern = "owned")]

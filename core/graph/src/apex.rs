@@ -30,8 +30,6 @@ impl Apex {
     }
 }
 
-
-
 impl Depend for Vec<Apex> {
     async fn depend(&self) -> Result<()> {
         for hub in self {

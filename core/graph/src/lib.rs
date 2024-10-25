@@ -7,13 +7,13 @@ pub use bay::Bay;
 pub use cusp::Cusp;
 pub use deal::Deal;
 pub use edge::Edge;
-pub use hub::{Hub, SolveDown, ToPloyHub, ToGateHub};
+pub use hub::{Hub, SolveDown, ToGateHub, ToPloyHub};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use paste::paste;
-pub use ploy::{Based, Employ, Employed, Engage, Ploy, PloyEdge, Gate, WingEdge};
+pub use ploy::{Based, Employ, Employed, Engage, Gate, Ploy, PloyEdge, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -207,7 +207,7 @@ where
 impl<T> IntoNode for T
 where
     T: 'static + Unit,
-    T::Base: Clone
+    T::Base: Clone,
 {
     fn node(self) -> Result<Node<Self>> {
         Node::from_unit(self)
@@ -224,7 +224,7 @@ where
 impl<T> IntoPloy for T
 where
     T: 'static + Unit + Digest + Serialize,
-    T::Base: Clone + Debug
+    T::Base: Clone + Debug,
 {
     fn ploy(self) -> Result<Ploy<T::Base>> {
         Node::ploy_from_unit(self)
@@ -232,13 +232,13 @@ where
 }
 
 pub trait IntoHub {
-    type Base;//: Payload;
+    type Base; //: Payload;
     /// Move into `Hub`
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
 
-// impl<T> IntoHub for T 
-// where 
+// impl<T> IntoHub for T
+// where
 //     T: IntoPloy,
 //     // T::Base: Debug,
 // {
@@ -258,7 +258,7 @@ where
 impl<T> IntoGate for T
 where
     T: 'static + Unit + GateTag,
-    T::Base: Clone + Debug
+    T::Base: Clone + Debug,
 {
     fn gate(self) -> Result<Gate<Self::Base>> {
         Node::wing_from_unit(self)
@@ -271,8 +271,8 @@ where
 //     fn hub(self) -> Result<Hub<Self::Base>>;
 // }
 
-// impl<T> IntoGateHub for T 
-// where 
+// impl<T> IntoGateHub for T
+// where
 //     T: IntoGate,
 //     // T::Base: Clone + Debug
 // {
@@ -372,7 +372,6 @@ pub trait Depend {
 pub trait PloyTag {}
 
 pub trait GateTag {}
-
 
 // #[macro_export]
 // macro_rules! make_func {
@@ -514,21 +513,6 @@ pub trait GateTag {}
 //     };
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // #[macro_export]
 // macro_rules! GraphHash {
 //     (
@@ -547,13 +531,6 @@ pub trait GateTag {}
 //         }
 //     };
 // }
-
-
-
-
-
-
-
 
 // #[macro_export]
 // macro_rules! Make {
