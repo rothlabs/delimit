@@ -146,7 +146,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let size = 36;
     let storage = gpu.buffer(size).storage_copy()?;
     let bind = gpu
-        .binder()
+        .bind()
         .pipe(pipe.clone())
         .entry(0, storage.clone())
         .hub()?;
@@ -179,7 +179,7 @@ async fn index_fraction() -> dom::Result<()> {
     let basis_entry = gpu.bind_storage(false).entry(1)?.compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
     let bind = gpu
-        .binder()
+        .bind()
         .layout(bind_layout.clone())
         .entry(0, rig.buffer)
         .entry(1, basis.clone())

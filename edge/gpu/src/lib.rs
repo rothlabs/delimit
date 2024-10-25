@@ -1,4 +1,3 @@
-pub use binder::*;
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
@@ -20,7 +19,6 @@ use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
 mod bind;
-mod binder;
 mod buffer;
 mod encode;
 mod pipe;
@@ -100,9 +98,7 @@ impl Gpu {
         }
     }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
-        BufferRigBuilder::default()
-            .device(&self.device)
-            .size(size)
+        BufferRigBuilder::default().device(&self.device).size(size)
     }
     fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
         self.device
@@ -118,9 +114,6 @@ impl Gpu {
     }
     pub fn buffer_vertex<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
-    }
-    pub fn bind(&self) -> BindBuilder {
-        BindBuilder::default().device(&self.device)
     }
     pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
         BindLayoutBuilder::default()
@@ -191,8 +184,8 @@ impl Gpu {
     pub fn command(&self) -> encode::CommandBuilder {
         encode::CommandBuilder::default().gpu(self.clone())
     }
-    pub fn binder(&self) -> BinderBuilder {
-        BinderBuilder::default().gpu(self.clone())
+    pub fn bind(&self) -> BindBuilder {
+        BindBuilder::default().device(self.device.clone())
     }
     pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge>
     where

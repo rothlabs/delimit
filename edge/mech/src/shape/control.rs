@@ -46,7 +46,7 @@ impl Control {
         let bind = grid
             .shape
             .gpu
-            .binder()
+            .bind()
             .layout(grid.shape.mech.grid.basis.control.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, grid.basis.buffer)

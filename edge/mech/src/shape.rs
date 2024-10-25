@@ -47,7 +47,7 @@ impl Shape {
             .hub()?;
         let bind = self
             .gpu
-            .binder()
+            .bind()
             .layout(self.mech.grid.basis.nurbs.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, self.span.buffer.clone())

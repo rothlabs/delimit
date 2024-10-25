@@ -15,18 +15,11 @@ pub struct Encoder<'a> {
 
 impl<'a> Encoder<'a> {
     pub fn compute(&mut self) -> ComputePass {
-        // pass::Compute<'_> {
-        let pass = self
-            .inner
-            .begin_compute_pass(&ComputePassDescriptor::default());
-        pass
-        // pass::Compute::new(pass)
+        self.inner
+            .begin_compute_pass(&ComputePassDescriptor::default())
     }
     pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
-        // pass::Render<'_> {
-        let pass = self.inner.begin_render_pass(descriptor);
-        pass
-        // pass::Render::new(pass)
+        self.inner.begin_render_pass(descriptor)
     }
     pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'_> {
         SourceBuffer {
