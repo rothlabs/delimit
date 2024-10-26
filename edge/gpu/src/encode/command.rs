@@ -5,7 +5,7 @@ use std::ops::Range;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Command {
-    gpu: Gpu,
+    gpu: Core,
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,
     #[builder(default)]

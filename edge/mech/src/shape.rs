@@ -1,4 +1,5 @@
 use super::*;
+use plot::*;
 
 mod plot;
 
@@ -7,12 +8,12 @@ mod plot;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
-    pub rule: Rule,
-    pub span: Hedge,
-    pub index: Hedge,
-    pub control: Control,
+    rule: Rule,
+    span: Hedge,
+    index: Hedge,
+    control: Control,
     #[builder(default = "2")]
-    pub dimension: u32,
+    dimension: u32,
     // #[builder(default)]
     // bounds: Vec<Shape>,
     // #[builder(default)]
@@ -20,8 +21,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn plot<'a>(&'a self, mech: &'a Mech) -> plot::Plot<'a> {
-        plot::Plot {
+    pub fn plot<'a>(&'a self, mech: &'a Core) -> Plot<'a> {
+        Plot {
             bin: &mech.bin,
             gpu: &mech.gpu,
             shape: self,

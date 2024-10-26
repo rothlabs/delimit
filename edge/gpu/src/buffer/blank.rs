@@ -5,7 +5,7 @@ use super::*;
 #[builder(setter(into))]
 pub struct Blank {
     #[back(skip)]
-    gpu: Gpu,
+    core: Core,
     root: Hub<Grc<Buffer>>,
     #[builder(default, setter(each(name = "mul", into)))]
     muls: Vec<Hub<u32>>,
@@ -13,7 +13,7 @@ pub struct Blank {
     divs: Vec<Hub<u32>>,
     #[back(skip)]
     #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
-    usage: BufferUsages
+    usage: BufferUsages,
 }
 
 impl Solve for Blank {
@@ -26,12 +26,13 @@ impl Solve for Blank {
         for div in &self.divs {
             size /= div.base().await? as u64;
         }
-        Ok(self.gpu.buffer(size).usage(self.usage).make()?.into())
+        Ok(self.core.buffer(size).usage(self.usage).make()?.into())
     }
 }
 
 impl BlankBuilder {
     pub fn map_read(self) -> graph::Result<Hub<Grc<Buffer>>> {
-        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST).hub()
+        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
+            .hub()
     }
 }

@@ -5,7 +5,7 @@ use super::*;
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {
     #[back(skip)]
-    gpu: Gpu,
+    core: Core,
     root: Hub<Mutation>,
     storage: Hub<Grc<Buffer>>,
     stage: Hub<Grc<Buffer>>,
@@ -23,7 +23,7 @@ where
         self.root.base().await?;
         let storage = self.storage.base().await?;
         let stage = self.stage.base().await?;
-        self.gpu
+        self.core
             .encoder()
             .copy_buffer(&storage)
             .destination(&stage)
@@ -49,7 +49,7 @@ where
     pub fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
         if let Some(storage) = &self.storage {
             // let size = storage.base().await?.size();
-            if let Some(gpu) = &self.gpu {
+            if let Some(gpu) = &self.core {
                 // let stage = gpu.buffer(size).map_read()?;
                 let stage = gpu.blank(storage).map_read()?;
                 return self.stage(stage).hub();

@@ -5,7 +5,7 @@ use super::*;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into))]
 pub struct Uniform<T> {
-    gpu: Gpu,
+    gpu: Core,
     #[builder(setter(each(name = "field", into)))]
     fields: Vec<Hub<T>>,
 }
