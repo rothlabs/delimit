@@ -1,15 +1,14 @@
 use super::*;
 
-// TODO: find way to remove Builder because it is not needed here
 #[derive(Builder, Gate, Back, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Grid {
     #[back(skip)]
-    mech: Mech,
+    pub mech: Mech,
     #[back(skip)]
-    count: Hub<u32>,
-    shape: Hub<Shape>,
+    pub count: Hub<u32>,
+    pub shape: Hub<Shape>,
 }
 
 impl Solve for Grid {

@@ -14,7 +14,13 @@ impl Plot {
         GridBuilder::default()
             .mech(self.mech)
             .shape(self.shape)
-            .count(count.into())
+            .count(count)
             .hub()
     }
 }
+
+// Ok(Grid {
+//     mech: self.mech,
+//     shape: self.shape,
+//     count: count.into(),
+// }.gate()?.into())

@@ -1,9 +1,5 @@
-pub use control::*;
-
 use super::*;
-// use plot;
 
-mod control;
 mod plot;
 
 #[derive(Builder, Clone, Debug)]
@@ -40,9 +36,15 @@ pub enum Rule {
     Revolve,
 }
 
+#[derive(Clone, Debug)]
+pub enum Control {
+    Shape(Vec<Shape>),
+    Hedge(Hedge),
+}
+
 // #[derive(Clone, Debug)]
 // pub struct Instance {
-//     pub table: Table,
+//     pub hedge: Hedge,
 //     pub layout: Layout,
 //     pub instance: Option<Box<Instance>>,
 // }

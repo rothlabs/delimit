@@ -1,7 +1,7 @@
 use super::*;
 use std::ops::Range;
 
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Command {
@@ -36,6 +36,9 @@ impl CommandBuilder {
     }
     pub fn draw(self, vertices: Range<u32>, instances: Range<u32>) -> Self {
         self.render_command(RenderCommand::Draw((vertices, instances)))
+    }
+    pub fn draw_indexed(self, indices: Range<u32>, base_vertex: i32, instances: Range<u32>) -> Self {
+        self.render_command(RenderCommand::DrawIndexed((indices, base_vertex, instances)))
     }
 }
 
@@ -75,9 +78,12 @@ impl Command {
                 RenderCommand::Vertex((slot, buffer)) => {
                     let buffer = buffer.base().await?;
                     pass.set_vertex_buffer(*slot, buffer.slice(..));
-                }
+                },
                 RenderCommand::Draw((vertices, instances)) => {
                     pass.draw(vertices.clone(), instances.clone());
+                },
+                RenderCommand::DrawIndexed((indices, base_vertex, instances)) => {
+                    pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
             }
         }
@@ -131,4 +137,5 @@ enum RenderCommand {
     Pipe(Grc<RenderPipeline>),
     Vertex((u32, Hub<Grc<Buffer>>)),
     Draw((Range<u32>, Range<u32>)),
+    DrawIndexed((Range<u32>, i32, Range<u32>)),
 }

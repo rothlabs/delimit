@@ -74,10 +74,10 @@ impl Basis<'_> {
                 // let _ = shape.grid(grid.count)?;
                 Err(anyhow!("Control::Shape not implemented"))?
             }
-            Control::Hedge(control) => self.hedge(control),
+            Control::Hedge(control) => self.control_hedge(control),
         }
     }
-    fn hedge(&self, control: &Hedge) -> graph::Result<Hedge> {
+    fn control_hedge(&self, control: &Hedge) -> graph::Result<Hedge> {
         let stride = 1;
         let rig = self
             .gpu
