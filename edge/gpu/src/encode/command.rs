@@ -22,8 +22,8 @@ impl CommandBuilder {
     pub fn compute(self, pipe: Grc<ComputePipeline>) -> Self {
         self.compute_command(ComputeCommand::Pipe(pipe))
     }
-    pub fn bind(self, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-        self.compute_command(ComputeCommand::Bind(bind.into()))
+    pub fn bind(self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.compute_command(ComputeCommand::Bind(index, bind.into()))
     }
     pub fn dispatch(self, count: impl Into<Hub<u32>>) -> Self {
         self.compute_command(ComputeCommand::Dispatch(count.into()))
@@ -32,13 +32,25 @@ impl CommandBuilder {
         self.render_command(RenderCommand::Pipe(pipe))
     }
     pub fn vertex(self, slot: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.render_command(RenderCommand::Vertex((slot, buffer.into())))
+        self.render_command(RenderCommand::Vertex(slot, buffer.into()))
+    }
+    pub fn index(self, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
+        self.render_command(RenderCommand::Index(buffer.into()))
     }
     pub fn draw(self, vertices: Range<u32>, instances: Range<u32>) -> Self {
-        self.render_command(RenderCommand::Draw((vertices, instances)))
+        self.render_command(RenderCommand::Draw(vertices, instances))
     }
-    pub fn draw_indexed(self, indices: Range<u32>, base_vertex: i32, instances: Range<u32>) -> Self {
-        self.render_command(RenderCommand::DrawIndexed((indices, base_vertex, instances)))
+    pub fn draw_indexed(
+        self,
+        indices: Range<u32>,
+        base_vertex: i32,
+        instances: Range<u32>,
+    ) -> Self {
+        self.render_command(RenderCommand::DrawIndexed((
+            indices,
+            base_vertex,
+            instances,
+        )))
     }
 }
 
@@ -48,9 +60,9 @@ impl Command {
         for cmd in &self.compute_commands {
             match cmd {
                 ComputeCommand::Pipe(pipe) => pass.set_pipeline(pipe),
-                ComputeCommand::Bind(bind) => {
+                ComputeCommand::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    pass.set_bind_group(0, &bind, &[])
+                    pass.set_bind_group(*index, &bind, &[])
                 }
                 ComputeCommand::Dispatch(count) => {
                     let count = count.base().await?;
@@ -75,13 +87,17 @@ impl Command {
         for cmd in &self.render_commands {
             match cmd {
                 RenderCommand::Pipe(pipe) => pass.set_pipeline(pipe),
-                RenderCommand::Vertex((slot, buffer)) => {
+                RenderCommand::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
                     pass.set_vertex_buffer(*slot, buffer.slice(..));
-                },
-                RenderCommand::Draw((vertices, instances)) => {
+                }
+                RenderCommand::Index(buffer) => {
+                    let buffer = buffer.base().await?;
+                    pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
+                }
+                RenderCommand::Draw(vertices, instances) => {
                     pass.draw(vertices.clone(), instances.clone());
-                },
+                }
                 RenderCommand::DrawIndexed((indices, base_vertex, instances)) => {
                     pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
@@ -111,13 +127,13 @@ impl Adapt for Command {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         for cmd in &mut self.compute_commands {
             match cmd {
-                ComputeCommand::Bind(bind) => bind.back(back)?,
+                ComputeCommand::Bind(_, bind) => bind.back(back)?,
                 ComputeCommand::Dispatch(count) => count.back(back)?,
                 _ => (),
             }
         }
         for cmd in &mut self.render_commands {
-            if let RenderCommand::Vertex((_, buffer)) = cmd {
+            if let RenderCommand::Vertex(_, buffer) = cmd {
                 buffer.back(back)?
             }
         }
@@ -128,14 +144,15 @@ impl Adapt for Command {
 #[derive(Debug)]
 enum ComputeCommand {
     Pipe(Grc<ComputePipeline>),
-    Bind(Hub<Grc<BindGroup>>),
+    Bind(u32, Hub<Grc<BindGroup>>),
     Dispatch(Hub<u32>),
 }
 
 #[derive(Debug)]
 enum RenderCommand {
     Pipe(Grc<RenderPipeline>),
-    Vertex((u32, Hub<Grc<Buffer>>)),
-    Draw((Range<u32>, Range<u32>)),
+    Vertex(u32, Hub<Grc<Buffer>>),
+    Index(Hub<Grc<Buffer>>),
+    Draw(Range<u32>, Range<u32>),
     DrawIndexed((Range<u32>, i32, Range<u32>)),
 }

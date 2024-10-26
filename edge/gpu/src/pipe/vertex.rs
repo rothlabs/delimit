@@ -45,7 +45,7 @@ impl<'a> LayoutBuilder<'a> {
         };
         Ok(out)
     }
-    pub fn list(self) -> Result<[VertexBufferLayout<'a>; 1]> {
-        Ok([self.make()?])
+    pub fn instance(self) -> Result<VertexBufferLayout<'a>> {
+        self.step_mode(VertexStepMode::Instance).make()
     }
 }

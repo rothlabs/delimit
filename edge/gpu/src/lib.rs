@@ -112,7 +112,7 @@ impl Gpu {
     pub fn uniform<T: Pod>(&self) -> UniformBuilder<T> {
         UniformBuilder::default().gpu(self.clone())
     }
-    pub fn buffer_vertex<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
+    pub fn vertex_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
     }
     pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {

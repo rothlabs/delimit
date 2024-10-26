@@ -42,7 +42,7 @@ impl Plot<'_> {
             .root(rig.root)
             .root(self.shape.span.root.clone())
             .compute(self.bin.plot.grid.basis.nurbs.pipe.clone())
-            .bind(bind)
+            .bind(0, bind)
             .dispatch(count.clone())
             .hub()?;
         Basis {
@@ -112,7 +112,7 @@ impl Basis<'_> {
             .root(self.shape.index.root.clone())
             .root(control.root.clone())
             .compute(self.bin.plot.grid.basis.control.pipe.clone())
-            .bind(bind)
+            .bind(0, bind)
             .dispatch(self.count.clone())
             .hub()?;
         Ok(Hedge { buffer, root })

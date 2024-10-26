@@ -45,6 +45,27 @@ fn line_data() -> Vec<f32> {
     ]
 }
 
+#[rustfmt::skip]
+fn triangle_data() -> Vec<f32> {
+    vec![
+        // pos             color
+        -0.3_f32, -0.3,    1., 0., 0., 0.,
+         0.,       0.3,    0., 1., 0., 0.,
+         0.3,     -0.3,    0., 0., 1., 0.,
+    ]
+}
+
+#[rustfmt::skip]
+fn instance_data() -> Vec<f32> {
+    vec![
+        // pos         
+        -0.7_f32, -0.7,
+         0.,       0.7,
+         0.7,     -0.7,
+         1.,       1.,
+    ]
+}
+
 // Tests ///////////////////////////////
 
 #[wasm_bindgen_test]
@@ -75,16 +96,18 @@ async fn draw_triangle() -> dom::Result<()> {
     Ok(())
 }
 
-const LINE_SHADER: ShaderModuleDescriptor = include_wgsl!("../src/shader/line.wgsl");
+const BASIC_SHADER: ShaderModuleDescriptor = include_wgsl!("../src/shader/basic.wgsl");
+const BASIC_INSTANCE_SHADER: ShaderModuleDescriptor =
+    include_wgsl!("../src/shader/basic_instance.wgsl");
 
 #[wasm_bindgen_test]
 async fn draw_lines() -> dom::Result<()> {
     let (gpu, surface) = gpu_with_canvas().await?;
     let targets = surface.targets();
-    let shader = gpu.shader(LINE_SHADER);
+    let shader = gpu.shader(BASIC_SHADER);
     let prim = gpu.lines().make()?;
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
-    let buffers = gpu.vertex_layout(24).attributes(&attribs).list()?;
+    let buffers = vec![gpu.vertex_layout(24).attributes(&attribs).make()?];
     let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu
@@ -93,7 +116,7 @@ async fn draw_lines() -> dom::Result<()> {
         .primitive(prim)
         .make()?;
     // TODO: make buffer_vertex return Hub<Grc<Buffer>>
-    let buffer = gpu.buffer_vertex(&line_data());
+    let buffer = gpu.vertex_buffer(&line_data());
     let view = surface.view();
     gpu.command()
         .texture_view(view)
@@ -110,10 +133,10 @@ async fn draw_lines() -> dom::Result<()> {
 async fn draw_msaa_lines() -> dom::Result<()> {
     let (gpu, surface) = gpu_with_canvas().await?;
     let targets = surface.targets();
-    let shader = gpu.shader(LINE_SHADER);
+    let shader = gpu.shader(BASIC_SHADER);
     let prim = gpu.lines().make()?;
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
-    let buffers = gpu.vertex_layout(24).attributes(&attribs).list()?;
+    let buffers = vec![gpu.vertex_layout(24).attributes(&attribs).make()?];
     let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
     let multi = gpu.multisample(4).make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
@@ -123,7 +146,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
         .primitive(prim)
         .multisample(multi)
         .make()?;
-    let buffer = gpu.buffer_vertex(&line_data());
+    let buffer = gpu.vertex_buffer(&line_data());
     let view = surface.view();
     let texture_view = surface.texture().sample_count(4).view()?;
     gpu.command()
@@ -132,6 +155,34 @@ async fn draw_msaa_lines() -> dom::Result<()> {
         .render(pipe)
         .vertex(0, buffer)
         .draw(0..4, 0..1)
+        .hub()?
+        .base()
+        .await?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_triangle_instances() -> dom::Result<()> {
+    let (gpu, surface) = gpu_with_canvas().await?;
+    let targets = surface.targets();
+    let shader = gpu.shader(BASIC_INSTANCE_SHADER);
+    let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
+    let model = gpu.vertex_layout(24).attributes(&attribs).make()?;
+    let attribs = vertex_attr_array![2 => Float32x2];
+    let instance = gpu.vertex_layout(8).attributes(&attribs).instance()?;
+    let buffers = vec![model, instance];
+    let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    let view = surface.view();
+    let model = gpu.vertex_buffer(&triangle_data());
+    let instance = gpu.vertex_buffer(&instance_data());
+    gpu.command()
+        .texture_view(view)
+        .render(pipe)
+        .vertex(0, model)
+        .vertex(1, instance)
+        .draw(0..3, 0..4)
         .hub()?
         .base()
         .await?;
@@ -155,7 +206,12 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
         .hub()?
         .base()
         .await?;
-    let collatz = gpu.command().compute(pipe).bind(bind).dispatch(9).hub()?;
+    let collatz = gpu
+        .command()
+        .compute(pipe)
+        .bind(0, bind)
+        .dispatch(9)
+        .hub()?;
     let out = gpu
         .reader::<u32>(storage)
         .root(collatz)
@@ -190,7 +246,7 @@ async fn index_fraction() -> dom::Result<()> {
         .command()
         .root(rig.root)
         .compute(pipe)
-        .bind(bind)
+        .bind(0, bind)
         .dispatch(count)
         .hub()?;
     let out: Vec<f32> = gpu
