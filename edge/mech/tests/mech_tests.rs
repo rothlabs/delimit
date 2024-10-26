@@ -11,14 +11,19 @@ fn body() -> dom::Result<Element> {
     Window::new()?.document()?.body()
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
-    let canvas = body()?.stem("canvas")?.canvas()?;
-    canvas.gpu().await
+async fn gpu() -> dom::Result<Gpu> {
+    let canvas = body()?.element("canvas")?.canvas()?;
+    Ok(canvas.gpu().await?.0)
 }
+
+// async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
+//     let canvas = body()?.stem("canvas")?.canvas()?;
+//     canvas.gpu().await
+// }
 
 #[wasm_bindgen_test]
 async fn nurbs() -> dom::Result<()> {
-    let (gpu, _) = gpu_with_canvas().await?;
+    let gpu = gpu().await?;
     let mech = Mech::new(gpu.clone())?;
     let count = 5;
     //                        6 knots                      3 weights
@@ -35,8 +40,7 @@ async fn nurbs() -> dom::Result<()> {
     let out: Vec<f32> = gpu
         .reader(plot.buffer)
         .root(plot.root)
-        .staged()
-        .await?
+        .staged()?
         .base()
         .await?;
     assert_eq!(
@@ -66,21 +70,3 @@ async fn nurbs() -> dom::Result<()> {
     );
     Ok(())
 }
-
-// let size = plot.buffer.base().await?.size();
-//     let stage = gpu.buffer(size).map_read()?;
-//     let out: Vec<f32> = gpu
-//         .reader(plot.buffer)
-//         .root(plot.root)
-//         .stage(stage)
-//         .hub()?
-//         .base()
-//         .await?;
-
-// let plot = plot::GridBuilder::default()
-//     .mech(mech)
-//     .shape(shape)
-//     .count(count)
-//     .hub()?
-//     .base()
-//     .await?;

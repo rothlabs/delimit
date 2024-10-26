@@ -35,11 +35,7 @@ impl BufferRigBuilder<'_> {
         let buffer = built.device.create_buffer(&descriptor);
         Ok(buffer.into())
     }
-    pub fn map_read(self) -> graph::Result<Grc<Buffer>> {
-        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
-            .make()
-    }
-    pub fn storage_copy(self) -> graph::Result<Grc<Buffer>> {
+    pub fn storage(self) -> graph::Result<Grc<Buffer>> {
         self.usage(BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST)
             .make()
     }
@@ -48,3 +44,9 @@ impl BufferRigBuilder<'_> {
             .make()
     }
 }
+
+
+// pub fn map_read(self) -> graph::Result<Grc<Buffer>> {
+    //     self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
+    //         .make()
+    // }

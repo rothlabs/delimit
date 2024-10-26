@@ -36,7 +36,3 @@ impl Mech {
         }
     }
 }
-
-// pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> plot::GridBuilder {
-//     plot::GridBuilder::default().shape(shape.into())
-// }

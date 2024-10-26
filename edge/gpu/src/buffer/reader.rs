@@ -46,14 +46,15 @@ where
     BufferReader<T>: Solve,
     <BufferReader<T> as Solve>::Base: Clone + Debug,
 {
-    pub async fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
+    pub fn staged(self) -> graph::Result<Hub<<BufferReader<T> as Solve>::Base>> {
         if let Some(storage) = &self.storage {
-            let size = storage.base().await?.size();
+            // let size = storage.base().await?.size();
             if let Some(gpu) = &self.gpu {
-                let stage = gpu.buffer(size).map_read()?;
+                // let stage = gpu.buffer(size).map_read()?;
+                let stage = gpu.blank(storage).map_read()?;
                 return self.stage(stage).hub();
             }
         }
-        Err(anyhow!("uninitialized storage"))?
+        Err(anyhow!("uninitialized storage or gpu"))?
     }
 }

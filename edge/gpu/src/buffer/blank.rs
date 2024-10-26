@@ -7,10 +7,13 @@ pub struct Blank {
     #[back(skip)]
     gpu: Gpu,
     root: Hub<Grc<Buffer>>,
-    #[builder(setter(each(name = "mul", into)))]
+    #[builder(default, setter(each(name = "mul", into)))]
     muls: Vec<Hub<u32>>,
-    #[builder(setter(each(name = "div", into)))]
+    #[builder(default, setter(each(name = "div", into)))]
     divs: Vec<Hub<u32>>,
+    #[back(skip)]
+    #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
+    usage: BufferUsages
 }
 
 impl Solve for Blank {
@@ -23,6 +26,12 @@ impl Solve for Blank {
         for div in &self.divs {
             size /= div.base().await? as u64;
         }
-        Ok(self.gpu.buffer(size).storage_copy()?.into())
+        Ok(self.gpu.buffer(size).usage(self.usage).make()?.into())
+    }
+}
+
+impl BlankBuilder {
+    pub fn map_read(self) -> graph::Result<Hub<Grc<Buffer>>> {
+        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST).hub()
     }
 }

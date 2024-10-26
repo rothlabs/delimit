@@ -15,9 +15,9 @@ fn body() -> dom::Result<Element> {
     Window::new()?.document()?.body()
 }
 
-async fn gpu<'a>() -> dom::Result<(Gpu, gpu::Surface<'a>)> {
+async fn gpu() -> dom::Result<Gpu> {
     let canvas = body()?.element("canvas")?.canvas()?;
-    canvas.gpu().await
+    Ok(canvas.gpu().await?.0)
 }
 
 async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, gpu::Surface<'a>)> {
@@ -70,7 +70,7 @@ fn instance_data() -> Vec<f32> {
 
 #[wasm_bindgen_test]
 async fn make_vertex_buffer() -> dom::Result<()> {
-    let (gpu, _) = gpu().await?;
+    let gpu = gpu().await?;
     gpu.buffer(1024).usage(BufferUsages::VERTEX).make()?;
     Ok(())
 }
@@ -191,11 +191,11 @@ async fn draw_triangle_instances() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn compute_collatz_iterations() -> dom::Result<()> {
-    let (gpu, _) = gpu().await?;
+    let gpu = gpu().await?;
     let shader = gpu.shader(include_wgsl!("collatz.wgsl"));
     let pipe = shader.compute("main").make()?;
     let size = 36;
-    let storage = gpu.buffer(size).storage_copy()?;
+    let storage = gpu.buffer(size).storage()?;
     let bind = gpu
         .bind()
         .pipe(pipe.clone())
@@ -215,8 +215,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
     let out = gpu
         .reader::<u32>(storage)
         .root(collatz)
-        .staged()
-        .await?
+        .staged()?
         .base()
         .await?;
     assert_eq!(out, vec![0, 1, 7, 2, 5, 8, 16, 3, 19]);
@@ -225,12 +224,12 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 
 #[wasm_bindgen_test]
 async fn index_fraction() -> dom::Result<()> {
-    let (gpu, _) = gpu().await?;
+    let gpu = gpu().await?;
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;
     let size = 4 * count as u64;
     let rig = gpu.uniform().field(count).make()?;
-    let basis = gpu.buffer(size).storage_copy()?;
+    let basis = gpu.buffer(size).storage()?;
     let config_entry = gpu.bind_uniform().entry(0)?.compute()?;
     let basis_entry = gpu.bind_storage(false).entry(1)?.compute()?;
     let bind_layout = gpu.bind_layout(&[config_entry, basis_entry]).make()?;
@@ -252,8 +251,7 @@ async fn index_fraction() -> dom::Result<()> {
     let out: Vec<f32> = gpu
         .reader(basis)
         .root(index_compute)
-        .staged()
-        .await?
+        .staged()?
         .base()
         .await?;
     assert_eq!(
