@@ -31,14 +31,7 @@ async fn nurbs() -> dom::Result<()> {
         .index(index)
         .control(Control::Hedge(control))
         .build()?;
-    // TODO: make from Mech
-    let plot = plot::GridBuilder::default()
-        .mech(mech)
-        .shape(shape)
-        .count(count)
-        .hub()?
-        .base()
-        .await?;
+    let plot = mech.plot(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu
         .reader(plot.buffer)
         .root(plot.root)
@@ -83,3 +76,11 @@ async fn nurbs() -> dom::Result<()> {
 //         .hub()?
 //         .base()
 //         .await?;
+
+// let plot = plot::GridBuilder::default()
+//     .mech(mech)
+//     .shape(shape)
+//     .count(count)
+//     .hub()?
+//     .base()
+//     .await?;

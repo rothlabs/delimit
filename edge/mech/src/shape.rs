@@ -1,8 +1,10 @@
 pub use control::*;
 
 use super::*;
+// use plot;
 
 mod control;
+mod plot;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
@@ -19,6 +21,16 @@ pub struct Shape {
     // bounds: Vec<Shape>,
     // #[builder(default)]
     // instance: Option<Instance>,
+}
+
+impl Shape {
+    pub fn plot<'a>(&'a self, mech: &'a Mech) -> plot::Plot<'a> {
+        plot::Plot {
+            bin: &mech.bin,
+            gpu: &mech.gpu,
+            shape: self,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

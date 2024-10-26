@@ -1,17 +1,17 @@
 pub use plot::*;
 pub use shape::*;
 
+use bin::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
 use wgpu::*;
-use bin::*;
 
 pub mod plot;
 
-mod shape;
 mod bin;
+mod shape;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
@@ -29,11 +29,14 @@ impl Mech {
     pub fn shape(&self, rule: Rule) -> ShapeBuilder {
         ShapeBuilder::default().rule(rule)
     }
-    pub fn plot<'a>(&'a self, shape: &'a Shape) -> Plot<'a> {
+    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> Plot {
         Plot {
-            bin: &self.bin,
-            gpu: &self.gpu,
-            shape,
+            mech: self.clone(),
+            shape: shape.into(),
         }
     }
 }
+
+// pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> plot::GridBuilder {
+//     plot::GridBuilder::default().shape(shape.into())
+// }

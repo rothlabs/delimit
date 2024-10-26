@@ -1,5 +1,6 @@
 use super::*;
 
+// TODO: find way to remove Builder because it is not needed here
 #[derive(Builder, Gate, Back, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
@@ -16,8 +17,7 @@ impl Solve for Grid {
     async fn solve(&self) -> graph::Result<Hub<Hedge>> {
         let shape = self.shape.base().await?;
         let count = self.count.clone();
-        let hedge = self.mech.plot(&shape).grid(count)?.into();
-        Ok(hedge)
-        // Ok(shape.grid(self.count.clone())?.into())
+        let hedge = shape.plot(&self.mech).grid(count)?;
+        Ok(hedge.into())
     }
 }

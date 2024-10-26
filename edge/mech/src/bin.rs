@@ -2,26 +2,26 @@ use super::*;
 
 #[derive(Debug)]
 pub struct Bin {
-    pub plot: PlotBin
+    pub plot: PlotBin,
 }
 
 impl Bin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
-            plot: PlotBin::new(gpu)?
+            plot: PlotBin::new(gpu)?,
         })
     }
 }
 
 #[derive(Debug)]
 pub struct PlotBin {
-    pub grid: GridPlotBin
+    pub grid: GridPlotBin,
 }
 
 impl PlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
-            grid: GridPlotBin::new(gpu)?
+            grid: GridPlotBin::new(gpu)?,
         })
     }
 }
@@ -34,7 +34,7 @@ pub struct GridPlotBin {
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
-            basis: GridPlotBasisBin::new(gpu)?
+            basis: GridPlotBasisBin::new(gpu)?,
         })
     }
 }
@@ -67,10 +67,7 @@ impl GridPlotBasisBin {
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let control = Program { layout, pipe };
-        Ok(Self {
-            nurbs,
-            control
-        })
+        Ok(Self { nurbs, control })
     }
 }
 
