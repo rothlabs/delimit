@@ -4,11 +4,12 @@ use super::*;
 pub struct Core {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
+    pub surface: Grc<Surface<'static>>,
     // pub adapter: Grc<Adapter>,
 }
 
 impl Core {
-    pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<(Self, Surface<'a>)> {
+    pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<Self> {
         let instance = Instance::default();
         let surface_target = SurfaceTarget::Canvas(canvas);
         let surface = instance.create_surface(surface_target)?;
@@ -34,15 +35,17 @@ impl Core {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        Ok((
+        // let grc_surface = Grc::new(Surface::new(surface, &adapter, grc_device));
+        Ok(//(
             Self {
                 device: grc_device.clone(),
                 queue: queue.into(),
+                surface: Surface::new(surface, &adapter, grc_device).into(),
                 // adapter: adapter.into(),
                 //surface: Surface::new(surface, &adapter, grc_device),
-            },
-            Surface::new(surface, &adapter, grc_device),
-        ))
+            }
+            //Surface::new(surface, &adapter, grc_device),
+        )
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {

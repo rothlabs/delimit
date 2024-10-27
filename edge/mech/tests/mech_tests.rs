@@ -13,7 +13,7 @@ fn body() -> dom::Result<Element> {
 
 async fn gpu() -> dom::Result<Gpu> {
     let canvas = body()?.element("canvas")?.canvas()?;
-    Ok(canvas.gpu().await?.0)
+    canvas.gpu().await
 }
 
 // async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {

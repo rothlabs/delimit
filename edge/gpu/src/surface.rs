@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Debug)]
 pub struct Surface<'a> {
     inner: wgpu::Surface<'a>,
     device: Grc<Device>,
