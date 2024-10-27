@@ -63,10 +63,13 @@ impl Core {
             .into()
     }
     pub fn uniform<T: Pod>(&self) -> UniformBuilder<T> {
-        UniformBuilder::default().gpu(self.clone())
+        UniformBuilder::default().core(self.clone())
     }
     pub fn vertex_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::VERTEX)
+    }
+    pub fn index_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
+        self.buffer_init(data, BufferUsages::INDEX)
     }
     pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
         BindLayoutBuilder::default()
@@ -135,7 +138,7 @@ impl Core {
         BlankBuilder::default().core(self.clone()).root(root)
     }
     pub fn command(&self) -> encode::CommandBuilder {
-        encode::CommandBuilder::default().gpu(self.clone())
+        encode::CommandBuilder::default().core(self.clone())
     }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(self.device.clone())

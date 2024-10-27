@@ -49,9 +49,10 @@ fn line_data() -> Vec<f32> {
 fn triangle_data() -> Vec<f32> {
     vec![
         // pos             color
-        -0.3_f32, -0.3,    1., 0., 0., 0.,
-         0.,       0.3,    0., 1., 0., 0.,
-         0.3,     -0.3,    0., 0., 1., 0.,
+        -0.3_f32, -0.0,    1., 0., 0., 0.,
+         0.,       0.6,    0., 1., 0., 0.,
+         0.3,     -0.0,    0., 0., 1., 0.,
+         0.,      -0.6,    0., 1., 0., 0.,
     ]
 }
 
@@ -64,6 +65,11 @@ fn instance_data() -> Vec<f32> {
          0.7,     -0.7,
          1.,       1.,
     ]
+}
+
+#[rustfmt::skip]
+fn index_data() -> Vec<u16> {
+    vec![0, 1, 2,   0, 2, 3]
 }
 
 // Tests ///////////////////////////////
@@ -183,6 +189,36 @@ async fn draw_triangle_instances() -> dom::Result<()> {
         .vertex(0, model)
         .vertex(1, instance)
         .draw(0..3, 0..4)
+        .hub()?
+        .base()
+        .await?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_triangle_indexed_instance() -> dom::Result<()> {
+    let (gpu, surface) = gpu_with_canvas().await?;
+    let targets = surface.targets();
+    let shader = gpu.shader(BASIC_INSTANCE_SHADER);
+    let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
+    let model = gpu.vertex_layout(24).attributes(&attribs).make()?;
+    let attribs = vertex_attr_array![2 => Float32x2];
+    let instance = gpu.vertex_layout(8).attributes(&attribs).instance()?;
+    let buffers = vec![model, instance];
+    let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    let view = surface.view();
+    let model = gpu.vertex_buffer(&triangle_data());
+    let instance = gpu.vertex_buffer(&instance_data());
+    let index = gpu.index_buffer(&index_data());
+    gpu.command()
+        .texture_view(view)
+        .render(pipe)
+        .vertex(0, model)
+        .vertex(1, instance)
+        .index(index)
+        .draw_indexed(0..6, 0, 0..4)
         .hub()?
         .base()
         .await?;

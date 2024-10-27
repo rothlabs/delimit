@@ -38,8 +38,8 @@ async fn nurbs() -> dom::Result<()> {
         .build()?;
     let plot = mech.plot(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu
-        .reader(plot.buffer)
-        .root(plot.root)
+        .reader(plot.hedge.buffer)
+        .root(plot.hedge.root)
         .staged()?
         .base()
         .await?;

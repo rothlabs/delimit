@@ -78,7 +78,7 @@ fn main(
         let wi = weight_index - i;
         let b0 = basis_index - i;
         let b1 = b0 + order;
-        // basis[b2] ...
+        // basis[b2] = ... / sum0 / sum0 / sum0;
         basis[b1] = (basis[b1] * sum0 - basis[b0] * sum1) * span[wi] / sum0 / sum0;
         basis[b0] *= span[wi] / sum0;
     }

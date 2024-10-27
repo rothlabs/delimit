@@ -5,7 +5,7 @@ use std::ops::Range;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Command {
-    gpu: Core,
+    core: Core,
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,
     #[builder(default)]
@@ -78,11 +78,11 @@ impl Command {
         view: &TextureView,
     ) -> graph::Result<()> {
         let attachments = if let Some(target) = &self.resolve_target {
-            self.gpu.attachment(view).resolve_target(target).list()?
+            self.core.attachment(view).resolve_target(target).list()?
         } else {
-            self.gpu.attachment(view).list()?
+            self.core.attachment(view).list()?
         };
-        let render = self.gpu.render_pass(&attachments).make()?;
+        let render = self.core.render_pass(&attachments).make()?;
         let mut pass = encoder.render(&render);
         for cmd in &self.render_commands {
             match cmd {
@@ -93,6 +93,7 @@ impl Command {
                 }
                 RenderCommand::Index(buffer) => {
                     let buffer = buffer.base().await?;
+                    // pass.set_bind_group(index, bind_group, offsets);
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 RenderCommand::Draw(vertices, instances) => {
@@ -111,7 +112,7 @@ impl Solve for Command {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.roots.depend().await?;
-        let mut encoder = self.gpu.encoder();
+        let mut encoder = self.core.encoder();
         if !self.compute_commands.is_empty() {
             self.compute_pass(&mut encoder).await?;
         }

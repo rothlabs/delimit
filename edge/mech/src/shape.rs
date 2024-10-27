@@ -1,5 +1,5 @@
 use super::*;
-use plot::*;
+use plot::Plot;
 
 mod plot;
 
@@ -13,7 +13,7 @@ pub struct Shape {
     index: Hedge,
     control: Control,
     #[builder(default = "2")]
-    dimension: u32,
+    pub dimension: u32,
     // #[builder(default)]
     // bounds: Vec<Shape>,
     // #[builder(default)]
@@ -28,6 +28,12 @@ impl Shape {
             shape: self,
         }
     }
+    pub fn plot_stride(&self) -> u32 {
+        self.dimension + self.dimension * self.rank()
+    }
+    pub fn rank(&self) -> u32 {
+        self.control.rank(1)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -41,6 +47,19 @@ pub enum Rule {
 pub enum Control {
     Shape(Vec<Shape>),
     Hedge(Hedge),
+}
+
+impl Control {
+    fn rank(&self, rank: u32) -> u32 {
+        match self {
+            Self::Hedge(_) => rank,
+            Self::Shape(shape) => if let Some(shape) = shape.first() {
+                shape.control.rank(rank) + rank
+            } else {
+                rank
+            }
+        }
+    }
 }
 
 // #[derive(Clone, Debug)]

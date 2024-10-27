@@ -1,4 +1,5 @@
 pub use shape::*;
+pub use plot::*;
 
 use bin::*;
 use core::*;

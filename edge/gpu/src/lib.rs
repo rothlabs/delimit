@@ -43,13 +43,16 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Debug)]
-pub struct Mutation;
-
-#[derive(Clone, Debug)]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
     pub root: Hub<Mutation>,
 }
+
+#[derive(Clone, Debug)]
+pub struct Mutation;
+
+#[derive(Clone, Debug)]
+pub struct Drawing;
 
 // #[derive(Clone, Debug)]
 // pub enum Table {

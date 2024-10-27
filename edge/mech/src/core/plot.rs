@@ -1,14 +1,14 @@
 use super::*;
 
 pub struct Plot {
-    pub mech: Core,
+    pub core: Core,
     pub shape: Hub<Shape>,
 }
 
 impl Plot {
-    pub fn grid(self, count: impl Into<Hub<u32>>) -> graph::Result<Hub<Hedge>> {
+    pub fn grid(self, count: impl Into<Hub<u32>>) -> graph::Result<Hub<crate::Plot>> {
         GridBuilder::default()
-            .mech(self.mech)
+            .core(self.core)
             .shape(self.shape)
             .count(count)
             .hub()
@@ -20,19 +20,23 @@ impl Plot {
 #[builder(setter(into))]
 pub struct Grid {
     #[back(skip)]
-    pub mech: Core,
+    core: Core,
     #[back(skip)]
-    pub count: Hub<u32>,
-    pub shape: Hub<Shape>,
+    count: Hub<u32>,
+    shape: Hub<Shape>,
 }
 
 impl Solve for Grid {
-    type Base = Hedge;
-    async fn solve(&self) -> graph::Result<Hub<Hedge>> {
+    type Base = crate::Plot;
+    async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         let shape = self.shape.base().await?;
         let count = self.count.clone();
-        let hedge = shape.plot(&self.mech).grid(count)?;
-        Ok(hedge.into())
+        let hedge = shape.plot(&self.core).grid(count)?;
+        let plot = crate::Plot {
+            hedge,
+            shape: self.shape.clone()
+        };
+        Ok(plot.into())
     }
 }
 

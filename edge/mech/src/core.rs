@@ -1,5 +1,5 @@
 use super::*;
-use plot::*;
+use plot::Plot;
 
 mod plot;
 
@@ -21,7 +21,7 @@ impl Core {
     }
     pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> Plot {
         Plot {
-            mech: self.clone(),
+            core: self.clone(),
             shape: shape.into(),
         }
     }
