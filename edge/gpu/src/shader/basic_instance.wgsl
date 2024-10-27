@@ -8,8 +8,8 @@ struct Instance {
 }
 
 struct VertexOutput {
-    @location(0) color: vec4<f32>,
     @builtin(position) position: vec4<f32>,
+    @location(0) color: vec4<f32>,
 };
 
 @vertex
@@ -18,8 +18,7 @@ fn vs_main(
     instance: Instance,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.position = vec4<f32>(model.position,    0.0, 1.0)
-                 + vec4<f32>(instance.position, 0.0, 1.0);
+    out.position = vec4<f32>(model.position + instance.position, 0.0, 1.0);
     out.color = model.color;
     return out;
 }

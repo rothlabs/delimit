@@ -15,14 +15,14 @@ pub struct Plot {
 #[derive(Builder, Gate, Back, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
-pub struct Positions {
+pub struct Points {
     #[back(skip)]
     core: Core,
     plot: Hub<Plot>,
     size: Hub<u32>,
 }
 
-impl Solve for Positions {
+impl Solve for Points {
     type Base = Drawing;
     async fn solve(&self) -> graph::Result<Hub<Drawing>> {
         let plot = self.plot.base().await?;

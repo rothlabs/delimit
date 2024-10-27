@@ -16,12 +16,14 @@ impl Bin {
 #[derive(Debug)]
 pub struct PlotBin {
     pub grid: GridPlotBin,
+    pub draw: DrawPlotBin,
 }
 
 impl PlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
             grid: GridPlotBin::new(gpu)?,
+            draw: DrawPlotBin::new(gpu)?,
         })
     }
 }
@@ -68,6 +70,24 @@ impl GridPlotBasisBin {
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let control = Program { layout, pipe };
         Ok(Self { nurbs, control })
+    }
+}
+
+#[derive(Debug)]
+pub struct DrawPlotBin {
+    pub points: Program,
+}
+
+impl DrawPlotBin {
+    fn new(gpu: &Gpu) -> graph::Result<Self> {
+        let shader = gpu.shader(include_wgsl!("plot/draw/points.wgsl"));
+        let rig = gpu.bind_uniform().entry(0)?.compute()?;
+        let plot = gpu.bind_storage(true).entry(1)?.compute()?;
+        let layout = gpu.bind_layout(&[rig, plot]).make()?;
+        let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
+        let pipe = shader.vertex("main").layout(&pipe_layout).make()?;
+        let points = Program { layout, pipe };
+        Ok(Self { points })
     }
 }
 

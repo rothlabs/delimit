@@ -8,10 +8,22 @@ mod plot;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
+    // span: Span {
+        // vector: Vec<Vector> { (basis) different vector slots for different vector length (order)
+            // rule: VectorRule (direct, nurbs)
+            // hedge: Hedge
+        // }
+        // matrix
+    // }
     rule: Rule,
     span: Hedge,
     index: Hedge,
     control: Control,
+    // points: Hedge (base controls)
+    // control: Vec<Control> { (list by rank)
+        // vector: Hedge (index like [matrix_span_index, control_index])
+        // matrix: Hedge (index like [vector_span_index, control_index]) (different matrix slots for different matrix width (order))
+    // }
     #[builder(default = "2")]
     pub dimension: u32,
     // #[builder(default)]
