@@ -50,6 +50,9 @@ impl BindEntryBuilder {
     pub fn compute(self) -> graph::Result<BindGroupLayoutEntry> {
         self.visibility(ShaderStages::COMPUTE).make()
     }
+    pub fn vertex(self) -> graph::Result<BindGroupLayoutEntry> {
+        self.visibility(ShaderStages::VERTEX).make()
+    }
 }
 
 #[derive(Builder)]

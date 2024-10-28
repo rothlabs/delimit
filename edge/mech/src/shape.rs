@@ -9,11 +9,11 @@ mod plot;
 #[builder(setter(into, strip_option))]
 pub struct Shape {
     // span: Span {
-        // vector: Vec<Vector> { (basis) different vector slots for different vector length (order)
-            // rule: VectorRule (direct, nurbs)
-            // hedge: Hedge
-        // }
-        // matrix
+    // vector: Vec<Vector> { (basis) different vector slots for different vector length (order)
+    // rule: VectorRule (direct, nurbs)
+    // hedge: Hedge
+    // }
+    // matrix
     // }
     rule: Rule,
     span: Hedge,
@@ -21,8 +21,8 @@ pub struct Shape {
     control: Control,
     // points: Hedge (base controls)
     // control: Vec<Control> { (list by rank)
-        // vector: Hedge (index like [matrix_span_index, control_index])
-        // matrix: Hedge (index like [vector_span_index, control_index]) (different matrix slots for different matrix width (order))
+    // vector: Hedge (index like [matrix_span_index, control_index])
+    // matrix: Hedge (index like [vector_span_index, control_index]) (different matrix slots for different matrix width (order))
     // }
     #[builder(default = "2")]
     pub dimension: u32,
@@ -65,10 +65,12 @@ impl Control {
     fn rank(&self, rank: u32) -> u32 {
         match self {
             Self::Hedge(_) => rank,
-            Self::Shape(shape) => if let Some(shape) = shape.first() {
-                shape.control.rank(rank) + rank
-            } else {
-                rank
+            Self::Shape(shape) => {
+                if let Some(shape) = shape.first() {
+                    shape.control.rank(rank) + rank
+                } else {
+                    rank
+                }
             }
         }
     }

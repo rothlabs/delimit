@@ -1,5 +1,5 @@
 use super::*;
-use plot::Plot;
+// use plot::Plot;
 
 mod plot;
 
@@ -19,10 +19,13 @@ impl Core {
     pub fn shape(&self, rule: Rule) -> ShapeBuilder {
         ShapeBuilder::default().rule(rule)
     }
-    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> Plot {
-        Plot {
+    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> plot::Plot {
+        plot::Plot {
             core: self.clone(),
             shape: shape.into(),
         }
+    }
+    pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> PointsBuilder {
+        PointsBuilder::default().core(self.clone()).plot(plot)
     }
 }

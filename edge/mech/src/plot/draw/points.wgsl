@@ -1,5 +1,6 @@
 struct Rig {
     stride: u32,
+    count: u32,
 }
 
 @group(0) @binding(0) var<uniform> rig: Rig;
@@ -7,7 +8,6 @@ struct Rig {
 
 struct Mesh {
     @location(0) position: vec2<f32>,
-    @location(1) color: vec4<f32>,
 }
 
 struct Vertex {
@@ -21,9 +21,11 @@ fn vs_main(
     @builtin(instance_index) index: u32, 
 ) -> Vertex {
     var out: Vertex;
-    let position = mesh.position + plot[index * rig.stride];
+    let plot_index = index * rig.stride;
+    let position = mesh.position + vec2<f32>(plot[plot_index], plot[plot_index + 1]);
+    let ratio = f32(index) / f32(rig.count - 1);
     out.position = vec4<f32>(position, 0.0, 1.0);
-    out.color = mesh.color;
+    out.color = vec4<f32>(ratio, 0., 1. - ratio, 1.0);
     return out;
 }
 

@@ -16,9 +16,17 @@ struct VertexOutput {
 fn vs_main(
     model: Model,
     instance: Instance,
+    // @builtin(instance_index) index: u32,
 ) -> VertexOutput {
     var out: VertexOutput;
     out.position = vec4<f32>(model.position + instance.position, 0.0, 1.0);
+    // if(index == 0){
+    //     out.position = vec4<f32>(-1., -1., 0.0, 1.0);
+    // }else if(index == 1){
+    //     out.position = vec4<f32>(0., 1., 0.0, 1.0);
+    // }else{
+    //     out.position = vec4<f32>(1., -1., 0.0, 1.0);
+    // }
     out.color = model.color;
     return out;
 }

@@ -16,10 +16,11 @@ async fn gpu() -> dom::Result<Gpu> {
     canvas.gpu().await
 }
 
-// async fn gpu_with_canvas<'a>() -> dom::Result<(Gpu, Surface<'a>)> {
-//     let canvas = body()?.stem("canvas")?.canvas()?;
-//     canvas.gpu().await
-// }
+async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
+    let canvas = body()?.stem("canvas")?.canvas()?;
+    canvas.set_size(300, 300);
+    canvas.gpu().await
+}
 
 #[wasm_bindgen_test]
 async fn nurbs() -> dom::Result<()> {
@@ -68,5 +69,25 @@ async fn nurbs() -> dom::Result<()> {
             -3.2000003
         ]
     );
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_nurbs() -> dom::Result<()> {
+    let gpu = gpu_with_canvas().await?;
+    let mech = Mech::new(gpu.clone())?;
+    let count = 40;
+    //                        6 knots                      3 weights
+    let span = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
+    let index = gpu.hedge(vec![0_u32, 1, 2])?;
+    let control = gpu.hedge(vec![-1.0_f32, -1., -1., 1., 1., 1.])?;
+    let shape = mech
+        .shape(Rule::Nurbs(3))
+        .span(span)
+        .index(index)
+        .control(Control::Hedge(control))
+        .build()?;
+    let plot = mech.plot(shape).grid(count)?;
+    mech.draw(plot).size(1.).hub()?.base().await?;
     Ok(())
 }

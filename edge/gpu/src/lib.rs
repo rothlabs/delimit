@@ -1,7 +1,7 @@
 pub use buffer::*;
 pub use bytemuck::*;
 pub use flume;
-pub use surface::Surface;
+pub use display::Display;
 pub use wgpu::{include_wgsl, BufferUsages};
 
 use bind::*;
@@ -25,7 +25,7 @@ mod core;
 mod encode;
 mod pipe;
 mod shader;
-mod surface;
+mod display;
 mod texture;
 
 pub type Gpu = Core;

@@ -4,8 +4,7 @@ use super::*;
 pub struct Core {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    pub surface: Grc<Surface<'static>>,
-    // pub adapter: Grc<Adapter>,
+    pub surface: Grc<Display>,
 }
 
 impl Core {
@@ -35,16 +34,13 @@ impl Core {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        // let grc_surface = Grc::new(Surface::new(surface, &adapter, grc_device));
-        Ok(//(
+        Ok(
+            //(
             Self {
                 device: grc_device.clone(),
                 queue: queue.into(),
-                surface: Surface::new(surface, &adapter, grc_device).into(),
-                // adapter: adapter.into(),
-                //surface: Surface::new(surface, &adapter, grc_device),
-            }
-            //Surface::new(surface, &adapter, grc_device),
+                surface: Display::new(surface, &adapter, grc_device).into(),
+            },
         )
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
@@ -74,6 +70,7 @@ impl Core {
     pub fn index_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
         self.buffer_init(data, BufferUsages::INDEX)
     }
+    // TODO: bind::LayoutBuilder
     pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
         BindLayoutBuilder::default()
             .device(&self.device)

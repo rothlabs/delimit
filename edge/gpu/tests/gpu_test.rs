@@ -300,6 +300,42 @@ async fn index_fraction() -> dom::Result<()> {
     Ok(())
 }
 
+
+// #[wasm_bindgen_test]
+// async fn draw_triangle_instances() -> dom::Result<()> {
+//     let gpu = gpu_with_canvas().await?;
+//     let targets = gpu.surface.targets();
+//     let shader = gpu.shader(BASIC_INSTANCE_SHADER);
+//     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
+//     let model = gpu.vertex_layout(24).attributes(&attribs).make()?;
+//     let attribs = vertex_attr_array![2 => Float32x2];
+//     let instance = gpu.vertex_layout(8).attributes(&attribs).instance()?;
+//     let buffers = vec![model, instance];
+//     let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
+//     let fragment = shader.fragment("fs_main").targets(targets).make()?;
+//     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+//     let view = gpu.surface.view();
+//     let model = gpu.vertex_buffer(&triangle_data());
+//     let instance = gpu.vertex_buffer(&instance_data());
+//     gpu.command()
+//         .texture_view(view)
+//         .render(pipe)
+//         .vertex(0, model)
+//         .vertex(1, instance)
+//         .draw(0..3, 0..4)
+//         .hub()?
+//         .base()
+//         .await?;
+//     Ok(())
+// }
+
+
+
+
+
+
+
+
 // let mut encoder = gpu.encoder();
 // encoder
 //     .compute()

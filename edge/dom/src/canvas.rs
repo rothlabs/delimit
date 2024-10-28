@@ -7,8 +7,13 @@ pub struct Canvas {
 
 impl Canvas {
     pub fn set_size(&self, width: u32, height: u32) {
+        // if height != 300 {
         self.object.set_width(width);
         self.object.set_height(height);
+        // }
+        // assert!(width == 300);
+        // assert!(height == 300);
+        // panic!("wow");
     }
     pub async fn gpu<'a>(&self) -> Result<Gpu> {
         let gpu = Gpu::from_canvas(self.object.clone()).await?;

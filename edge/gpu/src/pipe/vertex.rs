@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 pub struct Vertex<'a> {
     shader: &'a ShaderModule,
     entry: &'a str,
@@ -13,7 +13,7 @@ pub struct Vertex<'a> {
 }
 
 impl<'a> VertexBuilder<'a> {
-    pub fn make(self) -> Result<VertexState<'a>> {
+    pub fn make(self) -> graph::Result<VertexState<'a>> {
         let built = self.build()?;
         let state = VertexState {
             module: built.shader,
@@ -27,7 +27,7 @@ impl<'a> VertexBuilder<'a> {
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 pub struct Layout<'a> {
     array_stride: u64,
     #[builder(default)]
@@ -36,7 +36,7 @@ pub struct Layout<'a> {
 }
 
 impl<'a> LayoutBuilder<'a> {
-    pub fn make(self) -> Result<VertexBufferLayout<'a>> {
+    pub fn make(self) -> graph::Result<VertexBufferLayout<'a>> {
         let built = self.build()?;
         let out = VertexBufferLayout {
             array_stride: built.array_stride,
@@ -45,7 +45,7 @@ impl<'a> LayoutBuilder<'a> {
         };
         Ok(out)
     }
-    pub fn instance(self) -> Result<VertexBufferLayout<'a>> {
+    pub fn instance(self) -> graph::Result<VertexBufferLayout<'a>> {
         self.step_mode(VertexStepMode::Instance).make()
     }
 }

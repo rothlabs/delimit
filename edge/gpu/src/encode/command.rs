@@ -129,11 +129,15 @@ impl ComputePass {
         self.command.hub()
     }
     pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-        self.command = self.command.compute_command(ComputeCommand::Bind(index, bind.into()));
+        self.command = self
+            .command
+            .compute_command(ComputeCommand::Bind(index, bind.into()));
         self
     }
     pub fn dispatch(mut self, count: impl Into<Hub<u32>>) -> Self {
-        self.command = self.command.compute_command(ComputeCommand::Dispatch(count.into()));
+        self.command = self
+            .command
+            .compute_command(ComputeCommand::Dispatch(count.into()));
         self
     }
     pub fn render(self, pipe: Grc<RenderPipeline>) -> RenderPass {
@@ -149,16 +153,28 @@ impl RenderPass {
     pub fn hub(self) -> graph::Result<Hub<Mutation>> {
         self.command.hub()
     }
+    pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.command = self
+            .command
+            .render_command(RenderCommand::Bind(index, bind.into()));
+        self
+    }
     pub fn vertex(mut self, slot: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.command = self.command.render_command(RenderCommand::Vertex(slot, buffer.into()));
+        self.command = self
+            .command
+            .render_command(RenderCommand::Vertex(slot, buffer.into()));
         self
     }
     pub fn index(mut self, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.command = self.command.render_command(RenderCommand::Index(buffer.into()));
+        self.command = self
+            .command
+            .render_command(RenderCommand::Index(buffer.into()));
         self
     }
     pub fn draw(mut self, vertices: Range<u32>, instances: Range<u32>) -> Self {
-        self.command = self.command.render_command(RenderCommand::Draw(vertices, instances));
+        self.command = self
+            .command
+            .render_command(RenderCommand::Draw(vertices, instances));
         self
     }
     pub fn draw_indexed(

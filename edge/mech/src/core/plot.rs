@@ -34,7 +34,7 @@ impl Solve for Grid {
         let hedge = shape.plot(&self.core).grid(count)?;
         let plot = crate::Plot {
             hedge,
-            shape: self.shape.clone()
+            shape: self.shape.clone(),
         };
         Ok(plot.into())
     }
