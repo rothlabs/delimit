@@ -40,8 +40,20 @@ impl Solve for Grid {
     }
 }
 
+pub struct Draw {
+    pub core: Core,
+    pub plot: Hub<crate::Plot>,
+}
+
+impl Draw {
+    pub fn points(self, size: impl Into<Hub<f32>>) -> plot::draw::PointsBuilder {
+        plot::draw::PointsBuilder::default().core(self.core).plot(self.plot).size(size)
+    }
+}
+
 // Ok(Grid {
 //     mech: self.mech,
 //     shape: self.shape,
 //     count: count.into(),
 // }.gate()?.into())
+

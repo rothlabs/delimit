@@ -154,7 +154,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
         .make()?;
     let buffer = gpu.vertex_buffer(&line_data());
     let view = gpu.surface.view();
-    let texture_view = gpu.surface.texture().sample_count(4).view()?;
+    let texture_view = gpu.surface.texture()?.sample_count(4).view()?;
     gpu.command()
         .texture_view(texture_view)
         .resolve_target(view)

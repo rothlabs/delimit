@@ -40,6 +40,12 @@ pub trait Act {
     fn act(&self) -> impl Future<Output = Result<()>> + IsSend;
 }
 
+// impl<T: SendSync> Act for Grc<T> {
+//     async fn act(&self) -> Result<()> {
+//         Ok(())
+//     }
+// }
+
 impl<T: Act + SendSync> Solve for T {
     type Base = ();
     async fn solve(&self) -> Result<Hub<()>> {

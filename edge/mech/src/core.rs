@@ -1,7 +1,6 @@
 use super::*;
-// use plot::Plot;
 
-mod plot;
+mod make;
 
 #[derive(Clone, Debug)]
 pub struct Core {
@@ -19,13 +18,20 @@ impl Core {
     pub fn shape(&self, rule: Rule) -> ShapeBuilder {
         ShapeBuilder::default().rule(rule)
     }
-    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> plot::Plot {
-        plot::Plot {
+    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Plot {
+        make::Plot {
             core: self.clone(),
             shape: shape.into(),
         }
     }
-    pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> PointsBuilder {
-        PointsBuilder::default().core(self.clone()).plot(plot)
+    pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> make::Draw {
+        make::Draw {
+            core: self.clone(),
+            plot: plot.into(),
+        }
     }
 }
+
+// pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> plot::draw::PointsBuilder {
+//     plot::draw::PointsBuilder::default().core(self.clone()).plot(plot)
+// }
