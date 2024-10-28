@@ -47,7 +47,10 @@ pub struct Draw {
 
 impl Draw {
     pub fn points(self, size: impl Into<Hub<f32>>) -> plot::draw::PointsBuilder {
-        plot::draw::PointsBuilder::default().core(self.core).plot(self.plot).size(size)
+        plot::draw::PointsBuilder::default()
+            .core(self.core)
+            .plot(self.plot)
+            .size(size)
     }
 }
 
@@ -56,4 +59,3 @@ impl Draw {
 //     shape: self.shape,
 //     count: count.into(),
 // }.gate()?.into())
-

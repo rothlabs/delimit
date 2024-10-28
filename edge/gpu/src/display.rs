@@ -4,14 +4,10 @@ use super::*;
 pub struct Display {
     inner: Surface<'static>,
     device: Grc<Device>,
-    // adapter: Grc<Adapter>,
     format: TextureFormat,
     targets: Vec<Option<ColorTargetState>>,
     view_descriptor: TextureViewDescriptor<'static>,
-    // config: SurfaceConfiguration,
-    // width: u32,
-    // height: u32
-    config: Leaf<SurfaceConfiguration>
+    config: Leaf<SurfaceConfiguration>,
 }
 
 impl Display {
@@ -19,14 +15,11 @@ impl Display {
         let swapchain_capabilities = inner.get_capabilities(adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();
-        // let width = 300;
-        // let height = 150;
-        let config = inner.get_default_config(&adapter, 300, 150).unwrap();
+        let config = inner.get_default_config(adapter, 300, 150).unwrap();
         inner.configure(&device, &config);
         Self {
             inner,
             device,
-            // adapter,
             format,
             targets: vec![Some(format.into())],
             view_descriptor,
@@ -34,15 +27,14 @@ impl Display {
         }
     }
     pub async fn resize(&self, width: u32, height: u32) {
-        // self.config.width = width.max(1);
-        // self.config.height = height.max(1);
-        // let config = self.inner.get_default_config(&self.adapter, width, height).unwrap();
-        // TODO: writing to a leaf should not be a future!
-        self.config.write(|config| {
-            config.width = width.max(1);
-            config.height = height.max(1);
-            self.inner.configure(&self.device, config);
-        }).await.ok();
+        self.config
+            .write(|config| {
+                config.width = width.max(1);
+                config.height = height.max(1);
+                self.inner.configure(&self.device, config);
+            })
+            .await
+            .ok();
     }
     pub fn targets(&self) -> &[Option<ColorTargetState>] {
         &self.targets
@@ -69,21 +61,3 @@ impl Display {
             .format(self.format))
     }
 }
-
-// #[derive(Debug)]
-// pub struct DisplayConfig {
-//     width: u32,
-//     height: u32,
-// }
-
-// impl Act for Display {
-//     async fn act(&self) -> graph::Result<()> {
-//         Ok(())
-//     }
-// }
-
-// pub fn fragment(&'a self, shader: &'a ShaderModule) -> FragmentBuilder<'a> {
-//     FragmentBuilder::default()
-//         .module(shader)
-//         .targets(&self.targets)
-// }

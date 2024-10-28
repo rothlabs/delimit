@@ -1,7 +1,6 @@
 use super::*;
-use plot::Plot;
 
-mod plot;
+mod make;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
@@ -33,8 +32,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn plot<'a>(&'a self, mech: &'a Core) -> Plot<'a> {
-        Plot {
+    pub fn plot<'a>(&'a self, mech: &'a Core) -> make::Plot<'a> {
+        make::Plot {
             bin: &mech.bin,
             gpu: &mech.gpu,
             shape: self,

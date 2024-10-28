@@ -300,7 +300,6 @@ async fn index_fraction() -> dom::Result<()> {
     Ok(())
 }
 
-
 // #[wasm_bindgen_test]
 // async fn draw_triangle_instances() -> dom::Result<()> {
 //     let gpu = gpu_with_canvas().await?;
@@ -328,13 +327,6 @@ async fn index_fraction() -> dom::Result<()> {
 //         .await?;
 //     Ok(())
 // }
-
-
-
-
-
-
-
 
 // let mut encoder = gpu.encoder();
 // encoder

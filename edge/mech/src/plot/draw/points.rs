@@ -20,7 +20,10 @@ impl Solve for Points {
         let stride = shape.plot_stride();
         let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
         let rig = self.core.gpu.uniform().field(stride).field(count).make()?;
-        let vertex = self.core.gpu.vertex_buffer(&vec![-0.02_f32, -0.02, 0., 0.02, 0.02, -0.02]);
+        let vertex = self
+            .core
+            .gpu
+            .vertex_buffer(&[-0.02_f32, -0.02, 0., 0.02, 0.02, -0.02]);
         let bind = self
             .core
             .gpu

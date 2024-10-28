@@ -79,7 +79,17 @@ async fn draw_nurbs() -> dom::Result<()> {
     let mech = Mech::new(gpu.clone())?;
     let count = 40;
     //                        6 knots                      3 weights
-    let span = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., (2.0_f32).sqrt()/2., 1.])?;
+    let span = gpu.hedge(vec![
+        0.0_f32,
+        0.,
+        0.,
+        1.,
+        1.,
+        1.,
+        1.,
+        (2.0_f32).sqrt() / 2.,
+        1.,
+    ])?;
     let index = gpu.hedge(vec![0_u32, 1, 2])?;
     let control = gpu.hedge(vec![-1.0_f32, -1., -1., 1., 1., 1.])?;
     let shape = mech
