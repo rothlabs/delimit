@@ -76,6 +76,7 @@ impl GridPlotBasisBin {
 #[derive(Debug)]
 pub struct DrawPlotBin {
     pub points: RenderProgram,
+    // pub mesh: Grc<Buffer>,
 }
 
 impl DrawPlotBin {
@@ -97,6 +98,7 @@ impl DrawPlotBin {
             .layout(&pipe_layout)
             .make()?;
         let points = RenderProgram { layout, pipe };
+
         Ok(Self { points })
     }
 }
