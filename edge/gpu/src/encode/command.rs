@@ -8,6 +8,7 @@ pub struct Command {
     core: Core,
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,
+    // TODO: take enum of either DIRECT(Grc<TextureView>) or RESOLVE(Grc<TextureView>, Grc<TextureView>)
     #[builder(default)]
     texture_view: Option<Grc<TextureView>>,
     #[builder(default)]

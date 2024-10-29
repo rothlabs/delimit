@@ -4,7 +4,7 @@ use super::*;
 pub struct Core {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    pub surface: Grc<Display>,
+    pub display: Grc<Display>,
 }
 
 impl Core {
@@ -39,7 +39,7 @@ impl Core {
             Self {
                 device: grc_device.clone(),
                 queue: queue.into(),
-                surface: Display::new(surface, &adapter, grc_device).into(),
+                display: Display::new(surface, &adapter, grc_device).into(),
             },
         )
     }

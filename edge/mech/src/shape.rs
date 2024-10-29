@@ -34,7 +34,7 @@ pub struct Shape {
 impl Shape {
     pub fn plot<'a>(&'a self, mech: &'a Core) -> make::Plot<'a> {
         make::Plot {
-            bin: &mech.bin,
+            bank: &mech.bank,
             gpu: &mech.gpu,
             shape: self,
         }

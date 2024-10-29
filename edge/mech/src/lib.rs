@@ -1,7 +1,7 @@
 pub use plot::*;
 pub use shape::*;
 
-use bin::*;
+use bank::*;
 use core::*;
 use derive_builder::Builder;
 use gpu::*;
@@ -9,7 +9,7 @@ use graph::*;
 use node_derive::*;
 use wgpu::*;
 
-mod bin;
+mod bank;
 mod core;
 mod plot;
 mod shape;

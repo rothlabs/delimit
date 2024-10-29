@@ -5,13 +5,13 @@ mod make;
 #[derive(Clone, Debug)]
 pub struct Core {
     pub gpu: Gpu,
-    pub bin: Grc<Bin>,
+    pub bank: Grc<Bank>,
 }
 
 impl Core {
     pub fn new(gpu: Gpu) -> graph::Result<Self> {
         Ok(Self {
-            bin: Bin::new(&gpu)?.into(),
+            bank: Bank::new(&gpu)?.into(),
             gpu,
         })
     }
@@ -24,6 +24,7 @@ impl Core {
             shape: shape.into(),
         }
     }
+    // TODO: also impl on shape to creating everything needed to render automatically
     pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> make::Draw {
         make::Draw {
             core: self.clone(),

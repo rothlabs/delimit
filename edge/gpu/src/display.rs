@@ -1,5 +1,7 @@
 use super::*;
 
+const MIN_DIMENSION: u32 = 64;
+
 #[derive(Debug)]
 pub struct Display {
     inner: Surface<'static>,
@@ -7,7 +9,9 @@ pub struct Display {
     format: TextureFormat,
     targets: Vec<Option<ColorTargetState>>,
     view_descriptor: TextureViewDescriptor<'static>,
-    config: Leaf<SurfaceConfiguration>,
+    pub config: Leaf<SurfaceConfiguration>,
+    // width: Leaf<u32>,
+    // height: Leaf<u32>,
 }
 
 impl Display {
@@ -15,7 +19,9 @@ impl Display {
         let swapchain_capabilities = inner.get_capabilities(adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();
-        let config = inner.get_default_config(adapter, 300, 150).unwrap();
+        let width = 300;
+        let height = 150;
+        let config = inner.get_default_config(adapter, width, height).unwrap();
         inner.configure(&device, &config);
         Self {
             inner,
@@ -23,18 +29,22 @@ impl Display {
             format,
             targets: vec![Some(format.into())],
             view_descriptor,
-            config: Leaf::new(config),
+            config: config.into_leaf(),
+            // width: width.into_leaf(),
+            // height: height.into_leaf(),
         }
     }
-    pub async fn resize(&self, width: u32, height: u32) {
+    pub async fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
+        // self.width.write(|x| *x = width.max(MIN_DIMENSION)).await?;
+        // self.height.write(|y| *y = height.max(MIN_DIMENSION)).await?;
         self.config
             .write(|config| {
-                config.width = width.max(1);
-                config.height = height.max(1);
+                config.width = width.max(MIN_DIMENSION);
+                config.height = height.max(MIN_DIMENSION);
                 self.inner.configure(&self.device, config);
             })
-            .await
-            .ok();
+            .await?;
+        Ok(())
     }
     pub fn targets(&self) -> &[Option<ColorTargetState>] {
         &self.targets

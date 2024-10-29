@@ -1,11 +1,13 @@
 use super::*;
 
+mod mesh;
+
 #[derive(Debug)]
-pub struct Bin {
+pub struct Bank {
     pub plot: PlotBin,
 }
 
-impl Bin {
+impl Bank {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
             plot: PlotBin::new(gpu)?,
@@ -75,14 +77,13 @@ impl GridPlotBasisBin {
 
 #[derive(Debug)]
 pub struct DrawPlotBin {
-    pub points: RenderProgram,
-    // pub mesh: Grc<Buffer>,
+    pub points: RenderMeshProgram,
 }
 
 impl DrawPlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/draw/points.wgsl"));
-        let targets = gpu.surface.targets();
+        let targets = gpu.display.targets();
         let rig = gpu.bind_uniform().entry(0)?.vertex()?;
         let plot = gpu.bind_storage(true).entry(1)?.vertex()?;
         let layout = gpu.bind_layout(&[rig, plot]).make()?;
@@ -92,13 +93,31 @@ impl DrawPlotBin {
         let buffers = vec![gpu.vertex_layout(8).attributes(&attribs).make()?];
         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
         let fragment = shader.fragment("fs_main").targets(targets).make()?;
+        let multi = gpu.multisample(4).make()?;
         let pipe = gpu
             .render_pipe(vertex)
             .fragment(fragment)
             .layout(&pipe_layout)
+            .multisample(multi)
             .make()?;
-        let points = RenderProgram { layout, pipe };
-
+        let count: u32 = 8;
+        let points = mesh::Circle {
+            count: count.into(),
+            radius: 5.0.into(),
+            display: gpu.display.config.clone(),
+        }
+        .gate()?;
+        let buffer = gpu.buffer(count as u64 * 24).vertex()?;
+        let mesh = Hedge {
+            root: gpu.writer(buffer.clone()).data(points).hub()?,
+            buffer: buffer.into(),
+        };
+        let points = RenderMeshProgram {
+            layout,
+            pipe,
+            mesh,
+            vertex_count: count * 3,
+        };
         Ok(Self { points })
     }
 }
@@ -110,7 +129,9 @@ pub struct ComputeProgram {
 }
 
 #[derive(Debug)]
-pub struct RenderProgram {
+pub struct RenderMeshProgram {
     pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<RenderPipeline>,
+    pub mesh: Hedge,
+    pub vertex_count: u32,
 }

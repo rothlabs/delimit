@@ -1,7 +1,7 @@
 use super::*;
 
 pub struct Plot<'a> {
-    pub bin: &'a Bin,
+    pub bank: &'a Bank,
     pub gpu: &'a Gpu,
     pub shape: &'a Shape,
 }
@@ -31,7 +31,7 @@ impl Plot<'_> {
         let bind = self
             .gpu
             .bind()
-            .layout(self.bin.plot.grid.basis.nurbs.layout.clone())
+            .layout(self.bank.plot.grid.basis.nurbs.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, self.shape.span.buffer.clone())
             .entry(2, buffer.clone())
@@ -41,12 +41,12 @@ impl Plot<'_> {
             .command()
             .root(rig.root)
             .root(self.shape.span.root.clone())
-            .compute(self.bin.plot.grid.basis.nurbs.pipe.clone())
+            .compute(self.bank.plot.grid.basis.nurbs.pipe.clone())
             .bind(0, bind)
             .dispatch(count.clone())
             .hub()?;
         Basis {
-            bin: self.bin,
+            bin: self.bank,
             gpu: self.gpu,
             shape: self.shape,
             order,
@@ -58,7 +58,7 @@ impl Plot<'_> {
 }
 
 pub struct Basis<'a> {
-    pub bin: &'a Bin,
+    pub bin: &'a Bank,
     pub gpu: &'a Gpu,
     pub shape: &'a Shape,
     pub order: u32,

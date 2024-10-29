@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 pub struct Texture<'a> {
     device: &'a Device,
     #[builder(default)]
@@ -20,7 +20,7 @@ pub struct Texture<'a> {
 }
 
 impl<'a> TextureBuilder<'a> {
-    pub fn make(self) -> Result<wgpu::Texture> {
+    pub fn make(self) -> graph::Result<wgpu::Texture> {
         let built = self.build()?;
         let descriptor = TextureDescriptor {
             label: built.label,
@@ -35,7 +35,7 @@ impl<'a> TextureBuilder<'a> {
         let out = built.device.create_texture(&descriptor);
         Ok(out)
     }
-    pub fn view(self) -> Result<TextureView> {
+    pub fn view(self) -> graph::Result<TextureView> {
         let texture = self.make()?;
         let out = texture.create_view(&TextureViewDescriptor::default());
         Ok(out)

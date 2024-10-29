@@ -50,7 +50,7 @@ impl PrimitiveBuilder {
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Multisample {
     count: u32,
@@ -61,7 +61,7 @@ pub struct Multisample {
 }
 
 impl MultisampleBuilder {
-    pub fn make(self) -> Result<MultisampleState> {
+    pub fn make(self) -> graph::Result<MultisampleState> {
         let built = self.build()?;
         let out = MultisampleState {
             count: built.count,

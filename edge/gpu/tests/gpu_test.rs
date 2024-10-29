@@ -85,13 +85,13 @@ async fn make_vertex_buffer() -> dom::Result<()> {
 async fn draw_triangle() -> dom::Result<()> {
     // setup:
     let gpu = gpu_with_canvas().await?;
-    let targets = gpu.surface.targets();
+    let targets = gpu.display.targets();
     let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
     let vertex = shader.vertex("vs_main").make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
     // render:
-    let view = gpu.surface.view();
+    let view = gpu.display.view();
     gpu.command()
         .texture_view(view)
         .render(pipe)
@@ -109,7 +109,7 @@ const BASIC_INSTANCE_SHADER: ShaderModuleDescriptor =
 #[wasm_bindgen_test]
 async fn draw_lines() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
-    let targets = gpu.surface.targets();
+    let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_SHADER);
     let prim = gpu.lines().make()?;
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
@@ -123,7 +123,7 @@ async fn draw_lines() -> dom::Result<()> {
         .make()?;
     // TODO: make buffer_vertex return Hub<Grc<Buffer>>
     let buffer = gpu.vertex_buffer(&line_data());
-    let view = gpu.surface.view();
+    let view = gpu.display.view();
     gpu.command()
         .texture_view(view)
         .render(pipe)
@@ -138,7 +138,7 @@ async fn draw_lines() -> dom::Result<()> {
 #[wasm_bindgen_test]
 async fn draw_msaa_lines() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
-    let targets = gpu.surface.targets();
+    let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_SHADER);
     let prim = gpu.lines().make()?;
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
@@ -153,8 +153,8 @@ async fn draw_msaa_lines() -> dom::Result<()> {
         .multisample(multi)
         .make()?;
     let buffer = gpu.vertex_buffer(&line_data());
-    let view = gpu.surface.view();
-    let texture_view = gpu.surface.texture()?.sample_count(4).view()?;
+    let view = gpu.display.view();
+    let texture_view = gpu.display.texture()?.sample_count(4).view()?;
     gpu.command()
         .texture_view(texture_view)
         .resolve_target(view)
@@ -170,7 +170,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
 #[wasm_bindgen_test]
 async fn draw_triangle_instances() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
-    let targets = gpu.surface.targets();
+    let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_INSTANCE_SHADER);
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
     let model = gpu.vertex_layout(24).attributes(&attribs).make()?;
@@ -180,7 +180,7 @@ async fn draw_triangle_instances() -> dom::Result<()> {
     let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-    let view = gpu.surface.view();
+    let view = gpu.display.view();
     let model = gpu.vertex_buffer(&triangle_data());
     let instance = gpu.vertex_buffer(&instance_data());
     gpu.command()
@@ -198,7 +198,7 @@ async fn draw_triangle_instances() -> dom::Result<()> {
 #[wasm_bindgen_test]
 async fn draw_triangle_indexed_instance() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
-    let targets = gpu.surface.targets();
+    let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_INSTANCE_SHADER);
     let attribs = vertex_attr_array![0 => Float32x2, 1 => Float32x4];
     let model = gpu.vertex_layout(24).attributes(&attribs).make()?;
@@ -208,7 +208,7 @@ async fn draw_triangle_indexed_instance() -> dom::Result<()> {
     let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-    let view = gpu.surface.view();
+    let view = gpu.display.view();
     let model = gpu.vertex_buffer(&triangle_data());
     let instance = gpu.vertex_buffer(&instance_data());
     let index = gpu.index_buffer(&index_data());

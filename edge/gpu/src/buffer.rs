@@ -43,6 +43,10 @@ impl BufferRigBuilder<'_> {
         self.usage(BufferUsages::UNIFORM | BufferUsages::COPY_DST)
             .make()
     }
+    pub fn vertex(self) -> graph::Result<Grc<Buffer>> {
+        self.usage(BufferUsages::VERTEX | BufferUsages::COPY_DST)
+            .make()
+    }
 }
 
 // pub fn map_read(self) -> graph::Result<Grc<Buffer>> {

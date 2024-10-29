@@ -19,7 +19,7 @@ async fn gpu() -> dom::Result<Gpu> {
 async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
     let canvas = body()?.stem("canvas")?.canvas()?;
     let gpu = canvas.gpu().await?;
-    gpu.surface.resize(300, 300).await;
+    gpu.display.resize(300, 300).await?;
     Ok(gpu)
 }
 
@@ -73,23 +73,17 @@ async fn nurbs() -> dom::Result<()> {
     Ok(())
 }
 
+#[rustfmt::skip]
+fn nurbs_arc() -> Vec<f32> {
+    vec![0.0_f32, 0., 0., 1., 1., 1.,   1., (2.0_f32).sqrt() / 2., 1.]
+}
+
 #[wasm_bindgen_test]
 async fn draw_nurbs() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
-    let count = 40;
-    //                        6 knots                      3 weights
-    let span = gpu.hedge(vec![
-        0.0_f32,
-        0.,
-        0.,
-        1.,
-        1.,
-        1.,
-        1.,
-        (2.0_f32).sqrt() / 2.,
-        1.,
-    ])?;
+    let count = 50;
+    let span = gpu.hedge(nurbs_arc())?;
     let index = gpu.hedge(vec![0_u32, 1, 2])?;
     let control = gpu.hedge(vec![-1.0_f32, -1., -1., 1., 1., 1.])?;
     let shape = mech
@@ -99,6 +93,6 @@ async fn draw_nurbs() -> dom::Result<()> {
         .control(Control::Hedge(control))
         .build()?;
     let plot = mech.plot(shape).grid(count)?;
-    mech.draw(plot).points(1.).hub()?.base().await?;
+    mech.draw(plot).points().hub()?.base().await?;
     Ok(())
 }

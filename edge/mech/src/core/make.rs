@@ -46,11 +46,12 @@ pub struct Draw {
 }
 
 impl Draw {
-    pub fn points(self, size: impl Into<Hub<f32>>) -> plot::draw::PointsBuilder {
+    pub fn points(self) -> plot::draw::PointsBuilder {
+        // , size: impl Into<Hub<f32>>
         plot::draw::PointsBuilder::default()
             .core(self.core)
             .plot(self.plot)
-            .size(size)
+        // .size(size)
     }
 }
 
