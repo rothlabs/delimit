@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Clone, Debug)]
 pub struct Vector {
-    rule: VectorRule,
-    hedge: Hedge,
+    pub rule: VectorRule,
+    pub hedge: Hedge,
 }
 
 #[derive(Clone, Debug)]

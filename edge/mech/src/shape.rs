@@ -8,23 +8,9 @@ mod span;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
-    // [None, None, Some(Vec<Vector/Basis>), None, None]
-    // span: Span {
-        // vector: Vec<Vector> { (basis) different vector slots for different vector length (order)
-            // rule: VectorRule (direct, nurbs)
-                // hedge: Hedge
-            // }
-        // matrix
-    // }
-    rule: Rule,
-    span: Hedge,
-    index: Hedge,
-    control: Control,
-    // points: Hedge (base controls)
-    // control: Vec<Control> { (list by rank)
-        // vector: Hedge (index like [matrix_span_index, control_index])
-        // matrix: Hedge (index like [vector_span_index, c0, c1, c3, ...]) (different matrix slots for different matrix width (order))
-    // }
+    span: Span,
+    points: Hedge,
+    control: Vec<Control>,
     #[builder(default = "2")]
     pub dimension: u32,
     // #[builder(default)]
@@ -45,47 +31,21 @@ impl Shape {
         self.dimension + self.dimension * self.rank()
     }
     pub fn rank(&self) -> u32 {
-        self.control.rank(1)
+        self.control.len() as u32
     }
 }
 
+#[derive(Clone, Debug)]
 struct Span {
     // matched to vector control
     matrix: Vec<span::Matrix>,
     vector: Vec<Vec<span::Vector>>,
 }
 
-struct Control2 {
+#[derive(Clone, Debug)]
+struct Control {
     vector: Hedge,
     matrix: Vec<Hedge>,
-}
-
-#[derive(Clone, Debug)]
-pub enum Rule {
-    Nurbs(u32),
-    Extrude,
-    Revolve,
-}
-
-#[derive(Clone, Debug)]
-pub enum Control {
-    Shape(Vec<Shape>),
-    Hedge(Hedge),
-}
-
-impl Control {
-    fn rank(&self, rank: u32) -> u32 {
-        match self {
-            Self::Hedge(_) => rank,
-            Self::Shape(shape) => {
-                if let Some(shape) = shape.first() {
-                    shape.control.rank(rank) + rank
-                } else {
-                    rank
-                }
-            }
-        }
-    }
 }
 
 // #[derive(Clone, Debug)]
@@ -101,3 +61,31 @@ pub enum Layout {
     Grid,
     Radial,
 }
+
+// #[derive(Clone, Debug)]
+// pub enum Rule {
+//     Nurbs(u32),
+//     Extrude,
+//     Revolve,
+// }
+
+// #[derive(Clone, Debug)]
+// pub enum ControlOld {
+//     Shape(Vec<Shape>),
+//     Hedge(Hedge),
+// }
+
+// impl ControlOld {
+//     fn rank(&self, rank: u32) -> u32 {
+//         match self {
+//             Self::Hedge(_) => rank,
+//             Self::Shape(shape) => {
+//                 if let Some(shape) = shape.first() {
+//                     shape.control.rank(rank) + rank
+//                 } else {
+//                     rank
+//                 }
+//             }
+//         }
+//     }
+// }

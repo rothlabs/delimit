@@ -6,11 +6,13 @@ use super::*;
 pub struct Blank {
     #[back(skip)]
     core: Core,
-    root: Hub<Grc<Buffer>>,
-    #[builder(default, setter(each(name = "mul", into)))]
-    muls: Vec<Hub<u32>>,
-    #[builder(default, setter(each(name = "div", into)))]
-    divs: Vec<Hub<u32>>,
+    #[builder(setter(each(name = "root")))]
+    roots: Vec<BlankRoot>,
+    // root: Hub<Grc<Buffer>>,
+    // #[builder(default, setter(each(name = "mul", into)))]
+    // muls: Vec<Hub<u32>>,
+    // #[builder(default, setter(each(name = "div", into)))]
+    // divs: Vec<Hub<u32>>,
     #[back(skip)]
     #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
     usage: BufferUsages,
@@ -19,14 +21,18 @@ pub struct Blank {
 impl Solve for Blank {
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
-        let mut size = self.root.base().await?.size();
-        for mul in &self.muls {
-            size *= mul.base().await? as u64;
+        let mut total: u64 = 0;
+        for root in &self.roots {
+            let mut size = root.buffer.base().await?.size();
+            for mul in &root.muls {
+                size *= mul.base().await? as u64;
+            }
+            for div in &root.divs {
+                size /= div.base().await? as u64;
+            }
+            total += size;
         }
-        for div in &self.divs {
-            size /= div.base().await? as u64;
-        }
-        Ok(self.core.buffer(size).usage(self.usage).make()?.into())
+        Ok(self.core.buffer(total).usage(self.usage).make()?.into())
     }
 }
 
@@ -36,3 +42,32 @@ impl BlankBuilder {
             .hub()
     }
 }
+
+#[derive(Builder, Debug)]
+#[builder(build_fn(error = "graph::Error"))]
+pub struct BlankRoot {
+    buffer: Hub<Grc<Buffer>>,
+    #[builder(default, setter(each(name = "mul", into)))]
+    muls: Vec<Hub<u32>>,
+    #[builder(default, setter(each(name = "div", into)))]
+    divs: Vec<Hub<u32>>,
+}
+
+impl Backed for BlankRoot {
+    fn backed(&self, back: &Back) -> graph::Result<Self>
+        where
+            Self: Sized {
+        Ok(Self {
+            buffer: self.buffer.clone(),
+            muls: self.muls.backed(back)?,
+            divs: self.divs.backed(back)?,
+        })
+    }
+}
+
+// impl BackIt for Root {
+//     fn back(&mut self, back: &Back) -> graph::Result<()> {
+//         self.muls.back(back)?;
+//         self.divs.back(back)
+//     }
+// }

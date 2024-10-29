@@ -8,6 +8,17 @@ pub struct Plot<'a> {
 
 impl Plot<'_> {
     pub fn grid(&self, count: Hub<u32>) -> graph::Result<Hedge> {
+        // self.shape.span.vector
+        // BlankRootBuilder::default().buffer(value)
+        for (order, vectors) in self.shape.span.vector.iter().enumerate() {
+            let mut blank = self.gpu.blank();
+            for vector in vectors {
+                if let VectorRule::Nurbs = vector.rule {
+                    let root = BlankRootBuilder::default().buffer(vector.hedge.buffer).mul(2).div(3).build()?;
+                    blank = blank.root(root);
+                }
+            }
+        }
         if let Rule::Nurbs(order) = self.shape.rule {
             self.grid_nurbs(order, count)
         } else {

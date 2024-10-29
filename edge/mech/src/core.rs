@@ -15,8 +15,8 @@ impl Core {
             gpu,
         })
     }
-    pub fn shape(&self, rule: Rule) -> ShapeBuilder {
-        ShapeBuilder::default().rule(rule)
+    pub fn shape(&self, points: Hedge) -> ShapeBuilder {
+        ShapeBuilder::default().points(points)
     }
     pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Plot {
         make::Plot {
