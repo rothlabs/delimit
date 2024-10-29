@@ -3,13 +3,14 @@ use super::*;
 #[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
-pub struct Blank {
+pub struct Size {
     #[back(skip)]
     core: Core,
-    size: Hub<u64>,
-    #[back(skip)]
-    #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
-    usage: BufferUsages,
+    buffer: Hub<Grc<Buffer>>,
+    #[builder(default, setter(each(name = "mul", into)))]
+    muls: Vec<Hub<u32>>,
+    #[builder(default, setter(each(name = "div", into)))]
+    divs: Vec<Hub<u32>>,
 }
 
 impl Solve for Blank {
