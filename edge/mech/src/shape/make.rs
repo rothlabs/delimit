@@ -1,5 +1,7 @@
 use super::*;
 
+mod grid;
+
 pub struct Plot<'a> {
     // pub bank: &'a Bank,
     // pub gpu: &'a Gpu,
@@ -7,8 +9,9 @@ pub struct Plot<'a> {
     pub shape: &'a Shape,
 }
 
+// TODO: make it a generic trait in graph crate
 fn last(sum: Option<&Hub<u32>>) -> Hub<u32> {
-    sum.cloned().unwrap_or(0_u32.into())
+    sum.cloned().unwrap_or(0.into())
 }
 
 pub struct Basis<'a> {
@@ -19,41 +22,15 @@ pub struct Basis<'a> {
     pub count: Hub<u32>,
 }
 
-// let size = self
-//                     .core
-//                     .gpu
-//                     .size(extrude.buffer.clone())
-//                     .sub((self.shape.dimension - 1) * 4)
-//                     .mul(count.clone())
-//                     .hub()?;
-
 impl Plot<'_> {
     pub fn grid(&self, count: Hub<u32>) -> graph::Result<Hedge> {
-        // TODO: make it a generic trait in graph crate
-        let mut control_offsets: Vec<Hub<u32>> = vec![];
-        let mut span_offsets = vec![];
-        if let Some(extrude) = &self.shape.span.matrix.extrude {
-            let size = self
-                .core
-                .gpu
-                .size(extrude.buffer.clone())
-                .add(self.shape.dimension.pow(2))
-                .mul(count.clone())
-                .hub()?;
-            span_offsets.push(size);
-        }
-        let span_size = last(span_offsets.last());
-        let block = self.shape.dimension * (self.shape.dimension - 1);
-        let reduct = count.calc().mul(block).hub()?;
-        let offset = span_size.calc().sub(reduct).hub()?;
-        control_offsets.push(offset);
-        let matrix_blank = self.core.gpu.blank(span_size).hub()?;
+        let extrude_size = selfextrude_size
+        let blank = self.core.gpu.blank(extrude_size).hub()?;
 
         for (order, span) in self.shape.span.vector.iter().enumerate() {
             let nurbs_size = if let Some(nurbs) = &span.nurbs {
                 // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
-                self
-                    .core
+                self.core
                     .gpu
                     .size(nurbs.buffer.clone())
                     .mul(count.clone())
@@ -61,15 +38,24 @@ impl Plot<'_> {
                     .div(3)
                     .hub()?
             } else {
-                0_u32.into()
+                0.into()
             };
-            let span_size = last(span_offsets.last());
-            let offset = span_size.calc().mul(self.shape.dimension).div(order as u32).hub()?;
-            control_offsets.push(offset);
-            let blank = self.core.gpu.blank(span_size).hub()?;
+            let blank = self.core.gpu.blank(nurbs_size).hub()?;
             if let Some(nurbs) = &span.nurbs {}
         }
         Err(anyhow!("shape plot grid failed"))?
+    }
+    fn extrude_size(&self, count: Hub<u32>) -> graph::Result<Hub<u32>> {
+        Ok(if let Some(extrude) = &self.shape.span.matrix.extrude {
+            self.core
+                .gpu
+                .size(extrude.buffer.clone())
+                .add(self.shape.dimension.pow(2))
+                .mul(count.clone())
+                .hub()?
+        } else {
+            0.into()
+        })
     }
     // fn grid_nurbs(&self, count: Hub<u32>, order: usize, buffer: Hub<Grc<Buffer>>, offset: Hub<u64>) -> graph::Result<Hedge> {
     //     let rig = self
