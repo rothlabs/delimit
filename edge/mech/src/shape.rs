@@ -20,10 +20,11 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn plot<'a>(&'a self, mech: &'a Core) -> make::Plot<'a> {
+    pub fn plot<'a>(&'a self, core: &'a Core) -> make::Plot<'a> {
         make::Plot {
-            bank: &mech.bank,
-            gpu: &mech.gpu,
+            // bank: &mech.bank,
+            // gpu: &mech.gpu,
+            core,
             shape: self,
         }
     }
@@ -44,7 +45,8 @@ struct Span {
 
 #[derive(Clone, Debug)]
 struct Control {
-    vector: Hedge,
+    // index hedge
+    vector: Option<Hedge>,
     matrix: Vec<Hedge>,
 }
 

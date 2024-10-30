@@ -1,6 +1,7 @@
 struct Rig {
     order: u32,
     count: u32,
+    offset: u32,
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;
@@ -25,7 +26,7 @@ fn main(
     let parameter = f32(plot_index) / f32(rig.count - 1);
     let knot_index = row + degree;
     let weight_index = row + row_len - 1;
-    let basis_index = global.x * order * 2 + degree;
+    let basis_index = global.x * order * 2 + degree + rig.offset;
 
     // basis reset [0., 0., 0., ..., 1.]
     basis[basis_index] = 1.;

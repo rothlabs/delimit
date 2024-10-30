@@ -1,13 +1,22 @@
 use super::*;
 
 pub struct Plot<'a> {
-    pub bank: &'a Bank,
-    pub gpu: &'a Gpu,
+    // pub bank: &'a Bank,
+    // pub gpu: &'a Gpu,
+    pub core: &'a Core,
     pub shape: &'a Shape,
 }
 
 fn last(sum: Option<&Hub<u64>>) -> Hub<u64> {
     sum.cloned().unwrap_or(0_u64.into())
+}
+
+pub struct Basis<'a> {
+    pub core: &'a Core,
+    pub shape: &'a Shape,
+    pub vector: Vec<Hedge>,
+    pub matrix: Hedge,
+    pub count: Hub<u32>,
 }
 
 impl Plot<'_> {
@@ -17,7 +26,8 @@ impl Plot<'_> {
         for (order, vector_spans) in self.shape.span.vector.iter().enumerate() {
             let mut span_offsets = vec![];
             for span in vector_spans {
-                let mut size = self.gpu.size(span.hedge.buffer.clone()).mul(count.clone());
+                let buffer = span.hedge.buffer.clone();
+                let mut size = self.core.gpu.size(buffer).mul(count.clone());
                 // When acceleration is included, remove this because plot row will be same length as nurbs row
                 if let span::VectorRule::Nurbs = span.rule {
                     size = size.mul(2).div(3);
@@ -36,72 +46,26 @@ impl Plot<'_> {
                 fields: vec![last(control_offsets.last()), offset.gate()?.into()],
             };
             control_offsets.push(offset.gate()?.into());
-            let blank = self.gpu.blank(span_size).hub()?;
+            let blank = self.core.gpu.blank(span_size).hub()?;
             for (i, span) in vector_spans.iter().enumerate() {
-                if let span::VectorRule::Nurbs = span.rule {
-
-                }
+                if let span::VectorRule::Nurbs = span.rule {}
             }
         }
         Err(anyhow!("shape plot grid failed"))?
     }
-    fn grid_nurbs(&self, count: Hub<u32>, order: usize, buffer: Hub<Grc<Buffer>>, offset: Hub<u64>) -> graph::Result<Hedge> {
-        let rig = self
-            .gpu
-            .uniform()
-            .field(order as u32)
-            .field(count.clone())
-            .make()?;
-        let bind = self
-            .gpu
-            .bind()
-            .layout(self.bank.plot.grid.basis.nurbs.layout.clone())
-            .entry(0, rig.buffer)
-            .entry(1, self.shape.span.vector[order].hedge.buffer.clone())
-            .entry(2, buffer.clone())
-            .hub()?;
-        let root = self
-            .gpu
-            .command()
-            .root(rig.root)
-            .root(self.shape.span.root.clone())
-            .compute(self.bank.plot.grid.basis.nurbs.pipe.clone())
-            .bind(0, bind)
-            .dispatch(count.clone())
-            .hub()?;
-        Basis {
-            bin: self.bank,
-            gpu: self.gpu,
-            shape: self.shape,
-            order,
-            count,
-            hedge: Hedge { buffer, root },
-        }
-        .control()
-    }
-}
-
-
-// fn grid_nurbs(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
+    // fn grid_nurbs(&self, count: Hub<u32>, order: usize, buffer: Hub<Grc<Buffer>>, offset: Hub<u64>) -> graph::Result<Hedge> {
     //     let rig = self
     //         .gpu
     //         .uniform()
-    //         .field(order)
+    //         .field(order as u32)
     //         .field(count.clone())
     //         .make()?;
-    //     let buffer = self
-    //         .gpu
-    //         .blank(self.shape.span.buffer.clone())
-    //         .mul(count.clone())
-    //         .mul(2)
-    //         .div(3)
-    //         .hub()?;
     //     let bind = self
     //         .gpu
     //         .bind()
     //         .layout(self.bank.plot.grid.basis.nurbs.layout.clone())
     //         .entry(0, rig.buffer)
-    //         .entry(1, self.shape.span.buffer.clone())
+    //         .entry(1, self.shape.span.vector[order].hedge.buffer.clone())
     //         .entry(2, buffer.clone())
     //         .hub()?;
     //     let root = self
@@ -123,6 +87,49 @@ impl Plot<'_> {
     //     }
     //     .control()
     // }
+}
+
+// fn grid_nurbs(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
+//     let rig = self
+//         .gpu
+//         .uniform()
+//         .field(order)
+//         .field(count.clone())
+//         .make()?;
+//     let buffer = self
+//         .gpu
+//         .blank(self.shape.span.buffer.clone())
+//         .mul(count.clone())
+//         .mul(2)
+//         .div(3)
+//         .hub()?;
+//     let bind = self
+//         .gpu
+//         .bind()
+//         .layout(self.bank.plot.grid.basis.nurbs.layout.clone())
+//         .entry(0, rig.buffer)
+//         .entry(1, self.shape.span.buffer.clone())
+//         .entry(2, buffer.clone())
+//         .hub()?;
+//     let root = self
+//         .gpu
+//         .command()
+//         .root(rig.root)
+//         .root(self.shape.span.root.clone())
+//         .compute(self.bank.plot.grid.basis.nurbs.pipe.clone())
+//         .bind(0, bind)
+//         .dispatch(count.clone())
+//         .hub()?;
+//     Basis {
+//         bin: self.bank,
+//         gpu: self.gpu,
+//         shape: self.shape,
+//         order,
+//         count,
+//         hedge: Hedge { buffer, root },
+//     }
+//     .control()
+// }
 
 // pub struct Basis<'a> {
 //     pub bin: &'a Bank,
