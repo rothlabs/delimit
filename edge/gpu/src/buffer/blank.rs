@@ -51,10 +51,10 @@ impl BlankBuilder {
 // }
 
 // root: Hub<Grc<Buffer>>,
-    // #[builder(default, setter(each(name = "mul", into)))]
-    // muls: Vec<Hub<u32>>,
-    // #[builder(default, setter(each(name = "div", into)))]
-    // divs: Vec<Hub<u32>>,
+// #[builder(default, setter(each(name = "mul", into)))]
+// muls: Vec<Hub<u32>>,
+// #[builder(default, setter(each(name = "div", into)))]
+// divs: Vec<Hub<u32>>,
 
 // impl BackIt for Root {
 //     fn back(&mut self, back: &Back) -> graph::Result<()> {

@@ -7,7 +7,7 @@ pub struct Vector {
 }
 
 #[derive(Clone, Debug)]
-enum VectorRule {
+pub enum VectorRule {
     Direct,
     Nurbs,
 }

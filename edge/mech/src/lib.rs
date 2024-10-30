@@ -7,6 +7,7 @@ use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
+use star::*;
 use wgpu::*;
 
 mod bank;

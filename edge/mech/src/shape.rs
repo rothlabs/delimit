@@ -1,7 +1,7 @@
 use super::*;
 
 mod make;
-mod span;
+pub mod span;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]

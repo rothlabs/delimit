@@ -1,7 +1,7 @@
 use derive_builder::*;
 use graph::*;
 use node_derive::*;
-use std::fmt::Debug;
+use std::{fmt::Debug, ops};
 
 #[derive(Builder, Back, Gate, Debug)]
 #[builder(pattern = "owned")]
@@ -22,10 +22,50 @@ where
         }
         Ok(vector.into_leaf().hub())
     }
-    fn rank(&self) -> u16 {
-        1
+}
+
+// TODO: make trait to make new Sum with other
+#[derive(Builder, Back, Gate, Debug)]
+#[builder(pattern = "owned")]
+pub struct Sum<T> {
+    #[builder(setter(each(name = "field", into)))]
+    pub fields: Vec<Hub<T>>,
+}
+
+impl<T> Solve for Sum<T>
+where
+    T: 'static + Clone + SendSync + Debug + Default + ops::AddAssign<T>,
+{
+    type Base = T;
+    async fn solve(&self) -> graph::Result<Hub<T>> {
+        let mut sum = T::default();
+        for field in &self.fields {
+            sum += field.base().await?;
+        }
+        Ok(sum.into_leaf().into())
     }
 }
+
+// TODO: make trait on Hub<T: Number> to make new Divide
+#[derive(Builder, Back, Gate, Debug)]
+#[builder(pattern = "owned")]
+pub struct Divide<T> {
+    pub dividend: Hub<T>,
+    pub divisor: Hub<T>,
+}
+
+impl<T> Solve for Divide<T>
+where
+    T: 'static + Clone + SendSync + Debug + Default + ops::Div<Output = T>,
+{
+    type Base = T;
+    async fn solve(&self) -> graph::Result<Hub<T>> {
+        let quotient = self.dividend.base().await? / self.divisor.base().await?;
+        Ok(quotient.into_leaf().into())
+    }
+}
+
+
 
 // impl<T> Adapt for Vector<T>
 // where

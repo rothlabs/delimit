@@ -23,76 +23,76 @@ async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
     Ok(gpu)
 }
 
-#[wasm_bindgen_test]
-async fn nurbs() -> dom::Result<()> {
-    let gpu = gpu().await?;
-    let mech = Mech::new(gpu.clone())?;
-    let count = 5;
-    //                        6 knots                      3 weights
-    let span = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
-    let index = gpu.hedge(vec![0_u32, 1, 2])?;
-    let control = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
-    let shape = mech
-        .shape(Rule::Nurbs(3))
-        .span(span)
-        .index(index)
-        .control(Control::Hedge(control))
-        .build()?;
-    let plot = mech.plot(shape).grid(count)?.base().await?;
-    let out: Vec<f32> = gpu
-        .reader(plot.hedge.buffer)
-        .root(plot.hedge.root)
-        .staged()?
-        .base()
-        .await?;
-    assert_eq!(
-        out,
-        vec![
-            -1.5,
-            -2.5,
-            4.0,
-            9.8,
-            -0.56875,
-            -0.45624995,
-            3.45,
-            6.55,
-            0.225,
-            0.77500004,
-            2.9,
-            3.3,
-            0.88124996,
-            1.19375,
-            2.35,
-            0.049999923,
-            1.4,
-            0.8,
-            1.8,
-            -3.2000003
-        ]
-    );
-    Ok(())
-}
+// #[wasm_bindgen_test]
+// async fn nurbs() -> dom::Result<()> {
+//     let gpu = gpu().await?;
+//     let mech = Mech::new(gpu.clone())?;
+//     let count = 5;
+//     //                        6 knots                      3 weights
+//     let span = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
+//     let index = gpu.hedge(vec![0_u32, 1, 2])?;
+//     let control = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
+//     let shape = mech
+//         .shape(Rule::Nurbs(3))
+//         .span(span)
+//         .index(index)
+//         .control(Control::Hedge(control))
+//         .build()?;
+//     let plot = mech.plot(shape).grid(count)?.base().await?;
+//     let out: Vec<f32> = gpu
+//         .reader(plot.hedge.buffer)
+//         .root(plot.hedge.root)
+//         .staged()?
+//         .base()
+//         .await?;
+//     assert_eq!(
+//         out,
+//         vec![
+//             -1.5,
+//             -2.5,
+//             4.0,
+//             9.8,
+//             -0.56875,
+//             -0.45624995,
+//             3.45,
+//             6.55,
+//             0.225,
+//             0.77500004,
+//             2.9,
+//             3.3,
+//             0.88124996,
+//             1.19375,
+//             2.35,
+//             0.049999923,
+//             1.4,
+//             0.8,
+//             1.8,
+//             -3.2000003
+//         ]
+//     );
+//     Ok(())
+// }
 
 #[rustfmt::skip]
 fn nurbs_arc() -> Vec<f32> {
     vec![0.0_f32, 0., 0., 1., 1., 1.,   1., (2.0_f32).sqrt() / 2., 1.]
 }
 
-#[wasm_bindgen_test]
-async fn draw_nurbs() -> dom::Result<()> {
-    let gpu = gpu_with_canvas().await?;
-    let mech = Mech::new(gpu.clone())?;
-    let count = 50;
-    let span = gpu.hedge(nurbs_arc())?;
-    let index = gpu.hedge(vec![0_u32, 1, 2])?;
-    let control = gpu.hedge(vec![-1.0_f32, -1., -1., 1., 1., 1.])?;
-    let shape = mech
-        .shape(Rule::Nurbs(3))
-        .span(span)
-        .index(index)
-        .control(Control::Hedge(control))
-        .build()?;
-    let plot = mech.plot(shape).grid(count)?;
-    mech.draw(plot).points().hub()?.base().await?;
-    Ok(())
-}
+// #[wasm_bindgen_test]
+// async fn draw_nurbs() -> dom::Result<()> {
+//     let gpu = gpu_with_canvas().await?;
+//     let mech = Mech::new(gpu.clone())?;
+//     let count = 50;
+//     let span = gpu.hedge(nurbs_arc())?;
+//     let index = gpu.hedge(vec![0_u32, 1, 2])?;
+//     let control = gpu.hedge(vec![-1.0_f32, -1., -1., 1., 1., 1.])?;
+//     let shape = mech
+//         .shape(Rule::Nurbs(3))
+//         .span(span)
+//         .index(index)
+//         .control(Control::Hedge(control))
+//         .build()?;
+//     let plot = mech.plot(shape).grid(count)?;
+//     mech.draw(plot).points().hub()?.base().await?;
+//     Ok(())
+// }

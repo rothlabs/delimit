@@ -13,53 +13,16 @@ pub struct Size {
     divs: Vec<Hub<u32>>,
 }
 
-impl Solve for Blank {
-    type Base = Grc<Buffer>;
-    async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
-        let size = self.size.base().await?;
-        let buffer = self.core.buffer(size).usage(self.usage).make()?;
-        Ok(buffer.into())
+impl Solve for Size {
+    type Base = u64;
+    async fn solve(&self) -> graph::Result<Hub<u64>> {
+        let mut size = self.buffer.base().await?.size();
+        for mul in &self.muls {
+            size *= mul.base().await? as u64;
+        }
+        for div in &self.divs {
+            size /= div.base().await? as u64;
+        }
+        Ok(size.into())
     }
 }
-
-impl BlankBuilder {
-    pub fn map_read(self) -> graph::Result<Hub<Grc<Buffer>>> {
-        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
-            .hub()
-    }
-}
-
-// #[derive(Builder, Debug)]
-// #[builder(build_fn(error = "graph::Error"))]
-// pub struct BlankRoot {
-//     buffer: Hub<Grc<Buffer>>,
-//     #[builder(default, setter(each(name = "mul", into)))]
-//     muls: Vec<Hub<u32>>,
-//     #[builder(default, setter(each(name = "div", into)))]
-//     divs: Vec<Hub<u32>>,
-// }
-
-// impl Backed for BlankRoot {
-//     fn backed(&self, back: &Back) -> graph::Result<Self>
-//         where
-//             Self: Sized {
-//         Ok(Self {
-//             buffer: self.buffer.clone(),
-//             muls: self.muls.backed(back)?,
-//             divs: self.divs.backed(back)?,
-//         })
-//     }
-// }
-
-// root: Hub<Grc<Buffer>>,
-    // #[builder(default, setter(each(name = "mul", into)))]
-    // muls: Vec<Hub<u32>>,
-    // #[builder(default, setter(each(name = "div", into)))]
-    // divs: Vec<Hub<u32>>,
-
-// impl BackIt for Root {
-//     fn back(&mut self, back: &Back) -> graph::Result<()> {
-//         self.muls.back(back)?;
-//         self.divs.back(back)
-//     }
-// }

@@ -1,16 +1,16 @@
 pub use blank::*;
 pub use reader::*;
+pub use size::*;
 pub use uniform::*;
 pub use writer::*;
-pub use size::*;
 
 use super::*;
 
 mod blank;
 mod reader;
+mod size;
 mod uniform;
 mod writer;
-mod size;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]

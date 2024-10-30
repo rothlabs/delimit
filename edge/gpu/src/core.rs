@@ -134,8 +134,11 @@ impl Core {
             .core(self.clone())
             .storage(storage)
     }
-    pub fn blank(&self) -> BlankBuilder { // , root: impl Into<Hub<Grc<Buffer>>>
-        BlankBuilder::default().core(self.clone())//.root(root)
+    pub fn blank(&self, size: impl Into<Hub<u64>>) -> BlankBuilder {
+        BlankBuilder::default().core(self.clone()).size(size)
+    }
+    pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {
+        SizeBuilder::default().core(self.clone()).buffer(buffer)
     }
     pub fn command(&self) -> encode::CommandBuilder {
         encode::CommandBuilder::default().core(self.clone())
