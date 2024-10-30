@@ -2,25 +2,24 @@ use super::*;
 
 #[derive(Clone, Debug)]
 pub struct Vector {
-    pub rule: VectorRule,
-    pub hedge: Hedge,
-}
-
-#[derive(Clone, Debug)]
-pub enum VectorRule {
-    Direct,
-    Nurbs,
+    pub nurbs: Option<Hedge>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Matrix {
-    rule: MatrixRule,
-    hedge: Hedge,
+    pub extrude: Option<Hedge>,
+    pub revolve: Option<Hedge>,
 }
 
-#[derive(Clone, Debug)]
-enum MatrixRule {
-    Direct,
-    Extrude,
-    Revolve,
-}
+// #[derive(Clone, Debug)]
+// pub enum VectorRule {
+//     Direct,
+//     Nurbs,
+// }
+
+// #[derive(Clone, Debug)]
+// enum MatrixRule {
+//     Direct,
+//     Extrude,
+//     Revolve,
+// }

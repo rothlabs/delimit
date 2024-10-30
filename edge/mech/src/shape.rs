@@ -39,14 +39,16 @@ impl Shape {
 #[derive(Clone, Debug)]
 struct Span {
     // matched to vector control
-    matrix: Vec<span::Matrix>,
-    vector: Vec<Vec<span::Vector>>,
+    matrix: span::Matrix,
+    // matched to matrix control indexed by order
+    vector: Vec<span::Vector>,
 }
 
 #[derive(Clone, Debug)]
 struct Control {
-    // index hedge
+    // index hedge matched to matrix span
     vector: Option<Hedge>,
+    // index hedge matched to vector span indexed by order
     matrix: Vec<Hedge>,
 }
 

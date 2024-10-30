@@ -134,7 +134,7 @@ impl Core {
             .core(self.clone())
             .storage(storage)
     }
-    pub fn blank(&self, size: impl Into<Hub<u64>>) -> BlankBuilder {
+    pub fn blank(&self, size: impl Into<Hub<u32>>) -> BlankBuilder {
         BlankBuilder::default().core(self.clone()).size(size)
     }
     pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {

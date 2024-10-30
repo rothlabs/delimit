@@ -7,8 +7,8 @@ pub struct Plot<'a> {
     pub shape: &'a Shape,
 }
 
-fn last(sum: Option<&Hub<u64>>) -> Hub<u64> {
-    sum.cloned().unwrap_or(0_u64.into())
+fn last(sum: Option<&Hub<u32>>) -> Hub<u32> {
+    sum.cloned().unwrap_or(0_u32.into())
 }
 
 pub struct Basis<'a> {
@@ -19,37 +19,55 @@ pub struct Basis<'a> {
     pub count: Hub<u32>,
 }
 
+// let size = self
+//                     .core
+//                     .gpu
+//                     .size(extrude.buffer.clone())
+//                     .sub((self.shape.dimension - 1) * 4)
+//                     .mul(count.clone())
+//                     .hub()?;
+
 impl Plot<'_> {
     pub fn grid(&self, count: Hub<u32>) -> graph::Result<Hedge> {
         // TODO: make it a generic trait in graph crate
-        let mut control_offsets: Vec<Hub<u64>> = vec![];
-        for (order, vector_spans) in self.shape.span.vector.iter().enumerate() {
-            let mut span_offsets = vec![];
-            for span in vector_spans {
-                let buffer = span.hedge.buffer.clone();
-                let mut size = self.core.gpu.size(buffer).mul(count.clone());
-                // When acceleration is included, remove this because plot row will be same length as nurbs row
-                if let span::VectorRule::Nurbs = span.rule {
-                    size = size.mul(2).div(3);
-                }
-                let sum = Sum {
-                    fields: vec![last(span_offsets.last()), size.hub()?],
-                };
-                span_offsets.push(sum.gate()?.into());
-            }
+        let mut control_offsets: Vec<Hub<u32>> = vec![];
+        let mut span_offsets = vec![];
+        if let Some(extrude) = &self.shape.span.matrix.extrude {
+            let size = self
+                .core
+                .gpu
+                .size(extrude.buffer.clone())
+                .add(self.shape.dimension.pow(2))
+                .mul(count.clone())
+                .hub()?;
+            span_offsets.push(size);
+        }
+        let span_size = last(span_offsets.last());
+        let block = self.shape.dimension * (self.shape.dimension - 1);
+        let reduct = count.calc().mul(block).hub()?;
+        let offset = span_size.calc().sub(reduct).hub()?;
+        control_offsets.push(offset);
+        let matrix_blank = self.core.gpu.blank(span_size).hub()?;
+
+        for (order, span) in self.shape.span.vector.iter().enumerate() {
+            let nurbs_size = if let Some(nurbs) = &span.nurbs {
+                // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
+                self
+                    .core
+                    .gpu
+                    .size(nurbs.buffer.clone())
+                    .mul(count.clone())
+                    .mul(2)
+                    .div(3)
+                    .hub()?
+            } else {
+                0_u32.into()
+            };
             let span_size = last(span_offsets.last());
-            let offset = Divide {
-                dividend: span_size.clone(),
-                divisor: (order as u64).into(),
-            };
-            let offset = Sum {
-                fields: vec![last(control_offsets.last()), offset.gate()?.into()],
-            };
-            control_offsets.push(offset.gate()?.into());
+            let offset = span_size.calc().mul(self.shape.dimension).div(order as u32).hub()?;
+            control_offsets.push(offset);
             let blank = self.core.gpu.blank(span_size).hub()?;
-            for (i, span) in vector_spans.iter().enumerate() {
-                if let span::VectorRule::Nurbs = span.rule {}
-            }
+            if let Some(nurbs) = &span.nurbs {}
         }
         Err(anyhow!("shape plot grid failed"))?
     }
@@ -191,4 +209,27 @@ impl Plot<'_> {
 //             .hub()?;
 //         Ok(Hedge { buffer, root })
 //     }
+// }
+
+// let mut span_offsets = vec![];
+// if let Some(nurbs) = &span.nurbs {
+//     // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
+//     let mut size = self.core.gpu.size(nurbs.buffer.clone()).mul(count.clone()).mul(2).div(3).hub()?;
+//     let sum = Sum {
+//         fields: vec![last(span_offsets.last()), size.hub()?],
+//     };
+//     span_offsets.push(sum.gate()?.into());
+// }
+// let span_size = last(span_offsets.last());
+// let offset = Divide {
+//     dividend: span_size.clone(),
+//     divisor: (order as u64).into(),
+// };
+// let offset = Sum {
+//     fields: vec![last(control_offsets.last()), offset.gate()?.into()],
+// };
+// control_offsets.push(offset.gate()?.into());
+// let blank = self.core.gpu.blank(span_size).hub()?;
+// for (i, span) in vector_spans.iter().enumerate() {
+//     if let span::VectorRule::Nurbs = span.rule {}
 // }

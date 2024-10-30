@@ -1,4 +1,4 @@
-use derive_builder::*;
+use derive_builder::Builder;
 use graph::*;
 use node_derive::*;
 use std::{fmt::Debug, ops};
@@ -23,6 +23,152 @@ where
         Ok(vector.into_leaf().hub())
     }
 }
+
+#[derive(Back, Debug)]
+// #[builder(pattern = "owned")]
+pub struct Arithmetic<T> {
+    value: Hub<T>,
+    // #[builder(setter(each(name = "op", into)))]
+    ops: Vec<Operation<T>>,
+}
+
+impl<T> GateTag for Arithmetic<T> {}
+
+impl<T> Solve for Arithmetic<T>
+where
+    T: 'static + Clone + SendSync + Debug
+        + ops::AddAssign<T> + ops::SubAssign<T> + ops::MulAssign<T> + ops::DivAssign<T>// + std::ops::Neg<Output = T>,
+{
+    type Base = T;
+    async fn solve(&self) -> graph::Result<Hub<T>> {
+        let mut out = self.value.base().await?;
+        for op in &self.ops {
+            let value = op.value.base().await?;
+            match op.type_ {
+                OperationType::Add => out += value,
+                OperationType::Sub => out -= value,
+                OperationType::Mul => out *= value,
+                OperationType::Div => out /= value,
+                // OperationType::Neg => out = -out,
+            }
+        }
+        Ok(out.into_leaf().into())
+    }
+}
+
+#[derive(Debug)]
+struct Operation<T> {
+    value: Hub<T>,
+    type_: OperationType,
+}
+
+impl<T: 'static + Clone + SendSync> Backed for Operation<T> {
+    fn backed(&self, back: &Back) -> Result<Self> {
+        Ok(Self {
+            value: self.value.backed(back)?,
+            type_: self.type_.clone(),
+        })
+    }
+}
+
+#[derive(Clone, Debug)]
+enum OperationType {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    // Neg,
+}
+
+pub struct ArithmeticBuilder<T> {
+    target: Arithmetic<T>
+}
+
+impl<T> ArithmeticBuilder<T> 
+where
+    T: 'static + Clone + SendSync + Debug,
+    Arithmetic<T>: Solve + IntoGate,
+{
+    pub fn hub(self) -> graph::Result<Hub<<Arithmetic<T> as Solve>::Base>> {
+        Ok(self.target.gate()?.into())
+    }
+    pub fn add(mut self, value: impl Into<Hub<T>>) -> Self {
+        self.target.ops.push(Operation {
+            value: value.into(),
+            type_: OperationType::Add,
+        });
+        self
+    }
+    pub fn sub(mut self, value: impl Into<Hub<T>>) -> Self {
+        self.target.ops.push(Operation {
+            value: value.into(),
+            type_: OperationType::Sub,
+        });
+        self
+    }
+    pub fn mul(mut self, value: impl Into<Hub<T>>) -> Self {
+        self.target.ops.push(Operation {
+            value: value.into(),
+            type_: OperationType::Mul,
+        });
+        self
+    }
+    pub fn div(mut self, value: impl Into<Hub<T>>) -> Self {
+        self.target.ops.push(Operation {
+            value: value.into(),
+            type_: OperationType::Div,
+        });
+        self
+    }
+    // pub fn neg(mut self) -> Self {
+    //     self.target.ops.push(Operation {
+    //         value: T::default().into(),
+    //         type_: OperationType::Neg,
+    //     });
+    //     self
+    // }
+}
+
+pub trait MakeArithmetic<T> {
+    fn calc(&self) -> ArithmeticBuilder<T>;
+}
+
+impl<T> MakeArithmetic<T> for Hub<T> 
+where 
+    T: 'static + Clone + SendSync + Debug
+        + ops::AddAssign<T> + ops::SubAssign<T> + ops::MulAssign<T> + ops::DivAssign<T>,
+{
+    fn calc(&self) -> ArithmeticBuilder<T> {
+        ArithmeticBuilder {
+            target: Arithmetic {
+                value: self.clone(),
+                ops: vec![] 
+            }
+        }
+    }
+}
+
+// #[derive(Builder, Back, Gate, Debug)]
+// #[builder(pattern = "owned")]
+// pub struct Vector<T> {
+//     #[builder(setter(each(name = "field", into)))]
+//     fields: Vec<Hub<T>>,
+// }
+
+// impl<T> Solve for Vector<T>
+// where
+//     T: 'static + Clone + SendSync + Debug,
+// {
+//     type Base = Vec<T>;
+//     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
+//         let mut vector = vec![];
+//         for field in &self.fields {
+//             vector.push(field.base().await?);
+//         }
+//         Ok(vector.into_leaf().hub())
+//     }
+// }
+
 
 // TODO: make trait to make new Sum with other
 #[derive(Builder, Back, Gate, Debug)]
@@ -62,6 +208,27 @@ where
     async fn solve(&self) -> graph::Result<Hub<T>> {
         let quotient = self.dividend.base().await? / self.divisor.base().await?;
         Ok(quotient.into_leaf().into())
+    }
+}
+
+#[derive(Builder, Back, Gate, Debug)]
+#[builder(pattern = "owned")]
+pub struct Multiply<T> {
+    #[builder(setter(each(name = "field", into)))]
+    pub fields: Vec<Hub<T>>,
+}
+
+impl<T> Solve for Multiply<T>
+where
+    T: 'static + Clone + SendSync + Debug + Default + ops::MulAssign<T>,
+{
+    type Base = T;
+    async fn solve(&self) -> graph::Result<Hub<T>> {
+        let mut product = T::default();
+        for field in &self.fields {
+            product *= field.base().await?;
+        }
+        Ok(product.into_leaf().into())
     }
 }
 

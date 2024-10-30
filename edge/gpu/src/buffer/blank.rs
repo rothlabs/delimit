@@ -6,7 +6,7 @@ use super::*;
 pub struct Blank {
     #[back(skip)]
     core: Core,
-    size: Hub<u64>,
+    size: Hub<u32>,
     #[back(skip)]
     #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
     usage: BufferUsages,
@@ -16,7 +16,7 @@ impl Solve for Blank {
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let size = self.size.base().await?;
-        let buffer = self.core.buffer(size).usage(self.usage).make()?;
+        let buffer = self.core.buffer(size as u64 * 4).usage(self.usage).make()?;
         Ok(buffer.into())
     }
 }
