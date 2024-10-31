@@ -59,7 +59,23 @@ struct Step<'a> {
 
 impl Step<'_> {
     fn hedge(&self) -> graph::Result<Hedge> {
+
         panic!("wow")
+    }
+    fn stride(&self) -> graph::Result<Hub<u32>> {
+        let counts = self.control.grid.counts;
+        if counts.len() > 1 {
+            let mut stride = counts[0].calc();
+            for count in counts.iter().skip(1) {
+                stride = stride.mul(count);
+            }
+            stride.hub()
+        } else if counts.len() > 0 {
+            Ok(counts[0].clone())
+        } else {
+            Ok(1.into())
+        }
+        // self.control.grid.counts.get(self.rank).ok_or(anyhow!("no count"))?;
     }
 }
 
@@ -72,4 +88,17 @@ impl Step<'_> {
 //         basis: self.basis.get(i).unwrap_or(last_basis),
 //         index: index.get(i).ok_or(anyhow!("no index"))?,
 //     })
+// }
+
+
+// if counts.len() > 1 {
+//     let mut stride = counts[0].calc();
+//     for count in counts.iter().skip(1) {
+//         stride = stride.mul(count);
+//     }
+//     stride.hub()
+// } else if counts.len() > 0 {
+//     Ok(counts[0].clone())
+// } else {
+//     Ok(1.into())
 // }

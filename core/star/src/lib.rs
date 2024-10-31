@@ -1,3 +1,5 @@
+pub use arithmetic::*;
+
 use derive_builder::*;
 use graph::*;
 use node_derive::*;
