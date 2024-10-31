@@ -30,7 +30,7 @@ impl Solve for Grid {
     type Base = crate::Plot;
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         let shape = self.shape.base().await?;
-        let hedge = shape.plot(&self.core).grid(&self.count).hedge()?;
+        let hedge = shape.plot(&self.core).grid(&self.count)?;
         let plot = crate::Plot {
             hedge,
             shape: self.shape.clone(),

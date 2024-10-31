@@ -1,20 +1,11 @@
 use super::*;
 
-mod basis;
+mod grid;
 
-pub struct Basis<'a> {
-    pub plot: &'a Plot<'a>,
+#[derive(Default)]
+pub struct Basis {
     pub vector: Vec<Option<Hedge>>,
     pub matrix: Option<Hedge>,
-}
-
-impl<'a> Basis<'a> {
-    fn grid(&self, count: &'a Hub<u32>) -> basis::Grid {
-        basis::Grid {
-            basis: self,
-            count,
-        }
-    }
 }
 
 pub struct Grid<'a> {
@@ -23,13 +14,12 @@ pub struct Grid<'a> {
 }
 
 impl<'a> Grid<'a> {
-    pub fn hedge(&self) -> graph::Result<Hedge> {
-        let mut basis = self.plot.basis();
+    pub fn basis(&self) -> graph::Result<Hedge> {
+        let mut basis = Basis::default();
         let gpu = &self.plot.core.gpu;
         // let extrude_size = self.extrude_size()?;
         // let matrix_blank = gpu.blank(extrude_size).hub()?;
         for (order, span) in self.plot.shape.span.vector.iter().enumerate() {
-            let order = order as u32;
             if let Some(span) = span {
                 let mut root = JoinBuilder::default();
                 let nurbs_size = self.nurbs_size(span)?;
@@ -45,10 +35,13 @@ impl<'a> Grid<'a> {
                 basis.vector.push(None);
             }
         }
-        Err(anyhow!("shape plot grid failed"))?
+        self.control(&basis)
     }
-    fn form(&self, buffer: &'a Hub<Grc<Buffer>>) -> Form {
-        Form { grid: self, buffer }
+    fn form(&self, buffer: &'a Hub<Grc<Buffer>>) -> grid::Form {
+        grid::Form { grid: self, buffer }
+    }
+    fn control(&self, basis: &'a Basis) -> graph::Result<Hedge> {
+        grid::Control {grid: self, basis}.hedge()
     }
     // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
     //     let gpu = &self.plot.core.gpu;
@@ -76,39 +69,13 @@ impl<'a> Grid<'a> {
             0.into()
         })
     }
-    fn rig(&self, order: u32, offset: Hub<u32>) -> graph::Result<Hedge> {
+    fn rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
         let uniform = self.plot.core.gpu.uniform();
         uniform
-            .field(order)
+            .field(order as u32)
             .field(self.count.clone())
             .field(offset)
             .make()
-    }
-}
-
-struct Form<'a> {
-    grid: &'a Grid<'a>,
-    buffer: &'a Hub<Grc<Buffer>>,
-}
-
-impl Form<'_> {
-    fn nurbs(&self, rig: &Hedge, span: &Hedge) -> graph::Result<Hub<Mutation>> {
-        let gpu = &self.grid.plot.core.gpu;
-        let nurbs = &self.grid.plot.core.bank.plot.grid.basis.nurbs;
-        let bind = gpu
-            .bind()
-            .layout(nurbs.layout.clone())
-            .entry(0, rig.buffer.clone())
-            .entry(1, span.buffer.clone())
-            .entry(2, self.buffer.clone())
-            .hub()?;
-        gpu.command()
-            .root(rig.root.clone())
-            .root(span.root.clone())
-            .compute(nurbs.pipe.clone())
-            .bind(0, bind)
-            .dispatch(self.grid.count.clone())
-            .hub()
     }
 }
 

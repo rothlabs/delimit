@@ -8,15 +8,8 @@ pub struct Plot<'a> {
 }
 
 impl<'a> Plot<'a> {
-    pub fn grid(&self, count: &'a Hub<u32>) -> plot::Grid {
-        plot::Grid { plot: self, count }
-    }
-    fn basis(&self) -> plot::Basis {
-        plot::Basis {
-            plot: self,
-            vector: vec![],
-            matrix: None,
-        }
+    pub fn grid(&self, count: &'a Hub<u32>) -> graph::Result<Hedge> {
+        plot::Grid { plot: self, count }.basis()
     }
 }
 
