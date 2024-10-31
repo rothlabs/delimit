@@ -51,8 +51,12 @@ pub struct Hedge {
 #[derive(Clone, Debug)]
 pub struct Mutation;
 
-#[derive(Clone, Debug)]
-pub struct Drawing;
+// pub struct JoinMutation {
+
+// }
+
+// #[derive(Clone, Debug)]
+// pub struct Drawing;
 
 // #[derive(Clone, Debug)]
 // pub enum Table {

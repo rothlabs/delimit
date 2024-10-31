@@ -1,35 +1,43 @@
 use super::*;
 
-mod grid;
+mod plot;
 
 pub struct Plot<'a> {
-    // pub bank: &'a Bank,
-    // pub gpu: &'a Gpu,
     pub core: &'a Core,
     pub shape: &'a Shape,
 }
 
-// TODO: make it a generic trait in graph crate
-fn last(sum: Option<&Hub<u32>>) -> Hub<u32> {
-    sum.cloned().unwrap_or(0.into())
-}
-
-impl Plot<'_> {
-    pub fn grid(&self, count: Hub<u32>) -> grid::Plot {
-        grid::Plot {
-            core: self.core,
-            shape: self.shape,
-            count
+impl<'a> Plot<'a> {
+    pub fn grid(&self, count: &'a Hub<u32>) -> plot::Grid {
+        plot::Grid { plot: self, count }
+    }
+    fn basis(&self) -> plot::Basis {
+        plot::Basis {
+            plot: self,
+            vector: vec![],
+            matrix: None,
         }
     }
 }
 
-struct Basis<'a> {
-    core: &'a Core,
-    shape: &'a Shape,
-    vector: Vec<Hedge>,
-    matrix: Hedge,
-}
+
+
+// BasisBuilder {
+//     plot: Some(self),
+//     ..Default::default()
+// }
+// // let mut basis = BasisBuilder::default();
+// // basis.plot(self);
+// // basis
+
+// impl Basis<'_> {
+//     fn new
+// }
+
+// // TODO: make it a generic trait in graph crate
+// fn last(sum: Option<&Hub<u32>>) -> Hub<u32> {
+//     sum.cloned().unwrap_or(0.into())
+// }
 
 // fn grid_nurbs(&self, order: u32, count: Hub<u32>) -> graph::Result<Hedge> {
 //     let rig = self

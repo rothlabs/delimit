@@ -21,12 +21,7 @@ pub struct Shape {
 
 impl Shape {
     pub fn plot<'a>(&'a self, core: &'a Core) -> make::Plot<'a> {
-        make::Plot {
-            // bank: &mech.bank,
-            // gpu: &mech.gpu,
-            core,
-            shape: self,
-        }
+        make::Plot { core, shape: self }
     }
     pub fn plot_stride(&self) -> u32 {
         self.dimension + self.dimension * self.rank()
@@ -41,7 +36,7 @@ struct Span {
     // matched to vector control
     matrix: span::Matrix,
     // matched to matrix control indexed by order
-    vector: Vec<span::Vector>,
+    vector: Vec<Option<span::Vector>>,
 }
 
 #[derive(Clone, Debug)]
