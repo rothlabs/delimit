@@ -19,7 +19,14 @@ impl<'a> Grid<'a> {
         for count in self.counts {
             basis.push(self.array(count).basis()?);
         }
-        self.control(basis)
+        let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
+        let mut strides: Vec<Hub<u32>> = vec![1.into()];
+        for i in 0..self.plot.shape.index.len() - 1 {
+            let stride = strides.last().cloned().unwrap_or(1.into()).calc();
+            let count = self.counts.get(i).cloned().unwrap_or(last_count.clone());
+            strides.push(stride.mul(count).hub()?);
+        }
+        self.control(basis, strides)
     }
     fn array(&self, count: &'a Hub<u32>) -> Array {
         Array {
@@ -27,8 +34,13 @@ impl<'a> Grid<'a> {
             count,
         }
     }
-    fn control(&self, basis: Vec<Basis>) -> graph::Result<Hedge> {
-        grid::Control { grid: self, basis }.hedge()
+    fn control(&self, basis: Vec<Basis>, strides: Vec<Hub<u32>>) -> graph::Result<Hedge> {
+        grid::Control {
+            grid: self,
+            basis,
+            strides,
+        }
+        .hedge()
     }
 }
 

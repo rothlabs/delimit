@@ -29,15 +29,20 @@ impl Form<'_> {
 pub struct Control<'a> {
     pub grid: &'a Grid<'a>,
     pub basis: Vec<Basis>,
+    pub strides: Vec<Hub<u32>>,
 }
 
 impl<'a> Control<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
         let shape = &self.grid.plot.shape;
+        let counts = self.grid.counts;
+        // let last_count = counts.last().ok_or(anyhow!("no counts"))?;
+        // let mut stride: Hub<u32> = 1.into();
         let mut plots = vec![shape.points.clone()];
         for rank in 0..shape.index.len() {
             let plot = plots.last().ok_or(anyhow!("no plot"))?;
             plots.push(self.step(rank, plot)?);
+            // stride = counts.get(rank).cloned().unwrap_or(last_count.clone());
         }
         plots.last().cloned().ok_or(Err(anyhow!("no plot"))?)
     }
@@ -59,7 +64,6 @@ struct Step<'a> {
 
 impl Step<'_> {
     fn hedge(&self) -> graph::Result<Hedge> {
-
         panic!("wow")
     }
     fn stride(&self) -> graph::Result<Hub<u32>> {
@@ -89,7 +93,6 @@ impl Step<'_> {
 //         index: index.get(i).ok_or(anyhow!("no index"))?,
 //     })
 // }
-
 
 // if counts.len() > 1 {
 //     let mut stride = counts[0].calc();
