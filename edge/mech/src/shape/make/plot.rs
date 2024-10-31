@@ -14,7 +14,7 @@ pub struct Grid<'a> {
 }
 
 impl<'a> Grid<'a> {
-    pub fn basis(&self) -> graph::Result<Hedge> {
+    pub fn hedge(&self) -> graph::Result<Hedge> {
         let mut basis = vec![];
         for count in self.counts {
             basis.push(self.array(count).basis()?);

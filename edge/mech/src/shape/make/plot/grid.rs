@@ -33,29 +33,43 @@ pub struct Control<'a> {
 
 impl<'a> Control<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
-        let indices = &self.grid.plot.shape.index;
-        // for index in indices.iter().enumerate() {
-
-        // }
-        panic!("wow")
-        // self.grid.plot.shape.control
+        let shape = &self.grid.plot.shape;
+        let mut plots = vec![shape.points.clone()];
+        for rank in 0..shape.index.len() {
+            let plot = plots.last().ok_or(anyhow!("no plot"))?;
+            plots.push(self.step(rank, plot)?);
+        }
+        plots.last().cloned().ok_or(Err(anyhow!("no plot"))?)
     }
-    fn step(&self, i: usize, plot: &'a Hedge) -> graph::Result<Step> {
-        let last_basis = self.basis.last().ok_or(anyhow!("no basis"))?;
-        let index = &self.grid.plot.shape.index;
-        Ok(Step {
-            grid: &self.grid,
+    fn step(&self, rank: usize, plot: &'a Hedge) -> graph::Result<Hedge> {
+        Step {
+            control: self,
+            rank,
             plot,
-            basis: self.basis.get(i).unwrap_or(last_basis),
-            index: index.get(i).ok_or(anyhow!("no index"))?,
-        })
+        }
+        .hedge()
     }
 }
 
 struct Step<'a> {
-    // rank: u32,
-    grid: &'a Grid<'a>,
+    control: &'a Control<'a>,
+    rank: usize,
     plot: &'a Hedge,
-    basis: &'a Basis,
-    index: &'a Index,
 }
+
+impl Step<'_> {
+    fn hedge(&self) -> graph::Result<Hedge> {
+        panic!("wow")
+    }
+}
+
+// fn step(&self, i: usize, plot: &'a Hedge) -> graph::Result<Step> {
+//     let last_basis = self.basis.last().ok_or(anyhow!("no basis"))?;
+//     let index = &self.grid.plot.shape.index;
+//     Ok(Step {
+//         grid: &self.grid,
+//         plot,
+//         basis: self.basis.get(i).unwrap_or(last_basis),
+//         index: index.get(i).ok_or(anyhow!("no index"))?,
+//     })
+// }

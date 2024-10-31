@@ -9,7 +9,7 @@ pub struct Plot<'a> {
 
 impl<'a> Plot<'a> {
     pub fn grid(&self, counts: &'a [Hub<u32>]) -> graph::Result<Hedge> {
-        plot::Grid { plot: self, counts }.basis()
+        plot::Grid { plot: self, counts }.hedge()
     }
 }
 
