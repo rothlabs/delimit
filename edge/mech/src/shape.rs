@@ -10,7 +10,7 @@ pub mod span;
 pub struct Shape {
     span: Span,
     points: Hedge,
-    control: Vec<Control>,
+    index: Vec<Index>,
     #[builder(default = "2")]
     pub dimension: u32,
     // #[builder(default)]
@@ -27,7 +27,7 @@ impl Shape {
         self.dimension + self.dimension * self.rank()
     }
     pub fn rank(&self) -> u32 {
-        self.control.len() as u32
+        self.index.len() as u32
     }
 }
 
@@ -40,7 +40,7 @@ struct Span {
 }
 
 #[derive(Clone, Debug)]
-struct Control {
+struct Index {
     // index hedge matched to matrix span
     vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order

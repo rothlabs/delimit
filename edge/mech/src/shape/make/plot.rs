@@ -4,17 +4,41 @@ mod grid;
 
 #[derive(Default)]
 pub struct Basis {
-    pub vector: Vec<Option<Hedge>>,
     pub matrix: Option<Hedge>,
+    pub vector: Vec<Option<Hedge>>,
 }
 
 pub struct Grid<'a> {
     pub plot: &'a Plot<'a>,
-    pub count: &'a Hub<u32>,
+    pub counts: &'a [Hub<u32>],
 }
 
 impl<'a> Grid<'a> {
     pub fn basis(&self) -> graph::Result<Hedge> {
+        let mut basis = vec![];
+        for count in self.counts {
+            basis.push(self.array(count).basis()?);
+        }
+        self.control(basis)
+    }
+    fn array(&self, count: &'a Hub<u32>) -> Array {
+        Array {
+            plot: self.plot,
+            count,
+        }
+    }
+    fn control(&self, basis: Vec<Basis>) -> graph::Result<Hedge> {
+        grid::Control { grid: self, basis }.hedge()
+    }
+}
+
+pub struct Array<'a> {
+    pub plot: &'a Plot<'a>,
+    pub count: &'a Hub<u32>,
+}
+
+impl<'a> Array<'a> {
+    pub fn basis(&self) -> graph::Result<Basis> {
         let mut basis = Basis::default();
         let gpu = &self.plot.core.gpu;
         // let extrude_size = self.extrude_size()?;
@@ -35,14 +59,16 @@ impl<'a> Grid<'a> {
                 basis.vector.push(None);
             }
         }
-        self.control(&basis)
+        Ok(basis)
+        // self.control(&basis)
     }
     fn form(&self, buffer: &'a Hub<Grc<Buffer>>) -> grid::Form {
-        grid::Form { grid: self, buffer }
+        grid::Form {
+            array: self,
+            buffer,
+        }
     }
-    fn control(&self, basis: &'a Basis) -> graph::Result<Hedge> {
-        grid::Control {grid: self, basis}.hedge()
-    }
+
     // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
     //     let gpu = &self.plot.core.gpu;
     //     let shape = &self.plot.shape;
@@ -78,5 +104,3 @@ impl<'a> Grid<'a> {
             .make()
     }
 }
-
-

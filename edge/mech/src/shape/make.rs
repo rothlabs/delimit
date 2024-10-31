@@ -8,12 +8,10 @@ pub struct Plot<'a> {
 }
 
 impl<'a> Plot<'a> {
-    pub fn grid(&self, count: &'a Hub<u32>) -> graph::Result<Hedge> {
-        plot::Grid { plot: self, count }.basis()
+    pub fn grid(&self, counts: &'a [Hub<u32>]) -> graph::Result<Hedge> {
+        plot::Grid { plot: self, counts }.basis()
     }
 }
-
-
 
 // BasisBuilder {
 //     plot: Some(self),

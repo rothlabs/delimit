@@ -6,7 +6,7 @@ pub struct Plot {
 }
 
 impl Plot {
-    pub fn grid(self, count: impl Into<Hub<u32>>) -> graph::Result<Hub<crate::Plot>> {
+    pub fn grid(self, count: impl Into<Vec<Hub<u32>>>) -> graph::Result<Hub<crate::Plot>> {
         GridBuilder::default()
             .core(self.core)
             .shape(self.shape)
@@ -22,7 +22,7 @@ pub struct Grid {
     #[back(skip)]
     core: Core,
     #[back(skip)]
-    count: Hub<u32>,
+    count: Vec<Hub<u32>>,
     shape: Hub<Shape>,
 }
 
