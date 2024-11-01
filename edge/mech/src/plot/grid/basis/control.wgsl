@@ -1,6 +1,6 @@
 struct Rig {
     order: u32,
-    // number of basis in a block
+    // number of span in a block
     count: u32,
     // number of plots in a control
     stride: u32,
@@ -9,8 +9,8 @@ struct Rig {
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;
-@group(0) @binding(1) var<storage, read> basis: array<f32>;
-@group(0) @binding(2) var<storage, read> index: array<u32>;
+@group(0) @binding(1) var<storage, read> span: array<f32>;
+@group(0) @binding(2) var<storage, read> jamb: array<u32>;
 @group(0) @binding(3) var<storage, read> control: array<f32>;
 @group(0) @binding(4) var<storage, read_write> plot: array<f32>;
 
@@ -41,9 +41,9 @@ fn main(
         plot[plot_index0 + d] = 0.;
         plot[plot_index1 + d] = 0.;
         for (var o = 0u; o < order; o++) {
-            let control_index = (index[idx + o] * stride + local_index) * dimension;
-            let basis0 = basis[basis_index + o];
-            let basis1 = basis[basis_index + order + o];
+            let control_index = (jamb[idx + o] * stride + local_index) * dimension;
+            let basis0 = span[basis_index + o];
+            let basis1 = span[basis_index + order + o];
             let control0 = control[control_index + d];
             // TODO: loop plot slots through rank
             plot[plot_index0 + d] += basis0 * control0;

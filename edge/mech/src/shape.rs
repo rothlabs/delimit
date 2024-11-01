@@ -1,16 +1,16 @@
 use super::*;
 
 mod make;
-pub mod span;
+mod arch;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
-    span: Span,
+    arch: Arch,
     points: Hedge,
-    index: Vec<Index>,
+    jambs: Vec<Jamb>,
     #[builder(default = "2")]
     pub dimension: u32,
     // #[builder(default)]
@@ -27,20 +27,20 @@ impl Shape {
         self.dimension + self.dimension * self.rank()
     }
     pub fn rank(&self) -> u32 {
-        self.index.len() as u32
+        self.jambs.len() as u32
     }
 }
 
 #[derive(Clone, Debug)]
-struct Span {
+struct Arch {
     // matched to vector control
-    matrix: span::Matrix,
+    matrix: arch::Matrix,
     // matched to matrix control indexed by order
-    vector: Vec<Option<span::Vector>>,
+    vector: Vec<Option<arch::Vector>>,
 }
 
 #[derive(Clone, Debug)]
-struct Index {
+struct Jamb {
     // index hedge matched to matrix span
     vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
