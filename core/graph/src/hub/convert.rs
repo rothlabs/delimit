@@ -1,45 +1,30 @@
 use super::*;
 
-impl<T: Clone> From<&Hub<T>> for Hub<T>
-// where
-//     T: Payload,
-{
+impl<T: Clone> From<&Hub<T>> for Hub<T> {
     fn from(value: &Hub<T>) -> Self {
         value.clone()
     }
 }
 
-impl<T> From<Ploy<T>> for Hub<T>
-// where
-//     T: SendSync,//Payload,
-{
+impl<T> From<Ploy<T>> for Hub<T> {
     fn from(ploy: Ploy<T>) -> Self {
         Hub::Ploy(ploy)
     }
 }
 
-impl<T> From<Gate<T>> for Hub<T>
-// where
-//     T: Payload,
-{
+impl<T> From<Gate<T>> for Hub<T> {
     fn from(gate: Gate<T>) -> Self {
         Hub::Gate(gate)
     }
 }
 
-impl<T> From<Leaf<T>> for Hub<T>
-// where
-//     T: Payload,
-{
+impl<T> From<Leaf<T>> for Hub<T> {
     fn from(leaf: Leaf<T>) -> Self {
         Hub::Leaf(leaf)
     }
 }
 
-impl<T> From<&Leaf<T>> for Hub<T>
-// where
-//     T: Payload,
-{
+impl<T> From<&Leaf<T>> for Hub<T> {
     fn from(value: &Leaf<T>) -> Self {
         Hub::Leaf(value.clone())
     }

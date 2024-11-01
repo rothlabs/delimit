@@ -63,14 +63,47 @@ struct Step<'a> {
 
 impl Step<'_> {
     fn hedge(&self) -> graph::Result<Hedge> {
-        
-        
-
-        let indices = &self.control.grid.plot.shape.index;
-        let index = indices.get(self.rank).ok_or(anyhow!("no index"))?;
-        panic!("wow")
+        let gpu = &self.control.grid.plot.core.gpu;
+        let offsets = self.offsets()?;
+        let size = offsets.last().ok_or(anyhow!("no offsets"))?;
+        let buffer = gpu.blank(size).hub()?;
+        let mut root = JoinBuilder::default();
+        let basis = self.basis()?;
+        for (order, vector) in basis.vector.iter().enumerate() {
+            if let Some(span) = vector {
+                // TODO: order + 1 to account for basis.matrix 
+                let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
+                let rig = self.rig(order, offset)?;
+                
+            }
+        }
+        // let indices = &self.control.grid.plot.shape.index;
+        // let index = indices.get(self.rank).ok_or(anyhow!("no index"))?;
+        let root = root.hub()?;
+        Ok(Hedge { buffer, root })
     }
-    fn rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
+    // make list of offsets and use last to make buffer
+    fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
+        let gpu = &self.control.grid.plot.core.gpu;
+        let dimension = self.control.grid.plot.shape.dimension;
+        let basis = self.basis()?;
+        let mut offsets: Vec<Hub<u32>> = vec![0.into()];
+        // if let Some(span) = &basis.matrix {
+        //     // TODO: mul div sub span_size as needed
+        //     let size_part = gpu.size(&span.buffer).hub()?;
+        //     size = size.add(size_part);
+        // }
+        for (order, vector) in basis.vector.iter().enumerate() {
+            if let Some(span) = vector {
+                let builder = gpu.size(&span.buffer).mul(dimension);
+                let size = builder.mul(self.stride()?).div(order as u32).hub()?;
+                let offset = offsets.last().ok_or(anyhow!("no offsets"))?.calc();
+                offsets.push(offset.add(size).hub()?);
+            }
+        }
+        Ok(offsets)
+    }
+    fn rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
         let dimension = self.control.grid.plot.shape.dimension;
         let uniform = self.control.grid.plot.core.gpu.uniform();
         uniform
@@ -80,24 +113,6 @@ impl Step<'_> {
             .field(dimension)
             .field(offset)
             .make()
-    }
-    // make list of offsets and use last to make buffer 
-    fn buffer(&self) -> graph::Result<Hub<Grc<Buffer>>> {
-        let gpu = &self.control.grid.plot.core.gpu;
-        let basis = self.basis()?;
-        let mut size = ArithmeticBuilder::default();
-        if let Some(span) = &basis.matrix {
-            // TODO: mul div sub span_size as needed
-            let size_part = gpu.size(&span.buffer).hub()?;
-            size = size.add(size_part);
-        }
-        for (order, vector) in basis.vector.iter().enumerate() {
-            if let Some(span) = vector {
-                let size_part = gpu.size(&span.buffer).div(order as u32).hub()?;
-                size = size.add(size_part);
-            }
-        }
-        gpu.blank(size.hub()?).hub()
     }
     fn count(&self) -> graph::Result<&Hub<u32>> {
         let counts = &self.control.grid.counts;
@@ -110,11 +125,8 @@ impl Step<'_> {
         Ok(basis.get(self.rank).unwrap_or(last))
     }
     fn stride(&self) -> graph::Result<&Hub<u32>> {
-        self.control
-            .strides
-            .get(self.rank)
-            // .cloned()
-            .ok_or(Err(anyhow!("no stride"))?)
+        let stride = self.control.strides.get(self.rank);
+        stride.ok_or(Err(anyhow!("no stride"))?)
     }
 }
 

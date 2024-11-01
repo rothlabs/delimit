@@ -8,18 +8,6 @@ pub struct Basis {
     pub vector: Vec<Option<Hedge>>,
 }
 
-// impl Basis {
-//     pub fn size(&self) -> graph::Result<Hub<u32>> {
-//         let out = ArithmeticBuilder::default();
-//         for (order, vector) in self.vector.iter().enumerate() {
-//             if let Some(span) = vector {
-//                 let size = 
-//             }
-//         }
-//         out.hub()
-//     }
-// }
-
 pub struct Grid<'a> {
     pub plot: &'a Plot<'a>,
     pub counts: &'a [Hub<u32>],
@@ -34,8 +22,8 @@ impl<'a> Grid<'a> {
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let mut strides: Vec<Hub<u32>> = vec![1.into()];
         for i in 0..self.plot.shape.index.len() - 1 {
-            let stride = strides.last().cloned().unwrap_or(1.into()).calc();
-            let count = self.counts.get(i).cloned().unwrap_or(last_count.clone());
+            let stride = strides.last().ok_or(anyhow!("no strides"))?.calc();
+            let count = self.counts.get(i).unwrap_or(last_count);
             strides.push(stride.mul(count).hub()?);
         }
         self.control(basis, strides)
@@ -67,8 +55,8 @@ impl<'a> Array<'a> {
         let gpu = &self.plot.core.gpu;
         // let extrude_size = self.extrude_size()?;
         // let matrix_blank = gpu.blank(extrude_size).hub()?;
-        for (order, span) in self.plot.shape.span.vector.iter().enumerate() {
-            if let Some(span) = span {
+        for (order, vector) in self.plot.shape.span.vector.iter().enumerate() {
+            if let Some(span) = vector {
                 let mut root = JoinBuilder::default();
                 let nurbs_size = self.nurbs_size(span)?;
                 let buffer = gpu.blank(nurbs_size).hub()?;
