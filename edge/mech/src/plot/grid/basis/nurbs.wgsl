@@ -5,8 +5,8 @@ struct Rig {
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;
-@group(0) @binding(1) var<storage, read> span: array<f32>;
-@group(0) @binding(2) var<storage, read_write> basis: array<f32>;
+@group(0) @binding(1) var<storage, read> arch: array<f32>;
+@group(0) @binding(2) var<storage, read_write> weft: array<f32>;
 
 @compute
 @workgroup_size(64)
@@ -16,22 +16,22 @@ fn main(
 ) {
     // prelude
     let order = rig.order;
-    let span_index = global.x / rig.count;
+    let arch_index = global.x / rig.count;
     let plot_index = global.x % rig.count;
     let degree = order - 1;
     let row_len = order * 3;
-    let row = span_index * row_len;
+    let row = arch_index * row_len;
 
     // parameter and indices
     let parameter = f32(plot_index) / f32(rig.count - 1);
     let knot_index = row + degree;
     let weight_index = row + row_len - 1;
-    let basis_index = global.x * order * 2 + degree + rig.offset;
+    let weft_index = global.x * order * 2 + degree + rig.offset;
 
-    // basis reset [0., 0., 0., ..., 1.]
-    basis[basis_index] = 1.;
+    // weft reset [0., 0., 0., ..., 1.]
+    weft[weft_index] = 1.;
     for (var i = 1u; i < order; i++) {
-        basis[basis_index - i] = 0.;
+        weft[weft_index - i] = 0.;
     }
 
     // knot interpolation
@@ -39,26 +39,26 @@ fn main(
         for (var i = 0u; i < deg + 1; i++) {
             let k0 = knot_index + i; 
             let k1 = k0 + 1;
-            let n0 = basis_index + i - deg;
+            let n0 = weft_index + i - deg;
             let n1 = n0 + 1;
-            var basis0 = 0.;
-            var basis1 = 0.;
-            // var basis2 = 0.; (acceleration)
-            if basis[n0] > 0. {
-                let distance = span[k0] - span[k0 - deg];
-                basis0 += basis[n0] * (parameter - span[k0 - deg]) / distance; 
-                basis1 += basis[n0] * f32(deg) / distance;
-                // basis2 ...
+            var weft0 = 0.;
+            var weft1 = 0.;
+            // var weft2 = 0.; (acceleration)
+            if weft[n0] > 0. {
+                let distance = arch[k0] - arch[k0 - deg];
+                weft0 += weft[n0] * (parameter - arch[k0 - deg]) / distance; 
+                weft1 += weft[n0] * f32(deg) / distance;
+                // weft2 ...
             }
-            if basis[n1] > 0. && n1 <= basis_index {
-                let distance = span[k1] - span[k1 - deg];
-                basis0 += basis[n1] * (span[k1] - parameter) / distance;
-                basis1 -= basis[n1] * f32(deg) / distance;
-                // basis2 ...
+            if weft[n1] > 0. && n1 <= weft_index {
+                let distance = arch[k1] - arch[k1 - deg];
+                weft0 += weft[n1] * (arch[k1] - parameter) / distance;
+                weft1 -= weft[n1] * f32(deg) / distance;
+                // weft2 ...
             } 
-            basis[n0        ] = basis0; 
-            basis[n0 + order] = basis1;
-            // basis[n0 + order * 2] = basis2
+            weft[n0        ] = weft0; 
+            weft[n0 + order] = weft1;
+            // weft[n0 + order * 2] = weft2
         }
     }
 
@@ -67,20 +67,20 @@ fn main(
     var sum1 = 0.;
     for (var i = 0u; i < order; i++) {
         let wi = weight_index - i;
-        let b0 = basis_index - i;
+        let b0 = weft_index - i;
         let b1 = b0 + order;
-        sum0 += basis[b0] * span[wi];
-        sum1 += basis[b1] * span[wi];
+        sum0 += weft[b0] * arch[wi];
+        sum1 += weft[b1] * arch[wi];
         // sum2 ...
     }
 
     // rational
     for (var i = 0u; i < order; i++) {
         let wi = weight_index - i;
-        let b0 = basis_index - i;
+        let b0 = weft_index - i;
         let b1 = b0 + order;
-        // basis[b2] = ... / sum0 / sum0 / sum0;
-        basis[b1] = (basis[b1] * sum0 - basis[b0] * sum1) * span[wi] / sum0 / sum0;
-        basis[b0] *= span[wi] / sum0;
+        // weft[b2] = ... / sum0 / sum0 / sum0;
+        weft[b1] = (weft[b1] * sum0 - weft[b0] * sum1) * arch[wi] / sum0 / sum0;
+        weft[b0] *= arch[wi] / sum0;
     }
 }

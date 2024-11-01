@@ -8,8 +8,8 @@ mod arch;
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(into, strip_option))]
 pub struct Shape {
+    warp: Hedge,
     arch: Arch,
-    points: Hedge,
     jambs: Vec<Jamb>,
     #[builder(default = "2")]
     pub dimension: u32,

@@ -3,7 +3,7 @@ use super::*;
 mod grid;
 
 #[derive(Default)]
-pub struct Span {
+pub struct Weft {
     pub matrix: Option<Hedge>,
     pub vector: Vec<Option<Hedge>>,
 }
@@ -15,9 +15,9 @@ pub struct Grid<'a> {
 
 impl<'a> Grid<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
-        let mut spans = vec![];
+        let mut wefts = vec![];
         for count in self.counts {
-            spans.push(self.charter(count).span()?);
+            wefts.push(self.charter(count).weft()?);
         }
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let mut strides: Vec<Hub<u32>> = vec![1.into()];
@@ -26,7 +26,7 @@ impl<'a> Grid<'a> {
             let count = self.counts.get(i).unwrap_or(last_count);
             strides.push(stride.mul(count).hub()?);
         }
-        self.control(spans, strides)
+        self.control(wefts, strides)
     }
     fn charter(&self, count: &'a Hub<u32>) -> grid::Charter {
         grid::Charter {
@@ -34,10 +34,10 @@ impl<'a> Grid<'a> {
             count,
         }
     }
-    fn control(&self, spans: Vec<Span>, strides: Vec<Hub<u32>>) -> graph::Result<Hedge> {
+    fn control(&self, wefts: Vec<Weft>, strides: Vec<Hub<u32>>) -> graph::Result<Hedge> {
         grid::Control {
             grid: self,
-            spans,
+            wefts,
             strides,
         }
         .hedge()

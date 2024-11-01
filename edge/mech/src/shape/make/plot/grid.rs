@@ -9,37 +9,37 @@ pub struct Charter<'a> {
 }
 
 impl<'a> Charter<'a> {
-    pub fn span(&self) -> graph::Result<Span> {
-        let mut span = Span::default();
+    pub fn weft(&self) -> graph::Result<Weft> {
+        let mut weft = Weft::default();
         let gpu = &self.plot.core.gpu;
         // let extrude_size = self.extrude_size()?;
         // let matrix_blank = gpu.blank(extrude_size).hub()?;
-        for (order, vector) in self.plot.shape.arch.vector.iter().enumerate() {
-            if let Some(vector_span) = vector {
+        for (order, arch) in self.plot.shape.arch.vector.iter().enumerate() {
+            if let Some(arch) = arch {
                 let mut root = JoinBuilder::default();
-                let nurbs_size = self.nurbs_size(vector_span)?;
+                let nurbs_size = self.nurbs_size(arch)?;
                 let buffer = gpu.blank(nurbs_size).hub()?;
                 let part = self.part(&buffer);
-                if let Some(span_hedge) = &vector_span.nurbs {
+                if let Some(arch) = &arch.nurbs {
                     let rig = self.vector_rig(order, 0.into())?;
-                    root.field(part.nurbs(&rig, span_hedge)?);
+                    root.field(part.nurbs(&rig, arch)?);
                 }
                 let root = root.hub()?;
-                span.vector.push(Some(Hedge { buffer, root }));
+                weft.vector.push(Some(Hedge { buffer, root }));
             } else {
-                span.vector.push(None);
+                weft.vector.push(None);
             }
         }
-        Ok(span)
+        Ok(weft)
         // self.control(&basis)
     }
     fn part(&self, buffer: &'a Hub<Grc<Buffer>>) -> charter::Part {
-        charter::Part { rig: self, buffer }
+        charter::Part { charter: self, weft: buffer }
     }
     // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
     //     let gpu = &self.plot.core.gpu;
     //     let shape = &self.plot.shape;
-    //     let size = if let Some(extrude) = &shape.span.matrix.extrude {
+    //     let size = if let Some(extrude) = &shape.weft.matrix.extrude {
     //         gpu.size(extrude.buffer.clone())
     //             .add(shape.dimension.pow(2))
     //             .mul(self.count.clone())
@@ -49,9 +49,9 @@ impl<'a> Charter<'a> {
     //     };
     //     Ok(size)
     // }
-    fn nurbs_size(&self, span: &arch::Vector) -> graph::Result<Hub<u32>> {
+    fn nurbs_size(&self, arch: &arch::Vector) -> graph::Result<Hub<u32>> {
         let gpu = &self.plot.core.gpu;
-        Ok(if let Some(nurbs) = &span.nurbs {
+        Ok(if let Some(nurbs) = &arch.nurbs {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
             gpu.size(nurbs.buffer.clone())
                 .mul(self.count.clone())
@@ -76,26 +76,28 @@ impl<'a> Charter<'a> {
 pub struct Control<'a> {
     pub grid: &'a Grid<'a>,
     // per rank
-    pub spans: Vec<Span>,
+    pub wefts: Vec<Weft>,
     // per rank
+    // TODO: rename stride to area?
     pub strides: Vec<Hub<u32>>,
 }
 
 impl<'a> Control<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
         let shape = &self.grid.plot.shape;
-        let mut plots = vec![shape.points.clone()];
+        let mut warps = vec![shape.warp.clone()];
         for rank in 0..shape.jambs.len() {
-            let plot = plots.last().ok_or(anyhow!("no plot"))?;
-            plots.push(self.stage(rank, plot).hedge()?);
+            let warp = warps.last().ok_or(anyhow!("no plot"))?;
+            warps.push(self.stage(rank).hedge(warp)?);
         }
-        plots.last().cloned().ok_or(Err(anyhow!("no plot"))?)
+        let plot = warps.last().cloned();
+        plot.ok_or(Err(anyhow!("no plot"))?)
     }
-    fn stage(&self, rank: usize, plot: &'a Hedge) -> control::Stage{
+    fn stage(&self, rank: usize) -> control::Stage{
         control::Stage {
             control: self,
             rank,
-            plot,
+            // plot,
         }
     }
 }

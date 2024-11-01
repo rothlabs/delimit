@@ -1,27 +1,28 @@
 use super::*;
 
 pub struct Part<'a> {
-    pub rig: &'a Charter<'a>,
-    pub buffer: &'a Hub<Grc<Buffer>>,
+    pub charter: &'a Charter<'a>,
+    pub weft: &'a Hub<Grc<Buffer>>,
 }
 
 impl Part<'_> {
-    pub fn nurbs(&self, rig: &Hedge, span: &Hedge) -> graph::Result<Hub<Mutation>> {
-        let gpu = &self.rig.plot.core.gpu;
-        let nurbs = &self.rig.plot.core.bank.plot.grid.basis.nurbs;
+    pub fn nurbs(&self, rig: &Hedge, arch: &Hedge) -> graph::Result<Hub<Mutation>> {
+        let core = &self.charter.plot.core;
+        let gpu = &core.gpu;
+        let nurbs = &core.bank.plot.grid.basis.nurbs;
         let bind = gpu
             .bind()
             .layout(nurbs.layout.clone())
             .entry(0, rig.buffer.clone())
-            .entry(1, span.buffer.clone())
-            .entry(2, self.buffer.clone())
+            .entry(1, arch.buffer.clone())
+            .entry(2, self.weft.clone())
             .hub()?;
         gpu.command()
             .root(rig.root.clone())
-            .root(span.root.clone())
+            .root(arch.root.clone())
             .compute(nurbs.pipe.clone())
             .bind(0, bind)
-            .dispatch(self.rig.count.clone())
+            .dispatch(self.charter.count.clone())
             .hub()
     }
 }
