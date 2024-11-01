@@ -36,13 +36,10 @@ impl<'a> Control<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
         let shape = &self.grid.plot.shape;
         let counts = self.grid.counts;
-        // let last_count = counts.last().ok_or(anyhow!("no counts"))?;
-        // let mut stride: Hub<u32> = 1.into();
         let mut plots = vec![shape.points.clone()];
         for rank in 0..shape.index.len() {
             let plot = plots.last().ok_or(anyhow!("no plot"))?;
             plots.push(self.step(rank, plot)?);
-            // stride = counts.get(rank).cloned().unwrap_or(last_count.clone());
         }
         plots.last().cloned().ok_or(Err(anyhow!("no plot"))?)
     }
@@ -64,22 +61,41 @@ struct Step<'a> {
 
 impl Step<'_> {
     fn hedge(&self) -> graph::Result<Hedge> {
+        
+        
+
+        let indices = &self.control.grid.plot.shape.index;
+        let index = indices.get(self.rank).ok_or(anyhow!("no index"))?;
         panic!("wow")
     }
-    fn stride(&self) -> graph::Result<Hub<u32>> {
-        let counts = self.control.grid.counts;
-        if counts.len() > 1 {
-            let mut stride = counts[0].calc();
-            for count in counts.iter().skip(1) {
-                stride = stride.mul(count);
-            }
-            stride.hub()
-        } else if counts.len() > 0 {
-            Ok(counts[0].clone())
-        } else {
-            Ok(1.into())
+    fn buffer(&self) -> graph::Result<Hub<Grc<Buffer>>> {
+        let gpu = &self.control.grid.plot.core.gpu;
+        let basis = self.basis()?;
+        let mut size = ArithmeticBuilder::default();
+        if let Some(span) = &basis.matrix {
+            // TODO: mul div sub span_size as needed
+            let span_size = gpu.size(&span.buffer).hub()?;
+            size = size.add(span_size);
         }
-        // self.control.grid.counts.get(self.rank).ok_or(anyhow!("no count"))?;
+        for (order, vector) in basis.vector.iter().enumerate() {
+            if let Some(span) = vector {
+                let span_size = gpu.size(&span.buffer).div(order as u32).hub()?;
+                size = size.add(span_size);
+            }
+        }
+        gpu.blank(size.hub()?).hub()
+    }
+    fn basis(&self) -> graph::Result<&Basis> {
+        let basis = &self.control.basis;
+        let last = basis.last().ok_or(anyhow!("no basis"))?;
+        Ok(basis.get(self.rank).unwrap_or(last))
+    }
+    fn stride(&self) -> graph::Result<&Hub<u32>> {
+        self.control
+            .strides
+            .get(self.rank)
+            // .cloned()
+            .ok_or(Err(anyhow!("no stride"))?)
     }
 }
 

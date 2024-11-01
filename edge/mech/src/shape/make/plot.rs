@@ -8,6 +8,18 @@ pub struct Basis {
     pub vector: Vec<Option<Hedge>>,
 }
 
+// impl Basis {
+//     pub fn size(&self) -> graph::Result<Hub<u32>> {
+//         let out = ArithmeticBuilder::default();
+//         for (order, vector) in self.vector.iter().enumerate() {
+//             if let Some(span) = vector {
+//                 let size = 
+//             }
+//         }
+//         out.hub()
+//     }
+// }
+
 pub struct Grid<'a> {
     pub plot: &'a Plot<'a>,
     pub counts: &'a [Hub<u32>],
