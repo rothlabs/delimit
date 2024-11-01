@@ -92,7 +92,6 @@ impl<'a> Array<'a> {
             buffer,
         }
     }
-
     // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
     //     let gpu = &self.plot.core.gpu;
     //     let shape = &self.plot.shape;

@@ -5,6 +5,7 @@ struct Rig {
     // number of plots in a control
     stride: u32,
     dimension: u32,
+    offset: u32,
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;

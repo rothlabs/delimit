@@ -28,7 +28,9 @@ impl Form<'_> {
 
 pub struct Control<'a> {
     pub grid: &'a Grid<'a>,
+    // per rank
     pub basis: Vec<Basis>,
+    // per rank
     pub strides: Vec<Hub<u32>>,
 }
 
@@ -68,22 +70,39 @@ impl Step<'_> {
         let index = indices.get(self.rank).ok_or(anyhow!("no index"))?;
         panic!("wow")
     }
+    fn rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
+        let dimension = self.control.grid.plot.shape.dimension;
+        let uniform = self.control.grid.plot.core.gpu.uniform();
+        uniform
+            .field(order as u32)
+            .field(self.count()?)
+            .field(self.stride()?)
+            .field(dimension)
+            .field(offset)
+            .make()
+    }
+    // make list of offsets and use last to make buffer 
     fn buffer(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let gpu = &self.control.grid.plot.core.gpu;
         let basis = self.basis()?;
         let mut size = ArithmeticBuilder::default();
         if let Some(span) = &basis.matrix {
             // TODO: mul div sub span_size as needed
-            let span_size = gpu.size(&span.buffer).hub()?;
-            size = size.add(span_size);
+            let size_part = gpu.size(&span.buffer).hub()?;
+            size = size.add(size_part);
         }
         for (order, vector) in basis.vector.iter().enumerate() {
             if let Some(span) = vector {
-                let span_size = gpu.size(&span.buffer).div(order as u32).hub()?;
-                size = size.add(span_size);
+                let size_part = gpu.size(&span.buffer).div(order as u32).hub()?;
+                size = size.add(size_part);
             }
         }
         gpu.blank(size.hub()?).hub()
+    }
+    fn count(&self) -> graph::Result<&Hub<u32>> {
+        let counts = &self.control.grid.counts;
+        let last = counts.last().ok_or(anyhow!("no counts"))?;
+        Ok(counts.get(self.rank).unwrap_or(last))
     }
     fn basis(&self) -> graph::Result<&Basis> {
         let basis = &self.control.basis;
