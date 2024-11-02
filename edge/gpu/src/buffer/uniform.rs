@@ -19,7 +19,7 @@ where
         let size = build.fields.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = build.core.buffer(size).uniform()?.into();
         let vector = VectorBuilder::default().fields(build.fields).hub()?;
-        let root = build.core.writer(buffer.clone()).data(vector).hub()?;
+        let root = build.core.writer(&buffer).data(vector).hub()?;
         Ok(Hedge { buffer, root })
     }
 }

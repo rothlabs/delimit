@@ -8,6 +8,13 @@ pub struct Weft {
     pub vector: Vec<Option<Hedge>>,
 }
 
+impl Weft {
+    fn vector(&self, order: usize) -> graph::Result<&Hedge> {
+        let weft = self.vector.get(order).ok_or(anyhow!("no weft"))?;
+        weft.as_ref().ok_or(Err(anyhow!("no weft"))?)
+    }
+}
+
 pub struct Grid<'a> {
     pub plot: &'a Plot<'a>,
     pub counts: &'a [Hub<u32>],
@@ -26,7 +33,7 @@ impl<'a> Grid<'a> {
             let count = self.counts.get(i).unwrap_or(last_count);
             strides.push(stride.mul(count).hub()?);
         }
-        self.control(wefts, strides)
+        self.control(wefts, strides).hedge()
     }
     fn charter(&self, count: &'a Hub<u32>) -> grid::Charter {
         grid::Charter {
@@ -34,12 +41,11 @@ impl<'a> Grid<'a> {
             count,
         }
     }
-    fn control(&self, wefts: Vec<Weft>, strides: Vec<Hub<u32>>) -> graph::Result<Hedge> {
+    fn control(&self, wefts: Vec<Weft>, strides: Vec<Hub<u32>>) -> grid::Control {
         grid::Control {
             grid: self,
             wefts,
             strides,
         }
-        .hedge()
     }
 }

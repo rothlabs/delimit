@@ -6,6 +6,7 @@ struct Rig {
     stride: u32,
     dimension: u32,
     offset: u32,
+    // TODO: need rank to output correct number of velocities and accelerations
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;

@@ -1,7 +1,7 @@
 use super::*;
 
-mod make;
 mod arch;
+mod make;
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
@@ -10,6 +10,7 @@ mod arch;
 pub struct Shape {
     warp: Hedge,
     arch: Arch,
+    // alt: Pile or Stud
     jambs: Vec<Jamb>,
     #[builder(default = "2")]
     pub dimension: u32,
@@ -44,7 +45,7 @@ struct Jamb {
     // index hedge matched to matrix span
     vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
-    matrix: Vec<Hedge>,
+    matrix: Vec<Option<Hedge>>,
 }
 
 // #[derive(Clone, Debug)]

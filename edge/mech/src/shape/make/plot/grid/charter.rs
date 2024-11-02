@@ -13,16 +13,16 @@ impl Part<'_> {
         let bind = gpu
             .bind()
             .layout(nurbs.layout.clone())
-            .entry(0, rig.buffer.clone())
-            .entry(1, arch.buffer.clone())
-            .entry(2, self.weft.clone())
+            .entry(0, &rig.buffer)
+            .entry(1, &arch.buffer)
+            .entry(2, self.weft)
             .hub()?;
         gpu.command()
-            .root(rig.root.clone())
-            .root(arch.root.clone())
+            .root(&rig.root)
+            .root(&arch.root)
             .compute(nurbs.pipe.clone())
             .bind(0, bind)
-            .dispatch(self.charter.count.clone())
+            .dispatch(self.charter.count)
             .hub()
     }
 }

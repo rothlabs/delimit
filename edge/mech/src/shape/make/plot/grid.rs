@@ -34,7 +34,10 @@ impl<'a> Charter<'a> {
         // self.control(&basis)
     }
     fn part(&self, buffer: &'a Hub<Grc<Buffer>>) -> charter::Part {
-        charter::Part { charter: self, weft: buffer }
+        charter::Part {
+            charter: self,
+            weft: buffer,
+        }
     }
     // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
     //     let gpu = &self.plot.core.gpu;
@@ -72,7 +75,6 @@ impl<'a> Charter<'a> {
     }
 }
 
-
 pub struct Control<'a> {
     pub grid: &'a Grid<'a>,
     // per rank
@@ -93,15 +95,13 @@ impl<'a> Control<'a> {
         let plot = warps.last().cloned();
         plot.ok_or(Err(anyhow!("no plot"))?)
     }
-    fn stage(&self, rank: usize) -> control::Stage{
+    fn stage(&self, rank: usize) -> control::Stage {
         control::Stage {
             control: self,
             rank,
-            // plot,
         }
     }
 }
-
 
 // fn step(&self, i: usize, plot: &'a Hedge) -> graph::Result<Step> {
 //     let last_basis = self.basis.last().ok_or(anyhow!("no basis"))?;
