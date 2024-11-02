@@ -9,11 +9,12 @@ mod make;
 #[builder(setter(into, strip_option))]
 pub struct Shape {
     warp: Hedge,
+    #[builder(default)]
     arch: Arch,
     // alt: Pile or Stud
+    #[builder(default)]
     jambs: Vec<Jamb>,
-    #[builder(default = "2")]
-    pub dimension: u32,
+    dimension: u32,
     // #[builder(default)]
     // bounds: Vec<Shape>,
     // #[builder(default)]
@@ -32,7 +33,23 @@ impl Shape {
     }
 }
 
-#[derive(Clone, Debug)]
+impl ShapeBuilder {
+    pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
+        if let Some(arch) = &mut self.arch {
+            arch.setup_vector(order);
+            if let Some(Some(vector)) = arch.vector.get_mut(order) {
+                vector.nurbs = Some(hedge);
+            }
+        }
+        self
+    }
+    pub fn matrix(mut self, order: usize, hedge: Hedge) -> Self {
+        
+        self
+    }
+}
+
+#[derive(Clone, Default, Debug)]
 struct Arch {
     // matched to vector control
     // matrix: arch::Matrix,
@@ -40,7 +57,18 @@ struct Arch {
     vector: Vec<Option<arch::Vector>>,
 }
 
-#[derive(Clone, Debug)]
+impl Arch {
+    fn setup_vector(&mut self, order: usize) {
+        for _ in 0..order - self.vector.len() {
+            self.vector.push(None);
+        }
+        if self.vector.len() == order { 
+            self.vector.push(Some(arch::Vector::default()));
+        }
+    }
+}
+
+#[derive(Clone, Default, Debug)]
 struct Jamb {
     // index hedge matched to matrix span
     // vector: Option<Hedge>,

@@ -6,7 +6,7 @@ use super::*;
 //     pub revolve: Option<Hedge>,
 // }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Vector {
     pub nurbs: Option<Hedge>,
 }

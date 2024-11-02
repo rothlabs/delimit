@@ -28,15 +28,15 @@ async fn nurbs() -> dom::Result<()> {
     let gpu = gpu().await?;
     let mech = Mech::new(gpu.clone())?;
     let count = 5;
-    //                        6 knots                      3 weights
-    let arch = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
-    let index = gpu.hedge(vec![0_u32, 1, 2])?;
     let warp = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
+    //                        6 knots                      3 weights
+    let nurbs = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
+    let jamb = gpu.hedge(vec![0_u32, 1, 2])?;
     let shape = mech
-        .shape(warp)
-        .arch(arch)
-        .index(index)
-        .control(Control::Hedge(control))
+        .shape(2)
+        .warp(warp)
+        .nurbs(3, nurbs)
+        .matrix(3, jamb)
         .build()?;
     let plot = mech.plot(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu

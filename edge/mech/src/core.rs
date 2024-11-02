@@ -15,8 +15,8 @@ impl Core {
             gpu,
         })
     }
-    pub fn shape(&self, warp: Hedge) -> ShapeBuilder {
-        ShapeBuilder::default().warp(warp)
+    pub fn shape(&self, dimension: u32) -> ShapeBuilder {
+        ShapeBuilder::default().dimension(dimension)
     }
     pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Plot {
         make::Plot {

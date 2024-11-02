@@ -6,7 +6,7 @@ pub struct Plot {
 }
 
 impl Plot {
-    pub fn grid(self, count: impl Into<Vec<Hub<u32>>>) -> graph::Result<Hub<crate::Plot>> {
+    pub fn grid(self, count: impl Into<Hub<u32>>) -> graph::Result<Hub<crate::Plot>> {
         GridBuilder::default()
             .core(self.core)
             .shape(self.shape)
@@ -22,7 +22,8 @@ pub struct Grid {
     #[back(skip)]
     core: Core,
     #[back(skip)]
-    count: Vec<Hub<u32>>,
+    #[builder(setter(each(name = "count", into)))]
+    counts: Vec<Hub<u32>>,
     shape: Hub<Shape>,
 }
 
@@ -30,7 +31,7 @@ impl Solve for Grid {
     type Base = crate::Plot;
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         let shape = self.shape.base().await?;
-        let hedge = shape.plot(&self.core).grid(&self.count)?;
+        let hedge = shape.plot(&self.core).grid(&self.counts)?;
         let plot = crate::Plot {
             hedge,
             shape: self.shape.clone(),
