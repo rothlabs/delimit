@@ -4,8 +4,6 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Size {
-    #[back(skip)]
-    core: Core,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default, setter(each(name = "add", into)))]
     adds: Vec<Hub<u32>>,

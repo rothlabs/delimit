@@ -4,7 +4,7 @@ mod grid;
 
 #[derive(Default)]
 pub struct Weft {
-    pub matrix: Option<Hedge>,
+    // pub matrix: Option<Hedge>,
     pub vector: Vec<Option<Hedge>>,
 }
 

@@ -138,7 +138,7 @@ impl Core {
         BlankBuilder::default().core(self.clone()).size(size)
     }
     pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {
-        SizeBuilder::default().core(self.clone()).buffer(buffer)
+        SizeBuilder::default().buffer(buffer)
     }
     pub fn command(&self) -> encode::CommandBuilder {
         encode::CommandBuilder::default().core(self.clone())

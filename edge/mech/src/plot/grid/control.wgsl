@@ -1,12 +1,12 @@
 struct Rig {
+    rank: u32,
     order: u32,
+    offset: u32,
     // number of weft in a block
     count: u32,
     // number of plots in a warp
     stride: u32,
     dimension: u32,
-    offset: u32,
-    // TODO: need rank to output correct number of velocities and accelerations
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;

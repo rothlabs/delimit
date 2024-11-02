@@ -1,5 +1,9 @@
 use super::*;
 
+#[cfg(test)]
+mod tests;
+mod stage;
+
 pub struct Stage<'a> {
     pub control: &'a Control<'a>,
     pub rank: usize,
@@ -17,14 +21,13 @@ impl<'a> Stage<'a> {
         let weft = self.weft()?;
         for (order, jamb) in jamb.matrix.iter().enumerate() {
             if let Some(jamb) = jamb {
-                let pair = Pair {
-                    weft: weft.vector(order)?,
-                    jamb,
-                };
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
-                let rig = self.matrix_rig(order, offset)?;
-                root.field(part.matrix(&rig, &pair)?);
+                root.field(part.matrix(stage::Trio {
+                    rig: self.matrix_rig(order, offset)?,
+                    weft: weft.vector(order)?,
+                    jamb,
+                })?);
             }
         }
         let root = root.hub()?;
@@ -58,11 +61,12 @@ impl<'a> Stage<'a> {
         let dimension = self.control.grid.plot.shape.dimension;
         let uniform = self.control.grid.plot.core.gpu.uniform();
         uniform
+            .field(self.rank as u32)
             .field(order as u32)
+            .field(offset)
             .field(self.count()?)
             .field(self.stride()?)
             .field(dimension)
-            .field(offset)
             .make()
     }
     fn jamb(&self) -> graph::Result<&Jamb> {
@@ -83,8 +87,8 @@ impl<'a> Stage<'a> {
         let stride = self.control.strides.get(self.rank);
         stride.ok_or(Err(anyhow!("no stride"))?)
     }
-    fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<Part> {
-        Ok(Part {
+    fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<stage::Part> {
+        Ok(stage::Part {
             stage: self,
             warp,
             plot,
@@ -93,40 +97,6 @@ impl<'a> Stage<'a> {
     }
 }
 
-struct Pair<'a> {
-    weft: &'a Hedge,
-    jamb: &'a Hedge,
-}
 
-struct Part<'a> {
-    stage: &'a Stage<'a>,
-    warp: &'a Hedge,
-    plot: &'a Hub<Grc<Buffer>>,
-    count: &'a Hub<u32>,
-}
 
-impl Part<'_> {
-    fn matrix(&self, rig: &Hedge, pair: &Pair) -> graph::Result<Hub<Mutation>> {
-        let core = &self.stage.control.grid.plot.core;
-        let gpu = &core.gpu;
-        let control = &core.bank.plot.grid.basis.control;
-        let bind = gpu
-            .bind()
-            .layout(control.layout.clone())
-            .entry(0, &rig.buffer)
-            .entry(1, &self.warp.buffer)
-            .entry(2, &pair.weft.buffer)
-            .entry(3, &pair.jamb.buffer)
-            .entry(4, self.plot)
-            .hub()?;
-        gpu.command()
-            .root(&rig.root)
-            .root(&self.warp.root)
-            .root(&pair.weft.root)
-            .root(&pair.jamb.root)
-            .compute(control.pipe.clone())
-            .bind(0, bind)
-            .dispatch(self.count)
-            .hub()
-    }
-}
+

@@ -51,7 +51,7 @@ pub struct GridPlotBasisBin {
 
 impl GridPlotBasisBin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/grid/basis/nurbs.wgsl"));
+        let shader = gpu.shader(include_wgsl!("plot/grid/nurbs.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let span = gpu.bind_storage(true).entry(1)?.compute()?;
         let basis = gpu.bind_storage(false).entry(2)?.compute()?;
@@ -59,7 +59,7 @@ impl GridPlotBasisBin {
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
-        let shader = gpu.shader(include_wgsl!("plot/grid/basis/control.wgsl"));
+        let shader = gpu.shader(include_wgsl!("plot/grid/control.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let basis = gpu.bind_storage(true).entry(1)?.compute()?;
         let index = gpu.bind_storage(true).entry(2)?.compute()?;

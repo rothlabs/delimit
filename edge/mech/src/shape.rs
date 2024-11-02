@@ -35,7 +35,7 @@ impl Shape {
 #[derive(Clone, Debug)]
 struct Arch {
     // matched to vector control
-    matrix: arch::Matrix,
+    // matrix: arch::Matrix,
     // matched to matrix control indexed by order
     vector: Vec<Option<arch::Vector>>,
 }
@@ -43,7 +43,7 @@ struct Arch {
 #[derive(Clone, Debug)]
 struct Jamb {
     // index hedge matched to matrix span
-    vector: Option<Hedge>,
+    // vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
     matrix: Vec<Option<Hedge>>,
 }
