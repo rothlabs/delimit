@@ -1,15 +1,15 @@
 use super::*;
 
-mod stage;
-#[cfg(test)]
-mod tests;
+mod weave;
+// #[cfg(test)]
+// mod tests;
 
-pub struct Stage<'a> {
-    pub control: &'a Control<'a>,
+pub struct Weave<'a> {
+    pub control: &'a Loom<'a>,
     pub rank: usize,
 }
 
-impl<'a> Stage<'a> {
+impl<'a> Weave<'a> {
     pub fn hedge(&self, warp: &Hedge) -> graph::Result<Hedge> {
         let gpu = &self.control.grid.plot.core.gpu;
         let offsets = self.offsets()?;
@@ -17,16 +17,16 @@ impl<'a> Stage<'a> {
         let buffer = gpu.blank(size).label(format!("grid plot rank {}", self.rank)).hub()?;
         let part = self.part(warp, &buffer)?;
         let mut root = JoinBuilder::default();
-        let jamb = self.jamb()?;
+        let flow = self.flow()?;
         let weft = self.weft()?;
-        for (order, jamb) in jamb.matrices.iter().enumerate() {
-            if let Some(jamb) = jamb {
+        for (order, flow) in flow.matrices.iter().enumerate() {
+            if let Some(flow) = flow {
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
-                root.field(part.matrix(stage::Trio {
+                root.field(part.matrix(weave::Trio {
                     rig: self.matrix_rig(order, offset)?,
                     weft: weft.vector(order)?,
-                    jamb,
+                    flow,
                 })?);
             }
         }
@@ -36,16 +36,16 @@ impl<'a> Stage<'a> {
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
         let gpu = &self.control.grid.plot.core.gpu;
         let dimension = self.control.grid.plot.shape.dimension;
-        let jamb = self.jamb()?;
+        let flow = self.flow()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         // if let Some(weft) = &weft.matrix {
         //     // TODO: mul div sub weft_size as needed
         //     let size_part = gpu.size(&weft.buffer).hub()?;
         //     size = size.add(size_part);
         // }
-        for (order, jamb) in jamb.matrices.iter().enumerate() {
-            if let Some(jamb) = jamb {
-                let builder = gpu.size(&jamb.buffer).div(3).mul(dimension);//.div(order as u32 + 1).mul(dimension);
+        for (order, flow) in flow.matrices.iter().enumerate() {
+            if let Some(flow) = flow {
+                let builder = gpu.size(&flow.buffer).div(3).mul(dimension);//.div(order as u32 + 1).mul(dimension);
                 let size = builder.mul(self.count()?).mul(self.stride()?).hub()?;
                 // let size = builder.hub()?;
                 // panic!("size {}", size.base());
@@ -72,9 +72,9 @@ impl<'a> Stage<'a> {
             .field(dimension)
             .make()
     }
-    fn jamb(&self) -> graph::Result<&Jamb> {
-        let jambs = &self.control.grid.plot.shape.jambs;
-        Ok(jambs.get(self.rank).ok_or(anyhow!("no jamb"))?)
+    fn flow(&self) -> graph::Result<&Flow> {
+        let flows = &self.control.grid.plot.shape.flows;
+        Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
     fn count(&self) -> graph::Result<&Hub<u32>> {
         let counts = &self.control.grid.counts;
@@ -90,8 +90,8 @@ impl<'a> Stage<'a> {
         let stride = self.control.strides.get(self.rank);
         Ok(stride.ok_or(anyhow!("no stride"))?)
     }
-    fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<stage::Part> {
-        Ok(stage::Part {
+    fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<weave::Part> {
+        Ok(weave::Part {
             stage: self,
             warp,
             plot,

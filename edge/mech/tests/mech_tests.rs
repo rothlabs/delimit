@@ -31,13 +31,13 @@ async fn nurbs() -> dom::Result<()> {
     let warp = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
     //                         6 knots                      3 weights
     let nurbs = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
-    let jamb_hedge = gpu.hedge(vec![0_u32, 1, 2])?;
-    let jamb = mech.jamb().matrix(3, jamb_hedge).build()?;
+    let flow_hedge = gpu.hedge(vec![0_u32, 1, 2])?;
+    let flow = mech.flow().matrix(3, flow_hedge).build()?;
     let shape = mech
         .shape(2)
         .warp(warp)
         .nurbs(3, nurbs)
-        .jamb(jamb)
+        .flow(flow)
         .build()?;
     let plot = mech.plot(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu

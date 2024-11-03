@@ -1,28 +1,28 @@
 use super::*;
 
-mod charter;
-mod control;
+mod wheel;
+mod loom;
 
-pub struct Charter<'a> {
+pub struct Wheel<'a> {
     pub plot: &'a Plot<'a>,
     pub count: &'a Hub<u32>,
 }
 
-impl<'a> Charter<'a> {
+impl<'a> Wheel<'a> {
     pub fn weft(&self) -> graph::Result<Weft> {
         let mut weft = Weft::default();
         let gpu = &self.plot.core.gpu;
         // let extrude_size = self.extrude_size()?;
         // let matrix_blank = gpu.blank(extrude_size).hub()?;
-        for (order, arch) in self.plot.shape.arch.vector.iter().enumerate() {
-            if let Some(arch) = arch {
+        for (order, form) in self.plot.shape.form.vector.iter().enumerate() {
+            if let Some(form) = form {
                 let mut root = JoinBuilder::default();
-                let nurbs_size = self.nurbs_size(arch)?;
-                let buffer = gpu.blank(nurbs_size).label(format!("arch nurbs order {}", order)).hub()?;
-                let part = self.part(&buffer);
-                if let Some(arch) = &arch.nurbs {
+                let nurbs_size = self.nurbs_size(form)?;
+                let buffer = gpu.blank(nurbs_size).label(format!("spin nurbs, order {}", order)).hub()?;
+                let spin = self.spin(&buffer);
+                if let Some(form) = &form.nurbs {
                     let rig = self.vector_rig(order, 0.into())?;
-                    root.field(part.nurbs(&rig, arch)?);
+                    root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
                 weft.vector.push(Some(Hedge { buffer, root }));
@@ -33,8 +33,8 @@ impl<'a> Charter<'a> {
         Ok(weft)
         // self.control(&basis)
     }
-    fn part(&self, buffer: &'a Hub<Grc<Buffer>>) -> charter::Part {
-        charter::Part {
+    fn spin(&self, buffer: &'a Hub<Grc<Buffer>>) -> wheel::Spin {
+        wheel::Spin {
             charter: self,
             weft: buffer,
         }
@@ -52,9 +52,9 @@ impl<'a> Charter<'a> {
     //     };
     //     Ok(size)
     // }
-    fn nurbs_size(&self, arch: &arch::Vector) -> graph::Result<Hub<u32>> {
+    fn nurbs_size(&self, form: &form::Vector) -> graph::Result<Hub<u32>> {
         let gpu = &self.plot.core.gpu;
-        Ok(if let Some(nurbs) = &arch.nurbs {
+        Ok(if let Some(nurbs) = &form.nurbs {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
             gpu.size(nurbs.buffer.clone())
                 .mul(self.count.clone())
@@ -75,7 +75,7 @@ impl<'a> Charter<'a> {
     }
 }
 
-pub struct Control<'a> {
+pub struct Loom<'a> {
     pub grid: &'a Grid<'a>,
     // per rank
     pub wefts: Vec<Weft>,
@@ -84,19 +84,19 @@ pub struct Control<'a> {
     pub strides: Vec<Hub<u32>>,
 }
 
-impl<'a> Control<'a> {
+impl<'a> Loom<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
         let shape = &self.grid.plot.shape;
         let mut warps = vec![shape.warp.clone()];
-        for rank in 0..shape.jambs.len() {
+        for rank in 0..shape.flows.len() {
             let warp = warps.last().ok_or(anyhow!("no plot"))?;
             warps.push(self.stage(rank).hedge(warp)?);
         }
         let plot = warps.last().cloned();
         Ok(plot.ok_or(anyhow!("no plot"))?)
     }
-    fn stage(&self, rank: usize) -> control::Stage {
-        control::Stage {
+    fn stage(&self, rank: usize) -> loom::Weave {
+        loom::Weave {
             control: self,
             rank,
         }

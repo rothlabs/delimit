@@ -2,6 +2,7 @@ use super::*;
 
 mod plot;
 
+// TODO: rename to Chart? A Chart has Plots on it
 pub struct Plot<'a> {
     pub core: &'a Core,
     pub shape: &'a Shape,

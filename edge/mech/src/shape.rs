@@ -1,6 +1,6 @@
 use super::*;
 
-mod arch;
+mod form;
 mod make;
 
 #[derive(Builder, Clone, Debug)]
@@ -10,10 +10,10 @@ mod make;
 pub struct Shape {
     warp: Hedge,
     // #[builder(default)]
-    arch: Arch,
+    form: Form,
     // alt: Pile or Stud
-    #[builder(setter(each(name = "jamb", into)))]
-    jambs: Vec<Jamb>,
+    #[builder(setter(each(name = "flow", into)))]
+    flows: Vec<Flow>,
     // weave
     // fold
     dimension: u32,
@@ -31,18 +31,18 @@ impl Shape {
         self.dimension + self.dimension * self.rank()
     }
     pub fn rank(&self) -> u32 {
-        self.jambs.len() as u32
+        self.flows.len() as u32
     }
 }
 
 impl ShapeBuilder {
     pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
-        if self.arch.is_none() {
-            self = self.arch(Arch::default())
+        if self.form.is_none() {
+            self = self.form(Form::default())
         }
-        if let Some(arch) = &mut self.arch {
-            arch.setup_vector(order);
-            if let Some(Some(vector)) = arch.vector.get_mut(order) {
+        if let Some(form) = &mut self.form {
+            form.setup_vector(order);
+            if let Some(Some(vector)) = form.vector.get_mut(order) {
                 vector.nurbs = Some(hedge);
             }
         }
@@ -51,20 +51,20 @@ impl ShapeBuilder {
 }
 
 #[derive(Clone, Default, Debug)]
-struct Arch {
+struct Form {
     // matched to vector control
-    // matrix: arch::Matrix,
+    // matrix: form::Matrix,
     // matched to matrix control indexed by order
-    vector: Vec<Option<arch::Vector>>,
+    vector: Vec<Option<form::Vector>>,
 }
 
-impl Arch {
+impl Form {
     fn setup_vector(&mut self, order: usize) {
         for _ in 0..order - self.vector.len() {
             self.vector.push(None);
         }
         if self.vector.len() == order {
-            self.vector.push(Some(arch::Vector::default()));
+            self.vector.push(Some(form::Vector::default()));
         }
     }
 }
@@ -73,7 +73,7 @@ impl Arch {
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
 // #[builder(setter(into, strip_option))]
-pub struct Jamb {
+pub struct Flow {
     // index hedge matched to matrix span
     // vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
@@ -81,7 +81,7 @@ pub struct Jamb {
     matrices: Vec<Option<Hedge>>,
 }
 
-impl JambBuilder {
+impl FlowBuilder {
     pub fn matrix(mut self, order: usize, hedge: Hedge) -> Self {
         if self.matrices.is_none() {
             self = self.matrices(vec![]);

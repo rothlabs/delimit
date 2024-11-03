@@ -5,7 +5,7 @@ struct Rig {
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;
-@group(0) @binding(1) var<storage, read> arch: array<f32>;
+@group(0) @binding(1) var<storage, read> form: array<f32>;
 @group(0) @binding(2) var<storage, read_write> weft: array<f32>;
 
 @compute
@@ -16,11 +16,11 @@ fn main(
 ) {
     // prelude
     let order = rig.order;
-    let arch_index = global.x / rig.count;
+    let form_index = global.x / rig.count;
     let plot_index = global.x % rig.count;
     let degree = order - 1;
     let row_len = order * 3;
-    let row = arch_index * row_len;
+    let row = form_index * row_len;
 
     // parameter and indices
     let parameter = f32(plot_index) / f32(rig.count - 1);
@@ -45,14 +45,14 @@ fn main(
             var weft1 = 0.;
             // var weft2 = 0.; (acceleration)
             if weft[n0] > 0. {
-                let distance = arch[k0] - arch[k0 - deg];
-                weft0 += weft[n0] * (parameter - arch[k0 - deg]) / distance; 
+                let distance = form[k0] - form[k0 - deg];
+                weft0 += weft[n0] * (parameter - form[k0 - deg]) / distance; 
                 weft1 += weft[n0] * f32(deg) / distance;
                 // weft2 ...
             }
             if weft[n1] > 0. && n1 <= weft_index {
-                let distance = arch[k1] - arch[k1 - deg];
-                weft0 += weft[n1] * (arch[k1] - parameter) / distance;
+                let distance = form[k1] - form[k1 - deg];
+                weft0 += weft[n1] * (form[k1] - parameter) / distance;
                 weft1 -= weft[n1] * f32(deg) / distance;
                 // weft2 ...
             } 
@@ -69,8 +69,8 @@ fn main(
         let wi = weight_index - i;
         let b0 = weft_index - i;
         let b1 = b0 + order;
-        sum0 += weft[b0] * arch[wi];
-        sum1 += weft[b1] * arch[wi];
+        sum0 += weft[b0] * form[wi];
+        sum1 += weft[b1] * form[wi];
         // sum2 ...
     }
 
@@ -80,7 +80,7 @@ fn main(
         let b0 = weft_index - i;
         let b1 = b0 + order;
         // weft[b2] = ... / sum0 / sum0 / sum0;
-        weft[b1] = (weft[b1] * sum0 - weft[b0] * sum1) * arch[wi] / sum0 / sum0;
-        weft[b0] *= arch[wi] / sum0;
+        weft[b1] = (weft[b1] * sum0 - weft[b0] * sum1) * form[wi] / sum0 / sum0;
+        weft[b0] *= form[wi] / sum0;
     }
 }
