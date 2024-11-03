@@ -32,17 +32,17 @@ where
 #[builder(build_fn(error = "graph::Error"))]
 pub struct Join<T> {
     #[builder(setter(each(name = "field", into)))]
-    fields: Vec<Hub<T>>
+    fields: Vec<Hub<T>>,
 }
 
-impl<T> Solve for Join<T> 
-where 
-    T: 'static + Clone + SendSync + Debug
+impl<T> Solve for Join<T>
+where
+    T: 'static + Clone + SendSync + Debug + Default,
 {
     type Base = T;
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         self.fields.depend().await?;
-        solve_ok()
+        Ok(T::default().into())
     }
 }
 
@@ -55,4 +55,3 @@ where
 //         JoinBuilder::default().field(self.clone())
 //     }
 // }
-

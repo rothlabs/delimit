@@ -1,8 +1,8 @@
 use super::*;
 
+mod stage;
 #[cfg(test)]
 mod tests;
-mod stage;
 
 pub struct Stage<'a> {
     pub control: &'a Control<'a>,
@@ -14,12 +14,12 @@ impl<'a> Stage<'a> {
         let gpu = &self.control.grid.plot.core.gpu;
         let offsets = self.offsets()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?;
-        let buffer = gpu.blank(size).hub()?;
+        let buffer = gpu.blank(size).label(format!("grid plot rank {}", self.rank)).hub()?;
         let part = self.part(warp, &buffer)?;
         let mut root = JoinBuilder::default();
         let jamb = self.jamb()?;
         let weft = self.weft()?;
-        for (order, jamb) in jamb.matrix.iter().enumerate() {
+        for (order, jamb) in jamb.matrices.iter().enumerate() {
             if let Some(jamb) = jamb {
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
@@ -43,14 +43,17 @@ impl<'a> Stage<'a> {
         //     let size_part = gpu.size(&weft.buffer).hub()?;
         //     size = size.add(size_part);
         // }
-        for (order, jamb) in jamb.matrix.iter().enumerate() {
+        for (order, jamb) in jamb.matrices.iter().enumerate() {
             if let Some(jamb) = jamb {
-                let builder = gpu.size(&jamb.buffer).div(order as u32 + 1).mul(dimension);
+                let builder = gpu.size(&jamb.buffer).div(3).mul(dimension);//.div(order as u32 + 1).mul(dimension);
                 let size = builder.mul(self.count()?).mul(self.stride()?).hub()?;
+                // let size = builder.hub()?;
+                // panic!("size {}", size.base());
                 // TODO: (rank + 1) * 2 when acceleration is included
                 let size = size.calc().mul(self.rank as u32 + 1).add(&size).hub()?;
                 let offset = offsets.last().ok_or(anyhow!("no offsets"))?.calc();
                 offsets.push(offset.add(size).hub()?);
+                // panic!("made it ");
             } else {
                 offsets.push(0.into());
             }
@@ -71,7 +74,7 @@ impl<'a> Stage<'a> {
     }
     fn jamb(&self) -> graph::Result<&Jamb> {
         let jambs = &self.control.grid.plot.shape.jambs;
-        jambs.get(self.rank).ok_or(Err(anyhow!("no jamb"))?)
+        Ok(jambs.get(self.rank).ok_or(anyhow!("no jamb"))?)
     }
     fn count(&self) -> graph::Result<&Hub<u32>> {
         let counts = &self.control.grid.counts;
@@ -85,7 +88,7 @@ impl<'a> Stage<'a> {
     }
     fn stride(&self) -> graph::Result<&Hub<u32>> {
         let stride = self.control.strides.get(self.rank);
-        stride.ok_or(Err(anyhow!("no stride"))?)
+        Ok(stride.ok_or(anyhow!("no stride"))?)
     }
     fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<stage::Part> {
         Ok(stage::Part {
@@ -96,7 +99,3 @@ impl<'a> Stage<'a> {
         })
     }
 }
-
-
-
-

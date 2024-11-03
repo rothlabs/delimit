@@ -18,7 +18,7 @@ impl<'a> Charter<'a> {
             if let Some(arch) = arch {
                 let mut root = JoinBuilder::default();
                 let nurbs_size = self.nurbs_size(arch)?;
-                let buffer = gpu.blank(nurbs_size).hub()?;
+                let buffer = gpu.blank(nurbs_size).label(format!("arch nurbs order {}", order)).hub()?;
                 let part = self.part(&buffer);
                 if let Some(arch) = &arch.nurbs {
                     let rig = self.vector_rig(order, 0.into())?;
@@ -93,7 +93,7 @@ impl<'a> Control<'a> {
             warps.push(self.stage(rank).hedge(warp)?);
         }
         let plot = warps.last().cloned();
-        plot.ok_or(Err(anyhow!("no plot"))?)
+        Ok(plot.ok_or(anyhow!("no plot"))?)
     }
     fn stage(&self, rank: usize) -> control::Stage {
         control::Stage {

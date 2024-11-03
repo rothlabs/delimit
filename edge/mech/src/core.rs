@@ -15,6 +15,9 @@ impl Core {
             gpu,
         })
     }
+    pub fn jamb(&self) -> JambBuilder {
+        JambBuilder::default()
+    }
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }

@@ -11,7 +11,7 @@ pub struct Weft {
 impl Weft {
     fn vector(&self, order: usize) -> graph::Result<&Hedge> {
         let weft = self.vector.get(order).ok_or(anyhow!("no weft"))?;
-        weft.as_ref().ok_or(Err(anyhow!("no weft"))?)
+        Ok(weft.as_ref().ok_or(anyhow!("no weft"))?)
     }
 }
 

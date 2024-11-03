@@ -1,9 +1,9 @@
 extern crate proc_macro2;
 
+use darling::FromField;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::Data;
-use darling::FromField;
 
 mod adapt;
 mod back;

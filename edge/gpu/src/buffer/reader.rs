@@ -50,7 +50,7 @@ where
         if let Some(storage) = &self.storage {
             if let Some(gpu) = &self.core {
                 let size = gpu.size(storage).hub()?;
-                let stage = gpu.blank(size).map_read()?;
+                let stage = gpu.blank(size).label("stage").map_read()?;
                 return self.stage(stage).hub();
             }
         }

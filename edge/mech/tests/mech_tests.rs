@@ -16,12 +16,12 @@ async fn gpu() -> dom::Result<Gpu> {
     canvas.gpu().await
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
-    let canvas = body()?.stem("canvas")?.canvas()?;
-    let gpu = canvas.gpu().await?;
-    gpu.display.resize(300, 300).await?;
-    Ok(gpu)
-}
+// async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
+//     let canvas = body()?.stem("canvas")?.canvas()?;
+//     let gpu = canvas.gpu().await?;
+//     gpu.display.resize(300, 300).await?;
+//     Ok(gpu)
+// }
 
 #[wasm_bindgen_test]
 async fn nurbs() -> dom::Result<()> {
@@ -29,14 +29,15 @@ async fn nurbs() -> dom::Result<()> {
     let mech = Mech::new(gpu.clone())?;
     let count = 5;
     let warp = gpu.hedge(vec![-1.5_f32, -2.5, 0.5, 2.4, 1.4, 0.8])?;
-    //                        6 knots                      3 weights
+    //                         6 knots                      3 weights
     let nurbs = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
-    let jamb = gpu.hedge(vec![0_u32, 1, 2])?;
+    let jamb_hedge = gpu.hedge(vec![0_u32, 1, 2])?;
+    let jamb = mech.jamb().matrix(3, jamb_hedge).build()?;
     let shape = mech
         .shape(2)
         .warp(warp)
         .nurbs(3, nurbs)
-        .matrix(3, jamb)
+        .jamb(jamb)
         .build()?;
     let plot = mech.plot(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu

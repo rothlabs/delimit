@@ -13,7 +13,7 @@ pub fn derive(item: TokenStream) -> TokenStream {
     let unit = &input.ident;
     match &input.data {
         Data::Struct(data_struct) => {
-            let mut backs = quote!{};
+            let mut backs = quote! {};
             for field in data_struct.fields.iter() {
                 let args = match BackArgs::from_field(field) {
                     Ok(v) => v,
@@ -60,7 +60,6 @@ pub fn derive(item: TokenStream) -> TokenStream {
     }
     .into()
 }
-
 
 // let fields = struct_
 //                 .fields

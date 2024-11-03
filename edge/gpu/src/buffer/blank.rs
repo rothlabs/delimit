@@ -10,13 +10,17 @@ pub struct Blank {
     #[back(skip)]
     #[builder(default = "BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST")]
     usage: BufferUsages,
+    #[builder(default)]
+    #[back(skip)]
+    label: String,
 }
 
 impl Solve for Blank {
     type Base = Grc<Buffer>;
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let size = self.size.base().await?;
-        let buffer = self.core.buffer(size as u64 * 4).usage(self.usage).make()?;
+        // let label = self.label.base().await?;
+        let buffer = self.core.buffer(size as u64 * 4).label(&self.label).usage(self.usage).make()?;
         Ok(buffer.into())
     }
 }

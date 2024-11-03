@@ -6,14 +6,16 @@ mod make;
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
-#[builder(setter(into, strip_option))]
+// #[builder(setter(into, strip_option))]
 pub struct Shape {
     warp: Hedge,
-    #[builder(default)]
+    // #[builder(default)]
     arch: Arch,
     // alt: Pile or Stud
-    #[builder(default)]
+    #[builder(setter(each(name = "jamb", into)))]
     jambs: Vec<Jamb>,
+    // weave
+    // fold
     dimension: u32,
     // #[builder(default)]
     // bounds: Vec<Shape>,
@@ -35,16 +37,15 @@ impl Shape {
 
 impl ShapeBuilder {
     pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
+        if self.arch.is_none() {
+            self = self.arch(Arch::default())
+        }
         if let Some(arch) = &mut self.arch {
             arch.setup_vector(order);
             if let Some(Some(vector)) = arch.vector.get_mut(order) {
                 vector.nurbs = Some(hedge);
             }
         }
-        self
-    }
-    pub fn matrix(mut self, order: usize, hedge: Hedge) -> Self {
-        
         self
     }
 }
@@ -62,18 +63,38 @@ impl Arch {
         for _ in 0..order - self.vector.len() {
             self.vector.push(None);
         }
-        if self.vector.len() == order { 
+        if self.vector.len() == order {
             self.vector.push(Some(arch::Vector::default()));
         }
     }
 }
 
-#[derive(Clone, Default, Debug)]
-struct Jamb {
+#[derive(Builder, Clone, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "graph::Error"))]
+// #[builder(setter(into, strip_option))]
+pub struct Jamb {
     // index hedge matched to matrix span
     // vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
-    matrix: Vec<Option<Hedge>>,
+    // #[builder(default)]
+    matrices: Vec<Option<Hedge>>,
+}
+
+impl JambBuilder {
+    pub fn matrix(mut self, order: usize, hedge: Hedge) -> Self {
+        if self.matrices.is_none() {
+            self = self.matrices(vec![]);
+        }
+        if let Some(matrix) = &mut self.matrices {
+            for _ in 0..order - matrix.len() {
+                matrix.push(None);
+            }
+            matrix.push(Some(hedge));
+            
+        }
+        self
+    }
 }
 
 // #[derive(Clone, Debug)]

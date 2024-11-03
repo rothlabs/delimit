@@ -11,8 +11,14 @@ impl<T> GateTag for Arithmetic<T> {}
 
 impl<T> Solve for Arithmetic<T>
 where
-    T: 'static + Clone + SendSync + Debug
-        + ops::AddAssign<T> + ops::SubAssign<T> + ops::MulAssign<T> + ops::DivAssign<T>
+    T: 'static
+        + Clone
+        + SendSync
+        + Debug
+        + ops::AddAssign<T>
+        + ops::SubAssign<T>
+        + ops::MulAssign<T>
+        + ops::DivAssign<T>,
 {
     type Base = T;
     async fn solve(&self) -> graph::Result<Hub<T>> {
@@ -26,7 +32,8 @@ where
                 OperationType::Div => out /= value,
             }
         }
-        Ok(out.into_leaf().into())
+        // Ok(out.into_leaf().into())
+        Ok(out.into())
     }
 }
 
@@ -55,10 +62,10 @@ enum OperationType {
 
 #[derive(Default)]
 pub struct ArithmeticBuilder<T> {
-    target: Arithmetic<T>
+    target: Arithmetic<T>,
 }
 
-impl<T> ArithmeticBuilder<T> 
+impl<T> ArithmeticBuilder<T>
 where
     T: 'static + Clone + SendSync + Debug,
     Arithmetic<T>: Solve + IntoGate,
@@ -100,17 +107,23 @@ pub trait MakeArithmetic<T> {
     fn calc(&self) -> ArithmeticBuilder<T>;
 }
 
-impl<T> MakeArithmetic<T> for Hub<T> 
-where 
-    T: 'static + Clone + SendSync + Debug
-        + ops::AddAssign<T> + ops::SubAssign<T> + ops::MulAssign<T> + ops::DivAssign<T>,
+impl<T> MakeArithmetic<T> for Hub<T>
+where
+    T: 'static
+        + Clone
+        + SendSync
+        + Debug
+        + ops::AddAssign<T>
+        + ops::SubAssign<T>
+        + ops::MulAssign<T>
+        + ops::DivAssign<T>,
 {
     fn calc(&self) -> ArithmeticBuilder<T> {
         ArithmeticBuilder {
             target: Arithmetic {
                 value: self.clone(),
-                ops: vec![] 
-            }
+                ops: vec![],
+            },
         }
     }
 }

@@ -48,7 +48,7 @@ pub struct Hedge {
     pub root: Hub<Mutation>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Mutation;
 
 // pub struct JoinMutation {
