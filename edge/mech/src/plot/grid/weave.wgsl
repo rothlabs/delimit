@@ -5,7 +5,7 @@ struct Rig {
     // number of weft in a block
     count: u32,
     // number of plots in a warp
-    stride: u32,
+    area: u32,
     dimension: u32,
 };
 
@@ -24,13 +24,13 @@ fn main(
     // prelude
     let order = rig.order;
     let count = rig.count;
-    let stride = rig.stride;
+    let area = rig.area;
     let dimension = rig.dimension;
 
     // index
     let strip_index = global.x / count;
-    let block_index = strip_index / stride;
-    let local_index = strip_index % stride;
+    let block_index = strip_index / area;
+    let local_index = strip_index % area;
     let weft_index = (block_index * count + global.x % count) * order * 2;
     // TODO: loop plot slots through rank, global.x * dimension + dimension * rank
     let plot_index0 = global.x * dimension * 2;
@@ -42,7 +42,7 @@ fn main(
         plot[plot_index0 + d] = 0.;
         plot[plot_index1 + d] = 0.;
         for (var o = 0u; o < order; o++) {
-            let warp_index = (flow[flow_index + o] * stride + local_index) * dimension;
+            let warp_index = (flow[flow_index + o] * area + local_index) * dimension;
             let warp0 = warp[warp_index + d];
             let weft0 = weft[weft_index + o];
             let weft1 = weft[weft_index + order + o];

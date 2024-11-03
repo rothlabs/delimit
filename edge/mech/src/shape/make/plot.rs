@@ -45,7 +45,7 @@ impl<'a> Grid<'a> {
         grid::Loom {
             grid: self,
             wefts,
-            strides,
+            areas: strides,
         }
     }
 }

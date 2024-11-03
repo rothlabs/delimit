@@ -80,8 +80,7 @@ pub struct Loom<'a> {
     // per rank
     pub wefts: Vec<Weft>,
     // per rank
-    // TODO: rename stride to area?
-    pub strides: Vec<Hub<u32>>,
+    pub areas: Vec<Hub<u32>>,
 }
 
 impl<'a> Loom<'a> {

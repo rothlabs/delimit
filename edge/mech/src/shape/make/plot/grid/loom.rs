@@ -46,7 +46,7 @@ impl<'a> Weave<'a> {
         for (order, flow) in flow.matrices.iter().enumerate() {
             if let Some(flow) = flow {
                 let builder = gpu.size(&flow.buffer).div(3).mul(dimension);//.div(order as u32 + 1).mul(dimension);
-                let size = builder.mul(self.count()?).mul(self.stride()?).hub()?;
+                let size = builder.mul(self.count()?).mul(self.area()?).hub()?;
                 // let size = builder.hub()?;
                 // panic!("size {}", size.base());
                 // TODO: (rank + 1) * 2 when acceleration is included
@@ -68,7 +68,7 @@ impl<'a> Weave<'a> {
             .field(order as u32)
             .field(offset)
             .field(self.count()?)
-            .field(self.stride()?)
+            .field(self.area()?)
             .field(dimension)
             .make()
     }
@@ -86,9 +86,9 @@ impl<'a> Weave<'a> {
         let last = wefts.last().ok_or(anyhow!("no weft"))?;
         Ok(wefts.get(self.rank).unwrap_or(last))
     }
-    fn stride(&self) -> graph::Result<&Hub<u32>> {
-        let stride = self.control.strides.get(self.rank);
-        Ok(stride.ok_or(anyhow!("no stride"))?)
+    fn area(&self) -> graph::Result<&Hub<u32>> {
+        let area = self.control.areas.get(self.rank);
+        Ok(area.ok_or(anyhow!("no area"))?)
     }
     fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<weave::Part> {
         Ok(weave::Part {
