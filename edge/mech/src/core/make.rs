@@ -9,12 +9,13 @@ pub struct Chart {
 }
 
 impl Chart {
-    pub fn grid(self, count: impl Into<Hub<u32>>) -> chart::GridBuilder { //graph::Result<Hub<Plot>> {
+    pub fn grid(self, count: impl Into<Hub<u32>>) -> chart::GridBuilder {
+        //graph::Result<Hub<Plot>> {
         chart::GridBuilder::default()
             .core(self.core)
             .shape(self.shape)
             .count(count)
-            // .hub()
+        // .hub()
     }
 }
 

@@ -23,7 +23,7 @@ impl<'a> Weave<'a> {
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
                 root.field(part.right(weave::Trio {
-                    rig: self.right(order, offset)?,
+                    rig: self.right_rig(order, offset)?,
                     weft: weft.vector(order)?,
                     flow,
                 })?);
@@ -64,7 +64,7 @@ impl<'a> Weave<'a> {
         }
         Ok(offsets)
     }
-    fn right(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
+    fn right_rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
         let dimension = self.loom.grid.chart.shape.dimension;
         let uniform = self.loom.grid.chart.core.gpu.uniform();
         uniform

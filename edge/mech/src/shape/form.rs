@@ -8,6 +8,7 @@ use super::*;
 
 #[derive(Clone, Default, Debug)]
 pub struct Vector {
+    pub spline: Option<Hedge>,
     pub nurbs: Option<Hedge>,
 }
 

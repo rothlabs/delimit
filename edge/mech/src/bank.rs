@@ -45,6 +45,7 @@ impl GridPlotBin {
 
 #[derive(Debug)]
 pub struct GridPlotRightBin {
+    pub spline: ComputeProgram,
     pub nurbs: ComputeProgram,
     pub weave: ComputeProgram,
 }
@@ -57,9 +58,12 @@ impl GridPlotRightBin {
         let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
 
-        // let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
-        // let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-        // let spline = ComputeProgram { layout, pipe };
+        let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
+        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        let spline = ComputeProgram {
+            layout: layout.clone(),
+            pipe,
+        };
 
         let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
@@ -75,7 +79,11 @@ impl GridPlotRightBin {
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let weave = ComputeProgram { layout, pipe };
-        Ok(Self { nurbs, weave })
+        Ok(Self {
+            spline,
+            nurbs,
+            weave,
+        })
     }
 }
 

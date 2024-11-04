@@ -31,15 +31,29 @@ impl Shape {
 }
 
 impl ShapeBuilder {
-    pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
-        if self.form.is_none() {
-            self = self.form(Form::default())
+    pub fn spline(mut self, order: usize, hedge: Hedge) -> Self {
+        self = self.setup_form();
+        if let Some(form) = &mut self.form {
+            form.setup_vector(order);
+            if let Some(Some(vector)) = form.vector.get_mut(order) {
+                vector.spline = Some(hedge);
+            }
         }
+        self
+    }
+    pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
+        self = self.setup_form();
         if let Some(form) = &mut self.form {
             form.setup_vector(order);
             if let Some(Some(vector)) = form.vector.get_mut(order) {
                 vector.nurbs = Some(hedge);
             }
+        }
+        self
+    }
+    fn setup_form(mut self) -> Self {
+        if self.form.is_none() {
+            self = self.form(Form::default())
         }
         self
     }
@@ -55,8 +69,11 @@ struct Form {
 
 impl Form {
     fn setup_vector(&mut self, order: usize) {
-        for _ in 0..order - self.vector.len() {
-            self.vector.push(None);
+        if order > self.vector.len() {
+            let fill = order - self.vector.len();
+            for _ in 0..fill {
+                self.vector.push(None);
+            }
         }
         if self.vector.len() == order {
             self.vector.push(Some(form::Vector::default()));

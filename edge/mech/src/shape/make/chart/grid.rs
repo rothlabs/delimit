@@ -17,12 +17,18 @@ impl<'a> Wheel<'a> {
         for (order, form) in self.plot.shape.form.vector.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
+                let spline_size = self.spline_size(form)?;
                 let nurbs_size = self.nurbs_size(form)?;
+                let size = spline_size.calc().add(nurbs_size).hub()?;
                 let label = format!("spin nurbs, order {}", order);
-                let buffer = gpu.blank(nurbs_size).label(label).hub()?;
+                let buffer = gpu.blank(size).label(label).hub()?;
                 let spin = self.spin(&buffer);
+                if let Some(form) = &form.spline {
+                    let rig = self.right_rig(order, 0.into())?;
+                    root.field(spin.spline(&rig, form)?);
+                }
                 if let Some(form) = &form.nurbs {
-                    let rig = self.right(order, 0.into())?;
+                    let rig = self.right_rig(order, spline_size)?;
                     root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
@@ -52,6 +58,16 @@ impl<'a> Wheel<'a> {
     //     };
     //     Ok(size)
     // }
+    fn spline_size(&self, form: &form::Vector) -> graph::Result<Hub<u32>> {
+        let gpu = &self.plot.core.gpu;
+        Ok(if let Some(spline) = &form.spline {
+            gpu.size(spline.buffer.clone())
+                .mul(self.count.clone())
+                .hub()?
+        } else {
+            0.into()
+        })
+    }
     fn nurbs_size(&self, form: &form::Vector) -> graph::Result<Hub<u32>> {
         let gpu = &self.plot.core.gpu;
         Ok(if let Some(nurbs) = &form.nurbs {
@@ -65,7 +81,7 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn right(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
+    fn right_rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
         let uniform = self.plot.core.gpu.uniform();
         uniform
             .field(order as u32)

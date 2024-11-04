@@ -97,10 +97,25 @@ fn nurbs2() -> Vec<f32> {
 }
 
 #[rustfmt::skip]
+fn spline3() -> Vec<f32> {
+    vec![
+        0., 0.2, 0.4, 0.6, 0.8, 1., 
+    ]
+}
+
+#[rustfmt::skip]
 fn nurbs3() -> Vec<f32> {
     vec![
         0., 0., 0., 1., 1., 1.,    1., (2.0_f32).sqrt() / 2., 1.,
         0., 0., 0., 1., 1., 1.,    1., 1.5, 1.,
+    ]
+}
+
+#[rustfmt::skip]
+fn spline4() -> Vec<f32> {
+    vec![
+        0., 0., 0., 0.2, 0.8, 1., 1., 1.,
+        // 0., 0.143, 0.286, 0.428, 0.571, 0.714, 0.857, 1.,
     ]
 }
 
@@ -110,23 +125,31 @@ async fn draw_nurbs_curve() -> dom::Result<()> {
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
     let flow2: Vec<u32> = vec![
-        0,   8, 4,
+        0,   8, 6,
     ];
     #[rustfmt::skip]
     let flow3: Vec<u32> = vec![
-        0,   1, 8, 3, 
-        1,   7, 6, 5,
+        0,   1, 0, 8, 
+        1,   1, 8, 3, 
+        2,   7, 6, 5,
+    ];
+    #[rustfmt::skip]
+    let flow4: Vec<u32> = vec![
+        0,   3, 8, 4, 5, 
     ];
     let flow = mech
         .flow()
         .matrix(2, gpu.hedge(flow2)?)
         .matrix(3, gpu.hedge(flow3)?)
+        .matrix(4, gpu.hedge(flow4)?)
         .build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
         .nurbs(2, gpu.hedge(nurbs2())?)
+        .spline(3, gpu.hedge(spline3())?)
         .nurbs(3, gpu.hedge(nurbs3())?)
+        .spline(4, gpu.hedge(spline4())?)
         .flow(flow)
         .build()?;
     let plot = mech.chart(shape).grid(30).hub()?;

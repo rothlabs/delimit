@@ -24,10 +24,12 @@ fn main(
     let degree = order - 1;
     let row_len = order * 3;
     let row_pos = count_idx * row_len;
-    let parameter = f32(count_mod) / f32(count - 1);
     let knot_idx = row_pos + degree;
     let weight_idx = row_pos + row_len - 1;
     let weft_idx = index.x * order * 2 + degree + rig.offset;
+    let start = form[knot_idx];
+    let end = form[knot_idx + 1];
+    let parameter = start + (end - start) * f32(count_mod) / f32(count - 1);
 
     // weft reset [0., 0., 0., ..., 1.]
     weft[weft_idx] = 1.;
