@@ -52,21 +52,21 @@ pub struct GridPlotRightBin {
 
 impl GridPlotRightBin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
+        let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let form = gpu.bind_storage(true).entry(1)?.compute()?;
         let weft = gpu.bind_storage(false).entry(2)?.compute()?;
         let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
 
-        let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
-        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        let pipe = shader.compute("spline").layout(&pipe_layout).make()?;
         let spline = ComputeProgram {
             layout: layout.clone(),
             pipe,
         };
 
-        let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
-        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        // let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
+        let pipe = shader.compute("nurbs").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
 
         let shader = gpu.shader(include_wgsl!("plot/grid/right/weave.wgsl"));
