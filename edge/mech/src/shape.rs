@@ -6,16 +6,11 @@ mod make;
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
-// #[builder(setter(into, strip_option))]
 pub struct Shape {
     warp: Hedge,
-    // #[builder(default)]
     form: Form,
-    // alt: Pile or Stud
     #[builder(setter(each(name = "flow", into)))]
     flows: Vec<Flow>,
-    // weave
-    // fold
     dimension: u32,
     // #[builder(default)]
     // bounds: Vec<Shape>,

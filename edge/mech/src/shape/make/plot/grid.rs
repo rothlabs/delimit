@@ -96,7 +96,7 @@ impl<'a> Loom<'a> {
     }
     fn stage(&self, rank: usize) -> loom::Weave {
         loom::Weave {
-            control: self,
+            loom: self,
             rank,
         }
     }
