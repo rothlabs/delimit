@@ -23,11 +23,11 @@ impl Shape {
         make::Chart { core, shape: self }
     }
     pub fn plot_stride(&self) -> u32 {
-        self.dimension + self.dimension * self.rank()
+        self.dimension + self.dimension * self.flows.len() as u32
     }
-    pub fn rank(&self) -> u32 {
-        self.flows.len() as u32
-    }
+    // pub fn rank(&self) -> u32 {
+    //     self.flows.len() as u32
+    // }
 }
 
 impl ShapeBuilder {

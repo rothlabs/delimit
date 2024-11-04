@@ -51,14 +51,20 @@ pub struct GridPlotRightBin {
 
 impl GridPlotRightBin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        let span = gpu.bind_storage(true).entry(1)?.compute()?;
-        let basis = gpu.bind_storage(false).entry(2)?.compute()?;
-        let layout = gpu.bind_layout(&[rig, span, basis]).make()?;
+        let form = gpu.bind_storage(true).entry(1)?.compute()?;
+        let weft = gpu.bind_storage(false).entry(2)?.compute()?;
+        let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
+
+        // let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
+        // let pipe = shader.compute("main").layout(&pipe_layout).make()?;
+        // let spline = ComputeProgram { layout, pipe };
+
+        let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
+
         let shader = gpu.shader(include_wgsl!("plot/grid/right/weave.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let warp = gpu.bind_storage(true).entry(1)?.compute()?;
@@ -101,7 +107,7 @@ impl DrawBin {
         let count: u32 = 8;
         let points = mesh::Circle {
             count: count.into(),
-            radius: 5.0.into(),
+            radius: 4.0.into(),
             display: gpu.display.config.clone(),
         }
         .gate()?;

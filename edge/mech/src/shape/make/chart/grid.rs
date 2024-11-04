@@ -22,7 +22,7 @@ impl<'a> Wheel<'a> {
                 let buffer = gpu.blank(nurbs_size).label(label).hub()?;
                 let spin = self.spin(&buffer);
                 if let Some(form) = &form.nurbs {
-                    let rig = self.vector_rig(order, 0.into())?;
+                    let rig = self.right(order, 0.into())?;
                     root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
@@ -65,7 +65,7 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn vector_rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
+    fn right(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
         let uniform = self.plot.core.gpu.uniform();
         uniform
             .field(order as u32)
@@ -88,11 +88,11 @@ impl<'a> Loom<'a> {
         let shape = &self.grid.chart.shape;
         let mut warps = vec![shape.warp.clone()];
         for rank in 0..shape.flows.len() {
-            let warp = warps.last().ok_or(anyhow!("no plot"))?;
+            let warp = warps.last().ok_or(anyhow!("no warps"))?;
             warps.push(self.weave(rank).hedge(warp)?);
         }
         let plot = warps.last().cloned();
-        Ok(plot.ok_or(anyhow!("no plot"))?)
+        Ok(plot.ok_or(anyhow!("no warps"))?)
     }
     fn weave(&self, rank: usize) -> loom::Weave {
         loom::Weave { loom: self, rank }

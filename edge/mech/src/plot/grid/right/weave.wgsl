@@ -22,32 +22,32 @@ fn main(
     // prelude
     let rank = rig.rank;
     let order = rig.order;
-    let order2 = order * 2;
     let count = rig.count;
     let area = rig.area;
     let dimension = rig.dimension;
+    let order2 = order * 2;
     let dimension2 = dimension * 2;
+    let warp_stride = dimension + dimension * rank;
+    let plot_stride = dimension + dimension * (rank + 1);
 
     // index and modulo
     let count_idx = index.x / count;
     let count_mod = index.x % count;
     let area_idx = count_idx / area;
-    let area_p_area_mod = area + count_idx % area;
-    // TODO: loop plot slots through rank, index.x * dimension + dimension * rank
-    let plot_idx = index.x * dimension2 + rig.offset;
-    // let plot_idx1 = plot_idx0 + dimension;
+    let area_mod = count_idx % area;
+    let plot_idx = index.x * plot_stride + rig.offset;
     let flow_idx = area_idx * (order + 1);
     let weft_idx = (flow[flow_idx] * count + count_mod) * order2;
 
     // reset plot
-    for (var i = 0u; i < rank * dimension + dimension; i++) {
+    for (var i = 0u; i < plot_stride; i++) {
         plot[plot_idx + i] = 0.;
     }
 
     // matrix-vector multiplication
     for (var d = 0u; d < dimension; d++) {
         for (var o = 0u; o < order; o++) {
-            let warp_idx = (flow[flow_idx + o + 1] * area_p_area_mod) * dimension;
+            let warp_idx = (flow[flow_idx + o + 1] * area + area_mod) * warp_stride;
             let warp0 = warp[warp_idx + d];
             let weft0 = weft[weft_idx + o];
 
@@ -61,7 +61,7 @@ fn main(
             // plot[plot_idx + dimension2 + d] += warp0 * weft2;
 
             // progenitor quantities 
-            for (var r = 1u; r < rank; r++) {
+            for (var r = 0u; r < rank; r++) {
                 let warp0 = warp[warp_idx + dimension2 + dimension * r + d];
                 plot[plot_idx + dimension2 + dimension * r + d] += warp0 * weft0;
             }

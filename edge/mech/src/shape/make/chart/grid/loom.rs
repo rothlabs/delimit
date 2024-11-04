@@ -22,8 +22,8 @@ impl<'a> Weave<'a> {
             if let Some(flow) = flow {
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
-                root.field(part.matrix(weave::Trio {
-                    rig: self.matrix_rig(order, offset)?,
+                root.field(part.right(weave::Trio {
+                    rig: self.right(order, offset)?,
                     weft: weft.vector(order)?,
                     flow,
                 })?);
@@ -33,8 +33,8 @@ impl<'a> Weave<'a> {
         Ok(Hedge { buffer, root })
     }
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
-        let gpu = &self.loom.grid.chart.core.gpu;
-        let dimension = self.loom.grid.chart.shape.dimension;
+        let chart = &self.loom.grid.chart;
+        let gpu = &chart.core.gpu;
         let flow = self.flow()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         // if let Some(weft) = &weft.matrix {
@@ -44,24 +44,31 @@ impl<'a> Weave<'a> {
         // }
         for (order, flow) in flow.matrices.iter().enumerate() {
             if let Some(flow) = flow {
-                let builder = gpu.size(&flow.buffer).div(order as u32 + 1).mul(dimension);
-                let size = builder.mul(self.count()?).mul(self.area()?).hub()?;
-                // TODO: (rank + 1) * 2 when acceleration is included
-                let size = size.calc().mul(self.rank as u32 + 1).add(&size).hub()?;
-                let offset = offsets.last().ok_or(anyhow!("no offsets"))?.calc();
-                offsets.push(offset.add(size).hub()?);
-                // panic!("made it ");
+                let size = gpu
+                    .size(&flow.buffer)
+                    .div(order as u32 + 1)
+                    .mul(chart.shape.dimension)
+                    .hub()?;
+                let size = size
+                    .calc()
+                    .mul(self.rank as u32 + 1)
+                    .add(&size)
+                    .mul(self.count()?)
+                    .mul(self.area()?)
+                    .add(offsets.last().ok_or(anyhow!("no offsets"))?)
+                    .hub()?;
+                offsets.push(size);
             } else {
                 offsets.push(0.into());
             }
         }
         Ok(offsets)
     }
-    fn matrix_rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
+    fn right(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
         let dimension = self.loom.grid.chart.shape.dimension;
         let uniform = self.loom.grid.chart.core.gpu.uniform();
         uniform
-            .field(self.rank as u32 + 1)
+            .field(self.rank as u32)
             .field(order as u32)
             .field(offset)
             .field(self.count()?)
