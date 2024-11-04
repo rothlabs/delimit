@@ -9,7 +9,7 @@ impl Spin<'_> {
     pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Mutation>> {
         let core = &self.charter.plot.core;
         let gpu = &core.gpu;
-        let nurbs = &core.bank.plot.grid.basis.nurbs;
+        let nurbs = &core.bank.plot.grid.right.nurbs;
         let bind = gpu
             .bind()
             .layout(nurbs.layout.clone())

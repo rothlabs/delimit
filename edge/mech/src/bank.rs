@@ -32,26 +32,26 @@ impl PlotBin {
 
 #[derive(Debug)]
 pub struct GridPlotBin {
-    pub basis: GridPlotBasisBin,
+    pub right: GridPlotRightBin,
 }
 
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
-            basis: GridPlotBasisBin::new(gpu)?,
+            right: GridPlotRightBin::new(gpu)?,
         })
     }
 }
 
 #[derive(Debug)]
-pub struct GridPlotBasisBin {
+pub struct GridPlotRightBin {
     pub nurbs: ComputeProgram,
-    pub control: ComputeProgram,
+    pub weave: ComputeProgram,
 }
 
-impl GridPlotBasisBin {
+impl GridPlotRightBin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/grid/nurbs.wgsl"));
+        let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let span = gpu.bind_storage(true).entry(1)?.compute()?;
         let basis = gpu.bind_storage(false).entry(2)?.compute()?;
@@ -59,19 +59,19 @@ impl GridPlotBasisBin {
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
-        let shader = gpu.shader(include_wgsl!("plot/grid/weave.wgsl"));
+        let shader = gpu.shader(include_wgsl!("plot/grid/right/weave.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        let basis = gpu.bind_storage(true).entry(1)?.compute()?;
-        let index = gpu.bind_storage(true).entry(2)?.compute()?;
-        let control = gpu.bind_storage(true).entry(3)?.compute()?;
+        let warp = gpu.bind_storage(true).entry(1)?.compute()?;
+        let weft = gpu.bind_storage(true).entry(2)?.compute()?;
+        let flow = gpu.bind_storage(true).entry(3)?.compute()?;
         let plot = gpu.bind_storage(false).entry(4)?.compute()?;
         let layout = gpu
-            .bind_layout(&[rig, basis, index, control, plot])
+            .bind_layout(&[rig, warp, weft, flow, plot])
             .make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-        let control = ComputeProgram { layout, pipe };
-        Ok(Self { nurbs, control })
+        let weave = ComputeProgram { layout, pipe };
+        Ok(Self { nurbs, weave })
     }
 }
 

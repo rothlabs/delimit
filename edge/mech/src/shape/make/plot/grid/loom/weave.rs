@@ -17,7 +17,7 @@ impl Part<'_> {
     pub fn matrix(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
         let core = &self.stage.loom.grid.plot.core;
         let gpu = &core.gpu;
-        let control = &core.bank.plot.grid.basis.control;
+        let control = &core.bank.plot.grid.right.weave;
         let bind = gpu
             .bind()
             .layout(control.layout.clone())
