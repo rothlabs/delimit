@@ -13,6 +13,7 @@ impl Solve for Points {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         let gpu = &self.core.gpu;
+        let draw = &self.core.bank.draw;
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.plot_stride();
@@ -20,23 +21,21 @@ impl Solve for Points {
         let rig = gpu.uniform().field(stride).field(count).make()?;
         let bind = gpu
             .bind()
-            .layout(self.core.bank.plot.draw.points.layout.clone())
+            .layout(draw.points.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, hedge.buffer.clone())
             .hub()?;
         let texture_view = gpu.display.texture()?.sample_count(4).view()?;
-        let verts = self.core.bank.plot.draw.points.vertex_count;
-        gpu
-            .command()
+        gpu.command()
             .root(rig.root)
             .root(hedge.root)
-            .root(self.core.bank.plot.draw.points.mesh.root.clone())
+            .root(draw.points.mesh.root.clone())
             .texture_view(texture_view)
             .resolve_target(gpu.display.view())
-            .render(self.core.bank.plot.draw.points.pipe.clone())
+            .render(draw.points.pipe.clone())
             .bind(0, bind)
-            .vertex(0, self.core.bank.plot.draw.points.mesh.buffer.clone())
-            .draw(0..verts, 0..count)
+            .vertex(0, draw.points.mesh.buffer.clone())
+            .draw(0..draw.points.vertex_count, 0..count)
             .hub()
     }
 }

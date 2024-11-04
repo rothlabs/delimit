@@ -1,7 +1,5 @@
 use super::*;
 
-pub mod draw;
-
 #[derive(Clone, Debug)]
 pub struct Plot {
     pub hedge: Hedge,

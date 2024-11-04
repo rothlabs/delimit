@@ -16,7 +16,7 @@ impl Weft {
 }
 
 pub struct Grid<'a> {
-    pub plot: &'a Plot<'a>,
+    pub chart: &'a Chart<'a>,
     pub counts: &'a [Hub<u32>],
 }
 
@@ -28,7 +28,7 @@ impl<'a> Grid<'a> {
         }
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let mut strides: Vec<Hub<u32>> = vec![1.into()];
-        for i in 0..self.plot.shape.flows.len() - 1 {
+        for i in 0..self.chart.shape.flows.len() - 1 {
             let stride = strides.last().ok_or(anyhow!("no strides"))?.calc();
             let count = self.counts.get(i).unwrap_or(last_count);
             strides.push(stride.mul(count).hub()?);
@@ -37,7 +37,7 @@ impl<'a> Grid<'a> {
     }
     fn charter(&self, count: &'a Hub<u32>) -> grid::Wheel {
         grid::Wheel {
-            plot: self.plot,
+            plot: self.chart,
             count,
         }
     }

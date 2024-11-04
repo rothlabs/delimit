@@ -1,18 +1,27 @@
 use super::*;
 
-mod plot;
+mod chart;
 
 // TODO: rename to Chart? A Chart has Plots on it
-pub struct Plot<'a> {
+pub struct Chart<'a> {
     pub core: &'a Core,
     pub shape: &'a Shape,
 }
 
-impl<'a> Plot<'a> {
+impl<'a> Chart<'a> {
     pub fn grid(&self, counts: &'a [Hub<u32>]) -> graph::Result<Hedge> {
-        plot::Grid { plot: self, counts }.hedge()
+        chart::Grid {
+            chart: self,
+            counts,
+        }
+        .hedge()
     }
 }
+
+// Ok(Plot {
+//     hedge: chart::Grid { chart: self, counts }.hedge()?,
+//     shape: self.shape.clone()
+// })
 
 // BasisBuilder {
 //     plot: Some(self),

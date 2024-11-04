@@ -5,12 +5,14 @@ mod mesh;
 #[derive(Debug)]
 pub struct Bank {
     pub plot: PlotBin,
+    pub draw: DrawBin,
 }
 
 impl Bank {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
             plot: PlotBin::new(gpu)?,
+            draw: DrawBin::new(gpu)?,
         })
     }
 }
@@ -18,14 +20,12 @@ impl Bank {
 #[derive(Debug)]
 pub struct PlotBin {
     pub grid: GridPlotBin,
-    pub draw: DrawPlotBin,
 }
 
 impl PlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
             grid: GridPlotBin::new(gpu)?,
-            draw: DrawPlotBin::new(gpu)?,
         })
     }
 }
@@ -65,9 +65,7 @@ impl GridPlotRightBin {
         let weft = gpu.bind_storage(true).entry(2)?.compute()?;
         let flow = gpu.bind_storage(true).entry(3)?.compute()?;
         let plot = gpu.bind_storage(false).entry(4)?.compute()?;
-        let layout = gpu
-            .bind_layout(&[rig, warp, weft, flow, plot])
-            .make()?;
+        let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let weave = ComputeProgram { layout, pipe };
@@ -76,13 +74,13 @@ impl GridPlotRightBin {
 }
 
 #[derive(Debug)]
-pub struct DrawPlotBin {
+pub struct DrawBin {
     pub points: RenderMeshProgram,
 }
 
-impl DrawPlotBin {
+impl DrawBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/draw/points.wgsl"));
+        let shader = gpu.shader(include_wgsl!("draw/points.wgsl"));
         let targets = gpu.display.targets();
         let rig = gpu.bind_uniform().entry(0)?.vertex()?;
         let plot = gpu.bind_storage(true).entry(1)?.vertex()?;

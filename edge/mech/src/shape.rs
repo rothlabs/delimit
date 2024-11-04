@@ -19,8 +19,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn plot<'a>(&'a self, core: &'a Core) -> make::Plot<'a> {
-        make::Plot { core, shape: self }
+    pub fn chart<'a>(&'a self, core: &'a Core) -> make::Chart<'a> {
+        make::Chart { core, shape: self }
     }
     pub fn plot_stride(&self) -> u32 {
         self.dimension + self.dimension * self.rank()
@@ -86,7 +86,6 @@ impl FlowBuilder {
                 matrix.push(None);
             }
             matrix.push(Some(hedge));
-            
         }
         self
     }

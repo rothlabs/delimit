@@ -39,7 +39,7 @@ async fn nurbs() -> dom::Result<()> {
         .nurbs(3, nurbs)
         .flow(flow)
         .build()?;
-    let plot = mech.plot(shape).grid(count)?.base().await?;
+    let plot = mech.chart(shape).grid(count)?.base().await?;
     let out: Vec<f32> = gpu
         .reader(plot.hedge.buffer)
         .root(plot.hedge.root)
@@ -75,10 +75,31 @@ async fn nurbs() -> dom::Result<()> {
 }
 
 #[rustfmt::skip]
-fn nurbs_arc() -> Vec<f32> {
+fn warp2() -> Vec<f32> {
     vec![
-        0., 0., 0., 1., 1., 1.,   1., (2.0_f32).sqrt() / 2., 1.,
-        0., 0., 0., 1., 1., 1.,   1., 1.5, 1.,
+        -0.9, -0.9,
+        -0.9, 0.,
+        -0.9, 0.9,
+        0., 0.9, 
+        0.9, 0.9,
+        0.9, 0.,
+        0.9, -0.9, 
+        0., -0.9,
+    ]
+}
+
+#[rustfmt::skip]
+fn nurbs2() -> Vec<f32> {
+    vec![
+        0., 0., 1., 1.,    1., 1.,
+    ]
+}
+
+#[rustfmt::skip]
+fn nurbs3() -> Vec<f32> {
+    vec![
+        0., 0., 0., 1., 1., 1.,    1., (2.0_f32).sqrt() / 2., 1.,
+        0., 0., 0., 1., 1., 1.,    1., 1.5, 1.,
     ]
 }
 
@@ -87,17 +108,66 @@ async fn draw_nurbs() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     let count = 40;
-    let nurbs = gpu.hedge(nurbs_arc())?;
-    let warp = gpu.hedge(vec![0_f32, -0.9, 0.9, -0.9, 0.9, 0., 0.9, 0.9, 0., 0.9])?;
-    let flow_hedge = gpu.hedge(vec![0_u32, 0, 1, 2, 0, 2, 3, 4])?;
-    let flow = mech.flow().matrix(3, flow_hedge).build()?;
+    #[rustfmt::skip]
+    let flow2: Vec<u32> = vec![
+        0,   1, 3,
+    ];
+    #[rustfmt::skip]
+    let flow3: Vec<u32> = vec![
+        0,   3, 4, 5, 
+        1,   5, 6, 7,
+    ];
+    let flow = mech
+        .flow()
+        .matrix(2, gpu.hedge(flow2)?)
+        .matrix(3, gpu.hedge(flow3)?)
+        .build()?;
     let shape = mech
         .shape(2)
-        .warp(warp)
-        .nurbs(3, nurbs)
+        .warp(gpu.hedge(warp2())?)
+        .nurbs(2, gpu.hedge(nurbs2())?)
+        .nurbs(3, gpu.hedge(nurbs3())?)
         .flow(flow)
         .build()?;
-    let plot = mech.plot(shape).grid(count)?;
+    let plot = mech.chart(shape).grid(count)?;
+    mech.draw(plot).points().hub()?.base().await?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_surface() -> dom::Result<()> {
+    let gpu = gpu_with_canvas().await?;
+    let mech = Mech::new(gpu.clone())?;
+    let count = 40;
+    #[rustfmt::skip]
+    let flow2: Vec<u32> = vec![
+        0,   1, 3,
+        0,   7, 5,
+    ];
+    #[rustfmt::skip]
+    let flow3: Vec<u32> = vec![
+        0,   3, 4, 5, 
+        1,   5, 6, 7,
+    ];
+    let rank1 = mech
+        .flow()
+        .matrix(2, gpu.hedge(flow2)?)
+        // .matrix(3, gpu.hedge(flow3)?)
+        .build()?;
+    #[rustfmt::skip]
+    let flow2: Vec<u32> = vec![
+        0,   0, 1,
+    ];
+    let rank2 = mech.flow().matrix(2, gpu.hedge(flow2)?).build()?;
+    let shape = mech
+        .shape(2)
+        .warp(gpu.hedge(warp2())?)
+        .nurbs(2, gpu.hedge(nurbs2())?)
+        // .nurbs(3, gpu.hedge(nurbs3())?)
+        .flow(rank1)
+        // .flow(rank2)
+        .build()?;
+    let plot = mech.chart(shape).grid(count)?;
     mech.draw(plot).points().hub()?.base().await?;
     Ok(())
 }

@@ -9,10 +9,11 @@ pub struct Weave<'a> {
 
 impl<'a> Weave<'a> {
     pub fn hedge(&self, warp: &Hedge) -> graph::Result<Hedge> {
-        let gpu = &self.loom.grid.plot.core.gpu;
+        let gpu = &self.loom.grid.chart.core.gpu;
         let offsets = self.offsets()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?;
-        let buffer = gpu.blank(size).label(format!("grid plot rank {}", self.rank)).hub()?;
+        let label = format!("grid plot rank {}", self.rank);
+        let buffer = gpu.blank(size).label(label).hub()?;
         let part = self.part(warp, &buffer)?;
         let mut root = JoinBuilder::default();
         let flow = self.flow()?;
@@ -32,8 +33,8 @@ impl<'a> Weave<'a> {
         Ok(Hedge { buffer, root })
     }
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
-        let gpu = &self.loom.grid.plot.core.gpu;
-        let dimension = self.loom.grid.plot.shape.dimension;
+        let gpu = &self.loom.grid.chart.core.gpu;
+        let dimension = self.loom.grid.chart.shape.dimension;
         let flow = self.flow()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         // if let Some(weft) = &weft.matrix {
@@ -57,8 +58,8 @@ impl<'a> Weave<'a> {
         Ok(offsets)
     }
     fn matrix_rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
-        let dimension = self.loom.grid.plot.shape.dimension;
-        let uniform = self.loom.grid.plot.core.gpu.uniform();
+        let dimension = self.loom.grid.chart.shape.dimension;
+        let uniform = self.loom.grid.chart.core.gpu.uniform();
         uniform
             .field(self.rank as u32 + 1)
             .field(order as u32)
@@ -69,7 +70,7 @@ impl<'a> Weave<'a> {
             .make()
     }
     fn flow(&self) -> graph::Result<&Flow> {
-        let flows = &self.loom.grid.plot.shape.flows;
+        let flows = &self.loom.grid.chart.shape.flows;
         Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
     fn count(&self) -> graph::Result<&Hub<u32>> {

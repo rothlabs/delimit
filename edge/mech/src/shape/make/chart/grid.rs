@@ -1,10 +1,10 @@
 use super::*;
 
-mod wheel;
 mod loom;
+mod wheel;
 
 pub struct Wheel<'a> {
-    pub plot: &'a Plot<'a>,
+    pub plot: &'a Chart<'a>,
     pub count: &'a Hub<u32>,
 }
 
@@ -18,7 +18,8 @@ impl<'a> Wheel<'a> {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
                 let nurbs_size = self.nurbs_size(form)?;
-                let buffer = gpu.blank(nurbs_size).label(format!("spin nurbs, order {}", order)).hub()?;
+                let label = format!("spin nurbs, order {}", order);
+                let buffer = gpu.blank(nurbs_size).label(label).hub()?;
                 let spin = self.spin(&buffer);
                 if let Some(form) = &form.nurbs {
                     let rig = self.vector_rig(order, 0.into())?;
@@ -31,7 +32,6 @@ impl<'a> Wheel<'a> {
             }
         }
         Ok(weft)
-        // self.control(&basis)
     }
     fn spin(&self, buffer: &'a Hub<Grc<Buffer>>) -> wheel::Spin {
         wheel::Spin {
@@ -85,42 +85,16 @@ pub struct Loom<'a> {
 
 impl<'a> Loom<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
-        let shape = &self.grid.plot.shape;
+        let shape = &self.grid.chart.shape;
         let mut warps = vec![shape.warp.clone()];
         for rank in 0..shape.flows.len() {
             let warp = warps.last().ok_or(anyhow!("no plot"))?;
-            warps.push(self.stage(rank).hedge(warp)?);
+            warps.push(self.weave(rank).hedge(warp)?);
         }
         let plot = warps.last().cloned();
         Ok(plot.ok_or(anyhow!("no plot"))?)
     }
-    fn stage(&self, rank: usize) -> loom::Weave {
-        loom::Weave {
-            loom: self,
-            rank,
-        }
+    fn weave(&self, rank: usize) -> loom::Weave {
+        loom::Weave { loom: self, rank }
     }
 }
-
-// fn step(&self, i: usize, plot: &'a Hedge) -> graph::Result<Step> {
-//     let last_basis = self.basis.last().ok_or(anyhow!("no basis"))?;
-//     let index = &self.grid.plot.shape.index;
-//     Ok(Step {
-//         grid: &self.grid,
-//         plot,
-//         basis: self.basis.get(i).unwrap_or(last_basis),
-//         index: index.get(i).ok_or(anyhow!("no index"))?,
-//     })
-// }
-
-// if counts.len() > 1 {
-//     let mut stride = counts[0].calc();
-//     for count in counts.iter().skip(1) {
-//         stride = stride.mul(count);
-//     }
-//     stride.hub()
-// } else if counts.len() > 0 {
-//     Ok(counts[0].clone())
-// } else {
-//     Ok(1.into())
-// }

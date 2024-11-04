@@ -21,8 +21,8 @@ impl Core {
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }
-    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Plot {
-        make::Plot {
+    pub fn chart(&self, shape: impl Into<Hub<Shape>>) -> make::Chart {
+        make::Chart {
             core: self.clone(),
             shape: shape.into(),
         }
