@@ -18,19 +18,20 @@ impl<'a> Weave<'a> {
         let mut root = JoinBuilder::default();
         let flow = self.flow()?;
         let weft = self.weft()?;
-        let mut offset_idx = 0;
+        let mut index = 0;
         if let Some(flow) = &flow.add {
-            offset_idx += 1;
+            
+            index += 1;
         }
         for (order, flow) in flow.left.iter().enumerate() {
             if let Some(flow) = flow {
-                let offset = offsets.get(offset_idx).ok_or(anyhow!("no offset"))?;
+                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
                 root.field(part.right(weave::Trio {
                     rig: self.right_rig(order, offset)?,
                     weft: weft.right(order)?,
                     flow,
                 })?);
-                offset_idx += 1;
+                index += 1;
             }
         }
         let root = root.hub()?;
@@ -38,10 +39,9 @@ impl<'a> Weave<'a> {
     }
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
         let chart = &self.loom.grid.chart;
-        let dimension = chart.shape.dimension;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
-        let constant = dimension * (self.rank as u32 + 2);
+        let constant = chart.shape.dimension * (self.rank as u32 + 2);
         let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         if let Some(flow) = &flow.add {

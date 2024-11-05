@@ -27,8 +27,8 @@ fn main(
     let dimension = rig.dimension;
     let order2 = order * 2;
     let dimension2 = dimension * 2;
-    let warp_stride = dimension * (rank + 1);//dimension + dimension * rank;
-    let plot_stride = dimension * (rank + 2);//dimension + dimension * (rank + 1);
+    let warp_stride = dimension * (rank + 1);
+    let plot_stride = dimension * (rank + 2);
 
     // index and modulo
     let count_idx = index.x / count;
