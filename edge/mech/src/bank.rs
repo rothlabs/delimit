@@ -32,6 +32,7 @@ impl PlotBin {
 
 #[derive(Debug)]
 pub struct GridPlotBin {
+    // TODO: rename to weft and make new bin for weave
     pub right: GridPlotRightBin,
 }
 
@@ -45,7 +46,8 @@ impl GridPlotBin {
 
 #[derive(Debug)]
 pub struct GridPlotRightBin {
-    pub spline: ComputeProgram,
+    pub extrude: ComputeProgram,
+    pub basis: ComputeProgram,
     pub nurbs: ComputeProgram,
     pub weave: ComputeProgram,
 }
@@ -58,13 +60,14 @@ impl GridPlotRightBin {
         let weft = gpu.bind_storage(false).entry(2)?.compute()?;
         let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
-
-        let pipe = shader.compute("spline").layout(&pipe_layout).make()?;
-        let spline = ComputeProgram {
+        let extrude = ComputeProgram {
             layout: layout.clone(),
-            pipe,
+            pipe: shader.compute("extrude").layout(&pipe_layout).make()?,
         };
-
+        let basis = ComputeProgram {
+            layout: layout.clone(),
+            pipe: shader.compute("basis").layout(&pipe_layout).make()?,
+        };
         let pipe = shader.compute("nurbs").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
 
@@ -78,8 +81,10 @@ impl GridPlotRightBin {
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
         let pipe = shader.compute("main").layout(&pipe_layout).make()?;
         let weave = ComputeProgram { layout, pipe };
+
         Ok(Self {
-            spline,
+            extrude,
+            basis,
             nurbs,
             weave,
         })

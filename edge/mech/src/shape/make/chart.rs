@@ -4,13 +4,14 @@ mod grid;
 
 #[derive(Default)]
 pub struct Weft {
+    pub add: Option<Hedge>,
     // pub matrix: Option<Hedge>,
-    pub vector: Vec<Option<Hedge>>,
+    pub right: Vec<Option<Hedge>>,
 }
 
 impl Weft {
-    fn vector(&self, order: usize) -> graph::Result<&Hedge> {
-        let weft = self.vector.get(order).ok_or(anyhow!("no weft"))?;
+    fn right(&self, order: usize) -> graph::Result<&Hedge> {
+        let weft = self.right.get(order).ok_or(anyhow!("no weft"))?;
         Ok(weft.as_ref().ok_or(anyhow!("no weft"))?)
     }
 }
@@ -37,7 +38,7 @@ impl<'a> Grid<'a> {
     }
     fn charter(&self, count: &'a Hub<u32>) -> grid::Wheel {
         grid::Wheel {
-            plot: self.chart,
+            chart: self.chart,
             count,
         }
     }

@@ -18,13 +18,13 @@ impl<'a> Weave<'a> {
         let mut root = JoinBuilder::default();
         let flow = self.flow()?;
         let weft = self.weft()?;
-        for (order, flow) in flow.matrices.iter().enumerate() {
+        for (order, flow) in flow.left.iter().enumerate() {
             if let Some(flow) = flow {
                 // TODO: order + 1 to account for weft.matrix
                 let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
                 root.field(part.right(weave::Trio {
                     rig: self.right_rig(order, offset)?,
-                    weft: weft.vector(order)?,
+                    weft: weft.right(order)?,
                     flow,
                 })?);
             }
@@ -42,7 +42,7 @@ impl<'a> Weave<'a> {
         //     let size_part = gpu.size(&weft.buffer).hub()?;
         //     size = size.add(size_part);
         // }
-        for (order, flow) in flow.matrices.iter().enumerate() {
+        for (order, flow) in flow.left.iter().enumerate() {
             if let Some(flow) = flow {
                 let size = gpu
                     .size(&flow.buffer)

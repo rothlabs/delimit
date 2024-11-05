@@ -32,7 +32,7 @@ async fn nurbs_curve() -> dom::Result<()> {
     //                         6 knots                      3 weights
     let nurbs = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
     let flow_hedge = gpu.hedge(vec![0_u32, 0, 1, 2])?;
-    let flow = mech.flow().matrix(3, flow_hedge).build()?;
+    let flow = mech.flow().spline(3, flow_hedge).build()?;
     let shape = mech
         .shape(2)
         .warp(warp)
@@ -90,6 +90,13 @@ fn warp2() -> Vec<f32> {
 }
 
 #[rustfmt::skip]
+fn extrude2() -> Vec<f32> {
+    vec![
+        1., 0.8,
+    ]
+}
+
+#[rustfmt::skip]
 fn nurbs2() -> Vec<f32> {
     vec![
         0., 0., 1., 1.,    1., 1.,
@@ -123,6 +130,10 @@ async fn draw_nurbs_curve() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
+    let extrude: Vec<u32> = vec![
+        0,   8, 
+    ];
+    #[rustfmt::skip]
     let flow2: Vec<u32> = vec![
         0,   8, 6,
     ];
@@ -138,17 +149,19 @@ async fn draw_nurbs_curve() -> dom::Result<()> {
     ];
     let flow = mech
         .flow()
-        .matrix(2, gpu.hedge(flow2)?)
-        .matrix(3, gpu.hedge(flow3)?)
-        .matrix(4, gpu.hedge(flow4)?)
+        .add(gpu.hedge(extrude)?)
+        .spline(2, gpu.hedge(flow2)?)
+        .spline(3, gpu.hedge(flow3)?)
+        .spline(4, gpu.hedge(flow4)?)
         .build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
+        .extrude(gpu.hedge(extrude2())?)
         .nurbs(2, gpu.hedge(nurbs2())?)
-        .spline(3, gpu.hedge(spline3())?)
+        .basis(3, gpu.hedge(spline3())?)
         .nurbs(3, gpu.hedge(nurbs3())?)
-        .spline(4, gpu.hedge(spline4())?)
+        .basis(4, gpu.hedge(spline4())?)
         .flow(flow)
         .build()?;
     let plot = mech.chart(shape).grid(30).hub()?;
@@ -171,14 +184,14 @@ async fn draw_nurbs_surface() -> dom::Result<()> {
     ];
     let rank1 = mech
         .flow()
-        .matrix(2, gpu.hedge(flow2)?)
-        .matrix(3, gpu.hedge(flow3)?)
+        .spline(2, gpu.hedge(flow2)?)
+        .spline(3, gpu.hedge(flow3)?)
         .build()?;
     #[rustfmt::skip]
     let flow3: Vec<u32> = vec![
         0,   1, 0, 2
     ];
-    let rank2 = mech.flow().matrix(3, gpu.hedge(flow3)?).build()?;
+    let rank2 = mech.flow().spline(3, gpu.hedge(flow3)?).build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)

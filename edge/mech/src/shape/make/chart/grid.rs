@@ -4,72 +4,82 @@ mod loom;
 mod wheel;
 
 pub struct Wheel<'a> {
-    pub plot: &'a Chart<'a>,
+    pub chart: &'a Chart<'a>,
     pub count: &'a Hub<u32>,
 }
 
 impl<'a> Wheel<'a> {
     pub fn weft(&self) -> graph::Result<Weft> {
         let mut weft = Weft::default();
-        let gpu = &self.plot.core.gpu;
+        let gpu = &self.chart.core.gpu;
         // let extrude_size = self.extrude_size()?;
         // let matrix_blank = gpu.blank(extrude_size).hub()?;
-        for (order, form) in self.plot.shape.form.vector.iter().enumerate() {
+        if let Some(form) = &self.chart.shape.form.add {
+            let mut root = JoinBuilder::default();
+            let extrude_size = self.extrude_size(form)?;
+            let buffer = gpu.blank(extrude_size).label(format!("extrude")).hub()?;
+            let spin = self.spin(&buffer);
+            let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
+            if let Some(form) = &form.extrude {
+                root.field(spin.extrude(&rig, form)?);
+            }
+            let root = root.hub()?;
+            weft.add = Some(Hedge { buffer, root });
+        }
+        for (order, form) in self.chart.shape.form.right.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
                 let spline_size = self.spline_size(form)?;
                 let nurbs_size = self.nurbs_size(form)?;
                 let size = spline_size.calc().add(nurbs_size).hub()?;
-                let label = format!("spin nurbs, order {}", order);
+                let label = format!("nurbs {order}");
                 let buffer = gpu.blank(size).label(label).hub()?;
                 let spin = self.spin(&buffer);
-                if let Some(form) = &form.spline {
-                    let rig = self.right_rig(order, 0.into())?;
-                    root.field(spin.spline(&rig, form)?);
+                if let Some(form) = &form.basis {
+                    let rig = self.rig(order, 0.into())?;
+                    root.field(spin.basis(&rig, form)?);
                 }
                 if let Some(form) = &form.nurbs {
-                    let rig = self.right_rig(order, spline_size)?;
+                    let rig = self.rig(order, spline_size)?;
                     root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
-                weft.vector.push(Some(Hedge { buffer, root }));
+                weft.right.push(Some(Hedge { buffer, root }));
             } else {
-                weft.vector.push(None);
+                weft.right.push(None);
             }
         }
         Ok(weft)
     }
     fn spin(&self, buffer: &'a Hub<Grc<Buffer>>) -> wheel::Spin {
         wheel::Spin {
-            charter: self,
+            wheel: self,
             weft: buffer,
         }
     }
-    // fn extrude_size(&self) -> graph::Result<Hub<u32>> {
-    //     let gpu = &self.plot.core.gpu;
-    //     let shape = &self.plot.shape;
-    //     let size = if let Some(extrude) = &shape.weft.matrix.extrude {
-    //         gpu.size(extrude.buffer.clone())
-    //             .add(shape.dimension.pow(2))
-    //             .mul(self.count.clone())
-    //             .hub()?
-    //     } else {
-    //         0.into()
-    //     };
-    //     Ok(size)
-    // }
-    fn spline_size(&self, form: &form::Vector) -> graph::Result<Hub<u32>> {
-        let gpu = &self.plot.core.gpu;
-        Ok(if let Some(spline) = &form.spline {
-            gpu.size(spline.buffer.clone())
+    fn extrude_size(&self, form: &form::Add) -> graph::Result<Hub<u32>> {
+        let gpu = &self.chart.core.gpu;
+        Ok(if let Some(extrude) = &form.extrude {
+            gpu.size(extrude.buffer.clone())
+                .mul(self.count.clone())
+                .mul(2)
+                .hub()?
+        } else {
+            0.into()
+        })
+    }
+    fn spline_size(&self, form: &form::Right) -> graph::Result<Hub<u32>> {
+        let gpu = &self.chart.core.gpu;
+        Ok(if let Some(basis) = &form.basis {
+            gpu.size(basis.buffer.clone())
                 .mul(self.count.clone())
                 .hub()?
         } else {
             0.into()
         })
     }
-    fn nurbs_size(&self, form: &form::Vector) -> graph::Result<Hub<u32>> {
-        let gpu = &self.plot.core.gpu;
+    fn nurbs_size(&self, form: &form::Right) -> graph::Result<Hub<u32>> {
+        let gpu = &self.chart.core.gpu;
         Ok(if let Some(nurbs) = &form.nurbs {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
             gpu.size(nurbs.buffer.clone())
@@ -81,8 +91,8 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn right_rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
-        let uniform = self.plot.core.gpu.uniform();
+    fn rig(&self, order: usize, offset: Hub<u32>) -> graph::Result<Hedge> {
+        let uniform = self.chart.core.gpu.uniform();
         uniform
             .field(order as u32)
             .field(self.count.clone())

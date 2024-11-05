@@ -31,12 +31,21 @@ impl Shape {
 }
 
 impl ShapeBuilder {
-    pub fn spline(mut self, order: usize, hedge: Hedge) -> Self {
+    pub fn extrude(mut self, hedge: Hedge) -> Self {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
-            form.setup_vector(order);
-            if let Some(Some(vector)) = form.vector.get_mut(order) {
-                vector.spline = Some(hedge);
+            if let Some(add) = &mut form.add {
+                add.extrude = Some(hedge);
+            }
+        }
+        self
+    }
+    pub fn basis(mut self, order: usize, hedge: Hedge) -> Self {
+        self = self.setup_form();
+        if let Some(form) = &mut self.form {
+            form.setup_right(order);
+            if let Some(Some(right)) = form.right.get_mut(order) {
+                right.basis = Some(hedge);
             }
         }
         self
@@ -44,9 +53,9 @@ impl ShapeBuilder {
     pub fn nurbs(mut self, order: usize, hedge: Hedge) -> Self {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
-            form.setup_vector(order);
-            if let Some(Some(vector)) = form.vector.get_mut(order) {
-                vector.nurbs = Some(hedge);
+            form.setup_right(order);
+            if let Some(Some(right)) = form.right.get_mut(order) {
+                right.nurbs = Some(hedge);
             }
         }
         self
@@ -61,22 +70,23 @@ impl ShapeBuilder {
 
 #[derive(Clone, Default, Debug)]
 struct Form {
+    add: Option<form::Add>,
     // matched to vector control
     // matrix: form::Matrix,
     // matched to matrix control indexed by order
-    vector: Vec<Option<form::Vector>>,
+    right: Vec<Option<form::Right>>,
 }
 
 impl Form {
-    fn setup_vector(&mut self, order: usize) {
-        if order > self.vector.len() {
-            let fill = order - self.vector.len();
+    fn setup_right(&mut self, order: usize) {
+        if order > self.right.len() {
+            let fill = order - self.right.len();
             for _ in 0..fill {
-                self.vector.push(None);
+                self.right.push(None);
             }
         }
-        if self.vector.len() == order {
-            self.vector.push(Some(form::Vector::default()));
+        if self.right.len() == order {
+            self.right.push(Some(form::Right::default()));
         }
     }
 }
@@ -84,25 +94,30 @@ impl Form {
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
-// #[builder(setter(into, strip_option))]
+#[builder(setter(strip_option))]
 pub struct Flow {
+    #[builder(default)]
+    add: Option<Hedge>,
     // index hedge matched to matrix span
     // vector: Option<Hedge>,
     // index hedge matched to vector span indexed by order
-    // #[builder(default)]
-    matrices: Vec<Option<Hedge>>,
-    // pick translation 
+    #[builder(default)]
+    left: Vec<Option<Hedge>>,
+    // pick translation
     // pick matrix
     // pick translation and matrix
-    // 
+    //
 }
 
 impl FlowBuilder {
-    pub fn matrix(mut self, order: usize, hedge: Hedge) -> Self {
-        if self.matrices.is_none() {
-            self = self.matrices(vec![]);
+    // pub fn extrude(self, hedge: Hedge) -> Self {
+    //     self.add(hedge)
+    // }
+    pub fn spline(mut self, order: usize, hedge: Hedge) -> Self {
+        if self.left.is_none() {
+            self = self.left(vec![]);
         }
-        if let Some(matrix) = &mut self.matrices {
+        if let Some(matrix) = &mut self.left {
             for _ in 0..order - matrix.len() {
                 matrix.push(None);
             }

@@ -1,5 +1,10 @@
 use super::*;
 
+#[derive(Clone, Default, Debug)]
+pub struct Add {
+    pub extrude: Option<Hedge>,
+}
+
 // #[derive(Clone, Debug)]
 // pub struct Matrix {
 //     pub extrude: Option<Hedge>,
@@ -7,9 +12,9 @@ use super::*;
 // }
 
 #[derive(Clone, Default, Debug)]
-pub struct Vector {
+pub struct Right {
     // alt name: knots (because hedge only contains knots)
-    pub spline: Option<Hedge>,
+    pub basis: Option<Hedge>,
     pub nurbs: Option<Hedge>,
     // translation
 }
