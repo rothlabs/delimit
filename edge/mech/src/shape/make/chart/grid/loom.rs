@@ -18,15 +18,19 @@ impl<'a> Weave<'a> {
         let mut root = JoinBuilder::default();
         let flow = self.flow()?;
         let weft = self.weft()?;
+        let mut offset_idx = 0;
+        if let Some(flow) = &flow.add {
+            offset_idx += 1;
+        }
         for (order, flow) in flow.left.iter().enumerate() {
             if let Some(flow) = flow {
-                // TODO: order + 1 to account for weft.matrix
-                let offset = offsets.get(order).ok_or(anyhow!("no offset"))?;
+                let offset = offsets.get(offset_idx).ok_or(anyhow!("no offset"))?;
                 root.field(part.right(weave::Trio {
                     rig: self.right_rig(order, offset)?,
                     weft: weft.right(order)?,
                     flow,
                 })?);
+                offset_idx += 1;
             }
         }
         let root = root.hub()?;
@@ -34,32 +38,21 @@ impl<'a> Weave<'a> {
     }
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
         let chart = &self.loom.grid.chart;
+        let dimension = chart.shape.dimension;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
+        let constant = dimension * (self.rank as u32 + 2);
+        let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
-        // if let Some(weft) = &weft.matrix {
-        //     // TODO: mul div sub weft_size as needed
-        //     let size_part = gpu.size(&weft.buffer).hub()?;
-        //     size = size.add(size_part);
-        // }
+        if let Some(flow) = &flow.add {
+            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            offsets.push(size);
+        }
         for (order, flow) in flow.left.iter().enumerate() {
             if let Some(flow) = flow {
-                let size = gpu
-                    .size(&flow.buffer)
-                    .div(order as u32 + 1)
-                    .mul(chart.shape.dimension)
-                    .hub()?;
-                let size = size
-                    .calc()
-                    .mul(self.rank as u32 + 1)
-                    .add(&size)
-                    .mul(self.count()?)
-                    .mul(self.area()?)
-                    .add(offsets.last().ok_or(anyhow!("no offsets"))?)
-                    .hub()?;
-                offsets.push(size);
-            } else {
-                offsets.push(0.into());
+                let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
+                let last = offsets.last().ok_or(anyhow!("no offsets"))?;
+                offsets.push(size.calc().mul(&expand).add(last).hub()?);
             }
         }
         Ok(offsets)
