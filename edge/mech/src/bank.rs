@@ -65,7 +65,6 @@ impl GridPlotRightBin {
             pipe,
         };
 
-        // let shader = gpu.shader(include_wgsl!("plot/grid/right/nurbs.wgsl"));
         let pipe = shader.compute("nurbs").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
 

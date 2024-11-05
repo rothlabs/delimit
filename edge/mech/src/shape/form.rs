@@ -8,8 +8,10 @@ use super::*;
 
 #[derive(Clone, Default, Debug)]
 pub struct Vector {
+    // alt name: knots (because hedge only contains knots)
     pub spline: Option<Hedge>,
     pub nurbs: Option<Hedge>,
+    // translation
 }
 
 // #[derive(Clone, Debug)]

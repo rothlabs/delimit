@@ -91,6 +91,10 @@ pub struct Flow {
     // index hedge matched to vector span indexed by order
     // #[builder(default)]
     matrices: Vec<Option<Hedge>>,
+    // pick translation 
+    // pick matrix
+    // pick translation and matrix
+    // 
 }
 
 impl FlowBuilder {
