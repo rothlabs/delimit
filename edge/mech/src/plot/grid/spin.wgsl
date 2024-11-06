@@ -8,7 +8,7 @@ struct Rig {
 @group(0) @binding(1) var<storage, read> form: array<f32>;
 @group(0) @binding(2) var<storage, read_write> weft: array<f32>;
 
-// Linear ---------------------------------------------------
+// Linear ----------------------------------------------------
 
 @compute @workgroup_size(64)
 fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
@@ -20,21 +20,33 @@ fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
     let parameter = f32(count_mod) / f32(rig.count - 1);
     for (var o = 0u; o < order; o++) {
         let component = form[form_idx + o];
+        // position
         weft[weft_idx + o] = component * parameter;
+        // velocity
         weft[weft_idx + o + order] = component;
     }
 }
 
-// Orient --------------------------------------------------------
+// Orient ----------------------------------------------------
 
-// @compute @workgroup_size(64)
-// fn revolve_2(@builtin(global_invocation_id) index: vec3<u32>) {
-//     // let axis_idx = 
-//     let i = rig.offset + index.x * 6;
-//     // let angle = 
-//     // weft[i] = cos
-//     // let axis = vec2(form[axis]);
-// }
+@compute @workgroup_size(64)
+fn revolve2(@builtin(global_invocation_id) index: vec3<u32>) {
+    // let order = rig.order;
+    let count_idx = index.x / rig.count;
+    let count_mod = index.x % rig.count;
+    let weft_idx = rig.offset + index.x * 8;
+    let angle = form[count_idx] * f32(count_mod) / f32(rig.count - 1);
+    // position
+    weft[weft_idx]     =  cos(angle);
+    weft[weft_idx + 1] =  sin(angle);
+    weft[weft_idx + 2] = -sin(angle);
+    weft[weft_idx + 3] =  cos(angle);
+    // velocity, TODO: fill out
+    weft[weft_idx + 4] = 0.;
+    weft[weft_idx + 5] = 0.;
+    weft[weft_idx + 6] = 0.;
+    weft[weft_idx + 7] = 0.;
+}
 
 // Spline -------------------------------------------------
 

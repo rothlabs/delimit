@@ -23,11 +23,11 @@ impl Shape {
         make::Chart { core, shape: self }
     }
     pub fn plot_stride(&self) -> u32 {
-        self.dimension + self.dimension * self.flows.len() as u32
+        self.dimension + self.dimension * self.rank()
     }
-    // pub fn rank(&self) -> u32 {
-    //     self.flows.len() as u32
-    // }
+    pub fn rank(&self) -> u32 {
+        self.flows.len() as u32
+    }
 }
 
 impl ShapeBuilder {
@@ -35,8 +35,18 @@ impl ShapeBuilder {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
             form.linear_setup();
-            if let Some(add) = &mut form.linear {
-                add.extrude = Some(hedge);
+            if let Some(linear) = &mut form.linear {
+                linear.extrude = Some(hedge);
+            }
+        }
+        self
+    }
+    pub fn revolve(mut self, hedge: Hedge) -> Self {
+        self = self.setup_form();
+        if let Some(form) = &mut self.form {
+            form.orient_setup();
+            if let Some(orient) = &mut form.orient {
+                orient.revolve = Some(hedge);
             }
         }
         self
@@ -45,8 +55,8 @@ impl ShapeBuilder {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
             form.spline_setup(order);
-            if let Some(Some(right)) = form.spline.get_mut(order) {
-                right.basis = Some(hedge);
+            if let Some(Some(spline)) = form.spline.get_mut(order) {
+                spline.basis = Some(hedge);
             }
         }
         self
@@ -55,8 +65,8 @@ impl ShapeBuilder {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
             form.spline_setup(order);
-            if let Some(Some(right)) = form.spline.get_mut(order) {
-                right.nurbs = Some(hedge);
+            if let Some(Some(spline)) = form.spline.get_mut(order) {
+                spline.nurbs = Some(hedge);
             }
         }
         self
@@ -72,9 +82,7 @@ impl ShapeBuilder {
 #[derive(Clone, Default, Debug)]
 struct Form {
     linear: Option<form::Linear>,
-    // matched to vector control
-    // matrix: form::Matrix,
-    // matched to matrix control indexed by order
+    orient: Option<form::Orient>,
     spline: Vec<Option<form::Spline>>,
 }
 
@@ -82,6 +90,11 @@ impl Form {
     fn linear_setup(&mut self) {
         if self.linear.is_none() {
             self.linear = Some(form::Linear::default());
+        }
+    }
+    fn orient_setup(&mut self) {
+        if self.orient.is_none() {
+            self.orient = Some(form::Orient::default());
         }
     }
     fn spline_setup(&mut self, order: usize) {
@@ -104,21 +117,13 @@ impl Form {
 pub struct Flow {
     #[builder(default)]
     linear: Option<Hedge>,
-    // index hedge matched to matrix span
-    // vector: Option<Hedge>,
-    // index hedge matched to vector span indexed by order
+    #[builder(default)]
+    orient: Option<Hedge>,
     #[builder(default)]
     _spline: Vec<Option<Hedge>>,
-    // pick translation
-    // pick matrix
-    // pick translation and matrix
-    //
 }
 
 impl FlowBuilder {
-    // pub fn extrude(self, hedge: Hedge) -> Self {
-    //     self.add(hedge)
-    // }
     pub fn spline(mut self, hedge: Hedge, order: usize) -> Self {
         if self._spline.is_none() {
             self = self._spline(vec![]);

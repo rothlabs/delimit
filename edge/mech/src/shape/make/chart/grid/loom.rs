@@ -27,6 +27,14 @@ impl<'a> Weave<'a> {
             })?);
             index += 1;
         }
+        if let Some(flow) = &flow.orient {
+            root.field(part.orient(weave::Trio {
+                rig: self.rig(0, &0.into())?,
+                weft: weft.orient()?,
+                flow,
+            })?);
+            index += 1;
+        }
         for (order, flow) in flow._spline.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
@@ -49,6 +57,10 @@ impl<'a> Weave<'a> {
         let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         if let Some(flow) = &flow.linear {
+            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            offsets.push(size);
+        }
+        if let Some(flow) = &flow.orient {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             offsets.push(size);
         }

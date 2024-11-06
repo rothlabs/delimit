@@ -19,6 +19,11 @@ impl Part<'_> {
         let program = &core.bank.plot.grid.weave.linear;
         self.weave(trio, program)
     }
+    pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+        let core = &self.stage.loom.grid.chart.core;
+        let program = &core.bank.plot.grid.weave.orient;
+        self.weave(trio, program)
+    }
     pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
         let core = &self.stage.loom.grid.chart.core;
         let program = &core.bank.plot.grid.weave.spline;

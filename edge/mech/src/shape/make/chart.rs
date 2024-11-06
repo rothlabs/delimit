@@ -5,13 +5,16 @@ mod grid;
 #[derive(Default)]
 pub struct Weft {
     pub linear: Option<Hedge>,
-    // pub matrix: Option<Hedge>,
+    pub orient: Option<Hedge>,
     pub spline: Vec<Option<Hedge>>,
 }
 
 impl Weft {
     fn linear(&self) -> graph::Result<&Hedge> {
         Ok(self.linear.as_ref().ok_or(anyhow!("no linear"))?)
+    }
+    fn orient(&self) -> graph::Result<&Hedge> {
+        Ok(self.orient.as_ref().ok_or(anyhow!("no orient"))?)
     }
     fn spline(&self, order: usize) -> graph::Result<&Hedge> {
         let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;

@@ -98,6 +98,13 @@ fn extrude2() -> Vec<f32> {
 }
 
 #[rustfmt::skip]
+fn revolve2() -> Vec<f32> {
+    vec![
+        1.5
+    ]
+}
+
+#[rustfmt::skip]
 fn nurbs2() -> Vec<f32> {
     vec![
         0., 0., 1., 1.,    1., 1.,
@@ -207,7 +214,7 @@ async fn draw_nurbs_surface() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_extrution_surface() -> dom::Result<()> {
+async fn draw_extrusion_surface() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
@@ -225,6 +232,33 @@ async fn draw_extrution_surface() -> dom::Result<()> {
         .warp(gpu.hedge(warp2())?)
         .extrude(gpu.hedge(extrude2())?)
         .nurbs(gpu.hedge(nurbs3())?, 3)
+        .flow(flow1)
+        .flow(flow2)
+        .build()?;
+    let plot = mech.chart(shape).grid(30).hub()?;
+    mech.draw(plot).points().hub()?.base().await?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_revolve_surface() -> dom::Result<()> {
+    let gpu = gpu_with_canvas().await?;
+    let mech = Mech::new(gpu.clone())?;
+    #[rustfmt::skip]
+    let orient: Vec<u32> = vec![
+        0,   0,
+    ];
+    #[rustfmt::skip]
+    let spline3: Vec<u32> = vec![
+        0,   2, 3, 8,
+    ];
+    let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
+    let flow2 = mech.flow().orient(gpu.hedge(orient)?).build()?;
+    let shape = mech
+        .shape(2)
+        .warp(gpu.hedge(warp2())?)
+        .revolve(gpu.hedge(revolve2())?)
+        .basis(gpu.hedge(basis3())?, 3)
         .flow(flow1)
         .flow(flow2)
         .build()?;

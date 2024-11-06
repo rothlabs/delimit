@@ -24,6 +24,18 @@ impl<'a> Wheel<'a> {
             let root = root.hub()?;
             weft.linear = Some(Hedge { buffer, root });
         }
+        if let Some(form) = &self.chart.shape.form.orient {
+            let mut root = JoinBuilder::default();
+            let revolve_size = self.revolve_size(form)?;
+            let buffer = gpu.blank(revolve_size).label("revolve").hub()?;
+            let spin = self.spin(&buffer);
+            let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
+            if let Some(form) = &form.revolve {
+                root.field(spin.revolve(&rig, form)?);
+            }
+            let root = root.hub()?;
+            weft.orient = Some(Hedge { buffer, root });
+        }
         for (order, form) in self.chart.shape.form.spline.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
@@ -61,6 +73,18 @@ impl<'a> Wheel<'a> {
             gpu.size(extrude.buffer.clone())
                 .mul(self.count.clone())
                 .mul(2)
+                .hub()?
+        } else {
+            0.into()
+        })
+    }
+    fn revolve_size(&self, form: &form::Orient) -> graph::Result<Hub<u32>> {
+        let gpu = &self.chart.core.gpu;
+        let dimension = self.chart.shape.dimension;
+        Ok(if let Some(revolve) = &form.revolve {
+            gpu.size(revolve.buffer.clone())
+                .mul(self.count.clone())
+                .mul(dimension * dimension * 2)
                 .hub()?
         } else {
             0.into()

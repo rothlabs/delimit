@@ -51,6 +51,9 @@ pub struct SpinGridPlotBin {
     // linear
     pub extrude: ComputeProgram,
 
+    // orient
+    pub revolve2: ComputeProgram,
+
     // spline
     pub basis: ComputeProgram,
     pub nurbs: ComputeProgram,
@@ -68,6 +71,10 @@ impl SpinGridPlotBin {
             layout: layout.clone(),
             pipe: shader.compute("extrude").layout(&pipe_layout).make()?,
         };
+        let revolve2 = ComputeProgram {
+            layout: layout.clone(),
+            pipe: shader.compute("revolve2").layout(&pipe_layout).make()?,
+        };
         let basis = ComputeProgram {
             layout: layout.clone(),
             pipe: shader.compute("basis").layout(&pipe_layout).make()?,
@@ -76,6 +83,7 @@ impl SpinGridPlotBin {
         let nurbs = ComputeProgram { layout, pipe };
         Ok(Self {
             extrude,
+            revolve2,
             basis,
             nurbs,
         })
@@ -85,6 +93,7 @@ impl SpinGridPlotBin {
 #[derive(Debug)]
 pub struct WeaveGridPlotBin {
     pub linear: ComputeProgram,
+    pub orient: ComputeProgram,
     pub spline: ComputeProgram,
 }
 
@@ -102,11 +111,15 @@ impl WeaveGridPlotBin {
             layout: layout.clone(),
             pipe: shader.compute("linear").layout(&pipe_layout).make()?,
         };
+        let orient = ComputeProgram {
+            layout: layout.clone(),
+            pipe: shader.compute("orient").layout(&pipe_layout).make()?,
+        };
         let spline = ComputeProgram {
             layout: layout.clone(),
             pipe: shader.compute("spline").layout(&pipe_layout).make()?,
         };
-        Ok(Self { linear, spline })
+        Ok(Self { linear, orient, spline })
     }
 }
 

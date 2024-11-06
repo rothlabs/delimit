@@ -1,5 +1,6 @@
 struct Rig {
     rank: u32,
+    // TODO: use order instead of dimension for linear and orient
     order: u32,
     offset: u32,
     count: u32,
@@ -20,7 +21,7 @@ fn linear(@builtin(global_invocation_id) index: vec3<u32>) {
     let count = rig.count;
     let area = rig.area;
     let dimension = rig.dimension;
-    let dimension2 = dimension * 2;
+    let weft_stride = dimension * 2;
     let warp_stride = dimension * (rank + 1);
     let plot_stride = dimension * (rank + 2);
 
@@ -31,7 +32,7 @@ fn linear(@builtin(global_invocation_id) index: vec3<u32>) {
     let area_mod = count_idx % area;
     let plot_idx = rig.offset + index.x * plot_stride;
     let flow_idx = area_idx * 2;
-    let weft_idx = (flow[flow_idx] * count + count_mod) * dimension2;
+    let weft_idx = (flow[flow_idx] * count + count_mod) * weft_stride;
     let warp_idx = (flow[flow_idx + 1] * area + area_mod) * warp_stride;
 
     // translation
@@ -46,12 +47,67 @@ fn linear(@builtin(global_invocation_id) index: vec3<u32>) {
         plot[plot_idx + dimension + d] = warp0 + weft1;
         // acceleration 
         // let weft2 = weft[weft_idx + order2 + o];
-        // plot[plot_idx + dimension2 + d] += warp0 * weft2;
+        // plot[plot_idx + weft_stride + d] += warp0 * weft2;
 
         // progenitor quantities 
         for (var r = 0u; r < rank; r++) {
-            let warp0 = warp[warp_idx + dimension2 + dimension * r + d];
-            plot[plot_idx + dimension2 + dimension * r + d] = warp0;
+            let warp0 = warp[warp_idx + weft_stride + dimension * r + d];
+            plot[plot_idx + weft_stride + dimension * r + d] = warp0;
+        }
+    }
+}
+
+@compute @workgroup_size(64)
+fn orient(@builtin(global_invocation_id) index: vec3<u32>) {
+    // prelude
+    let rank = rig.rank;
+    // let order = rig.order;
+    let count = rig.count;
+    let area = rig.area;
+    let dimension = rig.dimension;
+    // let order2 = order * 2;
+    let weft_block = dimension * dimension;
+    let weft_stride = weft_block * 2;
+    let warp_stride = dimension * (rank + 1);
+    let plot_stride = dimension * (rank + 2);
+    let plot_block = dimension * 2;
+
+    // index and modulo
+    let count_idx = index.x / count;
+    let count_mod = index.x % count;
+    let area_idx = count_idx / area;
+    let area_mod = count_idx % area;
+    let plot_idx = rig.offset + index.x * plot_stride;
+    let flow_idx = area_idx * 2;
+    let weft_idx = (flow[flow_idx] * count + count_mod) * weft_stride;
+    let warp_idx = (flow[flow_idx + 1] * area + area_mod) * warp_stride;
+
+    // reset plot
+    for (var i = 0u; i < plot_stride; i++) {
+        plot[plot_idx + i] = 0.;
+    }
+
+    // matrix-vector multiplication
+    for (var d = 0u; d < dimension; d++) {
+        let warp0 = warp[warp_idx + d];
+        let col = dimension * d;
+        for (var o = 0u; o < dimension; o++) {
+            let weft0 = weft[weft_idx + col + o];
+
+            // position
+            plot[plot_idx + d] += warp0 * weft0;
+            // velocity 
+            let weft1 = weft[weft_idx + weft_block + col + o];
+            plot[plot_idx + dimension + d] += warp0 * weft1;
+            // acceleration 
+            // let weft2 = weft[weft_idx + order2 + o];
+            // plot[plot_idx + plot_block + d] += warp0 * weft2;
+
+            // progenitor quantities 
+            for (var r = 0u; r < rank; r++) {
+                let warp0 = warp[warp_idx + plot_block + dimension * r + d];
+                plot[plot_idx + plot_block + dimension * r + d] += warp0 * weft0;
+            }
         }
     }
 }
@@ -65,9 +121,9 @@ fn spline(@builtin(global_invocation_id) index: vec3<u32>) {
     let area = rig.area;
     let dimension = rig.dimension;
     let order2 = order * 2;
-    let dimension2 = dimension * 2;
     let warp_stride = dimension * (rank + 1);
     let plot_stride = dimension * (rank + 2);
+    let plot_block = dimension * 2;
 
     // index and modulo
     let count_idx = index.x / count;
@@ -97,12 +153,12 @@ fn spline(@builtin(global_invocation_id) index: vec3<u32>) {
             plot[plot_idx + dimension + d] += warp0 * weft1;
             // acceleration 
             // let weft2 = weft[weft_idx + order2 + o];
-            // plot[plot_idx + dimension2 + d] += warp0 * weft2;
+            // plot[plot_idx + plot_block + d] += warp0 * weft2;
 
             // progenitor quantities 
             for (var r = 0u; r < rank; r++) {
-                let warp0 = warp[warp_idx + dimension2 + dimension * r + d];
-                plot[plot_idx + dimension2 + dimension * r + d] += warp0 * weft0;
+                let warp0 = warp[warp_idx + plot_block + dimension * r + d];
+                plot[plot_idx + plot_block + dimension * r + d] += warp0 * weft0;
             }
         }
     }
