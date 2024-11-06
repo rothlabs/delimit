@@ -73,6 +73,7 @@ where
     pub fn hub(self) -> graph::Result<Hub<<Arithmetic<T> as Solve>::Base>> {
         Ok(self.target.gate()?.into())
     }
+    #[allow(clippy::should_implement_trait)]
     pub fn add(mut self, value: impl Into<Hub<T>>) -> Self {
         self.target.ops.push(Operation {
             value: value.into(),
@@ -80,6 +81,7 @@ where
         });
         self
     }
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(mut self, value: impl Into<Hub<T>>) -> Self {
         self.target.ops.push(Operation {
             value: value.into(),
@@ -87,6 +89,7 @@ where
         });
         self
     }
+    #[allow(clippy::should_implement_trait)]
     pub fn mul(mut self, value: impl Into<Hub<T>>) -> Self {
         self.target.ops.push(Operation {
             value: value.into(),
@@ -94,6 +97,7 @@ where
         });
         self
     }
+    #[allow(clippy::should_implement_trait)]
     pub fn div(mut self, value: impl Into<Hub<T>>) -> Self {
         self.target.ops.push(Operation {
             value: value.into(),
