@@ -14,9 +14,9 @@ pub struct Part<'a> {
 }
 
 impl Part<'_> {
-    pub fn linear(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+    pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
         let core = &self.stage.loom.grid.chart.core;
-        let program = &core.bank.plot.grid.weave.linear;
+        let program = &core.bank.plot.grid.weave.travel;
         self.weave(trio, program)
     }
     pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {

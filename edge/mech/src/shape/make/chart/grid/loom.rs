@@ -19,10 +19,10 @@ impl<'a> Weave<'a> {
         let flow = self.flow()?;
         let weft = self.weft()?;
         let mut index = 0;
-        if let Some(flow) = &flow.linear {
-            root.field(part.linear(weave::Trio {
+        if let Some(flow) = &flow.travel {
+            root.field(part.travel(weave::Trio {
                 rig: self.rig(0, &0.into())?,
-                weft: weft.linear()?,
+                weft: weft.travel()?,
                 flow,
             })?);
             index += 1;
@@ -56,7 +56,7 @@ impl<'a> Weave<'a> {
         let constant = chart.shape.dimension * (self.rank as u32 + 2);
         let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
-        if let Some(flow) = &flow.linear {
+        if let Some(flow) = &flow.travel {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             offsets.push(size);
         }

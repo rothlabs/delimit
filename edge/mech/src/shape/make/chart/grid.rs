@@ -12,7 +12,7 @@ impl<'a> Wheel<'a> {
     pub fn weft(&self) -> graph::Result<Weft> {
         let mut weft = Weft::default();
         let gpu = &self.chart.core.gpu;
-        if let Some(form) = &self.chart.shape.form.linear {
+        if let Some(form) = &self.chart.shape.form.travel {
             let mut root = JoinBuilder::default();
             let extrude_size = self.extrude_size(form)?;
             let buffer = gpu.blank(extrude_size).label("extrude").hub()?;
@@ -22,7 +22,7 @@ impl<'a> Wheel<'a> {
                 root.field(spin.extrude(&rig, form)?);
             }
             let root = root.hub()?;
-            weft.linear = Some(Hedge { buffer, root });
+            weft.travel = Some(Hedge { buffer, root });
         }
         if let Some(form) = &self.chart.shape.form.orient {
             let mut root = JoinBuilder::default();
@@ -67,7 +67,7 @@ impl<'a> Wheel<'a> {
             weft: buffer,
         }
     }
-    fn extrude_size(&self, form: &form::Linear) -> graph::Result<Hub<u32>> {
+    fn extrude_size(&self, form: &form::Travel) -> graph::Result<Hub<u32>> {
         let gpu = &self.chart.core.gpu;
         Ok(if let Some(extrude) = &form.extrude {
             gpu.size(extrude.buffer.clone())

@@ -48,7 +48,7 @@ impl GridPlotBin {
 
 #[derive(Debug)]
 pub struct SpinGridPlotBin {
-    // linear
+    // travel
     pub extrude: ComputeProgram,
 
     // orient
@@ -92,7 +92,7 @@ impl SpinGridPlotBin {
 
 #[derive(Debug)]
 pub struct WeaveGridPlotBin {
-    pub linear: ComputeProgram,
+    pub travel: ComputeProgram,
     pub orient: ComputeProgram,
     pub spline: ComputeProgram,
 }
@@ -107,9 +107,9 @@ impl WeaveGridPlotBin {
         let plot = gpu.bind_storage(false).entry(4)?.compute()?;
         let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
-        let linear = ComputeProgram {
+        let travel = ComputeProgram {
             layout: layout.clone(),
-            pipe: shader.compute("linear").layout(&pipe_layout).make()?,
+            pipe: shader.compute("travel").layout(&pipe_layout).make()?,
         };
         let orient = ComputeProgram {
             layout: layout.clone(),
@@ -119,7 +119,7 @@ impl WeaveGridPlotBin {
             layout: layout.clone(),
             pipe: shader.compute("spline").layout(&pipe_layout).make()?,
         };
-        Ok(Self { linear, orient, spline })
+        Ok(Self { travel, orient, spline })
     }
 }
 

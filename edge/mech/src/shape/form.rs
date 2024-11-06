@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Clone, Default, Debug)]
-pub struct Linear {
+pub struct Travel {
     pub extrude: Option<Hedge>,
 }
 

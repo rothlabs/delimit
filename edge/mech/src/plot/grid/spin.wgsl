@@ -8,7 +8,7 @@ struct Rig {
 @group(0) @binding(1) var<storage, read> form: array<f32>;
 @group(0) @binding(2) var<storage, read_write> weft: array<f32>;
 
-// Linear ----------------------------------------------------
+// Travel ----------------------------------------------------
 
 @compute @workgroup_size(64)
 fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {

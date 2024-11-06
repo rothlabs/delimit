@@ -4,14 +4,14 @@ mod grid;
 
 #[derive(Default)]
 pub struct Weft {
-    pub linear: Option<Hedge>,
+    pub travel: Option<Hedge>,
     pub orient: Option<Hedge>,
     pub spline: Vec<Option<Hedge>>,
 }
 
 impl Weft {
-    fn linear(&self) -> graph::Result<&Hedge> {
-        Ok(self.linear.as_ref().ok_or(anyhow!("no linear"))?)
+    fn travel(&self) -> graph::Result<&Hedge> {
+        Ok(self.travel.as_ref().ok_or(anyhow!("no travel"))?)
     }
     fn orient(&self) -> graph::Result<&Hedge> {
         Ok(self.orient.as_ref().ok_or(anyhow!("no orient"))?)

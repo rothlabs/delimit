@@ -100,7 +100,7 @@ fn extrude2() -> Vec<f32> {
 #[rustfmt::skip]
 fn revolve2() -> Vec<f32> {
     vec![
-        1.5
+        4.
     ]
 }
 
@@ -134,11 +134,11 @@ fn basis4() -> Vec<f32> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_nurbs_curve() -> dom::Result<()> {
+async fn draw_curves() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
-    let linear: Vec<u32> = vec![
+    let travel: Vec<u32> = vec![
         0,   8, 
     ];
     #[rustfmt::skip]
@@ -157,7 +157,7 @@ async fn draw_nurbs_curve() -> dom::Result<()> {
     ];
     let flow = mech
         .flow()
-        .linear(gpu.hedge(linear)?)
+        .travel(gpu.hedge(travel)?)
         .spline(gpu.hedge(spline2)?, 2)
         .spline(gpu.hedge(spline3)?, 3)
         .spline(gpu.hedge(spline4)?, 4)
@@ -218,7 +218,7 @@ async fn draw_extrusion_surface() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
-    let linear: Vec<u32> = vec![
+    let travel: Vec<u32> = vec![
         1,   0, 
     ];
     #[rustfmt::skip]
@@ -226,7 +226,7 @@ async fn draw_extrusion_surface() -> dom::Result<()> {
         0,   7, 6, 5,
     ];
     let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
-    let flow2 = mech.flow().linear(gpu.hedge(linear)?).build()?;
+    let flow2 = mech.flow().travel(gpu.hedge(travel)?).build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
@@ -250,7 +250,7 @@ async fn draw_revolve_surface() -> dom::Result<()> {
     ];
     #[rustfmt::skip]
     let spline3: Vec<u32> = vec![
-        0,   2, 3, 8,
+        0,   8, 3, 2,
     ];
     let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let flow2 = mech.flow().orient(gpu.hedge(orient)?).build()?;
@@ -262,7 +262,7 @@ async fn draw_revolve_surface() -> dom::Result<()> {
         .flow(flow1)
         .flow(flow2)
         .build()?;
-    let plot = mech.chart(shape).grid(30).hub()?;
+    let plot = mech.chart(shape).grid(16).count(45).hub()?;
     mech.draw(plot).points().hub()?.base().await?;
     Ok(())
 }

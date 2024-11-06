@@ -1,6 +1,5 @@
 struct Rig {
     rank: u32,
-    // TODO: use order instead of dimension for linear and orient
     order: u32,
     offset: u32,
     count: u32,
@@ -15,7 +14,7 @@ struct Rig {
 @group(0) @binding(4) var<storage, read_write> plot: array<f32>;
 
 @compute @workgroup_size(64)
-fn linear(@builtin(global_invocation_id) index: vec3<u32>) {
+fn travel(@builtin(global_invocation_id) index: vec3<u32>) {
     // prelude
     let rank = rig.rank;
     let count = rig.count;
@@ -88,19 +87,19 @@ fn orient(@builtin(global_invocation_id) index: vec3<u32>) {
     }
 
     // matrix-vector multiplication
-    for (var d = 0u; d < dimension; d++) {
-        let warp0 = warp[warp_idx + d];
-        let col = dimension * d;
-        for (var o = 0u; o < dimension; o++) {
-            let weft0 = weft[weft_idx + col + o];
+    for (var c = 0u; c < dimension; c++) {
+        let warp0 = warp[warp_idx + c];
+        let col = dimension * c;
+        for (var d = 0u; d < dimension; d++) {
+            let weft0 = weft[weft_idx + col + d];
 
             // position
             plot[plot_idx + d] += warp0 * weft0;
             // velocity 
-            let weft1 = weft[weft_idx + weft_block + col + o];
+            let weft1 = weft[weft_idx + weft_block + col + d];
             plot[plot_idx + dimension + d] += warp0 * weft1;
             // acceleration 
-            // let weft2 = weft[weft_idx + order2 + o];
+            // let weft2 = weft[weft_idx + order2 + d];
             // plot[plot_idx + plot_block + d] += warp0 * weft2;
 
             // progenitor quantities 

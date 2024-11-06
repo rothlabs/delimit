@@ -34,9 +34,9 @@ impl ShapeBuilder {
     pub fn extrude(mut self, hedge: Hedge) -> Self {
         self = self.setup_form();
         if let Some(form) = &mut self.form {
-            form.linear_setup();
-            if let Some(linear) = &mut form.linear {
-                linear.extrude = Some(hedge);
+            form.travel_setup();
+            if let Some(travel) = &mut form.travel {
+                travel.extrude = Some(hedge);
             }
         }
         self
@@ -81,15 +81,15 @@ impl ShapeBuilder {
 
 #[derive(Clone, Default, Debug)]
 struct Form {
-    linear: Option<form::Linear>,
+    travel: Option<form::Travel>,
     orient: Option<form::Orient>,
     spline: Vec<Option<form::Spline>>,
 }
 
 impl Form {
-    fn linear_setup(&mut self) {
-        if self.linear.is_none() {
-            self.linear = Some(form::Linear::default());
+    fn travel_setup(&mut self) {
+        if self.travel.is_none() {
+            self.travel = Some(form::Travel::default());
         }
     }
     fn orient_setup(&mut self) {
@@ -116,7 +116,7 @@ impl Form {
 #[builder(setter(strip_option))]
 pub struct Flow {
     #[builder(default)]
-    linear: Option<Hedge>,
+    travel: Option<Hedge>,
     #[builder(default)]
     orient: Option<Hedge>,
     #[builder(default)]
