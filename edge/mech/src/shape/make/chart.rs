@@ -2,6 +2,46 @@ use super::*;
 
 mod grid;
 
+pub struct Grid<'a> {
+    pub chart: &'a Chart<'a>,
+    pub counts: &'a [Hub<u32>],
+}
+
+impl<'a> Grid<'a> {
+    pub fn hedge(&self) -> graph::Result<Hedge> {
+        let wefts = self.wefts()?;
+        let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
+        let last_weft = wefts.last().ok_or(anyhow!("no wefts"))?;
+        let mut areas: Vec<Hub<u32>> = vec![1.into()];
+        let mut warps = vec![self.chart.shape.warp.clone()];
+        for rank in 0..self.chart.shape.flows.len() {
+            let loom = grid::Loom {
+                grid: self,
+                rank,
+                weft: wefts.get(rank).unwrap_or(last_weft),
+                area: areas.last().ok_or(anyhow!("no areas"))?,
+                count: self.counts.get(rank).unwrap_or(last_count),
+            };
+            let warp = warps.last().ok_or(anyhow!("no warps"))?;
+            warps.push(loom.hedge(warp)?);
+            areas.push(loom.area.calc().mul(loom.count).hub()?);
+        }
+        let plot = warps.last().cloned();
+        Ok(plot.ok_or(anyhow!("no warps"))?)
+    }
+    fn wefts(&self) -> graph::Result<Vec<Weft>> {
+        let mut wefts = vec![];
+        for count in self.counts {
+            let wheel = grid::Wheel {
+                chart: self.chart,
+                count,
+            };
+            wefts.push(wheel.weft()?);
+        }
+        Ok(wefts)
+    }
+}
+
 #[derive(Default)]
 pub struct Weft {
     pub travel: Option<Hedge>,
@@ -19,41 +59,5 @@ impl Weft {
     fn spline(&self, order: usize) -> graph::Result<&Hedge> {
         let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
         Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
-    }
-}
-
-pub struct Grid<'a> {
-    pub chart: &'a Chart<'a>,
-    pub counts: &'a [Hub<u32>],
-}
-
-impl<'a> Grid<'a> {
-    pub fn hedge(&self) -> graph::Result<Hedge> {
-        let mut wefts = vec![];
-        for count in self.counts {
-            wefts.push(self.wheel(count).weft()?);
-        }
-        let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
-        let mut areas: Vec<Hub<u32>> = vec![1.into()];
-        for i in 0..self.chart.shape.flows.len() - 1 {
-            let area = areas.last().ok_or(anyhow!("no areas"))?.calc();
-            let count = self.counts.get(i).unwrap_or(last_count);
-            areas.push(area.mul(count).hub()?);
-        }
-        self.loom(wefts, areas).hedge()
-    }
-    fn wheel(&self, count: &'a Hub<u32>) -> grid::Wheel {
-        grid::Wheel {
-            chart: self.chart,
-            count,
-        }
-    }
-    fn loom(&self, wefts: Vec<Weft>, areas: Vec<Hub<u32>>) -> grid::Loom {
-        // TODO: take chart, one weft, one area, and one count
-        grid::Loom {
-            grid: self,
-            wefts,
-            areas,
-        }
     }
 }

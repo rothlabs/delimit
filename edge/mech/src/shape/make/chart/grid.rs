@@ -125,24 +125,99 @@ impl<'a> Wheel<'a> {
 
 pub struct Loom<'a> {
     pub grid: &'a Grid<'a>,
-    // per rank
-    pub wefts: Vec<Weft>,
-    // per rank
-    pub areas: Vec<Hub<u32>>,
+    pub rank: usize,
+    pub weft: &'a Weft,
+    pub area: &'a Hub<u32>,
+    pub count: &'a Hub<u32>,
 }
 
 impl<'a> Loom<'a> {
-    pub fn hedge(&self) -> graph::Result<Hedge> {
-        let shape = &self.grid.chart.shape;
-        let mut warps = vec![shape.warp.clone()];
-        for rank in 0..shape.flows.len() {
-            let warp = warps.last().ok_or(anyhow!("no warps"))?;
-            warps.push(self.weave(rank).hedge(warp)?);
+    pub fn hedge(&self, warp: &Hedge) -> graph::Result<Hedge> {
+        let gpu = &self.grid.chart.core.gpu;
+        let offsets = self.offsets()?;
+        let size = offsets.last().ok_or(anyhow!("no offsets"))?;
+        let label = format!("grid plot rank {}", self.rank);
+        let buffer = gpu.blank(size).label(label).hub()?;
+        let weave = self.weave(warp, &buffer)?;
+        let mut root = JoinBuilder::default();
+        let flow = self.flow()?;
+        let mut index = 0;
+        if let Some(flow) = &flow.travel {
+            root.field(weave.travel(loom::Trio {
+                rig: self.rig(0, &0.into())?,
+                weft: self.weft.travel()?,
+                flow,
+            })?);
+            index += 1;
         }
-        let plot = warps.last().cloned();
-        Ok(plot.ok_or(anyhow!("no warps"))?)
+        if let Some(flow) = &flow.orient {
+            root.field(weave.orient(loom::Trio {
+                rig: self.rig(0, &0.into())?,
+                weft: self.weft.orient()?,
+                flow,
+            })?);
+            index += 1;
+        }
+        for (order, flow) in flow._spline.iter().enumerate() {
+            if let Some(flow) = flow {
+                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
+                root.field(weave.spline(loom::Trio {
+                    rig: self.rig(order, offset)?,
+                    weft: self.weft.spline(order)?,
+                    flow,
+                })?);
+                index += 1;
+            }
+        }
+        let root = root.hub()?;
+        Ok(Hedge { buffer, root })
     }
-    fn weave(&self, rank: usize) -> loom::Weave {
-        loom::Weave { loom: self, rank }
+    fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
+        let chart = &self.grid.chart;
+        let gpu = &chart.core.gpu;
+        let flow = self.flow()?;
+        let constant = chart.shape.dimension * (self.rank as u32 + 2);
+        let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
+        let mut offsets: Vec<Hub<u32>> = vec![0.into()];
+        if let Some(flow) = &flow.travel {
+            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            offsets.push(size);
+        }
+        if let Some(flow) = &flow.orient {
+            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            offsets.push(size);
+        }
+        for (order, flow) in flow._spline.iter().enumerate() {
+            if let Some(flow) = flow {
+                let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
+                let last = offsets.last().ok_or(anyhow!("no offsets"))?;
+                offsets.push(size.calc().mul(&expand).add(last).hub()?);
+            }
+        }
+        Ok(offsets)
+    }
+    fn flow(&self) -> graph::Result<&Flow> {
+        let flows = &self.grid.chart.shape.flows;
+        Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
+    }
+    fn rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
+        let dimension = self.grid.chart.shape.dimension;
+        let uniform = self.grid.chart.core.gpu.uniform();
+        uniform
+            .field(self.rank as u32)
+            .field(order as u32)
+            .field(offset)
+            .field(self.count)
+            .field(self.area)
+            .field(dimension)
+            .make()
+    }
+    fn weave(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<loom::Weave> {
+        Ok(loom::Weave {
+            loom: self,
+            warp,
+            plot,
+            count: self.count,
+        })
     }
 }

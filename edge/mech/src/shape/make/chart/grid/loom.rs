@@ -1,114 +1,53 @@
 use super::*;
 
-mod weave;
+pub struct Trio<'a> {
+    pub rig: Hedge,
+    pub weft: &'a Hedge,
+    pub flow: &'a Hedge,
+}
 
 pub struct Weave<'a> {
     pub loom: &'a Loom<'a>,
-    pub rank: usize,
+    pub warp: &'a Hedge,
+    pub plot: &'a Hub<Grc<Buffer>>,
+    pub count: &'a Hub<u32>,
 }
 
-impl<'a> Weave<'a> {
-    pub fn hedge(&self, warp: &Hedge) -> graph::Result<Hedge> {
+impl Weave<'_> {
+    pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+        let core = &self.loom.grid.chart.core;
+        let program = &core.bank.plot.grid.weave.travel;
+        self.weave(trio, program)
+    }
+    pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+        let core = &self.loom.grid.chart.core;
+        let program = &core.bank.plot.grid.weave.orient;
+        self.weave(trio, program)
+    }
+    pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+        let core = &self.loom.grid.chart.core;
+        let program = &core.bank.plot.grid.weave.spline;
+        self.weave(trio, program)
+    }
+    pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Mutation>> {
         let gpu = &self.loom.grid.chart.core.gpu;
-        let offsets = self.offsets()?;
-        let size = offsets.last().ok_or(anyhow!("no offsets"))?;
-        let label = format!("grid plot rank {}", self.rank);
-        let buffer = gpu.blank(size).label(label).hub()?;
-        let part = self.part(warp, &buffer)?;
-        let mut root = JoinBuilder::default();
-        let flow = self.flow()?;
-        let weft = self.weft()?;
-        let mut index = 0;
-        if let Some(flow) = &flow.travel {
-            root.field(part.travel(weave::Trio {
-                rig: self.rig(0, &0.into())?,
-                weft: weft.travel()?,
-                flow,
-            })?);
-            index += 1;
-        }
-        if let Some(flow) = &flow.orient {
-            root.field(part.orient(weave::Trio {
-                rig: self.rig(0, &0.into())?,
-                weft: weft.orient()?,
-                flow,
-            })?);
-            index += 1;
-        }
-        for (order, flow) in flow._spline.iter().enumerate() {
-            if let Some(flow) = flow {
-                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
-                root.field(part.spline(weave::Trio {
-                    rig: self.rig(order, offset)?,
-                    weft: weft.spline(order)?,
-                    flow,
-                })?);
-                index += 1;
-            }
-        }
-        let root = root.hub()?;
-        Ok(Hedge { buffer, root })
-    }
-    fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
-        let chart = &self.loom.grid.chart;
-        let gpu = &chart.core.gpu;
-        let flow = self.flow()?;
-        let constant = chart.shape.dimension * (self.rank as u32 + 2);
-        let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
-        let mut offsets: Vec<Hub<u32>> = vec![0.into()];
-        if let Some(flow) = &flow.travel {
-            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
-            offsets.push(size);
-        }
-        if let Some(flow) = &flow.orient {
-            let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
-            offsets.push(size);
-        }
-        for (order, flow) in flow._spline.iter().enumerate() {
-            if let Some(flow) = flow {
-                let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
-                let last = offsets.last().ok_or(anyhow!("no offsets"))?;
-                offsets.push(size.calc().mul(&expand).add(last).hub()?);
-            }
-        }
-        Ok(offsets)
-    }
-    fn rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
-        let dimension = self.loom.grid.chart.shape.dimension;
-        let uniform = self.loom.grid.chart.core.gpu.uniform();
-        uniform
-            .field(self.rank as u32)
-            .field(order as u32)
-            .field(offset)
-            .field(self.count()?)
-            .field(self.area()?)
-            .field(dimension)
-            .make()
-    }
-    fn flow(&self) -> graph::Result<&Flow> {
-        let flows = &self.loom.grid.chart.shape.flows;
-        Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
-    }
-    fn count(&self) -> graph::Result<&Hub<u32>> {
-        let counts = &self.loom.grid.counts;
-        let last = counts.last().ok_or(anyhow!("no counts"))?;
-        Ok(counts.get(self.rank).unwrap_or(last))
-    }
-    fn weft(&self) -> graph::Result<&Weft> {
-        let wefts = &self.loom.wefts;
-        let last = wefts.last().ok_or(anyhow!("no weft"))?;
-        Ok(wefts.get(self.rank).unwrap_or(last))
-    }
-    fn area(&self) -> graph::Result<&Hub<u32>> {
-        let area = self.loom.areas.get(self.rank);
-        Ok(area.ok_or(anyhow!("no area"))?)
-    }
-    fn part(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<weave::Part> {
-        Ok(weave::Part {
-            stage: self,
-            warp,
-            plot,
-            count: self.count()?,
-        })
+        let bind = gpu
+            .bind()
+            .layout(program.layout.clone())
+            .entry(0, &trio.rig.buffer)
+            .entry(1, &self.warp.buffer)
+            .entry(2, &trio.weft.buffer)
+            .entry(3, &trio.flow.buffer)
+            .entry(4, self.plot)
+            .hub()?;
+        gpu.command()
+            .root(&trio.rig.root)
+            .root(&self.warp.root)
+            .root(&trio.weft.root)
+            .root(&trio.flow.root)
+            .compute(program.pipe.clone())
+            .bind(0, bind)
+            .dispatch(self.count)
+            .hub()
     }
 }

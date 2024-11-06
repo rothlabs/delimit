@@ -119,7 +119,11 @@ impl WeaveGridPlotBin {
             layout: layout.clone(),
             pipe: shader.compute("spline").layout(&pipe_layout).make()?,
         };
-        Ok(Self { travel, orient, spline })
+        Ok(Self {
+            travel,
+            orient,
+            spline,
+        })
     }
 }
 
