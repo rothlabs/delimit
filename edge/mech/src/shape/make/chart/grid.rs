@@ -17,8 +17,8 @@ impl<'a> Wheel<'a> {
             let extrude_size = self.extrude_size(form)?;
             let buffer = gpu.blank(extrude_size).label("extrude").hub()?;
             let spin = self.spin(&buffer);
-            let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
             if let Some(form) = &form.extrude {
+                let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
                 root.field(spin.extrude(&rig, form)?);
             }
             let root = root.hub()?;
@@ -29,8 +29,8 @@ impl<'a> Wheel<'a> {
             let revolve_size = self.revolve_size(form)?;
             let buffer = gpu.blank(revolve_size).label("revolve").hub()?;
             let spin = self.spin(&buffer);
-            let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
             if let Some(form) = &form.revolve {
+                let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
                 root.field(spin.revolve(&rig, form)?);
             }
             let root = root.hub()?;
@@ -60,6 +60,9 @@ impl<'a> Wheel<'a> {
             }
         }
         Ok(weft)
+    }
+    fn travel(&self, weft: &mut Weft) {
+        
     }
     fn spin(&self, buffer: &'a Hub<Grc<Buffer>>) -> wheel::Spin {
         wheel::Spin {
