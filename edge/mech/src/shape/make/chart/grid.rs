@@ -12,24 +12,22 @@ impl<'a> Wheel<'a> {
     pub fn weft(&self) -> graph::Result<Weft> {
         let mut weft = Weft::default();
         let gpu = &self.chart.core.gpu;
-        // let extrude_size = self.extrude_size()?;
-        // let matrix_blank = gpu.blank(extrude_size).hub()?;
-        if let Some(form) = &self.chart.shape.form.add {
+        if let Some(form) = &self.chart.shape.form.linear {
             let mut root = JoinBuilder::default();
             let extrude_size = self.extrude_size(form)?;
-            let buffer = gpu.blank(extrude_size).label(format!("extrude")).hub()?;
+            let buffer = gpu.blank(extrude_size).label("extrude").hub()?;
             let spin = self.spin(&buffer);
             let rig = self.rig(self.chart.shape.dimension as usize, 0.into())?;
             if let Some(form) = &form.extrude {
                 root.field(spin.extrude(&rig, form)?);
             }
             let root = root.hub()?;
-            weft.add = Some(Hedge { buffer, root });
+            weft.linear = Some(Hedge { buffer, root });
         }
-        for (order, form) in self.chart.shape.form.right.iter().enumerate() {
+        for (order, form) in self.chart.shape.form.spline.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
-                let spline_size = self.spline_size(form)?;
+                let spline_size = self.basis_size(form)?;
                 let nurbs_size = self.nurbs_size(form)?;
                 let size = spline_size.calc().add(nurbs_size).hub()?;
                 let label = format!("nurbs {order}");
@@ -44,9 +42,9 @@ impl<'a> Wheel<'a> {
                     root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
-                weft.right.push(Some(Hedge { buffer, root }));
+                weft.spline.push(Some(Hedge { buffer, root }));
             } else {
-                weft.right.push(None);
+                weft.spline.push(None);
             }
         }
         Ok(weft)
@@ -57,7 +55,7 @@ impl<'a> Wheel<'a> {
             weft: buffer,
         }
     }
-    fn extrude_size(&self, form: &form::Add) -> graph::Result<Hub<u32>> {
+    fn extrude_size(&self, form: &form::Linear) -> graph::Result<Hub<u32>> {
         let gpu = &self.chart.core.gpu;
         Ok(if let Some(extrude) = &form.extrude {
             gpu.size(extrude.buffer.clone())
@@ -68,7 +66,7 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn spline_size(&self, form: &form::Right) -> graph::Result<Hub<u32>> {
+    fn basis_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
         let gpu = &self.chart.core.gpu;
         Ok(if let Some(basis) = &form.basis {
             gpu.size(basis.buffer.clone())
@@ -78,7 +76,7 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn nurbs_size(&self, form: &form::Right) -> graph::Result<Hub<u32>> {
+    fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
         let gpu = &self.chart.core.gpu;
         Ok(if let Some(nurbs) = &form.nurbs {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row

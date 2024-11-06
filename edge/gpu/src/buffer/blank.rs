@@ -20,7 +20,12 @@ impl Solve for Blank {
     async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
         let size = self.size.base().await?;
         // let label = self.label.base().await?;
-        let buffer = self.core.buffer(size as u64 * 4).label(&self.label).usage(self.usage).make()?;
+        let buffer = self
+            .core
+            .buffer(size as u64 * 4)
+            .label(&self.label)
+            .usage(self.usage)
+            .make()?;
         Ok(buffer.into())
     }
 }

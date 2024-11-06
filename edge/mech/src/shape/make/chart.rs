@@ -4,15 +4,18 @@ mod grid;
 
 #[derive(Default)]
 pub struct Weft {
-    pub add: Option<Hedge>,
+    pub linear: Option<Hedge>,
     // pub matrix: Option<Hedge>,
-    pub right: Vec<Option<Hedge>>,
+    pub spline: Vec<Option<Hedge>>,
 }
 
 impl Weft {
-    fn right(&self, order: usize) -> graph::Result<&Hedge> {
-        let weft = self.right.get(order).ok_or(anyhow!("no weft"))?;
-        Ok(weft.as_ref().ok_or(anyhow!("no weft"))?)
+    fn linear(&self) -> graph::Result<&Hedge> {
+        Ok(self.linear.as_ref().ok_or(anyhow!("no linear"))?)
+    }
+    fn spline(&self, order: usize) -> graph::Result<&Hedge> {
+        let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
+        Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
     }
 }
 
@@ -25,28 +28,29 @@ impl<'a> Grid<'a> {
     pub fn hedge(&self) -> graph::Result<Hedge> {
         let mut wefts = vec![];
         for count in self.counts {
-            wefts.push(self.charter(count).weft()?);
+            wefts.push(self.wheel(count).weft()?);
         }
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
-        let mut strides: Vec<Hub<u32>> = vec![1.into()];
+        let mut areas: Vec<Hub<u32>> = vec![1.into()];
         for i in 0..self.chart.shape.flows.len() - 1 {
-            let stride = strides.last().ok_or(anyhow!("no strides"))?.calc();
+            let area = areas.last().ok_or(anyhow!("no areas"))?.calc();
             let count = self.counts.get(i).unwrap_or(last_count);
-            strides.push(stride.mul(count).hub()?);
+            areas.push(area.mul(count).hub()?);
         }
-        self.control(wefts, strides).hedge()
+        self.loom(wefts, areas).hedge()
     }
-    fn charter(&self, count: &'a Hub<u32>) -> grid::Wheel {
+    fn wheel(&self, count: &'a Hub<u32>) -> grid::Wheel {
         grid::Wheel {
             chart: self.chart,
             count,
         }
     }
-    fn control(&self, wefts: Vec<Weft>, strides: Vec<Hub<u32>>) -> grid::Loom {
+    fn loom(&self, wefts: Vec<Weft>, areas: Vec<Hub<u32>>) -> grid::Loom {
+        // TODO: take chart, one weft, one area, and one count
         grid::Loom {
             grid: self,
             wefts,
-            areas: strides,
+            areas,
         }
     }
 }

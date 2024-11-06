@@ -8,13 +8,15 @@ struct Rig {
 @group(0) @binding(1) var<storage, read> form: array<f32>;
 @group(0) @binding(2) var<storage, read_write> weft: array<f32>;
 
+// Linear ---------------------------------------------------
+
 @compute @workgroup_size(64)
 fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
     let order = rig.order;
     let count_idx = index.x / rig.count;
     let count_mod = index.x % rig.count;
     let form_idx = count_idx * order;
-    let weft_idx = index.x * order * 2 + rig.offset;
+    let weft_idx = rig.offset + index.x * order * 2;
     let parameter = f32(count_mod) / f32(rig.count - 1);
     for (var o = 0u; o < order; o++) {
         let component = form[form_idx + o];
@@ -22,6 +24,8 @@ fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
         weft[weft_idx + o + order] = component;
     }
 }
+
+// Orient --------------------------------------------------------
 
 // @compute @workgroup_size(64)
 // fn revolve_2(@builtin(global_invocation_id) index: vec3<u32>) {
@@ -31,6 +35,8 @@ fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
 //     // weft[i] = cos
 //     // let axis = vec2(form[axis]);
 // }
+
+// Spline -------------------------------------------------
 
 @compute @workgroup_size(64)
 fn basis(@builtin(global_invocation_id) index: vec3<u32>) {

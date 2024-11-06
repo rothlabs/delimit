@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Clone, Default, Debug)]
-pub struct Add {
+pub struct Linear {
     pub extrude: Option<Hedge>,
 }
 
@@ -12,12 +12,16 @@ pub struct Add {
 // }
 
 #[derive(Clone, Default, Debug)]
-pub struct Right {
+pub struct Spline {
     // alt name: knots (because hedge only contains knots)
     pub basis: Option<Hedge>,
     pub nurbs: Option<Hedge>,
     // translation
 }
+
+// spline
+// orient
+// linear
 
 // #[derive(Clone, Debug)]
 // pub enum VectorRule {

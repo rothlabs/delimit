@@ -14,13 +14,21 @@ pub struct Part<'a> {
 }
 
 impl Part<'_> {
-    pub fn right(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+    pub fn linear(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
         let core = &self.stage.loom.grid.chart.core;
-        let gpu = &core.gpu;
-        let control = &core.bank.plot.grid.right.weave;
+        let program = &core.bank.plot.grid.weave.linear;
+        self.weave(trio, program)
+    }
+    pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+        let core = &self.stage.loom.grid.chart.core;
+        let program = &core.bank.plot.grid.weave.spline;
+        self.weave(trio, program)
+    }
+    pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Mutation>> {
+        let gpu = &self.stage.loom.grid.chart.core.gpu;
         let bind = gpu
             .bind()
-            .layout(control.layout.clone())
+            .layout(program.layout.clone())
             .entry(0, &trio.rig.buffer)
             .entry(1, &self.warp.buffer)
             .entry(2, &trio.weft.buffer)
@@ -32,7 +40,7 @@ impl Part<'_> {
             .root(&self.warp.root)
             .root(&trio.weft.root)
             .root(&trio.flow.root)
-            .compute(control.pipe.clone())
+            .compute(program.pipe.clone())
             .bind(0, bind)
             .dispatch(self.count)
             .hub()

@@ -33,28 +33,32 @@ impl PlotBin {
 #[derive(Debug)]
 pub struct GridPlotBin {
     // TODO: rename to weft and make new bin for weave
-    pub right: GridPlotRightBin,
+    pub spin: SpinGridPlotBin,
+    pub weave: WeaveGridPlotBin,
 }
 
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> graph::Result<Self> {
         Ok(Self {
-            right: GridPlotRightBin::new(gpu)?,
+            spin: SpinGridPlotBin::new(gpu)?,
+            weave: WeaveGridPlotBin::new(gpu)?,
         })
     }
 }
 
 #[derive(Debug)]
-pub struct GridPlotRightBin {
+pub struct SpinGridPlotBin {
+    // linear
     pub extrude: ComputeProgram,
+
+    // spline
     pub basis: ComputeProgram,
     pub nurbs: ComputeProgram,
-    pub weave: ComputeProgram,
 }
 
-impl GridPlotRightBin {
+impl SpinGridPlotBin {
     pub fn new(gpu: &Gpu) -> graph::Result<Self> {
-        let shader = gpu.shader(include_wgsl!("plot/grid/right/spline.wgsl"));
+        let shader = gpu.shader(include_wgsl!("plot/grid/spin.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let form = gpu.bind_storage(true).entry(1)?.compute()?;
         let weft = gpu.bind_storage(false).entry(2)?.compute()?;
@@ -70,8 +74,23 @@ impl GridPlotRightBin {
         };
         let pipe = shader.compute("nurbs").layout(&pipe_layout).make()?;
         let nurbs = ComputeProgram { layout, pipe };
+        Ok(Self {
+            extrude,
+            basis,
+            nurbs,
+        })
+    }
+}
 
-        let shader = gpu.shader(include_wgsl!("plot/grid/right/weave.wgsl"));
+#[derive(Debug)]
+pub struct WeaveGridPlotBin {
+    pub linear: ComputeProgram,
+    pub spline: ComputeProgram,
+}
+
+impl WeaveGridPlotBin {
+    pub fn new(gpu: &Gpu) -> graph::Result<Self> {
+        let shader = gpu.shader(include_wgsl!("plot/grid/weave.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let warp = gpu.bind_storage(true).entry(1)?.compute()?;
         let weft = gpu.bind_storage(true).entry(2)?.compute()?;
@@ -79,15 +98,15 @@ impl GridPlotRightBin {
         let plot = gpu.bind_storage(false).entry(4)?.compute()?;
         let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
-        let pipe = shader.compute("main").layout(&pipe_layout).make()?;
-        let weave = ComputeProgram { layout, pipe };
-
-        Ok(Self {
-            extrude,
-            basis,
-            nurbs,
-            weave,
-        })
+        let linear = ComputeProgram {
+            layout: layout.clone(),
+            pipe: shader.compute("linear").layout(&pipe_layout).make()?,
+        };
+        let spline = ComputeProgram {
+            layout: layout.clone(),
+            pipe: shader.compute("spline").layout(&pipe_layout).make()?,
+        };
+        Ok(Self { linear, spline })
     }
 }
 

@@ -7,15 +7,15 @@ pub struct Spin<'a> {
 
 impl Spin<'_> {
     pub fn extrude(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Mutation>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.right.extrude;
+        let program = &self.wheel.chart.core.bank.plot.grid.spin.extrude;
         self.weft(rig, form, program)
     }
     pub fn basis(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Mutation>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.right.basis;
+        let program = &self.wheel.chart.core.bank.plot.grid.spin.basis;
         self.weft(rig, form, program)
     }
     pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Mutation>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.right.nurbs;
+        let program = &self.wheel.chart.core.bank.plot.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
     fn weft(

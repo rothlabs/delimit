@@ -32,11 +32,11 @@ async fn nurbs_curve() -> dom::Result<()> {
     //                         6 knots                      3 weights
     let nurbs = gpu.hedge(vec![0.0_f32, 0., 0., 1., 1., 1., 1., 1., 1.])?;
     let flow_hedge = gpu.hedge(vec![0_u32, 0, 1, 2])?;
-    let flow = mech.flow().spline(3, flow_hedge).build()?;
+    let flow = mech.flow().spline(flow_hedge, 3).build()?;
     let shape = mech
         .shape(2)
         .warp(warp)
-        .nurbs(3, nurbs)
+        .nurbs(nurbs, 3)
         .flow(flow)
         .build()?;
     let plot = mech.chart(shape).grid(count).hub()?.base().await?;
@@ -92,7 +92,8 @@ fn warp2() -> Vec<f32> {
 #[rustfmt::skip]
 fn extrude2() -> Vec<f32> {
     vec![
-        1., 0.8,
+        -0.9, -0.25,
+        -0.9, 0.8,
     ]
 }
 
@@ -104,7 +105,7 @@ fn nurbs2() -> Vec<f32> {
 }
 
 #[rustfmt::skip]
-fn spline3() -> Vec<f32> {
+fn basis3() -> Vec<f32> {
     vec![
         0., 0.2, 0.4, 0.6, 0.8, 1., 
     ]
@@ -119,7 +120,7 @@ fn nurbs3() -> Vec<f32> {
 }
 
 #[rustfmt::skip]
-fn spline4() -> Vec<f32> {
+fn basis4() -> Vec<f32> {
     vec![
         0., 0., 0., 0.15, 0.85, 1., 1., 1., // 0., 0.143, 0.286, 0.428, 0.571, 0.714, 0.857, 1.,
     ]
@@ -130,38 +131,38 @@ async fn draw_nurbs_curve() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
-    let extrude: Vec<u32> = vec![
+    let linear: Vec<u32> = vec![
         0,   8, 
     ];
     #[rustfmt::skip]
-    let flow2: Vec<u32> = vec![
+    let spline2: Vec<u32> = vec![
         0,   8, 6,
     ];
     #[rustfmt::skip]
-    let flow3: Vec<u32> = vec![
+    let spline3: Vec<u32> = vec![
         0,   1, 0, 8, 
         1,   1, 8, 3, 
         2,   7, 6, 5,
     ];
     #[rustfmt::skip]
-    let flow4: Vec<u32> = vec![
+    let spline4: Vec<u32> = vec![
         0,   3, 8, 4, 5, 
     ];
     let flow = mech
         .flow()
-        .add(gpu.hedge(extrude)?)
-        .spline(2, gpu.hedge(flow2)?)
-        .spline(3, gpu.hedge(flow3)?)
-        .spline(4, gpu.hedge(flow4)?)
+        .linear(gpu.hedge(linear)?)
+        .spline(gpu.hedge(spline2)?, 2)
+        .spline(gpu.hedge(spline3)?, 3)
+        .spline(gpu.hedge(spline4)?, 4)
         .build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
         .extrude(gpu.hedge(extrude2())?)
-        .nurbs(2, gpu.hedge(nurbs2())?)
-        .basis(3, gpu.hedge(spline3())?)
-        .nurbs(3, gpu.hedge(nurbs3())?)
-        .basis(4, gpu.hedge(spline4())?)
+        .nurbs(gpu.hedge(nurbs2())?, 2)
+        .nurbs(gpu.hedge(nurbs3())?, 3)
+        .basis(gpu.hedge(basis3())?, 3)
+        .basis(gpu.hedge(basis4())?, 4)
         .flow(flow)
         .build()?;
     let plot = mech.chart(shape).grid(30).hub()?;
@@ -174,31 +175,58 @@ async fn draw_nurbs_surface() -> dom::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
-    let flow2: Vec<u32> = vec![
+    let spline2: Vec<u32> = vec![
         0,   8, 4,
     ];
     #[rustfmt::skip]
-    let flow3: Vec<u32> = vec![
+    let spline3: Vec<u32> = vec![
         0,   1, 4, 3, 
         0,   7, 6, 5,
     ];
-    let rank1 = mech
+    let flow1 = mech
         .flow()
-        .spline(2, gpu.hedge(flow2)?)
-        .spline(3, gpu.hedge(flow3)?)
+        .spline(gpu.hedge(spline2)?, 2)
+        .spline(gpu.hedge(spline3)?, 3)
         .build()?;
     #[rustfmt::skip]
-    let flow3: Vec<u32> = vec![
+    let spline3: Vec<u32> = vec![
         0,   1, 0, 2
     ];
-    let rank2 = mech.flow().spline(3, gpu.hedge(flow3)?).build()?;
+    let flow2 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
-        .nurbs(2, gpu.hedge(nurbs2())?)
-        .nurbs(3, gpu.hedge(nurbs3())?)
-        .flow(rank1)
-        .flow(rank2)
+        .nurbs(gpu.hedge(nurbs2())?, 2)
+        .nurbs(gpu.hedge(nurbs3())?, 3)
+        .flow(flow1)
+        .flow(flow2)
+        .build()?;
+    let plot = mech.chart(shape).grid(30).hub()?;
+    mech.draw(plot).points().hub()?.base().await?;
+    Ok(())
+}
+
+#[wasm_bindgen_test]
+async fn draw_extrution_surface() -> dom::Result<()> {
+    let gpu = gpu_with_canvas().await?;
+    let mech = Mech::new(gpu.clone())?;
+    #[rustfmt::skip]
+    let linear: Vec<u32> = vec![
+        1,   0, 
+    ];
+    #[rustfmt::skip]
+    let spline3: Vec<u32> = vec![
+        0,   7, 6, 5,
+    ];
+    let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
+    let flow2 = mech.flow().linear(gpu.hedge(linear)?).build()?;
+    let shape = mech
+        .shape(2)
+        .warp(gpu.hedge(warp2())?)
+        .extrude(gpu.hedge(extrude2())?)
+        .nurbs(gpu.hedge(nurbs3())?, 3)
+        .flow(flow1)
+        .flow(flow2)
         .build()?;
     let plot = mech.chart(shape).grid(30).hub()?;
     mech.draw(plot).points().hub()?.base().await?;

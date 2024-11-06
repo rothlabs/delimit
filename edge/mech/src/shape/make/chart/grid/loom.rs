@@ -19,16 +19,20 @@ impl<'a> Weave<'a> {
         let flow = self.flow()?;
         let weft = self.weft()?;
         let mut index = 0;
-        if let Some(flow) = &flow.add {
-            
+        if let Some(flow) = &flow.linear {
+            root.field(part.linear(weave::Trio {
+                rig: self.rig(0, &0.into())?,
+                weft: weft.linear()?,
+                flow,
+            })?);
             index += 1;
         }
-        for (order, flow) in flow.left.iter().enumerate() {
+        for (order, flow) in flow._spline.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
-                root.field(part.right(weave::Trio {
-                    rig: self.right_rig(order, offset)?,
-                    weft: weft.right(order)?,
+                root.field(part.spline(weave::Trio {
+                    rig: self.rig(order, offset)?,
+                    weft: weft.spline(order)?,
                     flow,
                 })?);
                 index += 1;
@@ -44,11 +48,11 @@ impl<'a> Weave<'a> {
         let constant = chart.shape.dimension * (self.rank as u32 + 2);
         let expand = self.count()?.calc().mul(self.area()?).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
-        if let Some(flow) = &flow.add {
+        if let Some(flow) = &flow.linear {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             offsets.push(size);
         }
-        for (order, flow) in flow.left.iter().enumerate() {
+        for (order, flow) in flow._spline.iter().enumerate() {
             if let Some(flow) = flow {
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
@@ -57,7 +61,7 @@ impl<'a> Weave<'a> {
         }
         Ok(offsets)
     }
-    fn right_rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
+    fn rig(&self, order: usize, offset: &Hub<u32>) -> graph::Result<Hedge> {
         let dimension = self.loom.grid.chart.shape.dimension;
         let uniform = self.loom.grid.chart.core.gpu.uniform();
         uniform
