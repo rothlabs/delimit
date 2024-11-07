@@ -3,7 +3,7 @@ use std::num::NonZero;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "Error"))]
 pub struct BindLayout<'a> {
     device: &'a Device,
     #[builder(default)]
@@ -13,7 +13,7 @@ pub struct BindLayout<'a> {
 }
 
 impl<'a> BindLayoutBuilder<'a> {
-    pub fn make(self) -> graph::Result<Grc<BindGroupLayout>> {
+    pub fn make(self) -> Result<Grc<BindGroupLayout>> {
         let built = self.build()?;
         let descriptor = BindGroupLayoutDescriptor {
             label: built.label,
@@ -26,7 +26,7 @@ impl<'a> BindLayoutBuilder<'a> {
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "Error"))]
 #[builder(setter(strip_option))]
 pub struct BindEntry {
     binding: u32,
@@ -37,7 +37,7 @@ pub struct BindEntry {
 }
 
 impl BindEntryBuilder {
-    pub fn make(self) -> graph::Result<BindGroupLayoutEntry> {
+    pub fn make(self) -> Result<BindGroupLayoutEntry> {
         let built = self.build()?;
         let out = BindGroupLayoutEntry {
             binding: built.binding,
@@ -47,17 +47,17 @@ impl BindEntryBuilder {
         };
         Ok(out)
     }
-    pub fn compute(self) -> graph::Result<BindGroupLayoutEntry> {
+    pub fn compute(self) -> Result<BindGroupLayoutEntry> {
         self.visibility(ShaderStages::COMPUTE).make()
     }
-    pub fn vertex(self) -> graph::Result<BindGroupLayoutEntry> {
+    pub fn vertex(self) -> Result<BindGroupLayoutEntry> {
         self.visibility(ShaderStages::VERTEX).make()
     }
 }
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "Error"))]
 #[builder(setter(strip_option))]
 pub struct BufferBinding {
     ty: BufferBindingType,
@@ -68,7 +68,7 @@ pub struct BufferBinding {
 }
 
 impl BufferBindingBuilder {
-    pub fn make(self) -> graph::Result<BindingType> {
+    pub fn make(self) -> Result<BindingType> {
         let built = self.build()?;
         let out = BindingType::Buffer {
             ty: built.ty,
@@ -77,7 +77,7 @@ impl BufferBindingBuilder {
         };
         Ok(out)
     }
-    pub fn entry(self, binding: u32) -> graph::Result<BindEntryBuilder> {
+    pub fn entry(self, binding: u32) -> Result<BindEntryBuilder> {
         let binding_type = self.make()?;
         let out = BindEntryBuilder::default()
             .binding(binding)

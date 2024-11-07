@@ -3,7 +3,7 @@ use std::num::NonZero;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "Error"))]
 #[builder(setter(strip_option))]
 pub struct Render<'a> {
     device: &'a Device,
@@ -27,7 +27,7 @@ pub struct Render<'a> {
 }
 
 impl RenderBuilder<'_> {
-    pub fn make(self) -> graph::Result<Grc<RenderPipeline>> {
+    pub fn make(self) -> Result<Grc<RenderPipeline>> {
         let built = self.build()?;
         let descriptor = RenderPipelineDescriptor {
             label: built.label,

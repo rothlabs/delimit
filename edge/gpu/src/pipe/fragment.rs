@@ -2,8 +2,7 @@ use super::*;
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
-// #[builder(setter(strip_option))]
+#[builder(build_fn(error = "Error"))]
 pub struct Fragment<'a> {
     shader: &'a ShaderModule,
     entry: &'a str,
@@ -14,7 +13,7 @@ pub struct Fragment<'a> {
 }
 
 impl<'a> FragmentBuilder<'a> {
-    pub fn make(self) -> graph::Result<FragmentState<'a>> {
+    pub fn make(self) -> Result<FragmentState<'a>> {
         let built = self.build()?;
         let state = FragmentState {
             module: built.shader,

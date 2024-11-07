@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "crate::Error"))]
+#[builder(build_fn(error = "Error"))]
 #[builder(setter(strip_option))]
 pub struct Layout<'a> {
     device: &'a Device,
