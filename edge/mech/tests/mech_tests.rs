@@ -162,13 +162,17 @@ async fn draw_curves() -> dom::Result<()> {
         .spline(gpu.hedge(spline3)?, 3)
         .spline(gpu.hedge(spline4)?, 4)
         .build()?;
+    let spline3 = mech
+        .spline()
+        .basis(gpu.hedge(basis3())?)
+        .nurbs(gpu.hedge(nurbs3())?)
+        .build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
         .extrude(gpu.hedge(extrude2())?)
+        .spline(spline3, 3)
         .nurbs(gpu.hedge(nurbs2())?, 2)
-        .nurbs(gpu.hedge(nurbs3())?, 3)
-        .basis(gpu.hedge(basis3())?, 3)
         .basis(gpu.hedge(basis4())?, 4)
         .flow(flow)
         .build()?;
@@ -227,11 +231,9 @@ async fn draw_extrusion_surface() -> dom::Result<()> {
     ];
     let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let flow2 = mech.flow().travel(gpu.hedge(travel)?).build()?;
-    // let travel = mech.travel().extrude(gpu.hedge(extrude2())?).build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
-        // .travel(travel)
         .extrude(gpu.hedge(extrude2())?)
         .nurbs(gpu.hedge(nurbs3())?, 3)
         .flow(flow1)

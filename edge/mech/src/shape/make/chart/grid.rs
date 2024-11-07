@@ -48,7 +48,7 @@ impl<'a> Wheel<'a> {
         Ok(())
     }
     fn spline(&self, mut weft: Weft) -> graph::Result<Weft> {
-        for (order, form) in self.chart.shape.form.spline.iter().enumerate() {
+        for (order, form) in self.chart.shape.form.splines.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
                 let spline_size = self.basis_size(form)?;
@@ -171,7 +171,7 @@ impl<'a> Loom<'a> {
             })?);
             index += 1;
         }
-        for (order, flow) in flow._spline.iter().enumerate() {
+        for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
                 root.field(weave.spline(loom::Trio {
@@ -200,7 +200,7 @@ impl<'a> Loom<'a> {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             offsets.push(size);
         }
-        for (order, flow) in flow._spline.iter().enumerate() {
+        for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;

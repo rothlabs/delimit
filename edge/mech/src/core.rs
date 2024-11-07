@@ -24,6 +24,9 @@ impl Core {
     pub fn spline(&self) -> SplineBuilder {
         SplineBuilder::default()
     }
+    pub fn form(&self) -> FormBuilder {
+        FormBuilder::default()
+    }
     pub fn flow(&self) -> FlowBuilder {
         FlowBuilder::default()
     }
@@ -44,7 +47,3 @@ impl Core {
         }
     }
 }
-
-// pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> plot::draw::PointsBuilder {
-//     plot::draw::PointsBuilder::default().core(self.clone()).plot(plot)
-// }

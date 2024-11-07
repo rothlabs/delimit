@@ -5,8 +5,6 @@ use super::*;
 mod form;
 mod make;
 
-const EXISTS: &str = "Field must exist by ensuring default.";
-
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
@@ -35,23 +33,31 @@ impl Shape {
 }
 
 impl ShapeBuilder {
-    pub fn travel(self, travel: form::Travel) -> Self {
+    pub fn travel(self, travel: Travel) -> Self {
+        self.mut_form(|form| form.travel = Some(travel))
+    }
+    pub fn orient(self, orient: Orient) -> Self {
+        self.mut_form(|form| form.orient = Some(orient))
+    }
+    pub fn spline(self, spline: Spline, order: usize) -> Self {
         self.mut_form(|form| {
-            form.travel = Some(travel);
+            form.mut_spline(order, |form_spline| {
+                *form_spline = spline;
+            });
         })
     }
     pub fn extrude(self, hedge: Hedge) -> Self {
         self.mut_form(|form| {
-            form.mut_travel(|travel| {
-                travel.extrude = Some(hedge);
-            });
+            let mut travel = form.travel.take().unwrap_or_default();
+            travel.extrude = Some(hedge);
+            form.travel = Some(travel);
         })
     }
     pub fn revolve(self, hedge: Hedge) -> Self {
         self.mut_form(|form| {
-            form.mut_orient(|orient| {
-                orient.revolve = Some(hedge);
-            });
+            let mut orient = form.orient.take().unwrap_or_default();
+            orient.revolve = Some(hedge);
+            form.orient = Some(orient);
         })
     }
     pub fn basis(self, hedge: Hedge, order: usize) -> Self {
@@ -69,44 +75,32 @@ impl ShapeBuilder {
         })
     }
     fn mut_form<F: FnOnce(&mut Form)>(mut self, func: F) -> Self {
-        if self.form.is_none() {
-            self.form = Some(Form::default());
-        }
-        func(self.form.as_mut().expect(EXISTS));
+        let mut form = self.form.take().unwrap_or_default();
+        func(&mut form);
+        self.form = Some(form);
         self
     }
 }
 
-#[derive(Clone, Default, Debug)]
-struct Form {
+#[derive(Builder, Clone, Default, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "graph::Error"))]
+#[builder(setter(strip_option))]
+pub struct Form {
     travel: Option<form::Travel>,
     orient: Option<form::Orient>,
-    spline: Vec<Option<form::Spline>>,
+    #[builder(setter(each(name = "spline")))]
+    splines: Vec<Option<form::Spline>>,
 }
 
 impl Form {
-    fn mut_travel<F: FnOnce(&mut form::Travel)>(&mut self, func: F) {
-        if self.travel.is_none() {
-            self.travel = Some(form::Travel::default());
+    fn mut_spline<F: FnOnce(&mut Spline)>(&mut self, order: usize, func: F) {
+        while self.splines.len() < order + 1 {
+            self.splines.push(None);
         }
-        func(self.travel.as_mut().expect(EXISTS));
-    }
-    fn mut_orient<F: FnOnce(&mut form::Orient)>(&mut self, func: F) {
-        if self.orient.is_none() {
-            self.orient = Some(form::Orient::default());
-        }
-        func(self.orient.as_mut().expect(EXISTS));
-    }
-    fn mut_spline<F: FnOnce(&mut form::Spline)>(&mut self, order: usize, func: F) {
-        while self.spline.len() < order + 1 {
-            self.spline.push(None);
-        }
-        let mut spline = self.spline[order].take();
-        if spline.is_none() {
-            spline = Some(form::Spline::default());
-        }
-        func(spline.as_mut().expect(EXISTS));
-        self.spline[order] = spline;
+        let mut spline = self.splines[order].take().unwrap_or_default();
+        func(&mut spline);
+        self.splines[order] = Some(spline);
     }
 }
 
@@ -120,26 +114,17 @@ pub struct Flow {
     #[builder(default)]
     orient: Option<Hedge>,
     #[builder(default)]
-    _spline: Vec<Option<Hedge>>,
+    splines: Vec<Option<Hedge>>,
 }
 
 impl FlowBuilder {
     pub fn spline(mut self, hedge: Hedge, order: usize) -> Self {
-        if self._spline.is_none() {
-            self = self._spline(vec![]);
+        let mut splines = self.splines.take().unwrap_or_default();
+        while splines.len() < order + 1 {
+            splines.push(None);
         }
-        // let mut spline = self._spline.take().expect(EXISTS);
-        // while spline.len() < order + 1 {
-        //     spline.push(None);
-        // }
-        // spline[order] = Some(hedge);
-        if let Some(matrix) = &mut self._spline {
-            for _ in 0..order - matrix.len() {
-                matrix.push(None);
-            }
-            matrix.push(Some(hedge));
-        }
-        self
+        splines[order] = Some(hedge);
+        self.splines(splines)
     }
 }
 
