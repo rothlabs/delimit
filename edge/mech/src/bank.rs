@@ -9,7 +9,7 @@ pub struct Bank {
 }
 
 impl Bank {
-    pub fn new(gpu: &Gpu) -> graph::Result<Self> {
+    pub fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             plot: PlotBin::new(gpu)?,
             draw: DrawBin::new(gpu)?,
@@ -23,7 +23,7 @@ pub struct PlotBin {
 }
 
 impl PlotBin {
-    fn new(gpu: &Gpu) -> graph::Result<Self> {
+    fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             grid: GridPlotBin::new(gpu)?,
         })
@@ -38,7 +38,7 @@ pub struct GridPlotBin {
 }
 
 impl GridPlotBin {
-    fn new(gpu: &Gpu) -> graph::Result<Self> {
+    fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             spin: SpinGridPlotBin::new(gpu)?,
             weave: WeaveGridPlotBin::new(gpu)?,
@@ -60,7 +60,7 @@ pub struct SpinGridPlotBin {
 }
 
 impl SpinGridPlotBin {
-    pub fn new(gpu: &Gpu) -> graph::Result<Self> {
+    pub fn new(gpu: &Gpu) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/spin.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let form = gpu.bind_storage(true).entry(1)?.compute()?;
@@ -98,7 +98,7 @@ pub struct WeaveGridPlotBin {
 }
 
 impl WeaveGridPlotBin {
-    pub fn new(gpu: &Gpu) -> graph::Result<Self> {
+    pub fn new(gpu: &Gpu) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/weave.wgsl"));
         let rig = gpu.bind_uniform().entry(0)?.compute()?;
         let warp = gpu.bind_storage(true).entry(1)?.compute()?;
@@ -133,7 +133,7 @@ pub struct DrawBin {
 }
 
 impl DrawBin {
-    fn new(gpu: &Gpu) -> graph::Result<Self> {
+    fn new(gpu: &Gpu) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("draw/points.wgsl"));
         let targets = gpu.display.targets();
         let rig = gpu.bind_uniform().entry(0)?.vertex()?;

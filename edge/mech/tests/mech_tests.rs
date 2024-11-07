@@ -7,24 +7,26 @@ use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-fn body() -> dom::Result<Element> {
-    Window::new()?.document()?.body()
+fn body() -> mech::Result<Element> {
+    Ok(Window::new()?.document()?.body()?)
 }
 
-async fn gpu() -> dom::Result<Gpu> {
+async fn gpu() -> mech::Result<Gpu> {
     let canvas = body()?.element("canvas")?.canvas()?;
-    canvas.gpu().await
+    Ok(Gpu::from_canvas(canvas.object).await?)
+    // Ok(canvas.gpu().await?)
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
+async fn gpu_with_canvas<'a>() -> mech::Result<Gpu> {
     let canvas = body()?.stem("canvas")?.canvas()?;
-    let gpu = canvas.gpu().await?;
+    let gpu = Gpu::from_canvas(canvas.object).await?;
+    // let gpu = canvas.gpu().await?;
     gpu.display.resize(300, 300).await?;
     Ok(gpu)
 }
 
 #[wasm_bindgen_test]
-async fn nurbs_curve() -> dom::Result<()> {
+async fn nurbs_curve() -> mech::Result<()> {
     let gpu = gpu().await?;
     let mech = Mech::new(gpu.clone())?;
     let count = 5;
@@ -134,7 +136,7 @@ fn basis4() -> Vec<f32> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_curves() -> dom::Result<()> {
+async fn draw_curves() -> mech::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
@@ -182,7 +184,7 @@ async fn draw_curves() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_nurbs_surface() -> dom::Result<()> {
+async fn draw_nurbs_surface() -> mech::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
@@ -218,7 +220,7 @@ async fn draw_nurbs_surface() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_extrusion_surface() -> dom::Result<()> {
+async fn draw_extrusion_surface() -> mech::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]
@@ -245,7 +247,7 @@ async fn draw_extrusion_surface() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_revolve_surface() -> dom::Result<()> {
+async fn draw_revolve_surface() -> mech::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let mech = Mech::new(gpu.clone())?;
     #[rustfmt::skip]

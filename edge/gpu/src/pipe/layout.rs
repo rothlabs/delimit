@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(strip_option))]
 pub struct Layout<'a> {
     device: &'a Device,
@@ -14,7 +14,7 @@ pub struct Layout<'a> {
 }
 
 impl LayoutBuilder<'_> {
-    pub fn make(self) -> graph::Result<PipelineLayout> {
+    pub fn make(self) -> Result<PipelineLayout> {
         let built = self.build()?;
         //let layouts: Vec<&BindGroupLayout> = built.bind_layouts.iter().map(|x| x.as_ref()).collect();
         let descriptor = PipelineLayoutDescriptor {

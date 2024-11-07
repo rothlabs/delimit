@@ -9,7 +9,7 @@ pub struct Core {
 }
 
 impl Core {
-    pub fn new(gpu: Gpu) -> graph::Result<Self> {
+    pub fn new(gpu: Gpu) -> Result<Self> {
         Ok(Self {
             bank: Bank::new(&gpu)?.into(),
             gpu,

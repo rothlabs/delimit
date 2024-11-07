@@ -10,6 +10,7 @@ resolver = "2"
     wgpu = "22.1.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     gpu = { path = "../gpu" }
+    dom = { path = "../dom" }
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
 

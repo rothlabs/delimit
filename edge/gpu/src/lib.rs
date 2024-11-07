@@ -34,8 +34,13 @@ pub type Gpu = Core;
 pub enum Error {
     #[error(transparent)]
     CreateSurfaceError(#[from] CreateSurfaceError),
+    // TODO: can uninitialized field error be removed because it is in graph crate?
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
+    #[error(transparent)]
+    Graph(#[from] graph::Error),
+    #[error(transparent)]
+    Dom(#[from] dom::Error),
     #[error(transparent)]
     Any(#[from] anyError),
 }

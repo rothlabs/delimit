@@ -15,10 +15,10 @@ impl Canvas {
         // assert!(height == 300);
         // panic!("wow");
     }
-    pub async fn gpu<'a>(&self) -> Result<Gpu> {
-        let gpu = Gpu::from_canvas(self.object.clone()).await?;
-        Ok(gpu)
-    }
+    // pub async fn gpu<'a>(&self) -> Result<Gpu> {
+    //     let gpu = Gpu::from_canvas(self.object.clone()).await?;
+    //     Ok(gpu)
+    // }
     pub fn webgl(&self) -> Result<WebGl> {
         let context_options = Object::new();
         Reflect::set(

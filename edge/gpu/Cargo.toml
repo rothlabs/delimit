@@ -9,6 +9,7 @@ edition = "2021"
     bytemuck = "1.18.0"
     flume = "0.11.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    dom = { path = "../dom" }
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
 

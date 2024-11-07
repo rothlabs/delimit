@@ -4,25 +4,23 @@
 
 use dom::*;
 use gpu::*;
-// use graph::*;
-// use hub::IntoHub;
 use wasm_bindgen_test::*;
 use wgpu::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-fn body() -> dom::Result<Element> {
-    Window::new()?.document()?.body()
+fn body() -> gpu::Result<Element> {
+    Ok(Window::new()?.document()?.body()?)
 }
 
-async fn gpu() -> dom::Result<Gpu> {
+async fn gpu() -> gpu::Result<Gpu> {
     let canvas = body()?.element("canvas")?.canvas()?;
-    canvas.gpu().await
+    Gpu::from_canvas(canvas.object).await
 }
 
-async fn gpu_with_canvas<'a>() -> dom::Result<Gpu> {
+async fn gpu_with_canvas<'a>() -> gpu::Result<Gpu> {
     let canvas = body()?.stem("canvas")?.canvas()?;
-    canvas.gpu().await
+    Gpu::from_canvas(canvas.object).await
 }
 
 #[rustfmt::skip]
@@ -75,14 +73,14 @@ fn index_data() -> Vec<u16> {
 // Tests ///////////////////////////////
 
 #[wasm_bindgen_test]
-async fn make_vertex_buffer() -> dom::Result<()> {
+async fn make_vertex_buffer() -> gpu::Result<()> {
     let gpu = gpu().await?;
     gpu.buffer(1024).usage(BufferUsages::VERTEX).make()?;
     Ok(())
 }
 
 #[wasm_bindgen_test]
-async fn draw_triangle() -> dom::Result<()> {
+async fn draw_triangle() -> gpu::Result<()> {
     // setup:
     let gpu = gpu_with_canvas().await?;
     let targets = gpu.display.targets();
@@ -107,7 +105,7 @@ const BASIC_INSTANCE_SHADER: ShaderModuleDescriptor =
     include_wgsl!("../src/shader/basic_instance.wgsl");
 
 #[wasm_bindgen_test]
-async fn draw_lines() -> dom::Result<()> {
+async fn draw_lines() -> gpu::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_SHADER);
@@ -136,7 +134,7 @@ async fn draw_lines() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_msaa_lines() -> dom::Result<()> {
+async fn draw_msaa_lines() -> gpu::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_SHADER);
@@ -168,7 +166,7 @@ async fn draw_msaa_lines() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_triangle_instances() -> dom::Result<()> {
+async fn draw_triangle_instances() -> gpu::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_INSTANCE_SHADER);
@@ -196,7 +194,7 @@ async fn draw_triangle_instances() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn draw_triangle_indexed_instance() -> dom::Result<()> {
+async fn draw_triangle_indexed_instance() -> gpu::Result<()> {
     let gpu = gpu_with_canvas().await?;
     let targets = gpu.display.targets();
     let shader = gpu.shader(BASIC_INSTANCE_SHADER);
@@ -226,7 +224,7 @@ async fn draw_triangle_indexed_instance() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn compute_collatz_iterations() -> dom::Result<()> {
+async fn compute_collatz_iterations() -> gpu::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(include_wgsl!("collatz.wgsl"));
     let pipe = shader.compute("main").make()?;
@@ -259,7 +257,7 @@ async fn compute_collatz_iterations() -> dom::Result<()> {
 }
 
 #[wasm_bindgen_test]
-async fn index_fraction() -> dom::Result<()> {
+async fn index_fraction() -> gpu::Result<()> {
     let gpu = gpu().await?;
     let shader = gpu.shader(include_wgsl!("index.wgsl"));
     let count = 16;

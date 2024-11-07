@@ -1,7 +1,6 @@
 pub use text::*;
 
 use derive_builder::Builder;
-use gpu::*;
 use graph::*;
 use node_derive::Gate;
 use wasm_bindgen::{JsCast, JsValue};
@@ -21,8 +20,6 @@ mod text;
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
-    #[error(transparent)]
-    Gpu(#[from] gpu::Error),
     #[error("JsValue Error ({0})")]
     JsValue(String),
     #[error("Object Error ({0})")]
