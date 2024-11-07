@@ -12,7 +12,7 @@ impl<'a> Grid<'a> {
         let wefts = self.wefts()?;
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let last_weft = wefts.last().ok_or(anyhow!("no wefts"))?;
-        let mut area = 1.into(); 
+        let mut area = 1.into();
         let mut warp = self.chart.shape.warp.clone();
         for rank in 0..self.chart.shape.flows.len() {
             let loom = grid::Loom {
@@ -60,17 +60,17 @@ impl Weft {
     }
 }
 
-    // fn loom(&self) -> grid::Loom {
-    //     grid::Loom {
-    //         grid: self,
-    //         rank: 0,
-    //         area: 1.into(),
-    //         weft: Weft::default(),
-    //         count: 0.into(),
-    //     }
-    // }
+// fn loom(&self) -> grid::Loom {
+//     grid::Loom {
+//         grid: self,
+//         rank: 0,
+//         area: 1.into(),
+//         weft: Weft::default(),
+//         count: 0.into(),
+//     }
+// }
 
-// let mut area: Hub<u32> = 1.into(); 
+// let mut area: Hub<u32> = 1.into();
 //         let mut warp = self.chart.shape.warp.clone();
 //         for rank in 0..self.chart.shape.flows.len() {
 //             let loom = grid::Loom {
@@ -84,7 +84,6 @@ impl Weft {
 //             area = loom.area.calc().mul(loom.count).hub()?;
 //         }
 //         Ok(warp)
-
 
 // let mut warp = self.chart.shape.warp.clone();
 //         let mut loom = self.loom();
@@ -103,7 +102,6 @@ impl Weft {
 //             loom.area = loom.area.calc().mul(loom.count).hub()?;
 //         }
 //         Ok(warp)
-
 
 // pub fn hedge(&self) -> graph::Result<Hedge> {
 //     let wefts = self.wefts()?;

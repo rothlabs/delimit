@@ -11,10 +11,15 @@ pub struct Wheel<'a> {
 impl<'a> Wheel<'a> {
     pub fn weft(&self) -> graph::Result<Weft> {
         let mut weft = Weft::default();
-        let gpu = &self.chart.core.gpu;
+        self.travel(&mut weft)?;
+        self.orient(&mut weft)?;
+        self.spline(weft)
+    }
+    fn travel(&self, weft: &mut Weft) -> graph::Result<()> {
         if let Some(form) = &self.chart.shape.form.travel {
             let mut root = JoinBuilder::default();
             let extrude_size = self.extrude_size(form)?;
+            let gpu = &self.chart.core.gpu;
             let buffer = gpu.blank(extrude_size).label("extrude").hub()?;
             let spin = self.spin(&buffer);
             if let Some(form) = &form.extrude {
@@ -24,9 +29,13 @@ impl<'a> Wheel<'a> {
             let root = root.hub()?;
             weft.travel = Some(Hedge { buffer, root });
         }
+        Ok(())
+    }
+    fn orient(&self, weft: &mut Weft) -> graph::Result<()> {
         if let Some(form) = &self.chart.shape.form.orient {
             let mut root = JoinBuilder::default();
             let revolve_size = self.revolve_size(form)?;
+            let gpu = &self.chart.core.gpu;
             let buffer = gpu.blank(revolve_size).label("revolve").hub()?;
             let spin = self.spin(&buffer);
             if let Some(form) = &form.revolve {
@@ -36,6 +45,9 @@ impl<'a> Wheel<'a> {
             let root = root.hub()?;
             weft.orient = Some(Hedge { buffer, root });
         }
+        Ok(())
+    }
+    fn spline(&self, mut weft: Weft) -> graph::Result<Weft> {
         for (order, form) in self.chart.shape.form.spline.iter().enumerate() {
             if let Some(form) = form {
                 let mut root = JoinBuilder::default();
@@ -43,6 +55,7 @@ impl<'a> Wheel<'a> {
                 let nurbs_size = self.nurbs_size(form)?;
                 let size = spline_size.calc().add(nurbs_size).hub()?;
                 let label = format!("nurbs {order}");
+                let gpu = &self.chart.core.gpu;
                 let buffer = gpu.blank(size).label(label).hub()?;
                 let spin = self.spin(&buffer);
                 if let Some(form) = &form.basis {
@@ -60,9 +73,6 @@ impl<'a> Wheel<'a> {
             }
         }
         Ok(weft)
-    }
-    fn travel(&self, weft: &mut Weft) {
-        
     }
     fn spin(&self, buffer: &'a Hub<Grc<Buffer>>) -> wheel::Spin {
         wheel::Spin {
