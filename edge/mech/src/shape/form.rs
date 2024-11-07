@@ -1,18 +1,27 @@
 use super::*;
 
-#[derive(Clone, Default, Debug)]
+#[derive(Builder, Clone, Default, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "graph::Error"))]
+#[builder(setter(strip_option))]
 pub struct Travel {
     pub extrude: Option<Hedge>,
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Builder, Clone, Default, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "graph::Error"))]
+#[builder(setter(strip_option))]
 pub struct Orient {
     pub revolve: Option<Hedge>,
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Builder, Clone, Default, Debug)]
+#[builder(pattern = "owned")]
+#[builder(build_fn(error = "graph::Error"))]
+#[builder(setter(strip_option))]
 pub struct Spline {
-    // alt name: knots (because hedge only contains knots)
+    // alt name for basis: knots
     pub basis: Option<Hedge>,
     pub nurbs: Option<Hedge>,
 }

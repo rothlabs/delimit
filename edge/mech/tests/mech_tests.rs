@@ -227,9 +227,11 @@ async fn draw_extrusion_surface() -> dom::Result<()> {
     ];
     let flow1 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let flow2 = mech.flow().travel(gpu.hedge(travel)?).build()?;
+    // let travel = mech.travel().extrude(gpu.hedge(extrude2())?).build()?;
     let shape = mech
         .shape(2)
         .warp(gpu.hedge(warp2())?)
+        // .travel(travel)
         .extrude(gpu.hedge(extrude2())?)
         .nurbs(gpu.hedge(nurbs3())?, 3)
         .flow(flow1)

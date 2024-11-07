@@ -1,4 +1,7 @@
+pub use form::*;
+
 use super::*;
+use std::mem::replace;
 
 mod form;
 mod make;
@@ -31,49 +34,45 @@ impl Shape {
 }
 
 impl ShapeBuilder {
-    pub fn extrude(mut self, hedge: Hedge) -> Self {
-        self = self.setup_form();
-        if let Some(form) = &mut self.form {
-            form.travel_setup();
-            if let Some(travel) = &mut form.travel {
+    pub fn travel(self, travel: form::Travel) -> Self {
+        self.mut_form(|form| {
+            form.travel = Some(travel);
+        })
+    }
+    pub fn extrude(self, hedge: Hedge) -> Self {
+        self.mut_form(|form| {
+            form.mut_travel(|travel| {
                 travel.extrude = Some(hedge);
-            }
-        }
-        self
+            });
+        })
     }
-    pub fn revolve(mut self, hedge: Hedge) -> Self {
-        self = self.setup_form();
-        if let Some(form) = &mut self.form {
-            form.orient_setup();
-            if let Some(orient) = &mut form.orient {
+    pub fn revolve(self, hedge: Hedge) -> Self {
+        self.mut_form(|form| {
+            form.mut_orient(|orient| {
                 orient.revolve = Some(hedge);
-            }
-        }
-        self
+            });
+        })
     }
-    pub fn basis(mut self, hedge: Hedge, order: usize) -> Self {
-        self = self.setup_form();
-        if let Some(form) = &mut self.form {
-            form.spline_setup(order);
-            if let Some(Some(spline)) = form.spline.get_mut(order) {
+    pub fn basis(self, hedge: Hedge, order: usize) -> Self {
+        self.mut_form(|form| {
+            form.mut_spline(order, |spline| {
                 spline.basis = Some(hedge);
-            }
-        }
-        self
+            });
+        })
     }
-    pub fn nurbs(mut self, hedge: Hedge, order: usize) -> Self {
-        self = self.setup_form();
-        if let Some(form) = &mut self.form {
-            form.spline_setup(order);
-            if let Some(Some(spline)) = form.spline.get_mut(order) {
+    pub fn nurbs(self, hedge: Hedge, order: usize) -> Self {
+        self.mut_form(|form| {
+            form.mut_spline(order, |spline| {
                 spline.nurbs = Some(hedge);
-            }
-        }
-        self
+            });
+        })
     }
-    fn setup_form(mut self) -> Self {
+    fn mut_form<F: FnOnce(&mut Form)>(mut self, func: F) -> Self {
         if self.form.is_none() {
-            self = self.form(Form::default())
+            self.form = Some(Form::default());
+        }
+        if let Some(form) = &mut self.form {
+            func(form);
         }
         self
     }
@@ -87,26 +86,34 @@ struct Form {
 }
 
 impl Form {
-    fn travel_setup(&mut self) {
+    fn mut_travel<F: FnOnce(&mut form::Travel)>(&mut self, func: F) {
         if self.travel.is_none() {
             self.travel = Some(form::Travel::default());
         }
+        if let Some(travel) = &mut self.travel {
+            func(travel);
+        }
     }
-    fn orient_setup(&mut self) {
+    fn mut_orient<F: FnOnce(&mut form::Orient)>(&mut self, func: F) {
         if self.orient.is_none() {
             self.orient = Some(form::Orient::default());
         }
+        if let Some(orient) = &mut self.orient {
+            func(orient);
+        }
     }
-    fn spline_setup(&mut self, order: usize) {
-        if order > self.spline.len() {
-            let fill = order - self.spline.len();
-            for _ in 0..fill {
-                self.spline.push(None);
-            }
+    fn mut_spline<F: FnOnce(&mut form::Spline)>(&mut self, order: usize, func: F) {
+        while self.spline.len() < order + 1 {
+            self.spline.push(None);
         }
-        if self.spline.len() == order {
-            self.spline.push(Some(form::Spline::default()));
+        let mut spline = self.spline[order].take();
+        if spline.is_none() {
+            spline = Some(form::Spline::default());
         }
+        if let Some(spline) = &mut spline {
+            func(spline);
+        }
+        let _ = replace(&mut self.spline[order], spline);
     }
 }
 

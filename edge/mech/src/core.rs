@@ -15,6 +15,15 @@ impl Core {
             gpu,
         })
     }
+    pub fn travel(&self) -> TravelBuilder {
+        TravelBuilder::default()
+    }
+    pub fn orient(&self) -> OrientBuilder {
+        OrientBuilder::default()
+    }
+    pub fn spline(&self) -> SplineBuilder {
+        SplineBuilder::default()
+    }
     pub fn flow(&self) -> FlowBuilder {
         FlowBuilder::default()
     }
