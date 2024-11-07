@@ -1,23 +1,23 @@
 pub use plot::*;
 pub use shape::*;
 
-use bank::*;
 use core::*;
 use derive_builder::Builder;
-use graph::*;
 use gpu::*;
+use graph::*;
 use node_derive::*;
 use star::*;
 use wgpu::*;
 
-mod bank;
 mod core;
 mod plot;
 mod shape;
 
 pub type Mech = Core;
 
-#[derive(ThisError, Debug)]
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
@@ -26,7 +26,11 @@ pub enum Error {
     #[error(transparent)]
     Dom(#[from] dom::Error),
     #[error(transparent)]
-    Any(#[from] anyError),
+    Any(#[from] anyhow::Error),
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+// #[derive(Clone, Debug)]
+// pub struct Plot {
+//     pub hedge: Hedge,
+//     pub shape: Hub<Shape>,
+// }

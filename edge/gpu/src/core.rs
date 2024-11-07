@@ -1,3 +1,4 @@
+use display::Display;
 use super::*;
 
 #[derive(Clone, Debug)]
@@ -104,8 +105,8 @@ impl Core {
     ) -> encode::RenderBuilder {
         encode::RenderBuilder::default().attachments(attachments)
     }
-    pub fn encoder(&self) -> Encoder {
-        Encoder {
+    pub fn encoder(&self) -> Encode {
+        Encode {
             inner: self
                 .device
                 .create_command_encoder(&CommandEncoderDescriptor::default()),
@@ -146,7 +147,8 @@ impl Core {
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(self.device.clone())
     }
-    pub fn hedge<T>(&self, data: Vec<T>) -> graph::Result<Hedge>
+    /// Create a dummy `Hedge` to quickly put data into GPU ecosystem.
+    pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
     where
         T: Pod + Debug,
     {

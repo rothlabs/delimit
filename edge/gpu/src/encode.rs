@@ -5,15 +5,14 @@ pub use render::*;
 use super::*;
 
 mod command;
-// mod pass;
 mod render;
 
-pub struct Encoder<'a> {
+pub struct Encode<'a> {
     pub inner: CommandEncoder,
     pub queue: &'a Queue,
 }
 
-impl<'a> Encoder<'a> {
+impl<'a> Encode<'a> {
     pub fn compute(&mut self) -> ComputePass {
         self.inner
             .begin_compute_pass(&ComputePassDescriptor::default())
@@ -34,7 +33,7 @@ impl<'a> Encoder<'a> {
 }
 
 pub struct SourceBuffer<'a> {
-    encoder: Encoder<'a>,
+    encoder: Encode<'a>,
     buffer: &'a Buffer,
     offset: BufferAddress,
 }
@@ -64,7 +63,7 @@ impl<'a> DestinationBuffer<'a> {
         self.offset = offset;
         self
     }
-    pub fn size(mut self, size: BufferAddress) -> Encoder<'a> {
+    pub fn size(mut self, size: BufferAddress) -> Encode<'a> {
         self.source.encoder.inner.copy_buffer_to_buffer(
             self.source.buffer,
             self.source.offset,

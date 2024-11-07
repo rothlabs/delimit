@@ -9,6 +9,7 @@ edition = "2021"
     getrandom = {version = "0.2", features = ["js"]}
     gloo-timers = { version = "0.3.0", features = ["futures"] }
     derive_builder = "0.20.0"
+    anyhow = "1.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     webgl = { path = "../webgl" }
     node_derive = { path = "../../core/node_derive" }

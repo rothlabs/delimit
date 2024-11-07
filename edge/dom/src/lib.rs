@@ -16,7 +16,7 @@ mod text;
 // #[cfg(test)]
 // mod tests;
 
-#[derive(ThisError, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
@@ -29,7 +29,7 @@ pub enum Error {
     #[error("HtmlElement Error ({0})")]
     HtmlElement(String),
     #[error(transparent)]
-    Any(#[from] anyError),
+    Any(#[from] anyhow::Error),
 }
 
 impl From<JsValue> for Error {

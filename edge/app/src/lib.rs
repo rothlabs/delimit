@@ -17,7 +17,7 @@ macro_rules! console_log {
 
 pub mod demo;
 
-#[derive(ThisError, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
@@ -28,7 +28,7 @@ pub enum Error {
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
-    Any(#[from] anyError),
+    Any(#[from] anyhow::Error),
 }
 
 impl From<JsValue> for Error {

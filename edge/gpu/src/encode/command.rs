@@ -20,7 +20,7 @@ pub struct Command {
 }
 
 impl Command {
-    async fn compute_pass(&self, encoder: &mut Encoder<'_>) -> graph::Result<()> {
+    async fn compute_pass(&self, encoder: &mut Encode<'_>) -> graph::Result<()> {
         let mut pass = encoder.compute();
         for cmd in &self.compute_commands {
             match cmd {
@@ -39,7 +39,7 @@ impl Command {
     }
     async fn render_pass(
         &self,
-        encoder: &mut Encoder<'_>,
+        encoder: &mut Encode<'_>,
         view: &TextureView,
     ) -> graph::Result<()> {
         let attachments = if let Some(target) = &self.resolve_target {

@@ -1,6 +1,10 @@
+pub use bank::ComputeProgram;
+
 use super::*;
+use bank::*;
 
 mod make;
+mod bank;
 
 #[derive(Clone, Debug)]
 pub struct Core {
@@ -30,6 +34,7 @@ impl Core {
     pub fn flow(&self) -> FlowBuilder {
         FlowBuilder::default()
     }
+    /// Shape builder of given dimensionality.
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }

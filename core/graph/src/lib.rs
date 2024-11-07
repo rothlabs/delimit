@@ -1,6 +1,5 @@
 pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
-pub use anyhow::Error as anyError;
 pub use apex::{Apex, DealItem, View, ViewVec};
 pub use base::Digest;
 pub use bay::Bay;
@@ -22,9 +21,7 @@ pub use serial::{DeserializeUnit, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
 pub use solve::{solve_ok, Act, Solve, SolveAdapt};
 pub use thiserror;
-pub use thiserror::Error as ThisError;
 pub use tray::Tray;
-// pub use view::{View, ViewVec};
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
 use aim::*;

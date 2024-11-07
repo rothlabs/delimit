@@ -57,9 +57,3 @@ impl<'a> ColorAttachmentBuilder<'a> {
         Ok([Some(self.make()?); 1])
     }
 }
-
-// impl<'a> AttachmentListFrom<'a> for RenderPassColorAttachment<'a> {
-//     fn list(self) -> [Option<RenderPassColorAttachment<'a>>; 1] {
-//         [Some(self); 1]
-//     }
-// }
