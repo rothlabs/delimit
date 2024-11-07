@@ -43,8 +43,7 @@ impl Display {
                 config.height = height.max(MIN_DIMENSION);
                 self.inner.configure(&self.device, config);
             })
-            .await?;
-        Ok(())
+            .await
     }
     pub fn targets(&self) -> &[Option<ColorTargetState>] {
         &self.targets
