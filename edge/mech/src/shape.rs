@@ -1,10 +1,11 @@
 pub use form::*;
 
 use super::*;
-use std::mem::replace;
 
 mod form;
 mod make;
+
+const EXISTS: &str = "Field must exist by ensuring default.";
 
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
@@ -71,9 +72,7 @@ impl ShapeBuilder {
         if self.form.is_none() {
             self.form = Some(Form::default());
         }
-        if let Some(form) = &mut self.form {
-            func(form);
-        }
+        func(self.form.as_mut().expect(EXISTS));
         self
     }
 }
@@ -90,17 +89,13 @@ impl Form {
         if self.travel.is_none() {
             self.travel = Some(form::Travel::default());
         }
-        if let Some(travel) = &mut self.travel {
-            func(travel);
-        }
+        func(self.travel.as_mut().expect(EXISTS));
     }
     fn mut_orient<F: FnOnce(&mut form::Orient)>(&mut self, func: F) {
         if self.orient.is_none() {
             self.orient = Some(form::Orient::default());
         }
-        if let Some(orient) = &mut self.orient {
-            func(orient);
-        }
+        func(self.orient.as_mut().expect(EXISTS));
     }
     fn mut_spline<F: FnOnce(&mut form::Spline)>(&mut self, order: usize, func: F) {
         while self.spline.len() < order + 1 {
@@ -110,10 +105,8 @@ impl Form {
         if spline.is_none() {
             spline = Some(form::Spline::default());
         }
-        if let Some(spline) = &mut spline {
-            func(spline);
-        }
-        let _ = replace(&mut self.spline[order], spline);
+        func(spline.as_mut().expect(EXISTS));
+        self.spline[order] = spline;
     }
 }
 
@@ -135,6 +128,11 @@ impl FlowBuilder {
         if self._spline.is_none() {
             self = self._spline(vec![]);
         }
+        // let mut spline = self._spline.take().expect(EXISTS);
+        // while spline.len() < order + 1 {
+        //     spline.push(None);
+        // }
+        // spline[order] = Some(hedge);
         if let Some(matrix) = &mut self._spline {
             for _ in 0..order - matrix.len() {
                 matrix.push(None);
