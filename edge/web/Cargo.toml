@@ -1,0 +1,58 @@
+[package]
+    name = "web"
+    version = "0.1.0"
+    authors = ["Julian Erickson <julian@rothlabs.com>"]
+    edition = "2021"
+    description = "Delimit App"
+    repository = "https://github.com/rothlabs/delimit"
+    license = "none"
+
+[lib]
+    crate-type = ["cdylib", "rlib"]
+
+[features]
+    default = ["console_error_panic_hook"]
+
+[dependencies]
+    wasm-bindgen = "0.2.93"
+    wasm-bindgen-futures = "0.4.43"
+    console_error_panic_hook = { version = "0.1.7", optional = true }
+    getrandom = {version = "0.2", features = ["js"]}
+    gloo-timers = { version = "0.3.0", features = ["futures"] }
+    gloo-render = "0.2.0"
+    derive_builder = "0.20.0"
+    anyhow = "1.0"
+    wgpu = {version = "22.1.0" }
+    dom = { path = "../dom" }
+    webgl = { path = "../webgl" }
+    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    node_derive = { path = "../../core/node_derive" }
+
+[dependencies.web-sys] 
+    version = "0.3.70"
+    features = [
+        'Window', 
+        'Document', 
+        'HtmlCanvasElement',
+        'OffscreenCanvas',
+        'WebGlRenderingContext', 
+        'WebGl2RenderingContext', 
+        'WebGlProgram', 
+        'WebGlShader', 
+        'WebGlBuffer', 
+        'WebGlFramebuffer', 
+        'WebGlVertexArrayObject',
+        'WebGlUniformLocation',
+        'WebGlTexture'
+    ]
+
+[dev-dependencies]
+    wasm-bindgen-test = "0.3.43"
+
+
+    # The `console_error_panic_hook` crate provides better debugging of panics by
+    # logging them with `console.error`. This is great for development, but requires
+    # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+    # code size when deploying.
+
+        # macro_rules_attribute = "0.2.0"
