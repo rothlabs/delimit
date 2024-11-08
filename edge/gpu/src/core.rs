@@ -1,5 +1,6 @@
 use display::Display;
 use super::*;
+#[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
 
 #[derive(Clone, Debug)]
@@ -10,6 +11,7 @@ pub struct Core {
 }
 
 impl Core {
+    #[cfg(target_arch = "wasm32")]
     pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<Self> {
         let instance = Instance::default();
         let surface_target = SurfaceTarget::Canvas(canvas);
