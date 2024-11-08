@@ -13,5 +13,5 @@
     hyper-util = { version = "0.1.5", features = ["full"] }
     http-body-util = "0.1.1"
     pretty_env_logger = "0.5"
-    graph = {path = "../../graph"}
-    text = {path = "../../text"}
+    graph = {path = "../graph"}
+    text = {path = "../text"}

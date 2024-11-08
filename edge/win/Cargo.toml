@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 winit = "0.30"
+graph = { path = "../../core/graph" }
