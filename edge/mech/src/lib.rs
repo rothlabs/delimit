@@ -1,4 +1,4 @@
-pub use plot::*;
+// pub use plot::*;
 pub use shape::*;
 
 use core::*;
@@ -10,7 +10,7 @@ use star::*;
 use wgpu::*;
 
 mod core;
-mod plot;
+// mod plot;
 mod shape;
 
 pub type Mech = Core;
@@ -29,8 +29,10 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-// #[derive(Clone, Debug)]
-// pub struct Plot {
-//     pub hedge: Hedge,
-//     pub shape: Hub<Shape>,
-// }
+/// Discrete evaluations of a shape.
+/// Data layout: position, velocity-by-parameter-1, velocity-by-parameter-2, ...
+#[derive(Clone, Debug)]
+pub struct Plot {
+    pub hedge: Hedge,
+    pub shape: Hub<Shape>,
+}

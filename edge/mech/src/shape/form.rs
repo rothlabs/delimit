@@ -21,7 +21,6 @@ pub struct Orient {
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Spline {
-    // alt name for basis: knots
     pub basis: Option<Hedge>,
     pub nurbs: Option<Hedge>,
 }

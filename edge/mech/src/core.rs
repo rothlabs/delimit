@@ -3,8 +3,8 @@ pub use bank::ComputeProgram;
 use super::*;
 use bank::*;
 
-mod make;
 mod bank;
+mod make;
 
 #[derive(Clone, Debug)]
 pub struct Core {

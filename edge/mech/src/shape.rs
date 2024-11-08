@@ -5,6 +5,7 @@ use super::*;
 mod form;
 mod make;
 
+/// Continuous parametric geometry.
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
@@ -24,8 +25,8 @@ impl Shape {
     pub fn chart<'a>(&'a self, core: &'a Core) -> make::Chart<'a> {
         make::Chart { core, shape: self }
     }
-    pub fn plot_stride(&self) -> u32 {
-        self.dimension + self.dimension * self.rank()
+    pub fn stride(&self) -> u32 {
+        self.dimension * (self.rank() + 1)
     }
     pub fn rank(&self) -> u32 {
         self.flows.len() as u32
@@ -82,6 +83,7 @@ impl ShapeBuilder {
     }
 }
 
+/// Specify how to create `Weft` basis evaluations.
 #[derive(Builder, Clone, Default, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
@@ -104,6 +106,7 @@ impl Form {
     }
 }
 
+/// Index into Warp and `Weft`.
 #[derive(Builder, Clone, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]

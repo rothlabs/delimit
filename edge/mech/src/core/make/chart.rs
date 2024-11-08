@@ -6,7 +6,6 @@ use super::*;
 pub struct Grid {
     #[back(skip)]
     core: Core,
-    #[back(skip)]
     #[builder(setter(each(name = "count", into)))]
     counts: Vec<Hub<u32>>,
     shape: Hub<Shape>,
