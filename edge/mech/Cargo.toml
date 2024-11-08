@@ -11,10 +11,10 @@ resolver = "2"
     wgpu = "22.1.0"
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     gpu = { path = "../gpu" }
-    dom = { path = "../dom" }
+    dom = { path = "../../web/dom" }
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
-    dom = { path = "../dom" }
+    # dom = { path = "../dom" }

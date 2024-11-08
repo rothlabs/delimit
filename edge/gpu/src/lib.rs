@@ -12,7 +12,6 @@ use star::*;
 use std::fmt::Debug;
 use texture::*;
 use util::DeviceExt;
-use web_sys::HtmlCanvasElement;
 use wgpu::*;
 
 mod bind;

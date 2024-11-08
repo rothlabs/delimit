@@ -1,5 +1,6 @@
 use display::Display;
 use super::*;
+use web_sys::HtmlCanvasElement;
 
 #[derive(Clone, Debug)]
 pub struct Core {

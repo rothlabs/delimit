@@ -3,13 +3,13 @@
 #![cfg(target_arch = "wasm32")]
 
 // extern crate wasm_bindgen_test;
-use web::demo;
+use webapp::{demo, Result};
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
-fn demo_nurbs() -> web::Result<()> {
+fn demo_nurbs() -> Result<()> {
     demo::nurbs::DemoBuilder::default().make()?.start();
     Ok(())
 }
