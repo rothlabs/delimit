@@ -52,7 +52,7 @@ pub struct DrawElements {
 // }
 
 impl Act for DrawElements {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.stems.depend().await?;
         self.program.act().await?;
         self.program.read(|program| program.use_())?;
@@ -67,7 +67,7 @@ impl Act for DrawElements {
 }
 
 impl Adapt for DrawElements {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.stems.back(back)?;
         self.program.back(back)?;
         self.count.back(back)?;

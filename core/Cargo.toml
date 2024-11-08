@@ -1,6 +1,13 @@
 [workspace]
-    members = ["app", "graph", "text", "repo", "node_derive", "star"]
-    resolver = "2" 
+resolver = "2" 
+    members = [
+        "graph",
+        "node_derive",
+        "star",
+        "server/app",
+        "server/repo",
+        "text",
+    ]
 
 
 # [workspace.dependencies]

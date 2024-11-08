@@ -14,7 +14,7 @@ pub struct BufferReader {
 
 impl Solve for BufferReader {
     type Base = Vec<f32>;
-    async fn solve(&self) -> Result<Hub<Vec<f32>>> {
+    async fn solve(&self) -> graph::Result<Hub<Vec<f32>>> {
         self.draw.act().await?;
         let sync = self
             .buffer
@@ -38,7 +38,7 @@ impl Solve for BufferReader {
 }
 
 impl Adapt for BufferReader {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.size.back(back)
     }
 }

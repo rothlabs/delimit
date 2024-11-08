@@ -1,5 +1,4 @@
 use super::*;
-use web_sys::js_sys::Reflect;
 
 pub struct Canvas {
     pub object: HtmlCanvasElement,
@@ -15,25 +14,26 @@ impl Canvas {
         // assert!(height == 300);
         // panic!("wow");
     }
+}
+
     // pub async fn gpu<'a>(&self) -> Result<Gpu> {
     //     let gpu = Gpu::from_canvas(self.object.clone()).await?;
     //     Ok(gpu)
     // }
-    pub fn webgl(&self) -> Result<WebGl> {
-        let context_options = Object::new();
-        Reflect::set(
-            &context_options,
-            &"preserveDrawingBuffer".into(),
-            &true.into(),
-        )?;
-        let gl = self
-            .object
-            .get_context_with_context_options("webgl2", &context_options)?
-            .ok_or(no_object())?
-            .dyn_into::<WGLRC>()?;
-        Ok(WebGl { gl })
-    }
-}
+    // pub fn webgl(&self) -> Result<WebGl> {
+    //     let context_options = Object::new();
+    //     Reflect::set(
+    //         &context_options,
+    //         &"preserveDrawingBuffer".into(),
+    //         &true.into(),
+    //     )?;
+    //     let gl = self
+    //         .object
+    //         .get_context_with_context_options("webgl2", &context_options)?
+    //         .ok_or(no_object())?
+    //         .dyn_into::<WGLRC>()?;
+    //     Ok(WebGl { gl })
+    // }
 
 // use super::*;
 // use web_sys::{window, HtmlCanvasElement};

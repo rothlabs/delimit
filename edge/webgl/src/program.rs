@@ -22,7 +22,7 @@ impl Program {
 }
 
 impl Act for Program {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.vertex.act().await?;
         self.fragment.act().await?;
         if !self.outs.is_empty() {
@@ -52,7 +52,7 @@ impl Act for Program {
 }
 
 impl Adapt for Program {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.vertex.back(back)?;
         self.fragment.back(back)
     }

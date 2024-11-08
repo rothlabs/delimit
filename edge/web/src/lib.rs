@@ -21,6 +21,8 @@ pub mod demo;
 pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
+    #[error(transparent)]
+    WebGl(#[from] webgl::Error),
     #[error("Js Error ({0})")]
     JsValue(String),
     #[error("Dom Error ({0})")]

@@ -21,7 +21,7 @@ impl Texture {
         // self.gl.active_texture(WGLRC::TEXTURE0);
         self.gl.bind_texture(WGLRC::TEXTURE_2D, Some(&self.object));
     }
-    fn vec_u8(&self, array: &Vec<u8>, width: i32, height: i32) -> Result<()> {
+    fn vec_u8(&self, array: &Vec<u8>, width: i32, height: i32) -> graph::Result<()> {
         let pixels = unsafe { Uint8Array::view(array.as_slice()) };
         // use PIXEL_UNPACK_ buffer bind and following pbo offset:
         // self.gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_i32(target, level, internalformat, width, height, border, format, type_, pbo_offset)
@@ -49,7 +49,7 @@ impl Texture {
 }
 
 impl Act for Texture {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         let width = self.width.base().await.unwrap_or_default();
         let height = self.height.base().await.unwrap_or_default();
         self.bind();
@@ -65,7 +65,7 @@ impl Act for Texture {
 }
 
 impl Adapt for Texture {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.array.back(back)?;
         self.width.back(back)?;
         self.height.back(back)

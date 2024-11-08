@@ -25,7 +25,7 @@ pub struct VertexAttribute {
 }
 
 impl Act for VertexAttribute {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();
         self.buffer.gl.vertex_attrib_pointer_with_i32(
@@ -47,7 +47,7 @@ impl Act for VertexAttribute {
 }
 
 impl Adapt for VertexAttribute {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.index.back(back)?;
         self.size.back(back)?;
         self.stride.back(back)?;

@@ -2,7 +2,7 @@
 
 #![cfg(target_arch = "wasm32")]
 
-use dom::Result;
+// use dom::Result;
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -11,23 +11,24 @@ use dom::Window;
 use graph::*;
 use webgl::Buffer;
 use webgl::*;
+use webgl::Result;
 
 pub fn gpu() -> Result<WebGl> {
-    Window::new()?
+    let canvas = Window::new()?
         .document()?
         .body()?
         .element("canvas")?
-        .canvas()?
-        .webgl()
+        .canvas()?;
+    WebGl::from_canvas(canvas.object)
 }
 
 pub fn gpu_on_canvas() -> Result<WebGl> {
-    Window::new()?
+    let canvas = Window::new()?
         .document()?
         .body()?
         .stem("canvas")?
-        .canvas()?
-        .webgl()
+        .canvas()?;
+    WebGl::from_canvas(canvas.object)
 }
 
 pub fn basic_program(gpu: &WebGl) -> Result<(Node<Program>, Leaf<String>)> {
@@ -38,10 +39,10 @@ pub fn basic_program(gpu: &WebGl) -> Result<(Node<Program>, Leaf<String>)> {
     Ok((program, fragment_source))
 }
 
-pub fn make_tex_program(gpu: &WebGl) -> graph::Result<Node<Program>> {
+pub fn make_tex_program(gpu: &WebGl) -> Result<Node<Program>> {
     let vertex = gpu.vertex_shader(shader::basic::VERTEX_TEX)?;
     let fragment = gpu.fragment_shader(shader::basic::FRAGMENT_TEX)?;
-    gpu.program(vertex, fragment)?.node()
+    Ok(gpu.program(vertex, fragment)?.node()?)
 }
 
 pub fn make_basic_buffer(gpu: &WebGl) -> Result<(Buffer, Node<Bufferer>)> {

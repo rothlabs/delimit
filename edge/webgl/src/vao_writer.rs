@@ -14,7 +14,7 @@ pub struct VaoWriter {
 }
 
 impl Act for VaoWriter {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.object.bind();
         for attribute in &self.attributes {
             attribute.act().await?;
@@ -28,7 +28,7 @@ impl Act for VaoWriter {
 }
 
 impl Adapt for VaoWriter {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.attributes.back(back)
     }
 }

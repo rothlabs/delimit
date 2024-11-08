@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+    anyhow = "1.0"
     wasm-bindgen-futures = "0.4.43"
     gloo-timers = { version = "0.3.0", features = ["futures"] }
     derive_builder = "0.20.1"
+    dom = { path = "../dom" }
     graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
     node_derive = { path = "../../core/node_derive" }
 
@@ -27,4 +29,3 @@ edition = "2021"
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
-    dom = { path = "../dom" }

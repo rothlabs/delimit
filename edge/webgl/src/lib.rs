@@ -15,7 +15,9 @@ use derive_builder::Builder;
 use graph::*;
 use node_derive::Gate;
 use vao_writer::*;
-use web_sys::{js_sys::*, WebGl2RenderingContext, WebGlBuffer};
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{js_sys::*, HtmlCanvasElement, WebGl2RenderingContext, WebGlBuffer};
+use anyhow::anyhow;
 
 pub mod buffer;
 pub mod shader;
@@ -33,9 +35,52 @@ mod vertex_attribute;
 
 pub type WGLRC = WebGl2RenderingContext;
 
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error(transparent)]
+    Graph(#[from] graph::Error),
+    #[error("JsValue Error ({0})")]
+    JsValue(String),
+    #[error("Object Error ({0})")]
+    Object(String),
+    #[error(transparent)]
+    Dom(#[from] dom::Error),
+    #[error(transparent)]
+    Any(#[from] anyhow::Error),
+}
+
+impl From<JsValue> for Error {
+    fn from(value: JsValue) -> Self {
+        Error::JsValue(format!("{:?}", value))
+    }
+}
+
+impl From<Object> for Error {
+    fn from(value: Object) -> Self {
+        Error::Object(format!("{:?}", value))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct WebGl {
     pub gl: WGLRC,
+}
+
+impl WebGl {
+    pub fn from_canvas(canvas: HtmlCanvasElement) -> Result<WebGl> {
+        let context_options = Object::new();
+        Reflect::set(
+            &context_options,
+            &"preserveDrawingBuffer".into(),
+            &true.into(),
+        )?;
+        let gl = canvas.get_context_with_context_options("webgl2", &context_options)?
+            .ok_or(anyhow!("could not make WebGl2RenderingContext"))?
+            .dyn_into::<WGLRC>()?;
+        Ok(WebGl { gl })
+    }
 }
 
 impl From<WGLRC> for WebGl {
@@ -48,10 +93,10 @@ impl WebGl {
     pub fn clear(&self) {
         self.gl.clear(WGLRC::COLOR_BUFFER_BIT);
     }
-    pub fn vertex_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
+    pub fn vertex_shader(&self, source: impl Into<Hub<String>>) -> graph::Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::VERTEX_SHADER, &source.into())
     }
-    pub fn fragment_shader(&self, source: impl Into<Hub<String>>) -> Result<Node<Shader>> {
+    pub fn fragment_shader(&self, source: impl Into<Hub<String>>) -> graph::Result<Node<Shader>> {
         Shader::make(&self.gl, WGLRC::FRAGMENT_SHADER, &source.into())
     }
     pub fn program(&self, vertex: Node<Shader>, fragment: Node<Shader>) -> Result<ProgramBuilder> {

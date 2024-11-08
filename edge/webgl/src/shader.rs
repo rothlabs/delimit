@@ -11,7 +11,7 @@ pub struct Shader {
 }
 
 impl Shader {
-    pub fn make(gl: &WGLRC, type_: u32, source: &Hub<String>) -> Result<Node<Shader>> {
+    pub fn make(gl: &WGLRC, type_: u32, source: &Hub<String>) -> graph::Result<Node<Shader>> {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
@@ -25,7 +25,7 @@ impl Shader {
 }
 
 impl Act for Shader {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.source
             .read(|src| self.gl.shader_source(&self.object, src))
             .await?;
@@ -48,7 +48,7 @@ impl Act for Shader {
 }
 
 impl Adapt for Shader {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.source.back(back)
     }
 }

@@ -9,7 +9,7 @@ use web_sys::{
     js_sys::{Object, Promise},
     window, HtmlCanvasElement, HtmlElement,
 };
-use webgl::*;
+// use webgl::*;
 
 mod canvas;
 mod text;
@@ -54,10 +54,6 @@ impl From<web_sys::HtmlElement> for Error {
     fn from(value: web_sys::HtmlElement) -> Self {
         Error::JsValue(format!("{:?}", value))
     }
-}
-
-fn no_object() -> Error {
-    Error::Object("none".into())
 }
 
 fn no_html_element() -> Error {

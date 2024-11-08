@@ -27,7 +27,7 @@ pub struct DrawArrays {
 }
 
 impl DrawArrays {
-    async fn rasterizer_switch(&self) -> Result<()> {
+    async fn rasterizer_switch(&self) -> graph::Result<()> {
         if self.rasterizer_discard {
             self.gl.enable(WGLRC::RASTERIZER_DISCARD);
             self.draw().await;
@@ -47,7 +47,7 @@ impl DrawArrays {
 }
 
 impl Act for DrawArrays {
-    async fn act(&self) -> Result<()> {
+    async fn act(&self) -> graph::Result<()> {
         self.stems.depend().await?;
         self.program.act().await?;
         // TODO: use wrapper of WebGlProgram directly
@@ -66,7 +66,7 @@ impl Act for DrawArrays {
 }
 
 impl Adapt for DrawArrays {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
         self.stems.back(back)?;
         self.program.back(back)?;
         self.first.back(back)?;

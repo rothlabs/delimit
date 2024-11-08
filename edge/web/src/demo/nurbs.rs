@@ -26,7 +26,7 @@ impl Demo {
     pub fn start(self) {
         spawn_local(async move { self.run().await.unwrap() })
     }
-    pub async fn run(&self) -> dom::Result<()> {
+    pub async fn run(&self) -> Result<()> {
         let window = Window::new()?;
         let doc = window.document()?;
         let tick = 0.into_leaf();
@@ -49,10 +49,10 @@ impl Demo {
         &self,
         doc: &Document,
         tick: impl Into<Hub<i32>>,
-    ) -> dom::Result<Node<Nurbs>> {
+    ) -> Result<Node<Nurbs>> {
         let canvas = doc.body()?.stem("canvas")?.canvas()?;
         canvas.set_size(self.width, self.height);
-        let gpu = canvas.webgl()?;
+        let gpu = WebGl::from_canvas(canvas.object)?;//canvas.webgl()?;
         let tick = &tick.into();
         let vert = gpu.vertex_shader(PARTICLES)?;
         let frag = gpu.fragment_shader(PARTICLES_FRAG)?;
