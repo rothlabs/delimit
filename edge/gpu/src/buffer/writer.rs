@@ -13,7 +13,7 @@ pub struct BufferWriter<T> {
 
 impl<T> Solve for BufferWriter<T>
 where
-    T: Pod + Debug,
+    T: Pod + Debug + graph::SendSync,
 {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {

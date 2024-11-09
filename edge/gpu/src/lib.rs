@@ -31,15 +31,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(transparent)]
     CreateSurfaceError(#[from] CreateSurfaceError),
-    // TODO: can uninitialized field error be removed because it is in graph crate?
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Graph(#[from] graph::Error),
     #[error(transparent)]
-    Dom(#[from] dom::Error),
-    #[error(transparent)]
     Any(#[from] anyhow::Error),
+    #[cfg(target_arch = "wasm32")]
+    #[error(transparent)]
+    Dom(#[from] dom::Error),
 }
 
 #[derive(Clone, Debug)]

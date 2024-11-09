@@ -9,10 +9,13 @@ edition = "2021"
     wgpu = "22.1.0"
     bytemuck = "1.18.0"
     flume = "0.11.0"
-    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
-    dom = { path = "../../web/dom" }
+    graph = { path = "../../core/graph" }
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
+    
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+    dom = { path = "../../web/dom" }
+    
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"

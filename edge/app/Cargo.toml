@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-winit = "0.30"
-win = { path = "../win" }
+    tokio = { version = "1", features = ["full"] }
+    winit = "0.30"
+    win = { path = "../win" }

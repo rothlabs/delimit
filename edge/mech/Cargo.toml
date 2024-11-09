@@ -9,12 +9,13 @@ resolver = "2"
     serde = { version = "1.0", features = ["derive"] }
     derive_builder = "0.20.1"
     wgpu = "22.1.0"
-    graph = { path = "../../core/graph", default-features = false, features = ["oneThread"] }
+    graph = { path = "../../core/graph" } # , default-features = false, features = ["oneThread"] 
     gpu = { path = "../gpu" }
-    dom = { path = "../../web/dom" }
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+    dom = { path = "../../web/dom" }
+
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
-    # dom = { path = "../dom" }

@@ -1,8 +1,9 @@
 [package]
-name = "win"
-version = "0.1.0"
-edition = "2021"
+    name = "win"
+    version = "0.1.0"
+    edition = "2021"
 
 [dependencies]
-winit = "0.30"
-graph = { path = "../../core/graph" }
+    winit = "0.30"
+    tokio = { version = "1", features = ["full"] }
+    graph = { path = "../../core/graph" }

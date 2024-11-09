@@ -1,3 +1,5 @@
+// TODO: move WASM integration tests into seperate crate in web workspace
+
 #![cfg(target_arch = "wasm32")]
 
 use dom::*;

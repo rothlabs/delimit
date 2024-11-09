@@ -16,7 +16,7 @@ pub struct BufferReader<T> {
 
 impl<T> Solve for BufferReader<T>
 where
-    T: Pod,
+    T: Pod + graph::SendSync,
 {
     type Base = Vec<T>;
     async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
@@ -42,7 +42,7 @@ where
 
 impl<T> BufferReaderBuilder<T>
 where
-    T: 'static + Clone + Debug,
+    T: 'static + Clone + Debug + graph::SendSync,
     BufferReader<T>: Solve,
     <BufferReader<T> as Solve>::Base: Clone + Debug,
 {

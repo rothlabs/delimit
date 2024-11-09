@@ -153,7 +153,7 @@ impl Core {
     /// Create a dummy `Hedge` to quickly put data into GPU ecosystem.
     pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
     where
-        T: Pod + Debug,
+        T: Pod + Debug + graph::SendSync,
     {
         let size = data.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage()?.into();

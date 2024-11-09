@@ -12,7 +12,7 @@ pub struct Uniform<T> {
 
 impl<T> UniformBuilder<T>
 where
-    T: Pod + Debug,
+    T: Pod + Debug + graph::SendSync,
 {
     pub fn make(self) -> graph::Result<Hedge> {
         let build = self.build()?;

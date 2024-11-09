@@ -9,7 +9,7 @@ pub type Win = Core;
 #[derive(Default)]
 pub struct Core {
     window: Option<Window>,
-    cursor: Cursor,
+    events: EventsLeaf,
 }
 
 impl ApplicationHandler for Core {
@@ -34,29 +34,32 @@ impl ApplicationHandler for Core {
     }
     fn device_event(
             &mut self,
-            event_loop: &ActiveEventLoop,
-            device_id: winit::event::DeviceId,
+            _: &ActiveEventLoop,
+            _: winit::event::DeviceId,
             event: winit::event::DeviceEvent,
         ) {
         match event {
             DeviceEvent::MouseMotion { delta } => {
-                // delta.
+                let events = self.events.clone();
+                tokio::task::spawn(async move {
+                    println!("tokio mouse delta: {:?}", delta);
+                    let _ = events.x.write(|x| *x = delta.0).await;
+                });
             }
             _ => ()
         }
     }
 }
 
-pub struct Cursor {
-    x: Leaf<u32>,
-    y: Leaf<u32>,
+#[derive(Clone)]
+pub struct EventsLeaf {
+    x: Leaf<f64>,
 }
 
-impl Default for Cursor {
+impl Default for EventsLeaf {
     fn default() -> Self {
         Self { 
-            x: Leaf::new(0),
-            y: Leaf::new(0),
+            x: Leaf::new(0.),
         }
     }
 }

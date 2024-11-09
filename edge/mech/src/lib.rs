@@ -24,9 +24,10 @@ pub enum Error {
     #[error(transparent)]
     GPU(#[from] gpu::Error),
     #[error(transparent)]
-    Dom(#[from] dom::Error),
-    #[error(transparent)]
     Any(#[from] anyhow::Error),
+    #[cfg(target_arch = "wasm32")]
+    #[error(transparent)]
+    Dom(#[from] dom::Error),
 }
 
 /// Discrete evaluations of a shape.
