@@ -1,6 +1,6 @@
+use bind::*;
 use buffer::*;
 use bytemuck::*;
-use bind::*;
 use core::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;

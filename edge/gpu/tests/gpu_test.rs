@@ -10,17 +10,14 @@ use wgpu::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-
 fn body() -> gpu::Result<Element> {
     Ok(Window::new()?.document()?.body()?)
 }
-
 
 async fn gpu() -> gpu::Result<Gpu> {
     let canvas = body()?.element("canvas")?.canvas()?;
     Gpu::from_canvas(canvas.object).await
 }
-
 
 async fn gpu_with_canvas<'a>() -> gpu::Result<Gpu> {
     let canvas = body()?.stem("canvas")?.canvas()?;

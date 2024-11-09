@@ -1,8 +1,8 @@
-use display::Display;
-use winit::window::Window;
 use super::*;
+use display::Display;
 #[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
+use winit::window::Window;
 
 #[derive(Clone, Debug)]
 pub struct Core {
@@ -12,7 +12,7 @@ pub struct Core {
 }
 
 impl Core {
-    pub async fn from_window(window: &'static Window) -> Result<Self> {
+    pub async fn from_window(window: Grc<Window>) -> Result<Self> {
         let instance = Instance::default();
         let surface_target = SurfaceTarget::Window(Box::new(window));
         let surface = instance.create_surface(surface_target)?;
@@ -38,13 +38,11 @@ impl Core {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        Ok(
-            Self {
-                device: grc_device.clone(),
-                queue: queue.into(),
-                display: Display::new(surface, &adapter, grc_device).into(),
-            },
-        )
+        Ok(Self {
+            device: grc_device.clone(),
+            queue: queue.into(),
+            display: Display::new(surface, &adapter, grc_device).into(),
+        })
     }
     #[cfg(target_arch = "wasm32")]
     pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<Self> {
@@ -73,13 +71,11 @@ impl Core {
             .await
             .expect("Failed to create device");
         let grc_device = Grc::new(device);
-        Ok(
-            Self {
-                device: grc_device.clone(),
-                queue: queue.into(),
-                display: Display::new(surface, &adapter, grc_device).into(),
-            },
-        )
+        Ok(Self {
+            device: grc_device.clone(),
+            queue: queue.into(),
+            display: Display::new(surface, &adapter, grc_device).into(),
+        })
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {

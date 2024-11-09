@@ -37,11 +37,7 @@ impl Command {
         }
         Ok(())
     }
-    async fn render_pass(
-        &self,
-        encoder: &mut Encode<'_>,
-        view: &TextureView,
-    ) -> graph::Result<()> {
+    async fn render_pass(&self, encoder: &mut Encode<'_>, view: &TextureView) -> graph::Result<()> {
         let attachments = if let Some(target) = &self.resolve_target {
             self.core.attachment(view).resolve_target(target).list()?
         } else {

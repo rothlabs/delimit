@@ -8,3 +8,4 @@ edition = "2021"
     winit = "0.30"
     win = { path = "../win" }
     gpu = { path = "../gpu" }
+    graph = { path = "../../core/graph" }
