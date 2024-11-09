@@ -13,9 +13,11 @@ edition = "2021"
     node_derive = { path = "../../core/node_derive" }
     star = { path = "../../core/star" }
     
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+    winit = "0.30"
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-    dom = { path = "../../web/dom" }
-    
+    dom = { path = "../../web/dom" }    
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"

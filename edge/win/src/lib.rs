@@ -6,16 +6,23 @@ use winit::window::{Window, WindowId};
 
 pub type Win = Core;
 
-#[derive(Default)]
+// #[derive(Default)]
 pub struct Core {
-    window: Option<Window>,
+    // pub window: Option<Grc<Box<Window>>>,
+    pub window: Leaf<Option<Window>>,
     events: EventsLeaf,
+}
+
+impl Default for Core {
+    fn default() -> Self {
+        Self { window: Leaf::new(None), events: EventsLeaf::default() }
+    }
 }
 
 impl ApplicationHandler for Core {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_none() {
-            self.window = Some(event_loop.create_window(Window::default_attributes()).unwrap());
+            self.window = Some(event_loop.create_window(Window::default_attributes()).unwrap().into());
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
