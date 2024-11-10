@@ -1,21 +1,39 @@
 use graph::*;
 use gpu::Gpu;
+use wgpu::*;
 use win::Win;
 use winit::{event_loop::{ControlFlow, EventLoop}, window::Window};
 
-#[tokio::main]
+#[tokio::main] // (flavor = "current_thread")
 async fn main() {
-    let mut win = Win::new(Box::new(wow));
+    let mut win = Win::new(Box::new(start));
     let event_loop = EventLoop::new().unwrap();
     event_loop.set_control_flow(ControlFlow::Wait);
     event_loop.run_app(&mut win).unwrap();
     
 }
 
-fn wow(window: Grc<Window>) {
+fn start(window: Grc<Window>) {
     tokio::task::spawn(async {
-        let gpu = Gpu::from_window(window).await;
+        let gpu = Gpu::from_window(window).await.unwrap();
+        draw_triangle(gpu).await.unwrap();
     });
 }
 
-// async fn huh(window: Grc<Window>) -> Res
+async fn draw_triangle(gpu: Gpu) -> gpu::Result<()> {
+    let targets = gpu.display.targets();
+    let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
+    let vertex = shader.vertex("vs_main").make()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    let view = gpu.display.view();
+    gpu.command()
+        .texture_view(view)
+        .render(pipe)
+        .draw(0..3, 0..1)
+        .hub()?
+        .base()
+        .await?;
+    println!("draw triangle complete");
+    Ok(())
+}

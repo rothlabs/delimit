@@ -12,15 +12,15 @@ pub struct Core {
     // pub window: Leaf<Option<Box<Window>>>,
     pub window: Option<Grc<Window>>,
     events: EventsLeaf,
-    resumed: Box<dyn Fn(Grc<Window>)>,
+    start: Box<dyn Fn(Grc<Window>)>,
 }
 
 impl Core {
-    pub fn new(resumed: Box<dyn Fn(Grc<Window>)>) -> Self {
+    pub fn new(start: Box<dyn Fn(Grc<Window>)>) -> Self {
         Self {
             window: None,
             events: EventsLeaf::default(),
-            resumed,
+            start,
         }
     }
 }
@@ -33,13 +33,12 @@ impl Core {
 
 impl ApplicationHandler for Core {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        println!("winit resumed!");
         if self.window.is_none() {
             let window = Grc::new(event_loop
                 .create_window(Window::default_attributes())
                 .unwrap());
             self.window = Some(window.clone());
-            (self.resumed)(window);
+            (self.start)(window);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {

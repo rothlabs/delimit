@@ -61,6 +61,7 @@ impl Command {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 RenderCommand::Draw(vertices, instances) => {
+                    println!("right before draw");
                     pass.draw(vertices.clone(), instances.clone());
                 }
                 RenderCommand::DrawIndexed((indices, base_vertex, instances)) => {
