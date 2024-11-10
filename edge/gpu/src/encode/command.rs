@@ -1,3 +1,5 @@
+use display::Display;
+
 use super::*;
 use std::ops::Range;
 
@@ -9,6 +11,8 @@ pub struct Command {
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,
     // TODO: take enum of either DIRECT(Grc<TextureView>) or RESOLVE(Grc<TextureView>, Grc<TextureView>)
+    #[builder(default)]
+    display: Option<Grc<Display>>,
     #[builder(default)]
     texture_view: Option<Grc<TextureView>>,
     #[builder(default)]
@@ -61,7 +65,6 @@ impl Command {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 RenderCommand::Draw(vertices, instances) => {
-                    println!("right before draw");
                     pass.draw(vertices.clone(), instances.clone());
                 }
                 RenderCommand::DrawIndexed((indices, base_vertex, instances)) => {
@@ -81,10 +84,28 @@ impl Solve for Command {
         if !self.compute_commands.is_empty() {
             self.compute_pass(&mut encoder).await?;
         }
-        if let Some(view) = &self.texture_view {
-            self.render_pass(&mut encoder, view).await?;
+        if let Some(display) = &self.display {
+            let view = &display.view();
+            let attachments = self.core.attachment(view).list()?;
+            let render = self.core.render_pass(&attachments).make()?;
+            {
+                let mut pass = encoder.render(&render);
+                for cmd in &self.render_commands {
+                    match cmd {
+                        RenderCommand::Pipe(pipe) => pass.set_pipeline(pipe),
+                        _ => ()
+                    }
+                }
+                pass.draw(0..3, 0..1);
+            }
+            //self.render_pass(&mut encoder, view).await?;
         }
+        // if let Some(view) = &self.texture_view {
+        //     self.render_pass(&mut encoder, view).await?;
+        // }
+        println!("before gpu command submit");
         encoder.submit();
+        println!("after gpu command submit");
         Ok(Mutation.into())
     }
 }

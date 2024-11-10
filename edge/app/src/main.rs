@@ -14,7 +14,7 @@ async fn main() {
 }
 
 fn start(window: Grc<Window>) {
-    tokio::task::spawn(async {
+    tokio::task::spawn(async move {
         let gpu = Gpu::from_window(window).await.unwrap();
         draw_triangle(gpu).await.unwrap();
     });
@@ -26,9 +26,10 @@ async fn draw_triangle(gpu: Gpu) -> gpu::Result<()> {
     let vertex = shader.vertex("vs_main").make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-    let view = gpu.display.view();
+    // let view = gpu.display.view();
     gpu.command()
-        .texture_view(view)
+        .display(gpu.display.clone())
+        // .texture_view(view)
         .render(pipe)
         .draw(0..3, 0..1)
         .hub()?
