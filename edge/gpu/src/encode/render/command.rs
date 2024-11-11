@@ -5,7 +5,6 @@ use std::ops::Range;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Command {
-    core: Core,
     // TODO: rename roots to stems
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,

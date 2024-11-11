@@ -40,7 +40,7 @@ impl Weave<'_> {
             .entry(3, &trio.flow.buffer)
             .entry(4, self.plot)
             .hub()?;
-        gpu.command()
+        gpu.compute()
             .root(&trio.rig.root)
             .root(&self.warp.root)
             .root(&trio.weft.root)

@@ -1,4 +1,4 @@
-pub use compute::CommandBuilder;
+pub use compute::ComputeBuilder;
 pub use render::RenderBuilder;
 pub use render::*;
 

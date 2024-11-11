@@ -28,9 +28,9 @@ impl ApplicationHandler for App {
             let gpu = self.gpu.clone();
             let chain = self.chain.clone();
             tokio::task::spawn(async move {
-                let gpu_core = Gpu::from_surface(instance, surface, chain).await.unwrap();
-                gpu.write(|gpu| *gpu = Some(gpu_core)).await.unwrap();
-
+                let core = Gpu::from_surface(instance, surface, chain).await.unwrap();
+                draw_triangle(&core).await.unwrap();
+                gpu.write(|gpu| *gpu = Some(core)).await.unwrap();
             });
         }
     }
@@ -43,7 +43,8 @@ impl ApplicationHandler for App {
                 println!("request redraw");
                 if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
                     // let chain = self.chain.read(|x| x.clone()).unwrap();
-                    gpu.render();
+                    gpu.render().direct();
+                    println!("did draw");
                 }
             }
             // WindowEvent::CursorMoved { device_id, position } => {
@@ -71,21 +72,18 @@ impl ApplicationHandler for App {
     }
 }
 
-async fn draw_triangle(gpu: Gpu) -> gpu::Result<()> {
+async fn draw_triangle(gpu: &Gpu) -> gpu::Result<()> {
     let targets = gpu.display.targets();
     let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
     let vertex = shader.vertex("vs_main").make()?;
     let fragment = shader.fragment("fs_main").targets(targets).make()?;
     let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-    // let view = gpu.display.view();
-    // gpu.command()
-    //     .display(gpu.display.clone())
-    //     // .texture_view(view)
-    //     .render(pipe)
-    //     .draw(0..3, 0..1)
-    //     .hub()?
-    //     .base()
-    //     .await?;
+    gpu.command()
+        .render(pipe)
+        .draw(0..3, 0..1)
+        .hub()?
+        .base()
+        .await?;
     println!("draw triangle complete");
     Ok(())
 }

@@ -3,15 +3,16 @@ use super::*;
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Command {
+pub struct Compute {
     core: Core,
+    // TODO: rename roots to stems
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,
     #[builder(default, setter(each(name = "entry", into)))]
     entries: Vec<Entry>,
 }
 
-impl Command {
+impl Compute {
     async fn pass(&self, encoder: &mut Encode<'_>) -> graph::Result<()> {
         let mut pass = encoder.compute();
         for cmd in &self.entries {
@@ -31,7 +32,7 @@ impl Command {
     }
 }
 
-impl Solve for Command {
+impl Solve for Compute {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.roots.depend().await?;
@@ -42,7 +43,7 @@ impl Solve for Command {
     }
 }
 
-impl Adapt for Command {
+impl Adapt for Compute {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         for cmd in &mut self.entries {
             match cmd {
@@ -55,32 +56,15 @@ impl Adapt for Command {
     }
 }
 
-impl CommandBuilder {
-    pub fn pipe(self, pipe: Grc<ComputePipeline>) -> ComputePass {
-        let command = self.entry(Entry::Pipe(pipe));
-        ComputePass { command }
+impl ComputeBuilder {
+    pub fn pipe(self, pipe: Grc<ComputePipeline>) -> Self {
+        self.entry(Entry::Pipe(pipe))
     }
-}
-
-pub struct ComputePass {
-    command: CommandBuilder,
-}
-
-impl ComputePass {
-    pub fn hub(self) -> graph::Result<Hub<Mutation>> {
-        self.command.hub()
+    pub fn bind(self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.entry(Entry::Bind(index, bind.into()))
     }
-    pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-        self.command = self
-            .command
-            .entry(Entry::Bind(index, bind.into()));
-        self
-    }
-    pub fn dispatch(mut self, count: impl Into<Hub<u32>>) -> Self {
-        self.command = self
-            .command
-            .entry(Entry::Dispatch(count.into()));
-        self
+    pub fn dispatch(self, count: impl Into<Hub<u32>>) -> Self {
+        self.entry(Entry::Dispatch(count.into()))
     }
 }
 

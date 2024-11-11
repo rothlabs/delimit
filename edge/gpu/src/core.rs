@@ -178,11 +178,11 @@ impl Core {
     pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {
         SizeBuilder::default().buffer(buffer)
     }
-    pub fn command(&self) -> encode::CommandBuilder {
-        encode::CommandBuilder::default().core(self.clone())
+    pub fn compute(&self) -> encode::ComputeBuilder {
+        encode::ComputeBuilder::default().core(self.clone())
     }
-    pub fn render_command(&self) -> encode::render::CommandBuilder {
-        encode::render::CommandBuilder::default().core(self.clone())
+    pub fn command(&self) -> encode::render::CommandBuilder {
+        encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(self.device.clone())
@@ -198,8 +198,12 @@ impl Core {
         Ok(Hedge { buffer, root })
     }
 
-    pub fn render(&self) {
+    pub fn render(&self) -> action::Render {
         let chain = self.chain.read(|x| x.clone()).unwrap();
         println!("time to render! {:?}", chain);
+        action::Render {
+            core: self,
+            chain,
+        }
     }
 }

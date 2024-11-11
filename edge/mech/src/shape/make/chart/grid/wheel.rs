@@ -42,7 +42,7 @@ impl Spin<'_> {
             .entry(1, &form.buffer)
             .entry(2, self.weft)
             .hub()?;
-        gpu.command()
+        gpu.compute()
             .root(&rig.root)
             .root(&form.root)
             .pipe(program.pipe.clone())
