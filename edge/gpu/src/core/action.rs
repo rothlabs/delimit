@@ -41,11 +41,12 @@ impl<'a> Render<'a> {
                 command,
                 descriptor,
             };
-            pass.compute(&mut encoder);
+            // pass.compute(&mut encoder);
             pass.render(&mut encoder);
         }
         encoder.submit();
         frame.present();
+        println!("rendered! {:?}", self.chain);
     }
 }
 

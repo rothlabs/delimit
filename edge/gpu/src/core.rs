@@ -200,7 +200,6 @@ impl Core {
 
     pub fn render(&self) -> action::Render {
         let chain = self.chain.read(|x| x.clone()).unwrap();
-        println!("time to render! {:?}", chain);
         action::Render {
             core: self,
             chain,

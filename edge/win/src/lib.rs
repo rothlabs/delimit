@@ -13,6 +13,7 @@ pub struct App {
     events: EventsLeaf,
     gpu: Leaf<Option<Gpu>>,
     chain: Leaf<Vec<Command>>,
+    rendered: bool,
     window: Option<Grc<Window>>,
 }
 
@@ -43,9 +44,13 @@ impl ApplicationHandler for App {
                 println!("request redraw");
                 if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
                     // let chain = self.chain.read(|x| x.clone()).unwrap();
-                    gpu.render().surface();
-                    println!("did draw");
+                    if !self.rendered {
+                        gpu.render().surface();
+                        println!("did draw");
+                        self.rendered = true;
+                    }
                 }
+                
             }
             // WindowEvent::CursorMoved { device_id, position } => {
 
@@ -84,7 +89,7 @@ async fn draw_triangle(gpu: &Gpu) -> gpu::Result<()> {
         .hub()?
         .base()
         .await?;
-    println!("draw triangle complete");
+    // println!("draw triangle complete");
     Ok(())
 }
 
