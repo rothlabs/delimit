@@ -12,8 +12,8 @@ pub struct Core {
 }
 
 impl Core {
-    pub async fn from_surface(surface: Grc<Surface<'static>>) -> Result<Self> {
-        let instance = Instance::default();
+    pub async fn from_surface(instance: Instance, surface: Surface<'static>) -> Result<Self> {
+        // let instance = Instance::default();
         // let surface_target = SurfaceTarget::Window(Box::new(window));
         // let surface = instance.create_surface(surface_target)?;
         let adapter = instance

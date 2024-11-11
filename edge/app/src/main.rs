@@ -13,9 +13,9 @@ async fn main() {
     
 }
 
-fn start(surface: Grc<Surface<'static>>) {
+fn start(instance: Instance, surface: Surface<'static>) {
     tokio::task::spawn(async move {
-        let gpu = Gpu::from_surface(surface).await.unwrap();
+        let gpu = Gpu::from_surface(instance, surface).await.unwrap();
         draw_triangle(gpu).await.unwrap();
     });
 }

@@ -4,7 +4,7 @@ const MIN_DIMENSION: u32 = 64;
 
 #[derive(Debug)]
 pub struct Display {
-    inner: Grc<Surface<'static>>,
+    inner: Surface<'static>,
     device: Grc<Device>,
     format: TextureFormat,
     targets: Vec<Option<ColorTargetState>>,
@@ -15,7 +15,7 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(inner: Grc<Surface<'static>>, adapter: &Adapter, device: Grc<Device>) -> Self {
+    pub fn new(inner: Surface<'static>, adapter: &Adapter, device: Grc<Device>) -> Self {
         let swapchain_capabilities = inner.get_capabilities(adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();

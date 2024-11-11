@@ -11,13 +11,13 @@ pub type Win = Core;
 pub struct Core {
     // pub window: Option<Grc<Box<Window>>>,
     // pub window: Leaf<Option<Box<Window>>>,
-    pub window: Option<Grc<Window>>,
     events: EventsLeaf,
-    start: Box<dyn Fn(Grc<Surface<'static>>)>,
+    start: Box<dyn Fn(Instance, Surface<'static>)>,
+    window: Option<Grc<Window>>,
 }
 
 impl Core {
-    pub fn new(start: Box<dyn Fn(Grc<Surface<'static>>)>) -> Self {
+    pub fn new(start: Box<dyn Fn(Instance, Surface<'static>)>) -> Self {
         Self {
             window: None,
             events: EventsLeaf::default(),
@@ -39,7 +39,9 @@ impl ApplicationHandler for Core {
                 .create_window(Window::default_attributes())
                 .unwrap());
             self.window = Some(window.clone());
-            (self.start)(window);
+            let instance = Instance::default();
+            let surface = instance.create_surface(window).unwrap();
+            (self.start)(instance, surface);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
