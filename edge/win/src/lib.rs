@@ -6,57 +6,16 @@ use winit::event::{DeviceEvent, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::{Window, WindowId};
 
-pub type Win = Core;
+mod render;
 
-// #[derive(Default)]
-pub struct Core {
-    // pub window: Option<Grc<Box<Window>>>,
-    // pub window: Leaf<Option<Box<Window>>>,
+#[derive(Default)]
+pub struct App {
     events: EventsLeaf,
-    start: Box<dyn Fn(Instance, Surface<'static>)>,
     gpu: Leaf<Option<Gpu>>,
     window: Option<Grc<Window>>,
 }
 
-impl Core {
-    pub fn new(start: Box<dyn Fn(Instance, Surface<'static>)>) -> Self { // gpu: Leaf<Option<Gpu>>, 
-        Self {
-            gpu: Leaf::new(None),
-            window: None,
-            events: EventsLeaf::default(),
-            start,
-        }
-    }
-}
-
-// impl Default for Core {
-//     fn default() -> Self {
-//         Self { window: Leaf::new(None), events: EventsLeaf::default() }
-//     }
-// }
-async fn draw_triangle(gpu: Leaf<Option<Gpu>>) -> gpu::Result<()> {
-    if let Some(gpu) = gpu.read(|gpu| gpu.clone())? {
-        let targets = gpu.display.targets();
-        let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
-        let vertex = shader.vertex("vs_main").make()?;
-        let fragment = shader.fragment("fs_main").targets(targets).make()?;
-        let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-        // let view = gpu.display.view();
-        gpu.command()
-            .display(gpu.display.clone())
-            // .texture_view(view)
-            .render(pipe)
-            .draw(0..3, 0..1)
-            .hub()?
-            .base()
-            .await?;
-        println!("draw triangle complete");
-    }
-    Ok(())
-}
-
-
-impl ApplicationHandler for Core {
+impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_none() {
             let window = Grc::new(event_loop
@@ -83,8 +42,6 @@ impl ApplicationHandler for Core {
                 println!("request redraw");
                 let gpu = self.gpu.clone();
                 tokio::task::spawn(async move {
-                    
-                    draw_triangle(gpu).await.unwrap();
                     println!("done drawinng");
                 });
                 println!("spawned draw task");

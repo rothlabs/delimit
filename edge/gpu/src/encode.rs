@@ -1,10 +1,12 @@
-pub use command::CommandBuilder;
+pub use compute::CommandBuilder;
 pub use render::RenderBuilder;
 pub use render::*;
 
 use super::*;
 
-mod command;
+pub mod queue;
+
+mod compute;
 mod render;
 
 pub struct Encode<'a> {

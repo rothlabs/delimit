@@ -1,3 +1,5 @@
+pub use encode::queue::{compute, render};
+
 use bind::*;
 use buffer::*;
 use bytemuck::*;

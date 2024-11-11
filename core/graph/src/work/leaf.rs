@@ -1,7 +1,7 @@
 use crate::*;
 
 /// Work that holds a base. The most simple work that allows read, write, and copy of the base.
-#[derive(Debug, Hash, Serialize, Deserialize)]
+#[derive(Default, Debug, Hash, Serialize, Deserialize)]
 pub struct Leaf<T> {
     base: T,
     #[serde(skip)]

@@ -13,7 +13,7 @@ pub type Leaf<T> = Edge<cusp::Leaf<T>>;
 pub type Node<U> = Edge<cusp::Node<U>>;
 
 /// The forward bridge between hubes.
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Edge<C> {
     cusp: Pointer<C>,
     root: Option<Root>,

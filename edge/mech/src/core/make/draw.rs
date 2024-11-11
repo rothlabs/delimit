@@ -9,6 +9,7 @@ pub struct Points {
     plot: Hub<Plot>,
 }
 
+// TODO: update to builder encode::render::Command node
 impl Solve for Points {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
@@ -30,12 +31,12 @@ impl Solve for Points {
             .root(rig.root)
             .root(hedge.root)
             .root(draw.points.mesh.root.clone())
-            .texture_view(texture_view)
-            .resolve_target(gpu.display.view())
-            .render(draw.points.pipe.clone())
-            .bind(0, bind)
-            .vertex(0, draw.points.mesh.buffer.clone())
-            .draw(0..draw.points.vertex_count, 0..count)
+            // .texture_view(texture_view)
+            // .resolve_target(gpu.display.view())
+            // .render(draw.points.pipe.clone())
+            // .bind(0, bind)
+            // .vertex(0, draw.points.mesh.buffer.clone())
+            // .draw(0..draw.points.vertex_count, 0..count)
             .hub()
     }
 }

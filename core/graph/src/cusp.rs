@@ -6,7 +6,7 @@ pub type Leaf<T> = Cusp<work::Leaf<T>>;
 pub type Node<U> = Cusp<work::Node<U>>;
 
 /// A cusp creates an interactive bridge between root edges and work nodes.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Cusp<W> {
     work: W,
     ring: Ring,
@@ -14,6 +14,12 @@ pub struct Cusp<W> {
 }
 
 impl<W: GateTag> GateTag for Cusp<W> {}
+
+// impl<W: Default> Default for Cusp<W> {
+//     fn default() -> Self {
+//         Self { work: (), ring: (), back: () }
+//     }
+// }
 
 impl<W> FromBase for Cusp<W>
 where

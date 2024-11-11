@@ -25,6 +25,7 @@ pub type Node<U> = Link<edge::Node<U>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
+#[derive(Default)]
 pub struct Link<E: ?Sized> {
     edge: Pointer<E>,
     path: Option<Path>,

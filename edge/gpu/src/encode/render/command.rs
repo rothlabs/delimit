@@ -1,0 +1,217 @@
+use display::Display;
+use super::*;
+use std::ops::Range;
+
+#[derive(Builder, Gate, Debug)]
+#[builder(pattern = "owned")]
+#[builder(setter(into, strip_option))]
+pub struct Command {
+    core: Core,
+    #[builder(default, setter(each(name = "root", into)))]
+    roots: Vec<Hub<Mutation>>,
+    // TODO: take enum of either DIRECT(Grc<TextureView>) or RESOLVE(Grc<TextureView>, Grc<TextureView>)
+    // #[builder(default)]
+    // display: Leaf<Grc<Display>>,
+    #[builder(default, setter(each(name = "compute_entry", into)))]
+    compute_entries: Vec<compute::Entry>,
+    #[builder(default, setter(each(name = "render_entry", into)))]
+    render_entries: Vec<Entry>,
+}
+
+impl Command {
+    async fn compute_pass(&self, encoder: &mut Encode<'_>) -> graph::Result<()> {
+        let mut pass = encoder.compute();
+        for cmd in &self.compute_entries {
+            match cmd {
+                compute::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
+                compute::Entry::Bind(index, bind) => {
+                    let bind = bind.base().await?;
+                    pass.set_bind_group(*index, &bind, &[])
+                }
+                compute::Entry::Dispatch(count) => {
+                    let count = count.base().await?;
+                    pass.dispatch_workgroups(count, 1, 1)
+                }
+            }
+        }
+        Ok(())
+    }
+    async fn render_pass(&self, encoder: &mut Encode<'_>, view: &TextureView) -> graph::Result<()> {
+        // let attachments = if let Some(target) = &self.resolve_target {
+        //     self.core.attachment(view).resolve_target(target).list()?
+        // } else {
+        //     self.core.attachment(view).list()?
+        // };
+        // let render = self.core.render_pass(&attachments).make()?;
+        // let mut pass = encoder.render(&render);
+        // for cmd in &self.render_entrys {
+        //     match cmd {
+        //         RenderCommand::Pipe(pipe) => pass.set_pipeline(pipe),
+        //         RenderCommand::Bind(index, bind) => {
+        //             let bind = bind.base().await?;
+        //             pass.set_bind_group(*index, &bind, &[])
+        //         }
+        //         RenderCommand::Vertex(slot, buffer) => {
+        //             let buffer = buffer.base().await?;
+        //             pass.set_vertex_buffer(*slot, buffer.slice(..));
+        //         }
+        //         RenderCommand::Index(buffer) => {
+        //             let buffer = buffer.base().await?;
+        //             pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
+        //         }
+        //         RenderCommand::Draw(vertices, instances) => {
+        //             pass.draw(vertices.clone(), instances.clone());
+        //         }
+        //         RenderCommand::DrawIndexed((indices, base_vertex, instances)) => {
+        //             pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
+        //         }
+        //     }
+        // }
+        Ok(())
+    }
+}
+
+impl Solve for Command {
+    type Base = Mutation;
+    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+        self.roots.depend().await?;
+        let mut encoder = self.core.encoder();
+        if !self.compute_entries.is_empty() {
+            self.compute_pass(&mut encoder).await?;
+        }
+        // if let Some(display) = &self.display {
+        //     let view = &display.view();
+        //     let attachments = self.core.attachment(view).list()?;
+        //     let render = self.core.render_pass(&attachments).make()?;
+        //     {
+        //         let mut pass = encoder.render(&render);
+        //         for cmd in &self.render_entrys {
+        //             match cmd {
+        //                 RenderCommand::Pipe(pipe) => pass.set_pipeline(pipe),
+        //                 _ => ()
+        //             }
+        //         }
+        //         pass.draw(0..3, 0..1);
+        //     }
+        //     //self.render_pass(&mut encoder, view).await?;
+        // }
+        // if let Some(view) = &self.texture_view {
+        //     self.render_pass(&mut encoder, view).await?;
+        // }
+        println!("before gpu command submit");
+        encoder.submit();
+        println!("after gpu command submit");
+        Ok(Mutation.into())
+    }
+}
+
+impl Adapt for Command {
+    fn back(&mut self, back: &Back) -> graph::Result<()> {
+        for cmd in &mut self.compute_entries {
+            match cmd {
+                compute::Entry::Bind(_, bind) => bind.back(back)?,
+                compute::Entry::Dispatch(count) => count.back(back)?,
+                _ => (),
+            }
+        }
+        for cmd in &mut self.render_entries {
+            if let Entry::Vertex(_, buffer) = cmd {
+                buffer.back(back)?
+            }
+        }
+        self.roots.back(back)
+    }
+}
+
+impl CommandBuilder {
+    pub fn compute(self, pipe: Grc<ComputePipeline>) -> ComputePass {
+        let command = self.compute_entry(compute::Entry::Pipe(pipe));
+        ComputePass { command }
+    }
+    pub fn render(self, pipe: Grc<RenderPipeline>) -> RenderPass {
+        let command = self.render_entry(Entry::Pipe(pipe));
+        RenderPass { command }
+    }
+}
+
+pub struct ComputePass {
+    command: CommandBuilder,
+}
+
+impl ComputePass {
+    pub fn hub(self) -> graph::Result<Hub<Mutation>> {
+        self.command.hub()
+    }
+    pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.command = self
+            .command
+            .compute_entry(compute::Entry::Bind(index, bind.into()));
+        self
+    }
+    pub fn dispatch(mut self, count: impl Into<Hub<u32>>) -> Self {
+        self.command = self
+            .command
+            .compute_entry(compute::Entry::Dispatch(count.into()));
+        self
+    }
+    pub fn render(self, pipe: Grc<RenderPipeline>) -> RenderPass {
+        self.command.render(pipe)
+    }
+}
+
+pub struct RenderPass {
+    command: CommandBuilder,
+}
+
+impl RenderPass {
+    pub fn hub(self) -> graph::Result<Hub<Mutation>> {
+        self.command.hub()
+    }
+    pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
+        self.command = self
+            .command
+            .render_entry(Entry::Bind(index, bind.into()));
+        self
+    }
+    pub fn vertex(mut self, slot: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
+        self.command = self
+            .command
+            .render_entry(Entry::Vertex(slot, buffer.into()));
+        self
+    }
+    pub fn index(mut self, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
+        self.command = self
+            .command
+            .render_entry(Entry::Index(buffer.into()));
+        self
+    }
+    pub fn draw(mut self, vertices: Range<u32>, instances: Range<u32>) -> Self {
+        self.command = self
+            .command
+            .render_entry(Entry::Draw(vertices, instances));
+        self
+    }
+    pub fn draw_indexed(
+        mut self,
+        indices: Range<u32>,
+        base_vertex: i32,
+        instances: Range<u32>,
+    ) -> Self {
+        self.command = self.command.render_entry(Entry::DrawIndexed(
+            indices,
+            base_vertex,
+            instances,
+        ));
+        self
+    }
+}
+
+#[derive(Debug)]
+enum Entry {
+    Pipe(Grc<RenderPipeline>),
+    Bind(u32, Hub<Grc<BindGroup>>),
+    Vertex(u32, Hub<Grc<Buffer>>),
+    Index(Hub<Grc<Buffer>>),
+    Draw(Range<u32>, Range<u32>),
+    DrawIndexed(Range<u32>, i32, Range<u32>),
+}
