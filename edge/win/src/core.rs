@@ -16,35 +16,36 @@ pub struct App {
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.display.is_none() {
-            let fields = Window::default_attributes();
+            let fields = Window::default_attributes();//.with_visible(false);
+            // fields.with_visible(false);
+            // fields.visible = false;
             let window = event_loop.create_window(fields).unwrap();
-            // window.
+            // window.set_visible(false);
             let display = app::Display::new(window, self.gpu.clone()).unwrap();
             self.display = Some(display);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        // println!("anything?");
         match event {
             WindowEvent::CloseRequested => {
                 event_loop.exit();
             }
-            WindowEvent::Resized(new_size) => {
-                // Reconfigure the surface with the new size
+            WindowEvent::Resized(size) => {
                 if let Some(display) = &mut self.display {
                     if let Some(gpu) = self.gpu.base().unwrap() {
-                    // let adapter = &gpu.display.adapter;
-                    // let config = self.surface.get_default_config(&self.adapter, width, height).unwrap();
-                    // self.inner.configure(&self.device, &config);
-                    // gpu.display.resize(new_size.width, new_size.height).unwrap();
+                        display.resize(&gpu, size);
                     }
                 }
             }
             WindowEvent::RedrawRequested => {
+                // println!("draw?");
                 if let Some(display) = &mut self.display {
                     if let Some(gpu) = self.gpu.base().unwrap() {
                         display.ensure(&gpu).unwrap();
                         gpu.render().surface().unwrap();
                     } else {
+                        // display.window.set_visible(false);
                         display.window.request_redraw();
                     }
                 }
