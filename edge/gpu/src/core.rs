@@ -12,10 +12,10 @@ pub struct Core {
 }
 
 impl Core {
-    pub async fn from_window(window: Grc<Window>) -> Result<Self> {
+    pub async fn from_surface(surface: Grc<Surface<'static>>) -> Result<Self> {
         let instance = Instance::default();
-        let surface_target = SurfaceTarget::Window(Box::new(window));
-        let surface = instance.create_surface(surface_target)?;
+        // let surface_target = SurfaceTarget::Window(Box::new(window));
+        // let surface = instance.create_surface(surface_target)?;
         let adapter = instance
             .request_adapter(&RequestAdapterOptions {
                 power_preference: PowerPreference::default(),

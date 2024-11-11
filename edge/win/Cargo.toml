@@ -4,6 +4,7 @@
     edition = "2021"
 
 [dependencies]
+    wgpu = "22.1.0"
     winit = "0.30"
     tokio = { version = "1", features = ["full"] }
     graph = { path = "../../core/graph" }

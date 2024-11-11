@@ -1,4 +1,5 @@
 use graph::*;
+use wgpu::*;
 use winit::application::ApplicationHandler;
 use winit::event::{DeviceEvent, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
@@ -12,11 +13,11 @@ pub struct Core {
     // pub window: Leaf<Option<Box<Window>>>,
     pub window: Option<Grc<Window>>,
     events: EventsLeaf,
-    start: Box<dyn Fn(Grc<Window>)>,
+    start: Box<dyn Fn(Grc<Surface<'static>>)>,
 }
 
 impl Core {
-    pub fn new(start: Box<dyn Fn(Grc<Window>)>) -> Self {
+    pub fn new(start: Box<dyn Fn(Grc<Surface<'static>>)>) -> Self {
         Self {
             window: None,
             events: EventsLeaf::default(),
