@@ -22,10 +22,13 @@ impl Command {
     async fn compute(&self, post: &mut post::Command) -> graph::Result<()> {
         for cmd in &self.compute_entries {
             match cmd {
-                compute::Entry::Pipe(pipe) => post.compute.push(post::compute::Entry::Pipe(pipe.clone())),
+                compute::Entry::Pipe(pipe) => {
+                    post.compute.push(post::compute::Entry::Pipe(pipe.clone()))
+                }
                 compute::Entry::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    post.compute.push(post::compute::Entry::Bind(*index, bind.clone()))
+                    post.compute
+                        .push(post::compute::Entry::Bind(*index, bind.clone()))
                 }
                 compute::Entry::Dispatch(count) => {
                     let count = count.base().await?;
@@ -41,11 +44,13 @@ impl Command {
                 Entry::Pipe(pipe) => post.render.push(post::render::Entry::Pipe(pipe.clone())),
                 Entry::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    post.render.push(post::render::Entry::Bind(*index, bind.clone()))
+                    post.render
+                        .push(post::render::Entry::Bind(*index, bind.clone()))
                 }
                 Entry::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
-                    post.render.push(post::render::Entry::Vertex(*slot, buffer.clone()))
+                    post.render
+                        .push(post::render::Entry::Vertex(*slot, buffer.clone()))
                 }
                 Entry::Index(buffer) => {
                     let buffer = buffer.base().await?;
@@ -53,11 +58,18 @@ impl Command {
                     // pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 Entry::Draw(vertices, instances) => {
-                    post.render.push(post::render::Entry::Draw(vertices.clone(), instances.clone()))
+                    post.render.push(post::render::Entry::Draw(
+                        vertices.clone(),
+                        instances.clone(),
+                    ))
                     // pass.draw(vertices.clone(), instances.clone());
                 }
                 Entry::DrawIndexed(indices, base_vertex, instances) => {
-                    post.render.push(post::render::Entry::DrawIndexed(indices.clone(), *base_vertex, instances.clone()))
+                    post.render.push(post::render::Entry::DrawIndexed(
+                        indices.clone(),
+                        *base_vertex,
+                        instances.clone(),
+                    ))
                     // pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
             }
@@ -73,9 +85,11 @@ impl Solve for Command {
         let mut post = post::Command::default();
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
-        self.chain.write(|chain|{
-            chain.push(post);
-        }).await?;
+        self.chain
+            .write(|chain| {
+                chain.push(post);
+            })
+            .await?;
         Ok(Mutation.into())
     }
 }
@@ -143,9 +157,7 @@ impl RenderPass {
         self.command.hub()
     }
     pub fn bind(mut self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-        self.command = self
-            .command
-            .render_entry(Entry::Bind(index, bind.into()));
+        self.command = self.command.render_entry(Entry::Bind(index, bind.into()));
         self
     }
     pub fn vertex(mut self, slot: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
@@ -155,15 +167,11 @@ impl RenderPass {
         self
     }
     pub fn index(mut self, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.command = self
-            .command
-            .render_entry(Entry::Index(buffer.into()));
+        self.command = self.command.render_entry(Entry::Index(buffer.into()));
         self
     }
     pub fn draw(mut self, vertices: Range<u32>, instances: Range<u32>) -> Self {
-        self.command = self
-            .command
-            .render_entry(Entry::Draw(vertices, instances));
+        self.command = self.command.render_entry(Entry::Draw(vertices, instances));
         self
     }
     pub fn draw_indexed(
@@ -172,11 +180,9 @@ impl RenderPass {
         base_vertex: i32,
         instances: Range<u32>,
     ) -> Self {
-        self.command = self.command.render_entry(Entry::DrawIndexed(
-            indices,
-            base_vertex,
-            instances,
-        ));
+        self.command =
+            self.command
+                .render_entry(Entry::DrawIndexed(indices, base_vertex, instances));
         self
     }
 }

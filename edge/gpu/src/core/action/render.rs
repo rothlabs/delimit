@@ -11,12 +11,8 @@ impl<'a> Pass<'a> {
         for cmd in &self.command.compute {
             match cmd {
                 compute::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
-                compute::Entry::Bind(index, bind) => {
-                    pass.set_bind_group(*index, &bind, &[])
-                }
-                compute::Entry::Dispatch(count) => {
-                    pass.dispatch_workgroups(*count, 1, 1)
-                }
+                compute::Entry::Bind(index, bind) => pass.set_bind_group(*index, &bind, &[]),
+                compute::Entry::Dispatch(count) => pass.dispatch_workgroups(*count, 1, 1),
             }
         }
     }
@@ -25,9 +21,7 @@ impl<'a> Pass<'a> {
         for cmd in &self.command.render {
             match cmd {
                 crate::render::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
-                crate::render::Entry::Bind(index, bind) => {
-                    pass.set_bind_group(*index, &bind, &[])
-                }
+                crate::render::Entry::Bind(index, bind) => pass.set_bind_group(*index, &bind, &[]),
                 crate::render::Entry::Vertex(slot, buffer) => {
                     pass.set_vertex_buffer(*slot, buffer.slice(..));
                 }

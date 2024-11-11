@@ -6,7 +6,7 @@ const MIN_DIMENSION: u32 = 64;
 pub struct Display {
     inner: Grc<Surface<'static>>,
     device: Grc<Device>,
-    adapter: Grc<Adapter>,
+    pub adapter: Grc<Adapter>,
     format: TextureFormat,
     targets: Vec<Option<ColorTargetState>>,
     view_descriptor: TextureViewDescriptor<'static>,
@@ -36,20 +36,11 @@ impl Display {
             // height: height.into_leaf(),
         }
     }
-    pub async fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
-        // self.width.write(|x| *x = width.max(MIN_DIMENSION)).await?;
-        // self.height.write(|y| *y = height.max(MIN_DIMENSION)).await?;
-        self.config
-            .write(|config| {
-                config.width = width.max(MIN_DIMENSION);
-                config.height = height.max(MIN_DIMENSION);
-                self.inner.configure(&self.device, config);
-            })
-            .await
-    }
-    pub fn resize2(&self, width: u32, height: u32) -> graph::Result<()> {
-        let mut config = self.inner.get_default_config(&self.adapter, width, height).unwrap();
-        config.present_mode = PresentMode::Immediate;
+    pub fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
+        let config = self
+            .inner
+            .get_default_config(&self.adapter, width, height)
+            .unwrap();
         self.inner.configure(&self.device, &config);
         Ok(())
     }
@@ -63,11 +54,9 @@ impl Display {
             .expect("Failed to acquire next swap chain texture");
         frame.texture.create_view(&self.view_descriptor)
     }
-    pub fn frame(&self) -> SurfaceTexture {
-        self
-            .inner
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture")
+    pub fn frame(&self) -> Result<SurfaceTexture> {
+        Ok(self.inner.get_current_texture()?)
+        // .expect("Failed to acquire next swap chain texture")
         // (frame, frame.texture.create_view(&self.view_descriptor))
     }
     pub fn texture(&self) -> graph::Result<TextureBuilder> {
@@ -85,3 +74,15 @@ impl Display {
             .format(self.format))
     }
 }
+
+// pub async fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
+//     // self.width.write(|x| *x = width.max(MIN_DIMENSION)).await?;
+//     // self.height.write(|y| *y = height.max(MIN_DIMENSION)).await?;
+//     self.config
+//         .write(|config| {
+//             config.width = width.max(MIN_DIMENSION);
+//             config.height = height.max(MIN_DIMENSION);
+//             self.inner.configure(&self.device, config);
+//         })
+//         .await
+// }

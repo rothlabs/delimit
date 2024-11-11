@@ -8,9 +8,9 @@ pub struct Render<'a> {
 }
 
 impl<'a> Render<'a> {
-    pub fn surface(&self) {
+    pub fn surface(&self) -> Result<()> {
         let mut encoder = self.core.encoder();
-        let frame = self.core.display.frame();
+        let frame = self.core.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in &self.chain {
             let resolve_target = if command.msaa {
@@ -28,14 +28,15 @@ impl<'a> Render<'a> {
                     store: wgpu::StoreOp::Store,
                 },
             };
-            //let descriptor = self.core.render_pass(&[Some(attachments); 1]).make()?;
-            let descriptor = &RenderPassDescriptor {
-                label: Some("app_render"),
-                color_attachments: &[Some(attachment); 1],
-                depth_stencil_attachment: None,
-                timestamp_writes: None,
-                occlusion_query_set: None,
-            };
+            let list = [Some(attachment); 1];
+            let descriptor = &self.core.render_pass(&list).make()?;
+            // let descriptor = &RenderPassDescriptor {
+            //     label: Some("app_render"),
+            //     color_attachments: &[Some(attachment); 1],
+            //     depth_stencil_attachment: None,
+            //     timestamp_writes: None,
+            //     occlusion_query_set: None,
+            // };
             let pass = render::Pass {
                 command,
                 descriptor,
@@ -49,10 +50,9 @@ impl<'a> Render<'a> {
         }
         encoder.submit();
         frame.present();
+        Ok(())
     }
 }
-
-
 
 // async fn compute_pass(&self, encoder: &mut Encode<'_>) -> graph::Result<()> {
 //     let mut pass = encoder.compute();

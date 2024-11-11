@@ -1,9 +1,8 @@
-pub use encode::post::{Command, compute, render};
+pub use encode::post::{compute, render, Command};
 
 use bind::*;
 use buffer::*;
 use bytemuck::*;
-use winit::window::Window;
 use core::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
@@ -16,6 +15,7 @@ use std::fmt::Debug;
 use texture::*;
 use util::DeviceExt;
 use wgpu::*;
+use winit::window::Window;
 
 mod bind;
 mod buffer;
@@ -32,7 +32,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
-    CreateSurfaceError(#[from] CreateSurfaceError),
+    SurfaceError(#[from] SurfaceError),
+    // #[error(transparent)]
+    // CreateSurfaceError(#[from] CreateSurfaceError),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
@@ -59,7 +61,7 @@ pub struct Mutation;
 pub struct Draw {
     stems: Vec<Hub<Mutation>>,
     #[back(skip)]
-    window: Grc<Window>
+    window: Grc<Window>,
 }
 
 #[cfg(not(target_arch = "wasm32"))]

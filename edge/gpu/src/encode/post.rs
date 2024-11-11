@@ -1,5 +1,5 @@
-use std::ops::Range;
 use super::*;
+use std::ops::Range;
 
 #[derive(Default, Clone, Debug)]
 pub struct Command {
