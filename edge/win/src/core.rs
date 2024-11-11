@@ -18,7 +18,9 @@ impl ApplicationHandler for App {
         if self.display.is_none() {
             let fields = Window::default_attributes();
             let window = event_loop.create_window(fields).unwrap();
-            self.display = Some(app::Display::new(window, self.gpu.clone()));
+            // window.
+            let display = app::Display::new(window, self.gpu.clone()).unwrap();
+            self.display = Some(display);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
@@ -28,16 +30,23 @@ impl ApplicationHandler for App {
             }
             WindowEvent::Resized(new_size) => {
                 // Reconfigure the surface with the new size
-                if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
+                if let Some(display) = &mut self.display {
+                    if let Some(gpu) = self.gpu.base().unwrap() {
                     // let adapter = &gpu.display.adapter;
                     // let config = self.surface.get_default_config(&self.adapter, width, height).unwrap();
                     // self.inner.configure(&self.device, &config);
-                    gpu.display.resize(new_size.width, new_size.height).unwrap();
+                    // gpu.display.resize(new_size.width, new_size.height).unwrap();
+                    }
                 }
             }
             WindowEvent::RedrawRequested => {
-                if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
-                    gpu.render().surface().unwrap();
+                if let Some(display) = &mut self.display {
+                    if let Some(gpu) = self.gpu.base().unwrap() {
+                        display.ensure(&gpu).unwrap();
+                        gpu.render().surface().unwrap();
+                    } else {
+                        display.window.request_redraw();
+                    }
                 }
             }
             _ => (),

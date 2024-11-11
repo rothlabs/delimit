@@ -38,9 +38,12 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-impl<T> Leaf<T> {
+impl<T: Clone> Leaf<T> {
     pub fn hub(self) -> Hub<T> {
         self.into()
+    }
+    pub fn base(&self) -> Result<T> {
+        self.read(|base| base.clone())
     }
 }
 

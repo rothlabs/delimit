@@ -36,14 +36,14 @@ impl Display {
             // height: height.into_leaf(),
         }
     }
-    pub fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
-        let config = self
-            .inner
-            .get_default_config(&self.adapter, width, height)
-            .unwrap();
-        self.inner.configure(&self.device, &config);
-        Ok(())
-    }
+    // pub fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
+    //     let config = self
+    //         .inner
+    //         .get_default_config(&self.adapter, width, height)
+    //         .unwrap();
+    //     self.inner.configure(&self.device, &config);
+    //     Ok(())
+    // }
     pub fn targets(&self) -> &[Option<ColorTargetState>] {
         &self.targets
     }
@@ -59,20 +59,20 @@ impl Display {
         // .expect("Failed to acquire next swap chain texture")
         // (frame, frame.texture.create_view(&self.view_descriptor))
     }
-    pub fn texture(&self) -> graph::Result<TextureBuilder> {
-        let (width, height) = self.config.read(|config| (config.width, config.height))?;
-        let size = Extent3d {
-            width,
-            height,
-            depth_or_array_layers: 1,
-        };
-        Ok(TextureBuilder::default()
-            .device(&self.device)
-            .size(size)
-            .usage(TextureUsages::RENDER_ATTACHMENT)
-            .mip_level_count(1)
-            .format(self.format))
-    }
+    // pub fn texture(&self) -> graph::Result<TextureBuilder> {
+    //     let (width, height) = self.config.read(|config| (config.width, config.height))?;
+    //     let size = Extent3d {
+    //         width,
+    //         height,
+    //         depth_or_array_layers: 1,
+    //     };
+    //     Ok(TextureBuilder::default()
+    //         .device(&self.device)
+    //         .size(size)
+    //         .usage(TextureUsages::RENDER_ATTACHMENT)
+    //         .mip_level_count(1)
+    //         .format(self.format))
+    // }
 }
 
 // pub async fn resize(&self, width: u32, height: u32) -> graph::Result<()> {
