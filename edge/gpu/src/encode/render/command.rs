@@ -1,4 +1,3 @@
-use display::Display;
 use super::*;
 use std::ops::Range;
 
@@ -17,49 +16,49 @@ pub struct Command {
     compute_entries: Vec<compute::Entry>,
     #[builder(default, setter(each(name = "render_entry", into)))]
     render_entries: Vec<Entry>,
-    queue: Leaf<Vec<queue::Command>>,
+    chain: Leaf<Vec<post::Command>>,
 }
 
 impl Command {
-    async fn compute_pass(&self, queue: &mut queue::Command) -> graph::Result<()> {
+    async fn compute(&self, post: &mut post::Command) -> graph::Result<()> {
         for cmd in &self.compute_entries {
             match cmd {
-                compute::Entry::Pipe(pipe) => queue.compute.push(queue::compute::Entry::Pipe(pipe.clone())),
+                compute::Entry::Pipe(pipe) => post.compute.push(post::compute::Entry::Pipe(pipe.clone())),
                 compute::Entry::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    queue.compute.push(queue::compute::Entry::Bind(*index, bind.clone()))
+                    post.compute.push(post::compute::Entry::Bind(*index, bind.clone()))
                 }
                 compute::Entry::Dispatch(count) => {
                     let count = count.base().await?;
-                    queue.compute.push(queue::compute::Entry::Dispatch(count))
+                    post.compute.push(post::compute::Entry::Dispatch(count))
                 }
             }
         }
         Ok(())
     }
-    async fn render_pass(&self, queue: &mut queue::Command) -> graph::Result<()> {
+    async fn render(&self, post: &mut post::Command) -> graph::Result<()> {
         for cmd in &self.render_entries {
             match cmd {
-                Entry::Pipe(pipe) => queue.render.push(queue::render::Entry::Pipe(pipe.clone())),
+                Entry::Pipe(pipe) => post.render.push(post::render::Entry::Pipe(pipe.clone())),
                 Entry::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    queue.render.push(queue::render::Entry::Bind(*index, bind.clone()))
+                    post.render.push(post::render::Entry::Bind(*index, bind.clone()))
                 }
                 Entry::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
-                    queue.render.push(queue::render::Entry::Vertex(*slot, buffer.clone()))
+                    post.render.push(post::render::Entry::Vertex(*slot, buffer.clone()))
                 }
                 Entry::Index(buffer) => {
                     let buffer = buffer.base().await?;
-                    queue.render.push(queue::render::Entry::Index(buffer.clone()))
+                    post.render.push(post::render::Entry::Index(buffer.clone()))
                     // pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 Entry::Draw(vertices, instances) => {
-                    queue.render.push(queue::render::Entry::Draw(vertices.clone(), instances.clone()))
+                    post.render.push(post::render::Entry::Draw(vertices.clone(), instances.clone()))
                     // pass.draw(vertices.clone(), instances.clone());
                 }
                 Entry::DrawIndexed(indices, base_vertex, instances) => {
-                    queue.render.push(queue::render::Entry::DrawIndexed(indices.clone(), *base_vertex, instances.clone()))
+                    post.render.push(post::render::Entry::DrawIndexed(indices.clone(), *base_vertex, instances.clone()))
                     // pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
             }
@@ -72,11 +71,11 @@ impl Solve for Command {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.roots.depend().await?;
-        let mut group = queue::Command::default();
-        self.compute_pass(&mut group).await?;
-        self.render_pass(&mut group).await?;
-        self.queue.write(|queue|{
-            queue.push(group);
+        let mut post = post::Command::default();
+        self.compute(&mut post).await?;
+        self.render(&mut post).await?;
+        self.chain.write(|chain|{
+            chain.push(post);
         }).await?;
         Ok(Mutation.into())
     }

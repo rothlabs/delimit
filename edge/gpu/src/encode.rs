@@ -4,10 +4,10 @@ pub use render::*;
 
 use super::*;
 
-pub mod queue;
+pub mod post;
+pub mod render;
 
 mod compute;
-mod render;
 
 pub struct Encode<'a> {
     pub inner: CommandEncoder,

@@ -56,7 +56,7 @@ impl Adapt for Command {
 }
 
 impl CommandBuilder {
-    pub fn compute(self, pipe: Grc<ComputePipeline>) -> ComputePass {
+    pub fn pipe(self, pipe: Grc<ComputePipeline>) -> ComputePass {
         let command = self.entry(Entry::Pipe(pipe));
         ComputePass { command }
     }

@@ -12,6 +12,7 @@ mod render;
 pub struct App {
     events: EventsLeaf,
     gpu: Leaf<Option<Gpu>>,
+    chain: Leaf<Vec<Command>>,
     window: Option<Grc<Window>>,
 }
 
@@ -25,12 +26,12 @@ impl ApplicationHandler for App {
             let instance = Instance::default();
             let surface = instance.create_surface(window).unwrap();
             let gpu = self.gpu.clone();
+            let chain = self.chain.clone();
             tokio::task::spawn(async move {
-                let gpu_core = Gpu::from_surface(instance, surface).await.unwrap();
+                let gpu_core = Gpu::from_surface(instance, surface, chain).await.unwrap();
                 gpu.write(|gpu| *gpu = Some(gpu_core)).await.unwrap();
-                //draw_triangle(gpu).await.unwrap();
+
             });
-            // (self.start)(instance, surface);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
@@ -40,12 +41,10 @@ impl ApplicationHandler for App {
             }
             WindowEvent::RedrawRequested => {
                 println!("request redraw");
-                let gpu = self.gpu.clone();
-                tokio::task::spawn(async move {
-                    println!("done drawinng");
-                });
-                println!("spawned draw task");
-                // self.window.as_ref().unwrap().request_redraw();
+                if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
+                    // let chain = self.chain.read(|x| x.clone()).unwrap();
+                    gpu.render();
+                }
             }
             // WindowEvent::CursorMoved { device_id, position } => {
 
@@ -71,6 +70,27 @@ impl ApplicationHandler for App {
         }
     }
 }
+
+async fn draw_triangle(gpu: Gpu) -> gpu::Result<()> {
+    let targets = gpu.display.targets();
+    let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
+    let vertex = shader.vertex("vs_main").make()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    // let view = gpu.display.view();
+    // gpu.command()
+    //     .display(gpu.display.clone())
+    //     // .texture_view(view)
+    //     .render(pipe)
+    //     .draw(0..3, 0..1)
+    //     .hub()?
+    //     .base()
+    //     .await?;
+    println!("draw triangle complete");
+    Ok(())
+}
+
+
 
 #[derive(Clone)]
 pub struct EventsLeaf {

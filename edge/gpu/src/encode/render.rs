@@ -1,3 +1,5 @@
+pub use command::CommandBuilder;
+
 use super::*;
 
 mod command;

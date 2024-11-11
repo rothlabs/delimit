@@ -45,7 +45,7 @@ impl Spin<'_> {
         gpu.command()
             .root(&rig.root)
             .root(&form.root)
-            .compute(program.pipe.clone())
+            .pipe(program.pipe.clone())
             .bind(0, bind)
             .dispatch(self.wheel.count)
             .hub()

@@ -45,7 +45,7 @@ impl Weave<'_> {
             .root(&self.warp.root)
             .root(&trio.weft.root)
             .root(&trio.flow.root)
-            .compute(program.pipe.clone())
+            .pipe(program.pipe.clone())
             .bind(0, bind)
             .dispatch(self.count)
             .hub()

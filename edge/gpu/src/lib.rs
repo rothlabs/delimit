@@ -1,4 +1,4 @@
-pub use encode::queue::{compute, render};
+pub use encode::post::{Command, compute, render};
 
 use bind::*;
 use buffer::*;
@@ -20,7 +20,6 @@ use wgpu::*;
 mod bind;
 mod buffer;
 mod core;
-mod display;
 mod encode;
 mod pipe;
 mod shader;

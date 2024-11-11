@@ -2,17 +2,20 @@ use super::*;
 use display::Display;
 #[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
-use winit::window::Window;
+
+mod action;
+mod display;
 
 #[derive(Clone, Debug)]
 pub struct Core {
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
     pub display: Grc<Display>,
+    chain: Leaf<Vec<Command>>,
 }
 
 impl Core {
-    pub async fn from_surface(instance: Instance, surface: Surface<'static>) -> Result<Self> {
+    pub async fn from_surface(instance: Instance, surface: Surface<'static>, chain: Leaf<Vec<Command>>) -> Result<Self> {
         // let instance = Instance::default();
         // let surface_target = SurfaceTarget::Window(Box::new(window));
         // let surface = instance.create_surface(surface_target)?;
@@ -42,6 +45,7 @@ impl Core {
             device: grc_device.clone(),
             queue: queue.into(),
             display: Display::new(surface, &adapter, grc_device).into(),
+            chain,
         })
     }
     #[cfg(target_arch = "wasm32")]
@@ -73,7 +77,7 @@ impl Core {
         let grc_device = Grc::new(device);
         Ok(Self {
             device: grc_device.clone(),
-            queue: queue.into(),
+            queue: post.into(),
             display: Display::new(surface, &adapter, grc_device).into(),
         })
     }
@@ -177,6 +181,9 @@ impl Core {
     pub fn command(&self) -> encode::CommandBuilder {
         encode::CommandBuilder::default().core(self.clone())
     }
+    pub fn render_command(&self) -> encode::render::CommandBuilder {
+        encode::render::CommandBuilder::default().core(self.clone())
+    }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(self.device.clone())
     }
@@ -189,5 +196,10 @@ impl Core {
         let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage()?.into();
         let root = self.writer(buffer.clone()).data(data).hub()?;
         Ok(Hedge { buffer, root })
+    }
+
+    pub fn render(&self) {
+        let chain = self.chain.read(|x| x.clone()).unwrap();
+        println!("time to render! {:?}", chain);
     }
 }
