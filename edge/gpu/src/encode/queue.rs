@@ -1,17 +1,25 @@
 use std::ops::Range;
 use super::*;
 
+#[derive(Default, Clone, Debug)]
+pub struct Command {
+    pub compute: Vec<compute::Entry>,
+    pub render: Vec<render::Entry>,
+}
+
 pub mod compute {
     use super::*;
+    #[derive(Clone, Debug)]
     pub enum Entry {
         Pipe(Grc<ComputePipeline>),
-        Bind(u32, Hub<Grc<BindGroup>>),
-        Dispatch(Hub<u32>),
+        Bind(u32, Grc<BindGroup>),
+        Dispatch(u32),
     }
 }
 
 pub mod render {
     use super::*;
+    #[derive(Clone, Debug)]
     pub enum Entry {
         Pipe(Grc<RenderPipeline>),
         Bind(u32, Grc<BindGroup>),

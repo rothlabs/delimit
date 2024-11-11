@@ -3,6 +3,7 @@ pub use encode::queue::{compute, render};
 use bind::*;
 use buffer::*;
 use bytemuck::*;
+use winit::window::Window;
 use core::*;
 use derive_builder::{Builder, UninitializedFieldError};
 use encode::*;
@@ -52,3 +53,21 @@ pub struct Hedge {
 
 #[derive(Clone, Default, Debug)]
 pub struct Mutation;
+
+#[cfg(not(target_arch = "wasm32"))]
+#[derive(Builder, Back, Debug)]
+#[builder(pattern = "owned")]
+pub struct Draw {
+    stems: Vec<Hub<Mutation>>,
+    #[back(skip)]
+    window: Grc<Window>
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl Act for Draw {
+    async fn act(&self) -> graph::Result<()> {
+        self.stems.depend().await?;
+        self.window.request_redraw();
+        Ok(())
+    }
+}
