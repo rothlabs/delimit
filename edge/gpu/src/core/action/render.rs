@@ -1,7 +1,6 @@
 use super::*;
 
 pub struct Pass<'a> {
-    pub core: &'a Core,
     pub command: &'a Command,
     pub descriptor: &'a RenderPassDescriptor<'a>,
 }

@@ -13,7 +13,8 @@ pub struct App {
     events: EventsLeaf,
     gpu: Leaf<Option<Gpu>>,
     chain: Leaf<Vec<Command>>,
-    rendered: bool,
+    // rendered: bool,
+    surface: Option<Grc<Surface<'static>>>,
     window: Option<Grc<Window>>,
 }
 
@@ -25,7 +26,10 @@ impl ApplicationHandler for App {
                 .unwrap());
             self.window = Some(window.clone());
             let instance = Instance::default();
-            let surface = instance.create_surface(window).unwrap();
+            let surface = Grc::new(instance.create_surface(window).unwrap());
+            // let config = inner.get_default_config(adapter, width, height).unwrap();
+            // inner.configure(&device, &config);
+            self.surface = Some(surface.clone());
             let gpu = self.gpu.clone();
             let chain = self.chain.clone();
             tokio::task::spawn(async move {
@@ -40,15 +44,15 @@ impl ApplicationHandler for App {
             WindowEvent::CloseRequested => {
                 event_loop.exit();
             }
-            WindowEvent::RedrawRequested => {
-                println!("request redraw");
+            WindowEvent::Resized(new_size) => {
+                // Reconfigure the surface with the new size
                 if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
-                    // let chain = self.chain.read(|x| x.clone()).unwrap();
-                    if !self.rendered {
-                        gpu.render().surface();
-                        println!("did draw");
-                        self.rendered = true;
-                    }
+                    gpu.display.resize2(new_size.width, new_size.height).unwrap();
+                }
+            }
+            WindowEvent::RedrawRequested => {
+                if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
+                    gpu.render().surface();
                 }
                 
             }
@@ -68,7 +72,6 @@ impl ApplicationHandler for App {
             DeviceEvent::MouseMotion { delta } => {
                 let events = self.events.clone();
                 tokio::task::spawn(async move {
-                    // println!("tokio mouse delta: {:?}", delta);
                     let _ = events.x.write(|x| *x = delta.0).await;
                 });
             }

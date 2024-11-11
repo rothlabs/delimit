@@ -4,8 +4,9 @@ const MIN_DIMENSION: u32 = 64;
 
 #[derive(Debug)]
 pub struct Display {
-    inner: Surface<'static>,
+    inner: Grc<Surface<'static>>,
     device: Grc<Device>,
+    adapter: Grc<Adapter>,
     format: TextureFormat,
     targets: Vec<Option<ColorTargetState>>,
     view_descriptor: TextureViewDescriptor<'static>,
@@ -15,17 +16,18 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(inner: Surface<'static>, adapter: &Adapter, device: Grc<Device>) -> Self {
-        let swapchain_capabilities = inner.get_capabilities(adapter);
+    pub fn new(inner: Grc<Surface<'static>>, adapter: Adapter, device: Grc<Device>) -> Self {
+        let swapchain_capabilities = inner.get_capabilities(&adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();
         let width = 300;
         let height = 150;
-        let config = inner.get_default_config(adapter, width, height).unwrap();
-        inner.configure(&device, &config);
+        let config = inner.get_default_config(&adapter, width, height).unwrap();
+        //inner.configure(&device, &config);
         Self {
             inner,
             device,
+            adapter: adapter.into(),
             format,
             targets: vec![Some(format.into())],
             view_descriptor,
@@ -44,6 +46,12 @@ impl Display {
                 self.inner.configure(&self.device, config);
             })
             .await
+    }
+    pub fn resize2(&self, width: u32, height: u32) -> graph::Result<()> {
+        let mut config = self.inner.get_default_config(&self.adapter, width, height).unwrap();
+        config.present_mode = PresentMode::Immediate;
+        self.inner.configure(&self.device, &config);
+        Ok(())
     }
     pub fn targets(&self) -> &[Option<ColorTargetState>] {
         &self.targets

@@ -37,16 +37,18 @@ impl<'a> Render<'a> {
                 occlusion_query_set: None,
             };
             let pass = render::Pass {
-                core: &self.core,
                 command,
                 descriptor,
             };
-            // pass.compute(&mut encoder);
-            pass.render(&mut encoder);
+            if !command.compute.is_empty() {
+                pass.compute(&mut encoder);
+            }
+            if !command.render.is_empty() {
+                pass.render(&mut encoder);
+            }
         }
         encoder.submit();
         frame.present();
-        println!("rendered! {:?}", self.chain);
     }
 }
 

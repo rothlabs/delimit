@@ -1,8 +1,11 @@
-use graph::*;
 use gpu::Gpu;
+use graph::*;
 use wgpu::*;
 // use win::Win;
-use winit::{event_loop::{ControlFlow, EventLoop}, window::Window};
+use winit::{
+    event_loop::{ControlFlow, EventLoop},
+    window::Window,
+};
 
 #[tokio::main] // (flavor = "current_thread")
 async fn main() {
@@ -10,7 +13,6 @@ async fn main() {
     let event_loop = EventLoop::new().unwrap();
     event_loop.set_control_flow(ControlFlow::Wait);
     event_loop.run_app(&mut app).unwrap();
-    
 }
 
 // fn start(instance: Instance, surface: Surface<'static>) {

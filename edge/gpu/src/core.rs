@@ -15,7 +15,7 @@ pub struct Core {
 }
 
 impl Core {
-    pub async fn from_surface(instance: Instance, surface: Surface<'static>, chain: Leaf<Vec<Command>>) -> Result<Self> {
+    pub async fn from_surface(instance: Instance, surface: Grc<Surface<'static>>, chain: Leaf<Vec<Command>>) -> Result<Self> {
         // let instance = Instance::default();
         // let surface_target = SurfaceTarget::Window(Box::new(window));
         // let surface = instance.create_surface(surface_target)?;
@@ -44,7 +44,7 @@ impl Core {
         Ok(Self {
             device: grc_device.clone(),
             queue: queue.into(),
-            display: Display::new(surface, &adapter, grc_device).into(),
+            display: Display::new(surface, adapter, grc_device).into(),
             chain,
         })
     }
