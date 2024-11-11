@@ -43,7 +43,7 @@ impl ApplicationHandler for App {
                 println!("request redraw");
                 if let Some(gpu) = self.gpu.read(|gpu| gpu.clone()).unwrap() {
                     // let chain = self.chain.read(|x| x.clone()).unwrap();
-                    gpu.render().direct();
+                    gpu.render().surface();
                     println!("did draw");
                 }
             }

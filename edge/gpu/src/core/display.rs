@@ -55,6 +55,13 @@ impl Display {
             .expect("Failed to acquire next swap chain texture");
         frame.texture.create_view(&self.view_descriptor)
     }
+    pub fn frame(&self) -> SurfaceTexture {
+        self
+            .inner
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture")
+        // (frame, frame.texture.create_view(&self.view_descriptor))
+    }
     pub fn texture(&self) -> graph::Result<TextureBuilder> {
         let (width, height) = self.config.read(|config| (config.width, config.height))?;
         let size = Extent3d {
