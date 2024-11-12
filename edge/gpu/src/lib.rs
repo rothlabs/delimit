@@ -1,5 +1,6 @@
 pub use encode::post::{compute, render, Command};
 pub use viewport::Viewport;
+pub use core::ToCore;
 
 use bind::*;
 use buffer::*;
