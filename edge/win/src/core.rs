@@ -26,9 +26,9 @@ impl ApplicationHandler for App {
         match event {
             WindowEvent::Focused(_) => {
                 if let Some(display) = &mut self.display {
-                    if let Some(gpu) = self.gpu.base().unwrap() {
-                        display.ensure_configuration(&gpu).unwrap();
-                    }
+                    // if let Some(gpu) = self.gpu.base().unwrap() {
+                        display.ensure_configuration().unwrap();
+                    // }
                 }
             }
             WindowEvent::Resized(size) => {
@@ -40,7 +40,7 @@ impl ApplicationHandler for App {
             }
             WindowEvent::RedrawRequested => {
                 if let Some(gpu) = self.gpu.base().unwrap() {
-                    gpu.render().surface().unwrap();
+                    // gpu.render().surface().unwrap();
                 }
             }
             WindowEvent::CloseRequested => {

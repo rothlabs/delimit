@@ -1,4 +1,5 @@
 pub use encode::post::{compute, render, Command};
+pub use viewport::Viewport;
 
 use bind::*;
 use buffer::*;
@@ -11,13 +12,14 @@ use node_derive::*;
 use pipe::*;
 use shader::*;
 use star::*;
-use std::fmt::Debug;
+use std::{fmt::Debug, future::Future};
 use util::DeviceExt;
 use wgpu::*;
 
 mod bind;
 mod buffer;
 mod core;
+mod viewport;
 mod encode;
 mod pipe;
 mod shader;
@@ -49,6 +51,27 @@ pub struct Hedge {
 
 #[derive(Clone, Default, Debug)]
 pub struct Mutation;
+
+pub trait ToAdapter {
+    fn surface_adapter(
+        &self,
+        surface: Grc<Surface<'static>>,
+    ) -> impl Future<Output = Result<Adapter>>;
+}
+
+impl ToAdapter for Instance {
+    async fn surface_adapter(&self, surface: Grc<Surface<'static>>) -> Result<Adapter> {
+        let mut fields = RequestAdapterOptions::default();
+        fields.compatible_surface = Some(&surface);
+        Ok(self
+            .request_adapter(&fields)
+            .await
+            .ok_or(anyhow!("no adapter"))?)
+    }
+}
+
+
+
 
 // #[cfg(target_arch = "wasm32")]
 //     #[error(transparent)]

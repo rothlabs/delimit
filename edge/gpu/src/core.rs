@@ -1,8 +1,23 @@
 use super::*;
-use display::Display;
 
-mod action;
 mod display;
+
+pub trait ToCore {
+    fn gpu(self) -> impl Future<Output = Result<Core>>;
+}
+
+impl ToCore for Adapter {
+    async fn gpu(self) -> Result<Core> {
+        let mut descriptor = DeviceDescriptor::default();
+        descriptor.required_limits = Limits::default().using_resolution(self.limits());
+        let (device, queue) = self.request_device(&descriptor, None).await?;
+        Ok(Core {
+            adapter: self.into(),
+            device: device.into(),
+            queue: queue.into(),
+        })
+    }
+}
 
 // TODO: need different copies with different display or texture target
 #[derive(Clone, Debug)]
@@ -10,29 +25,11 @@ pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    pub display: Grc<Display>,
-    chain: Leaf<Vec<Command>>,
+    // pub display: Grc<Display>,
+    // chain: Leaf<Vec<Command>>,
 }
 
 impl Core {
-    pub async fn from_surface(instance: Instance, surface: Grc<Surface<'static>>) -> Result<Self> {
-        let mut descriptor = RequestAdapterOptions::default();
-        descriptor.compatible_surface = Some(&surface);
-        let adapter = instance
-            .request_adapter(&descriptor)
-            .await
-            .ok_or(anyhow!("no adapter"))?;
-        let mut descriptor = DeviceDescriptor::default();
-        descriptor.required_limits = Limits::default().using_resolution(adapter.limits());
-        let (device, queue) = adapter.request_device(&descriptor, None).await?;
-        Ok(Self {
-            display: Display::new(surface, &adapter).into(),
-            device: device.into(),
-            adapter: adapter.into(),
-            queue: queue.into(),
-            chain: Leaf::default(),
-        })
-    }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
             device: &self.device,
@@ -133,9 +130,6 @@ impl Core {
     pub fn compute(&self) -> encode::ComputeBuilder {
         encode::ComputeBuilder::default().core(self.clone())
     }
-    pub fn command(&self) -> encode::render::CommandBuilder {
-        encode::render::CommandBuilder::default().chain(self.chain.clone())
-    }
     pub fn bind(&self) -> BindBuilder {
         BindBuilder::default().device(self.device.clone())
     }
@@ -149,12 +143,31 @@ impl Core {
         let root = self.writer(buffer.clone()).data(data).hub()?;
         Ok(Hedge { buffer, root })
     }
-
-    pub fn render(&self) -> action::Render {
-        let chain = self.chain.read(|x| x.clone()).unwrap();
-        action::Render { core: self, chain }
-    }
 }
+
+
+
+
+
+// pub async fn from_surface(instance: Instance, surface: Grc<Surface<'static>>) -> Result<Self> {
+//     let mut descriptor = RequestAdapterOptions::default();
+//     descriptor.compatible_surface = Some(&surface);
+//     let adapter = instance
+//         .request_adapter(&descriptor)
+//         .await
+//         .ok_or(anyhow!("no adapter"))?;
+//     let mut descriptor = DeviceDescriptor::default();
+//     descriptor.required_limits = Limits::default().using_resolution(adapter.limits());
+//     let (device, queue) = adapter.request_device(&descriptor, None).await?;
+//     Ok(Self {
+//         // display: Display::new(surface, &adapter).into(),
+//         device: device.into(),
+//         adapter: adapter.into(),
+//         queue: queue.into(),
+//         // chain: Leaf::default(),
+//     })
+// }
+
 
 
 // #[cfg(target_arch = "wasm32")]

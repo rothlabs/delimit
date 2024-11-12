@@ -3,14 +3,14 @@ use super::*;
 mod render;
 
 pub struct Render<'a> {
-    pub core: &'a Core,
+    pub display: &'a Viewport,
     pub chain: Vec<Command>,
 }
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
-        let mut encoder = self.core.encoder();
-        let frame = self.core.display.frame()?;
+        let mut encoder = self.display.core.encoder();
+        let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in &self.chain {
             let resolve_target = if command.msaa {
@@ -29,7 +29,7 @@ impl<'a> Render<'a> {
                 },
             };
             let list = [Some(attachment); 1];
-            let descriptor = &self.core.render_pass(&list).make()?;
+            let descriptor = &self.display.core.render_pass(&list).make()?;
             // let descriptor = &RenderPassDescriptor {
             //     label: Some("app_render"),
             //     color_attachments: &[Some(attachment); 1],

@@ -85,9 +85,7 @@ impl Solve for Command {
         let mut post = post::Command::default();
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
-        self.chain
-            .write(|chain| chain.push(post))
-            .await?;
+        self.chain.write(|chain| chain.push(post)).await?;
         Ok(Mutation.into())
     }
 }

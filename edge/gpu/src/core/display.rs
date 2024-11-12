@@ -6,7 +6,7 @@ use super::*;
 pub struct Display {
     surface: Grc<Surface<'static>>,
     // pub adapter: Grc<Adapter>,
-    targets: Vec<Option<ColorTargetState>>,
+    pub targets: Vec<Option<ColorTargetState>>,
     // view_descriptor: TextureViewDescriptor<'static>,
     // pub config: Leaf<SurfaceConfiguration>,
 }
@@ -38,7 +38,6 @@ impl Display {
         Ok(self.surface.get_current_texture()?)
     }
 }
-
 
 // #[derive(Debug)]
 // pub struct Display {
