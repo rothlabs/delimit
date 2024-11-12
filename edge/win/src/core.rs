@@ -16,20 +16,20 @@ pub struct App {
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.display.is_none() {
-            let fields = Window::default_attributes();//.with_visible(false);
-            // fields.with_visible(false);
-            // fields.visible = false;
+            let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            // window.set_visible(false);
             let display = app::Display::new(window, self.gpu.clone()).unwrap();
             self.display = Some(display);
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
-        // println!("anything?");
         match event {
-            WindowEvent::CloseRequested => {
-                event_loop.exit();
+            WindowEvent::Focused(_) => {
+                if let Some(display) = &mut self.display {
+                    if let Some(gpu) = self.gpu.base().unwrap() {
+                        display.ensure_configuration(&gpu).unwrap();
+                    }
+                }
             }
             WindowEvent::Resized(size) => {
                 if let Some(display) = &mut self.display {
@@ -39,16 +39,12 @@ impl ApplicationHandler for App {
                 }
             }
             WindowEvent::RedrawRequested => {
-                // println!("draw?");
-                if let Some(display) = &mut self.display {
-                    if let Some(gpu) = self.gpu.base().unwrap() {
-                        display.ensure(&gpu).unwrap();
-                        gpu.render().surface().unwrap();
-                    } else {
-                        // display.window.set_visible(false);
-                        display.window.request_redraw();
-                    }
+                if let Some(gpu) = self.gpu.base().unwrap() {
+                    gpu.render().surface().unwrap();
                 }
+            }
+            WindowEvent::CloseRequested => {
+                event_loop.exit();
             }
             _ => (),
         }
@@ -83,7 +79,6 @@ async fn draw_triangle(gpu: &Gpu) -> gpu::Result<()> {
         .hub()?
         .base()
         .await?;
-    // println!("draw triangle complete");
     Ok(())
 }
 

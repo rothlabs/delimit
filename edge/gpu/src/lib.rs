@@ -33,8 +33,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(transparent)]
     SurfaceError(#[from] SurfaceError),
-    // #[error(transparent)]
-    // CreateSurfaceError(#[from] CreateSurfaceError),
+    #[error(transparent)]
+    RequestDeviceError(#[from] RequestDeviceError),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]

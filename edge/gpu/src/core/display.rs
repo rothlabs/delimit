@@ -17,6 +17,7 @@ pub struct Display {
 
 impl Display {
     pub fn new(inner: Grc<Surface<'static>>, adapter: Adapter, device: Grc<Device>) -> Self {
+        // TODO: move this logic out to another function that winit uses
         let swapchain_capabilities = inner.get_capabilities(&adapter);
         let format = swapchain_capabilities.formats[0];
         let view_descriptor = TextureViewDescriptor::default();

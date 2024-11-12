@@ -15,12 +15,12 @@ impl Display {
         let display = Self {
             configuration: None,
             surface: surface.clone(),
-            window,
+            window: window.clone(),
         };
-        tokio::task::spawn(make_gpu(gpu, instance, surface));
+        tokio::task::spawn(make_gpu(gpu, instance, surface, window));
         Ok(display)
     }
-    pub fn ensure(&mut self, gpu: &Gpu) -> Result<()> {
+    pub fn ensure_configuration(&mut self, gpu: &Gpu) -> Result<()> {
         if self.configuration.is_none() {
             let size = self.window.inner_size();
             let config = self
@@ -29,7 +29,6 @@ impl Display {
                 .ok_or(anyhow!("no surface config"))?;
             self.surface.configure(&gpu.device, &config);
             self.configuration = Some(config);
-            self.window.set_visible(true);
         }
         Ok(())
     }
@@ -46,9 +45,11 @@ async fn make_gpu(
     gpu: Leaf<Option<Gpu>>,
     instance: Instance,
     surface: Grc<Surface<'static>>,
+    window: Grc<Window>,
 ) -> Result<()> {
     let core = Gpu::from_surface(instance, surface).await?;
     draw_triangle(&core).await?;
     gpu.write(|gpu| *gpu = Some(core)).await?;
+    window.set_visible(true);
     Ok(())
 }
