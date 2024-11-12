@@ -1,8 +1,11 @@
 pub use core::App;
 
+use derive_builder::Builder;
 use gpu::*;
 use graph::*;
+use node_derive::*;
 use wgpu::*;
+use winit::window::Window;
 
 mod core;
 
@@ -22,4 +25,20 @@ pub enum Error {
     Gpu(#[from] gpu::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
+}
+
+#[derive(Builder, Back, Debug)]
+#[builder(pattern = "owned")]
+pub struct Draw {
+    stems: Vec<Hub<Mutation>>,
+    #[back(skip)]
+    window: Grc<Window>,
+}
+
+impl Act for Draw {
+    async fn act(&self) -> graph::Result<()> {
+        self.stems.depend().await?;
+        self.window.request_redraw();
+        Ok(())
+    }
 }

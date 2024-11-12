@@ -1,7 +1,5 @@
 use super::*;
 use display::Display;
-#[cfg(target_arch = "wasm32")]
-use web_sys::HtmlCanvasElement;
 
 mod action;
 mod display;
@@ -33,39 +31,6 @@ impl Core {
             adapter: adapter.into(),
             queue: queue.into(),
             chain: Leaf::default(),
-        })
-    }
-    #[cfg(target_arch = "wasm32")]
-    pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<Self> {
-        let instance = Instance::default();
-        let surface_target = SurfaceTarget::Canvas(canvas);
-        let surface = instance.create_surface(surface_target)?;
-        let adapter = instance
-            .request_adapter(&RequestAdapterOptions {
-                power_preference: PowerPreference::default(),
-                force_fallback_adapter: false,
-                compatible_surface: Some(&surface),
-            })
-            .await
-            .expect("Failed to find an appropriate adapter");
-        let required_limits = Limits::default().using_resolution(adapter.limits());
-        let (device, queue) = adapter
-            .request_device(
-                &DeviceDescriptor {
-                    label: None,
-                    required_features: Features::empty(),
-                    required_limits,
-                    memory_hints: MemoryHints::MemoryUsage,
-                },
-                None,
-            )
-            .await
-            .expect("Failed to create device");
-        let grc_device = Grc::new(device);
-        Ok(Self {
-            device: grc_device.clone(),
-            queue: post.into(),
-            display: Display::new(surface, &adapter, grc_device).into(),
         })
     }
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
@@ -190,3 +155,41 @@ impl Core {
         action::Render { core: self, chain }
     }
 }
+
+
+// #[cfg(target_arch = "wasm32")]
+// use web_sys::HtmlCanvasElement;
+
+// #[cfg(target_arch = "wasm32")]
+//     pub async fn from_canvas<'a>(canvas: HtmlCanvasElement) -> Result<Self> {
+//         let instance = Instance::default();
+//         let surface_target = SurfaceTarget::Canvas(canvas);
+//         let surface = instance.create_surface(surface_target)?;
+//         let adapter = instance
+//             .request_adapter(&RequestAdapterOptions {
+//                 power_preference: PowerPreference::default(),
+//                 force_fallback_adapter: false,
+//                 compatible_surface: Some(&surface),
+//             })
+//             .await
+//             .expect("Failed to find an appropriate adapter");
+//         let required_limits = Limits::default().using_resolution(adapter.limits());
+//         let (device, queue) = adapter
+//             .request_device(
+//                 &DeviceDescriptor {
+//                     label: None,
+//                     required_features: Features::empty(),
+//                     required_limits,
+//                     memory_hints: MemoryHints::MemoryUsage,
+//                 },
+//                 None,
+//             )
+//             .await
+//             .expect("Failed to create device");
+//         let grc_device = Grc::new(device);
+//         Ok(Self {
+//             device: grc_device.clone(),
+//             queue: post.into(),
+//             display: Display::new(surface, &adapter, grc_device).into(),
+//         })
+//     }

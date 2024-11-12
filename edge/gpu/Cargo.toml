@@ -4,20 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-    anyhow = "1.0"
-    derive_builder = "0.20.1"
+    anyhow = { workspace = true }
+    derive_builder = { workspace = true }
     wgpu = "22.1.0"
     bytemuck = "1.18.0"
     flume = "0.11.0"
     graph = { path = "../../core/graph" }
-    node_derive = { path = "../../core/node_derive" }
+    node_derive = { workspace = true }
     star = { path = "../../core/star" }
-    
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-    winit = "0.30"
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-    dom = { path = "../../web/dom" }    
 
 [dev-dependencies]
     wasm-bindgen-test = "0.3.43"
+
+# [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+#     winit = "0.30"
+
+# [target.'cfg(target_arch = "wasm32")'.dependencies]
+#     dom = { path = "../../web/dom" }    

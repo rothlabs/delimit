@@ -14,7 +14,6 @@ use star::*;
 use std::fmt::Debug;
 use util::DeviceExt;
 use wgpu::*;
-use winit::window::Window;
 
 mod bind;
 mod buffer;
@@ -40,9 +39,6 @@ pub enum Error {
     Graph(#[from] graph::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
-    #[cfg(target_arch = "wasm32")]
-    #[error(transparent)]
-    Dom(#[from] dom::Error),
 }
 
 #[derive(Clone, Debug)]
@@ -54,20 +50,24 @@ pub struct Hedge {
 #[derive(Clone, Default, Debug)]
 pub struct Mutation;
 
-#[cfg(not(target_arch = "wasm32"))]
-#[derive(Builder, Back, Debug)]
-#[builder(pattern = "owned")]
-pub struct Draw {
-    stems: Vec<Hub<Mutation>>,
-    #[back(skip)]
-    window: Grc<Window>,
-}
+// #[cfg(target_arch = "wasm32")]
+//     #[error(transparent)]
+//     Dom(#[from] dom::Error),
 
-#[cfg(not(target_arch = "wasm32"))]
-impl Act for Draw {
-    async fn act(&self) -> graph::Result<()> {
-        self.stems.depend().await?;
-        self.window.request_redraw();
-        Ok(())
-    }
-}
+// #[cfg(not(target_arch = "wasm32"))]
+// #[derive(Builder, Back, Debug)]
+// #[builder(pattern = "owned")]
+// pub struct Draw {
+//     stems: Vec<Hub<Mutation>>,
+//     #[back(skip)]
+//     window: Grc<Window>,
+// }
+
+// #[cfg(not(target_arch = "wasm32"))]
+// impl Act for Draw {
+//     async fn act(&self) -> graph::Result<()> {
+//         self.stems.depend().await?;
+//         self.window.request_redraw();
+//         Ok(())
+//     }
+// }
