@@ -8,9 +8,10 @@ use node_derive::*;
 use tokio::task::spawn;
 use wgpu::*;
 use winit::window::{Window, WindowId};
+use core::Core;
 
 mod app;
-mod crap;
+mod core;
 mod display;
 
 pub type Result<T> = std::result::Result<T, Error>;

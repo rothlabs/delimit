@@ -6,27 +6,27 @@ use winit::event_loop::ActiveEventLoop;
 #[derive(Default)]
 pub struct App {
     events: EventsLeaf,
-    displays: Displays,
+    core: Core,
 }
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.displays.is_empty().unwrap() {
+        if self.core.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = Grc::new(event_loop.create_window(fields).unwrap());
-            spawn(self.displays.clone().main(window));
+            spawn(self.core.clone().main(window));
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::Resized(size) => {
-                self.displays.resize(id, size).unwrap();
+                self.core.resize(id, size).unwrap();
             }
-            WindowEvent::RedrawRequested => self.displays.render(id).unwrap(),
+            WindowEvent::RedrawRequested => self.core.render(id).unwrap(),
             WindowEvent::MouseInput { device_id, state, button } => {
                 let fields = Window::default_attributes().with_visible(false);
                 let window = Grc::new(event_loop.create_window(fields).unwrap());
-                spawn(self.displays.clone().display(window));
+                spawn(self.core.clone().display(window));
             }
             WindowEvent::CloseRequested => {
                 event_loop.exit();
