@@ -1,7 +1,5 @@
 use super::*;
 
-mod display;
-
 pub trait ToCore {
     fn gpu(self) -> impl Future<Output = Result<Core>>;
 }
@@ -19,21 +17,18 @@ impl ToCore for Adapter {
     }
 }
 
-// TODO: need different copies with different display or texture target
 #[derive(Clone, Debug)]
 pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    // pub display: Grc<Display>,
-    // chain: Leaf<Vec<Command>>,
 }
 
 impl Core {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
             device: &self.device,
-            module: self.device.create_shader_module(source).into(),
+            module: self.device.create_shader_module(source), //.into(),
             targets: &[],
         }
     }
@@ -141,14 +136,11 @@ impl Core {
     }
 }
 
-
 // pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
-    //     pipe::RenderBuilder::default()
-    //         .device(&self.device)
-    //         .vertex(vertex)
-    // }
-
-
+//     pipe::RenderBuilder::default()
+//         .device(&self.device)
+//         .vertex(vertex)
+// }
 
 // pub async fn from_surface(instance: Instance, surface: Grc<Surface<'static>>) -> Result<Self> {
 //     let mut descriptor = RequestAdapterOptions::default();
@@ -168,8 +160,6 @@ impl Core {
 //         // chain: Leaf::default(),
 //     })
 // }
-
-
 
 // #[cfg(target_arch = "wasm32")]
 // use web_sys::HtmlCanvasElement;

@@ -1,6 +1,6 @@
-pub use encode::post::{compute, render, Command};
-pub use viewport::{Viewport, ToViewport};
 pub use core::ToCore;
+pub use encode::post::{compute, render, Command};
+pub use viewport::{ToViewport, Viewport};
 
 use bind::*;
 use buffer::*;
@@ -20,11 +20,11 @@ use wgpu::*;
 mod bind;
 mod buffer;
 mod core;
-mod viewport;
 mod encode;
 mod pipe;
 mod shader;
 mod texture;
+mod viewport;
 
 pub type Gpu = Core;
 
@@ -54,10 +54,7 @@ pub struct Hedge {
 pub struct Mutation;
 
 pub trait ToAdapter {
-    fn surface_adapter(
-        &self,
-        surface: &Surface<'static>,
-    ) -> impl Future<Output = Result<Adapter>>;
+    fn surface_adapter(&self, surface: &Surface<'static>) -> impl Future<Output = Result<Adapter>>;
 }
 
 impl ToAdapter for Instance {
@@ -70,9 +67,6 @@ impl ToAdapter for Instance {
             .ok_or(anyhow!("no adapter"))?)
     }
 }
-
-
-
 
 // #[cfg(target_arch = "wasm32")]
 //     #[error(transparent)]

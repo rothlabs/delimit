@@ -1,9 +1,9 @@
 use super::*;
 use std::ops::Deref;
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct Shader<'a> {
-    pub module: Grc<ShaderModule>,
+    pub module: ShaderModule,
     pub device: &'a Device,
     pub targets: &'a [Option<ColorTargetState>],
 }
@@ -13,7 +13,10 @@ impl<'a> Shader<'a> {
         VertexBuilder::default().shader(self).entry(entry)
     }
     pub fn fragment(&'a self, entry: &'a str) -> FragmentBuilder<'a> {
-        FragmentBuilder::default().shader(self).entry(entry).targets(&self.targets)
+        FragmentBuilder::default()
+            .shader(self)
+            .entry(entry)
+            .targets(&self.targets)
     }
     pub fn compute(&'a self, entry: &'a str) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()

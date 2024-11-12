@@ -11,8 +11,8 @@ impl ToViewport for Surface<'static> {
         let swapchain_capabilities = self.get_capabilities(&core.adapter);
         let format = swapchain_capabilities.formats[0];
         let configuration = self
-                .get_default_config(&core.adapter, width, height)
-                .ok_or(anyhow!("no surface config"))?;
+            .get_default_config(&core.adapter, width, height)
+            .ok_or(anyhow!("no surface config"))?;
         self.configure(&core.device, &configuration);
         Ok(Viewport {
             gpu: core,
@@ -37,7 +37,7 @@ impl Viewport {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
             device: &self.gpu.device,
-            module: self.gpu.device.create_shader_module(source).into(),
+            module: self.gpu.device.create_shader_module(source), //.into(),
             targets: &self.targets,
         }
     }
@@ -51,7 +51,10 @@ impl Viewport {
     }
     pub fn render(&self) -> Result<action::Render> {
         let chain = self.chain.base()?;
-        Ok(action::Render { display: self, chain })
+        Ok(action::Render {
+            display: self,
+            chain,
+        })
     }
     pub fn frame(&self) -> Result<SurfaceTexture> {
         Ok(self.surface.get_current_texture()?)
@@ -59,6 +62,7 @@ impl Viewport {
     pub fn resize(&mut self, width: u32, height: u32) {
         self.configuration.width = width;
         self.configuration.height = height;
-        self.surface.configure(&self.gpu.device, &self.configuration);
+        self.surface
+            .configure(&self.gpu.device, &self.configuration);
     }
 }

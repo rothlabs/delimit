@@ -48,12 +48,12 @@ impl<'a> Render<'a> {
 }
 
 // let descriptor = &RenderPassDescriptor {
-            //     label: Some("app_render"),
-            //     color_attachments: &[Some(attachment); 1],
-            //     depth_stencil_attachment: None,
-            //     timestamp_writes: None,
-            //     occlusion_query_set: None,
-            // };
+//     label: Some("app_render"),
+//     color_attachments: &[Some(attachment); 1],
+//     depth_stencil_attachment: None,
+//     timestamp_writes: None,
+//     occlusion_query_set: None,
+// };
 
 // async fn compute_pass(&self, encoder: &mut Encode<'_>) -> graph::Result<()> {
 //     let mut pass = encoder.compute();

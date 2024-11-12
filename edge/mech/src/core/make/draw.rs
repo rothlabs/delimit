@@ -4,6 +4,7 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Points {
+    // TODO: switch to Canvas enum of Viewport or TargetTexture
     #[back(skip)]
     core: Core,
     plot: Hub<Plot>,
