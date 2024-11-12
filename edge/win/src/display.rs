@@ -9,7 +9,10 @@ pub struct Display {
 
 impl Display {
     pub fn new(window: &Grc<Window>, viewport: Viewport) -> Self {
-        Self { viewport, window: window.clone() }
+        Self {
+            viewport,
+            window: window.clone(),
+        }
     }
     pub fn render(&self) -> Result<()> {
         Ok(self.viewport.render()?.surface()?)
@@ -18,8 +21,6 @@ impl Display {
         self.viewport.resize(size.width, size.height);
     }
 }
-
-
 
 // pub fn new(gpu: Leaf<Option<Gpu>>, window: Window) -> Result<Self> {
 //     let window = Grc::new(window);

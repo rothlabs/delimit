@@ -2,33 +2,37 @@ use super::*;
 use winit::dpi::PhysicalSize;
 
 #[derive(Default, Clone, Debug)]
-pub struct Core(Leaf<Vec<Display>>);
+pub struct Core {
+    instance: Grc<Instance>,
+    displays: Leaf<Vec<Display>>,
+}
 
 impl Core {
-    pub async fn main(self, window: Grc<Window>) -> Result<()> {
-        let size = window.inner_size();
-        // TODO: make instance an argument
-        let instance = wgpu::Instance::default();
-        let surface = instance.create_surface(window.clone())?;
-        let gpu = instance.surface_adapter(&surface).await?.gpu().await?;
-        let viewport = surface.viewport(gpu, size.width, size.height)?;
-        post_triangle(&viewport).await?;
-        let display = Display::new(&window, viewport);
-        self.0.write(|x| x.push(display)).await?;
-        window.set_visible(true);
-        Ok(())
-    }
     pub async fn display(self, window: Grc<Window>) -> Result<()> {
+        let surface = self.instance.create_surface(window.clone())?;
+        let displays = self.displays.base()?;
+        if let Some(main) = displays.first() {
+            let gpu = main.viewport.gpu.clone();
+            self.make_display(window, surface, gpu).await
+        } else {
+            self.make_primary(window, surface).await
+        }
+    }
+    async fn make_primary(self, window: Grc<Window>, surface: Surface<'static>) -> Result<()> {
+        let gpu = self.instance.surface_adapter(&surface).await?.gpu().await?;
+        self.make_display(window, surface, gpu).await
+    }
+    async fn make_display(
+        &self,
+        window: Grc<Window>,
+        surface: Surface<'static>,
+        gpu: Gpu,
+    ) -> Result<()> {
         let size = window.inner_size();
-        let displays = self.0.base()?;
-        let main = displays.first().ok_or(anyhow!("no main display"))?;
-        let gpu = main.viewport.gpu.clone();
-        let instance = wgpu::Instance::default();
-        let surface = instance.create_surface(window.clone())?;
         let viewport = surface.viewport(gpu, size.width, size.height)?;
         post_triangle(&viewport).await?;
         let display = Display::new(&window, viewport);
-        self.0.write(|x| x.push(display)).await?;
+        self.displays.write(|x| x.push(display)).await?;
         window.set_visible(true);
         Ok(())
     }
@@ -40,10 +44,10 @@ impl Core {
         Ok(())
     }
     pub fn is_empty(&self) -> Result<bool> {
-        Ok(self.0.base()?.is_empty())
+        Ok(self.displays.base()?.is_empty())
     }
     fn get(&self, id: WindowId) -> Result<Display> {
-        for display in self.0.base()? {
+        for display in self.displays.base()? {
             if display.window.id() == id {
                 return Ok(display);
             }

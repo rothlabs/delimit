@@ -1,6 +1,6 @@
 use super::*;
 use winit::application::ApplicationHandler;
-use winit::event::{DeviceEvent, WindowEvent};
+use winit::event::{DeviceEvent, ElementState, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 
 #[derive(Default)]
@@ -14,7 +14,7 @@ impl ApplicationHandler for App {
         if self.core.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = Grc::new(event_loop.create_window(fields).unwrap());
-            spawn(self.core.clone().main(window));
+            spawn(self.core.clone().display(window));
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -23,10 +23,12 @@ impl ApplicationHandler for App {
                 self.core.resize(id, size).unwrap();
             }
             WindowEvent::RedrawRequested => self.core.render(id).unwrap(),
-            WindowEvent::MouseInput { device_id, state, button } => {
-                let fields = Window::default_attributes().with_visible(false);
-                let window = Grc::new(event_loop.create_window(fields).unwrap());
-                spawn(self.core.clone().display(window));
+            WindowEvent::MouseInput { state, .. } => {
+                if state == ElementState::Released {
+                    let fields = Window::default_attributes().with_visible(false);
+                    let window = Grc::new(event_loop.create_window(fields).unwrap());
+                    spawn(self.core.clone().display(window));
+                }
             }
             WindowEvent::CloseRequested => {
                 event_loop.exit();

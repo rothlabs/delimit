@@ -1,5 +1,6 @@
 pub use app::App;
 
+use core::Core;
 use derive_builder::Builder;
 use display::*;
 use gpu::*;
@@ -8,7 +9,6 @@ use node_derive::*;
 use tokio::task::spawn;
 use wgpu::*;
 use winit::window::{Window, WindowId};
-use core::Core;
 
 mod app;
 mod core;
