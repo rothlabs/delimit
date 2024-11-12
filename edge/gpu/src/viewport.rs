@@ -41,6 +41,11 @@ impl Viewport {
             targets: &self.targets,
         }
     }
+    pub fn pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+        pipe::RenderBuilder::default()
+            .device(&self.gpu.device)
+            .vertex(vertex)
+    }
     pub fn command(&self) -> encode::render::CommandBuilder {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }

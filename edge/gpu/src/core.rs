@@ -81,11 +81,6 @@ impl Core {
             .device(&self.device)
             .bind_layouts(bind_layout)
     }
-    pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
-        pipe::RenderBuilder::default()
-            .device(&self.device)
-            .vertex(vertex)
-    }
     pub fn render_pass<'a>(
         &'a self,
         attachments: &'a [Option<RenderPassColorAttachment<'a>>],
@@ -147,6 +142,11 @@ impl Core {
 }
 
 
+// pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+    //     pipe::RenderBuilder::default()
+    //         .device(&self.device)
+    //         .vertex(vertex)
+    // }
 
 
 

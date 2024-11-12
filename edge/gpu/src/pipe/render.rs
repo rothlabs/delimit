@@ -1,7 +1,7 @@
 use super::*;
 use std::num::NonZero;
 
-#[derive(Builder, Debug)]
+#[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "Error"))]
 #[builder(setter(strip_option))]
@@ -12,8 +12,10 @@ pub struct Render<'a> {
     #[builder(default)]
     layout: Option<&'a PipelineLayout>,
     vertex: VertexState<'a>,
+    // #[builder(default)]
+    // fragment: Option<FragmentState<'a>>,
     #[builder(default)]
-    fragment: Option<FragmentState<'a>>,
+    fragment: Option<FragmentBuilder<'a>>,
     #[builder(default)]
     primitive: PrimitiveState,
     #[builder(default)]
@@ -24,16 +26,22 @@ pub struct Render<'a> {
     multiview: Option<NonZero<u32>>,
     #[builder(default)]
     cache: Option<&'a PipelineCache>,
+    #[builder(default)]
+    targets: &'a [Option<ColorTargetState>],
 }
 
 impl RenderBuilder<'_> {
     pub fn make(self) -> Result<Grc<RenderPipeline>> {
         let built = self.build()?;
+        let mut fragment = None;
+        if let Some(builder) = built.fragment {
+            fragment = Some(builder.targets(built.targets).make()?);
+        }
         let descriptor = RenderPipelineDescriptor {
             label: built.label,
             layout: built.layout,
             vertex: built.vertex,
-            fragment: built.fragment,
+            fragment,//: built.fragment,
             primitive: built.primitive,
             depth_stencil: built.depth_stencil,
             multisample: built.multisample,

@@ -62,9 +62,9 @@ async fn draw_triangle(viewport: &Viewport) -> gpu::Result<()> {
     // let targets = viewport.targets;
     let shader = viewport.shader(include_wgsl!("triangle.wgsl"));
     let vertex = shader.vertex("vs_main").make()?;
-    let fragment = shader.fragment("fs_main").make()?;
+    let fragment = shader.fragment("fs_main");
     // TODO: move render pipe to viewport and make it take fragment builder so it can add targets
-    let pipe = viewport.gpu.render_pipe(vertex).fragment(fragment).make()?;
+    let pipe = viewport.pipe(vertex).fragment(fragment).make()?;
     viewport.command()
         .render(pipe)
         .draw(0..3, 0..1)
