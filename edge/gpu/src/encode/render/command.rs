@@ -86,9 +86,7 @@ impl Solve for Command {
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
         self.chain
-            .write(|chain| {
-                chain.push(post);
-            })
+            .write(|chain| chain.push(post))
             .await?;
         Ok(Mutation.into())
     }

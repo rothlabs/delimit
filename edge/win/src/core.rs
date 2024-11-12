@@ -18,7 +18,7 @@ impl ApplicationHandler for App {
         if self.display.is_none() {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            let display = app::Display::new(window, self.gpu.clone()).unwrap();
+            let display = app::Display::new(self.gpu.clone(), window).unwrap();
             self.display = Some(display);
         }
     }
@@ -65,21 +65,6 @@ impl ApplicationHandler for App {
             _ => (),
         }
     }
-}
-
-async fn draw_triangle(gpu: &Gpu) -> gpu::Result<()> {
-    let targets = gpu.display.targets();
-    let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
-    let vertex = shader.vertex("vs_main").make()?;
-    let fragment = shader.fragment("fs_main").targets(targets).make()?;
-    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
-    gpu.command()
-        .render(pipe)
-        .draw(0..3, 0..1)
-        .hub()?
-        .base()
-        .await?;
-    Ok(())
 }
 
 #[derive(Clone)]

@@ -9,7 +9,6 @@ pub struct Points {
     plot: Hub<Plot>,
 }
 
-// TODO: update to builder encode::render::Command node
 impl Solve for Points {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
@@ -20,14 +19,14 @@ impl Solve for Points {
         let stride = plot.shape.base().await?.stride();
         let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
         let rig = gpu.uniform().field(stride).field(count).make()?;
-        let bind = gpu
+        let _ = gpu
             .bind()
             .layout(draw.points.layout.clone())
             .entry(0, rig.buffer)
             .entry(1, hedge.buffer.clone())
             .hub()?;
         // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
-        gpu.compute()
+        gpu.command()
             .root(rig.root)
             .root(hedge.root)
             .root(draw.points.mesh.root.clone())

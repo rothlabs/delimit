@@ -12,7 +12,6 @@ use pipe::*;
 use shader::*;
 use star::*;
 use std::fmt::Debug;
-use texture::*;
 use util::DeviceExt;
 use wgpu::*;
 use winit::window::Window;

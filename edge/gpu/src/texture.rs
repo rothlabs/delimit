@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(dead_code)]
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
@@ -19,6 +20,7 @@ pub struct Texture<'a> {
     view_formats: &'a [TextureFormat],
 }
 
+#[allow(dead_code)]
 impl<'a> TextureBuilder<'a> {
     pub fn make(self) -> graph::Result<wgpu::Texture> {
         let built = self.build()?;

@@ -156,7 +156,7 @@ impl DrawBin {
         let points = mesh::Circle {
             count: count.into(),
             radius: 4.0.into(),
-            display: gpu.display.config.clone(),
+            frame: (300, 300).into(),//gpu.display.config.clone(),
         }
         .gate()?;
         let buffer = gpu.buffer(count as u64 * 24).vertex()?;

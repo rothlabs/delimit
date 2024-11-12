@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 pub struct Circle {
     pub count: Hub<u32>,
     pub radius: Hub<f32>,
-    pub display: Leaf<SurfaceConfiguration>,
+    pub frame: Hub<(u32, u32)>,
 }
 
 impl GateTag for Circle {}
@@ -13,9 +13,11 @@ impl GateTag for Circle {}
 impl Solve for Circle {
     type Base = Vec<f32>;
     async fn solve(&self) -> graph::Result<Hub<Vec<f32>>> {
-        let (w, h) = self
-            .display
-            .read(|display| (display.width as f32, display.height as f32))?;
+        // let (w, h) = self
+        //     .display
+        //     .read(|display| (display.width as f32, display.height as f32))?;
+        let frame = self.frame.base().await?;
+        let (w, h) = (frame.0 as f32, frame.1 as f32);
         let count = self.count.base().await?;
         let radius = self.radius.base().await?;
         let points = circle_points(count, radius);

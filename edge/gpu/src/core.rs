@@ -6,8 +6,10 @@ use web_sys::HtmlCanvasElement;
 mod action;
 mod display;
 
+// TODO: need different copies with different display or texture target
 #[derive(Clone, Debug)]
 pub struct Core {
+    pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
     pub display: Grc<Display>,
@@ -25,11 +27,11 @@ impl Core {
         let mut descriptor = DeviceDescriptor::default();
         descriptor.required_limits = Limits::default().using_resolution(adapter.limits());
         let (device, queue) = adapter.request_device(&descriptor, None).await?;
-        let grc_device = Grc::new(device);
         Ok(Self {
-            device: grc_device.clone(),
+            display: Display::new(surface, &adapter).into(),
+            device: device.into(),
+            adapter: adapter.into(),
             queue: queue.into(),
-            display: Display::new(surface, adapter, grc_device).into(),
             chain: Leaf::default(),
         })
     }

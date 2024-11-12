@@ -8,7 +8,7 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(window: Window, gpu: Leaf<Option<Gpu>>) -> Result<Self> {
+    pub fn new(gpu: Leaf<Option<Gpu>>, window: Window) -> Result<Self> {
         let window = Grc::new(window);
         let instance = wgpu::Instance::default();
         let surface = Grc::new(instance.create_surface(window.clone())?);
@@ -25,7 +25,7 @@ impl Display {
             let size = self.window.inner_size();
             let config = self
                 .surface
-                .get_default_config(&gpu.display.adapter, size.width, size.height)
+                .get_default_config(&gpu.adapter, size.width, size.height)
                 .ok_or(anyhow!("no surface config"))?;
             self.surface.configure(&gpu.device, &config);
             self.configuration = Some(config);
@@ -51,5 +51,20 @@ async fn make_gpu(
     draw_triangle(&core).await?;
     gpu.write(|gpu| *gpu = Some(core)).await?;
     window.set_visible(true);
+    Ok(())
+}
+
+async fn draw_triangle(gpu: &Gpu) -> gpu::Result<()> {
+    let targets = gpu.display.targets();
+    let shader = gpu.shader(include_wgsl!("triangle.wgsl"));
+    let vertex = shader.vertex("vs_main").make()?;
+    let fragment = shader.fragment("fs_main").targets(targets).make()?;
+    let pipe = gpu.render_pipe(vertex).fragment(fragment).make()?;
+    gpu.command()
+        .render(pipe)
+        .draw(0..3, 0..1)
+        .hub()?
+        .base()
+        .await?;
     Ok(())
 }
