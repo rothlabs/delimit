@@ -1,5 +1,5 @@
 pub use encode::post::{compute, render, Command};
-pub use viewport::Viewport;
+pub use viewport::{Viewport, ToViewport};
 pub use core::ToCore;
 
 use bind::*;
@@ -56,14 +56,14 @@ pub struct Mutation;
 pub trait ToAdapter {
     fn surface_adapter(
         &self,
-        surface: Grc<Surface<'static>>,
+        surface: &Surface<'static>,
     ) -> impl Future<Output = Result<Adapter>>;
 }
 
 impl ToAdapter for Instance {
-    async fn surface_adapter(&self, surface: Grc<Surface<'static>>) -> Result<Adapter> {
+    async fn surface_adapter(&self, surface: &Surface<'static>) -> Result<Adapter> {
         let mut fields = RequestAdapterOptions::default();
-        fields.compatible_surface = Some(&surface);
+        fields.compatible_surface = Some(surface);
         Ok(self
             .request_adapter(&fields)
             .await

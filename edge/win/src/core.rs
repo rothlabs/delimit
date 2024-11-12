@@ -3,45 +3,31 @@ use winit::application::ApplicationHandler;
 use winit::event::{DeviceEvent, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::{Window, WindowId};
+use app::*;
 
 mod app;
 
 #[derive(Default)]
 pub struct App {
     events: EventsLeaf,
-    gpu: Leaf<Option<Gpu>>,
-    display: Option<app::Display>,
+    displays: Displays,
 }
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.display.is_none() {
+        if self.displays.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
-            let window = event_loop.create_window(fields).unwrap();
-            let display = app::Display::new(self.gpu.clone(), window).unwrap();
-            self.display = Some(display);
+            let window = Grc::new(event_loop.create_window(fields).unwrap());
+            tokio::task::spawn(self.displays.clone().main(window));
         }
     }
-    fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
-            WindowEvent::Focused(_) => {
-                if let Some(display) = &mut self.display {
-                    // if let Some(gpu) = self.gpu.base().unwrap() {
-                        display.ensure_configuration().unwrap();
-                    // }
-                }
-            }
             WindowEvent::Resized(size) => {
-                if let Some(display) = &mut self.display {
-                    if let Some(gpu) = self.gpu.base().unwrap() {
-                        display.resize(&gpu, size);
-                    }
-                }
+                self.displays.resize(id, size).unwrap();
             }
             WindowEvent::RedrawRequested => {
-                if let Some(gpu) = self.gpu.base().unwrap() {
-                    // gpu.render().surface().unwrap();
-                }
+                self.displays.render(id).unwrap()
             }
             WindowEvent::CloseRequested => {
                 event_loop.exit();

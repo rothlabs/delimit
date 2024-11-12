@@ -3,8 +3,9 @@ use std::ops::Deref;
 
 #[derive(Clone)]
 pub struct Shader<'a> {
-    pub inner: Grc<ShaderModule>,
+    pub module: Grc<ShaderModule>,
     pub device: &'a Device,
+    pub targets: &'a [Option<ColorTargetState>],
 }
 
 impl<'a> Shader<'a> {
@@ -12,7 +13,7 @@ impl<'a> Shader<'a> {
         VertexBuilder::default().shader(self).entry(entry)
     }
     pub fn fragment(&'a self, entry: &'a str) -> FragmentBuilder<'a> {
-        FragmentBuilder::default().shader(self).entry(entry)
+        FragmentBuilder::default().shader(self).entry(entry).targets(&self.targets)
     }
     pub fn compute(&'a self, entry: &'a str) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()
@@ -25,6 +26,6 @@ impl<'a> Shader<'a> {
 impl Deref for Shader<'_> {
     type Target = ShaderModule;
     fn deref(&self) -> &Self::Target {
-        &self.inner
+        &self.module
     }
 }

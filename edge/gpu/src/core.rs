@@ -33,7 +33,8 @@ impl Core {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
             device: &self.device,
-            inner: self.device.create_shader_module(source).into(),
+            module: self.device.create_shader_module(source).into(),
+            targets: &[],
         }
     }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {

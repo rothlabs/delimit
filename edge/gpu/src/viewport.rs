@@ -3,52 +3,57 @@ use super::*;
 mod action;
 
 pub trait ToViewport {
-    fn display(&self, core: Core) -> Viewport;
+    fn viewport(self, core: Core, width: u32, height: u32) -> Result<Viewport>;
 }
 
-impl ToViewport for Grc<Surface<'static>> {
-    fn display(&self, core: Core) -> Viewport {
+impl ToViewport for Surface<'static> {
+    fn viewport(self, core: Core, width: u32, height: u32) -> Result<Viewport> {
         let swapchain_capabilities = self.get_capabilities(&core.adapter);
         let format = swapchain_capabilities.formats[0];
-        Viewport {
-            core,
-            surface: self.clone(),
-            configuration: None,
+        let configuration = self
+                .get_default_config(&core.adapter, width, height)
+                .ok_or(anyhow!("no surface config"))?;
+        self.configure(&core.device, &configuration);
+        Ok(Viewport {
+            gpu: core,
+            surface: self.into(),
+            configuration,
             targets: vec![Some(format.into())],
             chain: Leaf::default(),
-        }
+        })
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Viewport {
-    core: Core,
+    pub gpu: Core,
     surface: Grc<Surface<'static>>,
-    configuration: Option<SurfaceConfiguration>,
+    configuration: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     chain: Leaf<Vec<Command>>,
 }
 
 impl Viewport {
-    pub fn ensure_configuration(&mut self, width: u32, height: u32) -> Result<()> {
-        if self.configuration.is_none() {
-            // let size = self.window.inner_size();
-            let config = self
-                .surface
-                .get_default_config(&self.core.adapter, width, height)
-                .ok_or(anyhow!("no surface config"))?;
-            self.surface.configure(&self.core.device, &config);
-            self.configuration = Some(config);
+    pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
+        Shader {
+            device: &self.gpu.device,
+            module: self.gpu.device.create_shader_module(source).into(),
+            targets: &self.targets,
         }
-        Ok(())
     }
     pub fn command(&self) -> encode::render::CommandBuilder {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
-    pub fn render(&self) -> action::Render {
-        let chain = self.chain.read(|x| x.clone()).unwrap();
-        action::Render { display: self, chain }
+    pub fn render(&self) -> Result<action::Render> {
+        let chain = self.chain.base()?;
+        Ok(action::Render { display: self, chain })
     }
     pub fn frame(&self) -> Result<SurfaceTexture> {
         Ok(self.surface.get_current_texture()?)
+    }
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.configuration.width = width;
+        self.configuration.height = height;
+        self.surface.configure(&self.gpu.device, &self.configuration);
     }
 }
