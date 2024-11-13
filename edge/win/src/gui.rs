@@ -4,12 +4,12 @@ use winit::event::{DeviceEvent, ElementState, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 
 #[derive(Default)]
-pub struct App {
+pub struct Gui {
     pub agent: Agent,
     pub event: Event,
 }
 
-impl ApplicationHandler for App {
+impl ApplicationHandler for Gui {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.agent.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);

@@ -30,6 +30,12 @@ impl<T: 'static + SendSync> From<T> for Leaf<T> {
     }
 }
 
+impl<T> From<&Leaf<T>> for Leaf<T> {
+    fn from(value: &Leaf<T>) -> Self {
+        value.clone()
+    }
+}
+
 // pub trait VecIntoLeaf<T> {
 //     /// Move into Leaf.
 //     fn leaf(self) -> Leaf<Vec<T>>;

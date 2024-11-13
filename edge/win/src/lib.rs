@@ -1,4 +1,4 @@
-pub use app::App;
+pub use gui::Gui;
 pub use display::Display;
 
 use agent::Agent;
@@ -11,7 +11,7 @@ use wgpu::*;
 use winit::window::{Window, WindowId};
 
 mod agent;
-mod app;
+mod gui;
 mod display;
 
 pub type Result<T> = std::result::Result<T, Error>;
