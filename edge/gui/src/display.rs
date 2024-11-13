@@ -11,8 +11,8 @@ impl Display {
     pub fn new(window: Grc<Window>, viewport: Viewport) -> Self {
         Self { viewport, window }
     }
-    pub fn render(&self) -> Result<()> {
-        Ok(self.viewport.render()?.surface()?)
+    pub fn render(&mut self) -> Result<()> {
+        Ok(self.viewport.render()?)
     }
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
         self.viewport.resize(size.width, size.height);

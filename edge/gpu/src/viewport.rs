@@ -1,4 +1,5 @@
 use super::*;
+use tokio::task::spawn;
 
 mod action;
 
@@ -16,12 +17,13 @@ impl ToViewport for Surface<'static> {
         self.configure(&gpu.device, &configuration);
         Ok(Viewport {
             gpu,
+            size: Leaf::new((width, height)),
             surface: self.into(),
             configuration,
             targets: vec![Some(format.into())],
             format,
             chain: Leaf::default(),
-            size: Leaf::new((width, height)),
+            ready: Leaf::new(true),
         })
     }
 }
@@ -35,6 +37,7 @@ pub struct Viewport {
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
     chain: Leaf<Vec<Command>>,
+    ready: Leaf<bool>,
 }
 
 impl Viewport {
@@ -53,12 +56,24 @@ impl Viewport {
     pub fn command(&self) -> encode::render::CommandBuilder {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
-    pub fn render(&self) -> Result<action::Render> {
-        let chain = self.chain.base()?;
-        Ok(action::Render {
-            display: self,
-            chain,
-        })
+    pub fn render(&mut self) -> Result<()> {
+        // TODO: set last command timestamp to use for next render call
+        // spawn(clear) should get timestamp to clear up to
+        if self.ready.base()? {
+            let chain = self.chain.base()?;
+            spawn(self.clone().clear_chain());
+            return action::Render {
+                display: self,
+                chain,
+            }.surface();
+        }
+        Ok(())
+    }
+    async fn clear_chain(self) -> Result<()> {
+        // TODO: make 
+        self.chain.write(|x| x.clear()).await?;
+        // self.ready.write(|x| x.clear()).await?;
+        Ok(())
     }
     pub fn frame(&self) -> Result<SurfaceTexture> {
         Ok(self.surface.get_current_texture()?)

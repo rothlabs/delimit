@@ -8,7 +8,7 @@
     derive_builder = { workspace = true }
     wgpu = "22.1.0"
     winit = "0.30"
-    tokio = { version = "1", features = ["full"] }
-    graph = { path = "../../core/graph" }
+    tokio = { workspace = true }
+    graph = { workspace = true }
     node_derive = { workspace = true }
-    gpu = { path = "../gpu" }
+    gpu = { workspace = true }
