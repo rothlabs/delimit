@@ -42,7 +42,7 @@ impl ChartBank {
             .make()?;
         let count: u32 = 8;
         let points = mesh::Circle {
-            frame: port.size.clone().into(), //gpu.display.config.clone(),
+            frame: port.size.clone(), //gpu.display.config.clone(),
             count: count.into(),
             radius: 4.0.into(),
         }

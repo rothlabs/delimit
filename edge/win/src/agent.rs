@@ -2,12 +2,13 @@ use super::*;
 use winit::dpi::PhysicalSize;
 
 #[derive(Default, Clone, Debug)]
-pub struct Core {
-    instance: Grc<Instance>,
-    displays: Leaf<Vec<Display>>,
+pub struct Agent {
+    // pub gpu: Gpu,
+    pub instance: Grc<Instance>,
+    pub displays: Leaf<Vec<Display>>,
 }
 
-impl Core {
+impl Agent {
     pub async fn display(self, window: Grc<Window>) -> Result<()> {
         let surface = self.instance.create_surface(window.clone())?;
         let displays = self.displays.base()?;

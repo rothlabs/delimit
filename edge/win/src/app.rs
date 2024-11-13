@@ -5,30 +5,30 @@ use winit::event_loop::ActiveEventLoop;
 
 #[derive(Default)]
 pub struct App {
-    // rename Core to Actor?
-    core: Core,
-    event: Event,
+    pub agent: Agent,
+    pub event: Event,
 }
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.core.is_empty().unwrap() {
+        if self.agent.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = Grc::new(event_loop.create_window(fields).unwrap());
-            spawn(self.core.clone().display(window));
+            // TODO: put spawn in Agent
+            spawn(self.agent.clone().display(window));
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::Resized(size) => {
-                self.core.resize(id, size).unwrap();
+                self.agent.resize(id, size).unwrap();
             }
-            WindowEvent::RedrawRequested => self.core.render(id).unwrap(),
+            WindowEvent::RedrawRequested => self.agent.render(id).unwrap(),
             WindowEvent::MouseInput { state, .. } => {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
                     let window = Grc::new(event_loop.create_window(fields).unwrap());
-                    spawn(self.core.clone().display(window));
+                    spawn(self.agent.clone().display(window));
                 }
             }
             WindowEvent::CloseRequested => {

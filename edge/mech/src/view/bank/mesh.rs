@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 
 #[derive(Back, Debug)]
 pub struct Circle {
-    pub frame: Hub<(u32, u32)>,
+    pub frame: Leaf<(u32, u32)>,
     pub count: Hub<u32>,
     pub radius: Hub<f32>,
 }
@@ -16,7 +16,7 @@ impl Solve for Circle {
         // let (w, h) = self
         //     .display
         //     .read(|display| (display.width as f32, display.height as f32))?;
-        let frame = self.frame.base().await?;
+        let frame = self.frame.base()?;
         let (w, h) = (frame.0 as f32, frame.1 as f32);
         let count = self.count.base().await?;
         let radius = self.radius.base().await?;

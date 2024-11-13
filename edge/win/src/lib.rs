@@ -1,8 +1,8 @@
 pub use app::App;
+pub use display::Display;
 
-use core::Core;
+use agent::Agent;
 use derive_builder::Builder;
-use display::*;
 use gpu::*;
 use graph::*;
 use node_derive::*;
@@ -10,8 +10,8 @@ use tokio::task::spawn;
 use wgpu::*;
 use winit::window::{Window, WindowId};
 
+mod agent;
 mod app;
-mod core;
 mod display;
 
 pub type Result<T> = std::result::Result<T, Error>;

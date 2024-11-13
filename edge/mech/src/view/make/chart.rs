@@ -27,7 +27,9 @@ impl Solve for Points {
             .entry(1, hedge.buffer.clone())
             .hub()?;
         // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
-        self.view.port.command()
+        self.view
+            .port
+            .command()
             .root(rig.root)
             .root(hedge.root)
             .root(chart.points.mesh.root.clone())

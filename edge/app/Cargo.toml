@@ -4,10 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+    anyhow = {workspace = true}
     tokio = { version = "1", features = ["full"] }
     winit = "0.30"
     wgpu = "22.1.0"
     win = { path = "../win" }
     gpu = { path = "../gpu" }
     graph = { workspace = true }
+    node_derive = { workspace = true }
     mech = { workspace = true }

@@ -28,18 +28,18 @@ impl ToViewport for Surface<'static> {
 #[derive(Clone, Debug)]
 pub struct Viewport {
     pub gpu: Core,
+    pub size: Leaf<(u32, u32)>,
     surface: Grc<Surface<'static>>,
     configuration: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     chain: Leaf<Vec<Command>>,
-    pub size: Leaf<(u32, u32)>,
 }
 
 impl Viewport {
     pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
         Shader {
             device: &self.gpu.device,
-            module: self.gpu.device.create_shader_module(source), //.into(),
+            module: self.gpu.device.create_shader_module(source),
             targets: &self.targets,
         }
     }

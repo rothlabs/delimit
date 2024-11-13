@@ -34,7 +34,6 @@ pub struct Plot {
     pub shape: Hub<Shape>,
 }
 
-
-    // #[cfg(target_arch = "wasm32")]
-    // #[error(transparent)]
-    // Dom(#[from] dom::Error),
+// #[cfg(target_arch = "wasm32")]
+// #[error(transparent)]
+// Dom(#[from] dom::Error),
