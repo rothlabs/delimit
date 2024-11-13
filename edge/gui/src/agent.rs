@@ -3,9 +3,9 @@ use winit::dpi::PhysicalSize;
 
 #[derive(Default, Clone, Debug)]
 pub struct Agent {
-    // pub gpu: Gpu,
     pub instance: Grc<Instance>,
     pub displays: Leaf<Vec<Display>>,
+    displays_base: Vec<Display>,
 }
 
 impl Agent {
@@ -38,9 +38,12 @@ impl Agent {
         Ok(())
     }
     pub fn render(&self, id: WindowId) -> Result<()> {
-        self.get_display(id)?.render()
+        self.get_display(id)?.render()?;
+        
+        Ok(())
     }
-    pub fn resize(&self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
+    pub fn resize(&mut self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
+        self.displays_base = self.displays.base()?;
         self.get_display(id)?.resize(size)?;
         Ok(())
     }
@@ -48,14 +51,23 @@ impl Agent {
         Ok(self.displays.base()?.is_empty())
     }
     fn get_display(&self, id: WindowId) -> Result<Display> {
-        for display in self.displays.base()? {
+        for display in &self.displays_base { //self.displays.base()? {
             if display.window.id() == id {
-                return Ok(display);
+                return Ok(display.clone());
             }
         }
         Err(anyhow!("no display of given window id"))?
     }
 }
+
+// fn get_display(&self, id: WindowId) -> Result<Display> {
+//     for display in self.displays.base()? {
+//         if display.window.id() == id {
+//             return Ok(display);
+//         }
+//     }
+//     Err(anyhow!("no display of given window id"))?
+// }
 
 // async fn post_triangle(viewport: &Viewport) -> gpu::Result<()> {
 //     let shader = viewport.shader(include_wgsl!("triangle.wgsl"));
