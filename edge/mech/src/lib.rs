@@ -1,4 +1,5 @@
 pub use shape::*;
+pub use view::View;
 
 use core::*;
 use derive_builder::Builder;
@@ -21,7 +22,7 @@ pub enum Error {
     #[error(transparent)]
     Graph(#[from] graph::Error),
     #[error(transparent)]
-    GPU(#[from] gpu::Error),
+    Gpu(#[from] gpu::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }

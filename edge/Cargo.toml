@@ -3,7 +3,7 @@
         "app",
         "gpu", 
         "mech", 
-        "win", 
+        "gui", 
     ]
     resolver = "2" 
 
@@ -12,4 +12,6 @@
     derive_builder = "0.20.1"
     graph = { path = "../core/graph" }
     node_derive = { path = "../core/node_derive" }
+    gpu = { path = "gpu" }
+    gui = { path = "gui" }
     mech = { path = "mech" }

@@ -13,23 +13,25 @@ impl<'a> Render<'a> {
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in &self.chain {
-            let resolve_target = if command.msaa {
-                panic!("not implemented");
-                // self.core.attachment(view).resolve_target(target).list()?
+            let attachments = if command.msaa > 0 {
+                // panic!("not implemented");
+                let texture_view = self.display.texture()?.sample_count(4).view()?;
+                self.display.gpu.attachment(texture_view).resolve_target(view).list()?
             } else {
-                // self.core.attachment(view).list()?
-                None
+                self.display.gpu.attachment(view).list()?
+                // None
             };
-            let attachment = RenderPassColorAttachment {
-                view,
-                resolve_target,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color::WHITE),
-                    store: wgpu::StoreOp::Store,
-                },
-            };
-            let list = [Some(attachment); 1];
-            let descriptor = &self.display.gpu.render_pass(&list).make()?;
+            // let attachment = self.display.gpu.render_pass(view).make()?;
+            // let attachment = RenderPassColorAttachment {
+            //     view,
+            //     resolve_target,
+            //     ops: wgpu::Operations {
+            //         load: wgpu::LoadOp::Clear(wgpu::Color::WHITE),
+            //         store: wgpu::StoreOp::Store,
+            //     },
+            // };
+            // let list = [Some(attachment); 1];
+            let descriptor = &self.display.gpu.render_pass(&attachments).make()?;
             let pass = render::Pass {
                 command,
                 descriptor,

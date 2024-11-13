@@ -38,7 +38,7 @@ impl Core {
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }
-    pub fn chart(&self, shape: impl Into<Hub<Shape>>) -> make::Chart {
+    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Chart {
         make::Chart {
             core: self.clone(),
             shape: shape.into(),

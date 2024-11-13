@@ -6,13 +6,15 @@ mod make;
 
 #[derive(Clone, Debug)]
 pub struct View {
+    pub mech: Mech,
     pub port: Viewport,
     pub bank: Grc<Bank>,
 }
 
 impl View {
-    pub fn new(port: Viewport) -> Result<Self> {
+    pub fn new(mech: Mech, port: Viewport) -> Result<Self> {
         Ok(Self {
+            mech,
             bank: Bank::new(&port)?.into(),
             port,
         })

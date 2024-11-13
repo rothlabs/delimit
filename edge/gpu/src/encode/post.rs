@@ -3,7 +3,7 @@ use std::ops::Range;
 
 #[derive(Default, Clone, Debug)]
 pub struct Command {
-    pub msaa: bool,
+    pub msaa: u32,
     pub compute: Vec<compute::Entry>,
     pub render: Vec<render::Entry>,
 }

@@ -1,7 +1,8 @@
 use super::*;
 
 #[derive(Builder, Gate, Back, Debug)]
-#[builder(setter(into), pattern = "owned")]
+#[builder(pattern = "owned")]
+#[builder(setter(into))]
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
@@ -10,9 +11,27 @@ pub struct App {
 
 impl Act for App {
     async fn act(&self) -> graph::Result<()> {
+        println!("app act");
         let displays = self.displays.base()?;
-
-        println!("displays changed");
+        // let drawings = self.drawings.base()?;
+        // if drawings.is_empty() {
+            if let Some(main) = displays.first() {
+                let view = make_view(main).unwrap();
+                let drawing = test::draw_nurbs_surface(&view).await.unwrap();
+                drawing.base().await?;
+                self.drawings.clone().write(|x| x.push(drawing)).await?;
+                println!("draw!");
+            }
+        // }
         Ok(())
     }
 }
+
+fn make_view(display: &Display) -> Result<View> {
+    let port = display.viewport.clone();
+    let gpu = port.gpu.clone();
+    let mech = Mech::new(gpu)?;
+    let view = View::new(mech, port)?;
+    Ok(view)
+}
+

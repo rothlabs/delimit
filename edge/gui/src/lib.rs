@@ -1,5 +1,5 @@
-pub use gui::Gui;
 pub use display::Display;
+pub use gui::Gui;
 
 use agent::Agent;
 use derive_builder::Builder;
@@ -11,8 +11,8 @@ use wgpu::*;
 use winit::window::{Window, WindowId};
 
 mod agent;
-mod gui;
 mod display;
+mod gui;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
