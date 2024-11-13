@@ -13,6 +13,7 @@
     derive_builder = "0.20.1"
     graph = { path = "../core/graph" }
     node_derive = { path = "../core/node_derive" }
+    star = { path = "../core/star" }
     gpu = { path = "gpu" }
     gui = { path = "gui" }
     mech = { path = "mech" }

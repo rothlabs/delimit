@@ -1,8 +1,11 @@
 use super::*;
 use std::ops::Range;
 
+
+
 #[derive(Default, Clone, Debug)]
 pub struct Command {
+    pub number: u64,
     pub msaa: u32,
     pub compute: Vec<compute::Entry>,
     pub render: Vec<render::Entry>,

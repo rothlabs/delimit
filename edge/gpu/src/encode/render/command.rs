@@ -86,7 +86,13 @@ impl Solve for Command {
         post.msaa = 4;
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
-        self.chain.write(|chain| chain.push(post)).await?;
+        // TODO: turn chain.write into a trait function on Leaf<Vec<Command>>>
+        self.chain.write(|chain| {
+            if let Some(cmd) = chain.last() {
+                post.number = cmd.number + 1;
+            }
+            chain.push(post);
+        }).await?;
         Ok(Mutation.into())
     }
 }

@@ -14,8 +14,8 @@ impl Display {
     pub fn render(&mut self) -> Result<()> {
         Ok(self.viewport.render()?)
     }
-    pub fn resize(&mut self, size: PhysicalSize<u32>) {
-        self.viewport.resize(size.width, size.height);
+    pub fn resize(&mut self, size: PhysicalSize<u32>) -> Result<()> {
+        Ok(self.viewport.resize(size.width, size.height)?)
     }
 }
 

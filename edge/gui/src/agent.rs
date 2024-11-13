@@ -41,7 +41,7 @@ impl Agent {
         self.get_display(id)?.render()
     }
     pub fn resize(&self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
-        self.get_display(id)?.resize(size);
+        self.get_display(id)?.resize(size)?;
         Ok(())
     }
     pub fn is_empty(&self) -> Result<bool> {

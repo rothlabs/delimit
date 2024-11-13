@@ -15,6 +15,7 @@ impl ToViewport for Surface<'static> {
             .get_default_config(&gpu.adapter, width, height)
             .ok_or(anyhow!("no surface config"))?;
         self.configure(&gpu.device, &configuration);
+        let stage = gpu.render_stage(format, width, height)?;
         Ok(Viewport {
             gpu,
             size: Leaf::new((width, height)),
@@ -22,8 +23,9 @@ impl ToViewport for Surface<'static> {
             configuration,
             targets: vec![Some(format.into())],
             format,
-            chain: Leaf::default(),
-            ready: Leaf::new(true),
+            stage: stage.into(),
+            chain: Leaf::new(vec![Command::default()]),
+            number: 0,
         })
     }
 }
@@ -36,8 +38,9 @@ pub struct Viewport {
     configuration: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
+    stage: Grc<TextureView>,
     chain: Leaf<Vec<Command>>,
-    ready: Leaf<bool>,
+    number: u64,
 }
 
 impl Viewport {
@@ -57,47 +60,58 @@ impl Viewport {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
     pub fn render(&mut self) -> Result<()> {
-        // TODO: set last command timestamp to use for next render call
-        // spawn(clear) should get timestamp to clear up to
-        if self.ready.base()? {
-            let chain = self.chain.base()?;
-            spawn(self.clone().clear_chain());
-            return action::Render {
-                display: self,
-                chain,
-            }.surface();
-        }
-        Ok(())
-    }
-    async fn clear_chain(self) -> Result<()> {
-        // TODO: make 
-        self.chain.write(|x| x.clear()).await?;
-        // self.ready.write(|x| x.clear()).await?;
-        Ok(())
+        let chain = self.chain.base()?;
+        let number = chain.last().ok_or(anyhow!("no commands"))?.number;
+        spawn(consume_chain(self.chain.clone(), number));
+        // TODO: change action::Render to be a function
+        let out = action::Render {
+            display: self,
+            chain,
+        }.surface();
+        self.number = number;
+        out
     }
     pub fn frame(&self) -> Result<SurfaceTexture> {
         Ok(self.surface.get_current_texture()?)
     }
-    pub fn resize(&mut self, width: u32, height: u32) {
+    pub fn resize(&mut self, width: u32, height: u32) -> Result<()> {
+        println!("resize {} {}", width, height);
+        self.stage = self.gpu.render_stage(self.format, width, height)?.into();
         self.configuration.width = width;
         self.configuration.height = height;
         self.surface
             .configure(&self.gpu.device, &self.configuration);
-    }
-    pub fn texture(&self) -> Result<TextureBuilder> {
-        //let (width, height) = self.config.read(|config| (config.width, config.height))?;
-        // let (width, height) = self.configuration.width, self
-        let (width, height) = self.size.base()?;
-        let size = Extent3d {
-            width,
-            height,
-            depth_or_array_layers: 1,
-        };
-        Ok(TextureBuilder::default()
-            .device(&self.gpu.device)
-            .size(size)
-            .usage(TextureUsages::RENDER_ATTACHMENT)
-            .mip_level_count(1)
-            .format(self.format))
+        Ok(())
     }
 }
+
+async fn consume_chain(chain: Leaf<Vec<Command>>, number: u64) -> Result<()> {
+    chain.write(|chain| {
+        let index = chain.partition_point(|x| x.number == number);
+        // chain.spl
+        println!("chain and number: {} {}", chain.len(), number);
+        chain.drain(..index-1);
+        println!("after drain: {:?}", chain.len());
+        // *chain = chain[index..].to_vec();
+    }).await?;
+    Ok(())
+}
+
+
+// pub fn texture(&self) -> Result<TextureBuilder> {
+//     println!("texture {} {}", self.configuration.width, self.configuration.height);
+//     //let (width, height) = self.config.read(|config| (config.width, config.height))?;
+//     // let (width, height) = self.configuration.width, self
+//     // let (width, height) = self.size.base()?;
+//     let size = Extent3d {
+//         width: self.configuration.width,
+//         height: self.configuration.height,
+//         depth_or_array_layers: 1,
+//     };
+//     Ok(TextureBuilder::default()
+//         .device(&self.gpu.device)
+//         .size(size)
+//         .usage(TextureUsages::RENDER_ATTACHMENT)
+//         .mip_level_count(1)
+//         .format(self.format))
+// }

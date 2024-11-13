@@ -32,6 +32,19 @@ impl Core {
             targets: &[],
         }
     }
+    pub fn render_stage(&self, format: TextureFormat, width: u32, height: u32) -> Result<TextureView> {
+        let size = Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        };
+        Ok(TextureBuilder::default()
+            .device(&self.device)
+            .size(size)
+            .usage(TextureUsages::RENDER_ATTACHMENT)
+            .mip_level_count(1)
+            .format(format).sample_count(4).view()?)
+    }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }

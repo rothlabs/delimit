@@ -10,12 +10,18 @@ pub struct Render<'a> {
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
         let mut encoder = self.display.gpu.encoder();
+        
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        let stage = self.display.texture()?.sample_count(4).view()?;
-        for command in &self.chain {
+        // let stage = self.display.texture()?.sample_count(4).view()?;
+        // let mut final_number = 0;
+        for command in &self.chain {//self.chain.iter().skip(1) {
+            if command.number <= self.display.number {
+                continue;
+            }
+            // final_number = 
             let attachments = if command.msaa > 0 {
-                self.display.gpu.attachment(&stage).resolve_target(view).list()?
+                self.display.gpu.attachment(&self.display.stage).resolve_target(view).list()?
             } else {
                 self.display.gpu.attachment(view).list()?
                 // None
@@ -39,9 +45,12 @@ impl<'a> Render<'a> {
                 pass.compute(&mut encoder);
             }
             if !command.render.is_empty() {
+                println!("pass render");
                 pass.render(&mut encoder);
             }
         }
+        // self.display.number = self.chain.last().ok_or(anyhow!("no commands"))?.number;
+        println!("sumbit encoder");
         encoder.submit();
         frame.present();
         Ok(())

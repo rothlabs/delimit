@@ -13,4 +13,5 @@ edition = "2021"
     gpu = { workspace = true }
     graph = { workspace = true }
     node_derive = { workspace = true }
+    star = { workspace = true }
     mech = { workspace = true }

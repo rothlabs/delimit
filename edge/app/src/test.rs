@@ -1,3 +1,4 @@
+use star::JoinBuilder;
 use super::*;
 
 pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Mutation>> {
@@ -31,8 +32,14 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Mutation>> {
         .flow(flow2)
         .build()?;
     let plot = mech.plot(shape).grid(30).hub()?;
-    let drawing = view.plot(plot).points().hub()?;
+    let drawing = view.plot(&plot).points().hub()?;
     Ok(drawing)
+    // let drawing = view.plot(&plot).points().hub()?;
+    // let drawing2 = view.plot(plot).points().hub()?;
+    // let mut wow = JoinBuilder::default();
+    // wow.field(drawing);
+    // wow.field(drawing2);
+    // Ok(wow.hub()?)
 }
 
 #[rustfmt::skip]
