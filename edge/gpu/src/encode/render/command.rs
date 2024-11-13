@@ -83,6 +83,7 @@ impl Solve for Command {
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.roots.depend().await?;
         let mut post = post::Command::default();
+        post.msaa = 4;
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
         self.chain.write(|chain| chain.push(post)).await?;

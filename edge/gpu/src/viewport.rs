@@ -19,6 +19,7 @@ impl ToViewport for Surface<'static> {
             surface: self.into(),
             configuration,
             targets: vec![Some(format.into())],
+            format,
             chain: Leaf::default(),
             size: Leaf::new((width, height)),
         })
@@ -32,6 +33,7 @@ pub struct Viewport {
     surface: Grc<Surface<'static>>,
     configuration: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
+    format: TextureFormat,
     chain: Leaf<Vec<Command>>,
 }
 
@@ -66,5 +68,21 @@ impl Viewport {
         self.configuration.height = height;
         self.surface
             .configure(&self.gpu.device, &self.configuration);
+    }
+    pub fn texture(&self) -> Result<TextureBuilder> {
+        //let (width, height) = self.config.read(|config| (config.width, config.height))?;
+        // let (width, height) = self.configuration.width, self
+        let (width, height) = self.size.base()?;
+        let size = Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        };
+        Ok(TextureBuilder::default()
+            .device(&self.gpu.device)
+            .size(size)
+            .usage(TextureUsages::RENDER_ATTACHMENT)
+            .mip_level_count(1)
+            .format(self.format))
     }
 }

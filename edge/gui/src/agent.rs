@@ -31,7 +31,7 @@ impl Agent {
     ) -> Result<()> {
         let size = window.inner_size();
         let viewport = surface.viewport(gpu, size.width, size.height)?;
-        post_triangle(&viewport).await?;
+        // post_triangle(&viewport).await?;
         let display = Display::new(window.clone(), viewport);
         self.displays.write(|x| x.push(display)).await?;
         window.set_visible(true);
@@ -57,17 +57,17 @@ impl Agent {
     }
 }
 
-async fn post_triangle(viewport: &Viewport) -> gpu::Result<()> {
-    let shader = viewport.shader(include_wgsl!("triangle.wgsl"));
-    let vertex = shader.vertex("vs_main").make()?;
-    let fragment = shader.fragment("fs_main").make()?;
-    let pipe = viewport.pipe(vertex).fragment(fragment).make()?;
-    viewport
-        .command()
-        .render(pipe)
-        .draw(0..3, 0..1)
-        .hub()?
-        .base()
-        .await?;
-    Ok(())
-}
+// async fn post_triangle(viewport: &Viewport) -> gpu::Result<()> {
+//     let shader = viewport.shader(include_wgsl!("triangle.wgsl"));
+//     let vertex = shader.vertex("vs_main").make()?;
+//     let fragment = shader.fragment("fs_main").make()?;
+//     let pipe = viewport.pipe(vertex).fragment(fragment).make()?;
+//     viewport
+//         .command()
+//         .render(pipe)
+//         .draw(0..3, 0..1)
+//         .hub()?
+//         .base()
+//         .await?;
+//     Ok(())
+// }

@@ -16,6 +16,7 @@ use star::*;
 use std::{fmt::Debug, future::Future};
 use util::DeviceExt;
 use wgpu::*;
+use texture::*;
 
 mod bind;
 mod buffer;

@@ -12,11 +12,10 @@ impl<'a> Render<'a> {
         let mut encoder = self.display.gpu.encoder();
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
+        let stage = self.display.texture()?.sample_count(4).view()?;
         for command in &self.chain {
             let attachments = if command.msaa > 0 {
-                // panic!("not implemented");
-                let texture_view = self.display.texture()?.sample_count(4).view()?;
-                self.display.gpu.attachment(texture_view).resolve_target(view).list()?
+                self.display.gpu.attachment(&stage).resolve_target(view).list()?
             } else {
                 self.display.gpu.attachment(view).list()?
                 // None

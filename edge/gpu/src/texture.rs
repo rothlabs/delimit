@@ -1,6 +1,5 @@
 use super::*;
 
-#[allow(dead_code)]
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
