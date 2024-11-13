@@ -1,4 +1,3 @@
-// pub use plot::*;
 pub use shape::*;
 
 use core::*;
@@ -10,8 +9,8 @@ use star::*;
 use wgpu::*;
 
 mod core;
-// mod plot;
 mod shape;
+mod view;
 
 pub type Mech = Core;
 
@@ -25,15 +24,17 @@ pub enum Error {
     GPU(#[from] gpu::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
-    #[cfg(target_arch = "wasm32")]
-    #[error(transparent)]
-    Dom(#[from] dom::Error),
 }
 
 /// Discrete evaluations of a shape.
-/// Data layout: position, velocity-by-parameter-1, velocity-by-parameter-2, ...
+/// Buffer layout: position, velocity-by-parameter-1, velocity-by-parameter-2, ...
 #[derive(Clone, Debug)]
 pub struct Plot {
     pub hedge: Hedge,
     pub shape: Hub<Shape>,
 }
+
+
+    // #[cfg(target_arch = "wasm32")]
+    // #[error(transparent)]
+    // Dom(#[from] dom::Error),

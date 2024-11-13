@@ -10,4 +10,6 @@
 [workspace.dependencies]
     anyhow = "1.0"
     derive_builder = "0.20.1"
+    graph = { path = "../core/graph" }
     node_derive = { path = "../core/node_derive" }
+    mech = { path = "mech" }

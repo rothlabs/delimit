@@ -9,4 +9,5 @@ edition = "2021"
     wgpu = "22.1.0"
     win = { path = "../win" }
     gpu = { path = "../gpu" }
-    graph = { path = "../../core/graph" }
+    graph = { workspace = true }
+    mech = { workspace = true }

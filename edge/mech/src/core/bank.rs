@@ -1,18 +1,14 @@
 use super::*;
 
-mod mesh;
-
 #[derive(Debug)]
 pub struct Bank {
     pub plot: PlotBin,
-    // pub draw: DrawBin,
 }
 
 impl Bank {
     pub fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             plot: PlotBin::new(gpu)?,
-            // draw: DrawBin::new(gpu)?,
         })
     }
 }
@@ -32,7 +28,6 @@ impl PlotBin {
 
 #[derive(Debug)]
 pub struct GridPlotBin {
-    // TODO: rename to weft and make new bin for weave
     pub spin: SpinGridPlotBin,
     pub weave: WeaveGridPlotBin,
 }
@@ -128,62 +123,7 @@ impl WeaveGridPlotBin {
 }
 
 #[derive(Debug)]
-pub struct DrawBin {
-    pub points: RenderMeshProgram,
-}
-
-// impl DrawBin {
-//     fn new(gpu: &Gpu) -> Result<Self> {
-//         let shader = gpu.shader(include_wgsl!("draw/points.wgsl"));
-//         let targets = gpu.display.targets();
-//         let rig = gpu.bind_uniform().entry(0)?.vertex()?;
-//         let plot = gpu.bind_storage(true).entry(1)?.vertex()?;
-//         let layout = gpu.bind_layout(&[rig, plot]).make()?;
-//         // TODO: put pipe_layout method on bind_layout
-//         let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
-//         let attribs = vertex_attr_array![0 => Float32x2];
-//         let buffers = vec![gpu.vertex_layout(8).attributes(&attribs).make()?];
-//         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
-//         let fragment = shader.fragment("fs_main").targets(targets).make()?;
-//         let multi = gpu.multisample(4).make()?;
-//         let pipe = gpu
-//             .render_pipe(vertex)
-//             .fragment(fragment)
-//             .layout(&pipe_layout)
-//             .multisample(multi)
-//             .make()?;
-//         let count: u32 = 8;
-//         let points = mesh::Circle {
-//             count: count.into(),
-//             radius: 4.0.into(),
-//             frame: (300, 300).into(), //gpu.display.config.clone(),
-//         }
-//         .gate()?;
-//         let buffer = gpu.buffer(count as u64 * 24).vertex()?;
-//         let mesh = Hedge {
-//             root: gpu.writer(buffer.clone()).data(points).hub()?,
-//             buffer: buffer.into(),
-//         };
-//         let points = RenderMeshProgram {
-//             layout,
-//             pipe,
-//             mesh,
-//             vertex_count: count * 3,
-//         };
-//         Ok(Self { points })
-//     }
-// }
-
-#[derive(Debug)]
 pub struct ComputeProgram {
     pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<ComputePipeline>,
-}
-
-#[derive(Debug)]
-pub struct RenderMeshProgram {
-    pub layout: Grc<BindGroupLayout>,
-    pub pipe: Grc<RenderPipeline>,
-    pub mesh: Hedge,
-    pub vertex_count: u32,
 }

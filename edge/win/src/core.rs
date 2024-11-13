@@ -31,22 +31,22 @@ impl Core {
         let size = window.inner_size();
         let viewport = surface.viewport(gpu, size.width, size.height)?;
         post_triangle(&viewport).await?;
-        let display = Display::new(&window, viewport);
+        let display = Display::new(window.clone(), viewport);
         self.displays.write(|x| x.push(display)).await?;
         window.set_visible(true);
         Ok(())
     }
     pub fn render(&self, id: WindowId) -> Result<()> {
-        self.get(id)?.render()
+        self.get_display(id)?.render()
     }
     pub fn resize(&self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
-        self.get(id)?.resize(size);
+        self.get_display(id)?.resize(size);
         Ok(())
     }
     pub fn is_empty(&self) -> Result<bool> {
         Ok(self.displays.base()?.is_empty())
     }
-    fn get(&self, id: WindowId) -> Result<Display> {
+    fn get_display(&self, id: WindowId) -> Result<Display> {
         for display in self.displays.base()? {
             if display.window.id() == id {
                 return Ok(display);

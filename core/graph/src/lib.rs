@@ -1,6 +1,6 @@
 pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
-pub use apex::{Apex, DealItem, View, ViewVec};
+pub use apex::{Apex, DealItem};
 pub use base::Digest;
 pub use bay::Bay;
 pub use cusp::Cusp;
@@ -24,6 +24,7 @@ pub use thiserror;
 pub use tray::Tray;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
+use apex::{View, ViewVec};
 use aim::*;
 use derive_builder::UninitializedFieldError;
 use scope::*;

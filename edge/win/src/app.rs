@@ -5,8 +5,9 @@ use winit::event_loop::ActiveEventLoop;
 
 #[derive(Default)]
 pub struct App {
-    events: EventsLeaf,
+    // rename Core to Actor?
     core: Core,
+    event: Event,
 }
 
 impl ApplicationHandler for App {
@@ -44,7 +45,7 @@ impl ApplicationHandler for App {
     ) {
         match event {
             DeviceEvent::MouseMotion { delta } => {
-                let events = self.events.clone();
+                let events = self.event.clone();
                 tokio::task::spawn(async move {
                     let _ = events.x.write(|x| *x = delta.0).await;
                 });
@@ -55,11 +56,11 @@ impl ApplicationHandler for App {
 }
 
 #[derive(Clone)]
-pub struct EventsLeaf {
+pub struct Event {
     x: Leaf<f64>,
 }
 
-impl Default for EventsLeaf {
+impl Default for Event {
     fn default() -> Self {
         Self { x: Leaf::new(0.) }
     }

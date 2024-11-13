@@ -7,19 +7,20 @@ pub trait ToViewport {
 }
 
 impl ToViewport for Surface<'static> {
-    fn viewport(self, core: Core, width: u32, height: u32) -> Result<Viewport> {
-        let swapchain_capabilities = self.get_capabilities(&core.adapter);
+    fn viewport(self, gpu: Core, width: u32, height: u32) -> Result<Viewport> {
+        let swapchain_capabilities = self.get_capabilities(&gpu.adapter);
         let format = swapchain_capabilities.formats[0];
         let configuration = self
-            .get_default_config(&core.adapter, width, height)
+            .get_default_config(&gpu.adapter, width, height)
             .ok_or(anyhow!("no surface config"))?;
-        self.configure(&core.device, &configuration);
+        self.configure(&gpu.device, &configuration);
         Ok(Viewport {
-            gpu: core,
+            gpu,
             surface: self.into(),
             configuration,
             targets: vec![Some(format.into())],
             chain: Leaf::default(),
+            size: Leaf::new((width, height)),
         })
     }
 }
@@ -31,6 +32,7 @@ pub struct Viewport {
     configuration: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     chain: Leaf<Vec<Command>>,
+    pub size: Leaf<(u32, u32)>,
 }
 
 impl Viewport {

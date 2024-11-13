@@ -8,10 +8,10 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(window: &Grc<Window>, viewport: Viewport) -> Self {
+    pub fn new(window: Grc<Window>, viewport: Viewport) -> Self {
         Self {
             viewport,
-            window: window.clone(),
+            window,
         }
     }
     pub fn render(&self) -> Result<()> {

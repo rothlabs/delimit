@@ -3,9 +3,9 @@ use std::f32::consts::PI;
 
 #[derive(Back, Debug)]
 pub struct Circle {
+    pub frame: Hub<(u32, u32)>,
     pub count: Hub<u32>,
     pub radius: Hub<f32>,
-    pub frame: Hub<(u32, u32)>,
 }
 
 impl GateTag for Circle {}

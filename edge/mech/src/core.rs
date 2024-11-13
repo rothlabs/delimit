@@ -44,11 +44,12 @@ impl Core {
             shape: shape.into(),
         }
     }
-    // TODO: also impl on shape to creating everything needed to render automatically
-    pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> make::Draw {
-        make::Draw {
-            core: self.clone(),
-            plot: plot.into(),
-        }
-    }
 }
+
+// // TODO: also impl on shape to creating everything needed to render automatically
+// pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> make::Draw {
+//     make::Draw {
+//         core: self.clone(),
+//         plot: plot.into(),
+//     }
+// }

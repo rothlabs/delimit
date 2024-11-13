@@ -144,31 +144,3 @@ pub enum Layout {
     Grid,
     Radial,
 }
-
-// #[derive(Clone, Debug)]
-// pub enum Rule {
-//     Nurbs(u32),
-//     Extrude,
-//     Revolve,
-// }
-
-// #[derive(Clone, Debug)]
-// pub enum ControlOld {
-//     Shape(Vec<Shape>),
-//     Hedge(Hedge),
-// }
-
-// impl ControlOld {
-//     fn rank(&self, rank: u32) -> u32 {
-//         match self {
-//             Self::Hedge(_) => rank,
-//             Self::Shape(shape) => {
-//                 if let Some(shape) = shape.first() {
-//                     shape.control.rank(rank) + rank
-//                 } else {
-//                     rank
-//                 }
-//             }
-//         }
-//     }
-// }
