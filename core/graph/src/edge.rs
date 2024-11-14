@@ -88,7 +88,7 @@ where
             ring.react().await
         })
     }
-    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+    fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))?
     }
 }
@@ -178,6 +178,14 @@ where
     {
         let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         ring.react().await?;
+        Ok(out)
+    }
+    fn write_passive<O, F>(&self, write: F) -> Result<O>
+    where
+        O: IsSend,
+        F: FnOnce(&mut Self::Base) -> O + IsSend 
+    {
+        let (_, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         Ok(out)
     }
 }

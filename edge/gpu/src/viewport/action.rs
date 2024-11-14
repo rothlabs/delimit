@@ -13,6 +13,9 @@ impl<'a> Render<'a> {
         
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
+        // if frame.texture.width() != self.display.stage. {
+        //     // self.stage = self.gpu.render_stage(self.format, width, height)?.into();
+        // }
         // let stage = self.display.texture()?.sample_count(4).view()?;
         // let mut final_number = 0;
         for command in &self.chain {//self.chain.iter().skip(1) {

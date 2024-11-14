@@ -76,7 +76,7 @@ impl Lake {
     }
 
     pub fn grow<T: Payload>(&mut self, hub: &Hub<T>, ring: &mut Ring) -> Result<()> {
-        ring.extend(hub.transient_set(self)?);
+        ring.extend(hub.passive_set(self)?);
         for apex in hub.all()? {
             apex.grow_from_lake(self, ring).ok();
         }

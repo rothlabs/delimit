@@ -15,6 +15,10 @@ pub trait WriteBase {
     where
         O: IsSend,
         F: FnOnce(&mut Self::Base) -> O + IsSend;
+    fn write_passive<O, F>(&self, write: F) -> Result<O>
+    where
+        O: IsSend,
+        F: FnOnce(&mut Self::Base) -> O + IsSend;
 }
 
 pub trait WriteBaseOut {

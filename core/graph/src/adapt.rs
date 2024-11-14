@@ -27,7 +27,7 @@ pub trait AdaptEdge {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
     /// For graph internals to handle alter calls
     fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>>;
-    fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
+    fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
 }
 
 pub trait AdaptMut {

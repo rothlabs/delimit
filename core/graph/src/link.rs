@@ -253,6 +253,12 @@ where
     {
         read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
+    fn write_passive<O, F>(&self, write: F) -> Result<O>
+        where
+            O: IsSend,
+            F: FnOnce(&mut Self::Base) -> O + IsSend {
+        read_part(&self.edge, |edge| edge.write_passive(write))?
+    }
 }
 
 impl<E> WriteUnit for Link<E>
@@ -305,8 +311,8 @@ where
             read_part(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
         })
     }
-    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        read_part(&self.edge, |edge| edge.transient_set(deal))?
+    pub fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+        read_part(&self.edge, |edge| edge.passive_set(deal))?
     }
 }
 

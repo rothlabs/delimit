@@ -5,7 +5,6 @@ use winit::dpi::PhysicalSize;
 pub struct Agent {
     pub instance: Grc<Instance>,
     pub displays: Leaf<Vec<Display>>,
-    displays_base: Vec<Display>,
 }
 
 impl Agent {
@@ -43,7 +42,7 @@ impl Agent {
         Ok(())
     }
     pub fn resize(&mut self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
-        self.displays_base = self.displays.base()?;
+        // self.displays_base = self.displays.base()?;
         self.get_display(id)?.resize(size)?;
         Ok(())
     }
@@ -51,7 +50,7 @@ impl Agent {
         Ok(self.displays.base()?.is_empty())
     }
     fn get_display(&self, id: WindowId) -> Result<Display> {
-        for display in &self.displays_base { //self.displays.base()? {
+        for display in &self.displays.base()? {
             if display.window.id() == id {
                 return Ok(display.clone());
             }

@@ -217,10 +217,10 @@ impl<T: Payload> Hub<T> {
         }
     }
 
-    pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+    pub fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
         match self {
-            Self::Ploy(ploy) => ploy.transient_set(deal),
-            Self::Gate(gate) => gate.transient_set(deal),
+            Self::Ploy(ploy) => ploy.passive_set(deal),
+            Self::Gate(gate) => gate.passive_set(deal),
             _ => Ok(Ring::new()),
         }
     }

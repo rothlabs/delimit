@@ -16,7 +16,7 @@ impl Apex {
         ring.react().await
     }
     fn saturate(&self, world: &Space, local: &Space, ring: &mut Ring) -> Result<()> {
-        ring.extend(self.transient_set(&mut Scope {
+        ring.extend(self.passive_set(&mut Scope {
             world,
             local,
             back: None,
@@ -192,9 +192,9 @@ macro_rules! ImplViewVec {
                     $(Self::$Variant(x) => x.adapt_get(deal),)*
                 }
             }
-            pub fn transient_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
+            pub fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
                 match self {
-                    $(Self::$Variant(x) => x.transient_set(deal),)*
+                    $(Self::$Variant(x) => x.passive_set(deal),)*
                 }
             }
             pub fn tray_path(&self) -> Option<&Path> {

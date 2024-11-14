@@ -79,7 +79,7 @@ impl Viewport {
     }
     pub fn resize(&mut self, width: u32, height: u32) -> Result<()> {
         println!("resize {} {}", width, height);
-        self.stage = self.gpu.render_stage(self.format, width, height)?.into();
+        // self.stage = self.gpu.render_stage(self.format, width, height)?.into();
         self.configuration.width = width;
         self.configuration.height = height;
         self.surface
