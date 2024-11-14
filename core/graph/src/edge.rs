@@ -183,7 +183,7 @@ where
     fn write_passive<O, F>(&self, write: F) -> Result<O>
     where
         O: IsSend,
-        F: FnOnce(&mut Self::Base) -> O + IsSend 
+        F: FnOnce(&mut Self::Base) -> O + IsSend,
     {
         let (_, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         Ok(out)

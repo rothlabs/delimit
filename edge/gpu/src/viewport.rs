@@ -1,5 +1,4 @@
 use super::*;
-use tokio::task::spawn;
 
 mod action;
 
@@ -15,17 +14,15 @@ impl ToViewport for Surface<'static> {
             .get_default_config(&gpu.adapter, width, height)
             .ok_or(anyhow!("no surface config"))?;
         self.configure(&gpu.device, &configuration);
-        let stage = gpu.render_stage(format, width, height)?;
         Ok(Viewport {
+            stage: stage(&gpu.device, format, width, height)?,
             gpu,
             size: Leaf::new((width, height)),
             surface: self.into(),
             configuration,
             targets: vec![Some(format.into())],
             format,
-            stage: stage.into(),
             chain: Leaf::new(vec![Command::default()]),
-            number: 0,
         })
     }
 }
@@ -43,7 +40,6 @@ pub struct Viewport {
     format: TextureFormat,
     stage: Grc<TextureView>,
     chain: Leaf<Vec<Command>>,
-    number: u64,
 }
 
 impl Viewport {
@@ -62,24 +58,18 @@ impl Viewport {
     pub fn command(&self) -> encode::render::CommandBuilder {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
-    pub fn render(&mut self) -> Result<()> {
-        let chain = self.chain.base()?;
-        let number = chain.last().ok_or(anyhow!("no commands"))?.number;
-        spawn(consume_chain(self.chain.clone(), number));
-        // TODO: change action::Render to be a function
-        let out = action::Render {
+    pub fn render(&self) -> Result<()> {
+        action::Render {
             display: self,
-            chain,
-        }.surface();
-        self.number = number;
-        out
+            chain: self.chain.base()?,
+        }
+        .surface()
     }
     pub fn frame(&self) -> Result<SurfaceTexture> {
         Ok(self.surface.get_current_texture()?)
     }
     pub fn resize(&mut self, width: u32, height: u32) -> Result<()> {
-        println!("resize {} {}", width, height);
-        self.stage = self.gpu.render_stage(self.format, width, height)?.into();
+        self.stage = stage(&self.gpu.device, self.format, width, height)?;
         self.configuration.width = width;
         self.configuration.height = height;
         self.surface
@@ -88,18 +78,34 @@ impl Viewport {
     }
 }
 
-async fn consume_chain(chain: Leaf<Vec<Command>>, number: u64) -> Result<()> {
-    chain.write(|chain| {
-        let index = chain.partition_point(|x| x.number == number);
-        // chain.spl
-        println!("chain and number: {} {}", chain.len(), number);
-        chain.drain(..index-1);
-        println!("after drain: {:?}", chain.len());
-        // *chain = chain[index..].to_vec();
-    }).await?;
-    Ok(())
+fn stage(device: &Device, format: TextureFormat, width: u32, height: u32) -> Result<Grc<TextureView>> {
+    let size = Extent3d {
+        width,
+        height,
+        depth_or_array_layers: 1,
+    };
+    Ok(TextureBuilder::default()
+        .device(device)
+        .size(size)
+        .usage(TextureUsages::RENDER_ATTACHMENT)
+        .mip_level_count(1)
+        .format(format)
+        .sample_count(4)
+        .view()?
+        .into())
 }
 
+// async fn consume_chain(chain: Leaf<Vec<Command>>, number: u64) -> Result<()> {
+//     chain.write(|chain| {
+//         let index = chain.partition_point(|x| x.number == number);
+//         // chain.spl
+//         println!("chain and number: {} {}", chain.len(), number);
+//         chain.drain(..index-1);
+//         println!("after drain: {:?}", chain.len());
+//         // *chain = chain[index..].to_vec();
+//     }).await?;
+//     Ok(())
+// }
 
 // pub fn texture(&self) -> Result<TextureBuilder> {
 //     println!("texture {} {}", self.configuration.width, self.configuration.height);

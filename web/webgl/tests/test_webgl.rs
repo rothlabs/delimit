@@ -84,8 +84,8 @@ pub async fn make_basic_texture(gpu: &WebGl) -> Result<Node<Texture>> {
 }
 
 pub async fn draw_arrays_basic(gpu: &WebGl) -> Result<()> {
-    let (program, _) = basic_program(&gpu)?;
-    let (buffer, buffer_writer) = make_basic_buffer(&gpu)?;
+    let (program, _) = basic_program(gpu)?;
+    let (buffer, buffer_writer) = make_basic_buffer(gpu)?;
     let att = buffer.attribute().size(3).node()?;
     let vao = gpu.vao()?;
     let vao_writer = vao.writer().attribute(att).hub()?;
@@ -103,8 +103,8 @@ pub async fn draw_arrays_basic(gpu: &WebGl) -> Result<()> {
 pub async fn draw_elements_basic(
     gpu: &WebGl,
 ) -> Result<(Node<DrawElements>, Leaf<String>, Node<Bufferer>)> {
-    let (program, vertex_source) = basic_program(&gpu)?;
-    let (buffer, bufferer) = make_basic_buffer(&gpu)?;
+    let (program, vertex_source) = basic_program(gpu)?;
+    let (buffer, bufferer) = make_basic_buffer(gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.buffer()?.index();
     let index_bufferer = index_buffer.writer().array(index_array).hub()?;
@@ -124,8 +124,8 @@ pub async fn draw_elements_basic(
 }
 
 pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElements>> {
-    let program = make_tex_program(&gpu)?;
-    let (buffer, bufferer) = make_vertex_color_buffer(&gpu)?;
+    let program = make_tex_program(gpu)?;
+    let (buffer, bufferer) = make_vertex_color_buffer(gpu)?;
     let index_array: Vec<u16> = vec![0, 1, 2];
     let index_buffer = gpu.buffer()?.index();
     let index_bufferer = index_buffer.writer().array(index_array).hub()?;
@@ -143,7 +143,7 @@ pub async fn draw_elements_textured_basic(gpu: &WebGl) -> Result<Node<DrawElemen
         .attributes(vec![pos, uv])
         .index(index_buffer)
         .hub()?;
-    let _texture = make_basic_texture(&gpu).await?;
+    let _texture = make_basic_texture(gpu).await?;
     let elements = gpu
         .draw_elements(program)
         .stem(bufferer.hub())
@@ -264,14 +264,13 @@ pub async fn draw_elements_react_to_buffer_array() -> Result<()> {
 pub async fn shader_source_error() -> Result<()> {
     let gpu = gpu()?;
     let (_elements, shader_source, _buff) = draw_elements_basic(&gpu).await?;
-    if let Err(_) = shader_source
+    if (shader_source
         .write(|source| *source = "bad shader".to_owned())
-        .await
-    {
-        Ok(())
-    } else {
-        panic!("this shader write should have caused compile error");
-    }
+        .await).is_err() {
+            Ok(())
+        } else {
+            panic!("this shader write should have caused compile error");
+        }
 }
 
 #[wasm_bindgen_test]

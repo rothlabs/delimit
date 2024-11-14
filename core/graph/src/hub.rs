@@ -136,7 +136,7 @@ where
                     Tray::Base(base) => Ok(base.clone()),
                     tray => Err(tray.wrong_variant("Base"))?,
                 },
-                Self::Leaf(leaf) => leaf.base(),//leaf.read(|base| base.clone()),
+                Self::Leaf(leaf) => leaf.base(), //leaf.read(|base| base.clone()),
                 Self::Ploy(ploy) => ploy.solve().await?.base().await,
                 Self::Gate(gate) => gate.solve().await?.base().await,
             }

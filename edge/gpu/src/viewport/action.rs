@@ -9,53 +9,19 @@ pub struct Render<'a> {
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
-        let mut submit = false;
-        for command in &self.chain {//self.chain.iter().skip(1) {
-            println!("command.number <= self.display.number, {} {}", command.number, self.display.number);
-            if command.number <= self.display.number {
-                continue;
-            }
-            submit = true;
-        }
-        if !submit {
-            return Ok(());
-        }
-
-
         let mut encoder = self.display.gpu.encoder();
-        
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        // if frame.texture.width() != self.display.stage. {
-        //     // self.stage = self.gpu.render_stage(self.format, width, height)?.into();
-        // }
-        // let stage = self.display.texture()?.sample_count(4).view()?;
-        // let mut final_number = 0;
-
-        let mut submit = false;
-        for command in &self.chain {//self.chain.iter().skip(1) {
-            println!("command.number <= self.display.number, {} {}", command.number, self.display.number);
-            if command.number <= self.display.number {
-                continue;
-            }
-            println!("made it");
-            // final_number = 
+        for command in &self.chain {
             let attachments = if command.msaa > 0 {
-                self.display.gpu.attachment(&self.display.stage).resolve_target(view).list()?
+                self.display
+                    .gpu
+                    .attachment(&self.display.stage)
+                    .resolve_target(view)
+                    .list()?
             } else {
                 self.display.gpu.attachment(view).list()?
-                // None
             };
-            // let attachment = self.display.gpu.render_pass(view).make()?;
-            // let attachment = RenderPassColorAttachment {
-            //     view,
-            //     resolve_target,
-            //     ops: wgpu::Operations {
-            //         load: wgpu::LoadOp::Clear(wgpu::Color::WHITE),
-            //         store: wgpu::StoreOp::Store,
-            //     },
-            // };
-            // let list = [Some(attachment); 1];
             let descriptor = &self.display.gpu.render_pass(&attachments).make()?;
             let pass = render::Pass {
                 command,
@@ -65,17 +31,11 @@ impl<'a> Render<'a> {
                 pass.compute(&mut encoder);
             }
             if !command.render.is_empty() {
-                println!("pass render");
-                submit = true;
                 pass.render(&mut encoder);
             }
         }
-        // self.display.number = self.chain.last().ok_or(anyhow!("no commands"))?.number;
-        if submit {
-            println!("sumbit encoder");
-            encoder.submit();
-            frame.present();
-        }
+        encoder.submit();
+        frame.present();
         Ok(())
     }
 }

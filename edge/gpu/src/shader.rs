@@ -16,7 +16,7 @@ impl<'a> Shader<'a> {
         FragmentBuilder::default()
             .shader(self)
             .entry(entry)
-            .targets(&self.targets)
+            .targets(self.targets)
     }
     pub fn compute(&'a self, entry: &'a str) -> pipe::ComputeBuilder {
         pipe::ComputeBuilder::default()

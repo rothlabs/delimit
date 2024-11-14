@@ -1,4 +1,3 @@
-use star::JoinBuilder;
 use super::*;
 
 pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Mutation>> {
@@ -34,12 +33,6 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Mutation>> {
     let plot = mech.plot(shape).grid(30).hub()?;
     let drawing = view.plot(&plot).points().hub()?;
     Ok(drawing)
-    // let drawing = view.plot(&plot).points().hub()?;
-    // let drawing2 = view.plot(plot).points().hub()?;
-    // let mut wow = JoinBuilder::default();
-    // wow.field(drawing);
-    // wow.field(drawing2);
-    // Ok(wow.hub()?)
 }
 
 #[rustfmt::skip]
@@ -72,6 +65,13 @@ fn nurbs3() -> Vec<f32> {
     ]
 }
 
+// let drawing = view.plot(&plot).points().hub()?;
+// let drawing2 = view.plot(plot).points().hub()?;
+// let mut wow = JoinBuilder::default();
+// wow.field(drawing);
+// wow.field(drawing2);
+// Ok(wow.hub()?)
+
 // #[derive(Builder, Gate, Back, Debug)]
 // #[builder(pattern = "owned")]
 // #[builder(setter(into))]
@@ -86,8 +86,7 @@ fn nurbs3() -> Vec<f32> {
 //     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
 //         // println!("app act");
 //         // let displays = self.displays.base()?;
-        
-        
+
 //         Ok(Mutation.into())
 //     }
 // }

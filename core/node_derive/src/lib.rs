@@ -28,9 +28,10 @@ pub fn gate_tag(item: TokenStream) -> TokenStream {
                     impl<T> graph::GateTag for #unit<T> {}
                 }
             }
-        },
-        _ => unimplemented!()
-    }.into()
+        }
+        _ => unimplemented!(),
+    }
+    .into()
 }
 
 #[proc_macro_derive(Gate)]

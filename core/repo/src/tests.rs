@@ -12,7 +12,7 @@ async fn write_and_read_serial_page() -> graph::Result<()> {
     let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let mut lake: Lake = serde_json::from_reader(reader)?;
-    lake.atlas(Box::new(Atlas::default()));
+    lake.atlas(Box::new(Atlas));
     let bay = lake.tree().await?;
     bay.hydrate().await?;
     let html = bay.get("page")?.string()?;

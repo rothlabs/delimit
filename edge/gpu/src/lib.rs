@@ -14,9 +14,9 @@ use pipe::*;
 use shader::*;
 use star::*;
 use std::{fmt::Debug, future::Future};
+use texture::*;
 use util::DeviceExt;
 use wgpu::*;
-use texture::*;
 
 mod bind;
 mod buffer;
@@ -60,8 +60,12 @@ pub trait ToAdapter {
 
 impl ToAdapter for Instance {
     async fn surface_adapter(&self, surface: &Surface<'static>) -> Result<Adapter> {
-        let mut fields = RequestAdapterOptions::default();
-        fields.compatible_surface = Some(surface);
+        // let mut fields = RequestAdapterOptions::default();
+        // fields.compatible_surface = Some(surface);
+        let fields = RequestAdapterOptions {
+            compatible_surface: Some(surface),
+            ..Default::default()
+        };
         Ok(self
             .request_adapter(&fields)
             .await

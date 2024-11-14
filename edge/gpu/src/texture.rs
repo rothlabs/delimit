@@ -1,5 +1,6 @@
 use super::*;
 
+// TODO: make trait to build texture from device
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]

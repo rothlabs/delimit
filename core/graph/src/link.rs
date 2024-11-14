@@ -254,9 +254,10 @@ where
         read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
     }
     fn write_passive<O, F>(&self, write: F) -> Result<O>
-        where
-            O: IsSend,
-            F: FnOnce(&mut Self::Base) -> O + IsSend {
+    where
+        O: IsSend,
+        F: FnOnce(&mut Self::Base) -> O + IsSend,
+    {
         read_part(&self.edge, |edge| edge.write_passive(write))?
     }
 }

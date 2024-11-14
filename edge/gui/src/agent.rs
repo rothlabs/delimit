@@ -37,35 +37,51 @@ impl Agent {
         Ok(())
     }
     pub fn render(&self, id: WindowId) -> Result<()> {
-        // self.get_display(id)?.render()?;
-        self.displays.write_passive(|x| x.get(id)?.render())??;
-        Ok(())
+        self.displays.read(|displays| {
+            for display in displays {
+                if display.window.id() == id {
+                    return display.render();
+                }
+            }
+            Err(anyhow!("no display of window id for rendering"))?
+        })?
     }
     pub fn resize(&mut self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
-        // self.displays_base = self.displays.base()?;
-        // self.get_display(id)?.resize(size)?;
-        self.displays.write_passive(|x| x.get(id)?.resize(size))??;
-        Ok(())
+        self.displays.write_passive(|displays| {
+            for display in displays {
+                if display.window.id() == id {
+                    return display.resize(size);
+                }
+            }
+            Err(anyhow!("no display of given window id for resize"))?
+        })?
     }
     pub fn is_empty(&self) -> Result<bool> {
         Ok(self.displays.base()?.is_empty())
     }
 }
 
-trait GetDisplay {
-    fn get(&mut self, id: WindowId) -> Result<&mut Display>;
-}
+// trait GetDisplay {
+//     fn get(&mut self, id: WindowId) -> Result<&mut Display>;
+// }
 
-impl GetDisplay for Vec<Display> {
-    fn get(&mut self, id: WindowId) -> Result<&mut Display> {
-        for display in self {
-            if display.window.id() == id {
-                return Ok(display);
-            }
-        }
-        Err(anyhow!("no display of given window id"))?
-    }
-}
+// impl GetDisplay for Vec<Display> {
+//     fn get(&mut self, id: WindowId) -> Result<&mut Display> {
+//         for display in self {
+//             if display.window.id() == id {
+//                 return Ok(display);
+//             }
+//         }
+//         Err(anyhow!("no display of given window id"))?
+//     }
+// }
+
+// pub fn resize(&mut self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
+//     // self.displays_base = self.displays.base()?;
+//     // self.get_display(id)?.resize(size)?;
+//     self.displays.write_passive(|x| x.get(id)?.resize(size))??;
+//     Ok(())
+// }
 
 // fn get_display(&self, id: WindowId) -> Result<Display> {
 //     for display in &self.displays.base()? {

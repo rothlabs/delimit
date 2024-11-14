@@ -6,8 +6,12 @@ pub trait ToCore {
 
 impl ToCore for Adapter {
     async fn gpu(self) -> Result<Core> {
-        let mut descriptor = DeviceDescriptor::default();
-        descriptor.required_limits = Limits::default().using_resolution(self.limits());
+        // let mut descriptor = DeviceDescriptor::default();
+        // descriptor.required_limits = Limits::default().using_resolution(self.limits());
+        let descriptor = DeviceDescriptor {
+            required_limits: Limits::default().using_resolution(self.limits()),
+            ..Default::default()
+        };
         let (device, queue) = self.request_device(&descriptor, None).await?;
         Ok(Core {
             adapter: self.into(),
@@ -31,19 +35,6 @@ impl Core {
             module: self.device.create_shader_module(source), //.into(),
             targets: &[],
         }
-    }
-    pub fn render_stage(&self, format: TextureFormat, width: u32, height: u32) -> Result<TextureView> {
-        let size = Extent3d {
-            width,
-            height,
-            depth_or_array_layers: 1,
-        };
-        Ok(TextureBuilder::default()
-            .device(&self.device)
-            .size(size)
-            .usage(TextureUsages::RENDER_ATTACHMENT)
-            .mip_level_count(1)
-            .format(format).sample_count(4).view()?)
     }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)

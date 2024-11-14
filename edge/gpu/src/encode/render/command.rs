@@ -82,17 +82,21 @@ impl Solve for Command {
     type Base = Mutation;
     async fn solve(&self) -> graph::Result<Hub<Mutation>> {
         self.roots.depend().await?;
-        let mut post = post::Command::default();
-        post.msaa = 4;
+        let mut post = post::Command {
+            msaa: 4,
+            ..Default::default()
+        };
         self.compute(&mut post).await?;
         self.render(&mut post).await?;
         // TODO: turn chain.write into a trait function on Leaf<Vec<Command>>>
-        self.chain.write(|chain| {
-            if let Some(cmd) = chain.last() {
-                post.number = cmd.number + 1;
-            }
-            chain.push(post);
-        }).await?;
+        self.chain
+            .write(|chain| {
+                if let Some(cmd) = chain.last() {
+                    post.number = cmd.number + 1;
+                }
+                chain.push(post);
+            })
+            .await?;
         Ok(Mutation.into())
     }
 }

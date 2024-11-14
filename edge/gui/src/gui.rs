@@ -13,9 +13,9 @@ impl ApplicationHandler for Gui {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.agent.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
-            let window = Grc::new(event_loop.create_window(fields).unwrap());
+            let window = event_loop.create_window(fields).unwrap();
             // TODO: put spawn in Agent
-            spawn(self.agent.clone().display(window));
+            spawn(self.agent.clone().display(window.into()));
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -27,8 +27,8 @@ impl ApplicationHandler for Gui {
             WindowEvent::MouseInput { state, .. } => {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
-                    let window = Grc::new(event_loop.create_window(fields).unwrap());
-                    spawn(self.agent.clone().display(window));
+                    let window = event_loop.create_window(fields).unwrap();
+                    spawn(self.agent.clone().display(window.into()));
                 }
             }
             WindowEvent::CloseRequested => {
@@ -43,14 +43,11 @@ impl ApplicationHandler for Gui {
         _: winit::event::DeviceId,
         event: winit::event::DeviceEvent,
     ) {
-        match event {
-            DeviceEvent::MouseMotion { delta } => {
-                let events = self.event.clone();
-                tokio::task::spawn(async move {
-                    let _ = events.x.write(|x| *x = delta.0).await;
-                });
-            }
-            _ => (),
+        if let DeviceEvent::MouseMotion { delta } = event {
+            let events = self.event.clone();
+            tokio::task::spawn(async move {
+                let _ = events.x.write(|x| *x = delta.0).await;
+            });
         }
     }
 }
@@ -65,3 +62,13 @@ impl Default for Event {
         Self { x: Leaf::new(0.) }
     }
 }
+
+// match event {
+//     DeviceEvent::MouseMotion { delta } => {
+//         let events = self.event.clone();
+//         tokio::task::spawn(async move {
+//             let _ = events.x.write(|x| *x = delta.0).await;
+//         });
+//     }
+//     _ => (),
+// }

@@ -1,8 +1,6 @@
 use super::*;
 use std::ops::Range;
 
-
-
 #[derive(Default, Clone, Debug)]
 pub struct Command {
     pub number: u64,
