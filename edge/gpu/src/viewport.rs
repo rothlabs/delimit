@@ -1,3 +1,4 @@
+use tokio::spawn;
 use super::*;
 
 mod action;
@@ -50,11 +51,11 @@ impl Viewport {
             targets: &self.targets,
         }
     }
-    // pub fn pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
-    //     pipe::RenderBuilder::default()
-    //         .device(&self.gpu.device)
-    //         .vertex(vertex)
-    // }
+    pub fn pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+        pipe::RenderBuilder::default()
+            .device(&self.gpu.device)
+            .vertex(vertex)
+    }
     pub fn command(&self) -> encode::render::CommandBuilder {
         encode::render::CommandBuilder::default().chain(self.chain.clone())
     }
@@ -69,6 +70,8 @@ impl Viewport {
         Ok(self.surface.get_current_texture()?)
     }
     pub fn resize(&mut self, width: u32, height: u32) -> Result<()> {
+        let size = self.size.clone();
+        spawn(write_size(size, width, height));
         self.stage = stage(&self.gpu.device, self.format, width, height)?;
         self.configuration.width = width;
         self.configuration.height = height;
@@ -78,7 +81,17 @@ impl Viewport {
     }
 }
 
-fn stage(device: &Device, format: TextureFormat, width: u32, height: u32) -> Result<Grc<TextureView>> {
+async fn write_size(size: Leaf<(u32, u32)>, width: u32, height: u32) -> Result<()> {
+    size.write(|x| *x = (width, height)).await?;
+    Ok(())
+}
+
+fn stage(
+    device: &Device,
+    format: TextureFormat,
+    width: u32,
+    height: u32,
+) -> Result<Grc<TextureView>> {
     let size = Extent3d {
         width,
         height,

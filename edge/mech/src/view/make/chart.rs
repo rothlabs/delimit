@@ -28,7 +28,6 @@ impl Solve for Points {
             .hub()?;
         // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
 
-
         let vertex_count: u32 = 8;
         let points = Circle {
             frame: self.view.port.size.clone(), //gpu.display.config.clone(),
@@ -41,7 +40,6 @@ impl Solve for Points {
             root: gpu.writer(buffer.clone()).data(points).hub()?,
             buffer: buffer.into(),
         };
-
 
         self.view
             .port
@@ -59,8 +57,6 @@ impl Solve for Points {
         // Ok(Mutation.into())
     }
 }
-
-
 
 use std::f32::consts::PI;
 

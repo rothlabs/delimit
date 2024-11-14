@@ -9,10 +9,10 @@ pub struct Bank {
 }
 
 impl Bank {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
+    pub fn new(port: &Viewport) -> Result<Self> {
         Ok(Self {
-            plot: PlotBin::new(gpu)?,
-            draw: DrawBank::new(gpu)?,
+            plot: PlotBin::new(&port.gpu)?,
+            draw: DrawBank::new(port)?,
         })
     }
 }
@@ -140,9 +140,9 @@ pub struct DrawBank {
 }
 
 impl DrawBank {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
+    pub fn new(port: &Viewport) -> Result<Self> {
         Ok(Self {
-            chart: draw::ChartBank::new(gpu)?,
+            chart: draw::ChartBank::new(port)?,
         })
     }
 }

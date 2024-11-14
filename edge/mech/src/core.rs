@@ -13,10 +13,10 @@ pub struct Core {
 }
 
 impl Core {
-    pub fn new(gpu: Gpu) -> Result<Self> {
+    pub fn new(port: Viewport) -> Result<Self> {
         Ok(Self {
-            bank: Bank::new(&gpu)?.into(),
-            gpu,
+            bank: Bank::new(&port)?.into(),
+            gpu: port.gpu,
         })
     }
     pub fn travel(&self) -> TravelBuilder {

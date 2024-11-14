@@ -27,8 +27,7 @@ impl Act for App {
 
 fn make_view(display: &Display) -> Result<View> {
     let port = display.viewport.clone();
-    let gpu = port.gpu.clone();
-    let mech = Mech::new(gpu)?;
+    let mech = Mech::new(port.clone())?;
     let view = View::new(mech, port)?;
     Ok(view)
 }

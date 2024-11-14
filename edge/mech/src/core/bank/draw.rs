@@ -6,8 +6,9 @@ pub struct ChartBank {
 }
 
 impl ChartBank {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
-        let shader = gpu.shader(include_wgsl!("draw/points.wgsl"));
+    pub fn new(port: &Viewport) -> Result<Self> {
+        let gpu = &port.gpu;
+        let shader = port.shader(include_wgsl!("draw/points.wgsl"));
         // let targets = port.display.targets();
         let rig = gpu.bind_uniform().entry(0)?.vertex()?;
         let plot = gpu.bind_storage(true).entry(1)?.vertex()?;
@@ -19,8 +20,8 @@ impl ChartBank {
         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
         let fragment = shader.fragment("fs_main").make()?; // .targets(targets)
         let multi = gpu.multisample(4).make()?;
-        let pipe = gpu
-            .render_pipe(vertex)
+        let pipe = port
+            .pipe(vertex)
             .fragment(fragment)
             .layout(&pipe_layout)
             .multisample(multi)
