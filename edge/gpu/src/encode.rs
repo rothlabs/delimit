@@ -30,7 +30,7 @@ impl<'a> Encode<'a> {
         }
     }
     pub fn submit(self) -> SubmissionIndex {
-        self.queue.submit(Some(self.inner.finish()))
+        self.queue.submit([self.inner.finish()])
     }
 }
 

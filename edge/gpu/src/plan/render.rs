@@ -1,10 +1,26 @@
-use super::*;
 use std::ops::Range;
+use super::*;
+
+#[derive(Debug)]
+pub struct Pass {
+    stems: Vec<Hub<Mutation>>,
+    commands: Vec<Command>,   
+}
+
+#[derive(Clone, Debug)]
+pub enum Command {
+    Pipe(Grc<RenderPipeline>),
+    Bind(u32, Grc<BindGroup>),
+    Vertex(u32, Grc<Buffer>),
+    Index(Grc<Buffer>),
+    Draw(Range<u32>, Range<u32>),
+    DrawIndexed(Range<u32>, i32, Range<u32>),
+}
 
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Render {
+pub struct Plan {
     // TODO: rename roots to stems
     #[builder(default, setter(each(name = "root", into)))]
     roots: Vec<Hub<Mutation>>,

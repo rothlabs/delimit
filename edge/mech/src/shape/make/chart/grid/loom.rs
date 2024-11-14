@@ -31,6 +31,7 @@ impl Weave<'_> {
     }
     pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Mutation>> {
         let gpu = &self.loom.grid.chart.core.gpu;
+        // TODO make func that creates this structure from ComputeProgram, Hedges, and count
         let bind = gpu
             .bind()
             .layout(program.layout.clone())

@@ -57,7 +57,7 @@ impl Viewport {
             .vertex(vertex)
     }
     pub fn command(&self) -> encode::render::CommandBuilder {
-        encode::render::CommandBuilder::default().chain(self.chain.clone())
+        encode::render::CommandBuilder::default()//.chain(self.chain.clone())
     }
     pub fn render(&self) -> Result<()> {
         action::Render {

@@ -20,18 +20,18 @@ impl<'a> Pass<'a> {
         let mut pass = encoder.render(self.descriptor);
         for cmd in &self.command.render {
             match cmd {
-                crate::render::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
-                crate::render::Entry::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
-                crate::render::Entry::Vertex(slot, buffer) => {
+                post::Render::Pipe(pipe) => pass.set_pipeline(pipe),
+                post::Render::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
+                post::Render::Vertex(slot, buffer) => {
                     pass.set_vertex_buffer(*slot, buffer.slice(..));
                 }
-                crate::render::Entry::Index(buffer) => {
+                post::Render::Index(buffer) => {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
-                crate::render::Entry::Draw(vertices, instances) => {
+                post::Render::Draw(vertices, instances) => {
                     pass.draw(vertices.clone(), instances.clone());
                 }
-                crate::render::Entry::DrawIndexed(indices, base_vertex, instances) => {
+                post::Render::DrawIndexed(indices, base_vertex, instances) => {
                     pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
             }
