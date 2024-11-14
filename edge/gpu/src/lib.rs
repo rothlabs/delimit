@@ -1,6 +1,7 @@
 pub use core::ToCore;
 pub use encode::post::{compute, Render, Command};
 pub use viewport::{ToViewport, Viewport};
+// pub use render;
 
 use bind::*;
 use buffer::*;
@@ -18,6 +19,8 @@ use texture::*;
 use util::DeviceExt;
 use wgpu::*;
 
+pub mod render;
+
 mod bind;
 mod buffer;
 mod core;
@@ -26,7 +29,6 @@ mod pipe;
 mod shader;
 mod texture;
 mod viewport;
-mod render;
 // mod pass;
 
 pub type Gpu = Core;

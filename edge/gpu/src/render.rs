@@ -4,12 +4,6 @@ use super::*;
 mod plan;
 
 #[derive(Clone, Debug)]
-pub struct Pass {
-    stems: Vec<Hub<Mutation>>,
-    entries: Vec<Entry>,   
-}
-
-#[derive(Clone, Debug)]
 pub enum Entry {
     Pipe(Grc<RenderPipeline>),
     Bind(u32, Grc<BindGroup>),
@@ -30,62 +24,47 @@ pub struct Plan {
     stems: Vec<Hub<Mutation>>,
 }
 
-impl Plan {
-    async fn map_entries(&self, post: &mut Vec<Entry>) -> graph::Result<()> {
+impl Solve for Plan {
+    type Base = Vec<Entry>;
+    async fn solve(&self) -> graph::Result<Hub<Vec<Entry>>> {
+        // TODO: put stems in gpu::BindGroup
+        self.stems.depend().await?;
+        let mut entries = vec![];
         for cmd in &self.entries {
             match cmd {
-                plan::Entry::Pipe(pipe) => post.push(Entry::Pipe(pipe.clone())),
+                plan::Entry::Pipe(pipe) => entries.push(Entry::Pipe(pipe.clone())),
                 plan::Entry::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    post
+                    entries
                         .push(Entry::Bind(*index, bind.clone()))
                 }
                 plan::Entry::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
-                    post
+                    entries
                         .push(Entry::Vertex(*slot, buffer.clone()))
                 }
                 plan::Entry::Index(buffer) => {
                     let buffer = buffer.base().await?;
-                    post.push(Entry::Index(buffer.clone()))
-                    // pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
+                    entries.push(Entry::Index(buffer.clone()))
                 }
                 plan::Entry::Draw(vertices, instances) => {
-                    post.push(Entry::Draw(
+                    entries.push(Entry::Draw(
                         vertices.clone(),
                         instances.clone(),
                     ))
-                    // pass.draw(vertices.clone(), instances.clone());
                 }
                 plan::Entry::DrawIndexed(indices, base_vertex, instances) => {
-                    post.push(Entry::DrawIndexed(
+                    entries.push(Entry::DrawIndexed(
                         indices.clone(),
                         *base_vertex,
                         instances.clone(),
                     ))
-                    // pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                 }
             }
         }
-        Ok(())
+        Ok(entries.into())
     }
 }
-
-impl Solve for Plan {
-    type Base = Pass;
-    async fn solve(&self) -> graph::Result<Hub<Pass>> {
-        let mut entries = vec![];
-        self.map_entries(&mut entries).await?;
-        let pass = Pass {
-            entries,
-            stems: self.stems.clone(),
-        };
-        Ok(pass.into()) // Hub::Tray(Tray::Base(post))
-    }
-}
-
-// TODO: turn chain.write into a trait function on Leaf<Vec<Command>>>
-        // self.chain.write(|chain| chain.push(post)).await?;
 
 impl Adapt for Plan {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
@@ -123,3 +102,6 @@ impl PlanBuilder {
         self.entry(plan::Entry::DrawIndexed(indices, base_vertex, instances))
     }
 }
+
+// TODO: turn chain.write into a trait function on Leaf<Vec<Command>>>
+        // self.chain.write(|chain| chain.push(post)).await?;

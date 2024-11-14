@@ -56,6 +56,9 @@ impl Viewport {
             .device(&self.gpu.device)
             .vertex(vertex)
     }
+    pub fn plan(&self) -> render::PlanBuilder {
+        render::PlanBuilder::default()//.chain(self.chain.clone())
+    }
     // pub fn command(&self) -> encode::render::CommandBuilder {
     //     encode::render::CommandBuilder::default()//.chain(self.chain.clone())
     // }

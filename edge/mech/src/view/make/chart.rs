@@ -11,8 +11,8 @@ pub struct Points {
 }
 
 impl Solve for Points {
-    type Base = Mutation;
-    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+    type Base = Vec<render::Entry>;
+    async fn solve(&self) -> graph::Result<Hub<Vec<render::Entry>>> {
         let gpu = &self.view.port.gpu;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -43,10 +43,10 @@ impl Solve for Points {
 
         self.view
             .port
-            .command()
-            .root(rig.root)
-            .root(hedge.root)
-            .root(mesh.root.clone())
+            .plan()
+            .stem(rig.root)
+            .stem(hedge.root)
+            .stem(mesh.root.clone())
             // .texture_view(texture_view)
             // .resolve_target(gpu.display.view())
             .render(chart.points.pipe.clone())
