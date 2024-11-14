@@ -1,14 +1,18 @@
 use super::*;
 
+mod draw;
+
 #[derive(Debug)]
 pub struct Bank {
     pub plot: PlotBin,
+    pub draw: DrawBank,
 }
 
 impl Bank {
     pub fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             plot: PlotBin::new(gpu)?,
+            draw: DrawBank::new(gpu)?,
         })
     }
 }
@@ -126,4 +130,25 @@ impl WeaveGridPlotBin {
 pub struct ComputeProgram {
     pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<ComputePipeline>,
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug)]
+pub struct DrawBank {
+    pub chart: draw::ChartBank,
+}
+
+impl DrawBank {
+    pub fn new(gpu: &Gpu) -> Result<Self> {
+        Ok(Self {
+            chart: draw::ChartBank::new(gpu)?,
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct RenderProgram {
+    pub layout: Grc<BindGroupLayout>,
+    pub pipe: Grc<RenderPipeline>,
 }

@@ -72,6 +72,11 @@ impl Core {
     pub fn bind_storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
+    pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
+        pipe::RenderBuilder::default()
+            .device(&self.device)
+            .vertex(vertex)
+    }
     pub fn pipe_layout<'a>(
         &'a self,
         bind_layout: &'a [&'a BindGroupLayout],
