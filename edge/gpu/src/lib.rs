@@ -26,8 +26,8 @@ mod pipe;
 mod shader;
 mod texture;
 mod viewport;
-mod plan;
-mod pass;
+mod render;
+// mod pass;
 
 pub type Gpu = Core;
 
