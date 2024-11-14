@@ -17,7 +17,7 @@ impl Act for App {
         if let Some(main) = displays.first() {
             let view = make_view(main).unwrap();
             let drawing = test::draw_nurbs_surface(&view).await.unwrap();
-            drawing.base().await?;
+            // drawing.base().await?;
             self.drawings.clone().write(|x| x.push(drawing)).await?;
         }
         // }

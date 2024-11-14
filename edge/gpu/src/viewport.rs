@@ -1,5 +1,5 @@
-use tokio::spawn;
 use super::*;
+use tokio::spawn;
 
 mod action;
 
@@ -20,10 +20,10 @@ impl ToViewport for Surface<'static> {
             gpu,
             size: Leaf::new((width, height)),
             surface: self.into(),
-            configuration,
+            config: configuration,
             targets: vec![Some(format.into())],
             format,
-            chain: Leaf::new(vec![Command::default()]),
+            chain: Leaf::default(), // new(vec![Command::default()])
         })
     }
 }
@@ -36,7 +36,7 @@ pub struct Viewport {
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
     surface: Grc<Surface<'static>>,
-    configuration: SurfaceConfiguration,
+    config: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
     stage: Grc<TextureView>,
@@ -70,13 +70,11 @@ impl Viewport {
         Ok(self.surface.get_current_texture()?)
     }
     pub fn resize(&mut self, width: u32, height: u32) -> Result<()> {
-        let size = self.size.clone();
-        spawn(write_size(size, width, height));
+        spawn(write_size(self.size.clone(), width, height));
         self.stage = stage(&self.gpu.device, self.format, width, height)?;
-        self.configuration.width = width;
-        self.configuration.height = height;
-        self.surface
-            .configure(&self.gpu.device, &self.configuration);
+        self.config.width = width;
+        self.config.height = height;
+        self.surface.configure(&self.gpu.device, &self.config);
         Ok(())
     }
 }

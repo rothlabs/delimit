@@ -3,7 +3,7 @@ use std::ops::Range;
 
 #[derive(Default, Clone, Debug)]
 pub struct Command {
-    pub number: u64,
+    // TODO: put render pass descriptor here and remove msaa
     pub msaa: u32,
     pub compute: Vec<compute::Entry>,
     pub render: Vec<render::Entry>,

@@ -9,6 +9,9 @@ pub struct Render<'a> {
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
+        if self.chain.is_empty() {
+            return Ok(());
+        }
         let mut encoder = self.display.gpu.encoder();
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
@@ -31,6 +34,7 @@ impl<'a> Render<'a> {
                 pass.compute(&mut encoder);
             }
             if !command.render.is_empty() {
+                println!("pass");
                 pass.render(&mut encoder);
             }
         }
