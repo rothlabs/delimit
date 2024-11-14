@@ -9,6 +9,19 @@ pub struct Render<'a> {
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
+        let mut submit = false;
+        for command in &self.chain {//self.chain.iter().skip(1) {
+            println!("command.number <= self.display.number, {} {}", command.number, self.display.number);
+            if command.number <= self.display.number {
+                continue;
+            }
+            submit = true;
+        }
+        if !submit {
+            return Ok(());
+        }
+
+
         let mut encoder = self.display.gpu.encoder();
         
         let frame = self.display.frame()?;
@@ -18,10 +31,14 @@ impl<'a> Render<'a> {
         // }
         // let stage = self.display.texture()?.sample_count(4).view()?;
         // let mut final_number = 0;
+
+        let mut submit = false;
         for command in &self.chain {//self.chain.iter().skip(1) {
+            println!("command.number <= self.display.number, {} {}", command.number, self.display.number);
             if command.number <= self.display.number {
                 continue;
             }
+            println!("made it");
             // final_number = 
             let attachments = if command.msaa > 0 {
                 self.display.gpu.attachment(&self.display.stage).resolve_target(view).list()?
@@ -49,13 +66,16 @@ impl<'a> Render<'a> {
             }
             if !command.render.is_empty() {
                 println!("pass render");
+                submit = true;
                 pass.render(&mut encoder);
             }
         }
         // self.display.number = self.chain.last().ok_or(anyhow!("no commands"))?.number;
-        println!("sumbit encoder");
-        encoder.submit();
-        frame.present();
+        if submit {
+            println!("sumbit encoder");
+            encoder.submit();
+            frame.present();
+        }
         Ok(())
     }
 }

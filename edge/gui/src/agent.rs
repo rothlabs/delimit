@@ -37,27 +37,44 @@ impl Agent {
         Ok(())
     }
     pub fn render(&self, id: WindowId) -> Result<()> {
-        self.get_display(id)?.render()?;
-        
+        // self.get_display(id)?.render()?;
+        self.displays.write_passive(|x| x.get(id)?.render())??;
         Ok(())
     }
     pub fn resize(&mut self, id: WindowId, size: PhysicalSize<u32>) -> Result<()> {
         // self.displays_base = self.displays.base()?;
-        self.get_display(id)?.resize(size)?;
+        // self.get_display(id)?.resize(size)?;
+        self.displays.write_passive(|x| x.get(id)?.resize(size))??;
         Ok(())
     }
     pub fn is_empty(&self) -> Result<bool> {
         Ok(self.displays.base()?.is_empty())
     }
-    fn get_display(&self, id: WindowId) -> Result<Display> {
-        for display in &self.displays.base()? {
+}
+
+trait GetDisplay {
+    fn get(&mut self, id: WindowId) -> Result<&mut Display>;
+}
+
+impl GetDisplay for Vec<Display> {
+    fn get(&mut self, id: WindowId) -> Result<&mut Display> {
+        for display in self {
             if display.window.id() == id {
-                return Ok(display.clone());
+                return Ok(display);
             }
         }
         Err(anyhow!("no display of given window id"))?
     }
 }
+
+// fn get_display(&self, id: WindowId) -> Result<Display> {
+//     for display in &self.displays.base()? {
+//         if display.window.id() == id {
+//             return Ok(display.clone());
+//         }
+//     }
+//     Err(anyhow!("no display of given window id"))?
+// }
 
 // fn get_display(&self, id: WindowId) -> Result<Display> {
 //     for display in self.displays.base()? {

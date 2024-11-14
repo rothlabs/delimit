@@ -1,1 +1,1 @@
-1. 
+1. Make node type that does not cash results and reads its stems on every solve. This is needed so it is up to date with stems that had write_passive used on them.
