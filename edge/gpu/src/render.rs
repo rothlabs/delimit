@@ -4,6 +4,11 @@ use super::*;
 mod plan;
 
 #[derive(Clone, Debug)]
+pub struct Pass {
+    pub entries: Vec<Entry>,   
+}
+
+#[derive(Clone, Debug)]
 pub enum Entry {
     Pipe(Grc<RenderPipeline>),
     Bind(u32, Grc<BindGroup>),

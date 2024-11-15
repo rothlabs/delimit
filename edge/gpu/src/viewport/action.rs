@@ -1,41 +1,29 @@
 use super::*;
 
-mod render;
+// mod encode;
 
 pub struct Render<'a> {
     pub display: &'a Viewport,
-    pub chain: Vec<Command>,
+    pub passes: Vec<Pass>,
 }
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
-        if self.chain.is_empty() {
+        if self.passes.is_empty() {
             return Ok(());
         }
         let mut encoder = self.display.gpu.encoder();
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        for command in &self.chain {
-            let attachments = if command.msaa > 0 {
-                self.display
+        for pass in &self.passes {
+            if let Pass::Render(pass) = pass {
+                let attachments = self.display
                     .gpu
                     .attachment(&self.display.stage)
                     .resolve_target(view)
-                    .list()?
-            } else {
-                self.display.gpu.attachment(view).list()?
-            };
-            let descriptor = &self.display.gpu.render_pass(&attachments).make()?;
-            let pass = render::Pass {
-                command,
-                descriptor,
-            };
-            if !command.compute.is_empty() {
-                pass.compute(&mut encoder);
-            }
-            if !command.render.is_empty() {
-                println!("pass");
-                pass.render(&mut encoder);
+                    .list()?;
+                let fields = &self.display.gpu.render_pass(&attachments).make()?;
+                encoder.render(pass, fields);
             }
         }
         encoder.submit();
@@ -43,6 +31,85 @@ impl<'a> Render<'a> {
         Ok(())
     }
 }
+
+// pub struct Render<'a> {
+//     pub display: &'a Viewport,
+//     pub chain: Vec<Command>,
+// }
+
+// impl<'a> Render<'a> {
+//     pub fn surface(&self) -> Result<()> {
+//         if self.chain.is_empty() {
+//             return Ok(());
+//         }
+//         let mut encoder = self.display.gpu.encoder();
+//         let frame = self.display.frame()?;
+//         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
+//         for command in &self.chain {
+//             let attachments = if command.msaa > 0 {
+//                 self.display
+//                     .gpu
+//                     .attachment(&self.display.stage)
+//                     .resolve_target(view)
+//                     .list()?
+//             } else {
+//                 self.display.gpu.attachment(view).list()?
+//             };
+//             let descriptor = &self.display.gpu.render_pass(&attachments).make()?;
+//             let pass = render::Pass {
+//                 command,
+//                 descriptor,
+//             };
+//             if !command.compute.is_empty() {
+//                 pass.compute(&mut encoder);
+//             }
+//             if !command.render.is_empty() {
+//                 println!("pass");
+//                 pass.render(&mut encoder);
+//             }
+//         }
+//         encoder.submit();
+//         frame.present();
+//         Ok(())
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // let descriptor = &RenderPassDescriptor {
 //     label: Some("app_render"),

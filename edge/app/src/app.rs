@@ -16,7 +16,10 @@ impl Act for App {
         // if drawings.is_empty() {
         if let Some(main) = displays.first() {
             let view = make_view(main).unwrap();
-            let drawing = test::draw_nurbs_surface(&view).await.unwrap();
+            let entries = test::draw_nurbs_surface(&view).await.unwrap().base().await?;
+            let passes = vec![Pass::Render(render::Pass { entries })];
+            view.port.passes(passes).unwrap();
+            println!("set viewport passes");
             // drawing.base().await?;
             // self.drawings.clone().write(|x| x.push(drawing)).await?;
         }

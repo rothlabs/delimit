@@ -15,13 +15,39 @@ pub struct Encode<'a> {
 }
 
 impl<'a> Encode<'a> {
+    pub fn render(&mut self, render: &crate::render::Pass, fields: &RenderPassDescriptor) {
+        // match pass {
+        //     Pass::Render(render) => {
+                let mut pass = self.inner.begin_render_pass(fields);
+                for entry in &render.entries {
+                    match entry {
+                        crate::render::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
+                        crate::render::Entry::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
+                        crate::render::Entry::Vertex(slot, buffer) => {
+                            pass.set_vertex_buffer(*slot, buffer.slice(..));
+                        }
+                        crate::render::Entry::Index(buffer) => {
+                            pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
+                        }
+                        crate::render::Entry::Draw(vertices, instances) => {
+                            pass.draw(vertices.clone(), instances.clone());
+                        }
+                        crate::render::Entry::DrawIndexed(indices, base_vertex, instances) => {
+                            pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
+                        }
+                    }
+                }
+        //     }
+        //     _ => ()
+        // }
+    }
     pub fn compute(&mut self) -> ComputePass {
         self.inner
             .begin_compute_pass(&ComputePassDescriptor::default())
     }
-    pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
-        self.inner.begin_render_pass(descriptor)
-    }
+    // pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
+    //     self.inner.begin_render_pass(descriptor)
+    // }
     pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'_> {
         SourceBuffer {
             encoder: self,

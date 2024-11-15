@@ -23,7 +23,7 @@ impl ToViewport for Surface<'static> {
             config: configuration,
             targets: vec![Some(format.into())],
             format,
-            chain: Leaf::default(), // new(vec![Command::default()])
+            passes: Leaf::default(), // new(vec![Command::default()])
         })
     }
 }
@@ -40,7 +40,7 @@ pub struct Viewport {
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
     stage: Grc<TextureView>,
-    chain: Leaf<Vec<Command>>,
+    passes: Leaf<Vec<Pass>>,
 }
 
 impl Viewport {
@@ -59,13 +59,14 @@ impl Viewport {
     pub fn plan(&self) -> render::PlanBuilder {
         render::PlanBuilder::default()//.chain(self.chain.clone())
     }
-    // pub fn command(&self) -> encode::render::CommandBuilder {
-    //     encode::render::CommandBuilder::default()//.chain(self.chain.clone())
-    // }
+    pub fn passes(&self, passes: Vec<Pass>) -> Result<()> {
+        self.passes.write_passive(|x| *x = passes)?;
+        Ok(())
+    }
     pub fn render(&self) -> Result<()> {
         action::Render {
             display: self,
-            chain: self.chain.base()?,
+            passes: self.passes.base()?,
         }
         .surface()
     }
@@ -108,6 +109,10 @@ fn stage(
         .view()?
         .into())
 }
+
+// pub fn command(&self) -> encode::render::CommandBuilder {
+    //     encode::render::CommandBuilder::default()//.chain(self.chain.clone())
+    // }
 
 // async fn consume_chain(chain: Leaf<Vec<Command>>, number: u64) -> Result<()> {
 //     chain.write(|chain| {

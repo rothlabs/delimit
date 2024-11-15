@@ -1,14 +1,14 @@
 use super::*;
 
-pub struct Pass<'a> {
-    pub command: &'a Command,
+pub struct Encode<'a> {
+    pub pass: &'a Command,
     pub descriptor: &'a RenderPassDescriptor<'a>,
 }
 
-impl<'a> Pass<'a> {
+impl<'a> Encode<'a> {
     pub fn compute(&self, encoder: &mut Encode<'_>) {
         let mut pass = encoder.compute();
-        for cmd in &self.command.compute {
+        for cmd in &self.pass.compute {
             match cmd {
                 compute::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
                 compute::Entry::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
@@ -18,7 +18,7 @@ impl<'a> Pass<'a> {
     }
     pub fn render(&self, encoder: &mut Encode<'_>) {
         let mut pass = encoder.render(self.descriptor);
-        for cmd in &self.command.render {
+        for cmd in &self.pass.render {
             match cmd {
                 post::Render::Pipe(pipe) => pass.set_pipeline(pipe),
                 post::Render::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
