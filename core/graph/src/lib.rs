@@ -102,8 +102,8 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
-    #[error(transparent)]
-    Recieve(#[from] flume::RecvError),
+    // #[error(transparent)]
+    // Recieve(#[from] flume::RecvError),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
