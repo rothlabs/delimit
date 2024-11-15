@@ -77,6 +77,12 @@ mod tray;
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
 
+pub mod node {
+    /// Graph Result
+    pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+}
+
+
 /// Graph Error
 #[derive(Error, Debug)]
 pub enum Error {
@@ -102,6 +108,8 @@ pub enum Error {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     Uninit(#[from] UninitializedFieldError),
+    #[error(transparent)]
+    Generic(#[from] Box<dyn std::error::Error + Send + Sync>),
     // #[error(transparent)]
     // Recieve(#[from] flume::RecvError),
     #[error(transparent)]
