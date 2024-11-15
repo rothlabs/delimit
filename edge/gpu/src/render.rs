@@ -22,7 +22,6 @@ pub enum Entry {
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Plan {
-    // TODO: rename roots to stems
     #[builder(default, setter(each(name = "entry", into)))]
     entries: Vec<plan::Entry>,
     #[builder(default, setter(each(name = "stem", into)))]
