@@ -29,7 +29,7 @@ pub trait Solve {
     /// Solve a task.
     /// The hub will run computations or return existing results.
     fn solve(&self) -> impl Future<Output = node::Result<Self::Base>> + IsSend {
-        async { solve_ok() }
+        async { acted() }
     }
     fn rank(&self) -> u16 {
         0
@@ -37,7 +37,7 @@ pub trait Solve {
 }
 
 pub trait Act {
-    fn act(&self) -> impl Future<Output = node::Result<()>> + IsSend;
+    fn act(&self) -> impl Future<Output = node::Action> + IsSend;
 }
 
 // impl<T: SendSync> Act for Grc<T> {
@@ -48,17 +48,13 @@ pub trait Act {
 
 impl<T: Act + SendSync> Solve for T {
     type Base = ();
-    async fn solve(&self) -> node::Result<()> {
+    async fn solve(&self) -> node::Action {
         self.act().await?;
-        solve_ok()
+        acted()
     }
 }
 
-// pub fn reckon_ok() -> Result<Gain> {
-//     Ok(Gain::None)
-// }
-
-pub fn solve_ok<T>() -> node::Result<T>
+pub fn acted<T>() -> node::Result<T>
 where
     T: 'static + SendSync, //+ Payload,
 {
@@ -69,7 +65,7 @@ pub trait SolveAdapt {
     type Base: 'static + SendSync; //Payload;
     /// For graph internals to handle solve calls
     fn solve(&mut self) -> GraphFuture<Result<Hub<Self::Base>>> {
-        Box::pin(async move { Ok(solve_ok()?) })
+        Box::pin(async move { Ok(acted()?) })
     }
     fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
         Err(anyhow!("SolveAdapt::adapt not implemented"))?

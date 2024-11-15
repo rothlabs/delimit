@@ -1,12 +1,12 @@
-use std::ops::Range;
 use super::*;
+use std::ops::Range;
 
 mod codec;
 pub mod pass;
 
 #[derive(Clone, Debug)]
 pub struct Pass {
-    pub steps: Vec<Step>,   
+    pub steps: Vec<Step>,
 }
 
 #[derive(Clone, Debug)]
@@ -40,31 +40,22 @@ impl Solve for Codec {
                 codec::Step::Pipe(pipe) => entries.push(Step::Pipe(pipe.clone())),
                 codec::Step::Bind(index, bind) => {
                     let bind = bind.base().await?;
-                    entries
-                        .push(Step::Bind(*index, bind.clone()))
+                    entries.push(Step::Bind(*index, bind.clone()))
                 }
                 codec::Step::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
-                    entries
-                        .push(Step::Vertex(*slot, buffer.clone()))
+                    entries.push(Step::Vertex(*slot, buffer.clone()))
                 }
                 codec::Step::Index(buffer) => {
                     let buffer = buffer.base().await?;
                     entries.push(Step::Index(buffer.clone()))
                 }
                 codec::Step::Draw(vertices, instances) => {
-                    entries.push(Step::Draw(
-                        vertices.clone(),
-                        instances.clone(),
-                    ))
+                    entries.push(Step::Draw(vertices.clone(), instances.clone()))
                 }
-                codec::Step::DrawIndexed(indices, base_vertex, instances) => {
-                    entries.push(Step::DrawIndexed(
-                        indices.clone(),
-                        *base_vertex,
-                        instances.clone(),
-                    ))
-                }
+                codec::Step::DrawIndexed(indices, base_vertex, instances) => entries.push(
+                    Step::DrawIndexed(indices.clone(), *base_vertex, instances.clone()),
+                ),
             }
         }
         Ok(entries.into_leaf().into())
@@ -109,4 +100,4 @@ impl CodecBuilder {
 }
 
 // TODO: turn chain.write into a trait function on Leaf<Vec<Command>>>
-        // self.chain.write(|chain| chain.push(post)).await?;
+// self.chain.write(|chain| chain.push(post)).await?;

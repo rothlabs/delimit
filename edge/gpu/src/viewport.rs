@@ -114,8 +114,8 @@ fn stage(
 }
 
 // pub fn command(&self) -> encode::render::CommandBuilder {
-    //     encode::render::CommandBuilder::default()//.chain(self.chain.clone())
-    // }
+//     encode::render::CommandBuilder::default()//.chain(self.chain.clone())
+// }
 
 // async fn consume_chain(chain: Leaf<Vec<Command>>, number: u64) -> Result<()> {
 //     chain.write(|chain| {

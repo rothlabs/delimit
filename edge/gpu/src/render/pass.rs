@@ -16,7 +16,6 @@ impl Solve for Node {
     }
 }
 
-
 // #[derive(Builder, Gate, Back, Debug)]
 // #[builder(pattern = "owned")]
 // #[builder(setter(into, strip_option))]

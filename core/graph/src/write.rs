@@ -28,8 +28,8 @@ pub trait WriteBaseOut {
     where
         F: FnOnce(&mut Self::Base) -> O;
     fn write_base_out_passive<O, F>(&mut self, write: F) -> Result<O>
-        where
-            F: FnOnce(&mut Self::Base) -> O;
+    where
+        F: FnOnce(&mut Self::Base) -> O;
 }
 
 pub trait WriteUnit {

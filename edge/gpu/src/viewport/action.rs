@@ -17,7 +17,8 @@ impl<'a> Render<'a> {
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in &self.commands {
             if let Command::Render(pass) = command {
-                let attachments = self.display
+                let attachments = self
+                    .display
                     .gpu
                     .attachment(&self.display.stage)
                     .resolve_target(view)
@@ -73,43 +74,6 @@ impl<'a> Render<'a> {
 //         Ok(())
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // let descriptor = &RenderPassDescriptor {
 //     label: Some("app_render"),

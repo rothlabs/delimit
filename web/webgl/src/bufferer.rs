@@ -35,7 +35,7 @@ impl Bufferer {
 }
 
 impl Act for Bufferer {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.buffer.bind();
         match &self.array {
             Apex::I32(size) => self.size(size.base().await?),
@@ -44,7 +44,7 @@ impl Act for Bufferer {
             _ => Err(anyhow!("wrong apex"))?,
         };
         self.buffer.unbind();
-        solve_ok()
+        acted()
     }
 }
 

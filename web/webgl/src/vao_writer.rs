@@ -14,7 +14,7 @@ pub struct VaoWriter {
 }
 
 impl Act for VaoWriter {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.object.bind();
         for attribute in &self.attributes {
             attribute.act().await?;
@@ -23,7 +23,7 @@ impl Act for VaoWriter {
             buffer.bind();
         }
         self.object.unbind();
-        solve_ok()
+        acted()
     }
 }
 

@@ -47,7 +47,7 @@ impl DrawArrays {
 }
 
 impl Act for DrawArrays {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.stems.depend().await?;
         self.program.act().await?;
         // TODO: use wrapper of WebGlProgram directly
@@ -61,7 +61,7 @@ impl Act for DrawArrays {
             self.rasterizer_switch().await?;
         }
         self.vao.unbind();
-        solve_ok()
+        acted()
     }
 }
 

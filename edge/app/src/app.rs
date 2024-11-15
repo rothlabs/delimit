@@ -10,7 +10,7 @@ pub struct App {
 }
 
 impl Act for App {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;
@@ -23,7 +23,7 @@ impl Act for App {
             self.command_writers.write(|x| x.push(writer)).await?;
             println!("new window");
         }
-        solve_ok()
+        acted()
     }
 }
 

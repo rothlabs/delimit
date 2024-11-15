@@ -25,7 +25,7 @@ pub struct VertexAttribute {
 }
 
 impl Act for VertexAttribute {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();
         self.buffer.gl.vertex_attrib_pointer_with_i32(
@@ -42,7 +42,7 @@ impl Act for VertexAttribute {
         }
         self.buffer.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
-        solve_ok()
+        acted()
     }
 }
 

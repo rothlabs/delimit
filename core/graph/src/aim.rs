@@ -1,7 +1,7 @@
 use super::*;
 use anyhow::anyhow;
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("wrong variant (expected: {expected}, found: {found})")]
     WrongVariant { expected: String, found: String },

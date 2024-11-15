@@ -22,7 +22,7 @@ impl Program {
 }
 
 impl Act for Program {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.vertex.act().await?;
         self.fragment.act().await?;
         if !self.outs.is_empty() {
@@ -40,7 +40,7 @@ impl Act for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            solve_ok()
+            acted()
         } else {
             let memo = self
                 .gl

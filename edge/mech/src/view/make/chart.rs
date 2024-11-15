@@ -30,7 +30,7 @@ impl Solve for Points {
 
         let vertex_count: u32 = 8;
         let points = Circle {
-            frame: self.view.port.size.clone(), 
+            frame: self.view.port.size.clone(),
             count: vertex_count.into(),
             radius: 4.0.into(),
         }
@@ -41,7 +41,8 @@ impl Solve for Points {
             buffer: buffer.into(),
         };
 
-        let codec = self.view
+        let codec = self
+            .view
             .port
             .codec()
             .stem(rig.root)

@@ -40,7 +40,7 @@ impl Solve for List {
     type Base = String;
     async fn solve(&self) -> node::Result<String> {
         if self.items.is_empty() {
-            return solve_ok();
+            return acted();
         }
         let last = self.items.len() - 1;
         let mut base = String::new();

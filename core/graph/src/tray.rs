@@ -20,7 +20,7 @@ impl<T: Digest> Digest for Tray<T> {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("wrong variant (expected: {expected:?}, found: {found:?})")]
     WrongVariant { expected: String, found: String },

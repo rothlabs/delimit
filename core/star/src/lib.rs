@@ -62,28 +62,13 @@ pub struct Writer<T> {
     target: Leaf<T>,
 }
 
-impl<T> Solve for Writer<T>
+impl<T> Act for Writer<T>
 where
     T: 'static + Clone + SendSync + Debug,
 {
-    type Base = ();
-    async fn solve(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         let value = self.source.base().await?;
-        println!("writing to commands");
         self.target.write(|x| *x = value).await?;
-        solve_ok()
+        acted()
     }
 }
-
-
-
-
-// pub trait JoinNodes<T> {
-//     fn join(&self) -> JoinBuilder<T>;
-// }
-
-// impl<T: Clone> JoinNodes<T> for Hub<T> {
-//     fn join(&self) -> JoinBuilder<T> {
-//         JoinBuilder::default().field(self.clone())
-//     }
-// }

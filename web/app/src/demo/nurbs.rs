@@ -234,7 +234,7 @@ pub struct Nurbs {
 }
 
 impl Act for Nurbs {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
         } else {
@@ -243,7 +243,7 @@ impl Act for Nurbs {
             self.basis.act().await?;
             self.curve.act().await?;
         }
-        solve_ok()
+        acted()
     }
 }
 

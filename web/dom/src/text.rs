@@ -8,10 +8,10 @@ pub struct Text {
 }
 
 impl Act for Text {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         let content = self.content.base().await.unwrap_or_default();
         self.element.set_text_content(Some(&content));
-        solve_ok()
+        acted()
     }
 }
 

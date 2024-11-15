@@ -25,7 +25,7 @@ impl Shader {
 }
 
 impl Act for Shader {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.source
             .read(|src| self.gl.shader_source(&self.object, src))
             .await?;
@@ -36,7 +36,7 @@ impl Act for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            solve_ok()
+            acted()
         } else {
             let memo = self
                 .gl

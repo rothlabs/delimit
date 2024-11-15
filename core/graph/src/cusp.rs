@@ -88,7 +88,8 @@ where
     }
     fn write_base_out_passive<O, F>(&mut self, write: F) -> Result<O>
     where
-        F: FnOnce(&mut Self::Base) -> O {
+        F: FnOnce(&mut Self::Base) -> O,
+    {
         self.work.clear();
         let out = write(self.work.base());
         Ok(out)

@@ -142,17 +142,6 @@ where
             }
         })
     }
-
-    // pub fn depend(&self) -> GraphFuture<Result<()>> {
-    //     Box::pin(async move {
-    //         match self {
-    //             Self::Tray(_) => Ok(()),
-    //             Self::Leaf(leaf) => leaf.read(|_| ()),
-    //             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-    //             Self::Gate(gate) => gate.solve().await?.depend().await,
-    //         }
-    //     })
-    // }
 }
 
 impl<T: Payload> Hub<T> {
@@ -330,3 +319,14 @@ impl<T: Payload> Digest for Option<T> {
         }
     }
 }
+
+// pub fn depend(&self) -> GraphFuture<Result<()>> {
+//     Box::pin(async move {
+//         match self {
+//             Self::Tray(_) => Ok(()),
+//             Self::Leaf(leaf) => leaf.read(|_| ()),
+//             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
+//             Self::Gate(gate) => gate.solve().await?.depend().await,
+//         }
+//     })
+// }

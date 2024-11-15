@@ -32,7 +32,8 @@ impl Solve for Blank {
 
 impl BlankBuilder {
     pub fn map_read(self) -> Result<Hub<Grc<Buffer>>> {
-        Ok(self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
+        Ok(self
+            .usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
             .hub()?)
     }
 }

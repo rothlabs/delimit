@@ -1,7 +1,7 @@
 pub use core::ToCore;
 // pub use encode::post::{compute, Render, Command};
-pub use viewport::{ToViewport, Viewport};
 pub use command::Command;
+pub use viewport::{ToViewport, Viewport};
 
 use bind::*;
 use buffer::*;
@@ -23,13 +23,13 @@ pub mod render;
 
 mod bind;
 mod buffer;
+mod command;
 mod core;
 mod encode;
 mod pipe;
 mod shader;
 mod texture;
 mod viewport;
-mod command;
 
 pub type Gpu = Core;
 

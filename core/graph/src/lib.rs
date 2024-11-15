@@ -11,7 +11,6 @@ pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
-pub use paste::paste;
 pub use ploy::{Based, Employ, Employed, Engage, Gate, Ploy, PloyEdge, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
@@ -19,7 +18,7 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{solve_ok, Act, Solve, SolveAdapt};
+pub use solve::{acted, Act, Solve, SolveAdapt};
 pub use thiserror;
 pub use tray::Tray;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
@@ -36,7 +35,6 @@ use std::{
     hash::{DefaultHasher, Hash, Hasher},
     pin::Pin,
 };
-use thiserror::Error;
 
 #[cfg(not(feature = "oneThread"))]
 use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -81,11 +79,11 @@ pub mod node {
     use crate::hub::Hub;
     /// Graph Result
     pub type Result<T> = std::result::Result<Hub<T>, Box<dyn std::error::Error + Send + Sync>>;
+    pub type Action = Result<()>;
 }
 
-
 /// Graph Error
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("read graph part failed ({0})")]
     Read(String),

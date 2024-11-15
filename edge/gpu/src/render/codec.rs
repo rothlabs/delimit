@@ -4,7 +4,7 @@ use super::*;
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
     Bind(u32, Hub<Grc<BindGroup>>),
-    // TODO: take Hedge so hedge.root.depend is automatic 
+    // TODO: take Hedge so hedge.root.depend is automatic
     Vertex(u32, Hub<Grc<Buffer>>),
     Index(Hub<Grc<Buffer>>),
     // TODO: these ranges need to be Hubs!!!!!!!!!!!!!!!!!!!!!!!!!

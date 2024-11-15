@@ -52,7 +52,7 @@ pub struct DrawElements {
 // }
 
 impl Act for DrawElements {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         self.stems.depend().await?;
         self.program.act().await?;
         self.program.read(|program| program.use_())?;
@@ -62,7 +62,7 @@ impl Act for DrawElements {
         self.gl
             .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
         self.vao.unbind();
-        solve_ok()
+        acted()
     }
 }
 

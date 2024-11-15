@@ -49,7 +49,7 @@ impl Texture {
 }
 
 impl Act for Texture {
-    async fn act(&self) -> node::Result<()> {
+    async fn act(&self) -> node::Action {
         let width = self.width.base().await.unwrap_or_default();
         let height = self.height.base().await.unwrap_or_default();
         self.bind();

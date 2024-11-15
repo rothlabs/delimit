@@ -3,7 +3,7 @@ use super::*;
 #[derive(Clone, Debug)]
 pub enum Command {
     Compute,
-    Render(render::Pass)
+    Render(render::Pass),
 }
 
 // #[derive(Builder, Gate, Back, Debug)]
@@ -21,8 +21,6 @@ pub enum Command {
 
 //     }
 // }
-
-
 
 // impl Pass {
 //     pub fn encode(&self, encoder: &mut Encode<'_>) {

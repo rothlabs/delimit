@@ -18,7 +18,7 @@ pub struct Bind {
 }
 
 impl Solve for Bind {
-    // TODO: make a gpu::BindGroup that includes mutations from Hedge entries instead of Buffer entries 
+    // TODO: make a gpu::BindGroup that includes mutations from Hedge entries instead of Buffer entries
     type Base = Grc<BindGroup>;
     async fn solve(&self) -> node::Result<Self::Base> {
         let mut buffers = vec![];
