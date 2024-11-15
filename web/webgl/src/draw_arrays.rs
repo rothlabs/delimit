@@ -47,7 +47,7 @@ impl DrawArrays {
 }
 
 impl Act for DrawArrays {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.stems.depend().await?;
         self.program.act().await?;
         // TODO: use wrapper of WebGlProgram directly

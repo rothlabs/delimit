@@ -25,7 +25,7 @@ pub struct VertexAttribute {
 }
 
 impl Act for VertexAttribute {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.buffer.bind();
         let index = self.index.base().await.unwrap_or_default();
         self.buffer.gl.vertex_attrib_pointer_with_i32(

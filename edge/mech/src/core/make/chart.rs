@@ -13,7 +13,7 @@ pub struct Grid {
 
 impl Solve for Grid {
     type Base = Plot;
-    async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
+    async fn solve(&self) -> node::Result<Hub<Self::Base>> {
         let shape = self.shape.base().await?;
         let hedge = shape.chart(&self.core).grid(&self.counts)?;
         let plot = Plot {

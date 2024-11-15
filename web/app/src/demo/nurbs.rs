@@ -234,7 +234,7 @@ pub struct Nurbs {
 }
 
 impl Act for Nurbs {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         if self.tick.base().await? % 2 == 0 {
             self.draw0.act().await?;
         } else {

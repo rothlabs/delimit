@@ -25,7 +25,7 @@ impl Shader {
 }
 
 impl Act for Shader {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.source
             .read(|src| self.gl.shader_source(&self.object, src))
             .await?;

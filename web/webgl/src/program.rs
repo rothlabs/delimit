@@ -22,7 +22,7 @@ impl Program {
 }
 
 impl Act for Program {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.vertex.act().await?;
         self.fragment.act().await?;
         if !self.outs.is_empty() {

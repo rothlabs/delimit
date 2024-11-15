@@ -34,7 +34,7 @@ impl Compute {
 
 impl Solve for Compute {
     type Base = Mutation;
-    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+    async fn solve(&self) -> node::Result<Hub<Mutation>> {
         self.roots.depend().await?;
         let mut encoder = self.core.encoder();
         self.pass(&mut encoder).await?;

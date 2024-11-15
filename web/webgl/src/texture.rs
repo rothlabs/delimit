@@ -49,15 +49,15 @@ impl Texture {
 }
 
 impl Act for Texture {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         let width = self.width.base().await.unwrap_or_default();
         let height = self.height.base().await.unwrap_or_default();
         self.bind();
         match &self.array {
             Apex::Vu8(array) => {
-                array
+                Ok(array
                     .read(|array| self.vec_u8(array, width, height))
-                    .await?
+                    .await??)
             }
             _ => Err(anyhow!("wrong apex"))?,
         }

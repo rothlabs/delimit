@@ -8,7 +8,7 @@ pub struct List {
 }
 
 impl List {
-    pub fn hub(self) -> graph::Result<Hub<String>> {
+    pub fn hub(self) -> node::Result<Hub<String>> {
         Ok(self.ploy()?.into())
     }
     pub fn new() -> Self {
@@ -38,7 +38,7 @@ impl List {
 
 impl Solve for List {
     type Base = String;
-    async fn solve(&self) -> Result<Hub<String>> {
+    async fn solve(&self) -> node::Result<Hub<String>> {
         if self.items.is_empty() {
             return solve_ok();
         }

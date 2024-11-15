@@ -80,7 +80,7 @@ impl Command {
 
 impl Solve for Command {
     type Base = Vec<post::Command>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<post::Command>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<post::Command>>> {
         self.roots.depend().await?;
         let mut post = post::Command {
             msaa: 4,

@@ -26,7 +26,7 @@ impl Tag {
 
 impl Solve for Tag {
     type Base = String;
-    async fn solve(&self) -> Result<Hub<String>> {
+    async fn solve(&self) -> node::Result<Hub<String>> {
         let items = List::new()
             .separator(" ")
             .push(self.name.down(PLAIN).await?)

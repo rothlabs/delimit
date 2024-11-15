@@ -77,7 +77,7 @@ impl Command {
 
 impl Solve for Command {
     type Base = Mutation;
-    async fn solve(&self) -> graph::Result<Hub<Mutation>> {
+    async fn solve(&self) -> node::Result<Hub<Mutation>> {
         self.roots.depend().await?;
         let mut encoder = self.core.encoder();
         if !self.compute_commands.is_empty() {

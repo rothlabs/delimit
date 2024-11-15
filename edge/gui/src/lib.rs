@@ -41,7 +41,7 @@ pub struct Draw {
 }
 
 impl Act for Draw {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.stems.depend().await?;
         self.window.request_redraw();
         Ok(())

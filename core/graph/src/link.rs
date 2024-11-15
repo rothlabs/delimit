@@ -278,7 +278,7 @@ where
 
 impl<E: Solve> Link<E> {
     pub async fn solve(&self) -> Result<Hub<E::Base>> {
-        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+        Ok(read_part(&self.edge, |edge| async move { edge.solve().await })?.await?)
     }
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {

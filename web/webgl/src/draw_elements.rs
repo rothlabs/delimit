@@ -52,7 +52,7 @@ pub struct DrawElements {
 // }
 
 impl Act for DrawElements {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.stems.depend().await?;
         self.program.act().await?;
         self.program.read(|program| program.use_())?;

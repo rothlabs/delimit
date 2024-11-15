@@ -31,7 +31,7 @@ pub struct Codec {
 
 impl Solve for Codec {
     type Base = Vec<Step>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<Step>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<Step>>> {
         // TODO: put stems in gpu::BindGroup
         self.stems.depend().await?;
         let mut entries = vec![];

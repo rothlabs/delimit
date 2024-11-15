@@ -17,7 +17,7 @@ pub struct Blank {
 
 impl Solve for Blank {
     type Base = Grc<Buffer>;
-    async fn solve(&self) -> graph::Result<Hub<Grc<Buffer>>> {
+    async fn solve(&self) -> node::Result<Hub<Grc<Buffer>>> {
         let size = self.size.base().await?;
         // let label = self.label.base().await?;
         let buffer = self
@@ -31,9 +31,9 @@ impl Solve for Blank {
 }
 
 impl BlankBuilder {
-    pub fn map_read(self) -> graph::Result<Hub<Grc<Buffer>>> {
-        self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
-            .hub()
+    pub fn map_read(self) -> Result<Hub<Grc<Buffer>>> {
+        Ok(self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
+            .hub()?)
     }
 }
 

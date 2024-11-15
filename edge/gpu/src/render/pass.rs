@@ -9,7 +9,7 @@ pub struct Node {
 
 impl Solve for Node {
     type Base = Command;
-    async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
+    async fn solve(&self) -> node::Result<Hub<Self::Base>> {
         let steps = self.codec.base().await?;
         let pass = Command::Render(render::Pass { steps });
         Ok(pass.into())

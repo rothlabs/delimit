@@ -8,7 +8,7 @@ pub struct Attribute {
 }
 
 impl Attribute {
-    pub fn hub(self) -> graph::Result<Hub<String>> {
+    pub fn hub(self) -> Result<Hub<String>> {
         Ok(self.ploy()?.into())
     }
     pub fn new() -> Self {
@@ -26,7 +26,7 @@ impl Attribute {
 
 impl Solve for Attribute {
     type Base = String;
-    async fn solve(&self) -> Result<Hub<String>> {
+    async fn solve(&self) -> node::Result<Hub<String>> {
         List::new()
             .push(self.name.down(PLAIN).await?)
             .push(r#"=""#)

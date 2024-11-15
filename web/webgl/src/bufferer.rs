@@ -35,7 +35,7 @@ impl Bufferer {
 }
 
 impl Act for Bufferer {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         self.buffer.bind();
         match &self.array {
             Apex::I32(size) => self.size(size.base().await?),

@@ -14,7 +14,7 @@ pub struct BufferReader {
 
 impl Solve for BufferReader {
     type Base = Vec<f32>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<f32>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<f32>>> {
         self.draw.act().await?;
         let sync = self
             .buffer

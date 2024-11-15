@@ -63,12 +63,12 @@ where
     C: SolveAdapt + AddRoot + SendSync,
 {
     type Base = C::Base;
-    async fn solve(&self) -> Result<Hub<Self::Base>> {
-        write_part(&self.cusp, |mut cusp| async move {
+    async fn solve(&self) -> node::Result<Hub<Self::Base>> {
+        Ok(write_part(&self.cusp, |mut cusp| async move {
             cusp.add_root(&self.root);
             cusp.solve().await
         })?
-        .await
+        .await?)
     }
 }
 

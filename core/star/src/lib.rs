@@ -23,7 +23,7 @@ where
     T: 'static + Clone + SendSync + Debug,
 {
     type Base = Vec<T>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<T>>> {
         let mut vector = vec![];
         for field in &self.fields {
             vector.push(field.base().await?);
@@ -44,7 +44,7 @@ where
     T: 'static + Clone + SendSync + Debug + Default,
 {
     type Base = T;
-    async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
+    async fn solve(&self) -> node::Result<Hub<Self::Base>> {
         self.fields.depend().await?;
         Ok(T::default().into())
     }
@@ -67,7 +67,7 @@ where
     T: 'static + Clone + SendSync + Debug,
 {
     type Base = ();
-    async fn solve(&self) -> graph::Result<Hub<()>> {
+    async fn solve(&self) -> node::Result<Hub<()>> {
         let value = self.source.base().await?;
         println!("writing to commands");
         self.target.write(|x| *x = value).await?;

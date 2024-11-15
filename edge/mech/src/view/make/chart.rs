@@ -12,7 +12,7 @@ pub struct Points {
 
 impl Solve for Points {
     type Base = Vec<render::Step>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<render::Step>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<render::Step>>> {
         let gpu = &self.view.port.gpu;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -41,7 +41,7 @@ impl Solve for Points {
             buffer: buffer.into(),
         };
 
-        self.view
+        let codec = self.view
             .port
             .codec()
             .stem(rig.root)
@@ -53,7 +53,8 @@ impl Solve for Points {
             .bind(0, bind)
             .vertex(0, mesh.buffer.clone())
             .draw(0..vertex_count * 3, 0..count)
-            .hub()
+            .hub()?;
+        Ok(codec)
         // Ok(Mutation.into())
     }
 }
@@ -71,7 +72,7 @@ impl GateTag for Circle {}
 
 impl Solve for Circle {
     type Base = Vec<f32>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<f32>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<f32>>> {
         let frame = self.frame.base()?;
         let (w, h) = (frame.0 as f32, frame.1 as f32);
         let count = self.count.base().await?;

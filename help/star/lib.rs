@@ -15,7 +15,7 @@ where
     T: 'static + Clone + SendSync + Debug,
 {
     type Base = Vec<T>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<T>>> {
+    async fn solve(&self) -> node::Result<Hub<Vec<T>>> {
         let mut vector = vec![];
         for field in &self.fields {
             vector.push(field.base().await?);
@@ -38,7 +38,7 @@ where
         + ops::AddAssign<T> + ops::SubAssign<T> + ops::MulAssign<T> + ops::DivAssign<T>
 {
     type Base = T;
-    async fn solve(&self) -> graph::Result<Hub<T>> {
+    async fn solve(&self) -> node::Result<Hub<T>> {
         let mut out = self.value.base().await?;
         for op in &self.ops {
             let value = op.value.base().await?;
@@ -151,7 +151,7 @@ where
     T: 'static + Clone + SendSync + Debug + Default + ops::AddAssign<T>,
 {
     type Base = T;
-    async fn solve(&self) -> graph::Result<Hub<T>> {
+    async fn solve(&self) -> node::Result<Hub<T>> {
         let mut sum = T::default();
         for field in &self.fields {
             sum += field.base().await?;
@@ -173,7 +173,7 @@ where
     T: 'static + Clone + SendSync + Debug + Default + ops::Div<Output = T>,
 {
     type Base = T;
-    async fn solve(&self) -> graph::Result<Hub<T>> {
+    async fn solve(&self) -> node::Result<Hub<T>> {
         let quotient = self.dividend.base().await? / self.divisor.base().await?;
         Ok(quotient.into_leaf().into())
     }

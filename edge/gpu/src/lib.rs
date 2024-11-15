@@ -45,6 +45,8 @@ pub enum Error {
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Graph(#[from] graph::Error),
+    // #[error(transparent)]
+    // Node(#[from] node::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }

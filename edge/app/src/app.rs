@@ -10,7 +10,7 @@ pub struct App {
 }
 
 impl Act for App {
-    async fn act(&self) -> graph::Result<()> {
+    async fn act(&self) -> node::Result<()> {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;

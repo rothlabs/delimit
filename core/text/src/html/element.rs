@@ -32,7 +32,7 @@ impl Element {
 
 impl Solve for Element {
     type Base = String;
-    async fn solve(&self) -> Result<Hub<String>> {
+    async fn solve(&self) -> node::Result<Hub<String>> {
         let mut element = List::new()
             .separator("\n")
             .push(self.open.down(PLAIN).await?)
