@@ -1,15 +1,16 @@
 use std::ops::Range;
 use super::*;
 
-mod plan;
+mod codec;
+pub mod pass;
 
 #[derive(Clone, Debug)]
 pub struct Pass {
-    pub entries: Vec<Entry>,   
+    pub steps: Vec<Step>,   
 }
 
 #[derive(Clone, Debug)]
-pub enum Entry {
+pub enum Step {
     Pipe(Grc<RenderPipeline>),
     Bind(u32, Grc<BindGroup>),
     Vertex(u32, Grc<Buffer>),
@@ -21,44 +22,44 @@ pub enum Entry {
 #[derive(Builder, Gate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Plan {
-    #[builder(default, setter(each(name = "entry", into)))]
-    entries: Vec<plan::Entry>,
+pub struct Codec {
+    #[builder(default, setter(each(name = "step", into)))]
+    steps: Vec<codec::Step>,
     #[builder(default, setter(each(name = "stem", into)))]
     stems: Vec<Hub<Mutation>>,
 }
 
-impl Solve for Plan {
-    type Base = Vec<Entry>;
-    async fn solve(&self) -> graph::Result<Hub<Vec<Entry>>> {
+impl Solve for Codec {
+    type Base = Vec<Step>;
+    async fn solve(&self) -> graph::Result<Hub<Vec<Step>>> {
         // TODO: put stems in gpu::BindGroup
         self.stems.depend().await?;
         let mut entries = vec![];
-        for cmd in &self.entries {
+        for cmd in &self.steps {
             match cmd {
-                plan::Entry::Pipe(pipe) => entries.push(Entry::Pipe(pipe.clone())),
-                plan::Entry::Bind(index, bind) => {
+                codec::Step::Pipe(pipe) => entries.push(Step::Pipe(pipe.clone())),
+                codec::Step::Bind(index, bind) => {
                     let bind = bind.base().await?;
                     entries
-                        .push(Entry::Bind(*index, bind.clone()))
+                        .push(Step::Bind(*index, bind.clone()))
                 }
-                plan::Entry::Vertex(slot, buffer) => {
+                codec::Step::Vertex(slot, buffer) => {
                     let buffer = buffer.base().await?;
                     entries
-                        .push(Entry::Vertex(*slot, buffer.clone()))
+                        .push(Step::Vertex(*slot, buffer.clone()))
                 }
-                plan::Entry::Index(buffer) => {
+                codec::Step::Index(buffer) => {
                     let buffer = buffer.base().await?;
-                    entries.push(Entry::Index(buffer.clone()))
+                    entries.push(Step::Index(buffer.clone()))
                 }
-                plan::Entry::Draw(vertices, instances) => {
-                    entries.push(Entry::Draw(
+                codec::Step::Draw(vertices, instances) => {
+                    entries.push(Step::Draw(
                         vertices.clone(),
                         instances.clone(),
                     ))
                 }
-                plan::Entry::DrawIndexed(indices, base_vertex, instances) => {
-                    entries.push(Entry::DrawIndexed(
+                codec::Step::DrawIndexed(indices, base_vertex, instances) => {
+                    entries.push(Step::DrawIndexed(
                         indices.clone(),
                         *base_vertex,
                         instances.clone(),
@@ -66,14 +67,14 @@ impl Solve for Plan {
                 }
             }
         }
-        Ok(entries.into())
+        Ok(entries.into_leaf().into())
     }
 }
 
-impl Adapt for Plan {
+impl Adapt for Codec {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
-        for cmd in &mut self.entries {
-            if let plan::Entry::Vertex(_, buffer) = cmd {
+        for cmd in &mut self.steps {
+            if let codec::Step::Vertex(_, buffer) = cmd {
                 buffer.back(back)?
             }
         }
@@ -81,21 +82,21 @@ impl Adapt for Plan {
     }
 }
 
-impl PlanBuilder {
-    pub fn render(self, pipe: Grc<RenderPipeline>) -> Self {
-        self.entry(plan::Entry::Pipe(pipe))
+impl CodecBuilder {
+    pub fn pipe(self, pipe: Grc<RenderPipeline>) -> Self {
+        self.step(codec::Step::Pipe(pipe))
     }
     pub fn bind(self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-        self.entry(plan::Entry::Bind(index, bind.into()))
+        self.step(codec::Step::Bind(index, bind.into()))
     }
     pub fn vertex(self, slot: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.entry(plan::Entry::Vertex(slot, buffer.into()))
+        self.step(codec::Step::Vertex(slot, buffer.into()))
     }
     pub fn index(self, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
-        self.entry(plan::Entry::Index(buffer.into()))
+        self.step(codec::Step::Index(buffer.into()))
     }
     pub fn draw(self, vertices: Range<u32>, instances: Range<u32>) -> Self {
-        self.entry(plan::Entry::Draw(vertices, instances))
+        self.step(codec::Step::Draw(vertices, instances))
     }
     pub fn draw_indexed(
         self,
@@ -103,7 +104,7 @@ impl PlanBuilder {
         base_vertex: i32,
         instances: Range<u32>,
     ) -> Self {
-        self.entry(plan::Entry::DrawIndexed(indices, base_vertex, instances))
+        self.step(codec::Step::DrawIndexed(indices, base_vertex, instances))
     }
 }
 

@@ -1,6 +1,6 @@
 use super::*;
 
-pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Vec<render::Entry>>> {
+pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Vec<render::Step>>> {
     let mech = &view.mech;
     let gpu = &mech.gpu;
     #[rustfmt::skip]

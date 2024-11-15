@@ -16,7 +16,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 async fn main() -> Result<()> {
     let mut gui = Gui::default();
     let app = AppBuilder::default().displays(&gui.agent.displays).hub()?;
-    app.depend().await?;
+    let wow = app.base().await?;
     let event_loop = EventLoop::new()?;
     event_loop.run_app(&mut gui).unwrap();
     Ok(())

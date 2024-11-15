@@ -33,6 +33,7 @@ impl Agent {
         // post_triangle(&viewport).await?;
         let display = Display::new(window.clone(), viewport);
         self.displays.write(|x| x.push(display)).await?;
+        println!("wrote displays");
         window.set_visible(true);
         Ok(())
     }

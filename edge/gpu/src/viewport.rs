@@ -23,7 +23,7 @@ impl ToViewport for Surface<'static> {
             config: configuration,
             targets: vec![Some(format.into())],
             format,
-            passes: Leaf::default(), // new(vec![Command::default()])
+            commands: Leaf::default(), // new(vec![Command::default()])
         })
     }
 }
@@ -35,12 +35,12 @@ impl ToViewport for Surface<'static> {
 pub struct Viewport {
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
+    pub commands: Leaf<Vec<Command>>,
     surface: Grc<Surface<'static>>,
     config: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
     stage: Grc<TextureView>,
-    passes: Leaf<Vec<Pass>>,
 }
 
 impl Viewport {
@@ -56,17 +56,20 @@ impl Viewport {
             .device(&self.gpu.device)
             .vertex(vertex)
     }
-    pub fn plan(&self) -> render::PlanBuilder {
-        render::PlanBuilder::default()//.chain(self.chain.clone())
+    pub fn codec(&self) -> render::CodecBuilder {
+        render::CodecBuilder::default()//.chain(self.chain.clone())
     }
-    pub fn passes(&self, passes: Vec<Pass>) -> Result<()> {
-        self.passes.write_passive(|x| *x = passes)?;
+    pub fn pass(&self, steps: Hub<Vec<render::Step>>) -> render::pass::NodeBuilder {
+        render::pass::NodeBuilder::default().codec(steps)//.chain(self.chain.clone())
+    }
+    pub fn commands(&self, commands: Vec<Command>) -> Result<()> {
+        self.commands.write_passive(|x| *x = commands)?;
         Ok(())
     }
     pub fn render(&self) -> Result<()> {
         action::Render {
             display: self,
-            passes: self.passes.base()?,
+            commands: self.commands.base()?,
         }
         .surface()
     }

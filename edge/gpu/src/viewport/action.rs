@@ -4,19 +4,19 @@ use super::*;
 
 pub struct Render<'a> {
     pub display: &'a Viewport,
-    pub passes: Vec<Pass>,
+    pub commands: Vec<Command>,
 }
 
 impl<'a> Render<'a> {
     pub fn surface(&self) -> Result<()> {
-        if self.passes.is_empty() {
+        if self.commands.is_empty() {
             return Ok(());
         }
         let mut encoder = self.display.gpu.encoder();
         let frame = self.display.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        for pass in &self.passes {
-            if let Pass::Render(pass) = pass {
+        for command in &self.commands {
+            if let Command::Render(pass) = command {
                 let attachments = self.display
                     .gpu
                     .attachment(&self.display.stage)

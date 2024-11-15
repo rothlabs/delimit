@@ -1,13 +1,11 @@
 use super::*;
 use std::{fmt::Debug, ops};
 
-#[derive(Back, Default, Debug)]
+#[derive(GateTag, Back, Default, Debug)]
 pub struct Arithmetic<T> {
     value: Hub<T>,
     ops: Vec<Operation<T>>,
 }
-
-impl<T> GateTag for Arithmetic<T> {}
 
 impl<T> Solve for Arithmetic<T>
 where

@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug)]
-pub enum Entry {
+pub enum Step {
     Pipe(Grc<RenderPipeline>),
     Bind(u32, Hub<Grc<BindGroup>>),
     // TODO: take Hedge so hedge.root.depend is automatic 

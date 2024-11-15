@@ -4,7 +4,7 @@ pub use render::*;
 
 use super::*;
 
-pub mod post;
+// pub mod post;
 pub mod render;
 
 mod compute;
@@ -19,20 +19,20 @@ impl<'a> Encode<'a> {
         // match pass {
         //     Pass::Render(render) => {
                 let mut pass = self.inner.begin_render_pass(fields);
-                for entry in &render.entries {
+                for entry in &render.steps {
                     match entry {
-                        crate::render::Entry::Pipe(pipe) => pass.set_pipeline(pipe),
-                        crate::render::Entry::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
-                        crate::render::Entry::Vertex(slot, buffer) => {
+                        crate::render::Step::Pipe(pipe) => pass.set_pipeline(pipe),
+                        crate::render::Step::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
+                        crate::render::Step::Vertex(slot, buffer) => {
                             pass.set_vertex_buffer(*slot, buffer.slice(..));
                         }
-                        crate::render::Entry::Index(buffer) => {
+                        crate::render::Step::Index(buffer) => {
                             pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                         }
-                        crate::render::Entry::Draw(vertices, instances) => {
+                        crate::render::Step::Draw(vertices, instances) => {
                             pass.draw(vertices.clone(), instances.clone());
                         }
-                        crate::render::Entry::DrawIndexed(indices, base_vertex, instances) => {
+                        crate::render::Step::DrawIndexed(indices, base_vertex, instances) => {
                             pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
                         }
                     }

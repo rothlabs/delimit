@@ -6,19 +6,23 @@ use super::*;
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
-    drawings: Leaf<Vec<Hub<Mutation>>>,
+    command_writer: Leaf<Hub<()>>,
 }
 
 impl Act for App {
     async fn act(&self) -> graph::Result<()> {
+        println!("app act");
         let displays = self.displays.base()?;
         if let Some(main) = displays.first() {
+            let port = &main.viewport;
             let view = mech_view(main).unwrap();
-            let entries = test::draw_nurbs_surface(&view).await.unwrap().base().await?;
-            let passes = vec![Pass::Render(render::Pass { entries })];
-            view.port.passes(passes).unwrap();
+            let steps = test::draw_nurbs_surface(&view).await.unwrap();
+            let command = port.pass(steps).hub()?;
+            let commands = star::vector().field(command).hub().unwrap();
+            let writer = star::writer(commands).target(&port.commands).hub()?;
+            writer.base().await.unwrap();
+            self.command_writer.write(|x| *x = writer).await.unwrap();
             println!("set viewport passes");
-            
         }
         Ok(())
     }

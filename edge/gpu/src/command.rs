@@ -1,10 +1,28 @@
 use super::*;
 
 #[derive(Clone, Debug)]
-pub enum Pass {
+pub enum Command {
     Compute,
     Render(render::Pass)
 }
+
+// #[derive(Builder, Gate, Back, Debug)]
+// #[builder(pattern = "owned")]
+// #[builder(setter(into, strip_option))]
+// pub struct Chain {
+//     #[builder(default, setter(each(name = "pass", into)))]
+//     passes: Vec<Pass>,
+// }
+
+// impl Solve for Chain {
+//     type Base = Vec<Pass>;
+//     async fn solve(&self) -> graph::Result<Hub<Vec<Pass>>> {
+//         let passes = vec![];
+
+//     }
+// }
+
+
 
 // impl Pass {
 //     pub fn encode(&self, encoder: &mut Encode<'_>) {
