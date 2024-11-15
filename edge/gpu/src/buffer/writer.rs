@@ -16,7 +16,7 @@ where
     T: Pod + Debug + graph::SendSync,
 {
     type Base = Mutation;
-    async fn solve(&self) -> node::Result<Hub<Mutation>> {
+    async fn solve(&self) -> node::Result<Mutation> {
         let buffer = self.buffer.base().await?;
         let offset = self.offset.base().await.unwrap_or_default();
         self.data

@@ -57,7 +57,7 @@ impl Act for Texture {
             Apex::Vu8(array) => {
                 Ok(array
                     .read(|array| self.vec_u8(array, width, height))
-                    .await??)
+                    .await??.into())
             }
             _ => Err(anyhow!("wrong apex"))?,
         }

@@ -10,17 +10,17 @@ use winit::{error::EventLoopError, event_loop::EventLoop};
 mod app;
 mod test;
 
-pub type Result<T> = std::result::Result<T, Error>;
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut gui = Gui::default();
     let app = AppBuilder::default().displays(&gui.agent.displays).hub()?;
     app.depend().await?;
     let event_loop = EventLoop::new()?;
-    event_loop.run_app(&mut gui).unwrap();
+    event_loop.run_app(&mut gui)?;
     Ok(())
 }
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

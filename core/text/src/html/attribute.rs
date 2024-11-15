@@ -26,7 +26,7 @@ impl Attribute {
 
 impl Solve for Attribute {
     type Base = String;
-    async fn solve(&self) -> node::Result<Hub<String>> {
+    async fn solve(&self) -> node::Result<String> {
         List::new()
             .push(self.name.down(PLAIN).await?)
             .push(r#"=""#)

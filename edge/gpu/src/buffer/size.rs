@@ -17,7 +17,7 @@ pub struct Size {
 
 impl Solve for Size {
     type Base = u32;
-    async fn solve(&self) -> node::Result<Hub<u32>> {
+    async fn solve(&self) -> node::Result<u32> {
         let mut size = (self.buffer.base().await?.size() / 4) as u32;
         for sub in &self.subs {
             size -= sub.base().await?;

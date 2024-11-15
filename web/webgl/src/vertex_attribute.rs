@@ -42,7 +42,7 @@ impl Act for VertexAttribute {
         }
         self.buffer.gl.enable_vertex_attrib_array(index);
         self.buffer.unbind();
-        Ok(())
+        solve_ok()
     }
 }
 

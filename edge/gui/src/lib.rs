@@ -44,6 +44,6 @@ impl Act for Draw {
     async fn act(&self) -> node::Result<()> {
         self.stems.depend().await?;
         self.window.request_redraw();
-        Ok(())
+        solve_ok()
     }
 }

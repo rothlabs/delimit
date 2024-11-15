@@ -61,7 +61,7 @@ impl Act for DrawArrays {
             self.rasterizer_switch().await?;
         }
         self.vao.unbind();
-        Ok(())
+        solve_ok()
     }
 }
 

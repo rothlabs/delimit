@@ -243,7 +243,7 @@ impl Act for Nurbs {
             self.basis.act().await?;
             self.curve.act().await?;
         }
-        Ok(())
+        solve_ok()
     }
 }
 

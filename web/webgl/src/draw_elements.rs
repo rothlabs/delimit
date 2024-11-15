@@ -62,7 +62,7 @@ impl Act for DrawElements {
         self.gl
             .draw_elements_with_i32(WGLRC::TRIANGLES, count, WGLRC::UNSIGNED_SHORT, offset);
         self.vao.unbind();
-        Ok(())
+        solve_ok()
     }
 }
 

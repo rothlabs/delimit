@@ -23,7 +23,7 @@ impl Act for VaoWriter {
             buffer.bind();
         }
         self.object.unbind();
-        Ok(())
+        solve_ok()
     }
 }
 

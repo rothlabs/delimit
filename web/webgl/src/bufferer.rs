@@ -44,7 +44,7 @@ impl Act for Bufferer {
             _ => Err(anyhow!("wrong apex"))?,
         };
         self.buffer.unbind();
-        Ok(())
+        solve_ok()
     }
 }
 

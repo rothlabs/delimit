@@ -17,7 +17,7 @@ pub struct Blank {
 
 impl Solve for Blank {
     type Base = Grc<Buffer>;
-    async fn solve(&self) -> node::Result<Hub<Grc<Buffer>>> {
+    async fn solve(&self) -> node::Result<Grc<Buffer>> {
         let size = self.size.base().await?;
         // let label = self.label.base().await?;
         let buffer = self

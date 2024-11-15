@@ -40,7 +40,7 @@ impl Act for Program {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(())
+            solve_ok()
         } else {
             let memo = self
                 .gl

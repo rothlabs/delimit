@@ -19,7 +19,7 @@ where
         + ops::DivAssign<T>,
 {
     type Base = T;
-    async fn solve(&self) -> node::Result<Hub<T>> {
+    async fn solve(&self) -> node::Result<T> {
         let mut out = self.value.base().await?;
         for op in &self.ops {
             let value = op.value.base().await?;

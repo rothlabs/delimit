@@ -19,7 +19,7 @@ where
     T: Pod + graph::SendSync,
 {
     type Base = Vec<T>;
-    async fn solve(&self) -> node::Result<Hub<Vec<T>>> {
+    async fn solve(&self) -> node::Result<Vec<T>> {
         self.root.base().await?;
         let storage = self.storage.base().await?;
         let stage = self.stage.base().await?;

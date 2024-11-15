@@ -28,7 +28,7 @@ pub trait Solve {
     type Base: 'static + SendSync; // + Payload;
     /// Solve a task.
     /// The hub will run computations or return existing results.
-    fn solve(&self) -> impl Future<Output = node::Result<Hub<Self::Base>>> + IsSend {
+    fn solve(&self) -> impl Future<Output = node::Result<Self::Base>> + IsSend {
         async { solve_ok() }
     }
     fn rank(&self) -> u16 {
@@ -48,7 +48,7 @@ pub trait Act {
 
 impl<T: Act + SendSync> Solve for T {
     type Base = ();
-    async fn solve(&self) -> node::Result<Hub<()>> {
+    async fn solve(&self) -> node::Result<()> {
         self.act().await?;
         solve_ok()
     }
@@ -58,7 +58,7 @@ impl<T: Act + SendSync> Solve for T {
 //     Ok(Gain::None)
 // }
 
-pub fn solve_ok<T>() -> node::Result<Hub<T>>
+pub fn solve_ok<T>() -> node::Result<T>
 where
     T: 'static + SendSync, //+ Payload,
 {

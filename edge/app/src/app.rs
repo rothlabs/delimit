@@ -14,16 +14,16 @@ impl Act for App {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;
-            let view = mech_view(main).unwrap();
-            let steps = test::draw_nurbs_surface(&view).await.unwrap();
+            let view = mech_view(main)?;
+            let steps = test::draw_nurbs_surface(&view).await?;
             let command = port.pass(steps).hub()?;
-            let commands = star::vector().field(command).hub().unwrap();
+            let commands = star::vector().field(command).hub()?;
             let writer = star::writer(commands).target(&port.commands).hub()?;
-            writer.base().await.unwrap();
-            self.command_writers.write(|x| x.push(writer)).await.unwrap();
+            writer.depend().await?;
+            self.command_writers.write(|x| x.push(writer)).await?;
             println!("new window");
         }
-        Ok(())
+        solve_ok()
     }
 }
 

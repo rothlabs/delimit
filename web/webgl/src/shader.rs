@@ -36,7 +36,7 @@ impl Act for Shader {
             .as_bool()
             .unwrap_or(false)
         {
-            Ok(())
+            solve_ok()
         } else {
             let memo = self
                 .gl
