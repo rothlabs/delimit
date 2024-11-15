@@ -7,7 +7,7 @@ edition = "2021"
     anyhow = {workspace = true}
     derive_builder = { workspace = true }
     tokio = { version = "1", features = ["full"] }
-    winit = "0.30"
+    # winit = "0.30"
     wgpu = "22.1.0"
     gui = { workspace = true }
     gpu = { workspace = true }

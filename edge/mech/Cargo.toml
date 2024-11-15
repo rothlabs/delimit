@@ -16,6 +16,7 @@ resolver = "2"
 
 [dev-dependencies]
     gui = { workspace = true }
+    tokio = { workspace = true }
 
 [[test]]
     name = "live_tests"
