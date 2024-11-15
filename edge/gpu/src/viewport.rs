@@ -23,7 +23,7 @@ impl ToViewport for Surface<'static> {
             config: configuration,
             targets: vec![Some(format.into())],
             format,
-            commands: Leaf::default(), // new(vec![Command::default()])
+            commands: Leaf::default(),
         })
     }
 }
@@ -57,10 +57,10 @@ impl Viewport {
             .vertex(vertex)
     }
     pub fn codec(&self) -> render::CodecBuilder {
-        render::CodecBuilder::default()//.chain(self.chain.clone())
+        render::CodecBuilder::default()
     }
     pub fn pass(&self, steps: Hub<Vec<render::Step>>) -> render::pass::NodeBuilder {
-        render::pass::NodeBuilder::default().codec(steps)//.chain(self.chain.clone())
+        render::pass::NodeBuilder::default().codec(steps)
     }
     pub fn commands(&self, commands: Vec<Command>) -> Result<()> {
         self.commands.write_passive(|x| *x = commands)?;

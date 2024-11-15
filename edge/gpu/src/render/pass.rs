@@ -8,10 +8,10 @@ pub struct Node {
 }
 
 impl Solve for Node {
-    type Base = crate::Command;
+    type Base = Command;
     async fn solve(&self) -> graph::Result<Hub<Self::Base>> {
         let steps = self.codec.base().await?;
-        let pass = crate::Command::Render(render::Pass { steps });
+        let pass = Command::Render(render::Pass { steps });
         Ok(pass.into())
     }
 }

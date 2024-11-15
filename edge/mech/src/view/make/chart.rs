@@ -30,7 +30,7 @@ impl Solve for Points {
 
         let vertex_count: u32 = 8;
         let points = Circle {
-            frame: self.view.port.size.clone(), //gpu.display.config.clone(),
+            frame: self.view.port.size.clone(), 
             count: vertex_count.into(),
             radius: 4.0.into(),
         }
@@ -72,9 +72,6 @@ impl GateTag for Circle {}
 impl Solve for Circle {
     type Base = Vec<f32>;
     async fn solve(&self) -> graph::Result<Hub<Vec<f32>>> {
-        // let (w, h) = self
-        //     .display
-        //     .read(|display| (display.width as f32, display.height as f32))?;
         let frame = self.frame.base()?;
         let (w, h) = (frame.0 as f32, frame.1 as f32);
         let count = self.count.base().await?;

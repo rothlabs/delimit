@@ -185,7 +185,7 @@ where
         O: IsSend,
         F: FnOnce(&mut Self::Base) -> O + IsSend,
     {
-        let (_, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
+        let out = write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))??;
         Ok(out)
     }
 }

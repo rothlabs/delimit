@@ -6,14 +6,13 @@ use super::*;
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
-    command_writer: Leaf<Hub<()>>,
+    command_writers: Leaf<Vec<Hub<()>>>,
 }
 
 impl Act for App {
     async fn act(&self) -> graph::Result<()> {
-        println!("app act");
         let displays = self.displays.base()?;
-        if let Some(main) = displays.first() {
+        if let Some(main) = displays.last() {
             let port = &main.viewport;
             let view = mech_view(main).unwrap();
             let steps = test::draw_nurbs_surface(&view).await.unwrap();
@@ -21,8 +20,8 @@ impl Act for App {
             let commands = star::vector().field(command).hub().unwrap();
             let writer = star::writer(commands).target(&port.commands).hub()?;
             writer.base().await.unwrap();
-            self.command_writer.write(|x| *x = writer).await.unwrap();
-            println!("set viewport passes");
+            self.command_writers.write(|x| x.push(writer)).await.unwrap();
+            println!("new window");
         }
         Ok(())
     }
