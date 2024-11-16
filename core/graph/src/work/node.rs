@@ -1,4 +1,4 @@
-use crate::*;
+use super::*;
 
 /// Main Work type.
 /// To be useful, unit should at least impl Solve.

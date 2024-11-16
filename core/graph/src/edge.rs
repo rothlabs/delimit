@@ -1,7 +1,7 @@
 use super::*;
 
-pub(crate) mod ploy;
 pub(crate) mod gate;
+pub(crate) mod ploy;
 
 /// Edge to a tray.
 pub type Leaf<T> = Edge<cusp::Leaf<T>>;
@@ -55,9 +55,9 @@ where
     }
 }
 
-impl<C> Solve for Edge<C>
+impl<C> node::Solve for Edge<C>
 where
-    C: SolveAdapt + AddRoot + SendSync,
+    C: cusp::Solve + AddRoot + SendSync,
 {
     type Base = C::Base;
     async fn solve(&self) -> node::Result<Self::Base> {
@@ -69,9 +69,17 @@ where
     }
 }
 
-impl<C> AdaptEdge for Edge<C>
+pub trait Adapt {
+    /// For graph internals to handle alter calls
+    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
+    /// For graph internals to handle alter calls
+    fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>>;
+    fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
+}
+
+impl<C> Adapt for Edge<C>
 where
-    C: AdaptMut + UpdateMut + AddRoot,
+    C: cusp::Adapt + UpdateMut + AddRoot,
 {
     fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         write_part(&self.cusp, |mut cusp| {
@@ -92,7 +100,7 @@ where
 
 impl<C> ploy::Solve for Edge<C>
 where
-    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
+    C: 'static + cusp::Solve + UpdateMut + cusp::Adapt + AddRoot + ReckonMut + Debug,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
@@ -115,7 +123,7 @@ where
 
 impl<C> gate::Solve for Edge<C>
 where
-    C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + Debug + GateTag,
+    C: 'static + cusp::Solve + UpdateMut + cusp::Adapt + AddRoot + Debug + GateTag,
 {
     type Base = C::Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {

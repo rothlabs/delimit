@@ -38,7 +38,7 @@ where
 
 impl<W> FromSnap for Cusp<W>
 where
-    W: 'static + WorkFromSnap + Clear + ReactMut + SolveAdapt + SendSync,
+    W: 'static + WorkFromSnap + Clear + ReactMut + work::SolveAdapt + SendSync,
 {
     type Unit = W::Unit;
     fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
@@ -65,7 +65,7 @@ impl<W: ReckonMut> ReckonMut for Cusp<W> {
     }
 }
 
-impl<W: SolveAdapt> Cusp<W> {
+impl<W: work::SolveAdapt> Cusp<W> {
     fn set_back(&mut self, mut back: Back) -> Result<()> {
         if self.work.adapt(&mut back).is_err() {
             self.work.back(&back)?;
@@ -150,25 +150,29 @@ where
     }
 }
 
-impl<W> SolveAdapt for Cusp<W>
+pub trait Solve {
+    type Base: 'static + SendSync;
+    fn solve(&mut self) -> GraphFuture<Result<Hub<Self::Base>>>;
+}
+
+impl<W> Solve for Cusp<W>
 where
-    W: SolveAdapt + SendSync,
+    W: work::SolveAdapt + SendSync,
 {
     type Base = W::Base;
     fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
         Box::pin(async move { self.work.solve().await })
     }
-    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
-        Err(anyhow!("SolveAdapt::adapt not implemented"))?
-    }
-    fn back(&mut self, _: &Back) -> Result<()> {
-        Err(anyhow!("SolveAdapt::back not implemented"))?
-    }
 }
 
-impl<W> AdaptMut for Cusp<W>
+pub trait Adapt {
+    fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()>;
+    fn adapt_set(&mut self, deal: &mut dyn Deal) -> Result<Ring>;
+}
+
+impl<W> Adapt for Cusp<W>
 where
-    W: SolveAdapt + Clear,
+    W: work::SolveAdapt + Clear,
 {
     fn adapt_get(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.work.adapt(deal)

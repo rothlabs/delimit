@@ -308,7 +308,7 @@ impl<T: SendSync> Gate<T> {
 
 impl<E> Link<E>
 where
-    E: AdaptEdge + ?Sized + SendSync,
+    E: edge::Adapt + ?Sized + SendSync,
 {
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         read_part(&self.edge, |edge| edge.adapt_get(deal))?

@@ -1,36 +1,30 @@
-pub use adapt::{Adapt, AdaptEdge, AdaptMut};
 pub use anyhow::anyhow;
 pub use apex::{Apex, DealItem};
 pub use base::Digest;
 pub use bay::Bay;
-pub use cusp::Cusp;
 pub use deal::Deal;
-pub use edge::Edge;
 pub use hub::{Hub, SolveDown, ToGateHub, ToPloyHub};
 pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
+pub use node::{acted, Act, Adapt, Solve};
 pub use node_derive;
-pub use react::{
-    AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
-    UpdateMut,
-};
+pub use react::{Back, Backed};
 pub use serial::{DeserializeUnit, ToSerial, UnitHasher};
-pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use node::{acted, Act, Solve};
+pub use snap::{IntoSnapWithImport, IntoSnapWithImports};
 pub use thiserror;
-pub use tray::Tray;
-pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
+pub use write::{WriteBase, WriteUnit};
 
-use edge::{ploy, gate};
-use link::{Ploy, Gate};
-use work::SolveAdapt;
 use aim::*;
 use apex::{View, ViewVec};
 use derive_builder::UninitializedFieldError;
+use edge::{gate, ploy};
+use link::{Gate, Ploy};
+use react::{AddRoot, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update, UpdateMut};
 use scope::*;
 use serde::{Deserialize, Serialize};
+use snap::Snap;
 use std::{
     collections::HashMap,
     fmt::Debug,
@@ -38,6 +32,8 @@ use std::{
     hash::{DefaultHasher, Hash, Hasher},
     pin::Pin,
 };
+use tray::Tray;
+use write::{Pack, WriteBaseOut, WriteUnitOut, WriteUnitWork};
 
 #[cfg(not(feature = "oneThread"))]
 use parking_lot::{RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -49,15 +45,14 @@ use std::{
     rc::Rc,
 };
 
-pub mod adapt;
 pub mod hub;
 pub mod lake;
+pub mod node;
 pub mod react;
 pub mod serial;
 pub mod snap;
 pub mod work;
 pub mod write;
-pub mod node;
 
 mod aim;
 mod apex;
@@ -69,7 +64,6 @@ mod edge;
 mod link;
 mod map;
 mod meta;
-// mod ploy;
 mod scope;
 #[cfg(test)]
 mod tests;
@@ -91,8 +85,8 @@ pub enum Error {
     NoBack(String),
     #[error(transparent)]
     Tray(#[from] tray::Error),
-    #[error(transparent)]
-    Adapt(#[from] adapt::Error),
+    // #[error(transparent)]
+    // Adapt(#[from] adapt::Error),
     #[error(transparent)]
     Hub(#[from] hub::Error),
     #[error(transparent)]

@@ -29,3 +29,12 @@ impl<T: Act + SendSync> Solve for T {
 pub fn acted<T>() -> node::Result<T> {
     Ok(Hub::none())
 }
+
+pub trait Adapt {
+    fn adapt(&mut self, _: &mut dyn Deal) -> crate::Result<()> {
+        Err(anyhow!("Adapt::adapt not implemented"))?
+    }
+    fn back(&mut self, _: &Back) -> crate::Result<()> {
+        Err(anyhow!("Adapt::back not implemented"))?
+    }
+}

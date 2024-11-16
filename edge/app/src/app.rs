@@ -36,6 +36,5 @@ fn mech_view(display: &Display) -> Result<View> {
     Ok(view)
 }
 
-
-    // let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;
-    // let writer = star::transfer(commands, &port.commands)?;
+// let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;
+// let writer = star::transfer(commands, &port.commands)?;

@@ -2,8 +2,8 @@ use super::*;
 
 pub type Edge<T> = Pointer<dyn Engage<Base = T>>;
 
-pub trait Engage: Solve + AdaptEdge + Update + SetRoot + Debug {}
-impl<E> Engage for E where E: Solve + AdaptEdge + Update + SetRoot + Debug {}
+pub trait Engage: Solve + Adapt + Update + SetRoot + Debug {}
+impl<E> Engage for E where E: Solve + Adapt + Update + SetRoot + Debug {}
 
 pub trait Solve {
     type Base;

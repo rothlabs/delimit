@@ -181,7 +181,7 @@ impl<T: Transmit> Hub<T> {
             Self::Leaf(leaf) => leaf.get_serial(),
             Self::Ploy(ploy) => ploy.get_serial(),
             // should this be an error:
-            Self::Gate(_) => Ok("".into())//gate.serial(),
+            Self::Gate(_) => Ok("".into()), //gate.serial(),
         }
     }
 
