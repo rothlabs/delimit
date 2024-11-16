@@ -1,10 +1,4 @@
 use super::*;
-#[cfg(not(feature = "oneThread"))]
-use parking_lot::RwLock;
-#[cfg(not(feature = "oneThread"))]
-use std::sync::Arc;
-#[cfg(feature = "oneThread")]
-use std::{cell::RefCell, rc::Rc};
 
 /// Edge to a tray.
 pub type Leaf<T> = Edge<cusp::Leaf<T>>;

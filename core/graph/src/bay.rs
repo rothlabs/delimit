@@ -19,12 +19,10 @@ impl Bay {
     }
 }
 
-impl Solve for Bay {
-    type Base = ();
-    // fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
-    //     self.map.deal(deal)?;
-    //     Ok(())
-    // }
+impl Act for Bay {
+    async fn act(&self) -> node::Action {
+        acted()
+    }
 }
 
 impl Adapt for Bay {

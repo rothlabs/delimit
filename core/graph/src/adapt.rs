@@ -6,8 +6,6 @@ pub enum Error {
     #[error(transparent)]
     Aim(#[from] aim::Error),
     #[error(transparent)]
-    Solve(#[from] solve::Error),
-    #[error(transparent)]
     Hub(#[from] hub::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),

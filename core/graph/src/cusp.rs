@@ -158,6 +158,12 @@ where
     fn solve(&mut self) -> GraphFuture<Result<Hub<W::Base>>> {
         Box::pin(async move { self.work.solve().await })
     }
+    fn adapt(&mut self, _: &mut dyn Deal) -> Result<()> {
+        Err(anyhow!("SolveAdapt::adapt not implemented"))?
+    }
+    fn back(&mut self, _: &Back) -> Result<()> {
+        Err(anyhow!("SolveAdapt::back not implemented"))?
+    }
 }
 
 impl<W> AdaptMut for Cusp<W>

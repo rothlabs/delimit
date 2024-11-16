@@ -19,11 +19,12 @@ pub use react::{
 };
 pub use serial::{DeserializeUnit, ToSerial, UnitHasher};
 pub use snap::{IntoSnapWithImport, IntoSnapWithImports, Snap};
-pub use solve::{acted, Act, Solve, SolveAdapt};
+pub use node::{acted, Act, Solve};
 pub use thiserror;
 pub use tray::Tray;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
+use work::SolveAdapt;
 use aim::*;
 use apex::{View, ViewVec};
 use derive_builder::UninitializedFieldError;
@@ -53,9 +54,9 @@ pub mod lake;
 pub mod react;
 pub mod serial;
 pub mod snap;
-pub mod solve;
 pub mod work;
 pub mod write;
+pub mod node;
 
 mod aim;
 mod apex;
@@ -76,13 +77,6 @@ mod tray;
 /// Graph Result
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub mod node {
-    use crate::hub::Hub;
-    /// Node Result
-    pub type Result<T> = std::result::Result<Hub<T>, Box<dyn std::error::Error + Send + Sync>>;
-    pub type Action = Result<()>;
-}
-
 /// Graph Error
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -98,8 +92,6 @@ pub enum Error {
     Tray(#[from] tray::Error),
     #[error(transparent)]
     Adapt(#[from] adapt::Error),
-    #[error(transparent)]
-    Solve(#[from] solve::Error),
     #[error(transparent)]
     Hub(#[from] hub::Error),
     #[error(transparent)]

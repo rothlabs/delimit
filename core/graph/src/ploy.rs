@@ -13,7 +13,7 @@ pub trait Engage: SolvePloy + AdaptEdge + Update + SetRoot + Reckon + Debug {}
 impl<E> Engage for E where E: SolvePloy + AdaptEdge + Update + SetRoot + Reckon + Debug {}
 
 pub trait SolvePloy {
-    type Base; //: Transmit;
+    type Base;
     fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
     fn backed(&self, back: &Back) -> PloyEdge<Self::Base>;
 }
