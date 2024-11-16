@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<C> Based for Edge<C>
+impl<C> SolvePloy for Edge<C>
 where
     C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
 {
@@ -116,7 +116,7 @@ where
     }
 }
 
-impl<C> Employed for Edge<C>
+impl<C> SolveGate for Edge<C>
 where
     C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + Debug + GateTag,
 {
@@ -130,7 +130,7 @@ where
             .await
         })
     }
-    fn backed(&self, back: &Back) -> WingEdge<Self::Base> {
+    fn backed(&self, back: &Back) -> GateEdge<Self::Base> {
         edge_pointer(Self {
             root: None,
             back: Some(back.clone()),

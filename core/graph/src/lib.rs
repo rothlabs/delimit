@@ -12,7 +12,7 @@ pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use node_derive;
-pub use ploy::{Based, Employ, Employed, Engage, Gate, Ploy, PloyEdge, WingEdge};
+pub use ploy::{SolvePloy, Employ, SolveGate, Engage, Gate, Ploy, PloyEdge, GateEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -78,7 +78,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub mod node {
     use crate::hub::Hub;
-    /// Graph Result
+    /// Node Result
     pub type Result<T> = std::result::Result<Hub<T>, Box<dyn std::error::Error + Send + Sync>>;
     pub type Action = Result<()>;
 }
@@ -110,8 +110,6 @@ pub enum Error {
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Generic(#[from] Box<dyn std::error::Error + Send + Sync>),
-    // #[error(transparent)]
-    // Recieve(#[from] flume::RecvError),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
@@ -137,13 +135,6 @@ impl<T: Send> IsSend for T {}
 pub trait IsSend {}
 #[cfg(feature = "oneThread")]
 impl<T> IsSend for T {}
-
-pub trait Unit: Solve + Adapt + SendSync + Debug {}
-impl<T> Unit for T where T: Solve + Adapt + SendSync + Debug {}
-
-// TODO: make GatePayload that does not require Digest and Serialize
-pub trait Payload: 'static + Clone + Digest + Serialize + Debug + SendSync {}
-impl<T> Payload for T where T: 'static + Clone + Digest + Serialize + Debug + SendSync {}
 
 /// Graph reference counter
 #[cfg(not(feature = "oneThread"))]
@@ -204,6 +195,19 @@ where
     }
 }
 
+pub trait Unit: Solve + Adapt + Debug + SendSync {}
+impl<T> Unit for T where T: Solve + Adapt + Debug + SendSync {}
+
+pub trait Gather: Clone + Debug + SendSync {}
+impl<T> Gather for T where T: Clone + Debug + SendSync {}
+
+pub trait Transmit: Gather + Digest + Serialize {}
+impl<T> Transmit for T where T: Gather + Digest + Serialize {}
+
+// pub trait PloyTag {}
+
+pub trait GateTag {}
+
 pub trait IntoNode
 where
     Self: Unit + Sized,
@@ -239,21 +243,10 @@ where
 }
 
 pub trait IntoHub {
-    type Base; //: Payload;
+    type Base; //: Transmit;
     /// Move into `Hub`
     fn hub(self) -> Result<Hub<Self::Base>>;
 }
-
-// impl<T> IntoHub for T
-// where
-//     T: IntoPloy,
-//     // T::Base: Debug,
-// {
-//     type Base = T::Base;
-//     fn hub(self) -> Result<Hub<Self::Base>> {
-//         Ok(self.ploy()?.into())
-//     }
-// }
 
 pub trait IntoGate
 where
@@ -272,23 +265,6 @@ where
     }
 }
 
-// pub trait IntoGateHub {
-//     type Base;//: Payload;
-//     /// Move into `Hub`
-//     fn hub(self) -> Result<Hub<Self::Base>>;
-// }
-
-// impl<T> IntoGateHub for T
-// where
-//     T: IntoGate,
-//     // T::Base: Clone + Debug
-// {
-//     type Base = T::Base;
-//     fn hub(self) -> Result<Hub<Self::Base>> {
-//         Ok(self.gate()?.into())
-//     }
-// }
-
 pub trait ToItem {
     type Item;
     fn item(&self) -> &Self::Item;
@@ -301,7 +277,7 @@ pub trait BaseMut {
 
 pub trait Read {
     type Item;
-    /// Read the Unit or Payload of the graph part.
+    /// Read the Unit or Transmit of the graph part.
     fn read<T, F>(&self, reader: F) -> Result<T>
     where
         F: FnOnce(&Self::Item) -> T;
@@ -346,20 +322,6 @@ impl<T: Backed> BackIt for T {
     }
 }
 
-// impl<T: 'static + Clone + SendSync> BackIt for Hub<T> {
-//     fn back(&mut self, back: &Back) -> Result<()> {
-//         *self = self.backed(back)?;
-//         Ok(())
-//     }
-// }
-
-// impl<T: Backed> BackIt for Vec<T> {
-//     fn back(&mut self, back: &Back) -> Result<()> {
-//         *self = self.backed(back)?;
-//         Ok(())
-//     }
-// }
-
 pub trait Reckon {
     fn get_imports(&self) -> Result<Vec<Import>>;
     fn get_hash(&self) -> Result<u64>;
@@ -376,9 +338,47 @@ pub trait Depend {
     fn depend(&self) -> impl Future<Output = Result<()>>;
 }
 
-pub trait PloyTag {}
+// impl<T> IntoHub for T
+// where
+//     T: IntoPloy,
+//     // T::Base: Debug,
+// {
+//     type Base = T::Base;
+//     fn hub(self) -> Result<Hub<Self::Base>> {
+//         Ok(self.ploy()?.into())
+//     }
+// }
 
-pub trait GateTag {}
+// pub trait IntoGateHub {
+//     type Base;//: Transmit;
+//     /// Move into `Hub`
+//     fn hub(self) -> Result<Hub<Self::Base>>;
+// }
+
+// impl<T> IntoGateHub for T
+// where
+//     T: IntoGate,
+//     // T::Base: Clone + Debug
+// {
+//     type Base = T::Base;
+//     fn hub(self) -> Result<Hub<Self::Base>> {
+//         Ok(self.gate()?.into())
+//     }
+// }
+
+// impl<T: 'static + Clone + SendSync> BackIt for Hub<T> {
+//     fn back(&mut self, back: &Back) -> Result<()> {
+//         *self = self.backed(back)?;
+//         Ok(())
+//     }
+// }
+
+// impl<T: Backed> BackIt for Vec<T> {
+//     fn back(&mut self, back: &Back) -> Result<()> {
+//         *self = self.backed(back)?;
+//         Ok(())
+//     }
+// }
 
 // #[macro_export]
 // macro_rules! make_func {
@@ -465,12 +465,12 @@ pub trait GateTag {}
 //     (
 //     $(#[$attr:meta])*
 //     $pub:vis
-//     struct $Unit:ident<T: Payload + Pod> $tt:tt
+//     struct $Unit:ident<T: Transmit + Pod> $tt:tt
 //     ) => {
-//         impl<T: Payload + Pod> GateTag for $Unit<T> {}
+//         impl<T: Transmit + Pod> GateTag for $Unit<T> {}
 //         impl<T> paste! {[<$Unit "Builder">]<T>}
 //         where
-//             T: Payload + Pod,
+//             T: Transmit + Pod,
 //         {
 //             pub fn make(self) -> graph::Result<$Unit<T>> {
 //                 match self.build() {
@@ -501,8 +501,8 @@ pub trait GateTag {}
 //         impl<T> GateTag for $Unit<T> {}
 //         impl<T> paste! {[<$Unit "Builder">]<T>}
 //         where
-//             T: Payload + AnyBitPattern,
-//             Vec<T>: Payload,
+//             T: Transmit + AnyBitPattern,
+//             Vec<T>: Transmit,
 //         {
 //             pub fn make(self) -> graph::Result<$Unit<T>> {
 //                 match self.build() {

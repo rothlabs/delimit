@@ -4,7 +4,7 @@ use std::{fmt, marker::PhantomData, result};
 
 impl<'de, T> Deserialize<'de> for Hub<T>
 where
-    T: Payload + Deserialize<'de>,
+    T: 'static + Transmit + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
     where
@@ -20,7 +20,7 @@ struct HubVisitor<T> {
 
 impl<'de, T> Visitor<'de> for HubVisitor<T>
 where
-    T: 'static + Payload + Deserialize<'de>,
+    T: 'static + Transmit + Deserialize<'de>,
 {
     type Value = Hub<T>;
 

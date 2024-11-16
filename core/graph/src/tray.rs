@@ -5,17 +5,17 @@ use std::hash::{Hash, Hasher};
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Tray<T> {
-    None,
-    Path(Path),
     Base(T),
+    Path(Path),
+    None,
 }
 
 impl<T: Digest> Digest for Tray<T> {
     fn digest<H: Hasher>(&self, state: &mut H) {
         match self {
-            Self::None => 0.hash(state),
-            Self::Path(path) => path.hash(state),
             Self::Base(data) => data.digest(state),
+            Self::Path(path) => path.hash(state),
+            Self::None => 0.hash(state),
         }
     }
 }

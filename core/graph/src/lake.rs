@@ -37,7 +37,7 @@ impl Lake {
     }
 
     /// Insert graph into lake given root key and hub.
-    pub fn insert<T: Payload>(&mut self, key: impl Into<Key>, hub: &Hub<T>) -> Result<()> {
+    pub fn insert<T: Transmit>(&mut self, key: impl Into<Key>, hub: &Hub<T>) -> Result<()> {
         let serial = Serial {
             imports: hub.imports().unwrap_or_default(),
             unit: hub.serial()?,
@@ -50,7 +50,7 @@ impl Lake {
     }
 
     /// Insert stems recursively.
-    pub fn insert_stem<T: Payload>(&mut self, hub: &Hub<T>) -> Result<()> {
+    pub fn insert_stem<T: Transmit>(&mut self, hub: &Hub<T>) -> Result<()> {
         if let Hub::Tray(_) = hub {
             return Ok(());
         }
@@ -75,7 +75,7 @@ impl Lake {
         Ok(root)
     }
 
-    pub fn grow<T: Payload>(&mut self, hub: &Hub<T>, ring: &mut Ring) -> Result<()> {
+    pub fn grow<T: Transmit>(&mut self, hub: &Hub<T>, ring: &mut Ring) -> Result<()> {
         ring.extend(hub.passive_set(self)?);
         for apex in hub.all()? {
             apex.grow_from_lake(self, ring).ok();

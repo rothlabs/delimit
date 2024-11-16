@@ -22,7 +22,6 @@ pub enum Error {
 #[derive(Clone, PartialEq, Debug)] // Serialize
                                    // #[serde(untagged)]
 pub enum Hub<T> {
-    // : Payload
     /// A base value or Path
     Tray(Tray<T>),
     /// Graph leaf node
@@ -79,10 +78,7 @@ impl<T> Hub<T> {
     }
 }
 
-impl<T> Hub<T>
-where
-    T: SendSync + Debug + Clone,
-{
+impl<T: Gather> Hub<T> {
     /// Run main hub function. Will return lower rank hub if successful.
     pub async fn main(&self) -> Result<Hub<T>> {
         match self {
@@ -144,7 +140,7 @@ where
     }
 }
 
-impl<T: Payload> Hub<T> {
+impl<T: Transmit> Hub<T> {
     pub fn imports(&self) -> Result<Vec<Import>> {
         match self {
             Self::Ploy(ploy) => ploy.get_imports(),
@@ -236,23 +232,13 @@ impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
     }
 }
 
-// impl<T: Payload> Default for Hub<T> {
-//     fn default() -> Self {
-//         Self::Tray(Tray::Base(T::default()))
-//     }
-// }
-
 impl<T> Default for Hub<T> {
     fn default() -> Self {
         Self::Tray(Tray::None)
-        // Self::Tray(Tray::Path(Path::Hash(0)))
     }
 }
 
-impl<T> Depend for Hub<T>
-where
-    T: SendSync + Debug + Clone,
-{
+impl<T: Gather> Depend for Hub<T> {
     fn depend(&self) -> impl Future<Output = Result<()>> {
         Box::pin(async move {
             match self {
@@ -265,10 +251,7 @@ where
     }
 }
 
-impl<T> Depend for Vec<T>
-where
-    T: SendSync + Depend,
-{
+impl<T: Depend> Depend for Vec<T> {
     async fn depend(&self) -> Result<()> {
         for hub in self {
             hub.depend().await?;
@@ -277,7 +260,7 @@ where
     }
 }
 
-impl<T: Depend + SendSync> Depend for Option<T> {
+impl<T: Depend> Depend for Option<T> {
     async fn depend(&self) -> Result<()> {
         if let Some(item) = self {
             item.depend().await?;
@@ -286,12 +269,12 @@ impl<T: Depend + SendSync> Depend for Option<T> {
     }
 }
 
-pub trait SolveDown<T: Payload> {
+pub trait SolveDown<T: Transmit> {
     /// Solve down to the given graph rank.
     fn down(&self, rank: u16) -> impl Future<Output = Result<Vec<Hub<T>>>>;
 }
 
-impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
+impl<T: Transmit> SolveDown<T> for Vec<Hub<T>> {
     async fn down(&self, rank: u16) -> Result<Vec<Hub<T>>> {
         let mut out = vec![];
         for hub in self {
@@ -301,29 +284,10 @@ impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {
     }
 }
 
-// impl<T: Payload> Digest for Vec<Hub<T>> {
-//     fn digest<H: Hasher>(&self, state: &mut H) {
-//         for hub in self {
-//             hub.digest(state);
-//         }
-//     }
-// }
-
-impl<T: Payload> Digest for Option<T> {
+impl<T: Transmit> Digest for Option<T> {
     fn digest<H: Hasher>(&self, state: &mut H) {
         if let Some(x) = self {
             x.digest(state);
         }
     }
 }
-
-// pub fn depend(&self) -> GraphFuture<Result<()>> {
-//     Box::pin(async move {
-//         match self {
-//             Self::Tray(_) => Ok(()),
-//             Self::Leaf(leaf) => leaf.read(|_| ()),
-//             Self::Ploy(ploy) => ploy.solve().await?.depend().await,
-//             Self::Gate(gate) => gate.solve().await?.depend().await,
-//         }
-//     })
-// }

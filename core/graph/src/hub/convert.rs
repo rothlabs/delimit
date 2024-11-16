@@ -43,11 +43,11 @@ impl<T> From<T> for Hub<T> {
 }
 
 pub trait ToPloyHub {
-    type Base; //: Payload;
+    type Base; //: Transmit;
     fn hub(&self) -> Hub<Self::Base>;
 }
 
 pub trait ToGateHub {
-    type Base; //: Payload;
+    type Base; //: Transmit;
     fn hub(&self) -> Hub<Self::Base>;
 }

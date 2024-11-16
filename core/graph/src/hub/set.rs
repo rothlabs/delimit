@@ -2,7 +2,7 @@ use super::*;
 
 impl<T> Hub<T>
 where
-    T: Payload,
+    T: Transmit,
 {
     /// Set one hub.
     pub async fn set(&self, aim: impl Into<Aim>, apex: impl Into<Apex>) -> Result<()> {

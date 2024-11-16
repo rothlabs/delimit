@@ -41,7 +41,7 @@ impl<T> From<&Leaf<T>> for Leaf<T> {
 //     fn leaf(self) -> Leaf<Vec<T>>;
 // }
 
-// impl<T: Payload> VecIntoLeaf<T> for Vec<T> {
+// impl<T: Transmit> VecIntoLeaf<T> for Vec<T> {
 //     fn leaf(self) -> Leaf<Vec<T>> {
 //         Leaf::new(self)
 //     }
@@ -59,7 +59,7 @@ impl<T> From<&Leaf<T>> for Leaf<T> {
 //     }
 // }
 
-// impl<T: Payload> IntoLeaf<T> for Vec<T> {
+// impl<T: Transmit> IntoLeaf<T> for Vec<T> {
 //     fn leaf(self) -> Leaf<Vec<T>> {
 //         Leaf::new(self)
 //     }

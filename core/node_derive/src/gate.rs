@@ -34,9 +34,9 @@ pub fn derive(item: TokenStream) -> TokenStream {
                     #[automatically_derived]
                     impl<T> #builder<T>
                     where
-                        T: 'static + Clone + graph::SendSync + std::fmt::Debug,
+                        T: 'static + graph::Gather,
                         #unit<T>: graph::Solve,
-                        <#unit<T> as graph::Solve>::Base: Clone + graph::SendSync + std::fmt::Debug,
+                        <#unit<T> as graph::Solve>::Base: graph::Gather,
                     {
                         pub fn make(self) -> graph::Result<#unit<T>> {
                             match self.build() {

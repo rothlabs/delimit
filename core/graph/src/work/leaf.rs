@@ -9,7 +9,7 @@ pub struct Leaf<T> {
     serial: Option<String>,
 }
 
-impl<T: Payload> Leaf<T> {
+impl<T: 'static + Transmit> Leaf<T> {
     pub fn hub(self) -> Hub<T> {
         Hub::Leaf(link::Leaf::new(self.base))
     }
@@ -40,7 +40,7 @@ impl<T> BaseMut for Leaf<T> {
     }
 }
 
-// was T: Payload
+// was T: Transmit
 impl<T: Digest + Serialize> ReckonMut for Leaf<T> {
     fn get_imports(&self) -> Result<Vec<Import>> {
         Ok(vec![])
@@ -76,7 +76,7 @@ impl<T> Clear for Leaf<T> {
 
 impl<T> ReactMut for Leaf<T> {}
 
-// impl<T: Payload> SolveMut for Leaf<T> {
+// impl<T: Transmit> SolveMut for Leaf<T> {
 //     type Base = ();
 //     // fn rank(&self) -> u16 {
 //     //     0
@@ -91,7 +91,7 @@ impl<T> ReactMut for Leaf<T> {}
 //     }
 // }
 
-// impl<T: Payload> Leaf<T> {
+// impl<T: Transmit> Leaf<T> {
 //     fn digest(&mut self) -> u64 {
 //         if let Some(digest) = self.digest {
 //             digest
