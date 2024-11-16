@@ -1,19 +1,9 @@
-// pub use gain::*;
-// pub use task::*;
-
 use super::*;
 use std::future::Future;
 use thiserror::Error;
 
-// mod gain;
-// mod task;
-
 #[derive(Error, Debug)]
 pub enum Error {
-    // #[error(transparent)]
-    // Task(#[from] task::Error),
-    // #[error(transparent)]
-    // Gain(#[from] gain::Error),
     #[error(transparent)]
     Aim(#[from] aim::Error),
     #[error(transparent)]
@@ -25,7 +15,7 @@ pub enum Error {
 }
 
 pub trait Solve {
-    type Base: 'static + SendSync; // + Payload;
+    type Base: 'static + SendSync;
     /// Solve a task.
     /// The hub will run computations or return existing results.
     fn solve(&self) -> impl Future<Output = node::Result<Self::Base>> + IsSend {
@@ -40,12 +30,6 @@ pub trait Act {
     fn act(&self) -> impl Future<Output = node::Action> + IsSend;
 }
 
-// impl<T: SendSync> Act for Grc<T> {
-//     async fn act(&self) -> Result<()> {
-//         Ok(())
-//     }
-// }
-
 impl<T: Act + SendSync> Solve for T {
     type Base = ();
     async fn solve(&self) -> node::Action {
@@ -54,15 +38,12 @@ impl<T: Act + SendSync> Solve for T {
     }
 }
 
-pub fn acted<T>() -> node::Result<T>
-where
-    T: 'static + SendSync, //+ Payload,
-{
+pub fn acted<T>() -> node::Result<T> {
     Ok(Hub::none())
 }
 
 pub trait SolveAdapt {
-    type Base: 'static + SendSync; //Payload;
+    type Base: 'static + SendSync;
     /// For graph internals to handle solve calls
     fn solve(&mut self) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move { Ok(acted()?) })

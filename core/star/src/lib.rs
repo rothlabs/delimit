@@ -53,11 +53,9 @@ where
 pub fn transfer<T>(
     source: Hub<T>,
     target: impl Into<Leaf<T>>,
-) -> graph::Result<Hub<<Transfer<T> as graph::Solve>::Base>>
+) -> graph::Result<Hub<()>>
 where
-    T: 'static + Clone + graph::SendSync + std::fmt::Debug,
-    // Transfer<T>: graph::Solve,
-    <Transfer<T> as graph::Solve>::Base: Clone + graph::SendSync + std::fmt::Debug,
+    T: 'static + Clone + SendSync + Debug,
 {
     let transfer = Transfer {
         source,

@@ -253,7 +253,7 @@ impl<T> Depend for Hub<T>
 where
     T: SendSync + Debug + Clone,
 {
-    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend {
+    fn depend(&self) -> impl Future<Output = Result<()>> {
         Box::pin(async move {
             match self {
                 Self::Tray(_) => Ok(()),
@@ -286,12 +286,9 @@ impl<T: Depend + SendSync> Depend for Option<T> {
     }
 }
 
-pub trait SolveDown<T>
-where
-    T: 'static + Payload,
-{
+pub trait SolveDown<T: Payload> {
     /// Solve down to the given graph rank.
-    fn down(&self, rank: u16) -> impl Future<Output = Result<Vec<Hub<T>>>> + IsSend;
+    fn down(&self, rank: u16) -> impl Future<Output = Result<Vec<Hub<T>>>>;
 }
 
 impl<T: Payload> SolveDown<T> for Vec<Hub<T>> {

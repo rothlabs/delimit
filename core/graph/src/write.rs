@@ -35,7 +35,7 @@ pub trait WriteBaseOut {
 pub trait WriteUnit {
     type Unit;
     /// Front-facing write-to-unit. Closure takes `Pack { unit, back }`.
-    fn write<O, F>(&self, write: F) -> impl Future<Output = Result<O>> + IsSend
+    fn write<O, F>(&self, write: F) -> impl Future<Output = Result<O>>
     where
         O: IsSend,
         F: FnOnce(&mut Pack<Self::Unit>) -> O + IsSend;

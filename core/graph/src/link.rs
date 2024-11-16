@@ -148,7 +148,7 @@ impl<E> Link<E>
 where
     E: 'static + FromSnap + Employ,
 {
-    pub fn wing_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
+    pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
         Ok(Gate {
             path: None,

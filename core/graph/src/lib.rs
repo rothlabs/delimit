@@ -141,6 +141,7 @@ impl<T> IsSend for T {}
 pub trait Unit: Solve + Adapt + SendSync + Debug {}
 impl<T> Unit for T where T: Solve + Adapt + SendSync + Debug {}
 
+// TODO: make GatePayload that does not require Digest and Serialize
 pub trait Payload: 'static + Clone + Digest + Serialize + Debug + SendSync {}
 impl<T> Payload for T where T: 'static + Clone + Digest + Serialize + Debug + SendSync {}
 
@@ -267,7 +268,7 @@ where
     T::Base: Clone + Debug,
 {
     fn gate(self) -> Result<Gate<Self::Base>> {
-        Node::wing_from_unit(self)
+        Node::gate_from_unit(self)
     }
 }
 
@@ -372,7 +373,7 @@ pub trait ReckonMut {
 }
 
 pub trait Depend {
-    fn depend(&self) -> impl Future<Output = Result<()>> + IsSend;
+    fn depend(&self) -> impl Future<Output = Result<()>>;
 }
 
 pub trait PloyTag {}
