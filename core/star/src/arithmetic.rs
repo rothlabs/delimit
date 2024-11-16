@@ -1,7 +1,7 @@
 use super::*;
 use std::{fmt::Debug, ops};
 
-#[derive(GateTag, Back, Default, Debug)]
+#[derive(Gate, Back, Default, Debug)]
 pub struct Arithmetic<T> {
     value: Hub<T>,
     ops: Vec<Operation<T>>,

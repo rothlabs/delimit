@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Debug, BuildGate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct DrawElements {
     gl: WGLRC,

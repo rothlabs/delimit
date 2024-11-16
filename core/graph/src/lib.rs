@@ -12,7 +12,7 @@ pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use node_derive;
-pub use ploy::{SolvePloy, Employ, SolveGate, Engage, Gate, Ploy, PloyEdge, GateEdge};
+pub use ploy::{Employ, Engage, Gate, GateEdge, Ploy, PloyEdge, SolveGate, SolvePloy};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,

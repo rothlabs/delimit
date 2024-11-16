@@ -11,7 +11,7 @@ pub fn vector<T>() -> VectorBuilder<T> {
     VectorBuilder::default()
 }
 
-#[derive(Builder, Back, Gate, Debug)]
+#[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]
 pub struct Vector<T> {
     #[builder(setter(each(name = "field", into)))]
@@ -32,7 +32,7 @@ where
     }
 }
 
-#[derive(Builder, Back, Gate, Debug)]
+#[derive(Debug, Back, Builder, BuildGate)]
 #[builder(build_fn(error = "graph::Error"))]
 pub struct Join<T> {
     #[builder(setter(each(name = "field", into)))]
@@ -50,25 +50,21 @@ where
     }
 }
 
-pub fn transfer<T>(
-    source: Hub<T>,
-    target: impl Into<Leaf<T>>,
-) -> graph::Result<Hub<()>>
+pub fn transfer<T>(source: Hub<T>, target: impl Into<Leaf<T>>) -> Result<Hub<()>>
 where
-    T: 'static + Clone + SendSync + Debug,
+    T: 'static + Gather,
 {
-    let transfer = Transfer {
+    Transfer {
         source,
         target: target.into(),
-    };
-    let node = transfer.gate()?;
-    Ok(node.into())
+    }
+    .hub()
 }
 
-#[derive(GateTag, Back, Debug)]
+#[derive(Gate, Back, Debug)]
 pub struct Transfer<T> {
-    source: Hub<T>,
-    target: Leaf<T>,
+    pub source: Hub<T>,
+    pub target: Leaf<T>,
 }
 
 impl<T> Act for Transfer<T>

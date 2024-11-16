@@ -1,7 +1,7 @@
 use super::*;
 
 /// Draw arrays with WebGL.
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Debug, BuildGate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct DrawArrays {
     gl: WGLRC,

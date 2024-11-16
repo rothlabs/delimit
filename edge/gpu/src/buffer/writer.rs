@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Back, Gate, Debug)]
+#[derive(Builder, Back, BuildGate, Debug)]
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferWriter<T> {
     #[back(skip)]

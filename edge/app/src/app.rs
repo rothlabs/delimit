@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Gate, Back, Debug)]
+#[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct App {
@@ -19,6 +19,7 @@ impl Act for App {
             let command = port.pass(steps).hub()?;
             let commands = star::vector().field(command).hub()?;
             let writer = star::transfer(commands, &port.commands)?;
+            // let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;
             writer.depend().await?;
             self.command_writers.write(|x| x.push(writer)).await?;
             println!("new window");

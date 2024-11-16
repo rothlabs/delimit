@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use derive_builder::{Builder, UninitializedFieldError};
 use dom::*;
 use graph::*;
-use node_derive::Gate;
+use node_derive::BuildGate;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::js_sys::Math::random;

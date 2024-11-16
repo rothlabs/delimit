@@ -1,7 +1,7 @@
 use super::*;
 
 /// Tell the GPU how to read from a buffer
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Debug, BuildGate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct VertexAttribute {
     // gl: WGLRC,

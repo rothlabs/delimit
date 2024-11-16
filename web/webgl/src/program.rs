@@ -2,7 +2,7 @@ use super::*;
 use web_sys::WebGlProgram;
 
 /// GPU program based on vertex and fragment shaders.
-#[derive(Builder, Debug, Gate)]
+#[derive(Builder, Debug, BuildGate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Program {
     gl: WGLRC,

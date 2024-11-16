@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Debug, Gate)]
+#[derive(Debug, Builder, BuildGate)]
 #[builder(pattern = "owned", setter(into))]
 pub struct Text {
     pub element: web_sys::Element,

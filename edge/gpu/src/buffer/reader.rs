@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Back, Gate, Debug)]
+#[derive(Builder, Back, BuildGate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct BufferReader<T> {

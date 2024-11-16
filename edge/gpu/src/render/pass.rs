@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Gate, Back, Debug)]
+#[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Node {

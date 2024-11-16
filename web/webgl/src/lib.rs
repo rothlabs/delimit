@@ -13,7 +13,7 @@ pub use vertex_attribute::*;
 
 use derive_builder::Builder;
 use graph::*;
-use node_derive::Gate;
+use node_derive::BuildGate;
 use vao_writer::*;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{js_sys::*, HtmlCanvasElement, WebGl2RenderingContext, WebGlBuffer};

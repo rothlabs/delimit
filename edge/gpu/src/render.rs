@@ -19,7 +19,7 @@ pub enum Step {
     DrawIndexed(Range<u32>, i32, Range<u32>),
 }
 
-#[derive(Builder, Gate, Debug)]
+#[derive(Builder, BuildGate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Codec {

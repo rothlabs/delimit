@@ -2,7 +2,7 @@ pub use text::*;
 
 use derive_builder::Builder;
 use graph::*;
-use node_derive::Gate;
+use node_derive::BuildGate;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
