@@ -23,6 +23,12 @@ pub type Leaf<T> = Link<edge::Leaf<T>>;
 /// The unit type is intact. For type-erased unit, use `Ploy` instead.
 pub type Node<U> = Link<edge::Node<U>>;
 
+/// `Link` to domain-specific node.
+/// The unit type is erased. To keep unit type intact, use `Node` instead.
+pub type Ploy<T> = Link<dyn edge::ploy::Engage<Base = T>>;
+
+pub type Gate<T> = Link<dyn edge::gate::Engage<Base = T>>;
+
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
 #[derive(Default)]
@@ -132,7 +138,7 @@ impl<E: FromSnap> Link<E> {
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + Engage,
+    E: 'static + FromSnap + ploy::Engage,
 {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
@@ -146,7 +152,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + Employ,
+    E: 'static + FromSnap + gate::Engage,
 {
     pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
@@ -160,7 +166,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + Engage,
+    E: 'static + FromSnap + ploy::Engage,
 {
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(snap)?;
@@ -335,7 +341,7 @@ impl<T: Backed> Backed for Option<T> {
 
 impl<E> Link<E>
 where
-    E: 'static + Engage,
+    E: 'static + ploy::Engage,
 {
     /// Copy the link with unit type erased.  
     pub fn as_ploy(&self) -> Ploy<E::Base> {
@@ -349,7 +355,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + Employ,
+    E: 'static + gate::Engage,
 {
     /// Copy the link with unit type erased.  
     pub fn as_gate(&self) -> Gate<E::Base> {
@@ -363,7 +369,7 @@ where
 
 impl<E> ToPloyHub for Link<E>
 where
-    E: 'static + Engage,
+    E: 'static + ploy::Engage,
     // E::Base: PloyTag
 {
     type Base = E::Base;
@@ -374,7 +380,7 @@ where
 
 impl<E> ToGateHub for Link<E>
 where
-    E: 'static + Employ,
+    E: 'static + gate::Engage,
     // E::Base: GateTag
 {
     type Base = E::Base;

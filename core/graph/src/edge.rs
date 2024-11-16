@@ -1,5 +1,8 @@
 use super::*;
 
+pub(crate) mod ploy;
+pub(crate) mod gate;
+
 /// Edge to a tray.
 pub type Leaf<T> = Edge<cusp::Leaf<T>>;
 
@@ -87,7 +90,7 @@ where
     }
 }
 
-impl<C> SolvePloy for Edge<C>
+impl<C> ploy::Solve for Edge<C>
 where
     C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + ReckonMut + Debug,
 {
@@ -101,7 +104,7 @@ where
             .await
         })
     }
-    fn backed(&self, back: &Back) -> PloyEdge<Self::Base> {
+    fn backed(&self, back: &Back) -> ploy::Edge<Self::Base> {
         edge_pointer(Self {
             root: None,
             back: Some(back.clone()),
@@ -110,7 +113,7 @@ where
     }
 }
 
-impl<C> SolveGate for Edge<C>
+impl<C> gate::Solve for Edge<C>
 where
     C: 'static + SolveAdapt + UpdateMut + AdaptMut + AddRoot + Debug + GateTag,
 {
@@ -124,7 +127,7 @@ where
             .await
         })
     }
-    fn backed(&self, back: &Back) -> GateEdge<Self::Base> {
+    fn backed(&self, back: &Back) -> gate::Edge<Self::Base> {
         edge_pointer(Self {
             root: None,
             back: Some(back.clone()),

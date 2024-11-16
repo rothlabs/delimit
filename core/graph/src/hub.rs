@@ -180,7 +180,8 @@ impl<T: Transmit> Hub<T> {
             Self::Tray(tray) => tray.serial(),
             Self::Leaf(leaf) => leaf.get_serial(),
             Self::Ploy(ploy) => ploy.get_serial(),
-            Self::Gate(gate) => gate.serial(),
+            // should this be an error:
+            Self::Gate(_) => Ok("".into())//gate.serial(),
         }
     }
 

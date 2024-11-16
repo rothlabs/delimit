@@ -12,7 +12,6 @@ pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
 pub use node_derive;
-pub use ploy::{Employ, Engage, Gate, GateEdge, Ploy, PloyEdge, SolveGate, SolvePloy};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
     UpdateMut,
@@ -24,6 +23,8 @@ pub use thiserror;
 pub use tray::Tray;
 pub use write::{Pack, WriteBase, WriteBaseOut, WriteUnit, WriteUnitOut, WriteUnitWork};
 
+use edge::{ploy, gate};
+use link::{Ploy, Gate};
 use work::SolveAdapt;
 use aim::*;
 use apex::{View, ViewVec};
@@ -68,7 +69,7 @@ mod edge;
 mod link;
 mod map;
 mod meta;
-mod ploy;
+// mod ploy;
 mod scope;
 #[cfg(test)]
 mod tests;
