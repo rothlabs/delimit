@@ -34,7 +34,3 @@ pub struct Plot {
     pub hedge: Hedge,
     pub shape: Hub<Shape>,
 }
-
-// #[cfg(target_arch = "wasm32")]
-// #[error(transparent)]
-// Dom(#[from] dom::Error),

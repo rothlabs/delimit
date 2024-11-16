@@ -10,27 +10,27 @@ pub fn derive(item: TokenStream) -> TokenStream {
                 quote! {
                     #[automatically_derived]
                     impl graph::GateTag for #unit {}
-                    #[automatically_derived]
-                    impl #unit {
-                        pub fn hub(self) -> graph::Result<graph::Hub<<#unit as graph::Solve>::Base>> {
-                            Ok(self.gate()?.into())
-                        }
-                    }
+                    // #[automatically_derived]
+                    // impl #unit {
+                    //     pub fn hub(self) -> graph::Result<graph::Hub<<#unit as graph::Solve>::Base>> {
+                    //         Ok(self.gate()?.into())
+                    //     }
+                    // }
                 }
             } else {
                 quote! {
                     #[automatically_derived]
                     impl<T> graph::GateTag for #unit<T> {}
-                    impl<T> #unit<T>
-                    where
-                        T: 'static + graph::Gather,
-                        #unit<T>: graph::Solve,
-                        <#unit<T> as graph::Solve>::Base: graph::Gather,
-                    {
-                        pub fn hub(self) -> graph::Result<graph::Hub<<#unit<T> as graph::Solve>::Base>> {
-                            Ok(self.gate()?.into())
-                        }
-                    }
+                    // impl<T> #unit<T>
+                    // where
+                    //     T: 'static + graph::Gather,
+                    //     #unit<T>: graph::Solve,
+                    //     <#unit<T> as graph::Solve>::Base: graph::Gather,
+                    // {
+                    //     pub fn hub(self) -> graph::Result<graph::Hub<<#unit<T> as graph::Solve>::Base>> {
+                    //         Ok(self.gate()?.into())
+                    //     }
+                    // }
                 }
             }
         }

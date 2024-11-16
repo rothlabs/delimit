@@ -2,17 +2,15 @@ use super::*;
 use std::{fmt::Debug, ops};
 
 #[derive(Gate, Back, Default, Debug)]
-pub struct Arithmetic<T> {
+pub struct Calc<T> {
     value: Hub<T>,
     ops: Vec<Operation<T>>,
 }
 
-impl<T> Solve for Arithmetic<T>
+impl<T> Solve for Calc<T>
 where
     T: 'static
-        + Clone
-        + SendSync
-        + Debug
+        + Gather
         + ops::AddAssign<T>
         + ops::SubAssign<T>
         + ops::MulAssign<T>
@@ -30,7 +28,6 @@ where
                 OperationType::Div => out /= value,
             }
         }
-        // Ok(out.into_leaf().into())
         Ok(out.into())
     }
 }
@@ -59,17 +56,17 @@ enum OperationType {
 }
 
 #[derive(Default)]
-pub struct ArithmeticBuilder<T> {
-    target: Arithmetic<T>,
+pub struct CalcBuilder<T> {
+    target: Calc<T>,
 }
 
-impl<T> ArithmeticBuilder<T>
+impl<T> CalcBuilder<T>
 where
-    T: 'static + Clone + SendSync + Debug,
-    Arithmetic<T>: Solve + IntoGate,
+    T: 'static + Gather,
+    Calc<T>: IntoGateHub,
 {
-    pub fn hub(self) -> graph::Result<Hub<<Arithmetic<T> as Solve>::Base>> {
-        Ok(self.target.gate()?.into())
+    pub fn hub(self) -> graph::Result<Hub<<Calc<T> as IntoGateHub>::Base>> {
+        self.target.hub()
     }
     #[allow(clippy::should_implement_trait)]
     pub fn add(mut self, value: impl Into<Hub<T>>) -> Self {
@@ -105,24 +102,22 @@ where
     }
 }
 
-pub trait MakeArithmetic<T> {
-    fn calc(&self) -> ArithmeticBuilder<T>;
+pub trait MakeCalc<T> {
+    fn calc(&self) -> CalcBuilder<T>;
 }
 
-impl<T> MakeArithmetic<T> for Hub<T>
+impl<T> MakeCalc<T> for Hub<T>
 where
     T: 'static
-        + Clone
-        + SendSync
-        + Debug
+        + Gather
         + ops::AddAssign<T>
         + ops::SubAssign<T>
         + ops::MulAssign<T>
         + ops::DivAssign<T>,
 {
-    fn calc(&self) -> ArithmeticBuilder<T> {
-        ArithmeticBuilder {
-            target: Arithmetic {
+    fn calc(&self) -> CalcBuilder<T> {
+        CalcBuilder {
+            target: Calc {
                 value: self.clone(),
                 ops: vec![],
             },

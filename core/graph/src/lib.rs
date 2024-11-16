@@ -242,12 +242,6 @@ where
     }
 }
 
-pub trait IntoHub {
-    type Base; //: Transmit;
-    /// Move into `Hub`
-    fn hub(self) -> Result<Hub<Self::Base>>;
-}
-
 pub trait IntoGate
 where
     Self: Solve,
@@ -262,6 +256,19 @@ where
 {
     fn gate(self) -> Result<Gate<Self::Base>> {
         Node::gate_from_unit(self)
+    }
+}
+
+pub trait IntoGateHub {
+    type Base;
+    /// Move into `Hub`
+    fn hub(self) -> Result<Hub<Self::Base>>;
+}
+
+impl<T: IntoGate> IntoGateHub for T {
+    type Base = T::Base;
+    fn hub(self) -> Result<Hub<Self::Base>> {
+        Ok(self.gate()?.into())
     }
 }
 

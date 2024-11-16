@@ -2,6 +2,7 @@ use app::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
+use star::*;
 use gui::*;
 use mech::*;
 use node_derive::*;

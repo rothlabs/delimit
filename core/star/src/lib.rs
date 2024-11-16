@@ -1,11 +1,13 @@
-pub use arithmetic::*;
+pub use calc::*;
+pub use transfer::*;
 
 use derive_builder::*;
 use graph::*;
 use node_derive::*;
 use std::fmt::Debug;
 
-mod arithmetic;
+mod calc;
+mod transfer;
 
 pub fn vector<T>() -> VectorBuilder<T> {
     VectorBuilder::default()
@@ -20,7 +22,7 @@ pub struct Vector<T> {
 
 impl<T> Solve for Vector<T>
 where
-    T: 'static + Clone + SendSync + Debug,
+    T: 'static + Gather,
 {
     type Base = Vec<T>;
     async fn solve(&self) -> node::Result<Vec<T>> {
@@ -41,7 +43,7 @@ pub struct Join<T> {
 
 impl<T> Solve for Join<T>
 where
-    T: 'static + Clone + SendSync + Debug + Default,
+    T: 'static + Gather + Default,
 {
     type Base = T;
     async fn solve(&self) -> node::Result<Self::Base> {
@@ -49,54 +51,3 @@ where
         Ok(T::default().into())
     }
 }
-
-pub fn transfer<T>(source: Hub<T>, target: impl Into<Leaf<T>>) -> Result<Hub<()>>
-where
-    T: 'static + Gather,
-{
-    Transfer {
-        source,
-        target: target.into(),
-    }
-    .hub()
-}
-
-#[derive(Gate, Back, Debug)]
-pub struct Transfer<T> {
-    pub source: Hub<T>,
-    pub target: Leaf<T>,
-}
-
-impl<T> Act for Transfer<T>
-where
-    T: 'static + Clone + SendSync + Debug,
-{
-    async fn act(&self) -> node::Action {
-        let value = self.source.base().await?;
-        self.target.write(|x| *x = value).await?;
-        acted()
-    }
-}
-
-// pub fn writer<T>(source: Hub<T>) -> WriterBuilder<T> {
-//     WriterBuilder::default().source(source)
-// }
-
-// #[derive(Builder, Back, Gate, Debug)]
-// #[builder(pattern = "owned")]
-// #[builder(setter(into))]
-// pub struct Writer<T> {
-//     source: Hub<T>,
-//     target: Leaf<T>,
-// }
-
-// impl<T> Act for Writer<T>
-// where
-//     T: 'static + Clone + SendSync + Debug,
-// {
-//     async fn act(&self) -> node::Action {
-//         let value = self.source.base().await?;
-//         self.target.write(|x| *x = value).await?;
-//         acted()
-//     }
-// }

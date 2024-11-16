@@ -1,3 +1,5 @@
+use star::MakeTransfer;
+
 use super::*;
 
 #[derive(Builder, BuildGate, Back, Debug)]
@@ -18,10 +20,9 @@ impl Act for App {
             let steps = test::draw_nurbs_surface(&view).await?;
             let command = port.pass(steps).hub()?;
             let commands = star::vector().field(command).hub()?;
-            let writer = star::transfer(commands, &port.commands)?;
-            // let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;
-            writer.depend().await?;
-            self.command_writers.write(|x| x.push(writer)).await?;
+            let transfer = commands.transfer(&port.commands)?;
+            transfer.depend().await?;
+            self.command_writers.write(|x| x.push(transfer)).await?;
             println!("new window");
         }
         acted()
@@ -34,3 +35,7 @@ fn mech_view(display: &Display) -> Result<View> {
     let view = View::new(mech, port)?;
     Ok(view)
 }
+
+
+    // let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;
+    // let writer = star::transfer(commands, &port.commands)?;
