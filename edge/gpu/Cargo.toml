@@ -4,18 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+    bytemuck = "1.18.0"
+    flume = "0.11.0"
     anyhow = { workspace = true }
     tokio = { workspace = true }
     derive_builder = { workspace = true }
-    wgpu = "22.1.0"
-    bytemuck = "1.18.0"
-    flume = "0.11.0"
-    graph = { path = "../../core/graph" }
-    node_derive = { workspace = true }
-    star = { path = "../../core/star" }
+    wgpu = { workspace = true }
+    graph = { workspace = true }
+    star = { workspace = true }
 
-[dev-dependencies]
-    wasm-bindgen-test = "0.3.43"
+# [dev-dependencies]
+#     wasm-bindgen-test = "0.3.43"
 
 # [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 #     winit = "0.30"

@@ -1,7 +1,7 @@
-pub use core::ToCore;
-// pub use encode::post::{compute, Render, Command};
 pub use command::Command;
+pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
+pub use wgpu;
 
 use bind::*;
 use buffer::*;

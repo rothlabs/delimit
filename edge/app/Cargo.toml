@@ -6,12 +6,10 @@ edition = "2021"
 [dependencies]
     anyhow = {workspace = true}
     derive_builder = { workspace = true }
-    tokio = { version = "1", features = ["full"] }
-    # winit = "0.30"
-    wgpu = "22.1.0"
+    tokio = { workspace = true }
+    wgpu = { workspace = true }
     gui = { workspace = true }
     gpu = { workspace = true }
     graph = { workspace = true }
-    node_derive = { workspace = true }
     star = { workspace = true }
     mech = { workspace = true }

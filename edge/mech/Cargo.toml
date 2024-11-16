@@ -6,13 +6,10 @@ resolver = "2"
 
 [dependencies]
     anyhow = "1.0"
-    serde = { version = "1.0", features = ["derive"] }
-    derive_builder = "0.20.1"
-    wgpu = "22.1.0"
-    graph = { path = "../../core/graph" }
-    gpu = { path = "../gpu" }
-    node_derive = { path = "../../core/node_derive" }
-    star = { path = "../../core/star" }
+    derive_builder = { workspace = true }
+    graph = { workspace = true }
+    gpu = { workspace = true }
+    star = { workspace = true }
 
 [dev-dependencies]
     gui = { workspace = true }

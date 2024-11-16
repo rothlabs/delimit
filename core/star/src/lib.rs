@@ -50,19 +50,30 @@ where
     }
 }
 
-pub fn writer<T>(source: Hub<T>) -> WriterBuilder<T> {
-    WriterBuilder::default().source(source)
+pub fn transfer<T>(
+    source: Hub<T>,
+    target: impl Into<Leaf<T>>,
+) -> graph::Result<Hub<<Transfer<T> as graph::Solve>::Base>>
+where
+    T: 'static + Clone + graph::SendSync + std::fmt::Debug,
+    // Transfer<T>: graph::Solve,
+    <Transfer<T> as graph::Solve>::Base: Clone + graph::SendSync + std::fmt::Debug,
+{
+    let transfer = Transfer {
+        source,
+        target: target.into(),
+    };
+    let node = transfer.gate()?;
+    Ok(node.into())
 }
 
-#[derive(Builder, Back, Gate, Debug)]
-#[builder(pattern = "owned")]
-#[builder(setter(into))]
-pub struct Writer<T> {
+#[derive(GateTag, Back, Debug)]
+pub struct Transfer<T> {
     source: Hub<T>,
     target: Leaf<T>,
 }
 
-impl<T> Act for Writer<T>
+impl<T> Act for Transfer<T>
 where
     T: 'static + Clone + SendSync + Debug,
 {
@@ -72,3 +83,26 @@ where
         acted()
     }
 }
+
+// pub fn writer<T>(source: Hub<T>) -> WriterBuilder<T> {
+//     WriterBuilder::default().source(source)
+// }
+
+// #[derive(Builder, Back, Gate, Debug)]
+// #[builder(pattern = "owned")]
+// #[builder(setter(into))]
+// pub struct Writer<T> {
+//     source: Hub<T>,
+//     target: Leaf<T>,
+// }
+
+// impl<T> Act for Writer<T>
+// where
+//     T: 'static + Clone + SendSync + Debug,
+// {
+//     async fn act(&self) -> node::Action {
+//         let value = self.source.base().await?;
+//         self.target.write(|x| *x = value).await?;
+//         acted()
+//     }
+// }

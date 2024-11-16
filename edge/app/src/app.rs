@@ -18,7 +18,7 @@ impl Act for App {
             let steps = test::draw_nurbs_surface(&view).await?;
             let command = port.pass(steps).hub()?;
             let commands = star::vector().field(command).hub()?;
-            let writer = star::writer(commands).target(&port.commands).hub()?;
+            let writer = star::transfer(commands, &port.commands)?;
             writer.depend().await?;
             self.command_writers.write(|x| x.push(writer)).await?;
             println!("new window");

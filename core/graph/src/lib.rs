@@ -11,6 +11,7 @@ pub use lake::{Lake, Serial};
 pub use link::{IntoLeaf, Leaf, Link, Node, ToLeaf};
 pub use map::Map;
 pub use meta::{upper_all, Id, Import, Key, Path, WORLD_ALL};
+pub use node_derive;
 pub use ploy::{Based, Employ, Employed, Engage, Gate, Ploy, PloyEdge, WingEdge};
 pub use react::{
     AddRoot, Back, Backed, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update,
