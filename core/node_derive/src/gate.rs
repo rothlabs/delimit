@@ -12,9 +12,6 @@ pub fn derive(item: TokenStream) -> TokenStream {
                     impl graph::GateTag for #unit {}
                     #[automatically_derived]
                     impl #unit {
-                        // pub fn node(self) -> graph::Result<graph::Node<#unit>> {
-                        //     self.make()?.node()
-                        // }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit as graph::Solve>::Base>> {
                             Ok(self.gate()?.into())
                         }
@@ -30,9 +27,6 @@ pub fn derive(item: TokenStream) -> TokenStream {
                         #unit<T>: graph::Solve,
                         <#unit<T> as graph::Solve>::Base: graph::Gather,
                     {
-                        // pub fn node(self) -> graph::Result<graph::Node<#unit<T>>> {
-                        //     self.make()?.node()
-                        // }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit<T> as graph::Solve>::Base>> {
                             Ok(self.gate()?.into())
                         }
