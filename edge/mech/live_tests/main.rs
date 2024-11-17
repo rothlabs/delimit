@@ -13,12 +13,10 @@ mod tests;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    println!("blocked?");
     let mut gui = Gui::default();
     let app = AppBuilder::default().displays(&gui.agent.displays).hub()?;
     app.depend().await?;
     let event_loop = EventLoop::new()?;
-    println!("made it");
     event_loop.run_app(&mut gui)?;
     Ok(())
 }

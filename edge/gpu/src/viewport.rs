@@ -36,11 +36,11 @@ pub struct Viewport {
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
     pub commands: Leaf<Vec<Command>>,
+    pub stage: Grc<TextureView>,
     surface: Grc<Surface<'static>>,
     config: SurfaceConfiguration,
     targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
-    stage: Grc<TextureView>,
 }
 
 impl Viewport {
@@ -68,7 +68,7 @@ impl Viewport {
     }
     pub fn render(&self) -> Result<()> {
         action::Render {
-            display: self,
+            viewport: self,
             commands: self.commands.base()?,
         }
         .surface()

@@ -30,10 +30,8 @@ impl Agent {
     ) -> Result<()> {
         let size = window.inner_size();
         let viewport = surface.viewport(gpu, size.width, size.height)?;
-        // post_triangle(&viewport).await?;
         let display = Display::new(window.clone(), viewport);
         self.displays.write(|x| x.push(display)).await?;
-        println!("wrote displays");
         window.set_visible(true);
         Ok(())
     }

@@ -49,8 +49,12 @@ impl<'a> Encode<'a> {
             offset: 0,
         }
     }
+    pub fn finish(self) -> CommandBuffer {
+        self.inner.finish()
+    }
     pub fn submit(self) -> SubmissionIndex {
-        self.queue.submit([self.inner.finish()])
+        // let cb = self.inner.finish();
+        self.queue.submit([self.finish()])
     }
 }
 

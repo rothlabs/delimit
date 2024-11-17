@@ -1,9 +1,7 @@
 use super::*;
 
-// mod encode;
-
 pub struct Render<'a> {
-    pub display: &'a Viewport,
+    pub viewport: &'a Viewport,
     pub commands: Vec<Command>,
 }
 
@@ -12,18 +10,18 @@ impl<'a> Render<'a> {
         if self.commands.is_empty() {
             return Ok(());
         }
-        let mut encoder = self.display.gpu.encoder();
-        let frame = self.display.frame()?;
+        let mut encoder = self.viewport.gpu.encoder();
+        let frame = self.viewport.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in &self.commands {
             if let Command::Render(pass) = command {
                 let attachments = self
-                    .display
+                    .viewport
                     .gpu
-                    .attachment(&self.display.stage)
+                    .attachment(&self.viewport.stage)
                     .resolve_target(view)
                     .list()?;
-                let fields = &self.display.gpu.render_pass(&attachments).make()?;
+                let fields = &self.viewport.gpu.render_pass(&attachments).make()?;
                 encoder.render(pass, fields);
             }
         }

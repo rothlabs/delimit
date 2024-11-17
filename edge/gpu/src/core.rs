@@ -78,6 +78,7 @@ impl Core {
             .device(&self.device)
             .bind_layouts(bind_layout)
     }
+    // TODO: put this in viewport?
     pub fn render_pass<'a>(
         &'a self,
         attachments: &'a [Option<RenderPassColorAttachment<'a>>],
