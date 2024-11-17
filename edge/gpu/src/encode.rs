@@ -4,7 +4,6 @@ pub use render::*;
 
 use super::*;
 
-// pub mod post;
 pub mod render;
 
 mod compute;
@@ -16,8 +15,6 @@ pub struct Encode<'a> {
 
 impl<'a> Encode<'a> {
     pub fn render(&mut self, render: &crate::render::Pass, fields: &RenderPassDescriptor) {
-        // match pass {
-        //     Pass::Render(render) => {
         let mut pass = self.inner.begin_render_pass(fields);
         for entry in &render.steps {
             match entry {
@@ -37,9 +34,6 @@ impl<'a> Encode<'a> {
                 }
             }
         }
-        //     }
-        //     _ => ()
-        // }
     }
     pub fn compute(&mut self) -> ComputePass {
         self.inner

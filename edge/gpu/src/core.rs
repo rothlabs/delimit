@@ -6,8 +6,6 @@ pub trait ToCore {
 
 impl ToCore for Adapter {
     async fn gpu(self) -> Result<Core> {
-        // let mut descriptor = DeviceDescriptor::default();
-        // descriptor.required_limits = Limits::default().using_resolution(self.limits());
         let descriptor = DeviceDescriptor {
             required_limits: Limits::default().using_resolution(self.limits()),
             ..Default::default()
@@ -72,11 +70,6 @@ impl Core {
     pub fn bind_storage(&self, read_only: bool) -> BufferBindingBuilder {
         BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
     }
-    // pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
-    //     pipe::RenderBuilder::default()
-    //         .device(&self.device)
-    //         .vertex(vertex)
-    // }
     pub fn pipe_layout<'a>(
         &'a self,
         bind_layout: &'a [&'a BindGroupLayout],

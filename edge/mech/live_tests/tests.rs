@@ -4,11 +4,11 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Vec<render::Ste
     let mech = &view.mech;
     let gpu = &mech.gpu;
     #[rustfmt::skip]
-    let spline2: Vec<u32> = vec![
+    let spline2 = vec![
         0,   8, 4,
     ];
     #[rustfmt::skip]
-    let spline3: Vec<u32> = vec![
+    let spline3 = vec![
         0,   1, 4, 3, 
         0,   7, 6, 5,
     ];
@@ -18,7 +18,7 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Vec<render::Ste
         .spline(gpu.hedge(spline3)?, 3)
         .build()?;
     #[rustfmt::skip]
-    let spline3: Vec<u32> = vec![
+    let spline3 = vec![
         0,   1, 0, 2
     ];
     let flow2 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
