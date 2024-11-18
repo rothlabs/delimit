@@ -3,42 +3,48 @@ use winit::application::ApplicationHandler;
 use winit::event::{DeviceEvent, ElementState, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 
-#[derive(Default)]
+// #[derive(Default)]
 pub struct Gui {
-    pub agent: Agent,
+    // pub agent: Agent,
+    pub agent: agent::Handler,
     pub event: Event,
 }
 
-// impl Default for Gui {
-//     fn default() -> Self {
-//         let (tx, mut rx) = mpsc::channel::<u32>(32);
-//         Self {
-
-//         }
-//     }
-// }
+impl Default for Gui {
+    fn default() -> Self {
+        let (tx, rx) = broadcast::channel::<Grc<Window>>(32);
+        let agent = agent::Handler {
+            window_send: tx,
+            // window_recv: rx,
+            agent: Agent::default(),
+        };
+        spawn(agent.clone().run(rx));
+        Self {
+            agent,
+            event: Event::default(),
+        }
+    }
+}
 
 impl ApplicationHandler for Gui {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.agent.is_empty().unwrap() {
+        if self.agent.agent.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            self.agent.display(window).unwrap();
-            // spawn(self.agent.clone().new_display(window.into()));
+            self.agent.window_send.send(window.into()).unwrap();
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::Resized(size) => {
-                self.agent.resize(id, size).unwrap();
+                self.agent.agent.resize(id, size).unwrap();
             }
-            WindowEvent::RedrawRequested => self.agent.render(id).unwrap(),
+            WindowEvent::RedrawRequested => self.agent.agent.render(id).unwrap(),
             WindowEvent::MouseInput { state, .. } => {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
                     let window = event_loop.create_window(fields).unwrap();
-                    self.agent.display(window).unwrap();
-                    // spawn(self.agent.clone().new_display(window.into()));
+                    self.agent.window_send.send(window.into()).unwrap();
                 }
             }
             WindowEvent::CloseRequested => {

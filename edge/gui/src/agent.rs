@@ -4,22 +4,33 @@ use super::*;
 // use tokio::task::JoinHandle;
 use winit::dpi::PhysicalSize;
 
+#[derive(Clone)]
+pub struct Handler {
+    pub window_send: broadcast::Sender<Grc<Window>>,
+    // pub window_recv: Receiver<Grc<Window>>,
+    pub agent: Agent,
+}
+
+impl Handler {
+    pub async fn run(self, mut window_recv: Receiver<Grc<Window>>) -> Result<()> {
+        loop {
+            // TODO: make self.window a message enum when there are more message types
+            let window = window_recv.recv().await?;
+            if let Err(err) = self.agent.display(window).await {
+                println!("Gui Error: {:?}", err);
+            }
+        }
+    }
+}
+
 #[derive(Default, Clone, Debug)]
 pub struct Agent {
     pub instance: Grc<Instance>,
     pub displays: Leaf<Vec<Display>>,
-    pub tasks: Leaf<Vec<JoinHandle<Result<()>>>>,
 }
 
 impl Agent {
-    pub fn display(&mut self, window: Window) -> Result<()> {
-        // spawn(self.clone().new_display(window.into()));
-        // Ok(())
-        Ok(self.tasks.write_passive(|tasks| {
-            tasks.push(spawn(self.clone().new_display(window.into())));
-        })?)
-    }
-    async fn new_display(self, window: Grc<Window>) -> Result<()> {
+    async fn display(&self, window: Grc<Window>) -> Result<()> {
         let surface = self.instance.create_surface(window.clone())?;
         let displays = self.displays.base()?;
         if let Some(main) = displays.first() {
@@ -29,7 +40,7 @@ impl Agent {
             self.make_primary(window, surface).await
         }
     }
-    async fn make_primary(self, window: Grc<Window>, surface: Surface<'static>) -> Result<()> {
+    async fn make_primary(&self, window: Grc<Window>, surface: Surface<'static>) -> Result<()> {
         let gpu = self.instance.surface_adapter(&surface).await?.gpu().await?;
         self.make_display(window, surface, gpu).await
     }

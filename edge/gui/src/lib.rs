@@ -7,9 +7,10 @@ use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
-use tokio::task::{spawn, JoinHandle};
+use tokio::task::{spawn, JoinError, JoinHandle};
 use wgpu::*;
 use winit::window::{Window, WindowId};
+use tokio::sync::broadcast::{self, Receiver, error::RecvError};
 
 mod agent;
 mod display;
@@ -19,6 +20,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error(transparent)]
+    Recv(#[from] RecvError),
+    #[error(transparent)]
+    Join(#[from] JoinError),
     #[error(transparent)]
     CreateSurfaceError(#[from] CreateSurfaceError),
     #[error(transparent)]
