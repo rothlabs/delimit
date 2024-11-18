@@ -33,6 +33,7 @@ pub async fn watch_tasks(tasks: Leaf<Vec<Grc<JoinHandle<Result<()>>>>>) -> Resul
     let mut tasks = tasks.base()?;
     for task in tasks {
         let wow = task.as_ref();
+        // wow.
     }
     Ok(())
     // let wow = tasks.write(|tasks|{
