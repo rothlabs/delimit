@@ -14,7 +14,7 @@ pub struct Pass {
 pub enum Target {
     #[default]
     Frame,
-    Texture(Grc<TextureView>),
+    Texture(Vec<u8>),
 }
 
 #[derive(Clone, Debug)]
