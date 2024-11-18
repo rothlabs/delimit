@@ -17,3 +17,9 @@
     gpu = { path = "gpu" }
     gui = { path = "gui" }
     mech = { path = "mech" }
+
+# [profile.dev]
+#     panic = 'abort'
+
+# [profile.release]
+#     panic = 'abort'

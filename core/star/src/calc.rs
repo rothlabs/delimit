@@ -67,6 +67,8 @@ where
 {
     pub fn hub(self) -> graph::Result<Hub<<Calc<T> as IntoGateHub>::Base>> {
         self.target.hub()
+        // let wow = self.target.gate()?;
+        // Ok(wow.into())
     }
     #[allow(clippy::should_implement_trait)]
     pub fn add(mut self, value: impl Into<Hub<T>>) -> Self {

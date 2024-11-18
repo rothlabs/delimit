@@ -1,8 +1,4 @@
-// pub use command::RenderBuilder;
-
 use super::*;
-
-// mod command;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]

@@ -37,7 +37,6 @@ impl<T: 'static + Gather> MakeTransfer<T> for Hub<T> {
         Transfer {
             source: self.clone(),
             target: target.into(),
-        }
-        .hub()
+        }.hub()
     }
 }

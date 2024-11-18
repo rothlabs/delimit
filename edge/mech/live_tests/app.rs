@@ -11,6 +11,16 @@ pub struct App {
 
 impl Act for App {
     async fn act(&self) -> node::Action {
+        // self.action().await
+        match self.action().await {
+            Ok(_) => acted(),
+            Err(err) => panic!("App Error: {err}")
+        }
+    }
+}
+
+impl App {
+    async fn action(&self) -> node::Action {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;

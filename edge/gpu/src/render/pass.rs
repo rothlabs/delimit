@@ -4,14 +4,18 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Node {
+    #[back(skip)]
+    #[builder(default)]
+    target: Target,
     codec: Hub<Vec<Step>>,
 }
 
 impl Solve for Node {
     type Base = Command;
     async fn solve(&self) -> node::Result<Self::Base> {
+        let target = self.target.clone();
         let steps = self.codec.base().await?;
-        let pass = Command::Render(render::Pass { steps });
+        let pass = Command::Render(render::Pass { steps, target });
         Ok(pass.into())
     }
 }

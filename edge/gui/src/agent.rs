@@ -1,14 +1,25 @@
+// use std::thread::JoinHandle;
+
 use super::*;
+// use tokio::task::JoinHandle;
 use winit::dpi::PhysicalSize;
 
 #[derive(Default, Clone, Debug)]
 pub struct Agent {
     pub instance: Grc<Instance>,
     pub displays: Leaf<Vec<Display>>,
+    // pub tasks: Leaf<Vec<JoinHandle<Result<()>>>>,
 }
 
 impl Agent {
-    pub async fn display(self, window: Grc<Window>) -> Result<()> {
+    pub fn display(&mut self, window: Window) -> Result<()> {
+        spawn(self.clone().new_display(window.into()));
+        Ok(())
+        // Ok(self.tasks.write_passive(|tasks| {
+        //     tasks.push(spawn(self.clone().new_display(window.into())));
+        // })?)
+    }
+    async fn new_display(self, window: Grc<Window>) -> Result<()> {
         let surface = self.instance.create_surface(window.clone())?;
         let displays = self.displays.base()?;
         if let Some(main) = displays.first() {

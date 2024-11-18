@@ -6,7 +6,15 @@ pub mod pass;
 
 #[derive(Clone, Debug)]
 pub struct Pass {
+    pub target: Target,
     pub steps: Vec<Step>,
+}
+
+#[derive(Default, Clone, Debug)]
+pub enum Target {
+    #[default]
+    Frame,
+    Texture(Grc<TextureView>),
 }
 
 #[derive(Clone, Debug)]

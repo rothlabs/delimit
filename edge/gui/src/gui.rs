@@ -15,7 +15,8 @@ impl ApplicationHandler for Gui {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
             // TODO: put spawn in Agent
-            spawn(self.agent.clone().display(window.into()));
+            self.agent.display(window).unwrap();
+            // spawn(self.agent.clone().new_display(window.into()));
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -28,7 +29,8 @@ impl ApplicationHandler for Gui {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
                     let window = event_loop.create_window(fields).unwrap();
-                    spawn(self.agent.clone().display(window.into()));
+                    self.agent.display(window).unwrap();
+                    // spawn(self.agent.clone().new_display(window.into()));
                 }
             }
             WindowEvent::CloseRequested => {

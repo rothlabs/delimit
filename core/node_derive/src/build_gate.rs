@@ -24,6 +24,11 @@ pub fn derive(item: TokenStream) -> TokenStream {
                         }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit as graph::Solve>::Base>> {
                             self.make()?.hub()
+                            // Ok(self.make()?.gate()?.into())
+                            // match self.make() {
+                            //     Ok(value) => Ok(value.gate()?.into()),
+                            //     Err(err) => Err(anyhow!("no deal"))?, // panic!("why???"),//
+                            // }
                         }
                     }
                 }
@@ -49,6 +54,11 @@ pub fn derive(item: TokenStream) -> TokenStream {
                         }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit<T> as graph::Solve>::Base>> {
                             self.make()?.hub()
+                            // Ok(self.make()?.gate()?.into())
+                            // match self.make() {
+                            //     Ok(value) => Ok(value.gate()?.into()),
+                            //     Err(err) => Err(anyhow!("no deal"))?,
+                            // }
                         }
                     }
                 }
