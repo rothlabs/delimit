@@ -6,6 +6,7 @@ use gui::*;
 use mech::*;
 use node_derive::*;
 use star::*;
+use tokio::sync::mpsc;
 use winit::{error::EventLoopError, event_loop::EventLoop};
 
 mod app;
@@ -13,6 +14,7 @@ mod tests;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // let (tx, mut rx) = mpsc::channel::<u32>(32);
     let mut gui = Gui::default();
     let app = AppBuilder::default().displays(&gui.agent.displays).hub()?;
     app.depend().await?;

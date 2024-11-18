@@ -7,7 +7,7 @@ use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
-use tokio::task::spawn;
+use tokio::task::{spawn, JoinHandle};
 use wgpu::*;
 use winit::window::{Window, WindowId};
 
@@ -27,6 +27,21 @@ pub enum Error {
     Gpu(#[from] gpu::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
+}
+
+pub async fn watch_tasks(tasks: Leaf<Vec<Grc<JoinHandle<Result<()>>>>>) -> Result<()> {
+    let mut tasks = tasks.base()?;
+    for task in tasks {
+        let wow = task.as_ref();
+    }
+    Ok(())
+    // let wow = tasks.write(|tasks|{
+    //     for task in tasks {
+    //         if task.await.is_err() {
+    //             panic!("wowowow");
+    //         }
+    //     }
+    // });
 }
 
 #[derive(Builder, Back, Debug)]

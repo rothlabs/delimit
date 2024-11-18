@@ -5,7 +5,7 @@ use super::*;
 #[builder(setter(into, strip_option))]
 pub struct Node {
     #[back(skip)]
-    #[builder(default)]
+    // #[builder(default)]
     target: Target,
     codec: Hub<Vec<Step>>,
 }

@@ -11,11 +11,11 @@ pub struct App {
 
 impl Act for App {
     async fn act(&self) -> node::Action {
-        // self.action().await
-        match self.action().await {
-            Ok(_) => acted(),
-            Err(err) => panic!("App Error: {err}")
-        }
+        self.action().await
+        // match self.action().await {
+        //     Ok(_) => acted(),
+        //     Err(err) => panic!("App Error: {err}")
+        // }
     }
 }
 

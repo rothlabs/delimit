@@ -9,12 +9,20 @@ pub struct Gui {
     pub event: Event,
 }
 
+// impl Default for Gui {
+//     fn default() -> Self {
+//         let (tx, mut rx) = mpsc::channel::<u32>(32);
+//         Self {
+
+//         }
+//     }
+// }
+
 impl ApplicationHandler for Gui {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.agent.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            // TODO: put spawn in Agent
             self.agent.display(window).unwrap();
             // spawn(self.agent.clone().new_display(window.into()));
         }
