@@ -5,16 +5,19 @@ pub struct Agent {
 }
 
 impl Agent {
-    pub async fn run(self, mut queue: broadcast::Receiver<Grc<Window>>) {
+    pub async fn run(self, mut queue: broadcast::Receiver<Post>) {
         loop {
             if let Err(err) = self.step(&mut queue).await {
                 println!("gui::agent::Error: {:?}", err);
             }
         }
     }
-    async fn step(&self, queue: &mut broadcast::Receiver<Grc<Window>>) -> Result<()> {
-        let window = queue.recv().await?;
-        self.gfx.display(window).await?;
+    async fn step(&self, queue: &mut broadcast::Receiver<Post>) -> Result<()> {
+        let post = queue.recv().await?;
+        #[allow(irrefutable_let_patterns)]
+        if let Post::Window(window) = post {
+            self.gfx.display(window).await?;
+        }
         Ok(())
     }
 }

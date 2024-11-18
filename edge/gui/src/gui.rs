@@ -6,7 +6,7 @@ use winit::event_loop::ActiveEventLoop;
 pub struct Gui {
     pub gfx: Gfx,
     pub event: Event,
-    queue: broadcast::Sender<Grc<Window>>,
+    queue: broadcast::Sender<Post>,
 }
 
 impl Default for Gui {
@@ -28,7 +28,7 @@ impl ApplicationHandler for Gui {
         if self.gfx.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            self.queue.send(window.into()).unwrap();
+            self.queue.send(Post::Window(window.into())).unwrap();
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
@@ -41,7 +41,7 @@ impl ApplicationHandler for Gui {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
                     let window = event_loop.create_window(fields).unwrap();
-                    self.queue.send(window.into()).unwrap();
+                    self.queue.send(Post::Window(window.into())).unwrap();
                 }
             }
             WindowEvent::CloseRequested => {

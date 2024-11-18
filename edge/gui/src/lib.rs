@@ -36,6 +36,11 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+#[derive(Clone, Debug)]
+enum Post {
+    Window(Grc<Window>),
+}
+
 #[derive(Builder, Back, Debug)]
 #[builder(pattern = "owned")]
 pub struct Draw {
