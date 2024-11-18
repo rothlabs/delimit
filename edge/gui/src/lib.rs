@@ -4,16 +4,18 @@ pub use winit;
 
 use agent::Agent;
 use derive_builder::Builder;
+use gfx::Gfx;
 use gpu::*;
 use graph::*;
 use node_derive::*;
-use tokio::task::{spawn, JoinError, JoinHandle};
+use tokio::sync::broadcast;
+use tokio::task::{spawn, JoinError};
 use wgpu::*;
 use winit::window::{Window, WindowId};
-use tokio::sync::broadcast::{self, Receiver, error::RecvError};
 
 mod agent;
 mod display;
+mod gfx;
 mod gui;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -21,33 +23,17 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
-    Recv(#[from] RecvError),
+    Recv(#[from] broadcast::error::RecvError),
     #[error(transparent)]
     Join(#[from] JoinError),
     #[error(transparent)]
-    CreateSurfaceError(#[from] CreateSurfaceError),
+    CreateSurface(#[from] CreateSurfaceError),
     #[error(transparent)]
     Graph(#[from] graph::Error),
     #[error(transparent)]
     Gpu(#[from] gpu::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
-}
-
-pub async fn watch_tasks(tasks: Leaf<Vec<Grc<JoinHandle<Result<()>>>>>) -> Result<()> {
-    let mut tasks = tasks.base()?;
-    for task in tasks {
-        let wow = task.as_ref();
-        // wow.
-    }
-    Ok(())
-    // let wow = tasks.write(|tasks|{
-    //     for task in tasks {
-    //         if task.await.is_err() {
-    //             panic!("wowowow");
-    //         }
-    //     }
-    // });
 }
 
 #[derive(Builder, Back, Debug)]

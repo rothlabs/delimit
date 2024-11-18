@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, BuildGate, Back, Debug)]
+#[derive(Debug, Back, Builder, BuildGate)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
 pub struct Node {
@@ -12,7 +12,7 @@ pub struct Node {
 
 impl Solve for Node {
     type Base = Command;
-    async fn solve(&self) -> node::Result<Self::Base> {
+    async fn solve(&self) -> node::Result<Command> {
         let target = self.target.clone();
         let steps = self.codec.base().await?;
         let pass = Command::Render(render::Pass { steps, target });

@@ -3,24 +3,21 @@ use winit::application::ApplicationHandler;
 use winit::event::{DeviceEvent, ElementState, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 
-// #[derive(Default)]
 pub struct Gui {
-    // pub agent: Agent,
-    pub agent: agent::Handler,
+    pub gfx: Gfx,
     pub event: Event,
+    queue: broadcast::Sender<Grc<Window>>,
 }
 
 impl Default for Gui {
     fn default() -> Self {
-        let (tx, rx) = broadcast::channel::<Grc<Window>>(32);
-        let agent = agent::Handler {
-            window_send: tx,
-            // window_recv: rx,
-            agent: Agent::default(),
-        };
-        spawn(agent.clone().run(rx));
+        let (queue, receiver) = broadcast::channel(32);
+        let gfx = Gfx::default();
+        let agent = Agent { gfx: gfx.clone() };
+        spawn(agent.run(receiver));
         Self {
-            agent,
+            gfx,
+            queue,
             event: Event::default(),
         }
     }
@@ -28,23 +25,23 @@ impl Default for Gui {
 
 impl ApplicationHandler for Gui {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        if self.agent.agent.is_empty().unwrap() {
+        if self.gfx.is_empty().unwrap() {
             let fields = Window::default_attributes().with_visible(false);
             let window = event_loop.create_window(fields).unwrap();
-            self.agent.window_send.send(window.into()).unwrap();
+            self.queue.send(window.into()).unwrap();
         }
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::Resized(size) => {
-                self.agent.agent.resize(id, size).unwrap();
+                self.gfx.resize(id, size).unwrap();
             }
-            WindowEvent::RedrawRequested => self.agent.agent.render(id).unwrap(),
+            WindowEvent::RedrawRequested => self.gfx.render(id).unwrap(),
             WindowEvent::MouseInput { state, .. } => {
                 if state == ElementState::Released {
                     let fields = Window::default_attributes().with_visible(false);
                     let window = event_loop.create_window(fields).unwrap();
-                    self.agent.window_send.send(window.into()).unwrap();
+                    self.queue.send(window.into()).unwrap();
                 }
             }
             WindowEvent::CloseRequested => {

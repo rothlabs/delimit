@@ -13,9 +13,8 @@ mod tests;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // let (tx, mut rx) = tokio::sync::broadcast::channel::<u32>(32);
     let mut gui = Gui::default();
-    let app = AppBuilder::default().displays(&gui.agent.agent.displays).hub()?;
+    let app = AppBuilder::default().displays(&gui.gfx.displays).hub()?;
     app.depend().await?;
     let event_loop = EventLoop::new()?;
     event_loop.run_app(&mut gui)?;
@@ -27,7 +26,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
-    EventLoopError(#[from] EventLoopError),
+    EventLoop(#[from] EventLoopError),
     #[error(transparent)]
     Graph(#[from] graph::Error),
     #[error(transparent)]
@@ -38,4 +37,5 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+// might need this to run test on different thread
 // let event_loop = EventLoopBuilder::default().with_any_thread(true).build()?;

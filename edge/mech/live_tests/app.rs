@@ -33,7 +33,6 @@ fn mech_view(display: &Display) -> Result<View> {
     Ok(view)
 }
 
-
 // impl Act for App {
 //     async fn act(&self) -> node::Action {
 //         self.action().await
