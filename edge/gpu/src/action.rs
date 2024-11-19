@@ -1,10 +1,16 @@
+pub use pack::Action;
+
 use super::*;
 
 mod pack;
 pub mod flat;
 
-
-
+#[derive(Debug, Clone)]
+pub struct Binding {
+    slot: u32,
+    group: Grc<BindGroup>,
+    offsets: Vec<u32>,   
+}
 
 
 

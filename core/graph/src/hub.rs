@@ -239,6 +239,16 @@ impl<T> Default for Hub<T> {
     }
 }
 
+impl<T: Gather> Based<T> for Vec<Hub<T>> {
+    async fn base(&self) -> Result<Vec<T>> {
+        let mut out = vec![];
+        for hub in self {
+            out.push(hub.base().await?);
+        }
+        Ok(out)
+    }
+}
+
 impl<T: Gather> Depend for Hub<T> {
     fn depend(&self) -> impl Future<Output = Result<()>> {
         Box::pin(async move {

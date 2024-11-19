@@ -12,6 +12,7 @@
     tokio = { version = "1", features = ["full"] }
     derive_builder = "0.20.1"
     wgpu = "22.1.0"
+    rand = "0.8.5"
     graph = { path = "../core/graph" }
     star = { path = "../core/star" }
     gpu = { path = "gpu" }

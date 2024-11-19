@@ -328,6 +328,10 @@ pub trait ReckonMut {
     fn get_serial(&mut self) -> Result<String>;
 }
 
+pub trait Based<T> {
+    fn base(&self) -> impl Future<Output = Result<Vec<T>>>;
+}
+
 pub trait Depend {
     fn depend(&self) -> impl Future<Output = Result<()>>;
 }

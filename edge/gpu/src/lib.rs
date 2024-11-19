@@ -50,7 +50,7 @@ pub enum Error {
 #[derive(Clone, Debug)]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
-    pub stem: Hub<Mutation>,
+    pub stem: Hub<Grc<action::Action>>,
 }
 
 #[derive(Clone, Default, Debug)]

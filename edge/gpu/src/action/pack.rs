@@ -1,13 +1,18 @@
 use super::*;
 
-pub enum Node {
+mod unit;
+
+#[derive(Clone, Debug)]
+pub enum Action {
     Dispatch(Dispatch),
     Leaf(u64),
 }
 
+#[derive(Clone, Debug)]
 pub struct Dispatch {
-    stems: Vec<Grc<Node>>,
+    stems: Vec<Grc<Action>>,
     pipe: Grc<ComputePipeline>,
-    bind: Vec<(u32, Grc<BindGroup>, Vec<u32>)>,
+    bind: Vec<Binding>,
     size: u32,
 }
+

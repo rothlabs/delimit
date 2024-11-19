@@ -15,8 +15,8 @@ impl<T> Solve for BufferWriter<T>
 where
     T: Pod + Debug + graph::SendSync,
 {
-    type Base = Mutation;
-    async fn solve(&self) -> node::Result<Mutation> {
+    type Base = Grc<action::Action>;
+    async fn solve(&self) -> node::Result<Grc<action::Action>> {
         let buffer = self.buffer.base().await?;
         let offset = self.offset.base().await.unwrap_or_default();
         self.data
@@ -24,7 +24,7 @@ where
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
             .await?;
-        Ok(Mutation {}.into())
+        Ok(Grc::new(action::Action::Leaf(rand::random())).into())
     }
 }
 
