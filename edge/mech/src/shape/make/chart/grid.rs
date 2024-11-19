@@ -27,7 +27,7 @@ impl<'a> Wheel<'a> {
                 root.field(spin.extrude(&rig, form)?);
             }
             let root = root.hub()?;
-            weft.travel = Some(Hedge { buffer, root });
+            weft.travel = Some(Hedge { buffer, stem: root });
         }
         Ok(())
     }
@@ -43,7 +43,7 @@ impl<'a> Wheel<'a> {
                 root.field(spin.revolve(&rig, form)?);
             }
             let root = root.hub()?;
-            weft.orient = Some(Hedge { buffer, root });
+            weft.orient = Some(Hedge { buffer, stem: root });
         }
         Ok(())
     }
@@ -67,7 +67,7 @@ impl<'a> Wheel<'a> {
                     root.field(spin.nurbs(&rig, form)?);
                 }
                 let root = root.hub()?;
-                weft.spline.push(Some(Hedge { buffer, root }));
+                weft.spline.push(Some(Hedge { buffer, stem: root }));
             } else {
                 weft.spline.push(None);
             }
@@ -183,7 +183,7 @@ impl<'a> Loom<'a> {
             }
         }
         let root = root.hub()?;
-        Ok(Hedge { buffer, root })
+        Ok(Hedge { buffer, stem: root })
     }
     fn offsets(&self) -> graph::Result<Vec<Hub<u32>>> {
         let chart = &self.grid.chart;

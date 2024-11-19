@@ -43,8 +43,8 @@ impl Spin<'_> {
             .entry(2, self.weft)
             .hub()?;
         gpu.compute()
-            .root(&rig.root)
-            .root(&form.root)
+            .root(&rig.stem)
+            .root(&form.stem)
             .pipe(program.pipe.clone())
             .bind(0, bind)
             .dispatch(self.wheel.count)

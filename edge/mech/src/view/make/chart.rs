@@ -11,8 +11,8 @@ pub struct Points {
 }
 
 impl Solve for Points {
-    type Base = Vec<render::Step>;
-    async fn solve(&self) -> node::Result<Vec<render::Step>> {
+    type Base = Vec<gpu::flat::render::Step>;
+    async fn solve(&self) -> node::Result<Vec<gpu::flat::render::Step>> {
         let gpu = &self.view.port.gpu;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -37,7 +37,7 @@ impl Solve for Points {
         .gate()?;
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
         let mesh = Hedge {
-            root: gpu.writer(buffer.clone()).data(points).hub()?,
+            stem: gpu.writer(buffer.clone()).data(points).hub()?,
             buffer: buffer.into(),
         };
 
@@ -45,9 +45,9 @@ impl Solve for Points {
             .view
             .port
             .codec()
-            .stem(rig.root)
-            .stem(hedge.root)
-            .stem(mesh.root.clone())
+            .stem(rig.stem)
+            .stem(hedge.stem)
+            .stem(mesh.stem.clone())
             // .texture_view(texture_view)
             // .resolve_target(gpu.display.view())
             .pipe(chart.points.pipe.clone())

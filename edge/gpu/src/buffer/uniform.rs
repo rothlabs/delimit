@@ -20,6 +20,6 @@ where
         let buffer: Hub<Grc<Buffer>> = build.core.buffer(size).uniform()?.into();
         let vector = VectorBuilder::default().fields(build.fields).hub()?;
         let root = build.core.writer(&buffer).data(vector).hub()?;
-        Ok(Hedge { buffer, root })
+        Ok(Hedge { buffer, stem: root })
     }
 }

@@ -1,4 +1,4 @@
-pub use command::Command;
+pub use action::flat::{self, Command};
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
@@ -19,11 +19,9 @@ use texture::*;
 use util::DeviceExt;
 use wgpu::*;
 
-pub mod render;
-
 mod bind;
 mod buffer;
-mod command;
+mod action;
 mod core;
 mod encode;
 mod pipe;
@@ -45,8 +43,6 @@ pub enum Error {
     Uninit(#[from] UninitializedFieldError),
     #[error(transparent)]
     Graph(#[from] graph::Error),
-    // #[error(transparent)]
-    // Node(#[from] node::Error),
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
@@ -54,7 +50,7 @@ pub enum Error {
 #[derive(Clone, Debug)]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
-    pub root: Hub<Mutation>,
+    pub stem: Hub<Mutation>,
 }
 
 #[derive(Clone, Default, Debug)]

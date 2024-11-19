@@ -27,6 +27,7 @@ impl Solve for Bind {
         }
         let mut entries = vec![];
         for (i, buffer) in &buffers {
+            //let wow = buffer.as_entire_buffer_binding();
             let resource = buffer.as_entire_binding();
             entries.push(BindGroupEntry {
                 binding: *i,

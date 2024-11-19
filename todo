@@ -2,3 +2,7 @@
 2. I could keep Hedge { buffer, stem } or use Vec<ComputeCommand>. But the second option will cause unneeded recompute unless 
     sections could be marked is a number so the encoder submitter knows to skip those sections
 3. Swap the names Gate and Ploy
+
+https://github.com/gfx-rs/wgpu/issues/733
+
+https://eliemichel.github.io/LearnWebGPU/basic-3d-rendering/shader-uniforms/dynamic-uniforms.html
