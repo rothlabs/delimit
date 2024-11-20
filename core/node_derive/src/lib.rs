@@ -10,6 +10,12 @@ mod back;
 mod build_gate;
 mod digest;
 mod gate;
+mod make;
+
+#[proc_macro_derive(Make)]
+pub fn make(item: TokenStream) -> TokenStream {
+    make::derive(item)
+}
 
 #[proc_macro_derive(Gate)]
 pub fn gate(item: TokenStream) -> TokenStream {

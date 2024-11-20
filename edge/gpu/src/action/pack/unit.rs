@@ -1,11 +1,13 @@
 use super::*;
 
-#[derive(Debug, Back, Builder, BuildGate)]
-#[builder(pattern = "owned")]
+
+#[derive(Debug, Back, Builder, BuildGate, Make)]
+#[builder(pattern = "owned", setter(into))]
 pub struct Dispatch {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
-    bind: Vec<Hub<Binding>>,
+    #[builder(default, setter(each(name = "bind_inner", into)))]
+    bindings: Vec<Hub<action::Binding>>,
     size: Hub<u32>,
 }
 
@@ -15,28 +17,22 @@ impl Solve for Dispatch {
         let dispatch = pack::Dispatch {
             stems: self.stems.base().await?,
             pipe: self.pipe.base().await?,
-            bind: vec![],
+            bind: self.bindings.base().await?,
             size: self.size.base().await?,
         };
         Ok(Grc::new(Action::Dispatch(dispatch)).into())
     }
 }
 
-// impl ComputeBuilder {
-//     pub fn pipe(self, pipe: Grc<ComputePipeline>) -> Self {
-//         self.entry(Entry::Pipe(pipe))
-//     }
-//     pub fn bind(self, index: u32, bind: impl Into<Hub<Grc<BindGroup>>>) -> Self {
-//         self.entry(Entry::Bind(index, bind.into()))
-//     }
-//     pub fn dispatch(self, count: impl Into<Hub<u32>>) -> Self {
-//         self.entry(Entry::Dispatch(count.into()))
-//     }
-// }
+impl DispatchBuilder {
+    pub fn bind(self, slot: impl Into<Hub<u32>>, group: impl Into<Hub<Grc<BindGroup>>>, offsets: impl Into<Hub<Vec<u32>>>) -> Self {
+        self.bind_inner(BindingBuilder::default().slot(slot).group(group).offsets(offsets).hub().unwrap())
+    }
+}
 
- // , Builder, BuildGate
-// #[builder(pattern = "owned")]
-#[derive(Debug, Clone, Back)]
+#[derive(Debug, Clone, Back, Builder, BuildGate)]
+#[builder(pattern = "owned")]
+#[builder(setter(into))]
 struct Binding {
     slot: Hub<u32>,
     group: Hub<Grc<BindGroup>>,
@@ -55,5 +51,6 @@ impl Solve for Binding {
     }
 }
 
+// self.bind_inner(Binding {slot: slot.into(), group: group.into(), offsets: offsets.into()}.hub().unwrap())
 
 // bind: Vec<(Hub<u32>, Hub<Grc<BindGroup>>, Hub<Vec<u32>>)>,

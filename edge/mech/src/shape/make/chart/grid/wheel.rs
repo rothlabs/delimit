@@ -24,7 +24,7 @@ impl Spin<'_> {
         let program = &self.wheel.chart.core.bank.plot.grid.spin.basis;
         self.weft(rig, form, program)
     }
-    pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Mutation>> {
+    pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let program = &self.wheel.chart.core.bank.plot.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
@@ -33,21 +33,22 @@ impl Spin<'_> {
         rig: &Hedge,
         form: &Hedge,
         program: &ComputeProgram,
-    ) -> graph::Result<Hub<Mutation>> {
-        let gpu = &self.wheel.chart.core.gpu;
-        let bind = gpu
+    ) -> graph::Result<Hub<Grc<gpu::Action>>> {
+        let gpu_ = &self.wheel.chart.core.gpu;
+        let bind = gpu_
             .bind()
             .layout(program.layout.clone())
             .entry(0, &rig.buffer)
             .entry(1, &form.buffer)
             .entry(2, self.weft)
             .hub()?;
-        gpu.compute()
-            .root(&rig.stem)
-            .root(&form.stem)
-            .pipe(program.pipe.clone())
-            .bind(0, bind)
-            .dispatch(self.wheel.count)
-            .hub()
+        gpu::dispatch().pipe(&program.pipe).bind(slot, group, offsets).hub()
+        // gpu_.compute()
+        //     .root(&rig.stem)
+        //     .root(&form.stem)
+        //     .pipe(program.pipe.clone())
+        //     .bind(0, bind)
+        //     .dispatch(self.wheel.count)
+        //     .hub()
     }
 }

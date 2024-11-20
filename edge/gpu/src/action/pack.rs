@@ -1,6 +1,6 @@
 use super::*;
 
-mod unit;
+pub mod unit;
 
 #[derive(Clone, Debug)]
 pub enum Action {
