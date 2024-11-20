@@ -1,5 +1,11 @@
 use super::*;
 
+// impl<T> From<&Vec<Hub<T>>> for Hub<Grc<T>> {
+//     fn from(value: &Vec<Hub<T>>) -> Self {
+//         value.clone().into()
+//     }
+// }
+
 impl<T> From<&Grc<T>> for Hub<Grc<T>> {
     fn from(value: &Grc<T>) -> Self {
         value.clone().into()

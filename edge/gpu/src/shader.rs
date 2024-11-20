@@ -9,8 +9,8 @@ pub struct Shader<'a> {
 }
 
 impl<'a> Shader<'a> {
-    pub fn vertex(&'a self, entry: &'a str) -> VertexBuilder<'a> {
-        VertexBuilder::default().shader(self).entry(entry)
+    pub fn vertex(&'a self, entry: &'a str) -> pipe::vertex::VertexBuilder<'a> {
+        pipe::vertex::VertexBuilder::default().shader(self).entry(entry)
     }
     pub fn fragment(&'a self, entry: &'a str) -> FragmentBuilder<'a> {
         FragmentBuilder::default()

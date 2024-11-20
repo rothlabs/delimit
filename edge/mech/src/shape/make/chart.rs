@@ -8,7 +8,7 @@ pub struct Grid<'a> {
 }
 
 impl<'a> Grid<'a> {
-    pub fn hedge(&self) -> graph::Result<Hedge> {
+    pub fn hedge(&self) -> Result<Hedge> {
         let wefts = self.wefts()?;
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let last_weft = wefts.last().ok_or(anyhow!("no wefts"))?;
@@ -27,7 +27,7 @@ impl<'a> Grid<'a> {
         }
         Ok(warp)
     }
-    fn wefts(&self) -> graph::Result<Vec<Weft>> {
+    fn wefts(&self) -> Result<Vec<Weft>> {
         let mut wefts = vec![];
         for count in self.counts {
             let wheel = grid::Wheel {
@@ -48,13 +48,13 @@ pub struct Weft {
 }
 
 impl Weft {
-    fn travel(&self) -> graph::Result<&Hedge> {
+    fn travel(&self) -> Result<&Hedge> {
         Ok(self.travel.as_ref().ok_or(anyhow!("no travel"))?)
     }
-    fn orient(&self) -> graph::Result<&Hedge> {
+    fn orient(&self) -> Result<&Hedge> {
         Ok(self.orient.as_ref().ok_or(anyhow!("no orient"))?)
     }
-    fn spline(&self, order: usize) -> graph::Result<&Hedge> {
+    fn spline(&self, order: usize) -> Result<&Hedge> {
         let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
         Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
     }

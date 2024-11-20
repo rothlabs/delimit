@@ -51,8 +51,8 @@ impl Viewport {
             targets: &self.targets,
         }
     }
-    pub fn pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
-        pipe::RenderBuilder::default()
+    pub fn pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::render::RenderBuilder {
+        pipe::render::RenderBuilder::default()
             .device(&self.gpu.device)
             .vertex(vertex)
     }

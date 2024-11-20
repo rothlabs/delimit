@@ -2,6 +2,10 @@
 2. I could keep Hedge { buffer, stem } or use Vec<ComputeCommand>. But the second option will cause unneeded recompute unless 
     sections could be marked is a number so the encoder submitter knows to skip those sections
 3. Swap the names Gate and Ploy
+4. builder with #[build(push_s)] and #[build(push_es)] that makes push method with "s" or "es" removed. This builder
+    can be called Make and it also creates a builder that starts with the owned pattern. MyStructMaker and MyStructBuilder
+5. For gpu action pack, each action can have a u64 id that only changes if it is regenerated. This tells the list builder 
+    that it does not have to traverse futher down the graph that way. It only needs to save the copy of this new graph
 
 https://github.com/gfx-rs/wgpu/issues/733
 

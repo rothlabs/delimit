@@ -1,12 +1,12 @@
 use super::*;
 
-
 #[derive(Debug, Back, Builder, BuildGate, Make)]
-#[builder(pattern = "owned", setter(into))]
+#[builder(setter(into), pattern = "owned")]
 pub struct Dispatch {
+    #[builder(setter(each(name = "stem", into)), default)]
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
-    #[builder(default, setter(each(name = "bind_inner", into)))]
+    #[builder(setter(each(name = "bind", into)))]
     bindings: Vec<Hub<action::Binding>>,
     size: Hub<u32>,
 }
@@ -24,22 +24,17 @@ impl Solve for Dispatch {
     }
 }
 
-impl DispatchBuilder {
-    pub fn bind(self, slot: impl Into<Hub<u32>>, group: impl Into<Hub<Grc<BindGroup>>>, offsets: impl Into<Hub<Vec<u32>>>) -> Self {
-        self.bind_inner(BindingBuilder::default().slot(slot).group(group).offsets(offsets).hub().unwrap())
-    }
-}
-
-#[derive(Debug, Clone, Back, Builder, BuildGate)]
-#[builder(pattern = "owned")]
-#[builder(setter(into))]
-struct Binding {
+#[derive(Debug, Back, Builder, BuildGate, Make)]
+#[builder(setter(into), pattern = "owned")]
+pub struct Bind {
+    #[builder(default)]
     slot: Hub<u32>,
     group: Hub<Grc<BindGroup>>,
+    #[builder(default)]
     offsets: Hub<Vec<u32>>,
 }
 
-impl Solve for Binding {
+impl Solve for Bind {
     type Base = action::Binding;
     async fn solve(&self) -> node::Result<action::Binding> {
         let binding = action::Binding {
@@ -50,6 +45,70 @@ impl Solve for Binding {
         Ok(binding.into())
     }
 }
+
+#[derive(Debug, Back, Builder, BuildGate, Make)]
+#[builder(setter(into), pattern = "owned")]
+pub struct Draw {
+    stems: Vec<Hub<Grc<Action>>>,
+    pipe: Hub<Grc<RenderPipeline>>,
+    #[builder(setter(each(name = "bind", into)))]
+    bindings: Vec<Hub<action::Binding>>,
+    vertex: Hub<action::Vertex>,
+    vertices: Hub<Range<u32>>,
+    instances: Hub<Range<u32>>,
+}
+
+impl Solve for Draw {
+    type Base = Grc<Action>;
+    async fn solve(&self) -> node::Result<Grc<Action>> {
+        let draw = pack::Draw {
+            stems: self.stems.base().await?,
+            pipe: self.pipe.base().await?,
+            bind: self.bindings.base().await?,
+            vertex: self.vertex.base().await?,
+            vertices: self.vertices.base().await?,
+            instances: self.instances.base().await?,
+        };
+        Ok(Grc::new(Action::Draw(draw)).into())
+    }
+}
+
+#[derive(Debug, Back, Builder, BuildGate, Make)]
+#[builder(setter(into), pattern = "owned")]
+pub struct Vertex {
+    #[builder(default)]
+    slot: Hub<u32>,
+    buffer: Hub<Grc<Buffer>>,
+}
+
+impl Solve for Vertex {
+    type Base = action::Vertex;
+    async fn solve(&self) -> node::Result<action::Vertex> {
+        let vertex = action::Vertex {
+            slot: self.slot.base().await?,
+            buffer: self.buffer.base().await?,
+        };
+        Ok(vertex.into())
+    }
+}
+
+
+
+
+
+
+
+
+
+
+// #[builder(default, setter(each(name = "bind_inner", into)))]
+//     bindings: Vec<Hub<action::Binding>>,
+
+// impl DispatchBuilder {
+//     pub fn bind(self, slot: impl Into<Hub<u32>>, group: impl Into<Hub<Grc<BindGroup>>>, offsets: impl Into<Hub<Vec<u32>>>) -> Self {
+//         self.bind_inner(BindingBuilder::default().slot(slot).group(group).offsets(offsets).hub().unwrap())
+//     }
+// }
 
 // self.bind_inner(Binding {slot: slot.into(), group: group.into(), offsets: offsets.into()}.hub().unwrap())
 

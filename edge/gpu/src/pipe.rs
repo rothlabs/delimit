@@ -1,16 +1,17 @@
 pub use compute::ComputeBuilder;
 pub use fragment::*;
 pub use layout::*;
-pub use render::RenderBuilder;
-pub use vertex::VertexBuilder;
+// pub use render::RenderBuilder;
+// pub use vertex::VertexBuilder;
 
 use super::*;
+
+pub mod vertex;
+pub mod render;
 
 mod compute;
 mod fragment;
 mod layout;
-mod render;
-pub mod vertex;
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]

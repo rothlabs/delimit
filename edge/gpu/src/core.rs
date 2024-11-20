@@ -135,7 +135,8 @@ impl Core {
         let size = data.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage()?.into();
         let stem = self.writer(buffer.clone()).data(data).hub()?;
-        Ok(Hedge { buffer, stem })
+        hedge().buffer(buffer).stem(stem).build()
+        // Ok(Hedge { buffer, stem })
     }
 }
 

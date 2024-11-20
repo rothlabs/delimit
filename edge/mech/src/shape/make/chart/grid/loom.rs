@@ -14,25 +14,25 @@ pub struct Weave<'a> {
 }
 
 impl Weave<'_> {
-    pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+    pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.chart.core;
         let program = &core.bank.plot.grid.weave.travel;
         self.weave(trio, program)
     }
-    pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+    pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.chart.core;
         let program = &core.bank.plot.grid.weave.orient;
         self.weave(trio, program)
     }
-    pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Mutation>> {
+    pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.chart.core;
         let program = &core.bank.plot.grid.weave.spline;
         self.weave(trio, program)
     }
-    pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Mutation>> {
-        let gpu = &self.loom.grid.chart.core.gpu;
+    pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Grc<gpu::Action>>> {
+        let gpu_ = &self.loom.grid.chart.core.gpu;
         // TODO make func that creates this structure from ComputeProgram, Hedges, and count
-        let bind = gpu
+        let bind = gpu_
             .bind()
             .layout(program.layout.clone())
             .entry(0, &trio.rig.buffer)
@@ -41,14 +41,13 @@ impl Weave<'_> {
             .entry(3, &trio.flow.buffer)
             .entry(4, self.plot)
             .hub()?;
-        gpu.compute()
-            .root(&trio.rig.stem)
-            .root(&self.warp.stem)
-            .root(&trio.weft.stem)
-            .root(&trio.flow.stem)
-            .pipe(program.pipe.clone())
-            .bind(0, bind)
-            .dispatch(self.count)
+        let bind = gpu::bind().group(bind).hub()?;
+        let stems = trio.rig.stems.with(&self.warp.stems).with(&trio.weft.stems).with(&trio.flow.stems);
+        gpu::dispatch()
+            .pipe(&program.pipe)
+            .bind(bind)
+            .size(self.count)
+            .stems(stems)
             .hub()
     }
 }

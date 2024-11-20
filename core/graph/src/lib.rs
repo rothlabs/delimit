@@ -336,6 +336,16 @@ pub trait Depend {
     fn depend(&self) -> impl Future<Output = Result<()>>;
 }
 
+pub trait ConcatVec<T> {
+    fn with(&self, rhs: &[T]) -> Self;
+}
+
+impl<T: Clone> ConcatVec<T> for Vec<T> {
+    fn with(&self, rhs: &[T]) -> Self {
+        [self.clone(), rhs.to_vec()].concat()
+    }
+}
+
 // impl<T> IntoHub for T
 // where
 //     T: IntoPloy,

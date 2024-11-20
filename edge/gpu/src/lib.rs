@@ -19,6 +19,7 @@ use std::{fmt::Debug, future::Future};
 use texture::*;
 use util::DeviceExt;
 use wgpu::*;
+use std::ops::Range;
 
 mod bind;
 mod buffer;
@@ -48,10 +49,12 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Builder, Make)]
+#[builder(pattern = "owned", build_fn(error = "Error"), setter(into))]
 pub struct Hedge {
     pub buffer: Hub<Grc<Buffer>>,
-    pub stem: Hub<Grc<action::Action>>,
+    #[builder(setter(each(name = "stem", into)))]
+    pub stems: Vec<Hub<Grc<Action>>>,
 }
 
 #[derive(Clone, Default, Debug)]

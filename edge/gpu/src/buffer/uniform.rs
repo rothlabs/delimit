@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Builder, Debug)]
 #[builder(pattern = "owned")]
-#[builder(build_fn(error = "graph::Error"))]
+#[builder(build_fn(error = "crate::Error"))]
 #[builder(setter(into))]
 pub struct Uniform<T> {
     core: Core,
@@ -14,12 +14,13 @@ impl<T> UniformBuilder<T>
 where
     T: Pod + Debug + graph::SendSync,
 {
-    pub fn make(self) -> graph::Result<Hedge> {
+    pub fn make(self) -> Result<Hedge> {
         let build = self.build()?;
         let size = build.fields.len() as u64 * 4;
         let buffer: Hub<Grc<Buffer>> = build.core.buffer(size).uniform()?.into();
         let vector = VectorBuilder::default().fields(build.fields).hub()?;
-        let root = build.core.writer(&buffer).data(vector).hub()?;
-        Ok(Hedge { buffer, stem: root })
+        let stem = build.core.writer(&buffer).data(vector).hub()?;
+        hedge().buffer(buffer).stem(stem).build()
+        // Ok(Hedge { buffer, stem })
     }
 }

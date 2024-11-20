@@ -11,8 +11,8 @@ pub struct Points {
 }
 
 impl Solve for Points {
-    type Base = Vec<gpu::flat::render::Step>;
-    async fn solve(&self) -> node::Result<Vec<gpu::flat::render::Step>> {
+    type Base = Grc<gpu::Action>;
+    async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -26,8 +26,6 @@ impl Solve for Points {
             .entry(0, rig.buffer)
             .entry(1, hedge.buffer.clone())
             .hub()?;
-        // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
-
         let vertex_count: u32 = 8;
         let points = Circle {
             frame: self.view.port.size.clone(),
@@ -36,27 +34,19 @@ impl Solve for Points {
         }
         .gate()?;
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
-        let mesh = Hedge {
-            stem: gpu.writer(buffer.clone()).data(points).hub()?,
-            buffer: buffer.into(),
-        };
-
-        let codec = self
-            .view
-            .port
-            .codec()
-            .stem(rig.stem)
-            .stem(hedge.stem)
-            .stem(mesh.stem.clone())
-            // .texture_view(texture_view)
-            // .resolve_target(gpu.display.view())
-            .pipe(chart.points.pipe.clone())
-            .bind(0, bind)
-            .vertex(0, mesh.buffer.clone())
-            .draw(0..vertex_count * 3, 0..count)
-            .hub()?;
-        Ok(codec)
-        // Ok(Mutation.into())
+        let stem = gpu.writer(buffer.clone()).data(points).hub()?;
+        let mesh = gpu::hedge().buffer(buffer).stem(stem).build()?;
+        let stems = rig.stems.with(&hedge.stems).with(&mesh.stems);
+        let bind = gpu::bind().group(bind).hub()?;
+        let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;
+        Ok(gpu::draw()
+            .stems(stems)
+            .pipe(&chart.points.pipe)
+            .bind(bind)
+            .vertex(vertex)
+            .vertices(0..vertex_count * 3)
+            .instances(0..count)
+            .hub()?)
     }
 }
 
@@ -101,3 +91,26 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
+
+// let texture_view = gpu.display.texture()?.sample_count(4).view()?;
+
+// let mesh = Hedge {
+        //     stem: gpu.writer(buffer.clone()).data(points).hub()?,
+        //     buffer: buffer.into(),
+        // };
+
+// let codec = self
+//             .view
+//             .port
+//             .codec()
+//             .stems(stems)
+//             // .stem(rig.stem)
+//             // .stem(hedge.stem)
+//             // .stem(mesh.stem.clone())
+//             // .texture_view(texture_view)
+//             // .resolve_target(gpu.display.view())
+//             .pipe(chart.points.pipe.clone())
+//             .bind(0, bind)
+//             .vertex(0, mesh.buffer.clone())
+//             .draw(0..vertex_count * 3, 0..count)
+//             .hub()?;

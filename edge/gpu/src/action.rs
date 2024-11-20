@@ -12,6 +12,12 @@ pub struct Binding {
     offsets: Vec<u32>,   
 }
 
+#[derive(Clone, Debug)]
+pub struct Vertex {
+    slot: u32,
+    buffer: Grc<Buffer>,
+}
+
 
 
 

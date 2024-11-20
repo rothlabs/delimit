@@ -9,7 +9,7 @@ pub struct Chart<'a> {
 }
 
 impl<'a> Chart<'a> {
-    pub fn grid(&self, counts: &'a [Hub<u32>]) -> graph::Result<Hedge> {
+    pub fn grid(&self, counts: &'a [Hub<u32>]) -> Result<Hedge> {
         chart::Grid {
             chart: self,
             counts,
