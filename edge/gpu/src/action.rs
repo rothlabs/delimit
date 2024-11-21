@@ -5,6 +5,13 @@ use super::*;
 pub mod flat;
 pub mod pack;
 
+// // #[derive(Default)]
+pub enum Pass {
+    // #[default]
+    Compute,
+    Render,
+}
+
 #[derive(Debug, Clone)]
 pub struct Bind {
     slot: u32,
@@ -19,16 +26,9 @@ pub struct Vertex {
 }
 
 // #[derive(Default)]
-struct State {
-    pass: Pass,
-}
-
-// #[derive(Default)]
-enum Pass {
-    // #[default]
-    Compute,
-    Render,
-}
+// struct State {
+//     pass: Pass,
+// }
 
 // pub struct Segment {
 

@@ -17,19 +17,14 @@ impl Action {
             Self::Draw(x) => Some(&x.stems),
         }
     }
-    pub fn state(&self) -> Option<State> {
+    pub fn pass(&self) -> Option<Pass> {
         match self {
             Self::Leaf(_) => None,
-            Self::Dispatch(_) => Some(State {
-                pass: Pass::Compute,
-            }),
-            Self::Draw(_) => Some(State {
-                pass: Pass::Render,
-            }),
+            Self::Dispatch(_) => Some(Pass::Compute),
+            Self::Draw(_) => Some(Pass::Render),
         }
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Dispatch {
@@ -48,10 +43,6 @@ pub struct Draw {
     vertices: Range<u32>,
     instances: Range<u32>,
 }
-
-
-
-
 
 // #[derive(Clone, Debug)]
 // pub struct Draw2 {

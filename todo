@@ -6,6 +6,7 @@
     can be called Make and it also creates a builder that starts with the owned pattern. MyStructMaker and MyStructBuilder
 5. For gpu action pack, each action can have a u64 id that only changes if it is regenerated. This tells the list builder 
     that it does not have to traverse futher down the graph that way. It only needs to save the copy of this new graph
+6. make Leaf<Grc<T>> type alias
 
 https://github.com/gfx-rs/wgpu/issues/733
 

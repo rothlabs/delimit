@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::HashMap;
 use std::collections::HashSet;
 
 pub mod render;
@@ -13,70 +12,104 @@ pub enum Command {
 #[derive(Debug)]
 pub struct Flat {
     actions: Vec<Hub<Grc<Action>>>,
-    past: Leaf<Vec<Grc<Action>>>,
+    past: Leaf<HashSet<u64>>,
 }
 
 impl Solve for Flat {
     type Base = Grc<Vec<Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
-        let actions = self.actions.base().await?;
-        let past = self.past.base()?;
-        let past: HashSet<*const Action> = HashSet::from_iter(past.iter().map(Grc::as_ptr));
         let state = State {
-            commands: vec![],
-            past,
-        };        
-        Ok(state.commands(actions))
+            past: self.past.base()?,
+            ..Default::default()
+        };
+        let actions = self.actions.base().await?;
+        let commands = state.commands(&actions);
+        self.past.write_passive(|x| *x = action_set(&actions))?;
+        Ok(commands)
     }
 }
 
+fn action_set(actions: &[Grc<Action>]) -> HashSet<u64> {
+    let mut set = HashSet::new();
+    for action in actions {
+        let ptr = Grc::as_ptr(action) as u64;
+        if !set.contains(&ptr) {
+            set.insert(ptr);
+            if let Some(stems) = action.stems() {
+                set.extend(action_set(stems));
+            }
+        }
+    }
+    set
+}
+
+#[derive(Default)]
 struct State {
     commands: Vec<Command>,
-    // actions: Vec<Grc<Action>>,
-    past: HashSet<*const Action>,
+    pass: Field<Option<Pass>>,
+    // action: &'a Grc<Action>,
+    past: HashSet<u64>,
 }
 
 impl State {
-    fn commands(mut self, actions: Vec<Grc<Action>>) -> Hub<Grc<Vec<Command>>> {
-        // for action in &actions {
-        //     self.add_past(action);
-        // }
-        self.add_past(actions);
-        Grc::new(self.commands).into()
+    fn is_new(&self, action: &Grc<Action>) -> bool {
+        self.past.contains(&(Grc::as_ptr(action) as u64))
     }
-    fn add_past(&mut self, actions: Vec<Grc<Action>>) {
-        for action in &actions {
-            if let Some(stems) = action.stems() {
-                
+    fn commands(mut self, actions: &[Grc<Action>]) -> Hub<Grc<Vec<Command>>> {
+        let actions = actions.iter().filter(|x| self.is_new(x));
+        for action in actions {
+            if self.past.contains(&(Grc::as_ptr(action) as u64)) {
+                self.pass.base = action.pass();
             }
-            // for stem in &action.stems() {
-
-            // }
-            // self.add_past(action);
         }
+        Grc::new(self.commands).into()
     }
 }
 
-        // // if let Some(action) = actions.first() {
-        // //     if let Some(mut state) = action.state() {
-        //         for action in &actions {
-        //             if !past.contains(&Grc::as_ptr(action)) {
-
-        //                 // let stems = action.stems();
-        //             }
-        //         }
-        //         let past = self.past.clone();
-        //         past.write_passive(|x| *x = actions)?;
-        // //     }
-        // // }
+#[derive(Default)]
+struct Field<T> {
+    base: T,
+    exclude: HashSet<u64>,
+}
 
 
 
+// enum Slot {
+//     Pass,
+//     Pipe,
+//     Bind(u32),
+// }
+
+// fn action_set(actions: &[Grc<Action>]) -> HashSet<u64> {
+//     let mut set = HashSet::from_iter(actions.iter().map(|x| Grc::as_ptr(x) as u64));
+//     for action in actions {
+//         // if !set.contains(action )
+//         if let Some(stems) = action.stems() {
+//             set.extend(action_set(stems));
+//         }
+//     }
+//     set
+// }
+
+// let set: HashSet<*const Action> = HashSet::from_iter(past.iter().map(Grc::as_ptr));
+
+// // if let Some(action) = actions.first() {
+// //     if let Some(mut state) = action.state() {
+//         for action in &actions {
+//             if !past.contains(&Grc::as_ptr(action)) {
+
+//                 // let stems = action.stems();
+//             }
+//         }
+//         let past = self.past.clone();
+//         past.write_passive(|x| *x = actions)?;
+// //     }
+// // }
 
 // #[derive(Default)]
 // pub struct State {
 //     pub pass: Pass,
-    
+
 // }
 
 // #[derive(Default)]
