@@ -44,14 +44,19 @@ impl Spin<'_> {
             .hub()?;
         let bind = gpu::bind().group(group).hub()?;
         let stems = rig.stems.with(&form.stems);
-        gpu::dispatch().pipe(&program.pipe).bind(bind).size(self.wheel.count).stems(stems).hub()
+        gpu::dispatch()
+            .pipe(&program.pipe)
+            .bind(bind)
+            .size(self.wheel.count)
+            .stems(stems)
+            .hub()
     }
 }
 
-        // gpu_.compute()
-        //     .root(&rig.stem)
-        //     .root(&form.stem)
-        //     .pipe(program.pipe.clone())
-        //     .bind(0, bind)
-        //     .dispatch(self.wheel.count)
-        //     .hub()
+// gpu_.compute()
+//     .root(&rig.stem)
+//     .root(&form.stem)
+//     .pipe(program.pipe.clone())
+//     .bind(0, bind)
+//     .dispatch(self.wheel.count)
+//     .hub()

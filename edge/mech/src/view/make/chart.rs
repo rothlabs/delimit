@@ -95,9 +95,9 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
 // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
 
 // let mesh = Hedge {
-        //     stem: gpu.writer(buffer.clone()).data(points).hub()?,
-        //     buffer: buffer.into(),
-        // };
+//     stem: gpu.writer(buffer.clone()).data(points).hub()?,
+//     buffer: buffer.into(),
+// };
 
 // let codec = self
 //             .view

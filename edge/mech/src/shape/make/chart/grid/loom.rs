@@ -29,7 +29,11 @@ impl Weave<'_> {
         let program = &core.bank.plot.grid.weave.spline;
         self.weave(trio, program)
     }
-    pub fn weave(&self, trio: Trio, program: &ComputeProgram) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn weave(
+        &self,
+        trio: Trio,
+        program: &ComputeProgram,
+    ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu_ = &self.loom.grid.chart.core.gpu;
         // TODO make func that creates this structure from ComputeProgram, Hedges, and count
         let bind = gpu_
@@ -42,7 +46,12 @@ impl Weave<'_> {
             .entry(4, self.plot)
             .hub()?;
         let bind = gpu::bind().group(bind).hub()?;
-        let stems = trio.rig.stems.with(&self.warp.stems).with(&trio.weft.stems).with(&trio.flow.stems);
+        let stems = trio
+            .rig
+            .stems
+            .with(&self.warp.stems)
+            .with(&trio.weft.stems)
+            .with(&trio.flow.stems);
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(bind)

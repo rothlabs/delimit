@@ -124,6 +124,7 @@ pub trait IsSend {}
 impl<T> IsSend for T {}
 
 /// Graph reference counter
+/// TODO: rename to Nrc for Node Reference Counter?
 #[cfg(not(feature = "oneThread"))]
 pub type Grc<T> = Arc<T>;
 /// Graph reference counter

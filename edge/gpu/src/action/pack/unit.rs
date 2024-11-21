@@ -7,7 +7,7 @@ pub struct Dispatch {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    bindings: Vec<Hub<action::Binding>>,
+    bindings: Vec<Hub<action::Bind>>,
     size: Hub<u32>,
 }
 
@@ -17,7 +17,7 @@ impl Solve for Dispatch {
         let dispatch = pack::Dispatch {
             stems: self.stems.base().await?,
             pipe: self.pipe.base().await?,
-            bind: self.bindings.base().await?,
+            binds: self.bindings.base().await?,
             size: self.size.base().await?,
         };
         Ok(Grc::new(Action::Dispatch(dispatch)).into())
@@ -35,9 +35,9 @@ pub struct Bind {
 }
 
 impl Solve for Bind {
-    type Base = action::Binding;
-    async fn solve(&self) -> node::Result<action::Binding> {
-        let binding = action::Binding {
+    type Base = action::Bind;
+    async fn solve(&self) -> node::Result<action::Bind> {
+        let binding = action::Bind {
             slot: self.slot.base().await?,
             group: self.group.base().await?,
             offsets: self.offsets.base().await?,
@@ -52,7 +52,7 @@ pub struct Draw {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<RenderPipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    bindings: Vec<Hub<action::Binding>>,
+    binds: Vec<Hub<action::Bind>>,
     vertex: Hub<action::Vertex>,
     vertices: Hub<Range<u32>>,
     instances: Hub<Range<u32>>,
@@ -64,7 +64,7 @@ impl Solve for Draw {
         let draw = pack::Draw {
             stems: self.stems.base().await?,
             pipe: self.pipe.base().await?,
-            bind: self.bindings.base().await?,
+            binds: self.binds.base().await?,
             vertex: self.vertex.base().await?,
             vertices: self.vertices.base().await?,
             instances: self.instances.base().await?,
@@ -91,15 +91,6 @@ impl Solve for Vertex {
         Ok(vertex.into())
     }
 }
-
-
-
-
-
-
-
-
-
 
 // #[builder(default, setter(each(name = "bind_inner", into)))]
 //     bindings: Vec<Hub<action::Binding>>,

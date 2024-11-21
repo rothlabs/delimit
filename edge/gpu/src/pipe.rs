@@ -6,8 +6,8 @@ pub use layout::*;
 
 use super::*;
 
-pub mod vertex;
 pub mod render;
+pub mod vertex;
 
 mod compute;
 mod fragment;

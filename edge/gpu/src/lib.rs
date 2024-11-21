@@ -1,5 +1,5 @@
-pub use action::pack::{Action, unit::*};
 pub use action::flat::{self, Command};
+pub use action::pack::{unit::*, Action};
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
@@ -15,15 +15,15 @@ use node_derive::*;
 use pipe::*;
 use shader::*;
 use star::*;
+use std::ops::Range;
 use std::{fmt::Debug, future::Future};
 use texture::*;
 use util::DeviceExt;
 use wgpu::*;
-use std::ops::Range;
 
+mod action;
 mod bind;
 mod buffer;
-mod action;
 mod core;
 mod encode;
 mod pipe;

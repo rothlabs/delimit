@@ -2,14 +2,14 @@ pub use pack::Action;
 
 use super::*;
 
-pub mod pack;
 pub mod flat;
+pub mod pack;
 
 #[derive(Debug, Clone)]
-pub struct Binding {
+pub struct Bind {
     slot: u32,
     group: Grc<BindGroup>,
-    offsets: Vec<u32>,   
+    offsets: Vec<u32>,
 }
 
 #[derive(Clone, Debug)]
@@ -18,10 +18,17 @@ pub struct Vertex {
     buffer: Grc<Buffer>,
 }
 
+// #[derive(Default)]
+struct State {
+    pass: Pass,
+}
 
-
-
-
+// #[derive(Default)]
+enum Pass {
+    // #[default]
+    Compute,
+    Render,
+}
 
 // pub struct Segment {
 

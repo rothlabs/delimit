@@ -9,11 +9,33 @@ pub enum Action {
     Draw(Draw),
 }
 
+impl Action {
+    pub fn stems(&self) -> Option<&Vec<Grc<Action>>> {
+        match self {
+            Self::Leaf(_) => None,
+            Self::Dispatch(x) => Some(&x.stems),
+            Self::Draw(x) => Some(&x.stems),
+        }
+    }
+    pub fn state(&self) -> Option<State> {
+        match self {
+            Self::Leaf(_) => None,
+            Self::Dispatch(_) => Some(State {
+                pass: Pass::Compute,
+            }),
+            Self::Draw(_) => Some(State {
+                pass: Pass::Render,
+            }),
+        }
+    }
+}
+
+
 #[derive(Clone, Debug)]
 pub struct Dispatch {
     stems: Vec<Grc<Action>>,
     pipe: Grc<ComputePipeline>,
-    bind: Vec<Binding>,
+    binds: Vec<Bind>,
     size: u32,
 }
 
@@ -21,7 +43,7 @@ pub struct Dispatch {
 pub struct Draw {
     stems: Vec<Grc<Action>>,
     pipe: Grc<RenderPipeline>,
-    bind: Vec<Binding>,
+    binds: Vec<Bind>,
     vertex: Vertex,
     vertices: Range<u32>,
     instances: Range<u32>,
@@ -29,3 +51,14 @@ pub struct Draw {
 
 
 
+
+
+// #[derive(Clone, Debug)]
+// pub struct Draw2 {
+//     stems: HashMap<*const Action, Grc<Action>>,
+//     pipe: Grc<RenderPipeline>,
+//     binds: Vec<Bind>,
+//     vertex: Vertex,
+//     vertices: Range<u32>,
+//     instances: Range<u32>,
+// }
