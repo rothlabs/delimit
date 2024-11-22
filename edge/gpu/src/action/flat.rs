@@ -46,20 +46,28 @@ fn action_set(actions: &[Grc<Action>]) -> HashSet<u64> {
 #[derive(Default)]
 struct State {
     commands: Vec<Command>,
-    pass: Field<Option<Pass>>,
-    // action: &'a Grc<Action>,
     past: HashSet<u64>,
+    pass: Field<Option<Pass>>,
+    // rank: u8,
+    // action: &'a Grc<Action>,
 }
 
 impl State {
-    fn is_new(&self, action: &Grc<Action>) -> bool {
+    fn include(&self, action: &Grc<Action>) -> bool {
         self.past.contains(&(Grc::as_ptr(action) as u64))
     }
     fn commands(mut self, actions: &[Grc<Action>]) -> Hub<Grc<Vec<Command>>> {
-        let actions = actions.iter().filter(|x| self.is_new(x));
-        for action in actions {
-            if self.past.contains(&(Grc::as_ptr(action) as u64)) {
-                self.pass.base = action.pass();
+        // let actions = actions.iter().filter(|x| self.include(x));
+        if let Some(Pass::Render) = self.pass.base {
+            for action in actions {
+                if !self.past.contains(&(Grc::as_ptr(action) as u64)) {
+                    if let Some(Pass::Render) = action.pass() {
+                        println!("wow");
+                    } else if let Some(stems) = action.stems() {
+                        let set: HashSet<u64> = HashSet::from_iter(stems.iter().map(|x| Grc::as_ptr(x) as u64));
+                        self.pass.exclude.extend(set);
+                    }
+                }
             }
         }
         Grc::new(self.commands).into()
@@ -71,6 +79,11 @@ struct Field<T> {
     base: T,
     exclude: HashSet<u64>,
 }
+
+
+// fn is_new(&self, action: &Grc<Action>) -> bool {
+//     self.past.contains(&(Grc::as_ptr(action) as u64))
+// }
 
 
 
