@@ -53,7 +53,7 @@ struct State<'a> {
     past: HashMap<u64, Node>,
     nodes: HashMap<u64, Node>,
     // next: Vec<&'a Grc<Action>>,
-    actions: [Vec<&'a Grc<Action>>; 2],//HashMap<u64, &'a Grc<Action>>,
+    actions: [Vec<&'a Grc<Action>>; 2], //HashMap<u64, &'a Grc<Action>>,
     commands: Vec<Command>,
 }
 
@@ -76,7 +76,11 @@ impl<'a> State<'a> {
     fn passes(&mut self) {
         let mut i = (0, 1);
         while !self.actions[i.0].is_empty() {
-            self.render(i);
+            match self.actions[i.0].first().unwrap().pass() {
+                Some(Pass::Render) => self.render(i),
+                Some(Pass::Compute) => panic!("wow"),
+                None => panic!("hey"),
+            }
             i = (i.1, i.0);
         }
     }
@@ -84,23 +88,13 @@ impl<'a> State<'a> {
         let mut pass = render::Pass::default();
         while let Some(action) = self.actions[i.0].pop() {
             if let Some(Pass::Render) = action.pass() {
-                if let Some(stems) = self.try_action(action, || pass.add(action)) {
-                    // self.actions[i.0].extend(stems);
-                    // self.actions[i.0].ins
-                    let stems: Vec<&Grc<Action>> = stems.iter().collect();
-                    // self.actions[i.0] = stems.with;
-
-                    continue;
-                }
+                self.try_action(i.0, action, || pass.add(action));
+            } else {
+                self.actions[i.1].push(action);
             }
-            self.actions[i.1].push(action);
         }
     }
-    fn try_action<F: FnOnce()>(
-        &mut self,
-        action: &'a Grc<Action>,
-        use_action: F,
-    ) -> Option<&'a [Grc<Action>]> {
+    fn try_action<F: FnOnce()>(&mut self, i: usize, action: &'a Grc<Action>, use_action: F) {
         let key = Grc::as_ptr(action) as u64;
         if !self.past.contains_key(&key) {
             if let Some(node) = self.nodes.get_mut(&key) {
@@ -109,12 +103,11 @@ impl<'a> State<'a> {
                     use_action();
                     if let Some(stems) = action.stems() {
                         self.increment_node(stems);
-                        return Some(stems);
+                        self.actions[i].extend(stems);
                     }
                 }
             }
         }
-        None
     }
     fn increment_node(&mut self, actions: &[Grc<Action>]) {
         for action in actions {

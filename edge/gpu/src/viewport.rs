@@ -56,12 +56,12 @@ impl Viewport {
             .device(&self.gpu.device)
             .vertex(vertex)
     }
-    pub fn codec(&self) -> flat::render::CodecBuilder {
-        flat::render::CodecBuilder::default()
-    }
-    pub fn pass(&self, steps: Hub<Vec<flat::render::Step>>) -> flat::render::pass::NodeBuilder {
-        flat::render::pass::NodeBuilder::default().codec(steps)
-    }
+    // pub fn codec(&self) -> flat::render::CodecBuilder {
+    //     flat::render::CodecBuilder::default()
+    // }
+    // pub fn pass(&self, steps: Hub<Vec<flat::render::Step>>) -> flat::render::pass::NodeBuilder {
+    //     flat::render::pass::NodeBuilder::default().codec(steps)
+    // }
     pub fn commands(&self, commands: Vec<Command>) -> Result<()> {
         self.commands.write_passive(|x| *x = commands)?;
         Ok(())
