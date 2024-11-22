@@ -24,8 +24,8 @@ impl Solve for Flat {
             ..Default::default()
         };
         let actions = self.actions.base().await?;
-        state.init(&actions, 0);
-        state.commands(&actions);
+        state.init(&actions);
+        // state.commands(&actions);
         self.past.write_passive(|x| *x = state.nodes)?;
         Ok(Grc::new(state.commands).into())
     }
@@ -38,8 +38,15 @@ struct Node {
     used: bool,
 }
 
+// impl Default for Node {
+//     fn default() -> Self {
+//         Self { need: 1, fill: (), used: () }
+//     }
+// }
+
 #[derive(Default)]
 struct State<'a> {
+    actions: Vec<Grc<Action>>,
     past: HashMap<u64, Node>,
     nodes: HashMap<u64, Node>,
     // next: Vec<&'a Grc<Action>>,
@@ -48,24 +55,27 @@ struct State<'a> {
 }
 
 impl<'a> State<'a> {
-    fn init(&mut self, actions: &[Grc<Action>], need: u16) {
-        for action in actions {
+    fn init(&mut self, actions: &[Grc<Action>]) {
+        let mut actions: Vec<&Grc<Action>> = self.actions.iter().collect();
+        while let Some(action) = actions.pop() {
             let key = Grc::as_ptr(action) as u64;
             if let Some(node) = self.nodes.get_mut(&key) {
                 node.need += 1;
             } else {
-                let node = Node {
-                    need,
-                    ..Default::default()
-                };
-                self.nodes.insert(key, node);
+                self.nodes.insert(key, Node::default());
                 if let Some(stems) = action.stems() {
-                    self.init(stems, 1);
+                    actions.extend(stems);
                 }
             }
         }
     }
-    fn commands(&mut self, actions: &[Grc<Action>]) {}
+    fn commands(&mut self) {
+        let mut actions: Vec<&Grc<Action>> = self.actions.iter().collect();
+        // self.next = self.actions.iter().collect();
+        while !actions.is_empty() {
+            
+        }
+    }
     fn try_action<F: FnOnce()>(
         &mut self,
         action: &'a Grc<Action>,
@@ -101,11 +111,12 @@ struct Render<'a> {
 }
 
 impl<'a> Render<'a> {
-    fn run(&mut self, actions: &'a [Grc<Action>], depth: u32) {
-        for action in actions {
+    fn run(&mut self, actions: &'a [Grc<Action>]) {
+        let mut actions: Vec<&Grc<Action>> = actions.iter().collect();
+        while let Some(action) = actions.pop() {
             if let Some(Pass::Render) = action.pass() {
                 if let Some(stems) = self.state.try_action(action, || self.pass.add(action)) {
-                    self.run(stems, depth + 1);
+                    actions.extend(stems);
                     continue;
                 }
             }
@@ -113,6 +124,38 @@ impl<'a> Render<'a> {
         }
     }
 }
+
+// impl<'a> Render<'a> {
+//     fn run(&mut self, actions: &'a [Grc<Action>], depth: u32) {
+//         for action in actions {
+//             if let Some(Pass::Render) = action.pass() {
+//                 if let Some(stems) = self.state.try_action(action, || self.pass.add(action)) {
+//                     self.run(stems, depth + 1);
+//                     continue;
+//                 }
+//             }
+//             self.state.next.push(action);
+//         }
+//     }
+// }
+
+// fn init(&mut self, actions: &[Grc<Action>], need: u16) {
+//     for action in actions {
+//         let key = Grc::as_ptr(action) as u64;
+//         if let Some(node) = self.nodes.get_mut(&key) {
+//             node.need += 1;
+//         } else {
+//             let node = Node {
+//                 need,
+//                 ..Default::default()
+//             };
+//             self.nodes.insert(key, node);
+//             if let Some(stems) = action.stems() {
+//                 self.init(stems, 1);
+//             }
+//         }
+//     }
+// }
 
 // impl<'a> Render<'a> {
 //     fn run(&mut self, actions: &[Grc<Action>]) {
