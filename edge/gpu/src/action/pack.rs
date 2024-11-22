@@ -40,8 +40,8 @@ pub struct Draw {
     pipe: Grc<RenderPipeline>,
     binds: Vec<Bind>,
     vertex: Vertex,
-    vertices: Range<u32>,
-    instances: Range<u32>,
+    pub vertices: Range<u32>,
+    pub instances: Range<u32>,
 }
 
 // #[derive(Clone, Debug)]

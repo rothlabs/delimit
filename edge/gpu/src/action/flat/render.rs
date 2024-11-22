@@ -10,6 +10,18 @@ pub struct Pass {
     pub steps: Vec<Step>,
 }
 
+impl Pass {
+    pub fn add(&mut self, action: &Action) {
+        match action {
+            Action::Draw(draw) => {
+                self.steps
+                    .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
+            }
+            _ => panic!("not render action"),
+        }
+    }
+}
+
 #[derive(Default, Clone, Debug)]
 pub enum Target {
     #[default]

@@ -1,5 +1,6 @@
 use super::*;
-use std::collections::HashSet;
+use std::collections::HashMap;
+// use std::collections::HashSet;
 
 pub mod render;
 
@@ -12,80 +13,138 @@ pub enum Command {
 #[derive(Debug)]
 pub struct Flat {
     actions: Vec<Hub<Grc<Action>>>,
-    past: Leaf<HashSet<u64>>,
+    past: Leaf<HashMap<u64, Node>>,
 }
 
 impl Solve for Flat {
     type Base = Grc<Vec<Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
-        let state = State {
+        let mut state = State {
             past: self.past.base()?,
             ..Default::default()
         };
         let actions = self.actions.base().await?;
-        let commands = state.commands(&actions);
-        self.past.write_passive(|x| *x = action_set(&actions))?;
-        Ok(commands)
+        state.init(&actions, 0);
+        state.commands(&actions);
+        self.past.write_passive(|x| *x = state.nodes)?;
+        Ok(Grc::new(state.commands).into())
     }
 }
 
-fn action_set(actions: &[Grc<Action>]) -> HashSet<u64> {
-    let mut set = HashSet::new();
-    for action in actions {
-        let ptr = Grc::as_ptr(action) as u64;
-        if !set.contains(&ptr) {
-            set.insert(ptr);
-            if let Some(stems) = action.stems() {
-                set.extend(action_set(stems));
-            }
-        }
-    }
-    set
+#[derive(Clone, Default)]
+struct Node {
+    need: u16,
+    fill: u16,
+    used: bool,
 }
 
 #[derive(Default)]
-struct State {
+struct State<'a> {
+    past: HashMap<u64, Node>,
+    nodes: HashMap<u64, Node>,
+    // next: Vec<&'a Grc<Action>>,
+    next: Vec<&'a Grc<Action>>,//HashMap<u64, &'a Grc<Action>>,
     commands: Vec<Command>,
-    past: HashSet<u64>,
-    pass: Field<Option<Pass>>,
-    // rank: u8,
-    // action: &'a Grc<Action>,
 }
 
-impl State {
-    fn include(&self, action: &Grc<Action>) -> bool {
-        self.past.contains(&(Grc::as_ptr(action) as u64))
+impl<'a> State<'a> {
+    fn init(&mut self, actions: &[Grc<Action>], need: u16) {
+        for action in actions {
+            let key = Grc::as_ptr(action) as u64;
+            if let Some(node) = self.nodes.get_mut(&key) {
+                node.need += 1;
+            } else {
+                let node = Node {
+                    need,
+                    ..Default::default()
+                };
+                self.nodes.insert(key, node);
+                if let Some(stems) = action.stems() {
+                    self.init(stems, 1);
+                }
+            }
+        }
     }
-    fn commands(mut self, actions: &[Grc<Action>]) -> Hub<Grc<Vec<Command>>> {
-        // let actions = actions.iter().filter(|x| self.include(x));
-        if let Some(Pass::Render) = self.pass.base {
-            for action in actions {
-                if !self.past.contains(&(Grc::as_ptr(action) as u64)) {
-                    if let Some(Pass::Render) = action.pass() {
-                        println!("wow");
-                    } else if let Some(stems) = action.stems() {
-                        let set: HashSet<u64> = HashSet::from_iter(stems.iter().map(|x| Grc::as_ptr(x) as u64));
-                        self.pass.exclude.extend(set);
+    fn commands(&mut self, actions: &[Grc<Action>]) {}
+    fn try_action<F: FnOnce()>(
+        &mut self,
+        action: &'a Grc<Action>,
+        use_action: F,
+    ) -> Option<&'a [Grc<Action>]> {
+        let key = Grc::as_ptr(action) as u64;
+        if !self.past.contains_key(&key) {
+            if let Some(node) = self.nodes.get_mut(&key) {
+                if !node.used && node.fill >= node.need {
+                    node.used = true;
+                    use_action();
+                    if let Some(stems) = action.stems() {
+                        self.increment_node(stems);
+                        return Some(stems);
                     }
                 }
             }
         }
-        Grc::new(self.commands).into()
+        None
+    }
+    fn increment_node(&mut self, actions: &[Grc<Action>]) {
+        for action in actions {
+            if let Some(node) = self.nodes.get_mut(&(Grc::as_ptr(action) as u64)) {
+                node.fill += 1;
+            }
+        }
     }
 }
 
-#[derive(Default)]
-struct Field<T> {
-    base: T,
-    exclude: HashSet<u64>,
+struct Render<'a> {
+    state: &'a mut State<'a>,
+    pass: render::Pass,
 }
 
+impl<'a> Render<'a> {
+    fn run(&mut self, actions: &'a [Grc<Action>], depth: u32) {
+        for action in actions {
+            if let Some(Pass::Render) = action.pass() {
+                if let Some(stems) = self.state.try_action(action, || self.pass.add(action)) {
+                    self.run(stems, depth + 1);
+                    continue;
+                }
+            }
+            self.state.next.push(action);
+        }
+    }
+}
+
+// impl<'a> Render<'a> {
+//     fn run(&mut self, actions: &[Grc<Action>]) {
+//         for action in actions {
+//             let key = Grc::as_ptr(action) as u64;
+//             if let Some(Pass::Render) = action.pass() {
+//                 if !self.state.past.contains_key(&key) {
+//                     if let Some(node) = self.state.nodes.get_mut(&key) {
+//                         if !node.used && node.fill >= node.need {
+//                             node.used = true;
+//                             self.pass.add(action);
+//                             if let Some(stems) = action.stems() {
+//                                 self.state.increase_node_fill(stems);
+//                                 self.run(stems);
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// #[derive(Default)]
+// struct Field<T> {
+//     base: T,
+//     exclude: HashSet<u64>,
+// }
 
 // fn is_new(&self, action: &Grc<Action>) -> bool {
 //     self.past.contains(&(Grc::as_ptr(action) as u64))
 // }
-
-
 
 // enum Slot {
 //     Pass,
