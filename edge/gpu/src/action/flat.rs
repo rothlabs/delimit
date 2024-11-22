@@ -19,12 +19,15 @@ pub struct Flat {
 impl Solve for Flat {
     type Base = Grc<Vec<Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
+        let actions = self.actions.base().await?;
+        let actions: Vec<&Grc<Action>> = actions.iter().collect();
         let mut state = State {
+            actions: [actions.clone(), actions],
             past: self.past.base()?,
             ..Default::default()
         };
-        let actions = self.actions.base().await?;
-        state.init(&actions);
+        state.run();
+        // state.init(&actions);
         // state.commands(&actions);
         self.past.write_passive(|x| *x = state.nodes)?;
         Ok(Grc::new(state.commands).into())
@@ -46,34 +49,51 @@ struct Node {
 
 #[derive(Default)]
 struct State<'a> {
-    actions: Vec<Grc<Action>>,
+    // actions: Vec<Grc<Action>>,
     past: HashMap<u64, Node>,
     nodes: HashMap<u64, Node>,
     // next: Vec<&'a Grc<Action>>,
-    next: Vec<&'a Grc<Action>>,//HashMap<u64, &'a Grc<Action>>,
+    actions: [Vec<&'a Grc<Action>>; 2],//HashMap<u64, &'a Grc<Action>>,
     commands: Vec<Command>,
 }
 
 impl<'a> State<'a> {
-    fn init(&mut self, actions: &[Grc<Action>]) {
-        let mut actions: Vec<&Grc<Action>> = self.actions.iter().collect();
-        while let Some(action) = actions.pop() {
+    fn run(&mut self) {
+        while let Some(action) = self.actions[1].pop() {
             let key = Grc::as_ptr(action) as u64;
             if let Some(node) = self.nodes.get_mut(&key) {
                 node.need += 1;
             } else {
                 self.nodes.insert(key, Node::default());
                 if let Some(stems) = action.stems() {
-                    actions.extend(stems);
+                    self.actions[1].extend(stems);
                 }
             }
         }
+        self.actions[1].clear();
+        self.passes();
     }
-    fn commands(&mut self) {
-        let mut actions: Vec<&Grc<Action>> = self.actions.iter().collect();
-        // self.next = self.actions.iter().collect();
-        while !actions.is_empty() {
-            
+    fn passes(&mut self) {
+        let mut i = (0, 1);
+        while !self.actions[i.0].is_empty() {
+            self.render(i);
+            i = (i.1, i.0);
+        }
+    }
+    fn render(&mut self, i: (usize, usize)) {
+        let mut pass = render::Pass::default();
+        while let Some(action) = self.actions[i.0].pop() {
+            if let Some(Pass::Render) = action.pass() {
+                if let Some(stems) = self.try_action(action, || pass.add(action)) {
+                    // self.actions[i.0].extend(stems);
+                    // self.actions[i.0].ins
+                    let stems: Vec<&Grc<Action>> = stems.iter().collect();
+                    // self.actions[i.0] = stems.with;
+
+                    continue;
+                }
+            }
+            self.actions[i.1].push(action);
         }
     }
     fn try_action<F: FnOnce()>(
@@ -105,25 +125,25 @@ impl<'a> State<'a> {
     }
 }
 
-struct Render<'a> {
-    state: &'a mut State<'a>,
-    pass: render::Pass,
-}
+// struct Render<'a> {
+//     state: &'a mut State<'a>,
+//     pass: render::Pass,
+// }
 
-impl<'a> Render<'a> {
-    fn run(&mut self, actions: &'a [Grc<Action>]) {
-        let mut actions: Vec<&Grc<Action>> = actions.iter().collect();
-        while let Some(action) = actions.pop() {
-            if let Some(Pass::Render) = action.pass() {
-                if let Some(stems) = self.state.try_action(action, || self.pass.add(action)) {
-                    actions.extend(stems);
-                    continue;
-                }
-            }
-            self.state.next.push(action);
-        }
-    }
-}
+// impl<'a> Render<'a> {
+//     fn run(&mut self, actions: &'a [Grc<Action>]) {
+//         let mut actions: Vec<&Grc<Action>> = actions.iter().collect();
+//         while let Some(action) = actions.pop() {
+//             if let Some(Pass::Render) = action.pass() {
+//                 if let Some(stems) = self.state.try_action(action, || self.pass.add(action)) {
+//                     actions.extend(stems);
+//                     continue;
+//                 }
+//             }
+//             self.state.next.push(action);
+//         }
+//     }
+// }
 
 // impl<'a> Render<'a> {
 //     fn run(&mut self, actions: &'a [Grc<Action>], depth: u32) {

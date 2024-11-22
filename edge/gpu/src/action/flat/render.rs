@@ -4,7 +4,7 @@ use std::ops::Range;
 mod codec;
 pub mod pass;
 
-#[derive(Clone, Debug)]
+#[derive(Default, Clone, Debug)]
 pub struct Pass {
     pub target: Target,
     pub steps: Vec<Step>,
