@@ -1,16 +1,16 @@
 use super::*;
 use std::collections::HashMap;
-// use std::collections::HashSet;
 
 pub mod render;
+pub mod compute;
 
 #[derive(Clone, Debug)]
 pub enum Command {
-    Compute,
+    Compute(compute::Pass),
     Render(render::Pass),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Back, Builder, BuildGate, Make)]
 pub struct Flat {
     actions: Vec<Hub<Grc<Action>>>,
     past: Leaf<HashMap<u64, Node>>,
@@ -27,8 +27,6 @@ impl Solve for Flat {
             ..Default::default()
         };
         state.run();
-        // state.init(&actions);
-        // state.commands(&actions);
         self.past.write_passive(|x| *x = state.nodes)?;
         Ok(Grc::new(state.commands).into())
     }
@@ -38,22 +36,13 @@ impl Solve for Flat {
 struct Node {
     need: u16,
     fill: u16,
-    used: bool,
 }
-
-// impl Default for Node {
-//     fn default() -> Self {
-//         Self { need: 1, fill: (), used: () }
-//     }
-// }
 
 #[derive(Default)]
 struct State<'a> {
-    // actions: Vec<Grc<Action>>,
     past: HashMap<u64, Node>,
     nodes: HashMap<u64, Node>,
-    // next: Vec<&'a Grc<Action>>,
-    actions: [Vec<&'a Grc<Action>>; 2], //HashMap<u64, &'a Grc<Action>>,
+    actions: [Vec<&'a Grc<Action>>; 2], 
     commands: Vec<Command>,
 }
 
@@ -78,8 +67,8 @@ impl<'a> State<'a> {
         while !self.actions[i.0].is_empty() {
             match self.actions[i.0].first().unwrap().pass() {
                 Some(Pass::Render) => self.render(i),
-                Some(Pass::Compute) => panic!("wow"),
-                None => panic!("hey"),
+                Some(Pass::Compute) => panic!("Pass::Compute not impl"),
+                None => panic!("None not impl"),
             }
             i = (i.1, i.0);
         }
@@ -88,30 +77,30 @@ impl<'a> State<'a> {
         let mut pass = render::Pass::default();
         while let Some(action) = self.actions[i.0].pop() {
             if let Some(Pass::Render) = action.pass() {
-                self.try_action(i.0, action, || pass.add(action));
+                self.try_action(i.0, action, || pass.push(action));
             } else {
                 self.actions[i.1].push(action);
             }
         }
+        self.commands.push(Command::Render(pass));
     }
     fn try_action<F: FnOnce()>(&mut self, i: usize, action: &'a Grc<Action>, use_action: F) {
         let key = Grc::as_ptr(action) as u64;
         if !self.past.contains_key(&key) {
             if let Some(node) = self.nodes.get_mut(&key) {
-                if !node.used && node.fill >= node.need {
-                    node.used = true;
+                if node.fill == node.need {
                     use_action();
                     if let Some(stems) = action.stems() {
-                        self.increment_node(stems);
+                        self.increment_stems(stems);
                         self.actions[i].extend(stems);
                     }
                 }
             }
         }
     }
-    fn increment_node(&mut self, actions: &[Grc<Action>]) {
-        for action in actions {
-            if let Some(node) = self.nodes.get_mut(&(Grc::as_ptr(action) as u64)) {
+    fn increment_stems(&mut self, stems: &[Grc<Action>]) {
+        for stem in stems {
+            if let Some(node) = self.nodes.get_mut(&(Grc::as_ptr(stem) as u64)) {
                 node.fill += 1;
             }
         }

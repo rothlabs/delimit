@@ -11,7 +11,7 @@ pub struct Pass {
 }
 
 impl Pass {
-    pub fn add(&mut self, action: &Action) {
+    pub fn push(&mut self, action: &Action) {
         match action {
             Action::Draw(draw) => {
                 self.steps

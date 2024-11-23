@@ -16,8 +16,9 @@ impl Act for App {
             let port = &main.viewport;
             let view = mech_view(main)?;
             let steps = tests::draw_nurbs_surface(&view).await?;
-            let pass = port.pass(steps).hub()?;
-            let commands = star::vector().field(pass).hub()?;
+            // let pass = port.pass(steps).hub()?;
+            // let commands = star::vector().field(pass).hub()?;
+            
             let transfer = commands.transfer(&port.commands)?;
             transfer.depend().await?;
             self.command_writers.write(|x| x.push(transfer)).await?;
