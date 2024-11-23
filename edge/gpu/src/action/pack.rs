@@ -2,55 +2,49 @@ use super::*;
 
 pub mod unit;
 
-#[derive(Clone, Debug)]
-pub struct Action {
+mod pass;
+
+#[derive(Debug, Default)]
+pub enum Action {
+    #[default]
+    Leaf,
+    Pack(Pack),
+}
+
+#[derive(Debug)]
+pub struct Pack {
     pub id: u32,
     pub stems: Vec<Grc<Action>>,
     pub kind: Kind
 }
 
-impl Default for Action {
+impl Default for Pack {
     fn default() -> Self {
         Self {
             id: rand::random(),
             stems: vec![],
-            kind: Kind::Leaf,
+            kind: Kind::Other,
         }
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Kind {
-    Leaf,
-    Dispatch(Dispatch),
-    Draw(Draw),
+    Pass(pass::Pass),
+    Other,
 }
 
-impl Kind {
-    pub fn pass(&self) -> Option<Pass> {
-        match self {
-            Self::Leaf => None,
-            Self::Dispatch(_) => Some(Pass::Compute),
-            Self::Draw(_) => Some(Pass::Render),
-        }
-    }
-}
 
-#[derive(Clone, Debug)]
-pub struct Dispatch {
-    pipe: Grc<ComputePipeline>,
-    binds: Vec<Bind>,
-    size: u32,
-}
+// impl Kind {
+//     pub fn pass(&self) -> Option<Pass> {
+//         match self {
+//             Self::Leaf => None,
+//             Self::Dispatch(_) => Some(Pass::Compute),
+//             Self::Draw(_) => Some(Pass::Render),
+//         }
+//     }
+// }
 
-#[derive(Clone, Debug)]
-pub struct Draw {
-    pipe: Grc<RenderPipeline>,
-    binds: Vec<Bind>,
-    vertex: Vertex,
-    pub vertices: Range<u32>,
-    pub instances: Range<u32>,
-}
 
 // #[derive(Clone, Debug)]
 // pub struct Draw2 {
