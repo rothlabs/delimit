@@ -1,9 +1,6 @@
 use super::*;
 use std::ops::Range;
 
-// mod codec;
-// pub mod pass;
-
 #[derive(Default, Clone, Debug)]
 pub struct Pass {
     pub target: Target,
@@ -37,6 +34,14 @@ pub enum Step {
     Index(Grc<Buffer>),
     Draw(Range<u32>, Range<u32>),
     DrawIndexed(Range<u32>, i32, Range<u32>),
+}
+
+struct PassBuilder {
+    pipe: Grc<RenderPipeline>,
+    bind: Vec<Grc<BindGroup>>,
+    vertex: Vec<Grc<Buffer>>,
+    index: Grc<Buffer>,
+    steps: Vec<Step>,
 }
 
 // #[derive(Builder, BuildGate, Debug)]

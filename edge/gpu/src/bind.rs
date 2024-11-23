@@ -7,7 +7,7 @@ mod layout;
 #[derive(Builder, BuildGate, Debug)]
 #[builder(pattern = "owned")]
 #[builder(setter(into, strip_option))]
-pub struct Bind {
+pub struct BindGroupRig {
     device: Grc<Device>,
     #[builder(default)]
     layout: Option<Grc<BindGroupLayout>>,
@@ -17,7 +17,7 @@ pub struct Bind {
     entries: Vec<(u32, Hub<Grc<Buffer>>)>,
 }
 
-impl Solve for Bind {
+impl Solve for BindGroupRig {
     // TODO: make a gpu::BindGroup that includes mutations from Hedge entries instead of Buffer entries
     type Base = Grc<BindGroup>;
     async fn solve(&self) -> node::Result<Self::Base> {
@@ -50,7 +50,7 @@ impl Solve for Bind {
     }
 }
 
-impl Adapt for Bind {
+impl Adapt for BindGroupRig {
     fn back(&mut self, back: &Back) -> graph::Result<()> {
         for (_, buffer) in &mut self.entries {
             buffer.back(back)?;
@@ -59,7 +59,7 @@ impl Adapt for Bind {
     }
 }
 
-impl BindBuilder {
+impl BindGroupRigBuilder {
     pub fn entry(self, i: u32, buffer: impl Into<Hub<Grc<Buffer>>>) -> Self {
         self.inner_entry((i, buffer.into()))
     }

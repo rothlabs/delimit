@@ -124,8 +124,8 @@ impl Core {
     pub fn compute(&self) -> encode::ComputeBuilder {
         encode::ComputeBuilder::default().core(self.clone())
     }
-    pub fn bind(&self) -> bind::BindBuilder {
-        bind::BindBuilder::default().device(self.device.clone())
+    pub fn bind(&self) -> bind::BindGroupRigBuilder {
+        bind::BindGroupRigBuilder::default().device(self.device.clone())
     }
     /// Create a dummy `Hedge` to quickly put data into GPU ecosystem.
     pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>

@@ -1,4 +1,5 @@
 pub use action::flat::{self, Command};
+// pub use action::pack::{unit::*, Action};
 pub use action::pack::{unit::*, Action};
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
@@ -21,7 +22,8 @@ use texture::*;
 use util::DeviceExt;
 use wgpu::*;
 
-mod action;
+pub mod action;
+
 mod bind;
 mod buffer;
 mod core;

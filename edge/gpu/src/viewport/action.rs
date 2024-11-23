@@ -2,7 +2,7 @@ use super::*;
 
 pub struct Render<'a> {
     pub viewport: &'a Viewport,
-    pub commands: Vec<Command>,
+    pub commands: Grc<Vec<Command>>,
 }
 
 impl<'a> Render<'a> {
@@ -13,7 +13,7 @@ impl<'a> Render<'a> {
         let mut encoder = self.viewport.gpu.encoder();
         let frame = self.viewport.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        for command in &self.commands {
+        for command in self.commands.iter() {
             if let Command::Render(pass) = command {
                 let attachments = self
                     .viewport
