@@ -14,13 +14,17 @@ pub struct Dispatch {
 impl Solve for Dispatch {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
-        let dispatch = pack::Dispatch {
-            stems: self.stems.base().await?,
+        let dispatch = pack::Dispatch{
             pipe: self.pipe.base().await?,
             binds: self.bindings.base().await?,
             size: self.size.base().await?,
         };
-        Ok(Grc::new(Action::Dispatch(dispatch)).into())
+        let action = pack::Action {
+            stems: self.stems.base().await?,
+            kind: pack::Kind::Dispatch(dispatch),
+            ..Default::default()
+        };
+        Ok(Grc::new(action).into())
     }
 }
 
@@ -61,15 +65,19 @@ pub struct Draw {
 impl Solve for Draw {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
-        let draw = pack::Draw {
-            stems: self.stems.base().await?,
+        let draw = pack::Draw{
             pipe: self.pipe.base().await?,
             binds: self.binds.base().await?,
             vertex: self.vertex.base().await?,
             vertices: self.vertices.base().await?,
             instances: self.instances.base().await?,
         };
-        Ok(Grc::new(Action::Draw(draw)).into())
+        let action = pack::Action {
+            stems: self.stems.base().await?,
+            kind: pack::Kind::Draw(draw),
+            ..Default::default()
+        };
+        Ok(Grc::new(action).into())
     }
 }
 

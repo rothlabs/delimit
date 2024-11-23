@@ -24,7 +24,7 @@ where
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
             .await?;
-        Ok(Grc::new(action::Action::Leaf(rand::random())).into())
+        Ok(Grc::new(action::Action::default()).into())
     }
 }
 

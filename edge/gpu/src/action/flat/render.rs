@@ -9,8 +9,8 @@ pub struct Pass {
 
 impl Pass {
     pub fn push(&mut self, action: &Action) {
-        match action {
-            Action::Draw(draw) => {
+        match &action.kind {
+            pack::Kind::Draw(draw) => {
                 self.steps
                     .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
             }
@@ -40,9 +40,24 @@ struct PassBuilder {
     pipe: Grc<RenderPipeline>,
     bind: Vec<Grc<BindGroup>>,
     vertex: Vec<Grc<Buffer>>,
-    index: Grc<Buffer>,
+    index: Option<Grc<Buffer>>,
     steps: Vec<Step>,
 }
+
+// impl PassBuilder {
+//     pub fn new(action: &Action) -> Self {
+//         match &action.kind {
+//             pack::Kind::Draw(draw) => {
+//                 self.steps
+//                     .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
+//             }
+//             _ => panic!("not render action"),
+//         }
+//         Self {
+//             pipe: 
+//         }
+//     }
+// }
 
 // #[derive(Builder, BuildGate, Debug)]
 // #[builder(pattern = "owned")]

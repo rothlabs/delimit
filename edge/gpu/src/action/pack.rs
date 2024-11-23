@@ -3,23 +3,33 @@ use super::*;
 pub mod unit;
 
 #[derive(Clone, Debug)]
-pub enum Action {
-    Leaf(u64),
+pub struct Action {
+    pub id: u32,
+    pub stems: Vec<Grc<Action>>,
+    pub kind: Kind
+}
+
+impl Default for Action {
+    fn default() -> Self {
+        Self {
+            id: rand::random(),
+            stems: vec![],
+            kind: Kind::Leaf,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Kind {
+    Leaf,
     Dispatch(Dispatch),
     Draw(Draw),
 }
 
-impl Action {
-    pub fn stems(&self) -> Option<&Vec<Grc<Action>>> {
-        match self {
-            Self::Leaf(_) => None,
-            Self::Dispatch(x) => Some(&x.stems),
-            Self::Draw(x) => Some(&x.stems),
-        }
-    }
+impl Kind {
     pub fn pass(&self) -> Option<Pass> {
         match self {
-            Self::Leaf(_) => None,
+            Self::Leaf => None,
             Self::Dispatch(_) => Some(Pass::Compute),
             Self::Draw(_) => Some(Pass::Render),
         }
@@ -28,7 +38,6 @@ impl Action {
 
 #[derive(Clone, Debug)]
 pub struct Dispatch {
-    stems: Vec<Grc<Action>>,
     pipe: Grc<ComputePipeline>,
     binds: Vec<Bind>,
     size: u32,
@@ -36,7 +45,6 @@ pub struct Dispatch {
 
 #[derive(Clone, Debug)]
 pub struct Draw {
-    stems: Vec<Grc<Action>>,
     pipe: Grc<RenderPipeline>,
     binds: Vec<Bind>,
     vertex: Vertex,
