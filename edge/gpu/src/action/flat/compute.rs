@@ -5,21 +5,40 @@ pub struct Pass {
     pub steps: Vec<Step>,
 }
 
-impl Pass {
-    pub fn push(&mut self, action: &Action) {
-        // match action {
-        //     Action::Draw(draw) => {
-        //         self.steps
-        //             .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
-        //     }
-        //     _ => panic!("not render action"),
-        // }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub enum Step {
     Pipe(Grc<ComputePipeline>),
-    Bind(u32, Grc<BindGroup>),
+    Bind(Bind),
     Dispatch(u32),
 }
+
+#[derive(Default)]
+pub struct State {
+    pipe: Option<Grc<ComputePipeline>>,
+    binds: HashMap<u32, Bind>,
+    steps: Vec<Step>,
+}
+
+impl State {
+    pub fn flat(self) -> Pass {
+        Pass {
+            steps: self.steps,
+        }
+    }
+    pub fn pass(&mut self, pass: &pack::Pass) -> &mut Self {
+        for bind in &pass.binds {
+            if let Some(now) = self.binds.get_mut(&bind.slot) {
+                if now != bind {
+                    *now = bind.clone();
+                    self.steps.push(Step::Bind(bind.clone()));
+                }
+            } else {
+                self.binds.insert(bind.slot, bind.clone());
+                self.steps.push(Step::Bind(bind.clone()));
+            }
+        }
+        self
+    }
+}
+
+

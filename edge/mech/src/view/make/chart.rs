@@ -43,7 +43,7 @@ impl Solve for Points {
             .stems(stems)
             .pipe(&chart.points.pipe)
             .bind(bind)
-            .vertex(vertex)
+            .buffer(vertex)
             .vertices(0..vertex_count * 3)
             .instances(0..count)
             .hub()?)

@@ -19,15 +19,17 @@ impl<'a> Encode<'a> {
         for entry in &render.steps {
             match entry {
                 flat::render::Step::Pipe(pipe) => pass.set_pipeline(pipe),
-                flat::render::Step::Bind(index, bind) => pass.set_bind_group(*index, bind, &[]),
-                flat::render::Step::Vertex(slot, buffer) => {
-                    pass.set_vertex_buffer(*slot, buffer.slice(..));
+                flat::render::Step::Bind(bind) => {
+                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
+                }
+                flat::render::Step::Vertex(vertex) => {
+                    pass.set_vertex_buffer(vertex.slot, vertex.buffer.slice(..));
                 }
                 flat::render::Step::Index(buffer) => {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
-                flat::render::Step::Draw(vertices, instances) => {
-                    pass.draw(vertices.clone(), instances.clone());
+                flat::render::Step::Draw(draw) => {
+                    pass.draw(draw.vertices.clone(), draw.instances.clone());
                 }
                 flat::render::Step::DrawIndexed(indices, base_vertex, instances) => {
                     pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());

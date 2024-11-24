@@ -7,24 +7,40 @@ use super::*;
 pub mod flat;
 pub mod pack;
 
-// // #[derive(Default)]
 pub enum Pass {
-    // #[default]
     Compute,
     Render,
 }
 
 #[derive(Debug, Clone)]
 pub struct Bind {
-    slot: u32,
-    group: Grc<BindGroup>,
-    offsets: Vec<u32>,
+    pub slot: u32,
+    pub group: Grc<BindGroup>,
+    pub offsets: Vec<u32>,
+}
+
+impl PartialEq for Bind {
+    fn eq(&self, rhs: &Bind) -> bool {
+        self.slot == rhs.slot && Grc::ptr_eq(&self.group, &rhs.group) && self.offsets == rhs.offsets
+    }
 }
 
 #[derive(Clone, Debug)]
 pub struct Vertex {
-    slot: u32,
-    buffer: Grc<Buffer>,
+    pub slot: u32,
+    pub buffer: Grc<Buffer>,
+}
+
+impl PartialEq for Vertex {
+    fn eq(&self, rhs: &Vertex) -> bool {
+        self.slot == rhs.slot && Grc::ptr_eq(&self.buffer, &rhs.buffer)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Draw {
+    pub vertices: Range<u32>,
+    pub instances: Range<u32>,
 }
 
 #[derive(Debug, Back, Builder, BuildGate, Make)]
@@ -60,7 +76,7 @@ struct Node {
 struct State<'a> {
     past: HashMap<u32, Node>,
     nodes: HashMap<u32, Node>,
-    actions: [Vec<&'a Grc<Action>>; 2], 
+    actions: [Vec<&'a Grc<Action>>; 2],
     commands: Vec<Command>,
 }
 
@@ -81,26 +97,33 @@ impl<'a> State<'a> {
     fn passes(&mut self) {
         let mut i = (0, 1);
         while let Some(action) = self.actions[i.0].first() {
-            match action.kind.pass() {
-                Some(Pass::Render) => self.render(i),
-                Some(Pass::Compute) => panic!("Pass::Compute not impl"),
-                None => panic!("None not impl"),
+            match &action.kind {
+                pack::Kind::Pass(pass) => match &pass.kind {
+                    pack::pass::Kind::Render(_) => self.render(i),
+                    pack::pass::Kind::Compute(_) => panic!("crap"),
+                },
+                _ => panic!("crap"),
             }
             self.actions[i.0].clear();
             i = (i.1, i.0);
         }
     }
     fn render(&mut self, i: (usize, usize)) {
-        let mut pass = flat::render::Pass::default();
+        let mut state = flat::render::State::default();
         while let Some(action) = self.actions[i.0].pop() {
-            if let Some(Pass::Render) = action.kind.pass() {
-                self.try_action(i.0, action, || pass.push(action));
+            if let pack::Kind::Pass(pass) = &action.kind {
+                if let pack::pass::Kind::Render(render) = &pass.kind {
+                    self.try_action(i.0, action, || {
+                        state.pass(pass).render(render);
+                    });
+                }
             } else {
                 self.actions[i.1].push(action);
             }
         }
-        self.commands.push(Command::Render(pass));
+        self.commands.push(Command::Render(state.flat()));
     }
+    // fn render_pass(&self, )
     fn try_action<F: FnOnce()>(&mut self, i: usize, action: &'a Grc<Action>, use_action: F) {
         if !self.past.contains_key(&action.id) {
             if let Some(node) = self.nodes.get(&action.id) {
@@ -120,16 +143,6 @@ impl<'a> State<'a> {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 // #[derive(Default)]
 // struct State {

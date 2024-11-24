@@ -1,63 +1,95 @@
 use super::*;
 use std::ops::Range;
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Debug)]
 pub struct Pass {
     pub target: Target,
     pub steps: Vec<Step>,
 }
 
-// impl Pass {
-//     pub fn push(&mut self, action: &Action) {
-//         match &action.kind {
-//             pack::Kind::Draw(draw) => {
-//                 self.steps
-//                     .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
-//             }
-//             _ => panic!("not render action"),
-//         }
-//     }
-// }
-
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Debug)]
 pub enum Target {
     #[default]
     Frame,
     Texture(Vec<u8>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
-    Bind(u32, Grc<BindGroup>),
-    Vertex(u32, Grc<Buffer>),
+    Bind(Bind),
+    Vertex(Vertex),
     Index(Grc<Buffer>),
-    Draw(Range<u32>, Range<u32>),
+    Draw(Draw),
     DrawIndexed(Range<u32>, i32, Range<u32>),
 }
 
-struct PassBuilder {
-    pipe: Grc<RenderPipeline>,
-    bind: Vec<Grc<BindGroup>>,
-    vertex: Vec<Grc<Buffer>>,
-    index: Option<Grc<Buffer>>,
+#[derive(Default)]
+pub struct State {
+    pipe: Option<Grc<RenderPipeline>>,
+    binds: HashMap<u32, Bind>,
+    buffers: HashMap<u32, Vertex>,
+    // index: Option<Grc<Buffer>>,
     steps: Vec<Step>,
 }
 
-// impl PassBuilder {
-//     pub fn new(action: &Action) -> Self {
-//         match &action.kind {
-//             pack::Kind::Draw(draw) => {
-//                 self.steps
-//                     .push(Step::Draw(draw.vertices.clone(), draw.instances.clone()));
-//             }
-//             _ => panic!("not render action"),
-//         }
-//         Self {
-//             pipe: 
-//         }
-//     }
-// }
+impl State {
+    pub fn flat(self) -> Pass {
+        Pass {
+            steps: self.steps,
+            ..Default::default()
+        }
+    }
+    pub fn pass(&mut self, pass: &pack::Pass) -> &mut Self {
+        for bind in &pass.binds {
+            if let Some(now) = self.binds.get_mut(&bind.slot) {
+                if now != bind {
+                    *now = bind.clone();
+                    self.steps.push(Step::Bind(bind.clone()));
+                }
+            } else {
+                self.binds.insert(bind.slot, bind.clone());
+                self.steps.push(Step::Bind(bind.clone()));
+            }
+        }
+        self
+    }
+    pub fn render(&mut self, render: &pack::pass::Render) {
+        self.pipe(&render.pipe);
+        self.buffers(&render.buffers);
+        self.draw(&render.kind);
+    }
+    pub fn pipe(&mut self, pipe: &Grc<RenderPipeline>) {
+        if let Some(now) = self.pipe.as_mut() {
+            if !Grc::ptr_eq(pipe, now) {
+                *now = pipe.clone();
+                self.steps.push(Step::Pipe(pipe.clone()));
+            }
+        } else {
+            self.pipe = Some(pipe.clone());
+            self.steps.push(Step::Pipe(pipe.clone()));
+        }
+    }
+    fn buffers(&mut self, buffers: &[Vertex]) {
+        for buffer in buffers {
+            if let Some(now) = self.buffers.get_mut(&buffer.slot) {
+                if now != buffer {
+                    *now = buffer.clone();
+                    self.steps.push(Step::Vertex(buffer.clone()));
+                }
+            } else {
+                self.buffers.insert(buffer.slot, buffer.clone());
+                self.steps.push(Step::Vertex(buffer.clone()));
+            }
+        }
+    }
+    fn draw(&mut self, kind: &pack::pass::render::Kind) {
+        match kind {
+            pack::pass::render::Kind::Draw(draw) => self.steps.push(Step::Draw(draw.clone())),
+            _ => panic!("crap"),
+        }
+    }
+}
 
 // #[derive(Builder, BuildGate, Debug)]
 // #[builder(pattern = "owned")]

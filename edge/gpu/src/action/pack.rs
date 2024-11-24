@@ -1,24 +1,16 @@
 use super::*;
 
+pub mod pass;
 pub mod unit;
 
-mod pass;
-
-#[derive(Debug, Default)]
-pub enum Action {
-    #[default]
-    Leaf,
-    Pack(Pack),
-}
-
 #[derive(Debug)]
-pub struct Pack {
+pub struct Action {
     pub id: u32,
     pub stems: Vec<Grc<Action>>,
-    pub kind: Kind
+    pub kind: Kind,
 }
 
-impl Default for Pack {
+impl Default for Action {
     fn default() -> Self {
         Self {
             id: rand::random(),
@@ -28,12 +20,36 @@ impl Default for Pack {
     }
 }
 
+impl Action {
+    pub fn render_pass(&self) -> bool {
+        if let Kind::Pass(pass) = &self.kind {
+            if let pass::Kind::Render(_) = &pass.kind {
+                return true;
+            }
+        }
+        false
+    }
+}
+
 #[derive(Debug)]
 pub enum Kind {
-    Pass(pass::Pass),
+    Leaf,
+    Pass(Pass),
     Other,
 }
 
+#[derive(Debug)]
+pub struct Pass {
+    pub binds: Vec<Bind>,
+    pub kind: pass::Kind,
+}
+
+// #[derive(Debug, Default)]
+// pub enum Action {
+//     #[default]
+//     Leaf,
+//     Pack(Pack),
+// }
 
 // impl Kind {
 //     pub fn pass(&self) -> Option<Pass> {
@@ -44,7 +60,6 @@ pub enum Kind {
 //         }
 //     }
 // }
-
 
 // #[derive(Clone, Debug)]
 // pub struct Draw2 {

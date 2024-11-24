@@ -14,23 +14,21 @@ pub struct Dispatch {
 impl Solve for Dispatch {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
-        let dispatch = pack::pass::compute::Dispatch {
-            size: self.size.base().await?,
-        };
+        let dispatch = self.size.base().await?;
         let compute = pack::pass::Compute {
             pipe: self.pipe.base().await?,
             kind: pack::pass::compute::Kind::Dispatch(dispatch),
         };
-        let pass = pack::pass::Pass {
+        let pass = pack::Pass {
             binds: self.bindings.base().await?,
             kind: pack::pass::Kind::Compute(compute),
         };
-        let pack = pack::Pack {
+        let action = pack::Action {
             stems: self.stems.base().await?,
             kind: pack::Kind::Pass(pass),
             ..Default::default()
         };
-        Ok(Grc::new(pack::Action::Pack(pack)).into())
+        Ok(Grc::new(action).into())
     }
 }
 
@@ -63,7 +61,8 @@ pub struct Draw {
     pipe: Hub<Grc<RenderPipeline>>,
     #[builder(setter(each(name = "bind", into)))]
     binds: Vec<Hub<action::Bind>>,
-    vertex: Hub<action::Vertex>,
+    #[builder(setter(each(name = "buffer", into)))]
+    buffers: Vec<Hub<action::Vertex>>,
     vertices: Hub<Range<u32>>,
     instances: Hub<Range<u32>>,
 }
@@ -71,25 +70,25 @@ pub struct Draw {
 impl Solve for Draw {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
-        let draw = pack::pass::render::Draw {
+        let draw = action::Draw {
             vertices: self.vertices.base().await?,
             instances: self.instances.base().await?,
         };
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
-            vertex: self.vertex.base().await?,
+            buffers: self.buffers.base().await?,
             kind: pack::pass::render::Kind::Draw(draw),
         };
-        let pass = pack::pass::Pass {
+        let pass = pack::Pass {
             binds: self.binds.base().await?,
             kind: pack::pass::Kind::Render(render),
         };
-        let pack = pack::Pack {
+        let action = pack::Action {
             stems: self.stems.base().await?,
             kind: pack::Kind::Pass(pass),
             ..Default::default()
         };
-        Ok(Grc::new(pack::Action::Pack(pack)).into())
+        Ok(Grc::new(action).into())
     }
 }
 
@@ -112,19 +111,18 @@ impl Solve for Vertex {
     }
 }
 
-
 // let draw = pack::Draw{
-        //     pipe: self.pipe.base().await?,
-        //     binds: self.binds.base().await?,
-        //     vertex: self.vertex.base().await?,
-        //     vertices: self.vertices.base().await?,
-        //     instances: self.instances.base().await?,
-        // };
-        // let action = pack::Action {
-        //     stems: self.stems.base().await?,
-        //     kind: pack::Kind::Draw(draw),
-        //     ..Default::default()
-        // };
+//     pipe: self.pipe.base().await?,
+//     binds: self.binds.base().await?,
+//     vertex: self.vertex.base().await?,
+//     vertices: self.vertices.base().await?,
+//     instances: self.instances.base().await?,
+// };
+// let action = pack::Action {
+//     stems: self.stems.base().await?,
+//     kind: pack::Kind::Draw(draw),
+//     ..Default::default()
+// };
 
 // #[builder(default, setter(each(name = "bind_inner", into)))]
 //     bindings: Vec<Hub<action::Binding>>,

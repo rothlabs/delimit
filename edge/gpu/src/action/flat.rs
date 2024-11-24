@@ -1,15 +1,13 @@
 use super::*;
 
-pub mod render;
 pub mod compute;
+pub mod render;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Command {
     Compute(compute::Pass),
     Render(render::Pass),
 }
-
-
 
 // struct Render<'a> {
 //     state: &'a mut State<'a>,
