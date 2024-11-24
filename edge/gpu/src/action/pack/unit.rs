@@ -14,20 +14,23 @@ pub struct Dispatch {
 impl Solve for Dispatch {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
+        println!("try Dispatch");
         let dispatch = self.size.base().await?;
         let compute = pack::pass::Compute {
             pipe: self.pipe.base().await?,
+            binds: self.bindings.base().await?,
             kind: pack::pass::compute::Kind::Dispatch(dispatch),
         };
-        let pass = pack::Pass {
-            binds: self.bindings.base().await?,
-            kind: pack::pass::Kind::Compute(compute),
-        };
+        // let pass = pack::Pass {
+        //     binds: self.bindings.base().await?,
+        //     kind: pack::pass::Kind::Compute(compute),
+        // };
         let action = pack::Action {
             stems: self.stems.base().await?,
-            kind: pack::Kind::Pass(pass),
+            kind: pack::Kind::Compute(compute),
             ..Default::default()
         };
+        println!("solve Dispatch");
         Ok(Grc::new(action).into())
     }
 }
@@ -35,7 +38,7 @@ impl Solve for Dispatch {
 #[derive(Debug, Back, Builder, BuildGate, Make)]
 #[builder(setter(into), pattern = "owned")]
 pub struct Bind {
-    #[builder(default)]
+    // #[builder(default)]
     slot: Hub<u32>,
     group: Hub<Grc<BindGroup>>,
     #[builder(default)]
@@ -45,6 +48,9 @@ pub struct Bind {
 impl Solve for Bind {
     type Base = action::Bind;
     async fn solve(&self) -> node::Result<action::Bind> {
+        println!("try Bind");
+        self.slot.base().await?;
+        println!("self.slot.base(");
         let binding = action::Bind {
             slot: self.slot.base().await?,
             group: self.group.base().await?,
@@ -70,24 +76,31 @@ pub struct Draw {
 impl Solve for Draw {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
+        println!("try Draw");
         let draw = action::Draw {
             vertices: self.vertices.base().await?,
             instances: self.instances.base().await?,
         };
+        self.pipe.base().await?;
+        self.binds.base().await?;
+        println!("vertices, instances");
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
+            binds: self.binds.base().await?,
             buffers: self.buffers.base().await?,
             kind: pack::pass::render::Kind::Draw(draw),
         };
-        let pass = pack::Pass {
-            binds: self.binds.base().await?,
-            kind: pack::pass::Kind::Render(render),
-        };
+        println!("whaaa");
+        // let pass = pack::Pass {
+        //     binds: self.binds.base().await?,
+        //     kind: pack::pass::Kind::Render(render),
+        // };
         let action = pack::Action {
             stems: self.stems.base().await?,
-            kind: pack::Kind::Pass(pass),
+            kind: pack::Kind::Render(render),
             ..Default::default()
         };
+        println!("solved Draw");
         Ok(Grc::new(action).into())
     }
 }
@@ -103,10 +116,12 @@ pub struct Vertex {
 impl Solve for Vertex {
     type Base = action::Vertex;
     async fn solve(&self) -> node::Result<action::Vertex> {
+        println!("try vertex");
         let vertex = action::Vertex {
             slot: self.slot.base().await?,
             buffer: self.buffer.base().await?,
         };
+        println!("solve vertex");
         Ok(vertex.into())
     }
 }

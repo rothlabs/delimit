@@ -20,29 +20,31 @@ impl Default for Action {
     }
 }
 
-impl Action {
-    pub fn render_pass(&self) -> bool {
-        if let Kind::Pass(pass) = &self.kind {
-            if let pass::Kind::Render(_) = &pass.kind {
-                return true;
-            }
-        }
-        false
-    }
-}
-
 #[derive(Debug)]
 pub enum Kind {
     Leaf,
-    Pass(Pass),
+    Compute(pass::Compute),
+    Render(pass::Render),
     Other,
 }
 
-#[derive(Debug)]
-pub struct Pass {
-    pub binds: Vec<Bind>,
-    pub kind: pass::Kind,
-}
+
+// impl Action {
+//     pub fn render_pass(&self) -> bool {
+//         if let Kind::Pass(pass) = &self.kind {
+//             if let pass::Kind::Render(_) = &pass.kind {
+//                 return true;
+//             }
+//         }
+//         false
+//     }
+// }
+
+// #[derive(Debug)]
+// pub struct Pass {
+//     pub binds: Vec<Bind>,
+//     pub kind: pass::Kind,
+// }
 
 // #[derive(Debug, Default)]
 // pub enum Action {

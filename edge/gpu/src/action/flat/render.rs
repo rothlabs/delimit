@@ -1,5 +1,4 @@
 use super::*;
-use std::ops::Range;
 
 #[derive(Default, Debug)]
 pub struct Pass {
@@ -40,22 +39,9 @@ impl State {
             ..Default::default()
         }
     }
-    pub fn pass(&mut self, pass: &pack::Pass) -> &mut Self {
-        for bind in &pass.binds {
-            if let Some(now) = self.binds.get_mut(&bind.slot) {
-                if now != bind {
-                    *now = bind.clone();
-                    self.steps.push(Step::Bind(bind.clone()));
-                }
-            } else {
-                self.binds.insert(bind.slot, bind.clone());
-                self.steps.push(Step::Bind(bind.clone()));
-            }
-        }
-        self
-    }
-    pub fn render(&mut self, render: &pack::pass::Render) {
+    pub fn push(&mut self, render: &pack::pass::Render) {
         self.pipe(&render.pipe);
+        self.binds(&render.binds);
         self.buffers(&render.buffers);
         self.draw(&render.kind);
     }
@@ -69,6 +55,20 @@ impl State {
             self.pipe = Some(pipe.clone());
             self.steps.push(Step::Pipe(pipe.clone()));
         }
+    }
+    pub fn binds(&mut self, binds: &[Bind]) -> &mut Self {
+        for bind in binds {
+            if let Some(now) = self.binds.get_mut(&bind.slot) {
+                if now != bind {
+                    *now = bind.clone();
+                    self.steps.push(Step::Bind(bind.clone()));
+                }
+            } else {
+                self.binds.insert(bind.slot, bind.clone());
+                self.steps.push(Step::Bind(bind.clone()));
+            }
+        }
+        self
     }
     fn buffers(&mut self, buffers: &[Vertex]) {
         for buffer in buffers {

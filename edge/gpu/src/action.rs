@@ -47,13 +47,16 @@ pub struct Draw {
 #[builder(pattern = "owned")]
 pub struct Flat {
     actions: Vec<Hub<Grc<Action>>>,
+    #[builder(default)]
     past: Leaf<HashMap<u32, Node>>,
 }
 
 impl Solve for Flat {
     type Base = Grc<Vec<Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
+        println!("solving flat");
         let actions = self.actions.base().await?;
+        println!("got actions");
         let actions: Vec<&Grc<Action>> = actions.iter().collect();
         let mut state = State {
             actions: [actions.clone(), actions],
@@ -61,7 +64,9 @@ impl Solve for Flat {
             ..Default::default()
         };
         state.run();
+        println!("ran state");
         self.past.write_passive(|x| *x = state.nodes)?;
+        println!("wrote past!");
         Ok(Grc::new(state.commands).into())
     }
 }
@@ -98,32 +103,36 @@ impl<'a> State<'a> {
         let mut i = (0, 1);
         while let Some(action) = self.actions[i.0].first() {
             match &action.kind {
-                pack::Kind::Pass(pass) => match &pass.kind {
-                    pack::pass::Kind::Render(_) => self.render(i),
-                    pack::pass::Kind::Compute(_) => panic!("crap"),
-                },
+                pack::Kind::Compute(_) => self.compute(i),
+                pack::Kind::Render(_) => self.render(i),
                 _ => panic!("crap"),
             }
             self.actions[i.0].clear();
             i = (i.1, i.0);
         }
     }
+    fn compute(&mut self, i: (usize, usize)) {
+        let mut state = flat::compute::State::default();
+        while let Some(action) = self.actions[i.0].pop() {
+            if let pack::Kind::Compute(compute) = &action.kind {
+                self.try_action(i.0, action, || state.push(compute));
+            } else {
+                self.actions[i.1].push(action);
+            }
+        }
+        self.commands.push(Command::Compute(state.flat()));
+    }
     fn render(&mut self, i: (usize, usize)) {
         let mut state = flat::render::State::default();
         while let Some(action) = self.actions[i.0].pop() {
-            if let pack::Kind::Pass(pass) = &action.kind {
-                if let pack::pass::Kind::Render(render) = &pass.kind {
-                    self.try_action(i.0, action, || {
-                        state.pass(pass).render(render);
-                    });
-                }
+            if let pack::Kind::Render(render) = &action.kind {
+                self.try_action(i.0, action, || state.push(render));
             } else {
                 self.actions[i.1].push(action);
             }
         }
         self.commands.push(Command::Render(state.flat()));
     }
-    // fn render_pass(&self, )
     fn try_action<F: FnOnce()>(&mut self, i: usize, action: &'a Grc<Action>, use_action: F) {
         if !self.past.contains_key(&action.id) {
             if let Some(node) = self.nodes.get(&action.id) {

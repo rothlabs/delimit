@@ -1,14 +1,15 @@
 use super::*;
 
-#[derive(Debug)]
-pub enum Kind {
-    Compute(Compute),
-    Render(Render),
-}
+// #[derive(Debug)]
+// pub enum Kind {
+//     Compute(Compute),
+//     Render(Render),
+// }
 
 #[derive(Debug)]
 pub struct Compute {
     pub pipe: Grc<ComputePipeline>,
+    pub binds: Vec<Bind>,
     pub kind: compute::Kind,
 }
 
@@ -24,6 +25,7 @@ pub mod compute {
 #[derive(Debug)]
 pub struct Render {
     pub pipe: Grc<RenderPipeline>,
+    pub binds: Vec<Bind>,
     pub buffers: Vec<Vertex>,
     pub kind: render::Kind,
 }

@@ -239,6 +239,12 @@ impl<T> Default for Hub<T> {
     }
 }
 
+// impl<T: Default> Default for Hub<T> {
+//     fn default() -> Self {
+//         Self::Tray(Tray::Base(T::default()))
+//     }
+// }
+
 impl<T: Gather> Based<T> for Vec<Hub<T>> {
     async fn base(&self) -> Result<Vec<T>> {
         let mut out = vec![];
