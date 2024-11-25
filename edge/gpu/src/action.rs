@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub use pack::Action;
 
@@ -54,9 +54,7 @@ pub struct Flat {
 impl Solve for Flat {
     type Base = Grc<Vec<Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
-        println!("solving flat");
         let actions = self.actions.base().await?;
-        println!("got actions");
         let actions: Vec<&Grc<Action>> = actions.iter().collect();
         let mut state = State {
             actions: [actions.clone(), actions],
@@ -64,9 +62,8 @@ impl Solve for Flat {
             ..Default::default()
         };
         state.run();
-        println!("ran state");
         self.past.write_passive(|x| *x = state.nodes)?;
-        println!("wrote past!");
+        // println!("commands: {:#?}", state.commands);
         Ok(Grc::new(state.commands).into())
     }
 }
@@ -82,11 +79,19 @@ struct State<'a> {
     past: HashMap<u32, Node>,
     nodes: HashMap<u32, Node>,
     actions: [Vec<&'a Grc<Action>>; 2],
+    visited: HashSet<u32>,
+    i: (usize, usize),
     commands: Vec<Command>,
 }
 
 impl<'a> State<'a> {
     fn run(&mut self) {
+        self.i = (0, 1);
+        for action in &self.actions[1] {
+            let node = Node {need: 0, fill: 1};
+            self.nodes.insert(action.id, node);
+            // self.actions[1].extend(&action.stems);
+        }
         while let Some(action) = self.actions[1].pop() {
             let key = action.id;
             if let Some(node) = self.nodes.get_mut(&key) {
@@ -94,30 +99,41 @@ impl<'a> State<'a> {
             } else {
                 self.nodes.insert(key, Node::default());
                 self.actions[1].extend(&action.stems);
+                // self.increment_stems(&action.stems);
             }
         }
         self.actions[1].clear();
         self.passes();
     }
+    // fn extend(&mut self, stems: &[Grc<Action>]) {
+    //     for stem in stems {
+    //         if !self.visited.contains(&stem.id) {
+    //             self.
+    //         }
+    //     }
+    // }
     fn passes(&mut self) {
         let mut i = (0, 1);
+        println!("entering loop");
         while let Some(action) = self.actions[i.0].first() {
             match &action.kind {
                 pack::Kind::Compute(_) => self.compute(i),
                 pack::Kind::Render(_) => self.render(i),
-                _ => panic!("crap"),
+                pack::Kind::Leaf => panic!("should never be leaf here"),
             }
-            self.actions[i.0].clear();
             i = (i.1, i.0);
+            self.actions[i.1].clear();
         }
     }
     fn compute(&mut self, i: (usize, usize)) {
         let mut state = flat::compute::State::default();
         while let Some(action) = self.actions[i.0].pop() {
-            if let pack::Kind::Compute(compute) = &action.kind {
-                self.try_action(i.0, action, || state.push(compute));
-            } else {
-                self.actions[i.1].push(action);
+            match &action.kind {
+                pack::Kind::Compute(compute) => {
+                    self.try_action(i.0, action, || state.push(compute))
+                }
+                pack::Kind::Render(_) => self.actions[i.1].push(action),
+                _ => (),
             }
         }
         self.commands.push(Command::Compute(state.flat()));
@@ -125,18 +141,25 @@ impl<'a> State<'a> {
     fn render(&mut self, i: (usize, usize)) {
         let mut state = flat::render::State::default();
         while let Some(action) = self.actions[i.0].pop() {
-            if let pack::Kind::Render(render) = &action.kind {
-                self.try_action(i.0, action, || state.push(render));
-            } else {
-                self.actions[i.1].push(action);
+            match &action.kind {
+                pack::Kind::Render(render) => self.try_action(i.0, action, || state.push(render)),
+                pack::Kind::Compute(_) => self.actions[i.1].push(action),
+                _ => (),
             }
         }
         self.commands.push(Command::Render(state.flat()));
     }
+    // TODO: make `i` part of the state struct
     fn try_action<F: FnOnce()>(&mut self, i: usize, action: &'a Grc<Action>, use_action: F) {
         if !self.past.contains_key(&action.id) {
             if let Some(node) = self.nodes.get(&action.id) {
+                if let pack::Kind::Compute(compute) = &action.kind {
+                    println!("compute thing 1")
+                }
                 if node.fill == node.need {
+                    if let pack::Kind::Compute(compute) = &action.kind {
+                        println!("compute thing 2")
+                    }
                     use_action();
                     self.increment_stems(&action.stems);
                     self.actions[i].extend(&action.stems);

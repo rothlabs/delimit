@@ -83,7 +83,7 @@ impl ShapeBuilder {
     }
 }
 
-/// Specify how to create `Weft` basis evaluations.
+/// Specify how to create `Weft` evaluations.
 #[derive(Builder, Clone, Default, Debug)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
@@ -124,6 +124,7 @@ impl FlowBuilder {
     pub fn spline(mut self, hedge: Hedge, order: usize) -> Self {
         let mut splines = self.splines.take().unwrap_or_default();
         while splines.len() < order + 1 {
+            println!("push spline");
             splines.push(None);
         }
         splines[order] = Some(hedge);

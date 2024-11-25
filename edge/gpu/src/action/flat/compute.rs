@@ -24,9 +24,9 @@ impl State {
         Pass { steps: self.steps }
     }
     pub fn push(&mut self, compute: &pack::pass::Compute) {
-        self.pipe(&compute.pipe);
-        self.binds(&compute.binds);
         self.dispatch(&compute.kind);
+        self.binds(&compute.binds);
+        self.pipe(&compute.pipe);
     }
     pub fn pipe(&mut self, pipe: &Grc<ComputePipeline>) {
         if let Some(now) = self.pipe.as_mut() {

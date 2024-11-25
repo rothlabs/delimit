@@ -65,7 +65,8 @@ where
 
 impl<T> Hub<T> {
     pub fn none() -> Self {
-        Self::default()
+        // Self::default()
+        Self::Tray(Tray::None)
     }
 
     /// Get rank of hub. Rank 1 hubes produce leaf hubes.
@@ -233,17 +234,17 @@ impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
     }
 }
 
-impl<T> Default for Hub<T> {
-    fn default() -> Self {
-        Self::Tray(Tray::None)
-    }
-}
-
-// impl<T: Default> Default for Hub<T> {
+// impl<T> Default for Hub<T> {
 //     fn default() -> Self {
-//         Self::Tray(Tray::Base(T::default()))
+//         Self::Tray(Tray::None)
 //     }
 // }
+
+impl<T: Default> Default for Hub<T> {
+    fn default() -> Self {
+        Self::Tray(Tray::Base(T::default()))
+    }
+}
 
 impl<T: Gather> Based<T> for Vec<Hub<T>> {
     async fn base(&self) -> Result<Vec<T>> {

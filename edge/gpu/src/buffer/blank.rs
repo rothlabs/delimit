@@ -20,6 +20,7 @@ impl Solve for Blank {
     async fn solve(&self) -> node::Result<Grc<Buffer>> {
         let size = self.size.base().await?;
         // let label = self.label.base().await?;
+        println!("make buffer: {}, {}", self.label, size);
         let buffer = self
             .core
             .buffer(size as u64 * 4)

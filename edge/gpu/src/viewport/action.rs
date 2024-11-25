@@ -13,16 +13,20 @@ impl<'a> Render<'a> {
         let mut encoder = self.viewport.gpu.encoder();
         let frame = self.viewport.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
-        for command in self.commands.iter() {
-            if let Command::Render(pass) = command {
-                let attachments = self
-                    .viewport
-                    .gpu
-                    .attachment(&self.viewport.stage)
-                    .resolve_target(view)
-                    .list()?;
-                let fields = &self.viewport.gpu.render_pass(&attachments).make()?;
-                encoder.render(pass, fields);
+        for command in self.commands.iter().rev() {
+            // println!("Command: {:#?}", command);
+            match command {
+                Command::Compute(pass) => encoder.compute(pass),
+                Command::Render(pass) => {
+                    let attachments = self
+                        .viewport
+                        .gpu
+                        .attachment(&self.viewport.stage)
+                        .resolve_target(view)
+                        .list()?;
+                    let fields = &self.viewport.gpu.render_pass(&attachments).make()?;
+                    encoder.render(pass, fields);
+                }
             }
         }
         encoder.submit();

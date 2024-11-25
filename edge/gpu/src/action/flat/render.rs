@@ -40,10 +40,10 @@ impl State {
         }
     }
     pub fn push(&mut self, render: &pack::pass::Render) {
-        self.pipe(&render.pipe);
-        self.binds(&render.binds);
-        self.buffers(&render.buffers);
         self.draw(&render.kind);
+        self.buffers(&render.buffers);
+        self.binds(&render.binds);
+        self.pipe(&render.pipe);
     }
     pub fn pipe(&mut self, pipe: &Grc<RenderPipeline>) {
         if let Some(now) = self.pipe.as_mut() {

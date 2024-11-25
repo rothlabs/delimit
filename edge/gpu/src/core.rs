@@ -121,9 +121,9 @@ impl Core {
     pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {
         SizeBuilder::default().buffer(buffer)
     }
-    pub fn compute(&self) -> encode::ComputeBuilder {
-        encode::ComputeBuilder::default().core(self.clone())
-    }
+    // pub fn compute(&self) -> encode::ComputeBuilder {
+    //     encode::ComputeBuilder::default().core(self.clone())
+    // }
     pub fn bind(&self) -> bind::BindGroupRigBuilder {
         bind::BindGroupRigBuilder::default().device(self.device.clone())
     }

@@ -41,7 +41,7 @@ fn revolve2(@builtin(global_invocation_id) index: vec3<u32>) {
     weft[weft_idx + 1] =  sin(angle);
     weft[weft_idx + 2] = -sin(angle);
     weft[weft_idx + 3] =  cos(angle);
-    // velocity, TODO: fill out
+    // velocity, TODO: fill out velocity calc!
     weft[weft_idx + 4] = 0.;
     weft[weft_idx + 5] = 0.;
     weft[weft_idx + 6] = 0.;
@@ -98,7 +98,7 @@ fn nurbs(@builtin(global_invocation_id) index: vec3<u32>) {
         sum += vec2(weft[b0], weft[b1]) * form[wi];
     }
 
-    // proportion
+    // rational proportion
     for (var i = 0u; i < order; i++) {
         let wi = weight_idx - i;
         let b0 = weft_idx - i;
@@ -133,7 +133,9 @@ fn interpolate(index: vec3<u32>, weft_idx: u32, row_len: u32) {
             let k1 = k0 + 1;
             let n0 = weft_idx + i - deg;
             let n1 = n0 + 1;
+            // position
             var weft0 = 0.;
+            // velocity
             var weft1 = 0.;
             // var weft2 = 0.; (acceleration)
             if weft[n0] > 0. {

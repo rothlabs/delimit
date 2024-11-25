@@ -15,7 +15,7 @@ impl Default for Action {
         Self {
             id: rand::random(),
             stems: vec![],
-            kind: Kind::Other,
+            kind: Kind::Leaf,
         }
     }
 }
@@ -25,9 +25,8 @@ pub enum Kind {
     Leaf,
     Compute(pass::Compute),
     Render(pass::Render),
-    Other,
+    // Other,
 }
-
 
 // impl Action {
 //     pub fn render_pass(&self) -> bool {

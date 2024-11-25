@@ -1,4 +1,4 @@
-pub use compute::ComputeBuilder;
+// pub use compute::ComputeBuilder;
 pub use render::RenderBuilder;
 pub use render::*;
 
@@ -6,7 +6,7 @@ use super::*;
 
 pub mod render;
 
-mod compute;
+// mod compute;
 
 pub struct Encode<'a> {
     pub inner: CommandEncoder,
@@ -16,8 +16,8 @@ pub struct Encode<'a> {
 impl<'a> Encode<'a> {
     pub fn render(&mut self, render: &flat::render::Pass, fields: &RenderPassDescriptor) {
         let mut pass = self.inner.begin_render_pass(fields);
-        for entry in &render.steps {
-            match entry {
+        for step in render.steps.iter().rev() {
+            match step {
                 flat::render::Step::Pipe(pipe) => pass.set_pipeline(pipe),
                 flat::render::Step::Bind(bind) => {
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
@@ -37,13 +37,20 @@ impl<'a> Encode<'a> {
             }
         }
     }
-    pub fn compute(&mut self) -> ComputePass {
-        self.inner
-            .begin_compute_pass(&ComputePassDescriptor::default())
+    pub fn compute(&mut self, compute: &flat::compute::Pass) {
+        let mut pass = self
+            .inner
+            .begin_compute_pass(&ComputePassDescriptor::default());
+        for step in compute.steps.iter().rev() {
+            match step {
+                flat::compute::Step::Pipe(pipe) => pass.set_pipeline(pipe),
+                flat::compute::Step::Bind(bind) => {
+                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
+                }
+                flat::compute::Step::Dispatch(size) => pass.dispatch_workgroups(*size, 1, 1),
+            }
+        }
     }
-    // pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
-    //     self.inner.begin_render_pass(descriptor)
-    // }
     pub fn copy_buffer(self, buffer: &'a Buffer) -> SourceBuffer<'_> {
         SourceBuffer {
             encoder: self,
@@ -102,3 +109,11 @@ impl<'a> DestinationBuffer<'a> {
         self.source.encoder
     }
 }
+
+// pub fn compute(&mut self) -> ComputePass {
+//     self.inner
+//         .begin_compute_pass(&ComputePassDescriptor::default())
+// }
+// pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
+//     self.inner.begin_render_pass(descriptor)
+// }

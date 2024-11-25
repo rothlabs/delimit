@@ -19,6 +19,7 @@ impl Solve for Points {
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
         let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
+        println!("point count: {count}");
         let rig = gpu.uniform().field(stride).field(count).make()?;
         let bind = gpu
             .bind()

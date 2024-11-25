@@ -64,6 +64,7 @@ impl<'a> Wheel<'a> {
                     let rig = self.rig(order, spline_size)?;
                     stems.push(spin.nurbs(&rig, form)?);
                 }
+                println!("weft.spline.push: {}, order: {}", weft.spline.len(), order);
                 weft.spline.push(Some(Hedge { buffer, stems }));
             } else {
                 weft.spline.push(None);
@@ -116,8 +117,8 @@ impl<'a> Wheel<'a> {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
             gpu.size(nurbs.buffer.clone())
                 .mul(self.count.clone())
-                .mul(2)
                 .div(3)
+                .mul(2)
                 .hub()?
         } else {
             0.into()
@@ -152,6 +153,9 @@ impl<'a> Loom<'a> {
         let mut stems = vec![];
         let flow = self.flow()?;
         let mut index = 0;
+
+        // println!("loom size {order}");
+
         if let Some(flow) = &flow.travel {
             stems.push(weave.travel(loom::Trio {
                 rig: self.rig(0, &0.into())?,
@@ -171,6 +175,7 @@ impl<'a> Loom<'a> {
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
+                println!("weave spline {order}");
                 stems.push(weave.spline(loom::Trio {
                     rig: self.rig(order, offset)?,
                     weft: self.weft.spline(order)?,
@@ -186,18 +191,22 @@ impl<'a> Loom<'a> {
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
         let constant = chart.shape.dimension * (self.rank as u32 + 2);
+        println!("rank: {}, constant: {constant}", self.rank);
         let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
         let mut offsets: Vec<Hub<u32>> = vec![0.into()];
         if let Some(flow) = &flow.travel {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            // TODO: need to add last offset?
             offsets.push(size);
         }
         if let Some(flow) = &flow.orient {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
+            // TODO: need to add last offset?
             offsets.push(size);
         }
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
+                println!("push spline offset {order}");
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
                 offsets.push(size.calc().mul(&expand).add(last).hub()?);
