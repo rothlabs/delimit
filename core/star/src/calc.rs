@@ -26,6 +26,7 @@ where
                 OperationType::Sub => out -= value,
                 OperationType::Mul => out *= value,
                 OperationType::Div => out /= value,
+                // OperationType::DivUp => out = (out + value - 1) / value,
             }
         }
         Ok(out.into())
@@ -53,6 +54,7 @@ enum OperationType {
     Sub,
     Mul,
     Div,
+    // DivUp,
 }
 
 #[derive(Default)]

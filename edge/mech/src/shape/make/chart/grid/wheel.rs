@@ -47,7 +47,7 @@ impl Spin<'_> {
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(bind)
-            .size(self.wheel.count)
+            .size(&self.wheel.size)
             .stems(stems)
             .hub()
     }

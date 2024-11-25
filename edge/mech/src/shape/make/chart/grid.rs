@@ -6,6 +6,7 @@ mod wheel;
 pub struct Wheel<'a> {
     pub chart: &'a Chart<'a>,
     pub count: &'a Hub<u32>,
+    pub size: Hub<u32>,
 }
 
 impl<'a> Wheel<'a> {
@@ -115,11 +116,14 @@ impl<'a> Wheel<'a> {
         let gpu = &self.chart.core.gpu;
         Ok(if let Some(nurbs) = &form.nurbs {
             // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
-            gpu.size(nurbs.buffer.clone())
-                .mul(self.count.clone())
-                .div(3)
-                .mul(2)
-                .hub()?
+            let size = gpu.size(nurbs.buffer.clone()).hub()?;
+            size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
+            // gpu.size(nurbs.buffer.clone())
+            //     .mul(self.count.clone())
+            //     .div(3)
+            //     .mul(2)
+            //     // .add(63).div(64).mul(64)
+            //     .hub()?
         } else {
             0.into()
         })
@@ -140,6 +144,7 @@ pub struct Loom<'a> {
     pub weft: &'a Weft,
     pub area: &'a Hub<u32>,
     pub count: &'a Hub<u32>,
+    pub size: Hub<u32>,
 }
 
 impl<'a> Loom<'a> {
@@ -175,7 +180,7 @@ impl<'a> Loom<'a> {
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
-                println!("weave spline {order}");
+                // println!("weave spline {order}");
                 stems.push(weave.spline(loom::Trio {
                     rig: self.rig(order, offset)?,
                     weft: self.weft.spline(order)?,
@@ -190,10 +195,11 @@ impl<'a> Loom<'a> {
         let chart = &self.grid.chart;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
-        let constant = chart.shape.dimension * (self.rank as u32 + 2);
-        println!("rank: {}, constant: {constant}", self.rank);
-        let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
-        let mut offsets: Vec<Hub<u32>> = vec![0.into()];
+        let constant = chart.shape.dimension * (self.rank as u32 + 2) * 64;
+        // println!("rank: {}, constant: {constant}", self.rank);
+        // let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
+        let expand = self.size.calc().mul(constant).hub()?;
+        let mut offsets = vec![0.into()];
         if let Some(flow) = &flow.travel {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             // TODO: need to add last offset?
@@ -206,7 +212,7 @@ impl<'a> Loom<'a> {
         }
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
-                println!("push spline offset {order}");
+                // println!("push spline offset {order}");
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
                 offsets.push(size.calc().mul(&expand).add(last).hub()?);
@@ -235,7 +241,8 @@ impl<'a> Loom<'a> {
             loom: self,
             warp,
             plot,
-            count: self.count,
+            // count: self.count,
+            // size: &self.size,
         })
     }
 }
