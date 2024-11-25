@@ -16,14 +16,14 @@ impl<'a> Grid<'a> {
         let mut warp = self.chart.shape.warp.clone();
         for rank in 0..self.chart.shape.flows.len() {
             let count = self.counts.get(rank).unwrap_or(last_count);
-            let size = count.calc().mul(&area).add(63).div(64).hub()?;
+            // let size = count.calc().mul(&area).add(63).div(64).hub()?;
             let loom = grid::Loom {
                 grid: self,
                 rank,
                 weft: wefts.get(rank).unwrap_or(last_weft),
                 area: &area,
                 count,//: self.counts.get(rank).unwrap_or(last_count),
-                size,
+                // size,
             };
             warp = loom.hedge(&warp)?;
             area = loom.area.calc().mul(loom.count).hub()?;
@@ -33,11 +33,11 @@ impl<'a> Grid<'a> {
     fn wefts(&self) -> Result<Vec<Weft>> {
         let mut wefts = vec![];
         for count in self.counts {
-            let size = count.calc().add(63).div(64).hub()?;
+            // let size = count.calc().add(63).div(64).hub()?;
             let wheel = grid::Wheel {
                 chart: self.chart,
                 count,
-                size,
+                // size: 0.into(),
             };
             wefts.push(wheel.weft()?);
         }

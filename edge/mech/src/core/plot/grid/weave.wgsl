@@ -2,6 +2,7 @@ struct Rig {
     rank: u32,
     order: u32,
     offset: u32,
+    length: u32,
     count: u32,
     area: u32,
     dimension: u32,
@@ -113,6 +114,10 @@ fn orient(@builtin(global_invocation_id) index: vec3<u32>) {
 
 @compute @workgroup_size(64)
 fn spline(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+
     // prelude
     let rank = rig.rank;
     let order = rig.order;

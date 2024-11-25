@@ -10,7 +10,7 @@ pub struct Weave<'a> {
     pub loom: &'a Loom<'a>,
     pub warp: &'a Hedge,
     pub plot: &'a Hub<Grc<Buffer>>,
-    // pub size: &'a Hub<u32>,
+    pub size: Hub<u32>,
 }
 
 impl Weave<'_> {
@@ -55,7 +55,7 @@ impl Weave<'_> {
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(bind)
-            .size(&self.loom.size)
+            .size(&self.size)
             .stems(stems)
             .hub()
     }

@@ -3,6 +3,7 @@ use super::*;
 pub struct Spin<'a> {
     pub wheel: &'a Wheel<'a>,
     pub weft: &'a Hub<Grc<Buffer>>,
+    pub size: Hub<u32>,
 }
 
 impl Spin<'_> {
@@ -47,7 +48,7 @@ impl Spin<'_> {
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(bind)
-            .size(&self.wheel.size)
+            .size(&self.size)
             .stems(stems)
             .hub()
     }

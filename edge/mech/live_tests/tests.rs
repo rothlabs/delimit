@@ -15,7 +15,7 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action
     ];
     let flow1 = mech
         .flow()
-        // .spline(gpu.hedge(spline2)?, 2)
+        .spline(gpu.hedge(spline2)?, 2)
         .spline(gpu.hedge(spline3)?, 3)
         .build()?;
     #[rustfmt::skip]

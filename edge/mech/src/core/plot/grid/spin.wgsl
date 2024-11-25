@@ -2,6 +2,7 @@ struct Rig {
     order: u32,
     count: u32,
     offset: u32,
+    length: u32,
 };
 
 @group(0) @binding(0) var<uniform> rig: Rig;
@@ -79,6 +80,10 @@ fn basis(@builtin(global_invocation_id) index: vec3<u32>) {
 
 @compute @workgroup_size(64)
 fn nurbs(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+
     // prelude
     let order = rig.order;
     let count_idx = index.x / rig.count;
