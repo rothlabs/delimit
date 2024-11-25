@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Builder, Back, BuildGate, Debug)]
+#[derive(Builder, Back, BuildGate, Debug, Make)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct Size {

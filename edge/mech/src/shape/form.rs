@@ -33,3 +33,15 @@ pub struct Spline {
     /// Non-Uniform Rational Basis Spline
     pub nurbs: Option<Hedge>,
 }
+
+impl Spline {
+    pub fn nurbs_size(&self, mul: &Hub<u32>) -> Result<Hub<u32>> {
+        Ok(if let Some(nurbs) = &self.nurbs {
+            gpu::size().buffer(&nurbs.buffer).mul(mul).hub()?
+        } else {
+            0.into()
+        })
+    }
+}
+
+

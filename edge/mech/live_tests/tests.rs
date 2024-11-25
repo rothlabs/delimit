@@ -29,7 +29,7 @@ pub async fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action
         .nurbs(gpu.hedge(nurbs2())?, 2)
         .nurbs(gpu.hedge(nurbs3())?, 3)
         .flow(flow1)
-        // .flow(flow2)
+        .flow(flow2)
         .build()?;
     let plot = mech.plot(shape).grid(40).hub()?;
     let drawing = view.plot(&plot).points().hub()?;

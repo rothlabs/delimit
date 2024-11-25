@@ -4,6 +4,7 @@ pub use action::pack::{unit::*, Action};
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
+pub use buffer::size;
 
 use bind::*;
 use buffer::*;

@@ -51,8 +51,11 @@ impl<'a> Wheel<'a> {
             if let Some(form) = form {
                 let mut stems = vec![];
                 let spline_size = self.basis_size(form)?;
-                let nurbs_size = self.nurbs_size(form)?;
-                let size = spline_size.calc().add(&nurbs_size).hub()?;
+                // let nurbs_size = self.nurbs_size(form)?;
+                let nurbs_size = form.nurbs_size(self.count)?;
+                let nurbs_expand = nurbs_size.calc().div(3).mul(2).hub()?;
+                let nurbs_length = nurbs_size.calc().div(3).div(order as u32).hub()?;
+                let size = spline_size.calc().add(&nurbs_expand).hub()?;
                 let label = format!("nurbs {order}");
                 let gpu = &self.chart.core.gpu;
                 let buffer = gpu.blank(size).label(label).hub()?;
@@ -62,8 +65,8 @@ impl<'a> Wheel<'a> {
                     stems.push(spin.basis(&rig, form)?);
                 }
                 if let Some(form) = &form.nurbs {
-                    let rig = self.rig(order, &spline_size, &nurbs_size)?;
-                    spin.size = nurbs_size.clone();//.calc().add(63).div(64).hub()?;
+                    let rig = self.rig(order, &spline_size, &nurbs_length)?;
+                    spin.size = nurbs_length.calc().add(63).div(64).hub()?;
                     stems.push(spin.nurbs(&rig, form)?);
                 }
                 println!("weft.spline.push: {}, order: {}", weft.spline.len(), order);
@@ -114,21 +117,21 @@ impl<'a> Wheel<'a> {
             0.into()
         })
     }
-    fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
-        let gpu = &self.chart.core.gpu;
-        Ok(if let Some(nurbs) = &form.nurbs {
-            // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
-            // let size = gpu.size(nurbs.buffer.clone()).hub()?;
-            // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
-            gpu.size(nurbs.buffer.clone())
-                .mul(self.count.clone())
-                .div(3)
-                .mul(2)
-                .hub()?
-        } else {
-            0.into()
-        })
-    }
+    // fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
+    //     let gpu = &self.chart.core.gpu;
+    //     Ok(if let Some(nurbs) = &form.nurbs {
+    //         // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
+    //         // let size = gpu.size(nurbs.buffer.clone()).hub()?;
+    //         // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
+    //         gpu.size(nurbs.buffer.clone()).hub()?
+    //             // .mul(self.count.clone())
+    //             // .div(3)
+    //             // .mul(2)
+    //             // .hub()?
+    //     } else {
+    //         0.into()
+    //     })
+    // }
     fn rig(&self, order: usize, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
         let uniform = self.chart.core.gpu.uniform();
         Ok(uniform
@@ -152,7 +155,7 @@ pub struct Loom<'a> {
 impl<'a> Loom<'a> {
     pub fn hedge(&self, warp: &Hedge) -> Result<Hedge> {
         let gpu = &self.grid.chart.core.gpu;
-        let offsets = self.offsets()?;
+        let (offsets, lengths) = self.offsets()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?;
         let label = format!("grid plot rank {}", self.rank);
         let buffer = gpu.blank(size).label(label).hub()?;
@@ -164,7 +167,7 @@ impl<'a> Loom<'a> {
         // println!("loom size {order}");
 
         if let Some(flow) = &flow.travel {
-            let length = offsets.get(index+1).ok_or(anyhow!("no offset"))?;
+            let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             stems.push(weave.travel(loom::Trio {
                 rig: self.rig(0, &0.into(), length)?,
                 weft: self.weft.travel()?,
@@ -174,7 +177,7 @@ impl<'a> Loom<'a> {
         }
         if let Some(flow) = &flow.orient {
             let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
-            let length = offsets.get(index+1).ok_or(anyhow!("no offset"))?;
+            let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             stems.push(weave.orient(loom::Trio {
                 rig: self.rig(0, offset, length)?,
                 weft: self.weft.orient()?,
@@ -185,7 +188,7 @@ impl<'a> Loom<'a> {
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
-                let length = offsets.get(index+1).ok_or(anyhow!("no offset"))?;
+                let length = lengths.get(index).ok_or(anyhow!("no length"))?;
                 // println!("weave spline {order}");
                 weave.size = length.calc().add(63).div(64).hub()?;
                 stems.push(weave.spline(loom::Trio {
@@ -198,7 +201,7 @@ impl<'a> Loom<'a> {
         }
         Ok(Hedge { buffer, stems })
     }
-    fn offsets(&self) -> Result<Vec<Hub<u32>>> {
+    fn offsets(&self) -> Result<(Vec<Hub<u32>>, Vec<Hub<u32>>)> {
         let chart = &self.grid.chart;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
@@ -207,6 +210,7 @@ impl<'a> Loom<'a> {
         let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
         // let expand = self.size.calc().mul(constant).hub()?;
         let mut offsets = vec![0.into()];
+        let mut lengths = vec![];
         if let Some(flow) = &flow.travel {
             let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             // TODO: need to add last offset?
@@ -223,9 +227,10 @@ impl<'a> Loom<'a> {
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
                 offsets.push(size.calc().mul(&expand).add(last).hub()?);
+                lengths.push(size.calc().mul(self.count).mul(self.area).hub()?);
             }
         }
-        Ok(offsets)
+        Ok((offsets, lengths))
     }
     fn flow(&self) -> Result<&Flow> {
         let flows = &self.grid.chart.shape.flows;
