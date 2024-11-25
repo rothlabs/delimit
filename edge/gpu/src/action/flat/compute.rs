@@ -30,10 +30,10 @@ impl State {
     }
     pub fn pipe(&mut self, pipe: &Grc<ComputePipeline>) {
         if let Some(now) = self.pipe.as_mut() {
-            if !Grc::ptr_eq(pipe, now) {
+            // if !Grc::ptr_eq(pipe, now) {
                 *now = pipe.clone();
                 self.steps.push(Step::Pipe(pipe.clone()));
-            }
+            // }
         } else {
             self.pipe = Some(pipe.clone());
             self.steps.push(Step::Pipe(pipe.clone()));
@@ -42,10 +42,10 @@ impl State {
     pub fn binds(&mut self, binds: &[Bind]) -> &mut Self {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
-                if now != bind {
+                // if now != bind {
                     *now = bind.clone();
                     self.steps.push(Step::Bind(bind.clone()));
-                }
+                // }
             } else {
                 self.binds.insert(bind.slot, bind.clone());
                 self.steps.push(Step::Bind(bind.clone()));

@@ -47,7 +47,10 @@ impl<'a> Encode<'a> {
                 flat::compute::Step::Bind(bind) => {
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
-                flat::compute::Step::Dispatch(size) => pass.dispatch_workgroups(*size, 1, 1),
+                flat::compute::Step::Dispatch(size) => {
+                    // println!("dispatch size: {size}");
+                    pass.dispatch_workgroups(*size, 1, 1);
+                },
             }
         }
     }
