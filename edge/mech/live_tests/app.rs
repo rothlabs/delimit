@@ -6,7 +6,7 @@ use super::*;
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
-    command_writers: Leaf<Vec<Hub<()>>>,
+    command_transfer: Leaf<Hub<()>>,
 }
 
 impl Act for App {
@@ -19,7 +19,7 @@ impl Act for App {
             let commands = gpu::action::flat().actions(vec![steps]).hub()?;
             let transfer = commands.transfer(&port.commands)?;
             transfer.depend().await?;
-            self.command_writers.write(|x| x.push(transfer)).await?;
+            self.command_transfer.write(|x| *x = transfer).await?;
         }
         acted()
     }
