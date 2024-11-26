@@ -20,47 +20,58 @@ pub struct State {
 }
 
 impl State {
-    pub fn flat(self) -> Pass {
+    pub fn flat(mut self) -> Pass {
+        if let Some(pipe) = self.pipe {
+            self.steps.push(Step::Pipe(pipe));
+        }
+        for (_, bind) in self.binds {
+            self.steps.push(Step::Bind(bind));
+        }
         Pass { steps: self.steps }
     }
     pub fn push(&mut self, compute: &pack::pass::Compute) {
-        self.dispatch(&compute.kind);
-        self.binds(&compute.binds);
         self.pipe(&compute.pipe);
+        self.binds(&compute.binds);
+        self.dispatch(&compute.kind);
     }
     pub fn pipe(&mut self, pipe: &Grc<ComputePipeline>) {
         if let Some(now) = self.pipe.as_mut() {
-            // if !Grc::ptr_eq(pipe, now) {
-                // let wow = pipe.get_bind_group_layout(0);
             if pipe.global_id() != now.global_id() {
+                self.steps.push(Step::Pipe(now.clone()));
                 *now = pipe.clone();
-                self.steps.push(Step::Pipe(pipe.clone()));
             }
         } else {
             self.pipe = Some(pipe.clone());
-            self.steps.push(Step::Pipe(pipe.clone()));
         }
     }
-    pub fn binds(&mut self, binds: &[Bind]) -> &mut Self {
+    pub fn binds(&mut self, binds: &[Bind]) {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
-                // if now != bind {
+                if bind != now {
+                    self.steps.push(Step::Bind(now.clone()));
                     *now = bind.clone();
-                    self.steps.push(Step::Bind(bind.clone()));
-                // }
+                }
             } else {
                 self.binds.insert(bind.slot, bind.clone());
-                self.steps.push(Step::Bind(bind.clone()));
             }
         }
-        self
     }
     fn dispatch(&mut self, kind: &pack::pass::compute::Kind) {
         match kind {
             pack::pass::compute::Kind::Dispatch(dispatch) => {
                 self.steps.push(Step::Dispatch(*dispatch))
             }
-            _ => panic!("crap"),
+            _ => panic!("Indirect not implemented"),
         }
     }
 }
+
+
+// if let Some(now) = self.binds.get_mut(&bind.slot) {
+//     if bind != now {
+//         self.steps.push(Step::Bind(now.clone()));
+//         *now = bind.clone();
+//     }
+// } else {
+//     self.binds.insert(bind.slot, bind.clone());
+// }

@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub use pack::Action;
 
@@ -21,9 +21,7 @@ pub struct Bind {
 
 impl PartialEq for Bind {
     fn eq(&self, rhs: &Bind) -> bool {
-        self.slot == rhs.slot && self.group.global_id() == rhs.group.global_id()
-        // false
-        //self.slot == rhs.slot && Grc::ptr_eq(&self.group, &rhs.group)// && self.offsets == rhs.offsets
+        self.slot == rhs.slot && self.group.global_id() == rhs.group.global_id() && self.offsets == rhs.offsets
     }
 }
 
@@ -65,7 +63,6 @@ impl Solve for Flat {
         };
         state.run();
         self.past.write_passive(|x| *x = state.nodes)?;
-        // println!("commands: {:#?}", state.commands);
         Ok(Grc::new(state.commands).into())
     }
 }
@@ -81,7 +78,6 @@ struct State<'a> {
     past: HashMap<u32, Node>,
     nodes: HashMap<u32, Node>,
     actions: [Vec<&'a Grc<Action>>; 2],
-    visited: HashSet<u32>,
     i: (usize, usize),
     commands: Vec<Command>,
 }
@@ -92,52 +88,24 @@ impl<'a> State<'a> {
         for action in &self.actions[1] {
             let node = Node {need: 1, fill: 1};
             self.nodes.insert(action.id, node);
-            // self.actions[1].extend(&action.stems);
         }
         while let Some(action) = self.actions[1].pop() {
-            // let key = action.id;
-            self.increment_need(&action.stems);
-            // self.extend(&action.stems);
             for stem in &action.stems {
-                if !self.visited.contains(&stem.id) {
-                    self.visited.insert(stem.id);
+                if let Some(node) = self.nodes.get_mut(&stem.id) {
+                    node.need += 1;
+                } else {
+                    let node = Node {need: 1, fill: 0};
+                    self.nodes.insert(stem.id, node);
                     self.actions[self.i.0].push(stem);
                 }
             }
-            // if let Some(node) = self.nodes.get_mut(&key) {
-            //     node.need += 1;
-            // } else {
-            //     self.nodes.insert(key, Node::default());
-            //     self.extend(&action.stems);
-            //     //self.actions[1].extend(&action.stems);
-            //     // self.increment_stems(&action.stems);
-            // }
         }
         self.actions[1].clear();
-        self.visited.clear();
         self.passes();
     }
-    fn increment_need(&mut self, stems: &[Grc<Action>]) {
-        for stem in stems {
-            if let Some(node) = self.nodes.get_mut(&stem.id) {
-                node.need += 1;
-            } else {
-                let node = Node {need: 1, fill: 0};
-                self.nodes.insert(stem.id, node);
-            }
-        }
-    }
-    // fn extend(&mut self, stems: &'a [Grc<Action>]) {
-    //     for stem in stems {
-    //         if !self.visited.contains(&stem.id) {
-    //             // self.visited.insert(stem.id);
-    //             self.actions[self.i.0].push(stem);
-    //         }
-    //     }
-    // }
+
     fn passes(&mut self) {
         self.i = (0, 1);
-        println!("entering loop");
         while let Some(action) = self.actions[self.i.0].first() {
             match &action.kind {
                 pack::Kind::Compute(_) => self.compute(),
@@ -146,10 +114,9 @@ impl<'a> State<'a> {
             }
             self.i = (self.i.1, self.i.0);
             self.actions[self.i.1].clear();
-            self.visited.clear();
         }
     }
-    fn compute(&mut self) { // , i: (usize, usize)
+    fn compute(&mut self) {
         let mut state = flat::compute::State::default();
         while let Some(action) = self.actions[self.i.0].pop() {
             match &action.kind {
@@ -173,36 +140,76 @@ impl<'a> State<'a> {
         }
         self.commands.push(Command::Render(state.flat()));
     }
-    // TODO: make `i` part of the state struct
-    fn try_action<F: FnOnce()>(&mut self, action: &'a Grc<Action>, use_action: F) { // i: usize, 
+    fn try_action<F: FnOnce()>(&mut self, action: &'a Grc<Action>, use_action: F) { 
         if !self.past.contains_key(&action.id) {
             if let Some(node) = self.nodes.get(&action.id) {
-                if let pack::Kind::Compute(compute) = &action.kind {
-                    println!("compute thing 1")
-                }
-                println!("try use action");
                 if node.fill == node.need {
-                    if let pack::Kind::Compute(compute) = &action.kind {
-                        println!("compute thing 2")
-                    }
                     use_action();
                     self.increment_fill(&action.stems);
-                    // self.extend(&action.stems);
-                    self.actions[self.i.0].extend(&action.stems);
                 }
             }
         }
     }
-    fn increment_fill(&mut self, stems: &[Grc<Action>]) {
+    fn increment_fill(&mut self, stems: &'a [Grc<Action>]) {
         for stem in stems {
             if let Some(node) = self.nodes.get_mut(&stem.id) {
                 node.fill += 1;
-            } else {
-                panic!("no fill/need info");
+                if node.fill == node.need {
+                    self.actions[self.i.0].push(stem);
+                }
             }
         }
     }
 }
+
+
+// fn run(&mut self) {
+//     self.i = (1, 0);
+//     for action in &self.actions[1] {
+//         let node = Node {need: 1, fill: 1};
+//         self.nodes.insert(action.id, node);
+//     }
+//     while let Some(action) = self.actions[1].pop() {
+//         // let key = action.id;
+//         self.increment_need(&action.stems);
+//         // self.extend(&action.stems);
+//         for stem in &action.stems {
+//             if !self.visited.contains(&stem.id) {
+//                 self.visited.insert(stem.id);
+//                 self.actions[self.i.0].push(stem);
+//             }
+//         }
+//         // if let Some(node) = self.nodes.get_mut(&key) {
+//         //     node.need += 1;
+//         // } else {
+//         //     self.nodes.insert(key, Node::default());
+//         //     self.extend(&action.stems);
+//         //     //self.actions[1].extend(&action.stems);
+//         //     // self.increment_stems(&action.stems);
+//         // }
+//     }
+//     self.actions[1].clear();
+//     self.visited.clear();
+//     self.passes();
+// }
+// fn increment_need(&mut self, stems: &[Grc<Action>]) {
+//     for stem in stems {
+//         if let Some(node) = self.nodes.get_mut(&stem.id) {
+//             node.need += 1;
+//         } else {
+//             let node = Node {need: 1, fill: 0};
+//             self.nodes.insert(stem.id, node);
+//         }
+//     }
+// }
+// // fn extend(&mut self, stems: &'a [Grc<Action>]) {
+// //     for stem in stems {
+// //         if !self.visited.contains(&stem.id) {
+// //             self.visited.insert(stem.id);
+// //             self.actions[self.i.0].push(stem);
+// //         }
+// //     }
+// // }
 
 // #[derive(Default)]
 // struct State {
