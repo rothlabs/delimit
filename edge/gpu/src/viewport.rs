@@ -30,7 +30,7 @@ impl ToViewport for Surface<'static> {
 
 // think about splitting this up into a viewport for things that care about size: Leaf<(u32, u32)> (main app)
 // and things that care about surface, format, and render stage, number
-// (some of these could be moved to gui::Display)
+// (some of these could be moved to gui::Display?)
 #[derive(Clone, Debug)]
 pub struct Viewport {
     pub gpu: Core,

@@ -14,7 +14,7 @@ mod tests;
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut gui = Gui::default();
-    let app = AppBuilder::default().displays(&gui.gfx.displays).hub()?;
+    let app = app().displays(&gui.gfx.displays).hub()?;
     app.depend().await?;
     let event_loop = EventLoop::new()?;
     event_loop.run_app(&mut gui)?;

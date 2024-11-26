@@ -114,7 +114,7 @@ impl React for Root {
     }
 }
 
-/// Weakly point to the back of a cusp as UpdateMid.
+/// Weakly point to the back of a cusp as UpdateMut.
 #[derive(Clone, Debug)]
 pub struct Back {
     pub cusp: WeakPointer<dyn UpdateMut>,

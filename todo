@@ -7,6 +7,7 @@
 5. For gpu action pack, each action can have a u64 id that only changes if it is regenerated. This tells the list builder 
     that it does not have to traverse futher down the graph that way. It only needs to save the copy of this new graph
 6. make Leaf<Grc<T>> type alias
+7. make Node type that uses Arc<T> instead of Arc<RwLock<T>> for edge
 
 https://github.com/gfx-rs/wgpu/issues/733
 

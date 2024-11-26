@@ -2,7 +2,7 @@ use super::*;
 
 type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
 
-#[derive(Builder, BuildGate, Back, Debug)]
+#[derive(Builder, BuildGate, Back, Debug, Make)]
 #[builder(pattern = "owned")]
 #[builder(setter(into))]
 pub struct App {
