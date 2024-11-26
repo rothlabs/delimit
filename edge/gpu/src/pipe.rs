@@ -11,12 +11,6 @@ mod compute;
 mod fragment;
 mod layout;
 
-// #[derive(Debug, Clone)]
-// pub struct Compute {
-//     id: u32,
-//     pipe: Grc<ComputePipeline>,
-// }
-
 #[derive(Builder)]
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "Error"))]

@@ -1,4 +1,5 @@
 use super::*;
+use std::f32::consts::PI;
 
 #[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]
@@ -19,7 +20,6 @@ impl Solve for Points {
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
         let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
-        println!("point count: {count}");
         let rig = gpu.uniform().field(stride).field(count).make()?;
         let bind = gpu
             .bind()
@@ -50,8 +50,6 @@ impl Solve for Points {
             .hub()?)
     }
 }
-
-use std::f32::consts::PI;
 
 #[derive(Back, Debug)]
 pub struct Circle {

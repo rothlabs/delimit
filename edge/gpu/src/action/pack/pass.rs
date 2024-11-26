@@ -1,11 +1,5 @@
 use super::*;
 
-// #[derive(Debug)]
-// pub enum Kind {
-//     Compute(Compute),
-//     Render(Render),
-// }
-
 #[derive(Debug)]
 pub struct Compute {
     pub pipe: Grc<ComputePipeline>,

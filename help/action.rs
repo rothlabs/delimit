@@ -1,7 +1,8 @@
+use std::collections::HashMap;
+
 pub use pack::Action;
 
 use super::*;
-use std::collections::HashMap;
 
 pub mod flat;
 pub mod pack;
@@ -20,9 +21,7 @@ pub struct Bind {
 
 impl PartialEq for Bind {
     fn eq(&self, rhs: &Bind) -> bool {
-        self.slot == rhs.slot
-            && self.group.global_id() == rhs.group.global_id()
-            && self.offsets == rhs.offsets
+        self.slot == rhs.slot && self.group.global_id() == rhs.group.global_id() && self.offsets == rhs.offsets
     }
 }
 
@@ -68,7 +67,7 @@ impl Solve for Flat {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 struct Node {
     need: u16,
     fill: u16,
@@ -85,68 +84,72 @@ struct State<'a> {
 
 impl<'a> State<'a> {
     fn run(&mut self) {
-        self.init();
-        self.actions[1].clear();
         self.i = (0, 1);
-        self.passes();
-    }
-    fn init(&mut self) {
-        while let Some(action) = self.actions[1].pop() {
+        for action in &self.actions[0] {
+            let node = Node {need: 1, fill: 1};
+            self.nodes.insert(action.id, node);
+        }
+        while let Some(action) = self.actions[0].pop() {
             for stem in &action.stems {
                 if let Some(node) = self.nodes.get_mut(&stem.id) {
                     node.need += 1;
                 } else {
-                    let node = Node { need: 1, fill: 0 };
+                    let node = Node {need: 1, fill: 0};
                     self.nodes.insert(stem.id, node);
-                    self.actions[1].push(stem);
+                    self.actions[0].push(stem);
                 }
             }
         }
+        self.actions[0].clear();
+        self.passes();
     }
     fn passes(&mut self) {
+        self.i = (1, 0);
         while let Some(action) = self.actions[self.i.0].first() {
             match &action.kind {
                 pack::Kind::Compute(_) => self.compute(),
                 pack::Kind::Render(_) => self.render(),
                 pack::Kind::Leaf => panic!("should never be leaf here"),
             }
-            self.actions[self.i.0].clear();
             self.i = (self.i.1, self.i.0);
+            self.actions[self.i.1].clear();
         }
     }
     fn compute(&mut self) {
         let mut state = flat::compute::State::default();
         while let Some(action) = self.actions[self.i.0].pop() {
-            if !self.past.contains_key(&action.id) {
-                match &action.kind {
-                    pack::Kind::Compute(compute) => {
-                        state.push(compute);
-                        self.increment(&action.stems);
-                    }
-                    pack::Kind::Render(_) => self.actions[self.i.1].push(action),
-                    _ => (),
+            match &action.kind {
+                pack::Kind::Compute(compute) => {
+                    self.try_action(action, || state.push(compute))
                 }
+                pack::Kind::Render(_) => self.actions[self.i.1].push(action),
+                _ => (),
             }
         }
-        self.commands.push(state.flat());
+        self.commands.push(Command::Compute(state.flat()));
     }
     fn render(&mut self) {
         let mut state = flat::render::State::default();
         while let Some(action) = self.actions[self.i.0].pop() {
-            if !self.past.contains_key(&action.id) {
-                match &action.kind {
-                    pack::Kind::Render(render) => {
-                        state.push(render);
-                        self.increment(&action.stems);
-                    }
-                    pack::Kind::Compute(_) => self.actions[self.i.1].push(action),
-                    _ => (),
+            match &action.kind {
+                pack::Kind::Render(render) => self.try_action(action, || state.push(render)),
+                pack::Kind::Compute(_) => self.actions[self.i.1].push(action),
+                _ => (),
+            }
+        }
+        self.commands.push(Command::Render(state.flat()));
+    }
+    fn try_action<F: FnOnce()>(&mut self, action: &'a Grc<Action>, use_action: F) { 
+        if !self.past.contains_key(&action.id) {
+            if let Some(node) = self.nodes.get(&action.id) {
+                if node.fill == node.need {
+                    use_action();
+                    self.increment_fill(&action.stems);
                 }
             }
         }
-        self.commands.push(state.flat());
     }
-    fn increment(&mut self, stems: &'a [Grc<Action>]) {
+    fn increment_fill(&mut self, stems: &'a [Grc<Action>]) {
         for stem in stems {
             if let Some(node) = self.nodes.get_mut(&stem.id) {
                 node.fill += 1;
@@ -157,6 +160,7 @@ impl<'a> State<'a> {
         }
     }
 }
+
 
 // fn run(&mut self) {
 //     self.i = (1, 0);

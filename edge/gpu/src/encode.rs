@@ -48,9 +48,9 @@ impl<'a> Encode<'a> {
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
                 flat::compute::Step::Dispatch(size) => {
-                    println!("dispatch size: {size}");
+                    println!("dispatch: {size}");
                     pass.dispatch_workgroups(*size, 1, 1);
-                },
+                }
             }
         }
     }

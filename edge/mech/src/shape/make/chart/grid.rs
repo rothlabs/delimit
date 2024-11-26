@@ -6,7 +6,6 @@ mod wheel;
 pub struct Wheel<'a> {
     pub chart: &'a Chart<'a>,
     pub count: &'a Hub<u32>,
-    // pub size: Hub<u32>,
 }
 
 impl<'a> Wheel<'a> {
@@ -24,7 +23,11 @@ impl<'a> Wheel<'a> {
             let buffer = gpu.blank(&extrude_size).label("extrude").hub()?;
             let spin = self.spin(&buffer);
             if let Some(form) = &form.extrude {
-                let rig = self.rig(self.chart.shape.dimension as usize, &0.into(), &extrude_size)?;
+                let rig = self.rig(
+                    self.chart.shape.dimension as usize,
+                    &0.into(),
+                    &extrude_size,
+                )?;
                 stems.push(spin.extrude(&rig, form)?);
             }
             weft.travel = Some(Hedge { buffer, stems });
@@ -39,7 +42,11 @@ impl<'a> Wheel<'a> {
             let buffer = gpu.blank(&revolve_size).label("revolve").hub()?;
             let spin = self.spin(&buffer);
             if let Some(form) = &form.revolve {
-                let rig = self.rig(self.chart.shape.dimension as usize, &0.into(), &revolve_size)?;
+                let rig = self.rig(
+                    self.chart.shape.dimension as usize,
+                    &0.into(),
+                    &revolve_size,
+                )?;
                 stems.push(spin.revolve(&rig, form)?);
             }
             weft.orient = Some(Hedge { buffer, stems });
@@ -51,7 +58,6 @@ impl<'a> Wheel<'a> {
             if let Some(form) = form {
                 let mut stems = vec![];
                 let spline_size = self.basis_size(form)?;
-                // let nurbs_size = self.nurbs_size(form)?;
                 let nurbs_size = form.nurbs_size(self.count)?;
                 let nurbs_expand = nurbs_size.calc().div(3).mul(2).hub()?;
                 let nurbs_length = nurbs_size.calc().div(3).div(order as u32).hub()?;
@@ -69,7 +75,6 @@ impl<'a> Wheel<'a> {
                     spin.size = nurbs_length.calc().add(63).div(64).hub()?;
                     stems.push(spin.nurbs(&rig, form)?);
                 }
-                println!("weft.spline.push: {}, order: {}", weft.spline.len(), order);
                 weft.spline.push(Some(Hedge { buffer, stems }));
             } else {
                 weft.spline.push(None);
@@ -163,9 +168,6 @@ impl<'a> Loom<'a> {
         let mut stems = vec![];
         let flow = self.flow()?;
         let mut index = 0;
-
-        // println!("loom size {order}");
-
         if let Some(flow) = &flow.travel {
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             stems.push(weave.travel(loom::Trio {
@@ -189,7 +191,6 @@ impl<'a> Loom<'a> {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
                 let length = lengths.get(index).ok_or(anyhow!("no length"))?;
-                // println!("weave spline {order}");
                 weave.size = length.calc().add(63).div(64).hub()?;
                 stems.push(weave.spline(loom::Trio {
                     rig: self.rig(order, offset, length)?,
@@ -205,8 +206,8 @@ impl<'a> Loom<'a> {
         let chart = &self.grid.chart;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
-        let constant = chart.shape.dimension * (self.rank as u32 + 2);// * 64;
-        // println!("rank: {}, constant: {constant}", self.rank);
+        let constant = chart.shape.dimension * (self.rank as u32 + 2); // * 64;
+                                                                       // println!("rank: {}, constant: {constant}", self.rank);
         let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
         // let expand = self.size.calc().mul(constant).hub()?;
         let mut offsets = vec![0.into()];
@@ -223,7 +224,6 @@ impl<'a> Loom<'a> {
         }
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
-                // println!("push spline offset {order}");
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
                 offsets.push(size.calc().mul(&expand).add(last).hub()?);
@@ -255,8 +255,6 @@ impl<'a> Loom<'a> {
             warp,
             plot,
             size: 0.into(),
-            // count: self.count,
-            // size: &self.size,
         })
     }
 }

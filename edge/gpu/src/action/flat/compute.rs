@@ -20,14 +20,14 @@ pub struct State {
 }
 
 impl State {
-    pub fn flat(mut self) -> Pass {
+    pub fn flat(mut self) -> Command {
         if let Some(pipe) = self.pipe {
             self.steps.push(Step::Pipe(pipe));
         }
         for (_, bind) in self.binds {
             self.steps.push(Step::Bind(bind));
         }
-        Pass { steps: self.steps }
+        Command::Compute(Pass { steps: self.steps })
     }
     pub fn push(&mut self, compute: &pack::pass::Compute) {
         self.pipe(&compute.pipe);
@@ -65,7 +65,6 @@ impl State {
         }
     }
 }
-
 
 // if let Some(now) = self.binds.get_mut(&bind.slot) {
 //     if bind != now {

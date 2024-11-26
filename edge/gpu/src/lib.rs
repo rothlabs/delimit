@@ -1,10 +1,9 @@
 pub use action::flat::{self, Command};
-// pub use action::pack::{unit::*, Action};
 pub use action::pack::{unit::*, Action};
+pub use buffer::size;
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
-pub use buffer::size;
 
 use bind::*;
 use buffer::*;
@@ -69,8 +68,6 @@ pub trait ToAdapter {
 
 impl ToAdapter for Instance {
     async fn surface_adapter(&self, surface: &Surface<'static>) -> Result<Adapter> {
-        // let mut fields = RequestAdapterOptions::default();
-        // fields.compatible_surface = Some(surface);
         let fields = RequestAdapterOptions {
             compatible_surface: Some(surface),
             ..Default::default()

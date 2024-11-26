@@ -22,8 +22,8 @@ impl<'a> Grid<'a> {
                 rank,
                 weft: wefts.get(rank).unwrap_or(last_weft),
                 area: &area,
-                count,//: self.counts.get(rank).unwrap_or(last_count),
-                // size,
+                count, //: self.counts.get(rank).unwrap_or(last_count),
+                       // size,
             };
             warp = loom.hedge(&warp)?;
             area = loom.area.calc().mul(loom.count).hub()?;
