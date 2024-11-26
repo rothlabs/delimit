@@ -55,16 +55,16 @@ pub trait Backed {
         Self: Sized;
 }
 
-pub trait BackedMid {
-    // type Cusp;
-    /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
-    /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> Grc<Self>;
-}
+// pub trait BackedMid {
+//     // type Cusp;
+//     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
+//     /// Must be called to include `&Back` in the rebut phase.
+//     fn backed(&self, back: &Back) -> Grc<Self>;
+// }
 
 /// For edge that Rebuts a Ring and reacts.
-pub trait Update: Rebut + React + SendSync {}
-impl<T> Update for T where T: Rebut + React + SendSync {}
+pub trait Update: Rebut + edge::React + SendSync {}
+impl<T> Update for T where T: Rebut + edge::React + SendSync {}
 // impl<T> Update for Box<T> where T: Rebut + React + SendSync {}
 
 /// For cusp to rebut a ring and react if the root of the rebut phase.
@@ -80,6 +80,13 @@ pub struct Root {
 }
 
 impl Root {
+    pub fn new<E: 'static + Update>(edge: Grc<E>) -> Self {
+        let edge = edge as Grc<dyn Update>;
+        Self {
+            edge: Grc::downgrade(&edge),
+            id: rand::random(),
+        }
+    }
     pub fn rebut(&self) -> Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
             // read_part(&edge, |edge| edge.rebut())?
@@ -120,7 +127,7 @@ impl React for Root {
         Box::pin(async move {
             if let Some(edge) = self.edge.upgrade() {
                 // read_part(&edge, |edge| async move { edge.react().await })?.await
-                edge.react().await
+                edge.react(self.clone()).await
             } else {
                 Ok(())
             }

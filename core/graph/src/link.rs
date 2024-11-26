@@ -1,12 +1,12 @@
 pub use leaf::*;
 
 use super::*;
-#[cfg(not(feature = "oneThread"))]
-use parking_lot::RwLock;
+// #[cfg(not(feature = "oneThread"))]
+// use parking_lot::RwLock;
 #[cfg(not(feature = "oneThread"))]
 use std::sync::Arc;
-#[cfg(feature = "oneThread")]
-use std::{cell::RefCell, rc::Rc};
+// #[cfg(feature = "oneThread")]
+// use std::{cell::RefCell, rc::Rc};
 use std::{
     fmt,
     hash::{Hash, Hasher},
@@ -31,11 +31,29 @@ pub type Gate<T> = Link<dyn edge::gate::Engage<Base = T>>;
 
 /// `Link` to `Edge`, pointing to `Cusp`, containing work unit.
 /// Unit fields often contain `Link`, creating a graph pattern.
-#[derive(Default)]
+// #[derive(Default)]
 pub struct Link<E: ?Sized> {
     edge: Grc<E>,
+    root: Root,
+    // TODO: instead of option path: there could be a PathedLink that has a path and Link
     path: Option<Path>,
+    // TODO: should be able to get rid of rank
     rank: Option<u16>,
+}
+
+impl<E: edge::FromBase> Default for Link<E> 
+where 
+    E::Base: Default
+{
+    fn default() -> Self {
+        let (edge, root) = E::from_base(E::Base::default());
+        Self {
+            edge,
+            root,
+            path: None,
+            rank: None,
+        }
+    }
 }
 
 impl<E: ?Sized> fmt::Debug for Link<E> {
@@ -43,6 +61,14 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
         f.write_fmt(format_args!("Path: {:?}", self.path))
     }
 }
+
+// fn root_edge<E: 'static + Update>(edge: &Grc<E>) -> Root {
+//     let update = edge.clone() as Grc<dyn Update>;
+//     Root {
+//         edge: Grc::downgrade(&update),
+//         id: rand::random(),
+//     }
+// }
 
 impl<T: Clone> Leaf<T> {
     pub fn hub(self) -> Hub<T> {
@@ -56,6 +82,7 @@ impl<T: Clone> Leaf<T> {
 impl<E: ?Sized> Link<E> {
     pub fn pathed(&self, path: Path) -> Self {
         Self {
+            root: self.root.clone(),
             edge: self.edge.clone(),
             path: Some(path),
             rank: self.rank,
@@ -120,21 +147,24 @@ where
 
 impl<E: edge::FromBase> Link<E> {
     pub fn new(base: E::Base) -> Self {
+        let (edge, root) = E::from_base(base);
         Self {
             path: None,
             rank: None,
-            edge: E::from_base(base),
+            edge,//: E::from_base(base),
+            root,
         }
     }
 }
 
 impl<E: edge::FromSnap> Link<E> {
     pub fn from_unit(unit: E::Unit) -> Result<Self> {
-        let (rank, edge) = E::from_snap(unit.into())?;
+        let (rank, edge, root) = E::from_snap(unit.into())?;
         Ok(Self {
             path: None,
             rank,
             edge,
+            root,
         })
     }
 }
@@ -144,11 +174,12 @@ where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
-        let (rank, edge) = E::from_snap(unit.into())?;
+        let (rank, edge, root) = E::from_snap(unit.into())?;
         Ok(Ploy {
             path: None,
             rank,
             edge,
+            root,
         })
     }
 }
@@ -158,11 +189,12 @@ where
     E: 'static + edge::FromSnap + gate::Engage,
 {
     pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
-        let (rank, edge) = E::from_snap(unit.into())?;
+        let (rank, edge, root) = E::from_snap(unit.into())?;
         Ok(Gate {
             path: None,
             rank,
             edge,
+            root,
         })
     }
 }
@@ -172,11 +204,12 @@ where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
-        let (rank, edge) = E::from_snap(snap)?;
+        let (rank, edge, root) = E::from_snap(snap)?;
         Ok(Ploy {
             path: None,
             rank,
             edge,
+            root,
         })
     }
 }
@@ -184,6 +217,7 @@ where
 impl<E: ?Sized> Clone for Link<E> {
     fn clone(&self) -> Self {
         Self {
+            root: self.root.clone(),
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
@@ -204,11 +238,13 @@ impl<E: ?Sized> PartialEq for Link<E> {
 // TODO: impl Backed for Leaf<U> so SendSync is not needed for Backed Hub?
 impl<E> Backed for Link<E>
 where
-    E: BackedMid + ?Sized,
+    E: edge::BackedMid + ?Sized,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
+        let (edge, root) = self.edge.backed(back);
         Ok(Self {
-            edge: self.edge.backed(back),
+            edge,
+            root,
             path: self.path.clone(),
             rank: self.rank,
         })
@@ -217,8 +253,10 @@ where
 
 impl<T> Backed for Ploy<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
+        let (edge, root) = self.edge.backed(back);
         Ok(Self {
-            edge: self.edge.backed(back),
+            edge,
+            root,
             path: self.path.clone(),
             rank: self.rank,
         })
@@ -227,22 +265,24 @@ impl<T> Backed for Ploy<T> {
 
 impl<T> Backed for Gate<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
+        let (edge, root) = self.edge.backed(back);
         Ok(Self {
-            edge: self.edge.backed(back),
+            edge,
+            root,
             path: self.path.clone(),
             rank: self.rank,
         })
     }
 }
 
-impl<E: Read> Link<E> {
+impl<E: edge::Read> Link<E> {
     /// Read payload of Link.
     pub fn read<F, O>(&self, read: F) -> Result<O>
     where
         // TODO: take ReadGuard directly so its lifetime is okay for async block in closure
         F: FnOnce(&E::Item) -> O,
     {
-        self.edge.read(read)
+        self.edge.read(read, self.root.clone())
     }
 }
 
@@ -284,10 +324,10 @@ where
     }
 }
 
-impl<E: Solve> Link<E> {
+impl<E: edge::Solve> Link<E> {
     pub async fn solve(&self) -> Result<Hub<E::Base>> {
         // Ok(read_part(&self.edge, |edge| async move { edge.solve().await })?.await?)
-        Ok(self.edge.solve().await?)
+        Ok(self.edge.solve(self.root.clone()).await?)
     }
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
@@ -300,29 +340,29 @@ impl<E: Solve> Link<E> {
 impl<T: SendSync> Ploy<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
         // read_part(&self.edge, |edge| async move { edge.solve().await })?.await
-        self.edge.solve().await
+        self.edge.solve(self.root.clone()).await
     }
 }
 
 impl<T: SendSync> Gate<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
         // read_part(&self.edge, |edge| async move { edge.solve().await })?.await
-        self.edge.solve().await
+        self.edge.solve(self.root.clone()).await
     }
 }
 
 impl<E> Link<E>
 where
-    E: 'static + edge::Adapt + Update + SendSync, //  + ?Sized
+    E: edge::Adapt + Update + SendSync + ?Sized, 
 {
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
         // read_part(&self.edge, |edge| edge.adapt_get(deal))?
-        let update = self.edge.clone() as Grc<dyn Update>;
-        let root = Root {
-            edge: Grc::downgrade(&update),
-            id: rand::random(),
-        };
-        self.edge.adapt_get(deal, root)
+        // let update = self.edge.clone() as Grc<dyn Update>;
+        // let root = Root {
+        //     edge: Grc::downgrade(&update),
+        //     id: rand::random(),
+        // };
+        self.edge.adapt_get(deal, self.root.clone())
     }
     pub fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
@@ -359,6 +399,7 @@ where
     /// Copy the link with unit type erased.  
     pub fn as_ploy(&self) -> Ploy<E::Base> {
         Ploy {
+            root: self.root.clone(),
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,
@@ -373,6 +414,7 @@ where
     /// Copy the link with unit type erased.  
     pub fn as_gate(&self) -> Gate<E::Base> {
         Gate {
+            root: self.root.clone(),
             edge: self.edge.clone(),
             path: self.path.clone(),
             rank: self.rank,

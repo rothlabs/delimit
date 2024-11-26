@@ -21,7 +21,7 @@ use apex::{View, ViewVec};
 use derive_builder::UninitializedFieldError;
 use edge::{gate, ploy};
 use link::{Gate, Ploy};
-use react::{AddRoot, BackedMid, React, ReactMut, Rebut, RebutMut, Ring, Root, Update, UpdateMut};
+use react::{AddRoot, ReactMut, Rebut, RebutMut, Ring, Root, Update, UpdateMut};
 use scope::*;
 use serde::{Deserialize, Serialize};
 use snap::Snap;
@@ -270,13 +270,13 @@ pub trait BaseMut {
     fn base(&mut self) -> &mut Self::Base;
 }
 
-pub trait Read {
-    type Item;
-    /// Read the Unit or Transmit of the graph part.
-    fn read<T, F>(&self, reader: F) -> Result<T>
-    where
-        F: FnOnce(&Self::Item) -> T;
-}
+// pub trait Read {
+//     type Item;
+//     /// Read the Unit or Transmit of the graph part.
+//     fn read<T, F>(&self, reader: F) -> Result<T>
+//     where
+//         F: FnOnce(&Self::Item) -> T;
+// }
 
 // pub trait FromBase {
 //     type Base;
