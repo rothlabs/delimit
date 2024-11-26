@@ -16,6 +16,10 @@ struct Rig {
 
 @compute @workgroup_size(64)
 fn travel(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+    
     // prelude
     let rank = rig.rank;
     let count = rig.count;
@@ -59,6 +63,10 @@ fn travel(@builtin(global_invocation_id) index: vec3<u32>) {
 
 @compute @workgroup_size(64)
 fn orient(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+
     // prelude
     let rank = rig.rank;
     // let order = rig.order;

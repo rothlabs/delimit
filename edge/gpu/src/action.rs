@@ -21,8 +21,9 @@ pub struct Bind {
 
 impl PartialEq for Bind {
     fn eq(&self, rhs: &Bind) -> bool {
+        self.slot == rhs.slot && self.group.global_id() == rhs.group.global_id()
         // false
-        self.slot == rhs.slot && Grc::ptr_eq(&self.group, &rhs.group)// && self.offsets == rhs.offsets
+        //self.slot == rhs.slot && Grc::ptr_eq(&self.group, &rhs.group)// && self.offsets == rhs.offsets
     }
 }
 
@@ -96,7 +97,13 @@ impl<'a> State<'a> {
         while let Some(action) = self.actions[1].pop() {
             // let key = action.id;
             self.increment_need(&action.stems);
-            self.extend(&action.stems);
+            // self.extend(&action.stems);
+            for stem in &action.stems {
+                if !self.visited.contains(&stem.id) {
+                    self.visited.insert(stem.id);
+                    self.actions[self.i.0].push(stem);
+                }
+            }
             // if let Some(node) = self.nodes.get_mut(&key) {
             //     node.need += 1;
             // } else {
@@ -120,14 +127,14 @@ impl<'a> State<'a> {
             }
         }
     }
-    fn extend(&mut self, stems: &'a [Grc<Action>]) {
-        for stem in stems {
-            if !self.visited.contains(&stem.id) {
-                // self.visited.insert(stem.id);
-                self.actions[self.i.0].push(stem);
-            }
-        }
-    }
+    // fn extend(&mut self, stems: &'a [Grc<Action>]) {
+    //     for stem in stems {
+    //         if !self.visited.contains(&stem.id) {
+    //             // self.visited.insert(stem.id);
+    //             self.actions[self.i.0].push(stem);
+    //         }
+    //     }
+    // }
     fn passes(&mut self) {
         self.i = (0, 1);
         println!("entering loop");
@@ -170,20 +177,18 @@ impl<'a> State<'a> {
     fn try_action<F: FnOnce()>(&mut self, action: &'a Grc<Action>, use_action: F) { // i: usize, 
         if !self.past.contains_key(&action.id) {
             if let Some(node) = self.nodes.get(&action.id) {
-                
                 if let pack::Kind::Compute(compute) = &action.kind {
                     println!("compute thing 1")
                 }
                 println!("try use action");
                 if node.fill == node.need {
-                    
                     if let pack::Kind::Compute(compute) = &action.kind {
                         println!("compute thing 2")
                     }
                     use_action();
                     self.increment_fill(&action.stems);
-                    self.extend(&action.stems);
-                    // self.actions[i].extend(&action.stems);
+                    // self.extend(&action.stems);
+                    self.actions[self.i.0].extend(&action.stems);
                 }
             }
         }

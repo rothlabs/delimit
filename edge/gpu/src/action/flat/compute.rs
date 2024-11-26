@@ -31,6 +31,8 @@ impl State {
     pub fn pipe(&mut self, pipe: &Grc<ComputePipeline>) {
         if let Some(now) = self.pipe.as_mut() {
             // if !Grc::ptr_eq(pipe, now) {
+                // let wow = pipe.get_bind_group_layout(0);
+            // if pipe.global_id() != now.global_id() {
                 *now = pipe.clone();
                 self.steps.push(Step::Pipe(pipe.clone()));
             // }

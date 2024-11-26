@@ -13,6 +13,10 @@ struct Rig {
 
 @compute @workgroup_size(64)
 fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+    
     let order = rig.order;
     let count_idx = index.x / rig.count;
     let count_mod = index.x % rig.count;
@@ -32,6 +36,10 @@ fn extrude(@builtin(global_invocation_id) index: vec3<u32>) {
 
 @compute @workgroup_size(64)
 fn revolve2(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+
     // let order = rig.order;
     let count_idx = index.x / rig.count;
     let count_mod = index.x % rig.count;
@@ -53,6 +61,10 @@ fn revolve2(@builtin(global_invocation_id) index: vec3<u32>) {
 
 @compute @workgroup_size(64)
 fn basis(@builtin(global_invocation_id) index: vec3<u32>) {
+    if(index.x > rig.length - 1) {
+        return;
+    }
+
     // prelude
     let order = rig.order;
     let weft_idx = rig.offset + index.x * order * 2 + order - 1;
