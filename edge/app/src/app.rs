@@ -1,6 +1,6 @@
-use star::MakeTransfer;
-
 use super::*;
+
+type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
 
 #[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]
@@ -8,7 +8,7 @@ use super::*;
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
-    command_writers: Leaf<Vec<Hub<()>>>,
+    command_writers: Leaf<Vec<CommandTransfer>>,
 }
 
 impl Act for App {
@@ -16,24 +16,16 @@ impl Act for App {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;
-            let view = mech_view(main)?;
-            let steps = test::draw_nurbs_surface(&view).await?;
-            // let pass = port.pass(steps).hub()?;
-            // let commands = star::vector().field(pass).hub()?;
-            let commands = gpu::action::flat().actions(vec![steps]).hub()?;
+            let mech = Mech::new(port)?;
+            let view = View::new(mech, port.clone())?;
+            let action = test::draw_nurbs_surface(&view).await?;
+            let commands = gpu::action::flat().action(action).hub()?;
             let transfer = commands.transfer(&port.commands)?;
             transfer.depend().await?;
             self.command_writers.write(|x| x.push(transfer)).await?;
         }
         acted()
     }
-}
-
-fn mech_view(display: &Display) -> Result<View> {
-    let port = display.viewport.clone();
-    let mech = Mech::new(port.clone())?;
-    let view = View::new(mech, port)?;
-    Ok(view)
 }
 
 // let writer = star::Transfer{source: commands, target: &port.commands}.hub()?;

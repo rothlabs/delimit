@@ -148,6 +148,8 @@ impl<'a> Wheel<'a> {
     }
 }
 
+type OffsetsAndLengths = Result<(Vec<Hub<u32>>, Vec<Hub<u32>>)>;
+
 pub struct Loom<'a> {
     pub grid: &'a Grid<'a>,
     pub rank: usize,
@@ -160,7 +162,7 @@ pub struct Loom<'a> {
 impl<'a> Loom<'a> {
     pub fn hedge(&self, warp: &Hedge) -> Result<Hedge> {
         let gpu = &self.grid.chart.core.gpu;
-        let (offsets, lengths) = self.offsets()?;
+        let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?;
         let label = format!("grid plot rank {}", self.rank);
         let buffer = gpu.blank(size).label(label).hub()?;
@@ -202,14 +204,12 @@ impl<'a> Loom<'a> {
         }
         Ok(Hedge { buffer, stems })
     }
-    fn offsets(&self) -> Result<(Vec<Hub<u32>>, Vec<Hub<u32>>)> {
+    fn offsets_and_lengths(&self) -> OffsetsAndLengths {
         let chart = &self.grid.chart;
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
-        let constant = chart.shape.dimension * (self.rank as u32 + 2); // * 64;
-                                                                       // println!("rank: {}, constant: {constant}", self.rank);
+        let constant = chart.shape.dimension * (self.rank as u32 + 2);
         let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
-        // let expand = self.size.calc().mul(constant).hub()?;
         let mut offsets = vec![0.into()];
         let mut lengths = vec![];
         if let Some(flow) = &flow.travel {

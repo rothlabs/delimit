@@ -1,6 +1,7 @@
 use app::*;
 use derive_builder::Builder;
-// use gpu::*;
+use star::*;
+use gpu::*;
 use graph::*;
 use gui::*;
 use mech::*;

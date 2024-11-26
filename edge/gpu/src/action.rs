@@ -47,6 +47,7 @@ pub struct Draw {
 #[derive(Debug, Back, Builder, BuildGate, Make)]
 #[builder(pattern = "owned")]
 pub struct Flat {
+    #[builder(setter(each(name = "action")))]
     actions: Vec<Hub<Grc<Action>>>,
     #[builder(default)]
     past: Leaf<HashMap<u32, Node>>,

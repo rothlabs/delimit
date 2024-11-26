@@ -1,4 +1,5 @@
-pub use action::flat::{self, Command};
+pub use action::flat::Command;
+pub use action::flat::{self};
 pub use action::pack::{unit::*, Action};
 pub use buffer::size;
 pub use core::ToCore;
