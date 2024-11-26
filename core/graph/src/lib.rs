@@ -278,10 +278,10 @@ pub trait Read {
         F: FnOnce(&Self::Item) -> T;
 }
 
-pub trait FromBase {
-    type Base;
-    fn from_base(base: Self::Base) -> Pointer<Self>;
-}
+// pub trait FromBase {
+//     type Base;
+//     fn from_base(base: Self::Base) -> Pointer<Self>;
+// }
 
 pub trait WorkFromBase {
     type Base;
@@ -292,10 +292,10 @@ pub trait SetRoot {
     fn set_root(&mut self, root: Root);
 }
 
-pub trait FromSnap {
-    type Unit;
-    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)>;
-}
+// pub trait FromSnap {
+//     type Unit;
+//     fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)>;
+// }
 
 pub trait WorkFromSnap {
     type Unit;

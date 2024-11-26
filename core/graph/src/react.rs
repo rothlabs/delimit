@@ -6,6 +6,11 @@ type WeakPointer<T> = std::sync::Weak<parking_lot::RwLock<T>>;
 #[cfg(feature = "oneThread")]
 type WeakPointer<T> = std::rc::Weak<std::cell::RefCell<T>>;
 
+#[cfg(not(feature = "oneThread"))]
+type Weak<T> = std::sync::Weak<T>;
+#[cfg(feature = "oneThread")]
+type Weak<T> = std::rc::Weak<T>;
+
 pub trait Rebut {
     /// Invalidate the tray. Call only after write during rebut phase.
     fn rebut(&self) -> Result<Ring>;
@@ -30,10 +35,16 @@ pub trait ReactMut {
     }
 }
 
+// pub trait AddRoot {
+//     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
+//     /// so that the cusp will react if contents change.
+//     fn add_root(&mut self, root: &Option<Root>);
+// }
+
 pub trait AddRoot {
     /// Add a root to a cusp `Ring` of roots. Must be called after reading contents
     /// so that the cusp will react if contents change.
-    fn add_root(&mut self, root: &Option<Root>);
+    fn add_root(&mut self, root: Root);
 }
 
 pub trait Backed {
@@ -48,7 +59,7 @@ pub trait BackedMid {
     // type Cusp;
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> Pointer<Self>;
+    fn backed(&self, back: &Back) -> Grc<Self>;
 }
 
 /// For edge that Rebuts a Ring and reacts.
@@ -64,21 +75,23 @@ impl<T> UpdateMut for T where T: RebutMut + ReactMut + SendSync {}
 /// A Cusp holds a Ring of Roots.
 #[derive(Clone, Debug)]
 pub struct Root {
-    pub edge: WeakPointer<dyn Update>,
+    pub edge: Weak<dyn Update>,
     pub id: Id,
 }
 
 impl Root {
     pub fn rebut(&self) -> Result<Ring> {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.rebut())?
+            // read_part(&edge, |edge| edge.rebut())?
+            edge.rebut()
         } else {
             Ok(Ring::new())
         }
     }
     fn clear(&self) -> Result<()> {
         if let Some(edge) = self.edge.upgrade() {
-            read_part(&edge, |edge| edge.clear_roots())??
+            // read_part(&edge, |edge| edge.clear_roots())??
+            edge.clear_roots()?
         }
         Ok(())
     }
@@ -106,7 +119,8 @@ impl React for Root {
     fn react(&self) -> GraphFuture<Result<()>> {
         Box::pin(async move {
             if let Some(edge) = self.edge.upgrade() {
-                read_part(&edge, |edge| async move { edge.react().await })?.await
+                // read_part(&edge, |edge| async move { edge.react().await })?.await
+                edge.react().await
             } else {
                 Ok(())
             }
@@ -125,6 +139,7 @@ impl Back {
     pub fn rebut(&self) -> Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
             write_part(&cusp, |mut cusp| cusp.rebut())?
+            // cusp.rebut()
         } else {
             Ok(Ring::new())
         }

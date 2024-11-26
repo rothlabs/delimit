@@ -13,56 +13,84 @@ pub type Node<U> = Edge<cusp::Node<U>>;
 #[derive(Default, Debug)]
 pub struct Edge<C> {
     cusp: Pointer<C>,
-    root: Option<Root>,
+    // root: Option<Root>,
     back: Option<Back>,
+}
+
+// impl<C> Edge<C> 
+// where
+//     C: 'static + FromBase + ReactMut + AddRoot + SendSync,
+// {
+//     pub fn from_base2(base: C::Base) -> Grc<Self> {
+//         Self {
+//             cusp: C::from_base(base),
+//             back: None,
+//         }.into()
+//     }
+// }
+
+pub trait FromBase {
+    type Base;
+    fn from_base(base: Self::Base) -> Grc<Self>;
 }
 
 impl<C> FromBase for Edge<C>
 where
-    C: 'static + FromBase + ReactMut + AddRoot + SendSync,
+    C: 'static + cusp::FromBase + ReactMut + AddRoot + SendSync,
 {
     type Base = C::Base;
-    fn from_base(base: C::Base) -> Pointer<Self> {
-        edge_pointer(Self {
-            root: None,
-            back: None,
+    fn from_base(base: C::Base) -> Grc<Self> {
+        Self {
             cusp: C::from_base(base),
-        })
+            back: None,
+        }.into()
     }
 }
 
-impl<C> SetRoot for Edge<C> {
-    fn set_root(&mut self, root: Root) {
-        self.root = Some(root);
-    }
+// impl<C> SetRoot for Edge<C> {
+//     fn set_root(&mut self, root: Root) {
+//         self.root = Some(root);
+//     }
+// }
+
+pub trait FromSnap {
+    type Unit;
+    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Grc<Self>)>;
 }
 
 impl<C> FromSnap for Edge<C>
 where
-    C: 'static + FromSnap + UpdateMut + AddRoot,
+    C: 'static + cusp::FromSnap + UpdateMut + AddRoot,
 {
     type Unit = C::Unit;
-    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
+    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u16>, Grc<Self>)> {
         let (rank, cusp) = C::from_snap(unit)?;
         Ok((
             rank,
-            edge_pointer(Self {
-                root: None,
+            Self {
+                // root: None,
                 back: None,
                 cusp,
-            }),
+            }.into(),
         ))
     }
 }
 
-impl<C> node::Solve for Edge<C>
+pub trait Solve {
+    type Base: 'static + SendSync;
+    /// Solve a task.
+    /// The node will run computations or return existing results.
+    fn solve(&self, root: Root) -> impl Future<Output = node::Result<Self::Base>> + IsSend;
+}
+
+impl<C> edge::Solve for Edge<C>
 where
     C: cusp::Solve + AddRoot + SendSync,
 {
     type Base = C::Base;
-    async fn solve(&self) -> node::Result<Self::Base> {
+    async fn solve(&self, root: Root) -> node::Result<Self::Base> {
         Ok(write_part(&self.cusp, |mut cusp| async move {
-            cusp.add_root(&self.root);
+            cusp.add_root(root);
             cusp.solve().await
         })?
         .await?)
@@ -71,7 +99,7 @@ where
 
 pub trait Adapt {
     /// For graph internals to handle alter calls
-    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()>;
+    fn adapt_get(&self, deal: &mut dyn Deal, root: Root) -> Result<()>;
     /// For graph internals to handle alter calls
     fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>>;
     fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring>;
@@ -81,9 +109,9 @@ impl<C> Adapt for Edge<C>
 where
     C: cusp::Adapt + UpdateMut + AddRoot,
 {
-    fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
+    fn adapt_get(&self, deal: &mut dyn Deal, root: Root) -> Result<()> {
         write_part(&self.cusp, |mut cusp| {
-            cusp.add_root(&self.root);
+            cusp.add_root(root);
             cusp.adapt_get(deal)
         })?
     }
@@ -103,18 +131,17 @@ where
     C: 'static + cusp::Solve + UpdateMut + cusp::Adapt + AddRoot + ReckonMut + Debug,
 {
     type Base = C::Base;
-    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
+    fn solve(&self, root: Root) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move {
             write_part(&self.cusp, |mut cusp| async move {
-                cusp.add_root(&self.root);
+                cusp.add_root(root);
                 cusp.solve().await
             })?
             .await
         })
     }
     fn backed(&self, back: &Back) -> ploy::Edge<Self::Base> {
-        edge_pointer(Self {
-            root: None,
+        Grc::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })
@@ -126,18 +153,17 @@ where
     C: 'static + cusp::Solve + UpdateMut + cusp::Adapt + AddRoot + Debug + GateTag,
 {
     type Base = C::Base;
-    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>> {
+    fn solve(&self, root: Root) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move {
             write_part(&self.cusp, |mut cusp| async move {
-                cusp.add_root(&self.root);
+                cusp.add_root(root);
                 cusp.solve().await
             })?
             .await
         })
     }
     fn backed(&self, back: &Back) -> gate::Edge<Self::Base> {
-        edge_pointer(Self {
-            root: None,
+        Grc::new(Self {
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
         })
@@ -163,12 +189,12 @@ impl<C> BackedMid for Edge<C>
 where
     C: 'static + ReactMut + AddRoot + SendSync,
 {
-    fn backed(&self, back: &Back) -> Pointer<Self> {
-        edge_pointer(Self {
-            root: None,
+    fn backed(&self, back: &Back) -> Grc<Self> {
+        Self {
+            // root: None,
             back: Some(back.clone()),
             cusp: self.cusp.clone(),
-        })
+        }.into()
     }
 }
 
@@ -260,7 +286,7 @@ where
 #[cfg(not(feature = "oneThread"))]
 fn edge_pointer<T>(edge: T) -> Arc<RwLock<T>>
 where
-    T: 'static + Update + SetRoot,
+    T: 'static + Update// + SetRoot,
 {
     let edge = Arc::new(RwLock::new(edge));
     let update = edge.clone() as Arc<RwLock<dyn Update>>;
@@ -268,14 +294,14 @@ where
         edge: Arc::downgrade(&update),
         id: rand::random(),
     };
-    edge.write().set_root(root);
+    // edge.write().set_root(root);
     edge
 }
 
 #[cfg(feature = "oneThread")]
 fn edge_pointer<T>(edge: T) -> Rc<RefCell<T>>
 where
-    T: 'static + Update + SetRoot,
+    T: 'static + Update// + SetRoot,
 {
     let edge = Rc::new(RefCell::new(edge));
     let update = edge.clone() as Rc<RefCell<dyn Update>>;
@@ -283,6 +309,6 @@ where
         edge: Rc::downgrade(&update),
         id: rand::random(),
     };
-    edge.borrow_mut().set_root(root);
+    // edge.borrow_mut().set_root(root);
     edge
 }

@@ -1,13 +1,13 @@
 use super::*;
 
-pub type Edge<T> = Pointer<dyn Engage<Base = T>>;
+pub type Edge<T> = Grc<dyn Engage<Base = T>>;
 
-pub trait Engage: Solve + Adapt + Update + SetRoot + Debug {}
-impl<E> Engage for E where E: Solve + Adapt + Update + SetRoot + Debug {}
+pub trait Engage: Solve + Adapt + Update + Debug {}
+impl<E> Engage for E where E: Solve + Adapt + Update + Debug {}
 
 pub trait Solve {
     type Base;
-    fn solve(&self) -> GraphFuture<Result<Hub<Self::Base>>>;
+    fn solve(&self, root: Root) -> GraphFuture<Result<Hub<Self::Base>>>;
     fn backed(&self, back: &Back) -> Edge<Self::Base>;
 }
 

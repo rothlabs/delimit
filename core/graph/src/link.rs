@@ -33,7 +33,7 @@ pub type Gate<T> = Link<dyn edge::gate::Engage<Base = T>>;
 /// Unit fields often contain `Link`, creating a graph pattern.
 #[derive(Default)]
 pub struct Link<E: ?Sized> {
-    edge: Pointer<E>,
+    edge: Grc<E>,
     path: Option<Path>,
     rank: Option<u16>,
 }
@@ -71,13 +71,16 @@ where
     E: Reckon + ?Sized,
 {
     pub fn get_imports(&self) -> Result<Vec<Import>> {
-        read_part(&self.edge, |edge| edge.get_imports())?
+        // read_part(&self.edge, |edge| edge.get_imports())?
+        self.edge.get_imports()
     }
     pub fn get_hash(&self) -> Result<u64> {
-        read_part(&self.edge, |edge| edge.get_hash())?
+        // read_part(&self.edge, |edge| edge.get_hash())?
+        self.edge.get_hash()
     }
     pub fn get_serial(&self) -> Result<String> {
-        read_part(&self.edge, |edge| edge.get_serial())?
+        // read_part(&self.edge, |edge| edge.get_serial())?
+        self.edge.get_serial()
     }
 }
 
@@ -88,7 +91,7 @@ where
     fn digest<H: Hasher>(&self, state: &mut H) {
         if let Some(path) = &self.path {
             path.hash(state);
-        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {
+        } else if let Ok(hash) = self.edge.get_hash() {
             //if let Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             hash.digest(state);
             // read_part(&self.edge, |edge| edge.get_hash()).unwrap().unwrap().digest(state)
@@ -106,7 +109,7 @@ where
     {
         if let Some(path) = &self.path {
             path.serialize(serializer)
-        } else if let Ok(Ok(hash)) = read_part(&self.edge, |edge| edge.get_hash()) {
+        } else if let Ok(hash) = self.edge.get_hash() {
             // Ok(Gain::U64(hash)) = self.reckon(Task::Hash) {
             Path::Hash(hash).serialize(serializer)
         } else {
@@ -115,7 +118,7 @@ where
     }
 }
 
-impl<E: FromBase> Link<E> {
+impl<E: edge::FromBase> Link<E> {
     pub fn new(base: E::Base) -> Self {
         Self {
             path: None,
@@ -125,7 +128,7 @@ impl<E: FromBase> Link<E> {
     }
 }
 
-impl<E: FromSnap> Link<E> {
+impl<E: edge::FromSnap> Link<E> {
     pub fn from_unit(unit: E::Unit) -> Result<Self> {
         let (rank, edge) = E::from_snap(unit.into())?;
         Ok(Self {
@@ -138,7 +141,7 @@ impl<E: FromSnap> Link<E> {
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + ploy::Engage,
+    E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
@@ -152,7 +155,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + gate::Engage,
+    E: 'static + edge::FromSnap + gate::Engage,
 {
     pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
         let (rank, edge) = E::from_snap(unit.into())?;
@@ -166,7 +169,7 @@ where
 
 impl<E> Link<E>
 where
-    E: 'static + FromSnap + ploy::Engage,
+    E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
         let (rank, edge) = E::from_snap(snap)?;
@@ -191,9 +194,9 @@ impl<E: ?Sized> Clone for Link<E> {
 impl<E: ?Sized> PartialEq for Link<E> {
     fn eq(&self, rhs: &Self) -> bool {
         #[cfg(not(feature = "oneThread"))]
-        let ptr_eq = Arc::<RwLock<E>>::ptr_eq(&self.edge, &rhs.edge);
+        let ptr_eq = Arc::<E>::ptr_eq(&self.edge, &rhs.edge);
         #[cfg(feature = "oneThread")]
-        let ptr_eq = Rc::<RefCell<E>>::ptr_eq(&self.edge, &rhs.edge);
+        let ptr_eq = Rc::<E>::ptr_eq(&self.edge, &rhs.edge);
         ptr_eq && self.path == rhs.path && self.rank == rhs.rank
     }
 }
@@ -204,8 +207,8 @@ where
     E: BackedMid + ?Sized,
 {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| Self {
-            edge: edge.backed(back),
+        Ok(Self {
+            edge: self.edge.backed(back),
             path: self.path.clone(),
             rank: self.rank,
         })
@@ -214,25 +217,21 @@ where
 
 impl<T> Backed for Ploy<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| {
-            Ok(Self {
-                edge: edge.backed(back),
-                path: self.path.clone(),
-                rank: self.rank,
-            })
-        })?
+        Ok(Self {
+            edge: self.edge.backed(back),
+            path: self.path.clone(),
+            rank: self.rank,
+        })
     }
 }
 
 impl<T> Backed for Gate<T> {
     fn backed(&self, back: &Back) -> Result<Self> {
-        read_part(&self.edge, |edge| {
-            Ok(Self {
-                edge: edge.backed(back),
-                path: self.path.clone(),
-                rank: self.rank,
-            })
-        })?
+        Ok(Self {
+            edge: self.edge.backed(back),
+            path: self.path.clone(),
+            rank: self.rank,
+        })
     }
 }
 
@@ -243,7 +242,7 @@ impl<E: Read> Link<E> {
         // TODO: take ReadGuard directly so its lifetime is okay for async block in closure
         F: FnOnce(&E::Item) -> O,
     {
-        read_part(&self.edge, |edge| edge.read(read))?
+        self.edge.read(read)
     }
 }
 
@@ -257,14 +256,16 @@ where
         O: IsSend,
         F: FnOnce(&mut E::Base) -> O + IsSend,
     {
-        read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
+        // read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
+        self.edge.write(write).await
     }
     fn write_passive<O, F>(&self, write: F) -> Result<O>
     where
         O: IsSend,
         F: FnOnce(&mut Self::Base) -> O + IsSend,
     {
-        read_part(&self.edge, |edge| edge.write_passive(write))?
+        // read_part(&self.edge, |edge| edge.write_passive(write))?
+        self.edge.write_passive(write)
     }
 }
 
@@ -278,13 +279,15 @@ where
         O: IsSend,
         F: FnOnce(&mut Pack<E::Unit>) -> O + IsSend,
     {
-        read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
+        // read_part(&self.edge, |edge| async move { edge.write(write).await })?.await
+        self.edge.write(write).await
     }
 }
 
 impl<E: Solve> Link<E> {
     pub async fn solve(&self) -> Result<Hub<E::Base>> {
-        Ok(read_part(&self.edge, |edge| async move { edge.solve().await })?.await?)
+        // Ok(read_part(&self.edge, |edge| async move { edge.solve().await })?.await?)
+        Ok(self.edge.solve().await?)
     }
     pub async fn act(&self) -> Result<()> {
         match self.solve().await {
@@ -296,30 +299,40 @@ impl<E: Solve> Link<E> {
 
 impl<T: SendSync> Ploy<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
-        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+        // read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+        self.edge.solve().await
     }
 }
 
 impl<T: SendSync> Gate<T> {
     pub async fn solve(&self) -> Result<Hub<T>> {
-        read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+        // read_part(&self.edge, |edge| async move { edge.solve().await })?.await
+        self.edge.solve().await
     }
 }
 
 impl<E> Link<E>
 where
-    E: edge::Adapt + ?Sized + SendSync,
+    E: 'static + edge::Adapt + Update + SendSync, //  + ?Sized
 {
     pub fn adapt_get(&self, deal: &mut dyn Deal) -> Result<()> {
-        read_part(&self.edge, |edge| edge.adapt_get(deal))?
+        // read_part(&self.edge, |edge| edge.adapt_get(deal))?
+        let update = self.edge.clone() as Grc<dyn Update>;
+        let root = Root {
+            edge: Grc::downgrade(&update),
+            id: rand::random(),
+        };
+        self.edge.adapt_get(deal, root)
     }
     pub fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
-            read_part(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+            // read_part(&self.edge, |edge| async move { edge.adapt_set(deal).await })?.await
+            self.edge.adapt_set(deal).await
         })
     }
     pub fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        read_part(&self.edge, |edge| edge.passive_set(deal))?
+        // read_part(&self.edge, |edge| edge.passive_set(deal))?
+        self.edge.passive_set(deal)
     }
 }
 

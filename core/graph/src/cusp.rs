@@ -21,6 +21,11 @@ impl<W: GateTag> GateTag for Cusp<W> {}
 //     }
 // }
 
+pub trait FromBase {
+    type Base;
+    fn from_base(base: Self::Base) -> Pointer<Self>;
+}
+
 impl<W> FromBase for Cusp<W>
 where
     W: 'static + WorkFromBase + Clear + ReactMut + SendSync,
@@ -34,6 +39,11 @@ where
         });
         cusp
     }
+}
+
+pub trait FromSnap {
+    type Unit;
+    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)>;
 }
 
 impl<W> FromSnap for Cusp<W>
@@ -120,11 +130,17 @@ impl<W: ToItem> ToItem for Cusp<W> {
     }
 }
 
+// impl<W> AddRoot for Cusp<W> {
+//     fn add_root(&mut self, root: &Option<Root>) {
+//         if let Some(root) = root {
+//             self.ring.add_root(root.clone());
+//         }
+//     }
+// }
+
 impl<W> AddRoot for Cusp<W> {
-    fn add_root(&mut self, root: &Option<Root>) {
-        if let Some(root) = root {
-            self.ring.add_root(root.clone());
-        }
+    fn add_root(&mut self, root: Root) {
+        self.ring.add_root(root);
     }
 }
 
