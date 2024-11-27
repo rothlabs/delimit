@@ -1,11 +1,11 @@
 use app::*;
 use derive_builder::Builder;
-use star::*;
 use gpu::*;
 use graph::*;
 use gui::*;
 use mech::*;
 use node_derive::*;
+use star::*;
 use winit::{error::EventLoopError, event_loop::EventLoop};
 
 mod app;

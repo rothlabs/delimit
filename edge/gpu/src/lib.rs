@@ -31,9 +31,9 @@ mod core;
 mod encode;
 mod pipe;
 mod shader;
+mod store;
 mod texture;
 mod viewport;
-mod store;
 
 pub type Gpu = Core;
 
