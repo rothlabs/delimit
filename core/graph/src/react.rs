@@ -143,9 +143,16 @@ pub struct Back {
 }
 
 impl Back {
+    pub fn new<C: 'static + UpdateMut>(cusp: Pointer<C>) -> Self {
+        let cusp = cusp as Pointer<dyn UpdateMut>;
+        Self {
+            cusp: Grc::downgrade(&cusp),
+            id: rand::random(),
+        }
+    }
     pub fn rebut(&self) -> Result<Ring> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.rebut())?
+            try_write_part(&cusp, |mut cusp| cusp.rebut())?
             // cusp.rebut()
         } else {
             Ok(Ring::new())
@@ -153,14 +160,14 @@ impl Back {
     }
     pub fn clear(&self) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| cusp.clear_roots())?
+            try_write_part(&cusp, |mut cusp| cusp.clear_roots())?
         } else {
             Ok(())
         }
     }
     pub async fn react(&self) -> Result<()> {
         if let Some(cusp) = self.cusp.upgrade() {
-            write_part(&cusp, |mut cusp| async move { cusp.react().await })?.await
+            try_write_part(&cusp, |mut cusp| async move { cusp.react().await })?.await
         } else {
             Ok(())
         }

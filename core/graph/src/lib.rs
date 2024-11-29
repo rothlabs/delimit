@@ -132,9 +132,17 @@ pub type Grc<T> = Arc<T>;
 pub type Grc<T> = Rc<T>;
 
 #[cfg(not(feature = "oneThread"))]
-pub type Pointer<T> = Arc<RwLock<T>>;
+pub type Cell<T> = RwLock<T>;
+/// Graph reference counter
 #[cfg(feature = "oneThread")]
-pub type Pointer<T> = Rc<RefCell<T>>;
+pub type Cell<T> = RefCell<T>;
+
+pub type Pointer<T> = Grc<Cell<T>>;
+
+// #[cfg(not(feature = "oneThread"))]
+// pub type Pointer<T> = Arc<RwLock<T>>;
+// #[cfg(feature = "oneThread")]
+// pub type Pointer<T> = Rc<RefCell<T>>;
 
 #[cfg(not(feature = "oneThread"))]
 type GraphFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
@@ -163,7 +171,7 @@ where
 }
 
 #[cfg(not(feature = "oneThread"))]
-fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+fn try_write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
@@ -172,7 +180,7 @@ where
 }
 
 #[cfg(feature = "oneThread")]
-fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+fn try_write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 where
     P: ?Sized,
     F: FnOnce(RefMut<'a, P>) -> O,
@@ -181,6 +189,24 @@ where
         Ok(part) => Ok(write(part)),
         Err(err) => Err(Error::Write(err.to_string())),
     }
+}
+
+#[cfg(not(feature = "oneThread"))]
+fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> O
+where
+    P: ?Sized,
+    F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
+{
+    write(part.write())
+}
+
+#[cfg(feature = "oneThread")]
+fn write_part<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> O
+where
+    P: ?Sized,
+    F: FnOnce(RefMut<'a, P>) -> O,
+{
+    write(part.borrow_mut())
 }
 
 pub trait Unit: Solve + Adapt + Debug + SendSync {}
@@ -209,7 +235,7 @@ where
     T::Base: Clone,
 {
     fn node(self) -> Result<Node<Self>> {
-        Node::from_unit(self)
+        Ok(Node::from_unit(self))
     }
 }
 
@@ -622,7 +648,7 @@ impl<T: Clone> ConcatVec<T> for Vec<T> {
 // }
 
 // #[cfg(not(feature = "oneThread"))]
-// fn write_part_async<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+// fn try_write_part_async<'a, P, F, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 // where
 //     P: ?Sized,
 //     F: FnOnce(RwLockWriteGuard<'a, P>) -> O,
@@ -632,7 +658,7 @@ impl<T: Clone> ConcatVec<T> for Vec<T> {
 // }
 
 // #[cfg(feature = "oneThread")]
-// fn write_part_async<'a, F, P, O>(part: &'a Pointer<P>, write: F) -> Result<O>
+// fn try_write_part_async<'a, F, P, O>(part: &'a Pointer<P>, write: F) -> Result<O>
 // where
 //     P: ?Sized,
 //     F: FnOnce(RefMut<'a, P>) -> O,

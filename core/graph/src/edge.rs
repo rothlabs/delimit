@@ -13,6 +13,7 @@ pub type Node<U> = Edge<cusp::Node<U>>;
 #[derive(Default, Debug)]
 pub struct Edge<C> {
     cusp: Pointer<C>,
+    // weak: Back,
     // root: Option<Root>,
     back: Option<Back>,
 }
@@ -65,7 +66,7 @@ where
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Grc<Self>, Root)>;
+    fn from_snap(unit: Snap<Self::Unit>) -> (Option<u16>, Grc<Self>, Root);
 }
 
 impl<C> FromSnap for Edge<C>
@@ -73,17 +74,17 @@ where
     C: 'static + cusp::FromSnap + UpdateMut + AddRoot,
 {
     type Unit = C::Unit;
-    fn from_snap(unit: Snap<C::Unit>) -> Result<(Option<u16>, Grc<Self>, Root)> {
-        let (rank, cusp) = C::from_snap(unit)?;
+    fn from_snap(unit: Snap<C::Unit>) -> (Option<u16>, Grc<Self>, Root) {
+        let (rank, cusp) = C::from_snap(unit);
         let edge = Grc::new(Self {
             back: None,
             cusp,
         });
-        Ok((
+        (
             rank,
             edge.clone(),
             Root::new(edge)
-        ))
+        )
     }
 }
 
@@ -100,7 +101,7 @@ where
 {
     type Base = C::Base;
     async fn solve(&self, root: Root) -> node::Result<Self::Base> {
-        Ok(write_part(&self.cusp, |mut cusp| async move {
+        Ok(try_write_part(&self.cusp, |mut cusp| async move {
             cusp.add_root(root);
             cusp.solve().await
         })?
@@ -121,19 +122,19 @@ where
     C: cusp::Adapt + UpdateMut + AddRoot,
 {
     fn adapt_get(&self, deal: &mut dyn Deal, root: Root) -> Result<()> {
-        write_part(&self.cusp, |mut cusp| {
+        try_write_part(&self.cusp, |mut cusp| {
             cusp.add_root(root);
             cusp.adapt_get(deal)
         })?
     }
     fn adapt_set<'a>(&'a self, deal: &'a mut dyn Deal) -> GraphFuture<Result<()>> {
         Box::pin(async move {
-            let ring = write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
+            let ring = try_write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))??;
             ring.react().await
         })
     }
     fn passive_set(&self, deal: &mut dyn Deal) -> Result<Ring> {
-        write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))?
+        try_write_part(&self.cusp, |mut cusp| cusp.adapt_set(deal))?
     }
 }
 
@@ -144,7 +145,7 @@ where
     type Base = C::Base;
     fn solve(&self, root: Root) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move {
-            write_part(&self.cusp, |mut cusp| async move {
+            try_write_part(&self.cusp, |mut cusp| async move {
                 cusp.add_root(root);
                 cusp.solve().await
             })?
@@ -167,7 +168,7 @@ where
     type Base = C::Base;
     fn solve(&self, root: Root) -> GraphFuture<Result<Hub<Self::Base>>> {
         Box::pin(async move {
-            write_part(&self.cusp, |mut cusp| async move {
+            try_write_part(&self.cusp, |mut cusp| async move {
                 cusp.add_root(root);
                 cusp.solve().await
             })?
@@ -191,10 +192,10 @@ where
         read_part(&self.cusp, |cusp| cusp.get_imports())?
     }
     fn get_hash(&self) -> Result<u64> {
-        write_part(&self.cusp, |mut cusp| cusp.get_hash())?
+        try_write_part(&self.cusp, |mut cusp| cusp.get_hash())?
     }
     fn get_serial(&self) -> Result<String> {
-        write_part(&self.cusp, |mut cusp| cusp.get_serial())?
+        try_write_part(&self.cusp, |mut cusp| cusp.get_serial())?
     }
 }
 
@@ -231,7 +232,7 @@ where
     where
         F: FnOnce(&mut C::Base) -> O,
     {
-        let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
+        let (ring, out) = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
         ring.react().await?;
         Ok(out)
     }
@@ -239,7 +240,7 @@ where
     where
         F: FnOnce(&mut Self::Base) -> O,
     {
-        let out = write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))??;
+        let out = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))??;
         Ok(out)
     }
 }
@@ -253,7 +254,7 @@ where
     where
         F: FnOnce(&mut Pack<C::Unit>) -> O,
     {
-        let (ring, out) = write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
+        let (ring, out) = try_write_part(&self.cusp, |mut cusp| cusp.write_unit_out(write))??;
         ring.react().await?;
         Ok(out)
     }
@@ -276,7 +277,7 @@ where
     where
         F: FnOnce(&C::Item) -> T,
     {
-        write_part(&self.cusp, |mut cusp| {
+        try_write_part(&self.cusp, |mut cusp| {
             cusp.add_root(root);
             read(cusp.item())
         })
@@ -311,7 +312,7 @@ where
 {
     fn react(&self, root: Root) -> GraphFuture<Result<()>> {
         Box::pin(async move {
-            write_part(&self.cusp, |mut cusp| async move {
+            try_write_part(&self.cusp, |mut cusp| async move {
                 cusp.add_root(root);
                 cusp.react().await
             })?

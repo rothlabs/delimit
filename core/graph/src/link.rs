@@ -158,14 +158,14 @@ impl<E: edge::FromBase> Link<E> {
 }
 
 impl<E: edge::FromSnap> Link<E> {
-    pub fn from_unit(unit: E::Unit) -> Result<Self> {
-        let (rank, edge, root) = E::from_snap(unit.into())?;
-        Ok(Self {
+    pub fn from_unit(unit: E::Unit) -> Self {
+        let (rank, edge, root) = E::from_snap(unit.into());
+        Self {
             path: None,
             rank,
             edge,
             root,
-        })
+        }
     }
 }
 
@@ -174,7 +174,7 @@ where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
-        let (rank, edge, root) = E::from_snap(unit.into())?;
+        let (rank, edge, root) = E::from_snap(unit.into());
         Ok(Ploy {
             path: None,
             rank,
@@ -189,7 +189,7 @@ where
     E: 'static + edge::FromSnap + gate::Engage,
 {
     pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
-        let (rank, edge, root) = E::from_snap(unit.into())?;
+        let (rank, edge, root) = E::from_snap(unit.into());
         Ok(Gate {
             path: None,
             rank,
@@ -204,7 +204,7 @@ where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
     pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
-        let (rank, edge, root) = E::from_snap(snap)?;
+        let (rank, edge, root) = E::from_snap(snap);
         Ok(Ploy {
             path: None,
             rank,

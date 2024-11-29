@@ -32,18 +32,17 @@ where
 {
     type Base = W::Base;
     fn from_base(base: W::Base) -> Pointer<Self> {
-        let (cusp, _) = cusp_pointer(Self {
+        Grc::new(Cell::new(Self {
             work: W::from_base(base),
             ring: Ring::new(),
             back: None,
-        });
-        cusp
+        }))
     }
 }
 
 pub trait FromSnap {
     type Unit;
-    fn from_snap(unit: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)>;
+    fn from_snap(unit: Snap<Self::Unit>) -> (Option<u16>, Pointer<Self>);
 }
 
 impl<W> FromSnap for Cusp<W>
@@ -51,15 +50,16 @@ where
     W: 'static + WorkFromSnap + Clear + ReactMut + work::SolveAdapt + SendSync,
 {
     type Unit = W::Unit;
-    fn from_snap(snap: Snap<Self::Unit>) -> Result<(Option<u16>, Pointer<Self>)> {
+    fn from_snap(snap: Snap<Self::Unit>) -> (Option<u16>, Pointer<Self>) {
         let (rank, work) = W::from_snap(snap);
-        let (cusp, back) = cusp_pointer(Self {
+        let cusp = Grc::new(Cell::new(Self {
             work,
             ring: Ring::new(),
             back: None,
-        });
-        write_part(&cusp, |mut cusp| cusp.set_back(back))??;
-        Ok((rank, cusp))
+        }));
+        let back = Back::new(cusp.clone());
+        write_part(&cusp, |mut cusp| cusp.set_back(back.clone())).unwrap();
+        (rank, cusp)
     }
 }
 
@@ -202,30 +202,38 @@ where
     }
 }
 
-#[cfg(not(feature = "oneThread"))]
-pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
-where
-    T: 'static + UpdateMut,
-{
-    let cusp = Arc::new(RwLock::new(cusp));
-    let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
-    let back = Back {
-        cusp: Arc::downgrade(&update),
-        id: rand::random(),
-    };
-    (cusp, back)
-}
+// pub fn cusp_pointer<T>(cusp: T) -> (Pointer<T>, Back)
+// where
+//     T: 'static + UpdateMut,
+// {
+//     let cusp = Grc::new(Cell::new(cusp));
+//     (cusp.clone(), Back::new(cusp))
+// }
 
-#[cfg(feature = "oneThread")]
-pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
-where
-    T: 'static + UpdateMut, // + SetBack,
-{
-    let cusp = Rc::new(RefCell::new(cusp));
-    let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
-    let back = Back {
-        cusp: Rc::downgrade(&update),
-        id: rand::random(),
-    };
-    (cusp, back)
-}
+// #[cfg(not(feature = "oneThread"))]
+// pub fn cusp_pointer<T>(cusp: T) -> (Arc<RwLock<T>>, Back)
+// where
+//     T: 'static + UpdateMut,
+// {
+//     let cusp = Arc::new(RwLock::new(cusp));
+//     let update = cusp.clone() as Arc<RwLock<dyn UpdateMut>>;
+//     let back = Back {
+//         cusp: Arc::downgrade(&update),
+//         id: rand::random(),
+//     };
+//     (cusp, back)
+// }
+
+// #[cfg(feature = "oneThread")]
+// pub fn cusp_pointer<T>(cusp: T) -> (Rc<RefCell<T>>, Back)
+// where
+//     T: 'static + UpdateMut, // + SetBack,
+// {
+//     let cusp = Rc::new(RefCell::new(cusp));
+//     let update = cusp.clone() as Rc<RefCell<dyn UpdateMut>>;
+//     let back = Back {
+//         cusp: Rc::downgrade(&update),
+//         id: rand::random(),
+//     };
+//     (cusp, back)
+// }
