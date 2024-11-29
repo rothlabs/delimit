@@ -6,41 +6,30 @@ pub struct BindBank {
 }
 
 impl BindBank {
-    pub fn new(store: &Store) {
-        let rig = BindRig::default();
-        let layout = store.device.create_bind_group_layout(&rig.layout());
-        // let wow = store.device.create_bind_group(layout);
-        0
+    pub fn new(store: &Store) -> Self {
+        // let layout = layout(&store.device);
+        // let entry = BindGroupEntry {
+        //     binding: 0,
+        //     resource: store.storage,
+        // };
+        let storage = Grc::new(bind_group(&store.device));
+        Self { storage }
     }
 }
 
-pub struct BindRig {
-    layout_entries: Vec<BindGroupLayoutEntry>,
+fn bind_group(device: &Device) -> BindGroup {
+    device.create_bind_group(&BindGroupDescriptor{
+        label: None,
+        layout: &layout(device),
+        entries: &[],
+    })
 }
 
-impl Default for BindRig {
-    fn default() -> Self {
-        Self {
-            layout_entries: vec![compute_storage_0()]
-        }
-    }
-}
-
-impl BindRig {
-    fn layout(&self) -> BindGroupLayoutDescriptor {
-        BindGroupLayoutDescriptor {
-            label: None,
-            entries: &self.layout_entries,
-        }
-    }
-    // fn bind_group_rig(&self, device: &Device) -> BindGroupDescriptor {
-    //     let layout = &device.create_bind_group_layout(&self.layout());
-    //     BindGroupDescriptor {
-    //         label: None,
-    //         layout,
-    //         entries: &entries,
-    //     }
-    // }
+fn layout(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: None,
+        entries: &[compute_storage_0()],
+    })
 }
 
 fn compute_storage_0() -> BindGroupLayoutEntry {
@@ -66,4 +55,44 @@ fn compute_storage_0() -> BindGroupLayoutEntry {
 //             entries: vec![],
 //         }
 //     }
+// }
+
+// #[derive(Default)]
+// pub struct BindRig<'a> {
+//     layout_entries: Vec<BindGroupLayoutEntry>,
+//     entries: Vec<BindGroupEntry<'a>>,
+// }
+
+// // impl Default for BindRig {
+// //     fn default() -> Self {
+// //         Self {
+// //             layout_entries: vec![compute_storage_0()]
+// //         }
+// //     }
+// // }
+
+// impl<'a> BindRig<'a> {
+//     fn run(&mut self, device: &Device) {
+//         // self.layout_entries = vec![compute_storage_0()];
+//         // let layout_entries = vec![compute_storage_0()];
+//         let rig = BindGroupLayoutDescriptor {
+//             label: None,
+//             entries: &[compute_storage_0()],
+//         };
+//         let layout = device.create_bind_group_layout(&rig);
+//     }
+//     fn layout(&self) -> BindGroupLayoutDescriptor {
+//         BindGroupLayoutDescriptor {
+//             label: None,
+//             entries: &self.layout_entries,
+//         }
+//     }
+//     // fn bind_group_rig(&self, device: &Device) -> BindGroupDescriptor {
+//     //     let layout = &device.create_bind_group_layout(&self.layout());
+//     //     BindGroupDescriptor {
+//     //         label: None,
+//     //         layout,
+//     //         entries: &entries,
+//     //     }
+//     // }
 // }
