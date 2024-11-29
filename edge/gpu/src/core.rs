@@ -34,6 +34,9 @@ impl Core {
             targets: &[],
         }
     }
+    // pub fn buffer2(&self, size: u64) {
+    //     let buff = BufferRig2::builder().device(&self.device).size(size);
+    // }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }

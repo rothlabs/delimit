@@ -1,20 +1,41 @@
 use super::*;
 
+pub fn store(device: Grc<Device>) -> Store {
+    let storage = device.create_buffer(&storage_rig());
+    Store {
+        device,
+        storage: Leaf::new(storage),
+        allocation: Leaf::default(),
+    }
+}
+
+fn storage_rig<'a>() -> BufferDescriptor<'a> {
+    BufferDescriptor {
+        label: None,
+        size: 1000,
+        usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    }
+}
+
+// TODO: could hold Grc<Device directly
 pub struct Store {
-    gpu: Core,
-    storage: Grc<Buffer>,
+    device: Grc<Device>,
+    // bind: Leaf<>,
+    storage: Leaf<Buffer>,
     allocation: Leaf<Allocation>,
 }
 
 impl Store {
-    pub fn new(gpu: Core) -> Self {
-        let storage = gpu.buffer(100000).storage().unwrap();
-        Self {
-            gpu,
-            storage,
-            allocation: Leaf::default(),
-        }
-    }
+    // pub fn new(gpu: Core) -> Result<Self> {
+    //     let storage = gpu.device.create_buffer(&storage_rig());
+        
+    //     Ok(Self {
+    //         gpu,
+    //         storage: Leaf::new(storage),
+    //         allocation: Leaf::default(),
+    //     })
+    // }
     pub fn storage(&self, length: u32) -> Result<Grc<u32>> {
         let mut i = 0;
         let mut start = 0;

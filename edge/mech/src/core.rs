@@ -9,6 +9,7 @@ mod make;
 #[derive(Clone, Debug)]
 pub struct Core {
     pub gpu: Gpu,
+    // pub store: gpu::Store,
     pub bank: Grc<Bank>,
 }
 

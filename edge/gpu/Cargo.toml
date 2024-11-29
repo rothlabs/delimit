@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
     bytemuck = "1.18.0"
     flume = "0.11.0"
+    typed-builder = "0.20.0"
     rand = { workspace = true }
     anyhow = { workspace = true }
     tokio = { workspace = true }

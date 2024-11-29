@@ -1,6 +1,7 @@
 pub use blank::*;
 pub use reader::*;
 pub use size::*;
+use typed_builder::TypedBuilder;
 pub use uniform::*;
 pub use writer::*;
 
@@ -55,3 +56,14 @@ impl BufferRigBuilder<'_> {
 //     self.usage(BufferUsages::MAP_READ | BufferUsages::COPY_DST)
 //         .make()
 // }
+
+#[derive(TypedBuilder)]
+pub struct BufferRig2<'a> {
+    device: &'a Device,
+    #[builder(default, setter(strip_option))]
+    label: Option<&'a str>,
+    size: u64,
+    usage: BufferUsages,
+    #[builder(default)]
+    mapped_at_creation: bool,
+}

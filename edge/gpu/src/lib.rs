@@ -5,6 +5,7 @@ pub use buffer::size;
 pub use core::ToCore;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
+pub use store::{Store, store};
 
 use bind::*;
 use buffer::*;

@@ -152,3 +152,55 @@ pub struct RenderProgram {
     pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<RenderPipeline>,
 }
+
+
+///////////////////////
+
+// let rig = BindRig::default();
+// let layout = gpu.device.create_bind_group_layout(&rig.layout());
+
+// fn compute_binding() -> BindGroupLayoutEntry {
+//     BindGroupLayoutEntry {
+//         binding: 0,
+//         visibility: ShaderStages::COMPUTE,
+//         ty: BindingType::Buffer {
+//             ty: BufferBindingType::Storage { read_only: false },
+//             has_dynamic_offset: false,
+//             min_binding_size: None,
+//         },
+//         count: None,
+//     }
+// }
+
+// pub struct BindRig {
+//     entries: Vec<BindGroupLayoutEntry>,
+// }
+
+// impl Default for BindRig {
+//     fn default() -> Self {
+//         Self {
+//             entries: vec![compute_binding()]
+//         }
+//     }
+// }
+
+// impl BindRig {
+//     fn layout(&self) -> BindGroupLayoutDescriptor {
+//         BindGroupLayoutDescriptor {
+//             label: None,
+//             entries: &self.entries,
+//         }
+//     }
+// }
+
+// pub struct PipeRig {
+//     entries: Vec<BindGroupLayout>,
+// }
+
+// impl Default for PipeRig {
+//     fn default() -> Self {
+//         Self {
+//             entries: vec![],
+//         }
+//     }
+// }
