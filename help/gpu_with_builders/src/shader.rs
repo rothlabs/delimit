@@ -1,0 +1,36 @@
+use super::*;
+use std::ops::Deref;
+
+// #[derive(Clone)]
+pub struct Shader<'a> {
+    pub module: ShaderModule,
+    pub device: &'a Device,
+    pub targets: &'a [Option<ColorTargetState>],
+}
+
+impl<'a> Shader<'a> {
+    pub fn vertex(&'a self, entry: &'a str) -> pipe::vertex::VertexBuilder<'a> {
+        pipe::vertex::VertexBuilder::default()
+            .shader(self)
+            .entry(entry)
+    }
+    pub fn fragment(&'a self, entry: &'a str) -> FragmentBuilder<'a> {
+        FragmentBuilder::default()
+            .shader(self)
+            .entry(entry)
+            .targets(self.targets)
+    }
+    pub fn compute(&'a self, entry: &'a str) -> pipe::ComputeBuilder {
+        pipe::ComputeBuilder::default()
+            .device(self.device)
+            .shader(self)
+            .entry(entry)
+    }
+}
+
+impl Deref for Shader<'_> {
+    type Target = ShaderModule;
+    fn deref(&self) -> &Self::Target {
+        &self.module
+    }
+}

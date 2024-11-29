@@ -1,28 +1,30 @@
 use super::*;
 
 mod draw;
+mod bind;
 
 #[derive(Debug)]
 pub struct Bank {
-    pub plot: PlotBin,
+    pub plot: PlotBank,
     pub draw: DrawBank,
+    // pub bind: BindBank
 }
 
 impl Bank {
-    pub fn new(port: &Viewport) -> Result<Self> {
+    pub fn new(store: &Store, port: &Viewport) -> Result<Self> {
         Ok(Self {
-            plot: PlotBin::new(&port.gpu)?,
+            plot: PlotBank::new(&port.gpu)?,
             draw: DrawBank::new(port)?,
         })
     }
 }
 
 #[derive(Debug)]
-pub struct PlotBin {
+pub struct PlotBank {
     pub grid: GridPlotBin,
 }
 
-impl PlotBin {
+impl PlotBank {
     fn new(gpu: &Gpu) -> Result<Self> {
         Ok(Self {
             grid: GridPlotBin::new(gpu)?,
@@ -156,51 +158,3 @@ pub struct RenderProgram {
 
 ///////////////////////
 
-// let rig = BindRig::default();
-// let layout = gpu.device.create_bind_group_layout(&rig.layout());
-
-// fn compute_binding() -> BindGroupLayoutEntry {
-//     BindGroupLayoutEntry {
-//         binding: 0,
-//         visibility: ShaderStages::COMPUTE,
-//         ty: BindingType::Buffer {
-//             ty: BufferBindingType::Storage { read_only: false },
-//             has_dynamic_offset: false,
-//             min_binding_size: None,
-//         },
-//         count: None,
-//     }
-// }
-
-// pub struct BindRig {
-//     entries: Vec<BindGroupLayoutEntry>,
-// }
-
-// impl Default for BindRig {
-//     fn default() -> Self {
-//         Self {
-//             entries: vec![compute_binding()]
-//         }
-//     }
-// }
-
-// impl BindRig {
-//     fn layout(&self) -> BindGroupLayoutDescriptor {
-//         BindGroupLayoutDescriptor {
-//             label: None,
-//             entries: &self.entries,
-//         }
-//     }
-// }
-
-// pub struct PipeRig {
-//     entries: Vec<BindGroupLayout>,
-// }
-
-// impl Default for PipeRig {
-//     fn default() -> Self {
-//         Self {
-//             entries: vec![],
-//         }
-//     }
-// }

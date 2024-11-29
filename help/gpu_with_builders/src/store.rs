@@ -20,7 +20,7 @@ fn storage_rig<'a>() -> BufferDescriptor<'a> {
 
 #[derive(Debug, Clone)]
 pub struct Store {
-    pub device: Grc<Device>,
+    device: Grc<Device>,
     storage: Leaf<Buffer>,
     allocation: Leaf<Allocation>,
 }

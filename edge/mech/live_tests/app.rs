@@ -16,8 +16,7 @@ impl Act for App {
         let displays = self.displays.base()?;
         if let Some(main) = displays.last() {
             let port = &main.viewport;
-            let store = gpu::store(port.gpu.device.clone());
-            // Mech just needs a store
+            // let store = gpu::store(port.gpu.clone());
             let mech = Mech::new(port)?;
             let view = View::new(mech, port.clone())?;
             let action = tests::draw_nurbs_surface(&view)?;
