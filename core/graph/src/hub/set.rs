@@ -45,7 +45,7 @@ impl Deal for Set {
         if let Some(back) = &self.back {
             match self.aim {
                 Aim::Index(i) => {
-                    view.set(i, self.apex.backed(back)?)?;
+                    view.set(i, self.apex.backed(back))?;
                     Ok(())
                 }
                 _ => Err(self.aim.wrong_variant("Index"))?,
@@ -56,7 +56,7 @@ impl Deal for Set {
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(&self.aim, self.apex.backed(back)?)
+            map.insert(&self.aim, self.apex.backed(back))
         } else {
             no_back("Set")
         }
@@ -86,7 +86,7 @@ impl Deal for Insert {
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
         if let Some(back) = &self.back {
-            map.insert(&self.aim, self.apex.backed(back)?)
+            map.insert(&self.aim, self.apex.backed(back))
         } else {
             no_back("Insert")
         }

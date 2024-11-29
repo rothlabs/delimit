@@ -224,12 +224,12 @@ impl<T: Transmit> Hub<T> {
 }
 
 impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
+    fn backed(&self, back: &Back) -> Self {
         match self {
-            Self::Tray(tray) => Ok(Self::Tray(tray.clone())),
-            Self::Leaf(leaf) => Ok(Self::Leaf(leaf.backed(back)?)),
-            Self::Ploy(ploy) => Ok(Self::Ploy(ploy.backed(back)?)),
-            Self::Gate(gate) => Ok(Self::Gate(gate.backed(back)?)),
+            Self::Tray(tray) => Self::Tray(tray.clone()),
+            Self::Leaf(leaf) => Self::Leaf(leaf.backed(back)),
+            Self::Ploy(ploy) => Self::Ploy(ploy.backed(back)),
+            Self::Gate(gate) => Self::Gate(gate.backed(back)),
         }
     }
 }

@@ -50,7 +50,7 @@ pub trait AddRoot {
 pub trait Backed {
     /// Make a copy of the link that includes the provided cusp `&Back` on the edge.
     /// Must be called to include `&Back` in the rebut phase.
-    fn backed(&self, back: &Back) -> Result<Self>
+    fn backed(&self, back: &Back) -> Self
     where
         Self: Sized;
 }
@@ -176,13 +176,13 @@ impl Back {
 
 impl Deal for Back {
     fn one(&mut self, _: &str, view: View) -> Result<()> {
-        let apex = view.backed(self)?;
+        let apex = view.backed(self);
         view.set(apex)?;
         Ok(())
     }
     fn vec(&mut self, _: &str, view: ViewVec) -> Result<()> {
         for view in view.views() {
-            let apex = view.backed(self)?;
+            let apex = view.backed(self);
             view.set(apex)?;
         }
         Ok(())

@@ -110,7 +110,7 @@ impl Lake {
         if let Some(Path::Hash(hash)) = view.path() {
             if let Ok(rhs) = self.get(*hash) {
                 if let Some(back) = self.back.as_ref() {
-                    view.set(rhs.backed(back)?)?;
+                    view.set(rhs.backed(back))?;
                 } else {
                     return no_back("Lake");
                 }

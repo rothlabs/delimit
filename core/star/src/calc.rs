@@ -40,11 +40,11 @@ struct Operation<T> {
 }
 
 impl<T: 'static + Clone + SendSync> Backed for Operation<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
-        Ok(Self {
-            value: self.value.backed(back)?,
+    fn backed(&self, back: &Back) -> Self {
+        Self {
+            value: self.value.backed(back),
             type_: self.type_.clone(),
-        })
+        }
     }
 }
 

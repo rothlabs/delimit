@@ -158,11 +158,11 @@ macro_rules! ImplViewVec {
         }
 
         impl Backed for Apex {
-            fn backed(&self, back: &Back) -> Result<Self> {
+            fn backed(&self, back: &Back) -> Self {
                 let apex = match self {
-                    $(Self::$Variant(x) => Self::$Variant(x.backed(back)?),)*
+                    $(Self::$Variant(x) => Self::$Variant(x.backed(back)),)*
                 };
-                Ok(apex)
+                apex
             }
         }
 
@@ -261,11 +261,11 @@ macro_rules! ImplViewVec {
                     $(Self::$Variant(x) => x.path(),)*
                 }
             }
-            pub fn backed(&self, back: &Back) -> Result<Apex> {
-                Ok(match self {
-                    Self::Apex(x) => x.backed(back)?,
-                    $(Self::$Variant(x) => Apex::$Variant(x.backed(back)?),)*
-                })
+            pub fn backed(&self, back: &Back) -> Apex {
+                match self {
+                    Self::Apex(x) => x.backed(back),
+                    $(Self::$Variant(x) => Apex::$Variant(x.backed(back)),)*
+                }
             }
             pub fn set(self, apex: Apex) -> Result<Self> {
                 match self {

@@ -338,7 +338,7 @@ pub trait BackIt {
 
 impl<T: Backed> BackIt for T {
     fn back(&mut self, back: &Back) -> Result<()> {
-        *self = self.backed(back)?;
+        *self = self.backed(back);
         Ok(())
     }
 }

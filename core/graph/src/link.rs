@@ -240,38 +240,38 @@ impl<E> Backed for Link<E>
 where
     E: edge::BackedMid + ?Sized,
 {
-    fn backed(&self, back: &Back) -> Result<Self> {
+    fn backed(&self, back: &Back) -> Self {
         let (edge, root) = self.edge.backed(back);
-        Ok(Self {
+        Self {
             edge,
             root,
             path: self.path.clone(),
             rank: self.rank,
-        })
+        }
     }
 }
 
 impl<T> Backed for Ploy<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
+    fn backed(&self, back: &Back) -> Self {
         let (edge, root) = self.edge.backed(back);
-        Ok(Self {
+        Self {
             edge,
             root,
             path: self.path.clone(),
             rank: self.rank,
-        })
+        }
     }
 }
 
 impl<T> Backed for Gate<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
+    fn backed(&self, back: &Back) -> Self {
         let (edge, root) = self.edge.backed(back);
-        Ok(Self {
+        Self {
             edge,
             root,
             path: self.path.clone(),
             rank: self.rank,
-        })
+        }
     }
 }
 
@@ -377,18 +377,14 @@ where
 }
 
 impl<T: Backed> Backed for Vec<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
+    fn backed(&self, back: &Back) -> Self {
         self.iter().map(|link| link.backed(back)).collect()
     }
 }
 
 impl<T: Backed> Backed for Option<T> {
-    fn backed(&self, back: &Back) -> Result<Self> {
-        if let Some(x) = self {
-            Ok(Some(x.backed(back)?))
-        } else {
-            Ok(None)
-        }
+    fn backed(&self, back: &Back) -> Self {
+        self.as_ref().map(|x| x.backed(back))
     }
 }
 
