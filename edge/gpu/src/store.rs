@@ -1,18 +1,31 @@
 use super::*;
 
 pub fn store(gpu: &Gpu) -> Store {
-    let storage = gpu.device.create_buffer(&storage_rig());
+    let uniform = Grc::new(gpu.device.create_buffer(&uniform_rig()));
+    let storage0 = Grc::new(gpu.device.create_buffer(&storage_rig()));
+    let storage1 = Grc::new(gpu.device.create_buffer(&storage_rig()));
     Store {
         device: gpu.device.clone(),
-        storage: Leaf::new(storage),
+        uniform: Leaf::new(uniform),
+        storage0: Leaf::new(storage0),
+        storage1: Leaf::new(storage1),
         allocation: Leaf::default(),
+    }
+}
+
+fn uniform_rig<'a>() -> BufferDescriptor<'a> {
+    BufferDescriptor {
+        label: None,
+        size: 1000,
+        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        mapped_at_creation: false,
     }
 }
 
 fn storage_rig<'a>() -> BufferDescriptor<'a> {
     BufferDescriptor {
         label: None,
-        size: 1000,
+        size: 10000,
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }
@@ -21,7 +34,9 @@ fn storage_rig<'a>() -> BufferDescriptor<'a> {
 #[derive(Debug, Clone)]
 pub struct Store {
     pub device: Grc<Device>,
-    pub storage: Leaf<Buffer>,
+    pub uniform: Leaf<Grc<Buffer>>,
+    pub storage0: Leaf<Grc<Buffer>>,
+    pub storage1: Leaf<Grc<Buffer>>,
     allocation: Leaf<Allocation>,
 }
 

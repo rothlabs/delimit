@@ -127,6 +127,9 @@ impl Core {
     // pub fn compute(&self) -> encode::ComputeBuilder {
     //     encode::ComputeBuilder::default().core(self.clone())
     // }
+    // pub fn bind2(&self) -> bind::BindGroupUnitBuilder<((Grc<Device>,), (), ())> {
+    //     bind::BindGroupUnit::builder().device(self.device.clone())
+    // }
     pub fn bind(&self) -> bind::BindGroupRigBuilder {
         bind::BindGroupRigBuilder::default().device(self.device.clone())
     }

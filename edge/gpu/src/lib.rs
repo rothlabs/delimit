@@ -1,11 +1,12 @@
 pub use action::flat::Command;
 pub use action::flat::{self};
 pub use action::pack::{unit::*, Action};
+pub use bind::BindGroupUnit;
 pub use buffer::size;
 pub use core::ToCore;
+pub use store::{store, Store};
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
-pub use store::{Store, store};
 
 use bind::*;
 use buffer::*;

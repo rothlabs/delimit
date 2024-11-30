@@ -1,13 +1,13 @@
 use super::*;
 
-mod draw;
 mod bind;
+mod draw;
 
 #[derive(Debug)]
 pub struct Bank {
     pub plot: PlotBank,
     pub draw: DrawBank,
-    // pub bind: BindBank
+    pub bind: bind::Bank,
 }
 
 impl Bank {
@@ -15,6 +15,7 @@ impl Bank {
         Ok(Self {
             plot: PlotBank::new(&port.gpu)?,
             draw: DrawBank::new(port)?,
+            bind: bind::Bank::new(store),
         })
     }
 }
@@ -155,6 +156,4 @@ pub struct RenderProgram {
     pub pipe: Grc<RenderPipeline>,
 }
 
-
 ///////////////////////
-
