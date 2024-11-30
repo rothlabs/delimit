@@ -87,13 +87,13 @@ where
         let out = write(self.work.base());
         Ok((ring, out))
     }
-    fn write_base_out_passive<O, F>(&mut self, write: F) -> Result<O>
+    fn write_base_out_passive<O, F>(&mut self, write: F) -> O
     where
         F: FnOnce(&mut Self::Base) -> O,
     {
         self.work.clear();
         let out = write(self.work.base());
-        Ok(out)
+        out
     }
 }
 

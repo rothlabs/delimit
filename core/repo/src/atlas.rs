@@ -26,11 +26,11 @@ impl Unit {
     fn apex(self, imports: Vec<Import>) -> graph::Result<Apex> {
         Ok(match self {
             Self::Leaf(x) => x.hub().into(),
-            Self::Bay(x) => x.imports(imports).hub()?.into(),
-            Self::TextPlainList(x) => x.imports(imports).hub()?.into(),
-            Self::TextHtmlTag(x) => x.imports(imports).hub()?.into(),
-            Self::TextHtmlAttribute(x) => x.imports(imports).hub()?.into(),
-            Self::TextHtmlElement(x) => x.imports(imports).hub()?.into(),
+            Self::Bay(x) => x.imports(imports).hub().into(),
+            Self::TextPlainList(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlTag(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlAttribute(x) => x.imports(imports).hub().into(),
+            Self::TextHtmlElement(x) => x.imports(imports).hub().into(),
         })
     }
 }

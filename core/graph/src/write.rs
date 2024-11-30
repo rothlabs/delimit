@@ -27,7 +27,7 @@ pub trait WriteBaseOut {
     fn write_base_out<O, F>(&mut self, write: F) -> Result<(Ring, O)>
     where
         F: FnOnce(&mut Self::Base) -> O;
-    fn write_base_out_passive<O, F>(&mut self, write: F) -> Result<O>
+    fn write_base_out_passive<O, F>(&mut self, write: F) -> O
     where
         F: FnOnce(&mut Self::Base) -> O;
 }

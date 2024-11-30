@@ -33,7 +33,7 @@ impl Solve for Points {
             count: vertex_count.into(),
             radius: 4.0.into(),
         }
-        .gate()?;
+        .gate();
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
         let stem = gpu.writer(buffer.clone()).data(points).hub()?;
         let mesh = gpu::hedge().buffer(buffer).stem(stem).build()?;

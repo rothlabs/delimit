@@ -67,7 +67,7 @@ where
     T: 'static + Gather,
     Calc<T>: IntoGateHub,
 {
-    pub fn hub(self) -> graph::Result<Hub<<Calc<T> as IntoGateHub>::Base>> {
+    pub fn hub(self) -> Hub<<Calc<T> as IntoGateHub>::Base> {
         self.target.hub()
         // let wow = self.target.gate()?;
         // Ok(wow.into())

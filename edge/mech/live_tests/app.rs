@@ -21,7 +21,7 @@ impl Act for App {
             let view = View::new(mech, port.clone())?;
             let action = tests::draw_nurbs_surface(&view)?;
             let commands = gpu::action::flat().action(action).hub()?;
-            let transfer = commands.transfer(&port.commands)?;
+            let transfer = commands.transfer(&port.commands);
             transfer.depend().await?;
             self.command_transfer.write(|x| *x = transfer).await?;
         }

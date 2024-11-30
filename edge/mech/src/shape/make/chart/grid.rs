@@ -59,9 +59,9 @@ impl<'a> Wheel<'a> {
                 let mut stems = vec![];
                 let spline_size = self.basis_size(form)?;
                 let nurbs_size = form.nurbs_size(self.count)?;
-                let nurbs_expand = nurbs_size.calc().div(3).mul(2).hub()?;
-                let nurbs_length = nurbs_size.calc().div(3).div(order as u32).hub()?;
-                let size = spline_size.calc().add(&nurbs_expand).hub()?;
+                let nurbs_expand = nurbs_size.calc().div(3).mul(2).hub();
+                let nurbs_length = nurbs_size.calc().div(3).div(order as u32).hub();
+                let size = spline_size.calc().add(&nurbs_expand).hub();
                 let label = format!("nurbs {order}");
                 let gpu = &self.chart.core.gpu;
                 let buffer = gpu.blank(size).label(label).hub()?;
@@ -72,7 +72,7 @@ impl<'a> Wheel<'a> {
                 }
                 if let Some(form) = &form.nurbs {
                     let rig = self.rig(order, &spline_size, &nurbs_length)?;
-                    spin.size = nurbs_length.calc().add(63).div(64).hub()?;
+                    spin.size = nurbs_length.calc().add(63).div(64).hub();
                     stems.push(spin.nurbs(&rig, form)?);
                 }
                 weft.spline.push(Some(Hedge { buffer, stems }));
@@ -193,7 +193,7 @@ impl<'a> Loom<'a> {
             if let Some(flow) = flow {
                 let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
                 let length = lengths.get(index).ok_or(anyhow!("no length"))?;
-                weave.size = length.calc().add(63).div(64).hub()?;
+                weave.size = length.calc().add(63).div(64).hub();
                 stems.push(weave.spline(loom::Trio {
                     rig: self.rig(order, offset, length)?,
                     weft: self.weft.spline(order)?,
@@ -209,7 +209,7 @@ impl<'a> Loom<'a> {
         let gpu = &chart.core.gpu;
         let flow = self.flow()?;
         let constant = chart.shape.dimension * (self.rank as u32 + 2);
-        let expand = self.count.calc().mul(self.area).mul(constant).hub()?;
+        let expand = self.count.calc().mul(self.area).mul(constant).hub();
         let mut offsets = vec![0.into()];
         let mut lengths = vec![];
         if let Some(flow) = &flow.travel {
@@ -226,8 +226,8 @@ impl<'a> Loom<'a> {
             if let Some(flow) = flow {
                 let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
                 let last = offsets.last().ok_or(anyhow!("no offsets"))?;
-                offsets.push(size.calc().mul(&expand).add(last).hub()?);
-                lengths.push(size.calc().mul(self.count).mul(self.area).hub()?);
+                offsets.push(size.calc().mul(&expand).add(last).hub());
+                lengths.push(size.calc().mul(self.count).mul(self.area).hub());
             }
         }
         Ok((offsets, lengths))

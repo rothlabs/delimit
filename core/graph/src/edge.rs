@@ -218,7 +218,7 @@ where
     where
         F: FnOnce(&mut Self::Base) -> O,
     {
-        let out = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))??;
+        let out = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))?;
         Ok(out)
     }
 }

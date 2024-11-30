@@ -188,14 +188,14 @@ impl<E> Link<E>
 where
     E: 'static + edge::FromSnap + gate::Engage,
 {
-    pub fn gate_from_unit(unit: E::Unit) -> Result<Gate<E::Base>> {
+    pub fn gate_from_unit(unit: E::Unit) -> Gate<E::Base> {
         let (rank, edge, root) = E::from_snap(unit.into());
-        Ok(Gate {
+        Gate {
             path: None,
             rank,
             edge,
             root,
-        })
+        }
     }
 }
 
@@ -203,14 +203,14 @@ impl<E> Link<E>
 where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
-    pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Result<Ploy<E::Base>> {
+    pub fn ploy_from_snap(snap: Snap<E::Unit>) -> Ploy<E::Base> {
         let (rank, edge, root) = E::from_snap(snap);
-        Ok(Ploy {
+        Ploy {
             path: None,
             rank,
             edge,
             root,
-        })
+        }
     }
 }
 

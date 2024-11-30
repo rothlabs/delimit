@@ -37,11 +37,11 @@ where
 }
 
 pub trait MakeTransfer<T> {
-    fn transfer(&self, target: impl Into<Leaf<T>>) -> Result<Hub<Transfer<T>>>;
+    fn transfer(&self, target: impl Into<Leaf<T>>) -> Hub<Transfer<T>>;
 }
 
 impl<T: 'static + Gather> MakeTransfer<T> for Hub<T> {
-    fn transfer(&self, target: impl Into<Leaf<T>>) -> Result<Hub<Transfer<T>>> {
+    fn transfer(&self, target: impl Into<Leaf<T>>) -> Hub<Transfer<T>> {
         TransferUnit {
             source: self.clone(),
             target: target.into(),

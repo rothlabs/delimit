@@ -20,7 +20,7 @@ pub async fn default_bay() -> Result<Hub<()>> {
         .item(&title)
         .close()?
         .import(WORLD_ALL)
-        .hub()?;
+        .hub();
     bay.insert("title_element", title_element)?;
 
     let charset = Attribute::new().name("charset").content("utf-8").hub();
@@ -84,21 +84,21 @@ pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
         .item(bay.get("importmap")?.pathed("importmap").string()?)
         .close()?
         .import(WORLD_ALL)
-        .hub()?;
+        .hub();
     let body = Element::new()
         .open(bay.get("body")?.pathed("body").string()?)
         .item(bay.get("title")?.pathed("title").string()?)
         .item(bay.get("boot")?.pathed("boot").string()?)
         .close()?
         .import(WORLD_ALL)
-        .hub()?;
+        .hub();
     let html = Element::new()
         .open(bay.get("html")?.pathed("html").string()?)
         .item(head)
         .item(body)
         .close()?
         .import(WORLD_ALL)
-        .hub()?;
+        .hub();
     let tag = Tag::new().name("!DOCTYPE html").hub();
     let page = Element::new().open(tag).item(html).hub();
     Ok(page)
