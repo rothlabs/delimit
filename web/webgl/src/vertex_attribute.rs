@@ -47,11 +47,11 @@ impl Act for VertexAttribute {
 }
 
 impl Adapt for VertexAttribute {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.index.back(back)?;
-        self.size.back(back)?;
-        self.stride.back(back)?;
-        self.offset.back(back)?;
-        self.divisor.back(back)
+    fn back(&mut self, back: &Back) {
+        self.index.back(back);
+        self.size.back(back);
+        self.stride.back(back);
+        self.offset.back(back);
+        self.divisor.back(back);
     }
 }

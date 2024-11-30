@@ -1,6 +1,6 @@
 pub use plain::List;
 
-use node_derive::{Adapt, Digest};
+use node_derive::*;
 use serde::{Deserialize, Serialize};
 
 pub mod html;

@@ -38,8 +38,8 @@ impl Solve for BufferReader {
 }
 
 impl Adapt for BufferReader {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.size.back(back)
+    fn back(&mut self, back: &Back) {
+        self.size.back(back);
     }
 }
 

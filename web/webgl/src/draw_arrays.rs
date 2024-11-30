@@ -66,11 +66,11 @@ impl Act for DrawArrays {
 }
 
 impl Adapt for DrawArrays {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.stems.back(back)?;
-        self.program.back(back)?;
-        self.first.back(back)?;
-        self.count.back(back)?;
-        self.instances.back(back)
+    fn back(&mut self, back: &Back) {
+        self.stems.back(back);
+        self.program.back(back);
+        self.first.back(back);
+        self.count.back(back);
+        self.instances.back(back);
     }
 }

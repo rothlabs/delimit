@@ -65,10 +65,10 @@ impl Act for Texture {
 }
 
 impl Adapt for Texture {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.array.back(back)?;
-        self.width.back(back)?;
-        self.height.back(back)
+    fn back(&mut self, back: &Back) {
+        self.array.back(back);
+        self.width.back(back);
+        self.height.back(back);
     }
 }
 

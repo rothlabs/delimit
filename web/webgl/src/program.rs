@@ -52,9 +52,9 @@ impl Act for Program {
 }
 
 impl Adapt for Program {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.vertex.back(back)?;
-        self.fragment.back(back)
+    fn back(&mut self, back: &Back)  {
+        self.vertex.back(back);
+        self.fragment.back(back);
     }
 }
 

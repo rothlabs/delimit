@@ -29,6 +29,9 @@ impl Adapt for Bay {
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.map.deal(deal)
     }
+    fn back(&mut self, back: &Back) {
+        self.map.back(back);
+    }
 }
 
 impl Digest for Bay {

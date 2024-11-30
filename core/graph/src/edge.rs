@@ -13,30 +13,8 @@ pub type Node<U> = Edge<cusp::Node<U>>;
 #[derive(Default, Debug)]
 pub struct Edge<C> {
     cusp: Pointer<C>,
-    // weak: Back,
-    // root: Option<Root>,
     back: Option<Back>,
 }
-
-// impl<C> Edge<C> 
-// where
-//     C: 'static + FromBase + ReactMut + AddRoot + SendSync,
-// {
-//     pub fn from_base2(base: C::Base) -> Grc<Self> {
-//         Self {
-//             cusp: C::from_base(base),
-//             back: None,
-//         }.into()
-//     }
-// }
-
-// fn root_edge<E: 'static + Update>(edge: &Grc<E>) -> Root {
-//     let update = edge.clone() as Grc<dyn Update>;
-//     Root {
-//         edge: Grc::downgrade(&update),
-//         id: rand::random(),
-//     }
-// }
 
 pub trait FromBase {
     type Base;

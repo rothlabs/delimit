@@ -188,7 +188,7 @@ impl Deal for Back {
         Ok(())
     }
     fn map(&mut self, map: &mut Map) -> Result<()> {
-        *map = map.backed(self)?;
+        *map = map.backed(self);
         Ok(())
     }
 }

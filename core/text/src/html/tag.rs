@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Default, Serialize, Deserialize, Adapt, Digest, Debug)]
 pub struct Tag {
+    #[adapt(skip)]
     html_tag: (),
     name: Hub<String>,
     attributes: Vec<Hub<String>>,

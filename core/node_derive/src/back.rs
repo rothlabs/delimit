@@ -27,7 +27,7 @@ pub fn derive(item: TokenStream) -> TokenStream {
                 if !args.skip {
                     let name = field.ident.as_ref().unwrap();
                     backs.extend(quote! {
-                        self.#name.back(back)?;
+                        self.#name.back(back);
                     });
                 }
             }
@@ -35,9 +35,8 @@ pub fn derive(item: TokenStream) -> TokenStream {
                 quote! {
                     #[automatically_derived]
                     impl graph::Adapt for #unit {
-                        fn back(&mut self, back: &graph::Back) -> graph::Result<()> {
+                        fn back(&mut self, back: &graph::Back) {
                             #backs
-                            Ok(())
                         }
                     }
                 }
@@ -48,9 +47,8 @@ pub fn derive(item: TokenStream) -> TokenStream {
                     where
                         T: 'static + Clone + graph::SendSync,
                     {
-                        fn back(&mut self, back: &graph::Back) -> graph::Result<()> {
+                        fn back(&mut self, back: &graph::Back) {
                             #backs
-                            Ok(())
                         }
                     }
                 }

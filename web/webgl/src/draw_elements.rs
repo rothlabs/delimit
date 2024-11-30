@@ -67,10 +67,10 @@ impl Act for DrawElements {
 }
 
 impl Adapt for DrawElements {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.stems.back(back)?;
-        self.program.back(back)?;
-        self.count.back(back)?;
-        self.offset.back(back)
+    fn back(&mut self, back: &Back) {
+        self.stems.back(back);
+        self.program.back(back);
+        self.count.back(back);
+        self.offset.back(back);
     }
 }

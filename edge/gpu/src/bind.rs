@@ -51,11 +51,10 @@ impl Solve for BindGroupRig {
 }
 
 impl Adapt for BindGroupRig {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
+    fn back(&mut self, back: &Back) {
         for (_, buffer) in &mut self.entries {
-            buffer.back(back)?;
+            buffer.back(back);
         }
-        Ok(())
     }
 }
 

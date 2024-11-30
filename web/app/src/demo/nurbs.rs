@@ -248,12 +248,12 @@ impl Act for Nurbs {
 }
 
 impl Adapt for Nurbs {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.draw0.back(back)?;
-        self.draw1.back(back)?;
-        self.basis.back(back)?;
-        self.curve.back(back)?;
-        self.tick.back(back)
+    fn back(&mut self, back: &Back) {
+        self.draw0.back(back);
+        self.draw1.back(back);
+        self.basis.back(back);
+        self.curve.back(back);
+        self.tick.back(back);
     }
 }
 

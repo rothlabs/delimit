@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Serialize, Deserialize, Adapt, Digest, Default, Debug)]
 pub struct List {
+    #[adapt(skip)]
     plain_list: (),
     items: Vec<Hub<String>>,
     separator: Hub<String>,

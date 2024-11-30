@@ -48,7 +48,7 @@ impl Act for Shader {
 }
 
 impl Adapt for Shader {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.source.back(back)
+    fn back(&mut self, back: &Back) {
+        self.source.back(back);
     }
 }

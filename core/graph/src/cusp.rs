@@ -15,12 +15,6 @@ pub struct Cusp<W> {
 
 impl<W: GateTag> GateTag for Cusp<W> {}
 
-// impl<W: Default> Default for Cusp<W> {
-//     fn default() -> Self {
-//         Self { work: (), ring: (), back: () }
-//     }
-// }
-
 pub trait FromBase {
     type Base;
     fn from_base(base: Self::Base) -> Pointer<Self>;
@@ -58,7 +52,7 @@ where
             back: None,
         }));
         let back = Back::new(cusp.clone());
-        write_part(&cusp, |mut cusp| cusp.set_back(back.clone())).unwrap();
+        write_part(&cusp, |mut cusp| cusp.set_back(back.clone()));
         (rank, cusp)
     }
 }
@@ -76,12 +70,9 @@ impl<W: ReckonMut> ReckonMut for Cusp<W> {
 }
 
 impl<W: work::SolveAdapt> Cusp<W> {
-    fn set_back(&mut self, mut back: Back) -> Result<()> {
-        if self.work.adapt(&mut back).is_err() {
-            self.work.back(&back)?;
-        }
+    fn set_back(&mut self, back: Back) {
+        self.work.back(&back);
         self.back = Some(back);
-        Ok(())
     }
 }
 
@@ -129,14 +120,6 @@ impl<W: ToItem> ToItem for Cusp<W> {
         self.work.item()
     }
 }
-
-// impl<W> AddRoot for Cusp<W> {
-//     fn add_root(&mut self, root: &Option<Root>) {
-//         if let Some(root) = root {
-//             self.ring.add_root(root.clone());
-//         }
-//     }
-// }
 
 impl<W> AddRoot for Cusp<W> {
     fn add_root(&mut self, root: Root) {

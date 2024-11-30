@@ -28,7 +28,7 @@ impl Act for VaoWriter {
 }
 
 impl Adapt for VaoWriter {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.attributes.back(back)
+    fn back(&mut self, back: &Back) {
+        self.attributes.back(back);
     }
 }

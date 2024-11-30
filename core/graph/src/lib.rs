@@ -333,13 +333,12 @@ pub trait Clear {
 }
 
 pub trait BackIt {
-    fn back(&mut self, back: &Back) -> Result<()>;
+    fn back(&mut self, back: &Back);
 }
 
 impl<T: Backed> BackIt for T {
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) {
         *self = self.backed(back);
-        Ok(())
     }
 }
 

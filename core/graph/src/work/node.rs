@@ -35,7 +35,7 @@ where
     fn adapt(&mut self, deal: &mut dyn Deal) -> Result<()> {
         self.unit.adapt(deal)
     }
-    fn back(&mut self, back: &Back) -> Result<()> {
+    fn back(&mut self, back: &Back) {
         self.unit.back(back)
     }
 }

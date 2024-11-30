@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Default, Serialize, Deserialize, Debug, Adapt, Digest)]
 pub struct Element {
+    #[adapt(skip)]
     html_element: (),
     open: Hub<String>,
     items: Vec<Hub<String>>,

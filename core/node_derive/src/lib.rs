@@ -27,7 +27,7 @@ pub fn build_gate(item: TokenStream) -> TokenStream {
     build_gate::derive(item)
 }
 
-#[proc_macro_derive(Adapt)]
+#[proc_macro_derive(Adapt, attributes(adapt))]
 pub fn adapt(item: TokenStream) -> TokenStream {
     adapt::derive(item)
 }

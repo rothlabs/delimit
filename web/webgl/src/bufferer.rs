@@ -49,7 +49,7 @@ impl Act for Bufferer {
 }
 
 impl Adapt for Bufferer {
-    fn back(&mut self, back: &Back) -> graph::Result<()> {
-        self.array.back(back)
+    fn back(&mut self, back: &Back) {
+        self.array.back(back);
     }
 }

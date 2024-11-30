@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Default, Serialize, Deserialize, Debug, Adapt, Digest)]
 pub struct Attribute {
+    #[adapt(skip)]
     html_attribute: (),
     name: Hub<String>,
     content: Hub<String>,
