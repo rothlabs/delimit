@@ -9,8 +9,8 @@ pub struct Tag {
 }
 
 impl Tag {
-    pub fn hub(self) -> graph::Result<Hub<String>> {
-        Ok(self.ploy()?.into())
+    pub fn hub(self) -> Hub<String> {
+        self.ploy().into()
     }
     pub fn new() -> Self {
         Self::default()
@@ -32,8 +32,8 @@ impl Solve for Tag {
             .separator(" ")
             .push(self.name.down(PLAIN).await?)
             .extend(self.attributes.down(PLAIN).await?)
-            .hub()?;
-        List::new().push("<").push(&items).push(">").hub()
+            .hub();
+        Ok(List::new().push("<").push(&items).push(">").hub())
     }
     fn rank(&self) -> u16 {
         2

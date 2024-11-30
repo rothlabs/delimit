@@ -173,14 +173,14 @@ impl<E> Link<E>
 where
     E: 'static + edge::FromSnap + ploy::Engage,
 {
-    pub fn ploy_from_unit(unit: E::Unit) -> Result<Ploy<E::Base>> {
+    pub fn ploy_from_unit(unit: E::Unit) -> Ploy<E::Base> {
         let (rank, edge, root) = E::from_snap(unit.into());
-        Ok(Ploy {
+        Ploy {
             path: None,
             rank,
             edge,
             root,
-        })
+        }
     }
 }
 

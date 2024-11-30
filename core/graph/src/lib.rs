@@ -226,7 +226,7 @@ pub trait IntoNode
 where
     Self: Unit + Sized,
 {
-    fn node(self) -> Result<Node<Self>>;
+    fn node(self) -> Node<Self>;
 }
 
 impl<T> IntoNode for T
@@ -234,8 +234,8 @@ where
     T: 'static + Unit,
     T::Base: Clone,
 {
-    fn node(self) -> Result<Node<Self>> {
-        Ok(Node::from_unit(self))
+    fn node(self) -> Node<Self> {
+        Node::from_unit(self)
     }
 }
 
@@ -243,7 +243,7 @@ pub trait IntoPloy
 where
     Self: Solve,
 {
-    fn ploy(self) -> Result<Ploy<Self::Base>>;
+    fn ploy(self) -> Ploy<Self::Base>;
 }
 
 impl<T> IntoPloy for T
@@ -251,7 +251,7 @@ where
     T: 'static + Unit + Digest + Serialize,
     T::Base: Clone + Debug,
 {
-    fn ploy(self) -> Result<Ploy<T::Base>> {
+    fn ploy(self) -> Ploy<T::Base> {
         Node::ploy_from_unit(self)
     }
 }

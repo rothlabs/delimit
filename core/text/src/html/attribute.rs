@@ -9,8 +9,8 @@ pub struct Attribute {
 }
 
 impl Attribute {
-    pub fn hub(self) -> Result<Hub<String>> {
-        Ok(self.ploy()?.into())
+    pub fn hub(self) -> Hub<String> {
+        self.ploy().into()
     }
     pub fn new() -> Self {
         Self::default()
@@ -28,12 +28,12 @@ impl Attribute {
 impl Solve for Attribute {
     type Base = String;
     async fn solve(&self) -> node::Result<String> {
-        List::new()
+        Ok(List::new()
             .push(self.name.down(PLAIN).await?)
             .push(r#"=""#)
             .push(self.content.down(PLAIN).await?)
             .push(r#"""#)
-            .hub()
+            .hub())
     }
     fn rank(&self) -> u16 {
         2

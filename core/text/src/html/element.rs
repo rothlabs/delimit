@@ -10,8 +10,8 @@ pub struct Element {
 }
 
 impl Element {
-    pub fn hub(self) -> graph::Result<Hub<String>> {
-        Ok(self.ploy()?.into())
+    pub fn hub(self) -> Hub<String> {
+        self.ploy().into()
     }
     pub fn new() -> Self {
         Self::default()
@@ -43,10 +43,10 @@ impl Solve for Element {
                 .push("</")
                 .push(close.down(PLAIN).await?)
                 .push(">")
-                .hub()?;
+                .hub();
             element = element.push(close);
         }
-        element.hub()
+        Ok(element.hub())
     }
     fn rank(&self) -> u16 {
         2

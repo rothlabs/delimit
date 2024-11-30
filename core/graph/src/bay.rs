@@ -7,8 +7,8 @@ pub struct Bay {
 }
 
 impl Bay {
-    pub fn hub(self) -> Result<Hub<()>> {
-        Ok(self.ploy()?.into())
+    pub fn hub(self) -> Hub<()> {
+        self.ploy().into()
     }
     pub fn new() -> Self {
         Self::default()

@@ -20,7 +20,7 @@ pub fn derive(item: TokenStream) -> TokenStream {
                             }
                         }
                         pub fn node(self) -> graph::Result<graph::Node<#unit>> {
-                            self.make()?.node()
+                            Ok(self.make()?.node())
                         }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit as graph::Solve>::Base>> {
                             self.make()?.hub()
@@ -45,7 +45,7 @@ pub fn derive(item: TokenStream) -> TokenStream {
                             }
                         }
                         pub fn node(self) -> graph::Result<graph::Node<#unit<T>>> {
-                            self.make()?.node()
+                            Ok(self.make()?.node())
                         }
                         pub fn hub(self) -> graph::Result<graph::Hub<<#unit<T> as graph::Solve>::Base>> {
                             self.make()?.hub()

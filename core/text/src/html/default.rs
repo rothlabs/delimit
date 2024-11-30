@@ -7,14 +7,14 @@ pub async fn default_bay() -> Result<Hub<()>> {
     bay.insert("title", title.clone())?;
     let title = title.pathed("title");
 
-    let lang = Attribute::new().name("lang").content("en").hub()?;
-    bay.insert("html", Tag::new().name("html").attribute(lang).hub()?)?;
+    let lang = Attribute::new().name("lang").content("en").hub();
+    bay.insert("html", Tag::new().name("html").attribute(lang).hub())?;
 
-    bay.insert("head", Tag::new().name("head").hub()?)?;
+    bay.insert("head", Tag::new().name("head").hub())?;
 
-    bay.insert("body", Tag::new().name("body").hub()?)?;
+    bay.insert("body", Tag::new().name("body").hub())?;
 
-    let tag = Tag::new().name("title").hub()?;
+    let tag = Tag::new().name("title").hub();
     let title_element = Element::new()
         .open(tag)
         .item(&title)
@@ -23,50 +23,50 @@ pub async fn default_bay() -> Result<Hub<()>> {
         .hub()?;
     bay.insert("title_element", title_element)?;
 
-    let charset = Attribute::new().name("charset").content("utf-8").hub()?;
-    bay.insert("charset", Tag::new().name("meta").attribute(charset).hub()?)?;
+    let charset = Attribute::new().name("charset").content("utf-8").hub();
+    bay.insert("charset", Tag::new().name("meta").attribute(charset).hub())?;
 
-    let name = Attribute::new().name("name").content("viewport").hub()?;
+    let name = Attribute::new().name("name").content("viewport").hub();
     let content = Attribute::new()
         .name("content")
         .content("width=device-width, initial-scale=1")
-        .hub()?;
+        .hub();
     let viewport = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .hub()?;
+        .hub();
     bay.insert("viewport", viewport)?;
 
-    let name = Attribute::new().name("name").content("author").hub()?;
+    let name = Attribute::new().name("name").content("author").hub();
     let content = Attribute::new()
         .name("content")
         .content("Roth Labs LLC")
-        .hub()?;
+        .hub();
     let author = Tag::new()
         .name("meta")
         .attribute(name)
         .attribute(content)
-        .hub()?;
+        .hub();
     bay.insert("author", author)?;
 
-    let att = Attribute::new().name("type").content("importmap").hub()?;
-    let tag = Tag::new().name("script").attribute(att).hub()?;
+    let att = Attribute::new().name("type").content("importmap").hub();
+    let tag = Tag::new().name("script").attribute(att).hub();
     let raw = serde_json::to_string(&Importmap::default())?;
-    let importmap = Element::new().open(tag).item(raw).close()?.hub()?;
+    let importmap = Element::new().open(tag).item(raw).close()?.hub();
     bay.insert("importmap", importmap)?;
 
-    let src = Attribute::new().name("src").content("/boot.js").hub()?;
-    let module = Attribute::new().name("type").content("module").hub()?;
+    let src = Attribute::new().name("src").content("/boot.js").hub();
+    let module = Attribute::new().name("type").content("module").hub();
     let tag = Tag::new()
         .name("script")
         .attribute(src)
         .attribute(module)
-        .hub()?;
-    let boot = Element::new().open(tag).close()?.hub()?;
+        .hub();
+    let boot = Element::new().open(tag).close()?.hub();
     bay.insert("boot", boot)?;
 
-    let root = bay.hub()?;
+    let root = bay.hub();
 
     let page = page(&root)?;
     root.insert("page", page).await?;
@@ -99,8 +99,8 @@ pub fn page(bay: &Hub<()>) -> Result<Hub<String>> {
         .close()?
         .import(WORLD_ALL)
         .hub()?;
-    let tag = Tag::new().name("!DOCTYPE html").hub()?;
-    let page = Element::new().open(tag).item(html).hub()?;
+    let tag = Tag::new().name("!DOCTYPE html").hub();
+    let page = Element::new().open(tag).item(html).hub();
     Ok(page)
 }
 

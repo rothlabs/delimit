@@ -15,12 +15,12 @@ impl Shader {
         let shader = gl
             .create_shader(type_)
             .ok_or(anyhow!("failed to create shader"))?;
-        Self {
+        Ok(Self {
             gl: gl.clone(),
             source: source.clone(),
             object: shader,
         }
-        .node()
+        .node())
     }
 }
 

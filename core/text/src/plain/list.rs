@@ -9,8 +9,8 @@ pub struct List {
 }
 
 impl List {
-    pub fn hub(self) -> node::Result<String> {
-        Ok(self.ploy()?.into())
+    pub fn hub(self) -> Hub<String> {
+        self.ploy().into()
     }
     pub fn new() -> Self {
         Self::default()
