@@ -62,14 +62,6 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
     }
 }
 
-// fn root_edge<E: 'static + Update>(edge: &Grc<E>) -> Root {
-//     let update = edge.clone() as Grc<dyn Update>;
-//     Root {
-//         edge: Grc::downgrade(&update),
-//         id: rand::random(),
-//     }
-// }
-
 impl<T: Clone> Leaf<T> {
     pub fn hub(&self) -> Hub<T> {
         self.clone().into()

@@ -4,7 +4,6 @@ use super::*;
 pub struct Bank {
     uniform: Hub<Grc<BindGroup>>,
     storage: Hub<Grc<BindGroup>>,
-    // entries: Vec<BindGroupLayoutEntry>,
 }
 
 impl Bank {
