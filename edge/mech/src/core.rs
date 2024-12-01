@@ -9,7 +9,7 @@ mod make;
 #[derive(Clone, Debug)]
 pub struct Core {
     pub gpu: Gpu,
-    // pub store: gpu::Store,
+    pub store: gpu::Store,
     pub bank: Grc<Bank>,
 }
 
@@ -19,6 +19,7 @@ impl Core {
         Ok(Self {
             bank: Bank::new(&store, port)?.into(),
             gpu: port.gpu.clone(),
+            store,
         })
     }
     pub fn travel(&self) -> TravelBuilder {

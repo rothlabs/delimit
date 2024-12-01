@@ -18,25 +18,26 @@ pub struct Store {
 impl Store {
     pub fn uniform(&self, length: u32) -> Result<Grant> {
         let mut i = 0;
-        let mut chunk = Chunk { start: 0, end: length };
-        let offset = self.uniform.state.write_passive(|state| {
-            while let Some(rhs) = state.chunks.get(i) {
-                if chunk.end < rhs.start {
+        let mut start = 0;
+        let mut end = length;
+        let offset = self.uniform.grants.write_passive(|grants| {
+            while let Some(chunk) = allocation.chuncks.get(i) {
+                if end < chunk.start {
                     break;
                 } else {
-                    chunk.start = rhs.end;
-                    chunk.end = chunk.start + length;
+                    start = chunk.end;
+                    end = start + length;
                 }
                 i += 1;
             }
-            self.grant(state, chunk, i)
+            self.allocate(allocation, Chunck { start, end }, i)
         })?;
         Ok(offset)
     }
-    fn grant(&self, state: &mut State, chunk: Chunk, i: usize) -> Grant {
+    fn allocate(&self, allocation: &mut Section, chunk: Chunck, i: usize) -> Grc<u32> {
         let offset = Grc::new(chunk.start);
-        state.chunks.insert(i, chunk);
-        state.grants.insert(i, offset.clone());
+        allocation.chuncks.insert(i, chunk);
+        allocation.grants.insert(i, offset.clone());
         offset
     }
 }
@@ -44,26 +45,27 @@ impl Store {
 // #[derive(Default)]
 pub struct Section {
     buffer: Leaf<Grc<Buffer>>,
-    state: Leaf<State>,
+    // chuncks: Vec<Chunck>,
+    grants: Leaf<Vec<Grc<Grant>>>,
 }
+
+// struct Layout {
+//     chuncks: Vec<Chunck>,
+//     grants: Vec<Grc<Grant>>,
+// }
 
 impl Section {
     fn new(buffer: Leaf<Grc<Buffer>>) -> Self {
         Self {
             buffer,
-            state: Leaf::default(),
+            // chuncks: vec![],
+            grants: vec![],
         }
     }
 }
 
-#[derive(Default)]
-struct State {
-    chunks: Vec<Chunk>,
-    grants: Vec<Grant>,
-}
-
 // #[derive(Debug, Clone)]
-struct Chunk {
+pub struct Chunck {
     start: u32,
     end: u32,
 }
