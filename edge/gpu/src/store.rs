@@ -78,3 +78,9 @@ pub struct Chunck {
     start: u32,
     end: u32,
 }
+
+pub struct Alloc {
+    buffer: Hub<Grc<Buffer>>,
+    offset: Hub<u32>,
+}
+

@@ -5,9 +5,16 @@ pub mod render;
 
 #[derive(Debug)]
 pub enum Command {
+    // Write(Write),
     Compute(compute::Pass),
     Render(render::Pass),
 }
+
+// #[derive(Debug)]
+// struct Write {
+//     buffer: Grc<Buffer>,
+//     offset: u32,
+// }
 
 // struct Render<'a> {
 //     state: &'a mut State<'a>,

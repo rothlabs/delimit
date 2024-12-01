@@ -8,7 +8,7 @@ pub struct BufferWriter<T> {
     buffer: Hub<Grc<Buffer>>,
     data: Hub<Vec<T>>,
     #[builder(default)]
-    offset: Hub<u64>,
+    offset: Hub<u32>,
 }
 
 impl<T> Solve for BufferWriter<T>
@@ -18,7 +18,7 @@ where
     type Base = Grc<action::Action>;
     async fn solve(&self) -> node::Result<Grc<action::Action>> {
         let buffer = self.buffer.base().await?;
-        let offset = self.offset.base().await.unwrap_or_default();
+        let offset = self.offset.base().await.unwrap_or_default() as u64;
         self.data
             .read(|data| {
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
