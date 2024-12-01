@@ -2,29 +2,33 @@ use super::*;
 
 #[derive(Debug)]
 pub struct Bank {
-    uniform: Hub<Grc<BindGroup>>,
-    storage: Hub<Grc<BindGroup>>,
+    // uniform: Hub<Grc<BindGroup>>,
+    // storage: Hub<Grc<BindGroup>>,
 }
 
 impl Bank {
     pub fn new(store: &Store) -> Self {
-        let uniform = uniform_group(store);
-        let storage = storage_group(store);
-        Self { uniform, storage }
+        // let uniform = uniform_group(store);
+        // let storage = storage_group(store);
+        Self {  }
     }
 }
 
-fn storage_group(store: &Store) -> Hub<Grc<BindGroup>> {
-    let device = store.device.clone();
-    BindGroupUnit {
-        layout: storage_layout(&device),
-        device,
-        buffers: vec![store.storage0.hub(), store.storage1.hub()],
-    }
-    .hub()
-}
+// fn storage_group(store: &Store) -> Hub<Grc<BindGroup>> {
+//     let device = store.device.clone();
+//     BindGroupUnit {
+//         layout: storage_layout(&device),
+//         device,
+//         buffers: vec![store.storage0.hub(), store.storage1.hub()],
+//     }
+//     .hub()
+// }
 
 fn storage_layout(device: &Device) -> BindGroupLayout {
+    let wow = storage_compute_entry(0);
+    if let BindingType::Buffer{..} = wow.ty {
+
+    }
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: Some("mech_storage_bind_group_layout"),
         entries: &[storage_compute_entry(0), storage_compute_entry(1)],
@@ -44,15 +48,15 @@ fn storage_compute_entry(binding: u32) -> BindGroupLayoutEntry {
     }
 }
 
-fn uniform_group(store: &Store) -> Hub<Grc<BindGroup>> {
-    let device = store.device.clone();
-    BindGroupUnit {
-        layout: uniform_layout(&device),
-        device,
-        buffers: vec![store.uniform.hub()],
-    }
-    .hub()
-}
+// fn uniform_group(store: &Store) -> Hub<Grc<BindGroup>> {
+//     let device = store.device.clone();
+//     BindGroupUnit {
+//         layout: uniform_layout(&device),
+//         device,
+//         buffers: vec![store.uniform.hub()],
+//     }
+//     .hub()
+// }
 
 fn uniform_layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {

@@ -34,3 +34,9 @@ pub struct Plot {
     pub hedge: Hedge,
     pub shape: Hub<Shape>,
 }
+
+pub struct Grant {
+    group: Hub<Grc<BindGroup>>,
+    buffer: Hub<Grc<Buffer>>,
+    offset: Hub<Grc<u32>>,
+}

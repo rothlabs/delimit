@@ -37,7 +37,7 @@ impl Core {
     pub fn flow(&self) -> FlowBuilder {
         FlowBuilder::default()
     }
-    /// Shape builder of given dimensionality.
+    /// Shape builder with dimensionality.
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }

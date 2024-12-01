@@ -8,7 +8,7 @@ pub fn store(gpu: &Gpu) -> Store {
     }
 }
 
-// #[derive(Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Store {
     pub device: Grc<Device>,
     uniform: Section,
@@ -18,59 +18,53 @@ pub struct Store {
 impl Store {
     pub fn uniform(&self, length: u32) -> Result<Grant> {
         let mut i = 0;
-        let mut chunk = Chunk { start: 0, end: length };
-        let offset = self.uniform.state.write_passive(|state| {
-            while let Some(rhs) = state.chunks.get(i) {
-                if chunk.end < rhs.start {
+        let mut start = 0;
+        let mut end = length;
+        let offset = self.uniform.chunks.write_passive(|chunks| {
+            while let Some(chunk) = chunks.get(i) {
+                if end < *chunk.start {
                     break;
                 } else {
-                    chunk.start = rhs.end;
-                    chunk.end = chunk.start + length;
+                    start = chunk.end;
+                    end = chunk.end + length;
                 }
                 i += 1;
             }
-            self.grant(state, chunk, i)
+            let offset = Grc::new(start);
+            let chunk = Chunk { start: offset.clone(), end };
+            chunks.insert(i, chunk);
+            Grant {
+                buffer: self.uniform.buffer.clone().hub(),
+                offset: offset.into()
+            }
         })?;
         Ok(offset)
     }
-    fn grant(&self, state: &mut State, chunk: Chunk, i: usize) -> Grant {
-        let offset = Grc::new(chunk.start);
-        state.chunks.insert(i, chunk);
-        state.grants.insert(i, offset.clone());
-        offset
-    }
 }
 
-// #[derive(Default)]
+#[derive(Debug, Clone)]
 pub struct Section {
     buffer: Leaf<Grc<Buffer>>,
-    state: Leaf<State>,
+    chunks: Leaf<Vec<Chunk>>,
 }
 
 impl Section {
     fn new(buffer: Leaf<Grc<Buffer>>) -> Self {
         Self {
             buffer,
-            state: Leaf::default(),
+            chunks: Leaf::default(),
         }
     }
 }
 
-#[derive(Default)]
-struct State {
-    chunks: Vec<Chunk>,
-    grants: Vec<Grant>,
-}
-
-// #[derive(Debug, Clone)]
 struct Chunk {
-    start: u32,
+    start: Grc<u32>,
     end: u32,
 }
 
 pub struct Grant {
     buffer: Hub<Grc<Buffer>>,
-    offset: Hub<u32>,
+    offset: Hub<Grc<u32>>,
 }
 
 fn uniform_buffer(device: &Device) -> Leaf<Grc<Buffer>> {
