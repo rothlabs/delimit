@@ -1,12 +1,9 @@
-// pub use compute::ComputeBuilder;
 pub use render::RenderBuilder;
 pub use render::*;
 
 use super::*;
 
 pub mod render;
-
-// mod compute;
 
 pub struct Encode<'a> {
     pub inner: CommandEncoder,

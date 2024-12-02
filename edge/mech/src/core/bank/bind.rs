@@ -25,10 +25,6 @@ impl Bank {
 // }
 
 fn storage_layout(device: &Device) -> BindGroupLayout {
-    let wow = storage_compute_entry(0);
-    if let BindingType::Buffer{..} = wow.ty {
-
-    }
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: Some("mech_storage_bind_group_layout"),
         entries: &[storage_compute_entry(0), storage_compute_entry(1)],

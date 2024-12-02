@@ -8,6 +8,7 @@
     that it does not have to traverse futher down the graph that way. It only needs to save the copy of this new graph
 6. make Leaf<Grc<T>> type alias
 7. make Node type that uses Arc<T> instead of Arc<RwLock<T>> for edge
+8. Mech should provide methods to create dispatch graph with given pipeline and such. should not manually provide BindGroupLayout and Pipeline every time because Mech already has this
 
 https://github.com/gfx-rs/wgpu/issues/733
 

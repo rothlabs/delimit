@@ -52,6 +52,7 @@ impl Weave<'_> {
             .with(&self.warp.stems)
             .with(&trio.weft.stems)
             .with(&trio.flow.stems);
+        // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(bind)

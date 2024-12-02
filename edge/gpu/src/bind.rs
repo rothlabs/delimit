@@ -70,7 +70,7 @@ pub struct BindGroupUnit {
     #[back(skip)]
     pub device: Grc<Device>,
     #[back(skip)]
-    pub layout: BindGroupLayout,
+    pub layout: Grc<BindGroupLayout>,
     pub buffers: Vec<Hub<Grc<Buffer>>>,
 }
 
