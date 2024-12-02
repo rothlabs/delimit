@@ -7,7 +7,7 @@ use super::*;
 #[builder(setter(strip_option))]
 pub struct Travel {
     /// Direction and Length Extrusion Vector
-    pub extrude: Option<Hedge>,
+    pub extrude: Option<BufferHedge>,
     // per component function
     // https://www.youtube.com/watch?v=AjDU7eegt4g
 }
@@ -19,7 +19,7 @@ pub struct Travel {
 #[builder(setter(strip_option))]
 pub struct Orient {
     /// Axis-Angle Rotation Matrix
-    pub revolve: Option<Hedge>,
+    pub revolve: Option<BufferHedge>,
 }
 
 /// Design used to make the vector of matrix-vector multiplication.
@@ -29,9 +29,9 @@ pub struct Orient {
 #[builder(setter(strip_option))]
 pub struct Spline {
     /// Basis Spline (B-Spline)
-    pub basis: Option<Hedge>,
+    pub basis: Option<BufferHedge>,
     /// Non-Uniform Rational Basis Spline
-    pub nurbs: Option<Hedge>,
+    pub nurbs: Option<BufferHedge>,
 }
 
 impl Spline {

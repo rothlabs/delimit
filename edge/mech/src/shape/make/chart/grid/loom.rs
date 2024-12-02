@@ -1,14 +1,14 @@
 use super::*;
 
 pub struct Trio<'a> {
-    pub rig: Hedge,
-    pub weft: &'a Hedge,
-    pub flow: &'a Hedge,
+    pub rig: BufferHedge,
+    pub weft: &'a BufferHedge,
+    pub flow: &'a BufferHedge,
 }
 
 pub struct Weave<'a> {
     pub loom: &'a Loom<'a>,
-    pub warp: &'a Hedge,
+    pub warp: &'a BufferHedge,
     pub plot: &'a Hub<Grc<Buffer>>,
     pub size: Hub<u32>,
 }

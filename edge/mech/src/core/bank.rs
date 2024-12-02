@@ -12,7 +12,6 @@ pub struct Bank {
 
 impl Bank {
     pub fn new(store: &Store, port: &Viewport) -> Result<Self> {
-        
         Ok(Self {
             plot: PlotBank::new(&port.gpu)?,
             draw: DrawBank::new(port)?,

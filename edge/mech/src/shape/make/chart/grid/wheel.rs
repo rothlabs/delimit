@@ -7,11 +7,11 @@ pub struct Spin<'a> {
 }
 
 impl Spin<'_> {
-    pub fn extrude(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn extrude(&self, rig: &BufferHedge, form: &BufferHedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let program = &self.wheel.chart.core.bank.plot.grid.spin.extrude;
         self.weft(rig, form, program)
     }
-    pub fn revolve(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn revolve(&self, rig: &BufferHedge, form: &BufferHedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let dimension = self.wheel.chart.shape.dimension;
         if dimension == 2 {
             let program = &self.wheel.chart.core.bank.plot.grid.spin.revolve2;
@@ -21,18 +21,18 @@ impl Spin<'_> {
             "only revolve 2D and 3D supported, found dimension {dimension}"
         ))?
     }
-    pub fn basis(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn basis(&self, rig: &BufferHedge, form: &BufferHedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let program = &self.wheel.chart.core.bank.plot.grid.spin.basis;
         self.weft(rig, form, program)
     }
-    pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn nurbs(&self, rig: &BufferHedge, form: &BufferHedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let program = &self.wheel.chart.core.bank.plot.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
     fn weft(
         &self,
-        rig: &Hedge,
-        form: &Hedge,
+        rig: &BufferHedge,
+        form: &BufferHedge,
         program: &ComputeProgram,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu_ = &self.wheel.chart.core.gpu;

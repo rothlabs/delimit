@@ -1,3 +1,6 @@
+// need offset and length for both form and weft. Need all 4 of those values for exxtrude, revolve2, basis, nurbs
+// which only look at the offset and length values they need 
+// also need different order value for each one
 struct Rig {
     order: u32,
     count: u32,

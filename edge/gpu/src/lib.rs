@@ -4,7 +4,7 @@ pub use action::pack::{unit::*, Action};
 pub use bind::BindGroupUnit;
 pub use buffer::size;
 pub use core::ToCore;
-pub use store::{store, Store};
+pub use store::Store;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
 
@@ -55,9 +55,15 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+pub struct Hedge {
+    pub offset: Hub<u32>,
+    pub size: Hub<u32>,
+    pub stems: Vec<Hub<Grc<Action>>>,
+}
+
 #[derive(Clone, Debug, Builder, Make)]
 #[builder(pattern = "owned", build_fn(error = "Error"), setter(into))]
-pub struct Hedge {
+pub struct BufferHedge {
     pub buffer: Hub<Grc<Buffer>>,
     #[builder(setter(each(name = "stem", into)))]
     pub stems: Vec<Hub<Grc<Action>>>,

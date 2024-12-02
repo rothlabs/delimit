@@ -15,7 +15,7 @@ pub struct Core {
 
 impl Core {
     pub fn new(port: &Viewport) -> Result<Self> {
-        let store = gpu::store(&port.gpu);
+        let store = Store::new(&port.gpu);
         Ok(Self {
             bank: Bank::new(&store, port)?.into(),
             gpu: port.gpu.clone(),

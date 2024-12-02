@@ -36,7 +36,7 @@ impl Solve for Points {
         .gate();
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
         let stem = gpu.writer(buffer.clone()).data(points).hub()?;
-        let mesh = gpu::hedge().buffer(buffer).stem(stem).build()?;
+        let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;
         let stems = rig.stems.with(&hedge.stems).with(&mesh.stems);
         let bind = gpu::bind().group(bind).hub()?;
         let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;

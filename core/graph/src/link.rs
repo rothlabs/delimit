@@ -63,6 +63,7 @@ impl<E: ?Sized> fmt::Debug for Link<E> {
 }
 
 impl<T: Clone> Leaf<T> {
+    // Warning: this used to take ownership of Self and put into Hub
     pub fn hub(&self) -> Hub<T> {
         self.clone().into()
     }

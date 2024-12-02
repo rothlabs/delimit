@@ -10,7 +10,7 @@ impl Bank {
     pub fn new(store: &Store) -> Self {
         // let uniform = uniform_group(store);
         // let storage = storage_group(store);
-        Self {  }
+        Self {}
     }
 }
 
@@ -73,10 +73,6 @@ fn uniform_compute_entry(binding: u32) -> BindGroupLayoutEntry {
         count: None,
     }
 }
-
-
-
-
 
 // fn bind_group(device: &Device) -> BindGroup {
 //     device.create_bind_group(&BindGroupDescriptor{

@@ -146,9 +146,6 @@ impl Solve for BindGroupUnit {
 //     }
 // }
 
-
-
-
 // #[derive(TypedBuilder)]
 // pub struct BindGroupUnit2 {
 //     device: Grc<Device>,

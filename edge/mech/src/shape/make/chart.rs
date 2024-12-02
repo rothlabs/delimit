@@ -8,7 +8,7 @@ pub struct Grid<'a> {
 }
 
 impl<'a> Grid<'a> {
-    pub fn hedge(&self) -> Result<Hedge> {
+    pub fn hedge(&self) -> Result<BufferHedge> {
         let wefts = self.wefts()?;
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let last_weft = wefts.last().ok_or(anyhow!("no wefts"))?;
@@ -47,19 +47,19 @@ impl<'a> Grid<'a> {
 
 #[derive(Default)]
 pub struct Weft {
-    pub travel: Option<Hedge>,
-    pub orient: Option<Hedge>,
-    pub spline: Vec<Option<Hedge>>,
+    pub travel: Option<BufferHedge>,
+    pub orient: Option<BufferHedge>,
+    pub spline: Vec<Option<BufferHedge>>,
 }
 
 impl Weft {
-    fn travel(&self) -> Result<&Hedge> {
+    fn travel(&self) -> Result<&BufferHedge> {
         Ok(self.travel.as_ref().ok_or(anyhow!("no travel"))?)
     }
-    fn orient(&self) -> Result<&Hedge> {
+    fn orient(&self) -> Result<&BufferHedge> {
         Ok(self.orient.as_ref().ok_or(anyhow!("no orient"))?)
     }
-    fn spline(&self, order: usize) -> Result<&Hedge> {
+    fn spline(&self, order: usize) -> Result<&BufferHedge> {
         let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
         Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
     }

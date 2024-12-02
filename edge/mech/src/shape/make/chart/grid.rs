@@ -30,7 +30,7 @@ impl<'a> Wheel<'a> {
                 )?;
                 stems.push(spin.extrude(&rig, form)?);
             }
-            weft.travel = Some(Hedge { buffer, stems });
+            weft.travel = Some(BufferHedge { buffer, stems });
         }
         Ok(())
     }
@@ -49,7 +49,7 @@ impl<'a> Wheel<'a> {
                 )?;
                 stems.push(spin.revolve(&rig, form)?);
             }
-            weft.orient = Some(Hedge { buffer, stems });
+            weft.orient = Some(BufferHedge { buffer, stems });
         }
         Ok(())
     }
@@ -75,7 +75,7 @@ impl<'a> Wheel<'a> {
                     spin.size = nurbs_length.calc().add(63).div(64).hub();
                     stems.push(spin.nurbs(&rig, form)?);
                 }
-                weft.spline.push(Some(Hedge { buffer, stems }));
+                weft.spline.push(Some(BufferHedge { buffer, stems }));
             } else {
                 weft.spline.push(None);
             }
@@ -137,7 +137,7 @@ impl<'a> Wheel<'a> {
     //         0.into()
     //     })
     // }
-    fn rig(&self, order: usize, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(&self, order: usize, offset: &Hub<u32>, length: &Hub<u32>) -> Result<BufferHedge> {
         let uniform = self.chart.core.gpu.uniform();
         Ok(uniform
             .field(order as u32)
@@ -160,7 +160,7 @@ pub struct Loom<'a> {
 }
 
 impl<'a> Loom<'a> {
-    pub fn hedge(&self, warp: &Hedge) -> Result<Hedge> {
+    pub fn hedge(&self, warp: &BufferHedge) -> Result<BufferHedge> {
         let gpu = &self.grid.chart.core.gpu;
         let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?;
@@ -202,7 +202,7 @@ impl<'a> Loom<'a> {
                 index += 1;
             }
         }
-        Ok(Hedge { buffer, stems })
+        Ok(BufferHedge { buffer, stems })
     }
     fn offsets_and_lengths(&self) -> OffsetsAndLengths {
         let chart = &self.grid.chart;
@@ -236,7 +236,7 @@ impl<'a> Loom<'a> {
         let flows = &self.grid.chart.shape.flows;
         Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
-    fn rig(&self, order: usize, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(&self, order: usize, offset: &Hub<u32>, length: &Hub<u32>) -> Result<BufferHedge> {
         let dimension = self.grid.chart.shape.dimension;
         let uniform = self.grid.chart.core.gpu.uniform();
         Ok(uniform
@@ -249,7 +249,7 @@ impl<'a> Loom<'a> {
             .field(dimension)
             .make()?)
     }
-    fn weave(&self, warp: &'a Hedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<loom::Weave> {
+    fn weave(&self, warp: &'a BufferHedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<loom::Weave> {
         Ok(loom::Weave {
             loom: self,
             warp,

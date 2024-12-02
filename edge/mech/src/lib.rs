@@ -31,12 +31,6 @@ pub enum Error {
 /// Buffer layout: position, velocity-by-parameter-1, velocity-by-parameter-2, ...
 #[derive(Clone, Debug)]
 pub struct Plot {
-    pub hedge: Hedge,
+    pub hedge: BufferHedge,
     pub shape: Hub<Shape>,
-}
-
-pub struct Grant {
-    group: Hub<Grc<BindGroup>>,
-    buffer: Hub<Grc<Buffer>>,
-    offset: Hub<Grc<u32>>,
 }

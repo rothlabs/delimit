@@ -221,6 +221,14 @@ where
         let out = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out_passive(write))?;
         Ok(out)
     }
+    // The following can be used to write with invalidation up the graph but no reaction
+    // fn write_passive<O, F>(&self, write: F) -> Result<O>
+    // where
+    //     F: FnOnce(&mut Self::Base) -> O,
+    // {
+    //     let (_, out) = try_write_part(&self.cusp, |mut cusp| cusp.write_base_out(write))??;
+    //     Ok(out)
+    // }
 }
 
 impl<C> WriteUnit for Edge<C>

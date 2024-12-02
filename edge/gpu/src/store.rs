@@ -1,114 +1,80 @@
 use super::*;
+use unit::*;
+use uniform::*;
 
-pub struct StoreRequest<'a> {
-    layout: &'a Grc<BindGroupLayout>,
-    entries: &'a [BindGroupLayoutEntry],
-}
+mod unit;
+mod uniform;
 
-pub fn store(gpu: &Gpu) -> Store {
-    Store {
-        device: gpu.device.clone(),
-        uniform: vec![],//Section::new(uniform_buffer(&gpu.device)),
-        storage: vec![],//Section::new(storage_buffer(&gpu.device)),
-    }
+struct Chunk {
+    grant: Leaf<u32>,
+    start: u32,
+    end: u32,
 }
 
 #[derive(Debug, Clone)]
 pub struct Store {
     pub device: Grc<Device>,
-    uniform: Vec<Section>,
-    storage: Vec<Section>,
+    uniform: Grc<UniformStore>,
+    // storage: Section,
 }
 
 impl Store {
-    pub fn grant(&self, request: StoreRequest) {
-
-    }
-    fn push_uniform(&mut self, layout: Grc<BindGroupLayout>) {
-        let buffer = self.uniform_buffer();
-        let group = BindGroupUnit {
-            layout,
-            device: self.device.clone(),
-            buffers: vec![buffer.hub()],
+    // TODO: &Device
+    pub fn new(gpu: &Gpu) -> Self {
+        Self {
+            device: gpu.device.clone(),
+            uniform: Grc::new(UniformStore::new(gpu)),
         }
-        .hub();
-        self.uniform.push(Section {
-            buffer,
-            group,
-            chunks: Leaf::default(),
-        });
     }
-    // fn uniform_group(&self, layout: Grc<BindGroupLayout>) -> Hub<Grc<BindGroup>> {
-        
-    // }
-    fn uniform_buffer(&self) -> Leaf<Grc<Buffer>> {
-        Grc::new(self.device.create_buffer(&BufferDescriptor {
-            label: None,
-            size: 1000,
-            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        })).into()
+    pub fn uniform(&self, size: Hub<u32>) -> Hub<u32> {
+        Grant {
+            size,
+            kind: Kind::Uniform(self.uniform.clone()),
+        }
+        .hub()
     }
-    // pub fn uniform(&self, length: u32) -> Result<Grant> {
-    //     let mut i = 0;
-    //     let mut start = 0;
-    //     let mut end = length;
-    //     let offset = self.uniform.chunks.write_passive(|chunks| {
-    //         while let Some(chunk) = chunks.get(i) {
-    //             if end < *chunk.start {
-    //                 break;
-    //             } else {
-    //                 start = chunk.end;
-    //                 end = chunk.end + length;
-    //             }
-    //             i += 1;
-    //         }
-    //         let offset = Grc::new(start);
-    //         let chunk = Chunk { start: offset.clone(), end };
-    //         chunks.insert(i, chunk);
-    //         Grant {
-    //             buffer: self.uniform.buffer.clone().hub(),
-    //             offset: offset.into()
-    //         }
-    //     })?;
-    //     Ok(offset)
-    // }
 }
 
-#[derive(Debug, Clone)]
-pub struct Section {
-    group: Hub<Grc<BindGroup>>,
-    buffer: Leaf<Grc<Buffer>>,
-    chunks: Leaf<Vec<Chunk>>,
+fn uniform_layout(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_unifrom_bind_group_layout"),
+        entries: &[uniform_compute_entry(0)],
+    })
 }
 
-// impl Section {
-//     fn new(buffer: Leaf<Grc<Buffer>>) -> Self {
-//         Self {
-//             buffer,
-//             chunks: Leaf::default(),
-//         }
-//     }
-// }
-
-struct Chunk {
-    start: Grc<u32>,
-    end: u32,
+fn uniform_compute_entry(binding: u32) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::COMPUTE,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Uniform,
+            has_dynamic_offset: true,
+            min_binding_size: None,
+        },
+        count: None,
+    }
 }
 
-pub struct Grant {
-    buffer: Hub<Grc<Buffer>>,
-    offset: Hub<Grc<u32>>,
+fn storage_compute_entry(binding: u32) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::COMPUTE,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Storage { read_only: false },
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
 }
 
-
-fn uniform_buffer(device: &Device) -> Leaf<Grc<Buffer>> {
+fn uniform_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
         size: 1000,
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST | BufferUsages::COPY_DST,
         mapped_at_creation: false,
-    })).into()
+    }))
 }
 
 fn storage_buffer(device: &Device) -> Leaf<Grc<Buffer>> {
@@ -117,5 +83,6 @@ fn storage_buffer(device: &Device) -> Leaf<Grc<Buffer>> {
         size: 10000,
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
-    })).into()
+    }))
+    .into()
 }
