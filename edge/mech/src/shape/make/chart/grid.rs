@@ -249,7 +249,11 @@ impl<'a> Loom<'a> {
             .field(dimension)
             .make()?)
     }
-    fn weave(&self, warp: &'a BufferHedge, plot: &'a Hub<Grc<Buffer>>) -> graph::Result<loom::Weave> {
+    fn weave(
+        &self,
+        warp: &'a BufferHedge,
+        plot: &'a Hub<Grc<Buffer>>,
+    ) -> graph::Result<loom::Weave> {
         Ok(loom::Weave {
             loom: self,
             warp,

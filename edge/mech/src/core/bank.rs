@@ -1,21 +1,21 @@
 use super::*;
 
-mod bind;
+// mod bind;
 mod draw;
 
 #[derive(Debug)]
 pub struct Bank {
     pub plot: PlotBank,
     pub draw: DrawBank,
-    pub bind: bind::Bank,
+    // pub bind: bind::Bank,
 }
 
 impl Bank {
-    pub fn new(store: &Store, port: &Viewport) -> Result<Self> {
+    pub fn new(port: &Viewport) -> Result<Self> {
         Ok(Self {
             plot: PlotBank::new(&port.gpu)?,
             draw: DrawBank::new(port)?,
-            bind: bind::Bank::new(store),
+            // bind: bind::Bank::new(store),
         })
     }
 }

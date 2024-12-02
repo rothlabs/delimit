@@ -11,19 +11,23 @@ impl ToCore for Adapter {
             ..Default::default()
         };
         let (device, queue) = self.request_device(&descriptor, None).await?;
+        let store = Store::new(&device);
         Ok(Core {
             adapter: self.into(),
             device: device.into(),
             queue: queue.into(),
+            store,
         })
     }
 }
 
+// TODO: Core should directly hold adapter, device, queue and be used as Grc<Gpu>
 #[derive(Clone, Debug)]
 pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
+    pub store: Store,
 }
 
 impl Core {
@@ -34,9 +38,21 @@ impl Core {
             targets: &[],
         }
     }
-    // pub fn buffer2(&self, size: u64) {
-    //     let buff = BufferRig2::builder().device(&self.device).size(size);
-    // }
+    pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
+    where
+        T: Pod + Debug + graph::SendSync,
+    {
+        let size: Hub<u32> = (data.len() as u32).into();
+        let offset = self.store.storage(&size);
+        let buffer = self.store.storage.buffer.hub();
+        // TODO: make self.uniform_writer
+        let stem = self.writer(buffer).offset(&offset).data(data).hub()?;
+        Ok(Hedge {
+            offset,
+            size,
+            stems: vec![stem],
+        })
+    }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }
@@ -134,7 +150,7 @@ impl Core {
         bind::BindGroupRigBuilder::default().device(self.device.clone())
     }
     /// Create a dummy `Hedge` to quickly put data into GPU ecosystem.
-    pub fn hedge<T>(&self, data: Vec<T>) -> Result<BufferHedge>
+    pub fn buffer_hedge<T>(&self, data: Vec<T>) -> Result<BufferHedge>
     where
         T: Pod + Debug + graph::SendSync,
     {
@@ -145,6 +161,32 @@ impl Core {
         // Ok(Hedge { buffer, stem })
     }
 }
+
+
+
+// pub fn uniform_hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
+//     where
+//         T: Pod + Debug + graph::SendSync,
+//     {
+//         let size: Hub<u32> = (data.len() as u32).into();
+//         let offset = self.store.uniform(&size);
+//         let buffer = self.store.uniform.buffer.hub();
+//         // TODO: make self.uniform_writer
+//         let stem = self.writer(buffer).offset(&offset).data(data).hub()?;
+//         Ok(Hedge {
+//             offset,
+//             size,
+//             stems: vec![stem],
+//         })
+//     }
+
+
+
+
+
+
+
+
 
 // pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
 //     pipe::RenderBuilder::default()

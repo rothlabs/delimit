@@ -1,9 +1,11 @@
 use super::*;
-use unit::*;
 use uniform::*;
+use storage::*;
+use unit::*;
 
-mod unit;
 mod uniform;
+mod storage;
+mod unit;
 
 struct Chunk {
     grant: Leaf<u32>,
@@ -13,32 +15,76 @@ struct Chunk {
 
 #[derive(Debug, Clone)]
 pub struct Store {
-    pub device: Grc<Device>,
-    uniform: Grc<UniformStore>,
-    // storage: Section,
+    // pub device: Grc<Device>,
+    pub uniform: Grc<UniformStore>,
+    pub storage: Grc<StorageStore>,
 }
 
 impl Store {
     // TODO: &Device
-    pub fn new(gpu: &Gpu) -> Self {
+    pub fn new(device: &Device) -> Self {
         Self {
-            device: gpu.device.clone(),
-            uniform: Grc::new(UniformStore::new(gpu)),
+            // device: gpu.device.clone(),
+            uniform: Grc::new(UniformStore::new(device)),
+            storage: Grc::new(StorageStore::new(device)),
         }
     }
-    pub fn uniform(&self, size: Hub<u32>) -> Hub<u32> {
+    pub fn uniform(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
-            size,
+            size: size.into(),
             kind: Kind::Uniform(self.uniform.clone()),
         }
         .hub()
     }
+    pub fn storage(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+        Grant {
+            size: size.into(),
+            kind: Kind::Storage(self.storage.clone()),
+        }
+        .hub()
+    }
+}
+
+fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
+    let mut i = 0;
+    let mut start = 0;
+    let mut end = size;
+    let grant = chunks.write_passive(|chunks| {
+        while let Some(chunk) = chunks.get(i) {
+            if end < chunk.start {
+                break;
+            } else {
+                start = chunk.end;
+                end = chunk.end + size;
+            }
+            i += 1;
+        }
+        if end > max {
+            panic!("buffer full!")
+        }
+        let grant = Leaf::new(start);
+        let chunk = Chunk {
+            grant: grant.clone(),
+            start,
+            end,
+        };
+        chunks.insert(i, chunk);
+        grant
+    })?;
+    Ok(grant)
 }
 
 fn uniform_layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: Some("gpu_store_unifrom_bind_group_layout"),
         entries: &[uniform_compute_entry(0)],
+    })
+}
+
+fn storage_layout(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_storage_bind_group_layout"),
+        entries: &[storage_compute_entry(0)],
     })
 }
 
@@ -77,12 +123,11 @@ fn uniform_buffer(device: &Device) -> Grc<Buffer> {
     }))
 }
 
-fn storage_buffer(device: &Device) -> Leaf<Grc<Buffer>> {
+fn storage_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
         size: 10000,
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }))
-    .into()
 }

@@ -13,6 +13,7 @@ impl Solve for Grant {
         let size = self.size.base().await?;
         Ok(match &self.kind {
             Kind::Uniform(store) => store.grant(size)?.hub(),
+            Kind::Storage(store) => store.grant(size)?.hub(),
         })
     }
 }
@@ -20,4 +21,5 @@ impl Solve for Grant {
 #[derive(Debug)]
 pub enum Kind {
     Uniform(Grc<UniformStore>),
+    Storage(Grc<StorageStore>),
 }

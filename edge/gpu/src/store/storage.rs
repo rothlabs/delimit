@@ -1,17 +1,17 @@
 use super::*;
 
 #[derive(Debug)]
-pub struct UniformStore {
+pub struct StorageStore {
     pub layout: BindGroupLayout,
     pub group: Leaf<Grc<BindGroup>>,
     pub buffer: Leaf<Grc<Buffer>>,
     chunks: Leaf<Vec<Chunk>>,
 }
 
-impl UniformStore {
+impl StorageStore {
     pub fn new(device: &Device) -> Self {
-        let buffer = uniform_buffer(device);
-        let layout = uniform_layout(device);
+        let buffer = storage_buffer(device);
+        let layout = storage_layout(device);
         let group = device.create_bind_group(&BindGroupDescriptor {
             label: None,
             layout: &layout,
