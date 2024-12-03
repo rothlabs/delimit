@@ -166,7 +166,7 @@ impl<'a> Wheel<'a> {
         length: &Hub<u32>,
     ) -> Result<Hedge> {
         let gpu = &self.chart.core.gpu;
-        let buffer = &gpu.store.uniform.buffer;
+        let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(order as u32)
             .field(self.count.clone())
@@ -175,7 +175,7 @@ impl<'a> Wheel<'a> {
             .field(length)
             .hub()?;
         let size = 64.into();
-        let offset = gpu.store.uniform(&size);
+        let offset = gpu.store.rig(&size);
         let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,
@@ -330,7 +330,7 @@ impl<'a> Loom<'a> {
     ) -> Result<Hedge> {
         let dimension = self.grid.chart.shape.dimension;
         let gpu = &self.grid.chart.core.gpu;
-        let buffer = &gpu.store.uniform.buffer;
+        let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(self.rank as u32)
             .field(order as u32)
@@ -344,7 +344,7 @@ impl<'a> Loom<'a> {
             .field(length)
             .hub()?;
         let size = 64.into();
-        let offset = gpu.store.uniform(&size);
+        let offset = gpu.store.rig(&size);
         let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,

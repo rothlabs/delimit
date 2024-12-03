@@ -1,10 +1,10 @@
 use super::*;
 use storage::*;
-use uniform::*;
+use rig::*;
 use unit::*;
 
 mod storage;
-mod uniform;
+mod rig;
 mod unit;
 
 struct Chunk {
@@ -16,7 +16,7 @@ struct Chunk {
 #[derive(Debug, Clone)]
 pub struct Store {
     // pub device: Grc<Device>,
-    pub uniform: Grc<UniformStore>,
+    pub rig: Grc<RigStore>,
     pub storage: Grc<StorageStore>,
 }
 
@@ -25,14 +25,14 @@ impl Store {
     pub fn new(device: &Device) -> Self {
         Self {
             // device: gpu.device.clone(),
-            uniform: Grc::new(UniformStore::new(device)),
+            rig: Grc::new(RigStore::new(device)),
             storage: Grc::new(StorageStore::new(device)),
         }
     }
-    pub fn uniform(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+    pub fn rig(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
-            kind: Kind::Uniform(self.uniform.clone()),
+            kind: Kind::Rig(self.rig.clone()),
         }
         .hub()
     }
@@ -75,98 +75,6 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
     Ok(grant)
 }
 
-fn uniform_layout(device: &Device) -> BindGroupLayout {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_unifrom"),
-        entries: &[uniform_compute_entry(0)],
-    })
-}
-
-fn uniform_layout_vertex(device: &Device) -> BindGroupLayout {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_unifrom"),
-        entries: &[uniform_vertex_entry(0)],
-    })
-}
-
-fn storage_layout(device: &Device) -> BindGroupLayout {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_storage"),
-        entries: &[
-            storage_compute_entry(0, false),
-            // storage_compute_entry(1, true),
-        ],
-    })
-}
-
-fn storage_layout_vertex(device: &Device) -> BindGroupLayout {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_storage_read"),
-        entries: &[storage_vertex_entry(0)],
-    })
-}
-
-fn uniform_compute_entry(binding: u32) -> BindGroupLayoutEntry {
-    BindGroupLayoutEntry {
-        binding,
-        visibility: ShaderStages::COMPUTE,
-        ty: BindingType::Buffer {
-            ty: BufferBindingType::Uniform,
-            has_dynamic_offset: true,
-            min_binding_size: None,
-        },
-        count: None,
-    }
-}
-
-fn uniform_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
-    BindGroupLayoutEntry {
-        binding,
-        visibility: ShaderStages::VERTEX,
-        ty: BindingType::Buffer {
-            ty: BufferBindingType::Uniform,
-            has_dynamic_offset: true,
-            min_binding_size: None,
-        },
-        count: None,
-    }
-}
-
-fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
-    BindGroupLayoutEntry {
-        binding,
-        visibility: ShaderStages::COMPUTE,
-        ty: BindingType::Buffer {
-            ty: BufferBindingType::Storage { read_only },
-            has_dynamic_offset: false,
-            min_binding_size: None,
-        },
-        count: None,
-    }
-}
-
-fn storage_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
-    BindGroupLayoutEntry {
-        binding,
-        visibility: ShaderStages::VERTEX,
-        ty: BindingType::Buffer {
-            ty: BufferBindingType::Storage { read_only: true },
-            has_dynamic_offset: false,
-            min_binding_size: None,
-        },
-        count: None,
-    }
-}
-
-fn uniform_buffer(device: &Device) -> Grc<Buffer> {
-    Grc::new(device.create_buffer(&BufferDescriptor {
-        label: None,
-        size: 65536,
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST | BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    }))
-}
-
 fn storage_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
@@ -176,3 +84,12 @@ fn storage_buffer(device: &Device) -> Grc<Buffer> {
         mapped_at_creation: false,
     }))
 }
+
+// fn uniform_buffer(device: &Device) -> Grc<Buffer> {
+//     Grc::new(device.create_buffer(&BufferDescriptor {
+//         label: None,
+//         size: 65536,
+//         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST | BufferUsages::COPY_DST,
+//         mapped_at_creation: false,
+//     }))
+// }

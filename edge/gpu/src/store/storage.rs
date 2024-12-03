@@ -44,3 +44,46 @@ impl StorageStore {
         grant(&self.chunks, size, max)
     }
 }
+
+fn storage_layout(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_storage"),
+        entries: &[
+            storage_compute_entry(0, false),
+            // storage_compute_entry(1, true),
+        ],
+    })
+}
+
+fn storage_layout_vertex(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_storage_read"),
+        entries: &[storage_vertex_entry(0)],
+    })
+}
+
+fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::COMPUTE,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Storage { read_only },
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}
+
+fn storage_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::VERTEX,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Storage { read_only: true },
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}

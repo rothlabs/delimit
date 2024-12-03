@@ -15,20 +15,20 @@ impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
-        let uniform = &gpu.store.uniform.group_vertex;
+        let uniform = &gpu.store.rig.group;
         let storage = &gpu.store.storage.group_vertex;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
         let count = hedge.size.base().await? / stride;
-        let buffer = &gpu.store.uniform.buffer;
+        let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(stride)
             .field(count)
             .field(hedge.offset)
             .hub()?;
-        let offset = gpu.store.uniform(64);
+        let offset = gpu.store.rig(64);
         let uniform_stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
 
         let vertex_count: u32 = 8;

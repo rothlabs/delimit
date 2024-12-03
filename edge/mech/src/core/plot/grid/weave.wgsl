@@ -17,7 +17,7 @@ struct Rig {
 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 // @group(0) @binding(1) var<storage, read> data_u32: array<u32>;
 
-@group(1) @binding(0) var<uniform> rig: Rig;
+@group(1) @binding(0) var<storage, read> rig: Rig;
 
 @compute @workgroup_size(64)
 fn travel(@builtin(global_invocation_id) index: vec3<u32>) {

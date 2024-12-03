@@ -34,7 +34,7 @@ impl Weave<'_> {
         program: &ComputeProgram,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu_ = &self.loom.grid.chart.core.gpu;
-        let uniform = &gpu_.store.uniform.group;
+        let uniform = &gpu_.store.rig.group;
         let storage = &gpu_.store.storage.group;
         let uniform_bind = gpu::bind()
             .slot(1)

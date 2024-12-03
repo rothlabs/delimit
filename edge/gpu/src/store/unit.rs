@@ -12,7 +12,7 @@ impl Solve for Grant {
     async fn solve(&self) -> node::Result<u32> {
         let size = self.size.base().await?;
         Ok(match &self.kind {
-            Kind::Uniform(store) => store.grant()?.hub(),
+            Kind::Rig(store) => store.grant()?.hub(),
             Kind::Storage(store) => store.grant(size)?.hub(),
         })
     }
@@ -20,6 +20,6 @@ impl Solve for Grant {
 
 #[derive(Debug)]
 pub enum Kind {
-    Uniform(Grc<UniformStore>),
+    Rig(Grc<RigStore>),
     Storage(Grc<StorageStore>),
 }
