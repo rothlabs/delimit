@@ -41,9 +41,10 @@ pub struct GridPlotBin {
 
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> Result<Self> {
+        let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
         Ok(Self {
-            spin: SpinGridPlotBin::new(gpu)?,
-            weave: WeaveGridPlotBin::new(gpu)?,
+            spin: SpinGridPlotBin::new(gpu, &layout)?,
+            weave: WeaveGridPlotBin::new(gpu, &layout)?,
         })
     }
 }
@@ -62,27 +63,28 @@ pub struct SpinGridPlotBin {
 }
 
 impl SpinGridPlotBin {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
+    pub fn new(gpu: &Gpu, layout: &PipelineLayout) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/spin.wgsl"));
-        let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        let form = gpu.bind_storage(true).entry(1)?.compute()?;
-        let weft = gpu.bind_storage(false).entry(2)?.compute()?;
-        let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
-        let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
+        // let rig = gpu.bind_uniform().entry(0)?.compute()?;
+        // let form = gpu.bind_storage(true).entry(1)?.compute()?;
+        // let weft = gpu.bind_storage(false).entry(2)?.compute()?;
+        // let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
+        // let layout = gpu.store.storage
+        // let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
         let extrude = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("extrude").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("extrude").layout(layout).make()?,
         };
         let revolve2 = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("revolve2").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("revolve2").layout(layout).make()?,
         };
         let basis = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("basis").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("basis").layout(layout).make()?,
         };
-        let pipe = shader.compute("nurbs").layout(&pipe_layout).make()?;
-        let nurbs = ComputeProgram { layout, pipe };
+        let pipe = shader.compute("nurbs").layout(layout).make()?;
+        let nurbs = ComputeProgram { pipe };
         Ok(Self {
             extrude,
             revolve2,
@@ -100,26 +102,26 @@ pub struct WeaveGridPlotBin {
 }
 
 impl WeaveGridPlotBin {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
+    pub fn new(gpu: &Gpu, layout: &PipelineLayout) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/weave.wgsl"));
-        let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        let warp = gpu.bind_storage(true).entry(1)?.compute()?;
-        let weft = gpu.bind_storage(true).entry(2)?.compute()?;
-        let flow = gpu.bind_storage(true).entry(3)?.compute()?;
-        let plot = gpu.bind_storage(false).entry(4)?.compute()?;
-        let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
-        let pipe_layout = gpu.pipe_layout(&[&layout]).make()?;
+        // let rig = gpu.bind_uniform().entry(0)?.compute()?;
+        // let warp = gpu.bind_storage(true).entry(1)?.compute()?;
+        // let weft = gpu.bind_storage(true).entry(2)?.compute()?;
+        // let flow = gpu.bind_storage(true).entry(3)?.compute()?;
+        // let plot = gpu.bind_storage(false).entry(4)?.compute()?;
+        // let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
+        // let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
         let travel = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("travel").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("travel").layout(layout).make()?,
         };
         let orient = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("orient").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("orient").layout(layout).make()?,
         };
         let spline = ComputeProgram {
-            layout: layout.clone(),
-            pipe: shader.compute("spline").layout(&pipe_layout).make()?,
+            // layout: layout.clone(),
+            pipe: shader.compute("spline").layout(layout).make()?,
         };
         Ok(Self {
             travel,
@@ -131,7 +133,7 @@ impl WeaveGridPlotBin {
 
 #[derive(Debug)]
 pub struct ComputeProgram {
-    pub layout: Grc<BindGroupLayout>,
+    // pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<ComputePipeline>,
 }
 

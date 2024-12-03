@@ -156,7 +156,7 @@ impl<'a> Wheel<'a> {
             .field(length)
             .hub()?;
         let stem = gpu.writer(buffer).data(vector).hub()?;
-        let size = 5.into();
+        let size = 64.into();
         let offset = gpu.store.uniform(&size);
         Ok(Hedge {
             offset,
@@ -274,7 +274,7 @@ impl<'a> Loom<'a> {
         let flows = &self.grid.chart.shape.flows;
         Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
-    fn rig(&self, order: usize, warp: &Hub<u32>, weft: &Hub<u32>, flow: &Hub<u32>,  offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(&self, order: usize, warp: &Hub<u32>, weft: &Hub<u32>, flow: &Hub<u32>, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
         let dimension = self.grid.chart.shape.dimension;
         let gpu = &self.grid.chart.core.gpu;
         let buffer = &gpu.store.uniform.buffer;
@@ -291,7 +291,7 @@ impl<'a> Loom<'a> {
             .field(length)
             .hub()?;
         let stem = gpu.writer(buffer).data(vector).hub()?;
-        let size = 10.into();
+        let size = 64.into();
         let offset = gpu.store.uniform(&size);
         Ok(Hedge {
             offset,

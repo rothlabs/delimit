@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use super::*;
 
 #[derive(Debug)]
@@ -17,7 +19,11 @@ impl UniformStore {
             layout: &layout,
             entries: &[BindGroupEntry {
                 binding: 0,
-                resource: buffer.as_entire_binding(),
+                resource: BindingResource::Buffer(BufferBinding {
+                    buffer: &buffer,
+                    offset: 0,
+                    size: Some(NonZero::new(256).unwrap())
+                })
             }],
         });
         Self {
@@ -27,8 +33,10 @@ impl UniformStore {
             chunks: Leaf::default(),
         }
     }
-    pub fn grant(&self, size: u32) -> Result<Leaf<u32>> {
+    // TODO: accept number of blocks of 64 elements
+    pub fn grant(&self) -> Result<Leaf<u32>> {
         let max = (self.buffer.base()?.size() / 4) as u32;
-        grant(&self.chunks, size, max)
+        println!("uniform");
+        grant(&self.chunks, 64, max)
     }
 }

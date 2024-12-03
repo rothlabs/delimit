@@ -35,6 +35,7 @@ impl StorageStore {
     }
     pub fn grant(&self, size: u32) -> Result<Leaf<u32>> {
         let max = (self.buffer.base()?.size() / 4) as u32;
+        println!("storage");
         grant(&self.chunks, size, max)
     }
 }

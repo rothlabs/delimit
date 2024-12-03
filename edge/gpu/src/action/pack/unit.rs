@@ -35,17 +35,21 @@ pub struct Bind {
     #[builder(default)]
     slot: Hub<u32>,
     group: Hub<Grc<BindGroup>>,
-    #[builder(default)]
-    offsets: Hub<Vec<u32>>,
+    #[builder(default, setter(each(name = "offset", into)))]
+    offsets: Vec<Hub<u32>>,
 }
 
 impl Solve for Bind {
     type Base = action::Bind;
     async fn solve(&self) -> node::Result<action::Bind> {
+        let mut offsets = self.offsets.base().await?;
+        for offset in &mut offsets {
+            *offset *= 4;
+        }
         let binding = action::Bind {
             slot: self.slot.base().await?,
             group: self.group.base().await?,
-            offsets: self.offsets.base().await?,
+            offsets,
         };
         Ok(binding.into())
     }

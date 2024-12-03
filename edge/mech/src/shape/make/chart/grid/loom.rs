@@ -48,7 +48,7 @@ impl Weave<'_> {
         gpu::dispatch()
             .pipe(&program.pipe)
             .bind(gpu::bind().slot(0).group(storage).hub()?)
-            .bind(gpu::bind().slot(1).group(uniform).hub()?)
+            .bind(gpu::bind().slot(1).group(uniform).offset(&trio.rig.offset).hub()?)
             .size(&self.size)
             .stems(stems)
             .hub()

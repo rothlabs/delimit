@@ -62,6 +62,7 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
         if end > max {
             panic!("buffer full!")
         }
+        println!("buffer offset in elements: {start}");
         let grant = Leaf::new(start);
         let chunk = Chunk {
             // grant: grant.clone(),
@@ -120,7 +121,7 @@ fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry 
 fn uniform_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
-        size: 1000,
+        size: 65536,
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }))
@@ -129,7 +130,8 @@ fn uniform_buffer(device: &Device) -> Grc<Buffer> {
 fn storage_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
-        size: 10000,
+        // 1000000 bytes = 1 mb
+        size: 1000000,
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }))
