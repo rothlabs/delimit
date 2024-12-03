@@ -20,13 +20,10 @@ impl Solve for Points {
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
         // let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
-        let count = hedge.size.base().await?;
-        println!("count: {count}");
         let offset = hedge.offset.base().await?;
         println!("offset: {offset}");
-        
-        hedge.stems.depend().await?;
-        
+        let count = hedge.size.base().await? / stride;
+        println!("count: {count}");
         // TODO: take count and offset hubs directly
         let rig = gpu.uniform().field(stride).field(count).field(offset).make()?;
         let bind = gpu
