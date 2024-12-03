@@ -87,7 +87,7 @@ fn storage_layout(device: &Device) -> BindGroupLayout {
         label: Some("gpu_store_storage_bind_group_layout"),
         entries: &[
             storage_compute_entry(0, false),
-            storage_compute_entry(1, true),
+            // storage_compute_entry(1, true),
         ],
     })
 }

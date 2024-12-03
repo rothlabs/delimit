@@ -24,7 +24,7 @@ struct Rig {
 // @group(0) @binding(2) var<storage, read> weft: array<f32>;
 // @group(0) @binding(3) var<storage, read> flow: array<u32>;
 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
-@group(0) @binding(1) var<storage, read> data_u32: array<u32>;
+// @group(0) @binding(1) var<storage, read> data_u32: array<u32>;
 
 @group(1) @binding(0) var<uniform> rig: Rig;
 
@@ -50,8 +50,8 @@ fn travel(@builtin(global_invocation_id) index: vec3<u32>) {
     let area_mod = count_idx % area;
     let plot_idx = rig.plot_offset + index.x * plot_stride;
     let flow_idx = rig.flow_offset + area_idx * 2;
-    let weft_idx = rig.weft_offset + (data_u32[flow_idx] * count + count_mod) * weft_stride;
-    let warp_idx = rig.warp_offset + (data_u32[flow_idx + 1] * area + area_mod) * warp_stride;
+    let weft_idx = rig.weft_offset + (u32(data[flow_idx]) * count + count_mod) * weft_stride;
+    let warp_idx = rig.warp_offset + (u32(data[flow_idx + 1]) * area + area_mod) * warp_stride;
 
     // translation
     for (var d = 0u; d < dimension; d++) {
@@ -101,8 +101,8 @@ fn orient(@builtin(global_invocation_id) index: vec3<u32>) {
     let area_mod = count_idx % area;
     let plot_idx = rig.plot_offset + index.x * plot_stride;
     let flow_idx = rig.flow_offset + area_idx * 2;
-    let weft_idx = rig.weft_offset + (data_u32[flow_idx] * count + count_mod) * weft_stride;
-    let warp_idx = rig.warp_offset + (data_u32[flow_idx + 1] * area + area_mod) * warp_stride;
+    let weft_idx = rig.weft_offset + (u32(data[flow_idx]) * count + count_mod) * weft_stride;
+    let warp_idx = rig.warp_offset + (u32(data[flow_idx + 1]) * area + area_mod) * warp_stride;
 
     // reset plot
     for (var i = 0u; i < plot_stride; i++) {
@@ -158,7 +158,7 @@ fn spline(@builtin(global_invocation_id) index: vec3<u32>) {
     let area_mod = count_idx % area;
     let plot_idx = rig.plot_offset + index.x * plot_stride;
     let flow_idx = rig.flow_offset + area_idx * (order + 1);
-    let weft_idx = rig.weft_offset + (data_u32[flow_idx] * count + count_mod) * order2;
+    let weft_idx = rig.weft_offset + (u32(data[flow_idx]) * count + count_mod) * order2;
 
     // reset plot
     for (var i = 0u; i < plot_stride; i++) {
@@ -168,7 +168,7 @@ fn spline(@builtin(global_invocation_id) index: vec3<u32>) {
     // matrix-vector multiplication
     for (var d = 0u; d < dimension; d++) {
         for (var o = 0u; o < order; o++) {
-            let warp_idx = rig.warp_offset + (data_u32[flow_idx + o + 1] * area + area_mod) * warp_stride;
+            let warp_idx = rig.warp_offset + (u32(data[flow_idx + o + 1]) * area + area_mod) * warp_stride;
             let warp0 = data[warp_idx + d];
             let weft0 = data[weft_idx + o];
 

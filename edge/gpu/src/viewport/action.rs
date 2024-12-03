@@ -14,6 +14,7 @@ impl<'a> Render<'a> {
         let frame = self.viewport.frame()?;
         let view = &frame.texture.create_view(&TextureViewDescriptor::default());
         for command in self.commands.iter().rev() {
+            // println!("commnad: {:#?}", command);
             match command {
                 Command::Compute(pass) => encoder.compute(pass),
                 Command::Render(pass) => {

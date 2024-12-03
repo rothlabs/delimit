@@ -20,10 +20,10 @@ impl StorageStore {
                     binding: 0,
                     resource: buffer.as_entire_binding(),
                 },
-                BindGroupEntry {
-                    binding: 1,
-                    resource: buffer.as_entire_binding(),
-                },
+                // BindGroupEntry {
+                //     binding: 1,
+                //     resource: buffer.as_entire_binding(),
+                // },
             ],
         });
         Self {
