@@ -7,7 +7,6 @@ mod draw;
 pub struct Bank {
     pub plot: PlotBank,
     pub draw: DrawBank,
-    // pub bind: bind::Bank,
 }
 
 impl Bank {
@@ -15,7 +14,6 @@ impl Bank {
         Ok(Self {
             plot: PlotBank::new(&port.gpu)?,
             draw: DrawBank::new(port)?,
-            // bind: bind::Bank::new(store),
         })
     }
 }
@@ -41,7 +39,9 @@ pub struct GridPlotBin {
 
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> Result<Self> {
-        let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
+        let layout = gpu
+            .pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout])
+            .make()?;
         Ok(Self {
             spin: SpinGridPlotBin::new(gpu, &layout)?,
             weave: WeaveGridPlotBin::new(gpu, &layout)?,
@@ -65,12 +65,6 @@ pub struct SpinGridPlotBin {
 impl SpinGridPlotBin {
     pub fn new(gpu: &Gpu, layout: &PipelineLayout) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/spin.wgsl"));
-        // let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        // let form = gpu.bind_storage(true).entry(1)?.compute()?;
-        // let weft = gpu.bind_storage(false).entry(2)?.compute()?;
-        // let layout = gpu.bind_layout(&[rig, form, weft]).make()?;
-        // let layout = gpu.store.storage
-        // let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
         let extrude = ComputeProgram {
             // layout: layout.clone(),
             pipe: shader.compute("extrude").layout(layout).make()?,
@@ -147,7 +141,10 @@ pub struct DrawBank {
 impl DrawBank {
     pub fn new(port: &Viewport) -> Result<Self> {
         let store = &port.gpu.store;
-        let layout = port.gpu.pipe_layout(&[&store.storage.layout_vertex, &store.uniform.layout_vertex]).make()?;
+        let layout = port
+            .gpu
+            .pipe_layout(&[&store.storage.layout_vertex, &store.uniform.layout_vertex])
+            .make()?;
         Ok(Self {
             chart: draw::ChartBank::new(port, &layout)?,
         })

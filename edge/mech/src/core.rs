@@ -9,17 +9,14 @@ mod make;
 #[derive(Clone, Debug)]
 pub struct Core {
     pub gpu: Gpu,
-    // pub store: gpu::Store,
     pub bank: Grc<Bank>,
 }
 
 impl Core {
     pub fn new(port: &Viewport) -> Result<Self> {
-        // let store = Store::new(&port.gpu);
         Ok(Self {
             bank: Bank::new(port)?.into(),
             gpu: port.gpu.clone(),
-            // store,
         })
     }
     pub fn travel(&self) -> TravelBuilder {

@@ -49,7 +49,8 @@ where
     pub fn staged(self) -> Result<Hub<<BufferReader<T> as Solve>::Base>> {
         if let Some(storage) = &self.storage {
             if let Some(gpu) = &self.core {
-                let size = gpu.size(storage).hub()?;
+                // let size = gpu.size(storage).hub()?;
+                let size = Size::new(storage).hub();
                 let stage = gpu.blank(size).label("stage").map_read()?;
                 return Ok(self.stage(stage).hub()?);
             }

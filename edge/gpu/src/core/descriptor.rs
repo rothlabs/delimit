@@ -4,7 +4,7 @@ use super::*;
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
-pub struct Render<'a> {
+pub struct RenderPass<'a> {
     #[builder(default)]
     label: Option<&'a str>,
     attachments: &'a [Option<RenderPassColorAttachment<'a>>],
@@ -16,7 +16,7 @@ pub struct Render<'a> {
     occlusion_query: Option<&'a QuerySet>,
 }
 
-impl<'a> RenderBuilder<'a> {
+impl<'a> RenderPassBuilder<'a> {
     pub fn make(self) -> graph::Result<RenderPassDescriptor<'a>> {
         let built = self.build()?;
         let descriptor = RenderPassDescriptor {

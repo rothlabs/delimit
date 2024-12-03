@@ -102,9 +102,7 @@ fn storage_layout(device: &Device) -> BindGroupLayout {
 fn storage_layout_vertex(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: Some("gpu_store_storage_read"),
-        entries: &[
-            storage_vertex_entry(0),
-        ],
+        entries: &[storage_vertex_entry(0)],
     })
 }
 

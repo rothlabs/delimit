@@ -24,7 +24,12 @@ impl<'a> Wheel<'a> {
             // let buffer = gpu.blank(&size).label("extrude").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.extrude {
-                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &offset, &size)?;
+                let rig = self.rig(
+                    self.chart.shape.dimension as usize,
+                    &form.offset,
+                    &offset,
+                    &size,
+                )?;
                 stems.push(spin.extrude(&rig, form)?);
             }
             weft.travel = Some(Hedge {
@@ -44,7 +49,12 @@ impl<'a> Wheel<'a> {
             // let buffer = gpu.blank(&size).label("revolve").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.revolve {
-                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &offset, &size)?;
+                let rig = self.rig(
+                    self.chart.shape.dimension as usize,
+                    &form.offset,
+                    &offset,
+                    &size,
+                )?;
                 stems.push(spin.revolve(&rig, form)?);
             }
             weft.orient = Some(Hedge {
@@ -148,7 +158,13 @@ impl<'a> Wheel<'a> {
     //         0.into()
     //     })
     // }
-    fn rig(&self, order: usize, form_offset: &Hub<u32>, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(
+        &self,
+        order: usize,
+        form_offset: &Hub<u32>,
+        offset: &Hub<u32>,
+        length: &Hub<u32>,
+    ) -> Result<Hedge> {
         let gpu = &self.chart.core.gpu;
         let buffer = &gpu.store.uniform.buffer;
         let vector = VectorBuilder::default()
@@ -169,14 +185,14 @@ impl<'a> Wheel<'a> {
     }
 }
 
-        // let uniform = self.chart.core.gpu.uniform();
-        // Ok(uniform
-        //     .field(order as u32)
-        //     .field(self.count.clone())
-        //     .field(offset)
-        //     .field(length)
-        //     .make()?)
-        // let size = build.fields.len() as u64 * 4;
+// let uniform = self.chart.core.gpu.uniform();
+// Ok(uniform
+//     .field(order as u32)
+//     .field(self.count.clone())
+//     .field(offset)
+//     .field(length)
+//     .make()?)
+// let size = build.fields.len() as u64 * 4;
 
 type OffsetsAndLengths = Result<(Vec<Hub<u32>>, Vec<Hub<u32>>)>;
 
@@ -206,7 +222,14 @@ impl<'a> Loom<'a> {
             let weft = self.weft.travel()?;
             stems.push(weave.travel(loom::Trio {
                 ///////////////////////////////// added main offset
-                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset, &main_offset, length)?,
+                rig: self.rig(
+                    0,
+                    &warp.offset,
+                    &weft.offset,
+                    &flow.offset,
+                    &main_offset,
+                    length,
+                )?,
                 weft,
                 flow,
             })?);
@@ -214,7 +237,12 @@ impl<'a> Loom<'a> {
         }
         if let Some(flow) = &flow.orient {
             ///////////////////////////////// added main offset
-            let offset = offsets.get(index).ok_or(anyhow!("no offset"))?.calc().add(&main_offset).hub();
+            let offset = offsets
+                .get(index)
+                .ok_or(anyhow!("no offset"))?
+                .calc()
+                .add(&main_offset)
+                .hub();
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             let weft = self.weft.orient()?;
             stems.push(weave.orient(loom::Trio {
@@ -226,12 +254,24 @@ impl<'a> Loom<'a> {
         }
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
-                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?.calc().add(&main_offset).hub();
+                let offset = offsets
+                    .get(index)
+                    .ok_or(anyhow!("no offset"))?
+                    .calc()
+                    .add(&main_offset)
+                    .hub();
                 let length = lengths.get(index).ok_or(anyhow!("no length"))?;
                 weave.size = length.calc().add(63).div(64).hub();
                 let weft = self.weft.spline(order)?;
                 stems.push(weave.spline(loom::Trio {
-                    rig: self.rig(order, &warp.offset, &weft.offset, &flow.offset, &offset, length)?,
+                    rig: self.rig(
+                        order,
+                        &warp.offset,
+                        &weft.offset,
+                        &flow.offset,
+                        &offset,
+                        length,
+                    )?,
                     weft,
                     flow,
                 })?);
@@ -279,7 +319,15 @@ impl<'a> Loom<'a> {
         let flows = &self.grid.chart.shape.flows;
         Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
-    fn rig(&self, order: usize, warp: &Hub<u32>, weft: &Hub<u32>, flow: &Hub<u32>, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(
+        &self,
+        order: usize,
+        warp: &Hub<u32>,
+        weft: &Hub<u32>,
+        flow: &Hub<u32>,
+        offset: &Hub<u32>,
+        length: &Hub<u32>,
+    ) -> Result<Hedge> {
         let dimension = self.grid.chart.shape.dimension;
         let gpu = &self.grid.chart.core.gpu;
         let buffer = &gpu.store.uniform.buffer;

@@ -1,9 +1,4 @@
-pub use render::RenderBuilder;
-pub use render::*;
-
 use super::*;
-
-pub mod render;
 
 pub struct Encode<'a> {
     pub inner: CommandEncoder,
@@ -45,7 +40,7 @@ impl<'a> Encode<'a> {
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
                 flat::compute::Step::Dispatch(size) => {
-                    println!("dispatch: {size}");
+                    // println!("dispatch: {size}");
                     pass.dispatch_workgroups(*size, 1, 1);
                 }
             }
@@ -62,7 +57,6 @@ impl<'a> Encode<'a> {
         self.inner.finish()
     }
     pub fn submit(self) -> SubmissionIndex {
-        // let cb = self.inner.finish();
         self.queue.submit([self.finish()])
     }
 }
@@ -109,11 +103,3 @@ impl<'a> DestinationBuffer<'a> {
         self.source.encoder
     }
 }
-
-// pub fn compute(&mut self) -> ComputePass {
-//     self.inner
-//         .begin_compute_pass(&ComputePassDescriptor::default())
-// }
-// pub fn render(&mut self, descriptor: &RenderPassDescriptor) -> RenderPass {
-//     self.inner.begin_render_pass(descriptor)
-// }

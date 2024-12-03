@@ -1,4 +1,8 @@
 use super::*;
+use encode::Encode;
+
+mod descriptor;
+mod encode;
 
 pub trait ToCore {
     fn gpu(self) -> impl Future<Output = Result<Core>>;
@@ -56,39 +60,6 @@ impl Core {
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }
-    fn buffer_init<T: Pod>(&self, data: &[T], usage: BufferUsages) -> Grc<Buffer> {
-        self.device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("Uniform Buffer"),
-                contents: bytemuck::cast_slice(data),
-                usage,
-            })
-            .into()
-    }
-    pub fn uniform<T: Pod>(&self) -> UniformBuilder<T> {
-        UniformBuilder::default().core(self.clone())
-    }
-    pub fn vertex_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
-        self.buffer_init(data, BufferUsages::VERTEX)
-    }
-    pub fn index_buffer<T: Pod>(&self, data: &[T]) -> Grc<Buffer> {
-        self.buffer_init(data, BufferUsages::INDEX)
-    }
-    // TODO: bind::LayoutBuilder
-    pub fn bind_layout<'a>(&'a self, entries: &'a [BindGroupLayoutEntry]) -> BindLayoutBuilder {
-        BindLayoutBuilder::default()
-            .device(&self.device)
-            .entries(entries)
-    }
-    pub fn bind_entry(&self, binding: u32, ty: BindingType) -> BindEntryBuilder {
-        BindEntryBuilder::default().binding(binding).ty(ty)
-    }
-    pub fn bind_uniform(&self) -> BufferBindingBuilder {
-        BufferBindingBuilder::default().ty(BufferBindingType::Uniform)
-    }
-    pub fn bind_storage(&self, read_only: bool) -> BufferBindingBuilder {
-        BufferBindingBuilder::default().ty(BufferBindingType::Storage { read_only })
-    }
     pub fn pipe_layout<'a>(
         &'a self,
         bind_layout: &'a [&'a BindGroupLayout],
@@ -101,8 +72,8 @@ impl Core {
     pub fn render_pass<'a>(
         &'a self,
         attachments: &'a [Option<RenderPassColorAttachment<'a>>],
-    ) -> encode::RenderBuilder {
-        encode::RenderBuilder::default().attachments(attachments)
+    ) -> descriptor::RenderPassBuilder {
+        descriptor::RenderPassBuilder::default().attachments(attachments)
     }
     pub fn encoder(&self) -> Encode {
         Encode {
@@ -112,8 +83,8 @@ impl Core {
             queue: &self.queue,
         }
     }
-    pub fn attachment<'a>(&'a self, view: &'a TextureView) -> ColorAttachmentBuilder {
-        ColorAttachmentBuilder::default().view(view)
+    pub fn attachment<'a>(&'a self, view: &'a TextureView) -> descriptor::ColorAttachmentBuilder {
+        descriptor::ColorAttachmentBuilder::default().view(view)
     }
     pub fn lines(&self) -> PrimitiveBuilder {
         PrimitiveBuilder::default().topology(PrimitiveTopology::LineList)
@@ -136,28 +107,6 @@ impl Core {
     }
     pub fn blank(&self, size: impl Into<Hub<u32>>) -> BlankBuilder {
         BlankBuilder::default().core(self.clone()).size(size)
-    }
-    pub fn size(&self, buffer: impl Into<Hub<Grc<Buffer>>>) -> SizeBuilder {
-        SizeBuilder::default().buffer(buffer)
-    }
-    // pub fn compute(&self) -> encode::ComputeBuilder {
-    //     encode::ComputeBuilder::default().core(self.clone())
-    // }
-    // pub fn bind2(&self) -> bind::BindGroupUnitBuilder<((Grc<Device>,), (), ())> {
-    //     bind::BindGroupUnit::builder().device(self.device.clone())
-    // }
-    pub fn bind(&self) -> bind::BindGroupRigBuilder {
-        bind::BindGroupRigBuilder::default().device(self.device.clone())
-    }
-    /// Create a dummy `Hedge` to quickly put data into GPU ecosystem.
-    pub fn buffer_hedge<T>(&self, data: Vec<T>) -> Result<BufferHedge>
-    where
-        T: Pod + Debug + graph::SendSync,
-    {
-        let size = data.len() as u64 * 4;
-        let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage()?.into();
-        let stem = self.writer(buffer.clone()).data(data).hub()?;
-        bufferhedge().buffer(buffer).stem(stem).build()
     }
 }
 

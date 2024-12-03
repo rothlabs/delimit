@@ -9,7 +9,6 @@ pub struct Trio<'a> {
 pub struct Weave<'a> {
     pub loom: &'a Loom<'a>,
     pub warp: &'a Hedge,
-    // pub plot: &'a Hub<Grc<Buffer>>,
     pub size: Hub<u32>,
 }
 
@@ -37,7 +36,11 @@ impl Weave<'_> {
         let gpu_ = &self.loom.grid.chart.core.gpu;
         let uniform = &gpu_.store.uniform.group;
         let storage = &gpu_.store.storage.group;
-        // let bind = gpu::bind().slot(1).group(group).hub()?;
+        let uniform_bind = gpu::bind()
+            .slot(1)
+            .group(uniform)
+            .offset(&trio.rig.offset)
+            .hub()?;
         let stems = trio
             .rig
             .stems
@@ -47,8 +50,8 @@ impl Weave<'_> {
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
             .pipe(&program.pipe)
-            .bind(gpu::bind().slot(0).group(storage).hub()?)
-            .bind(gpu::bind().slot(1).group(uniform).offset(&trio.rig.offset).hub()?)
+            .bind(gpu::bind().group(storage).hub()?)
+            .bind(uniform_bind)
             .size(&self.size)
             .stems(stems)
             .hub()

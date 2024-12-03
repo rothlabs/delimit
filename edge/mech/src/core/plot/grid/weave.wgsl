@@ -1,12 +1,3 @@
-// struct Rig {
-//     rank: u32,
-//     order: u32,
-//     offset: u32,
-//     length: u32,
-//     count: u32,
-//     area: u32,
-//     dimension: u32,
-// };
 struct Rig {
     rank: u32,
     order: u32,

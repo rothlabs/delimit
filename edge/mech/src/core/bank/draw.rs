@@ -14,7 +14,7 @@ impl ChartBank {
         // let plot = gpu.bind_storage(true).entry(1)?.vertex()?;
         // let layout = gpu.bind_layout(&[rig, plot]).make()?;
         // TODO: put pipe_layout method on bind_layout
-        
+
         let attribs = vertex_attr_array![0 => Float32x2];
         let buffers = vec![gpu.vertex_layout(8).attributes(&attribs).make()?];
         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;

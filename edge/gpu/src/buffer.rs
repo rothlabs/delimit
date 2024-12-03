@@ -1,7 +1,6 @@
 pub use blank::*;
 pub use reader::*;
 pub use size::*;
-pub use uniform::*;
 pub use writer::*;
 
 use super::*;
@@ -9,7 +8,6 @@ use super::*;
 mod blank;
 mod reader;
 mod size;
-mod uniform;
 mod writer;
 
 #[derive(Builder, Debug)]

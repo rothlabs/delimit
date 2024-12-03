@@ -22,8 +22,8 @@ impl UniformStore {
             resource: BindingResource::Buffer(BufferBinding {
                 buffer: &buffer,
                 offset: 0,
-                size: Some(NonZero::new(256).unwrap())
-            })
+                size: Some(NonZero::new(256).unwrap()),
+            }),
         };
         let group = device.create_bind_group(&BindGroupDescriptor {
             label: None,
