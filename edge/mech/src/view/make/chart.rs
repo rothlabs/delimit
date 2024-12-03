@@ -21,7 +21,14 @@ impl Solve for Points {
         let stride = plot.shape.base().await?.stride();
         // let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
         let count = hedge.size.base().await?;
-        let rig = gpu.uniform().field(stride).field(count).make()?;
+        println!("count: {count}");
+        let offset = hedge.offset.base().await?;
+        println!("offset: {offset}");
+        
+        hedge.stems.depend().await?;
+        
+        // TODO: take count and offset hubs directly
+        let rig = gpu.uniform().field(stride).field(count).field(offset).make()?;
         let bind = gpu
             .bind()
             .layout(chart.points.layout.clone())
@@ -35,7 +42,7 @@ impl Solve for Points {
             count: vertex_count.into(),
             radius: 4.0.into(),
         }
-        .gate();
+        .hub();
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
         let stem = gpu.writer(buffer.clone()).data(points).hub()?;
         let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;

@@ -4,14 +4,14 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     let mech = &view.mech;
     let gpu = &mech.gpu;
     #[rustfmt::skip]
-    let spline2 = vec![
+    let spline2: Vec<f32> = vec![
         // index of weft form,    index of warp shapes (control points)
-        0,   8, 4,
+        0.,   8., 4.,
     ];
     #[rustfmt::skip]
-    let spline3 = vec![
-        0,   1, 4, 3, 
-        0,   7, 6, 5,
+    let spline3: Vec<f32> = vec![
+        0.,   1., 4., 3., 
+        0.,   7., 6., 5.,
     ];
     let flow1 = mech
         .flow()
@@ -19,8 +19,8 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         .spline(gpu.hedge(spline3)?, 3)
         .build()?;
     #[rustfmt::skip]
-    let spline3 = vec![
-        0,   1, 0, 2
+    let spline3: Vec<f32> = vec![
+        0.,   1., 0., 2.
     ];
     let flow2 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let shape = mech
@@ -29,7 +29,7 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         .nurbs(gpu.hedge(nurbs2())?, 2)
         .nurbs(gpu.hedge(nurbs3())?, 3)
         .flow(flow1)
-        .flow(flow2)
+        // .flow(flow2)
         .build()?;
     let plot = mech.plot(shape).grid(40).hub()?;
     let drawing = view.plot(&plot).points().hub()?;

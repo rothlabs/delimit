@@ -24,7 +24,7 @@ impl<'a> Wheel<'a> {
             // let buffer = gpu.blank(&size).label("extrude").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.extrude {
-                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &0.into(), &size)?;
+                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &offset, &size)?;
                 stems.push(spin.extrude(&rig, form)?);
             }
             weft.travel = Some(Hedge {
@@ -44,7 +44,7 @@ impl<'a> Wheel<'a> {
             // let buffer = gpu.blank(&size).label("revolve").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.revolve {
-                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &0.into(), &size)?;
+                let rig = self.rig(self.chart.shape.dimension as usize, &form.offset, &offset, &size)?;
                 stems.push(spin.revolve(&rig, form)?);
             }
             weft.orient = Some(Hedge {
@@ -70,11 +70,14 @@ impl<'a> Wheel<'a> {
                 // let buffer = gpu.blank(size).label(label).hub()?;
                 let mut spin = self.spin(); // &buffer
                 if let Some(form) = &form.basis {
-                    let rig = self.rig(order, &form.offset, &0.into(), &spline_size)?;
+                    // spline_size should be devided by 3 and order to get number of invocations
+                    let rig = self.rig(order, &form.offset, &offset, &spline_size)?;
+                    // TODO: set spin size before calling basis
                     stems.push(spin.basis(&rig, form)?);
                 }
                 if let Some(form) = &form.nurbs {
-                    let rig = self.rig(order, &form.offset, &spline_size, &nurbs_length)?;
+                    let offset = spline_size.calc().add(&offset).hub();
+                    let rig = self.rig(order, &form.offset, &offset, &nurbs_length)?;
                     spin.size = nurbs_length.calc().add(63).div(64).hub();
                     stems.push(spin.nurbs(&rig, form)?);
                 }
@@ -145,19 +148,19 @@ impl<'a> Wheel<'a> {
     //         0.into()
     //     })
     // }
-    fn rig(&self, order: usize, form_offset: &Hub<u32>, weft_offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
+    fn rig(&self, order: usize, form_offset: &Hub<u32>, offset: &Hub<u32>, length: &Hub<u32>) -> Result<Hedge> {
         let gpu = &self.chart.core.gpu;
         let buffer = &gpu.store.uniform.buffer;
         let vector = VectorBuilder::default()
             .field(order as u32)
             .field(self.count.clone())
             .field(form_offset)
-            .field(weft_offset)
+            .field(offset)
             .field(length)
             .hub()?;
-        let stem = gpu.writer(buffer).data(vector).hub()?;
         let size = 64.into();
         let offset = gpu.store.uniform(&size);
+        let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,
             size,
@@ -191,7 +194,7 @@ impl<'a> Loom<'a> {
         let gpu = &self.grid.chart.core.gpu;
         let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?.clone();
-        let offset = gpu.store.storage(&size);
+        let main_offset = gpu.store.storage(&size);
         // let label = format!("grid plot rank {}", self.rank);
         // let buffer = gpu.blank(size).label(label).hub()?;
         let mut weave = self.weave(warp)?;
@@ -202,18 +205,20 @@ impl<'a> Loom<'a> {
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             let weft = self.weft.travel()?;
             stems.push(weave.travel(loom::Trio {
-                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset, &0.into(), length)?,
+                ///////////////////////////////// added main offset
+                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset, &main_offset, length)?,
                 weft,
                 flow,
             })?);
             index += 1;
         }
         if let Some(flow) = &flow.orient {
-            let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
+            ///////////////////////////////// added main offset
+            let offset = offsets.get(index).ok_or(anyhow!("no offset"))?.calc().add(&main_offset).hub();
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             let weft = self.weft.orient()?;
             stems.push(weave.orient(loom::Trio {
-                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset,offset, length)?,
+                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset, &offset, length)?,
                 weft,
                 flow,
             })?);
@@ -221,12 +226,12 @@ impl<'a> Loom<'a> {
         }
         for (order, flow) in flow.splines.iter().enumerate() {
             if let Some(flow) = flow {
-                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?;
+                let offset = offsets.get(index).ok_or(anyhow!("no offset"))?.calc().add(&main_offset).hub();
                 let length = lengths.get(index).ok_or(anyhow!("no length"))?;
                 weave.size = length.calc().add(63).div(64).hub();
                 let weft = self.weft.spline(order)?;
                 stems.push(weave.spline(loom::Trio {
-                    rig: self.rig(order, &warp.offset, &weft.offset, &flow.offset, offset, length)?,
+                    rig: self.rig(order, &warp.offset, &weft.offset, &flow.offset, &offset, length)?,
                     weft,
                     flow,
                 })?);
@@ -234,7 +239,7 @@ impl<'a> Loom<'a> {
             }
         }
         Ok(Hedge {
-            offset,
+            offset: main_offset,
             size,
             stems,
         })
@@ -290,9 +295,9 @@ impl<'a> Loom<'a> {
             .field(offset)
             .field(length)
             .hub()?;
-        let stem = gpu.writer(buffer).data(vector).hub()?;
         let size = 64.into();
         let offset = gpu.store.uniform(&size);
+        let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,
             size,
