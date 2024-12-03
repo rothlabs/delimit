@@ -146,15 +146,17 @@ pub struct DrawBank {
 
 impl DrawBank {
     pub fn new(port: &Viewport) -> Result<Self> {
+        let store = &port.gpu.store;
+        let layout = port.gpu.pipe_layout(&[&store.storage.layout_vertex, &store.uniform.layout_vertex]).make()?;
         Ok(Self {
-            chart: draw::ChartBank::new(port)?,
+            chart: draw::ChartBank::new(port, &layout)?,
         })
     }
 }
 
 #[derive(Debug)]
 pub struct RenderProgram {
-    pub layout: Grc<BindGroupLayout>,
+    // pub layout: Grc<BindGroupLayout>,
     pub pipe: Grc<RenderPipeline>,
 }
 

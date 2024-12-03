@@ -62,7 +62,7 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
         if end > max {
             panic!("buffer full!")
         }
-        println!("buffer offset in elements: {start}");
+        // println!("buffer offset in elements: {start}");
         let grant = Leaf::new(start);
         let chunk = Chunk {
             // grant: grant.clone(),
@@ -77,17 +77,33 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
 
 fn uniform_layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_unifrom_bind_group_layout"),
+        label: Some("gpu_store_unifrom"),
         entries: &[uniform_compute_entry(0)],
+    })
+}
+
+fn uniform_layout_vertex(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_unifrom"),
+        entries: &[uniform_vertex_entry(0)],
     })
 }
 
 fn storage_layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_storage_bind_group_layout"),
+        label: Some("gpu_store_storage"),
         entries: &[
             storage_compute_entry(0, false),
             // storage_compute_entry(1, true),
+        ],
+    })
+}
+
+fn storage_layout_vertex(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some("gpu_store_storage_read"),
+        entries: &[
+            storage_vertex_entry(0),
         ],
     })
 }
@@ -105,12 +121,38 @@ fn uniform_compute_entry(binding: u32) -> BindGroupLayoutEntry {
     }
 }
 
+fn uniform_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::VERTEX,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Uniform,
+            has_dynamic_offset: true,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}
+
 fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
     BindGroupLayoutEntry {
         binding,
         visibility: ShaderStages::COMPUTE,
         ty: BindingType::Buffer {
             ty: BufferBindingType::Storage { read_only },
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}
+
+fn storage_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
+    BindGroupLayoutEntry {
+        binding,
+        visibility: ShaderStages::VERTEX,
+        ty: BindingType::Buffer {
+            ty: BufferBindingType::Storage { read_only: true },
             has_dynamic_offset: false,
             min_binding_size: None,
         },

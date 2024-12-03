@@ -15,24 +15,22 @@ impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
+        let uniform = &gpu.store.uniform.group_vertex;
+        let storage = &gpu.store.storage.group_vertex;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
-        // let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
-        let offset = hedge.offset.base().await?;
-        println!("offset: {offset}");
         let count = hedge.size.base().await? / stride;
-        println!("count: {count}");
-        // TODO: take count and offset hubs directly
-        let rig = gpu.uniform().field(stride).field(count).field(offset).make()?;
-        let bind = gpu
-            .bind()
-            .layout(chart.points.layout.clone())
-            .entry(0, rig.buffer)
-            // .entry(1, hedge.buffer.clone())
-            .entry(1, &gpu.store.storage.buffer)
+        let buffer = &gpu.store.uniform.buffer;
+        let vector = VectorBuilder::default()
+            .field(stride)
+            .field(count)
+            .field(hedge.offset)
             .hub()?;
+        let offset = gpu.store.uniform(64);
+        let uniform_stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
+
         let vertex_count: u32 = 8;
         let points = Circle {
             frame: self.view.port.size.clone(),
@@ -43,15 +41,16 @@ impl Solve for Points {
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
         let stem = gpu.writer(buffer.clone()).data(points).hub()?;
         let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;
-        let stems = rig.stems.with(&hedge.stems).with(&mesh.stems);
-        let bind = gpu::bind().group(bind).hub()?;
+        let stems = hedge.stems.with(&mesh.stems).with(&[uniform_stem]);
         let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;
         Ok(gpu::draw()
             .stems(stems)
             .pipe(&chart.points.pipe)
-            .bind(bind)
+            .bind(gpu::bind().slot(0).group(storage).hub()?)
+            .bind(gpu::bind().slot(1).group(uniform).offset(offset).hub()?)
             .buffer(vertex)
             .vertices(0..vertex_count * 3)
+            // TODO: get Hub<Range<u32>> from count: Hub<u32>
             .instances(0..count)
             .hub()?)
     }

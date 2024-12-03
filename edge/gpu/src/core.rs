@@ -158,7 +158,6 @@ impl Core {
         let buffer: Hub<Grc<Buffer>> = self.buffer(size).storage()?.into();
         let stem = self.writer(buffer.clone()).data(data).hub()?;
         bufferhedge().buffer(buffer).stem(stem).build()
-        // Ok(Hedge { buffer, stem })
     }
 }
 
