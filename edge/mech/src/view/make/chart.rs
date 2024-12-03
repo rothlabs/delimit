@@ -19,13 +19,15 @@ impl Solve for Points {
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
-        let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
+        // let count = (hedge.buffer.base().await?.size() / stride as u64 / 4) as u32;
+        let count = hedge.size.base().await?;
         let rig = gpu.uniform().field(stride).field(count).make()?;
         let bind = gpu
             .bind()
             .layout(chart.points.layout.clone())
             .entry(0, rig.buffer)
-            .entry(1, hedge.buffer.clone())
+            // .entry(1, hedge.buffer.clone())
+            .entry(1, &gpu.store.storage.buffer)
             .hub()?;
         let vertex_count: u32 = 8;
         let points = Circle {

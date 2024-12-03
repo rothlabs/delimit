@@ -7,7 +7,7 @@ use super::*;
 #[builder(setter(strip_option))]
 pub struct Travel {
     /// Direction and Length Extrusion Vector
-    pub extrude: Option<BufferHedge>,
+    pub extrude: Option<Hedge>,
     // per component function
     // https://www.youtube.com/watch?v=AjDU7eegt4g
 }
@@ -19,7 +19,7 @@ pub struct Travel {
 #[builder(setter(strip_option))]
 pub struct Orient {
     /// Axis-Angle Rotation Matrix
-    pub revolve: Option<BufferHedge>,
+    pub revolve: Option<Hedge>,
 }
 
 /// Design used to make the vector of matrix-vector multiplication.
@@ -29,17 +29,18 @@ pub struct Orient {
 #[builder(setter(strip_option))]
 pub struct Spline {
     /// Basis Spline (B-Spline)
-    pub basis: Option<BufferHedge>,
+    pub basis: Option<Hedge>,
     /// Non-Uniform Rational Basis Spline
-    pub nurbs: Option<BufferHedge>,
+    pub nurbs: Option<Hedge>,
 }
 
 impl Spline {
-    pub fn nurbs_size(&self, mul: &Hub<u32>) -> Result<Hub<u32>> {
-        Ok(if let Some(nurbs) = &self.nurbs {
-            gpu::size().buffer(&nurbs.buffer).mul(mul).hub()?
+    pub fn nurbs_size(&self, mul: &Hub<u32>) -> Hub<u32> {
+        if let Some(nurbs) = &self.nurbs {
+            nurbs.size.calc().mul(mul).hub()
+            // gpu::size().buffer(&nurbs.buffer).mul(mul).hub()?
         } else {
             0.into()
-        })
+        }
     }
 }

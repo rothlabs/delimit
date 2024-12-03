@@ -55,6 +55,7 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+#[derive(Clone, Debug)]
 pub struct Hedge {
     pub offset: Hub<u32>,
     pub size: Hub<u32>,

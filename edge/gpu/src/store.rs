@@ -1,14 +1,14 @@
 use super::*;
-use uniform::*;
 use storage::*;
+use uniform::*;
 use unit::*;
 
-mod uniform;
 mod storage;
+mod uniform;
 mod unit;
 
 struct Chunk {
-    grant: Leaf<u32>,
+    // grant: Leaf<u32>,
     start: u32,
     end: u32,
 }
@@ -64,7 +64,7 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
         }
         let grant = Leaf::new(start);
         let chunk = Chunk {
-            grant: grant.clone(),
+            // grant: grant.clone(),
             start,
             end,
         };
@@ -84,7 +84,10 @@ fn uniform_layout(device: &Device) -> BindGroupLayout {
 fn storage_layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
         label: Some("gpu_store_storage_bind_group_layout"),
-        entries: &[storage_compute_entry(0)],
+        entries: &[
+            storage_compute_entry(0, false),
+            storage_compute_entry(1, true),
+        ],
     })
 }
 
@@ -101,12 +104,12 @@ fn uniform_compute_entry(binding: u32) -> BindGroupLayoutEntry {
     }
 }
 
-fn storage_compute_entry(binding: u32) -> BindGroupLayoutEntry {
+fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
     BindGroupLayoutEntry {
         binding,
         visibility: ShaderStages::COMPUTE,
         ty: BindingType::Buffer {
-            ty: BufferBindingType::Storage { read_only: false },
+            ty: BufferBindingType::Storage { read_only },
             has_dynamic_offset: false,
             min_binding_size: None,
         },

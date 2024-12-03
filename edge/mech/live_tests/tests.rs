@@ -15,19 +15,19 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     ];
     let flow1 = mech
         .flow()
-        .spline(gpu.buffer_hedge(spline2)?, 2)
-        .spline(gpu.buffer_hedge(spline3)?, 3)
+        .spline(gpu.hedge(spline2)?, 2)
+        .spline(gpu.hedge(spline3)?, 3)
         .build()?;
     #[rustfmt::skip]
     let spline3 = vec![
         0,   1, 0, 2
     ];
-    let flow2 = mech.flow().spline(gpu.buffer_hedge(spline3)?, 3).build()?;
+    let flow2 = mech.flow().spline(gpu.hedge(spline3)?, 3).build()?;
     let shape = mech
         .shape(2)
-        .warp(gpu.buffer_hedge(warp2())?)
-        .nurbs(gpu.buffer_hedge(nurbs2())?, 2)
-        .nurbs(gpu.buffer_hedge(nurbs3())?, 3)
+        .warp(gpu.hedge(warp2())?)
+        .nurbs(gpu.hedge(nurbs2())?, 2)
+        .nurbs(gpu.hedge(nurbs3())?, 3)
         .flow(flow1)
         .flow(flow2)
         .build()?;

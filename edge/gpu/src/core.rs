@@ -162,8 +162,6 @@ impl Core {
     }
 }
 
-
-
 // pub fn uniform_hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
 //     where
 //         T: Pod + Debug + graph::SendSync,
@@ -179,14 +177,6 @@ impl Core {
 //             stems: vec![stem],
 //         })
 //     }
-
-
-
-
-
-
-
-
 
 // pub fn render_pipe<'a>(&'a self, vertex: VertexState<'a>) -> pipe::RenderBuilder {
 //     pipe::RenderBuilder::default()

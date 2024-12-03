@@ -10,7 +10,7 @@ mod make;
 #[builder(pattern = "owned")]
 #[builder(build_fn(error = "graph::Error"))]
 pub struct Shape {
-    warp: BufferHedge,
+    warp: Hedge,
     form: Form,
     #[builder(setter(each(name = "flow", into)))]
     flows: Vec<Flow>,
@@ -47,28 +47,28 @@ impl ShapeBuilder {
             });
         })
     }
-    pub fn extrude(self, hedge: BufferHedge) -> Self {
+    pub fn extrude(self, hedge: Hedge) -> Self {
         self.mut_form(|form| {
             let mut travel = form.travel.take().unwrap_or_default();
             travel.extrude = Some(hedge);
             form.travel = Some(travel);
         })
     }
-    pub fn revolve(self, hedge: BufferHedge) -> Self {
+    pub fn revolve(self, hedge: Hedge) -> Self {
         self.mut_form(|form| {
             let mut orient = form.orient.take().unwrap_or_default();
             orient.revolve = Some(hedge);
             form.orient = Some(orient);
         })
     }
-    pub fn basis(self, hedge: BufferHedge, order: usize) -> Self {
+    pub fn basis(self, hedge: Hedge, order: usize) -> Self {
         self.mut_form(|form| {
             form.mut_spline(order, |spline| {
                 spline.basis = Some(hedge);
             });
         })
     }
-    pub fn nurbs(self, hedge: BufferHedge, order: usize) -> Self {
+    pub fn nurbs(self, hedge: Hedge, order: usize) -> Self {
         self.mut_form(|form| {
             form.mut_spline(order, |spline| {
                 spline.nurbs = Some(hedge);
@@ -113,15 +113,15 @@ impl Form {
 #[builder(setter(strip_option))]
 pub struct Flow {
     #[builder(default)]
-    travel: Option<BufferHedge>,
+    travel: Option<Hedge>,
     #[builder(default)]
-    orient: Option<BufferHedge>,
+    orient: Option<Hedge>,
     #[builder(default)]
-    splines: Vec<Option<BufferHedge>>,
+    splines: Vec<Option<Hedge>>,
 }
 
 impl FlowBuilder {
-    pub fn spline(mut self, hedge: BufferHedge, order: usize) -> Self {
+    pub fn spline(mut self, hedge: Hedge, order: usize) -> Self {
         let mut splines = self.splines.take().unwrap_or_default();
         while splines.len() < order + 1 {
             splines.push(None);

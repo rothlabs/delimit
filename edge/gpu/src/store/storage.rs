@@ -15,10 +15,16 @@ impl StorageStore {
         let group = device.create_bind_group(&BindGroupDescriptor {
             label: None,
             layout: &layout,
-            entries: &[BindGroupEntry {
-                binding: 0,
-                resource: buffer.as_entire_binding(),
-            }],
+            entries: &[
+                BindGroupEntry {
+                    binding: 0,
+                    resource: buffer.as_entire_binding(),
+                },
+                BindGroupEntry {
+                    binding: 1,
+                    resource: buffer.as_entire_binding(),
+                },
+            ],
         });
         Self {
             layout,

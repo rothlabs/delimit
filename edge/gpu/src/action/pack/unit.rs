@@ -7,7 +7,7 @@ pub struct Dispatch {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    bindings: Vec<Hub<action::Bind>>,
+    binds: Vec<Hub<action::Bind>>,
     size: Hub<u32>,
 }
 
@@ -17,7 +17,7 @@ impl Solve for Dispatch {
         let dispatch = self.size.base().await?;
         let compute = pack::pass::Compute {
             pipe: self.pipe.base().await?,
-            binds: self.bindings.base().await?,
+            binds: self.binds.base().await?,
             kind: pack::pass::compute::Kind::Dispatch(dispatch),
         };
         let action = pack::Action {
