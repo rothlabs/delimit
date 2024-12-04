@@ -33,7 +33,7 @@ impl Spin<'_> {
         &self,
         rig: &Hedge,
         form: &Hedge,
-        program: &ComputeProgram,
+        pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu = &self.wheel.chart.core.gpu;
         let rig_group = &gpu.store.rig.group;
@@ -45,7 +45,7 @@ impl Spin<'_> {
             .build()
             .hub();
         gpu::dispatch()
-            .pipe(&program.pipe)
+            .pipe(pipe)
             .bind(&gpu.store.topic.bind)
             .bind(rig_bind)
             .size(&self.size)

@@ -3,6 +3,7 @@ use encode::Encode;
 
 mod descriptor;
 mod encode;
+mod root;
 
 pub trait ToCore {
     fn gpu(self) -> impl Future<Output = Result<Core>>;
@@ -40,6 +41,12 @@ impl Core {
             device: &self.device,
             module: self.device.create_shader_module(source), //.into(),
             targets: &[],
+        }
+    }
+    pub fn image(&self, stems: Vec<Hub<Action>>) -> root::Image {
+        root::Image {
+            core: self,
+            stems,
         }
     }
     pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
@@ -109,6 +116,8 @@ impl Core {
         BlankBuilder::default().core(self.clone()).size(size)
     }
 }
+
+
 
 // pub fn uniform_hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
 //     where

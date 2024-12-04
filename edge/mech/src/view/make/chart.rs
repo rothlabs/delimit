@@ -17,7 +17,6 @@ impl Solve for Points {
         let gpu = &self.view.port.gpu;
         let store = &gpu.store;
         let rig = &store.rig.group;
-        // let topic = &store.topic.group_vertex;
         let model_buffer = &store.mesh.buffer;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -40,6 +39,7 @@ impl Solve for Points {
             radius: 4.0.into(),
         }
         .hub();
+    
         let mesh_offset = store.mesh(res * 6); // 24
         let model_stem = gpu
             .writer(model_buffer)
@@ -55,7 +55,7 @@ impl Solve for Points {
             .hub();
         Ok(gpu::draw()
             .stems(stems)
-            .pipe(&chart.points.pipe)
+            .pipe(&chart.points)
             .bind(&store.topic.bind_vertex)
             .bind(rig_bind)
             .buffer(&store.mesh.vertex)

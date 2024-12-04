@@ -52,33 +52,23 @@ impl GridPlotBin {
 #[derive(Debug)]
 pub struct SpinGridPlotBin {
     // travel
-    pub extrude: ComputeProgram,
+    pub extrude: Grc<ComputePipeline>,
 
     // orient
-    pub revolve2: ComputeProgram,
+    pub revolve2: Grc<ComputePipeline>,
 
     // spline
-    pub basis: ComputeProgram,
-    pub nurbs: ComputeProgram,
+    pub basis: Grc<ComputePipeline>,
+    pub nurbs: Grc<ComputePipeline>,
 }
 
 impl SpinGridPlotBin {
     pub fn new(gpu: &Gpu, layout: &PipelineLayout) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/spin.wgsl"));
-        let extrude = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("extrude").layout(layout).make()?,
-        };
-        let revolve2 = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("revolve2").layout(layout).make()?,
-        };
-        let basis = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("basis").layout(layout).make()?,
-        };
-        let pipe = shader.compute("nurbs").layout(layout).make()?;
-        let nurbs = ComputeProgram { pipe };
+        let extrude = shader.compute("extrude").layout(layout).make()?;
+        let revolve2 = shader.compute("revolve2").layout(layout).make()?;
+        let basis = shader.compute("basis").layout(layout).make()?;
+        let nurbs = shader.compute("nurbs").layout(layout).make()?;
         Ok(Self {
             extrude,
             revolve2,
@@ -90,45 +80,23 @@ impl SpinGridPlotBin {
 
 #[derive(Debug)]
 pub struct WeaveGridPlotBin {
-    pub travel: ComputeProgram,
-    pub orient: ComputeProgram,
-    pub spline: ComputeProgram,
+    pub travel: Grc<ComputePipeline>,
+    pub orient: Grc<ComputePipeline>,
+    pub spline: Grc<ComputePipeline>,
 }
 
 impl WeaveGridPlotBin {
     pub fn new(gpu: &Gpu, layout: &PipelineLayout) -> Result<Self> {
         let shader = gpu.shader(include_wgsl!("plot/grid/weave.wgsl"));
-        // let rig = gpu.bind_uniform().entry(0)?.compute()?;
-        // let warp = gpu.bind_storage(true).entry(1)?.compute()?;
-        // let weft = gpu.bind_storage(true).entry(2)?.compute()?;
-        // let flow = gpu.bind_storage(true).entry(3)?.compute()?;
-        // let plot = gpu.bind_storage(false).entry(4)?.compute()?;
-        // let layout = gpu.bind_layout(&[rig, warp, weft, flow, plot]).make()?;
-        // let layout = gpu.pipe_layout(&[&gpu.store.storage.layout, &gpu.store.uniform.layout]).make()?;
-        let travel = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("travel").layout(layout).make()?,
-        };
-        let orient = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("orient").layout(layout).make()?,
-        };
-        let spline = ComputeProgram {
-            // layout: layout.clone(),
-            pipe: shader.compute("spline").layout(layout).make()?,
-        };
+        let travel = shader.compute("travel").layout(layout).make()?;
+        let orient = shader.compute("orient").layout(layout).make()?;
+        let spline = shader.compute("spline").layout(layout).make()?;
         Ok(Self {
             travel,
             orient,
             spline,
         })
     }
-}
-
-#[derive(Debug)]
-pub struct ComputeProgram {
-    // pub layout: Grc<BindGroupLayout>,
-    pub pipe: Grc<ComputePipeline>,
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -150,11 +118,3 @@ impl DrawBank {
         })
     }
 }
-
-#[derive(Debug)]
-pub struct RenderProgram {
-    // pub layout: Grc<BindGroupLayout>,
-    pub pipe: Grc<RenderPipeline>,
-}
-
-///////////////////////

@@ -16,8 +16,7 @@ pub struct Store {
     pub topic: Grc<Topic>,
 
     // for vertex data of position only
-    // need another model store to for other vertex formats
-    // rename to mesh with sub mesh formats?
+    // need another mesh store to for other vertex formats
     pub mesh: Grc<Mesh>,
 }
 

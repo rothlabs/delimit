@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug)]
 pub struct ChartBank {
-    pub points: RenderProgram,
+    pub points: Grc<RenderPipeline>,
 }
 
 impl ChartBank {
@@ -14,13 +14,12 @@ impl ChartBank {
         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
         let fragment = shader.fragment("fs_main").make()?;
         let multi = gpu.multisample(4).make()?;
-        let pipe = port
+        let points = port
             .pipe(vertex)
             .fragment(fragment)
             .layout(layout)
             .multisample(multi)
             .make()?;
-        let points = RenderProgram { pipe };
         Ok(Self { points })
     }
 }

@@ -17,7 +17,7 @@ impl Act for App {
         if let Some(main) = displays.last() {
             let port = &main.viewport;
             let mech = Mech::new(port)?;
-            let view = View::new(mech, port.clone())?;
+            let view = View::new(mech, port.clone());
             let action = test::draw_nurbs_surface(&view).await?;
             let commands = gpu::action::Sort::new(vec![action]).hub();
             let transfer = commands.transfer(&port.commands);

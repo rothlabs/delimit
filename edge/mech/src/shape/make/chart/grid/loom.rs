@@ -31,7 +31,7 @@ impl Weave<'_> {
     pub fn weave(
         &self,
         trio: Trio,
-        program: &ComputeProgram,
+        pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu = &self.loom.grid.chart.core.gpu;
         let rig_group = &gpu.store.rig.group;
@@ -50,7 +50,7 @@ impl Weave<'_> {
             .with(&trio.flow.stems);
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
-            .pipe(&program.pipe)
+            .pipe(pipe)
             .bind(&gpu.store.topic.bind)
             .bind(rig_bind)
             .size(&self.size)
