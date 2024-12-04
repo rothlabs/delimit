@@ -5,6 +5,7 @@ const LABEL: &str = "gpu_store_rig";
 #[derive(Debug)]
 pub struct Rig {
     pub layout: BindGroupLayout,
+    // TODO: needs to be hub so only need to change buffer
     pub group: Leaf<Grc<BindGroup>>,
     pub buffer: Leaf<Grc<Buffer>>,
     chunks: Leaf<Vec<Chunk>>,

@@ -33,14 +33,15 @@ impl Weave<'_> {
         trio: Trio,
         program: &ComputeProgram,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu_ = &self.loom.grid.chart.core.gpu;
-        let uniform = &gpu_.store.rig.group;
-        let storage = &gpu_.store.topic.group;
-        let uniform_bind = gpu::bind()
+        let gpu = &self.loom.grid.chart.core.gpu;
+        let rig_group = &gpu.store.rig.group;
+        // let storage = &gpu_.store.topic.group;
+        let rig_bind = gpu::Bind::builder()
             .slot(1)
-            .group(uniform)
-            .offset(&trio.rig.offset)
-            .hub()?;
+            .group(rig_group)
+            .offsets(vec![trio.rig.offset])
+            .build()
+            .hub();
         let stems = trio
             .rig
             .stems
@@ -50,8 +51,8 @@ impl Weave<'_> {
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
             .pipe(&program.pipe)
-            .bind(gpu::bind().group(storage).hub()?)
-            .bind(uniform_bind)
+            .bind(&gpu.store.topic.bind)
+            .bind(rig_bind)
             .size(&self.size)
             .stems(stems)
             .hub()

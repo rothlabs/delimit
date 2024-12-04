@@ -8,7 +8,7 @@ pub struct Pass {
 #[derive(Clone, Debug)]
 pub enum Step {
     Pipe(Grc<ComputePipeline>),
-    Bind(Bind),
+    Bind(action::Bind),
     Dispatch(u32),
 }
 
@@ -44,7 +44,7 @@ impl State {
             self.pipe = Some(pipe.clone());
         }
     }
-    pub fn binds(&mut self, binds: &[Bind]) {
+    pub fn binds(&mut self, binds: &[action::Bind]) {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
                 if bind != now {

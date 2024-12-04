@@ -35,20 +35,19 @@ impl Spin<'_> {
         form: &Hedge,
         program: &ComputeProgram,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu_ = &self.wheel.chart.core.gpu;
-        let uniform = &gpu_.store.rig.group;
-        let storage = &gpu_.store.topic.group;
+        let gpu = &self.wheel.chart.core.gpu;
+        let rig_group = &gpu.store.rig.group;
         let stems = rig.stems.with(&form.stems);
+        let rig_bind = gpu::Bind::builder()
+            .slot(1)
+            .group(rig_group)
+            .offsets(vec![rig.offset.clone()])
+            .build()
+            .hub();
         gpu::dispatch()
             .pipe(&program.pipe)
-            .bind(gpu::bind().slot(0).group(storage).hub()?)
-            .bind(
-                gpu::bind()
-                    .slot(1)
-                    .group(uniform)
-                    .offset(&rig.offset)
-                    .hub()?,
-            )
+            .bind(&gpu.store.topic.bind)
+            .bind(rig_bind)
             .size(&self.size)
             .stems(stems)
             .hub()

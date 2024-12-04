@@ -17,7 +17,7 @@ impl Solve for Points {
         let gpu = &self.view.port.gpu;
         let store = &gpu.store;
         let rig = &store.rig.group;
-        let topic = &store.topic.group_vertex;
+        // let topic = &store.topic.group_vertex;
         let model_buffer = &store.mesh.buffer;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
@@ -47,11 +47,17 @@ impl Solve for Points {
             .data(points)
             .hub()?;
         let stems = hedge.stems.with(&[rig_stem, model_stem]);
+        let rig_bind = gpu::Bind::builder()
+            .slot(1)
+            .group(rig)
+            .offsets(vec![rig_offset])
+            .build()
+            .hub();
         Ok(gpu::draw()
             .stems(stems)
             .pipe(&chart.points.pipe)
-            .bind(gpu::bind().slot(0).group(topic).hub()?)
-            .bind(gpu::bind().slot(1).group(rig).offset(rig_offset).hub()?)
+            .bind(&store.topic.bind_vertex)
+            .bind(rig_bind)
             .buffer(&store.mesh.vertex)
             .vertex_offset(mesh_offset)
             .vertex_length(res * 3)

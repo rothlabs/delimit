@@ -31,13 +31,13 @@ impl Solve for Dispatch {
     }
 }
 
-#[derive(Debug, Back, Builder, BuildGate, Make)]
-#[builder(setter(into), pattern = "owned")]
+#[derive(Debug, Gate, Back, TypedBuilder)]
 pub struct Bind {
-    #[builder(default)]
+    #[builder(default, setter(into))]
     slot: Hub<u32>,
+    #[builder(setter(into))]
     group: Hub<Grc<BindGroup>>,
-    #[builder(default, setter(each(name = "offset", into)))]
+    #[builder(default, setter(into))]
     offsets: Vec<Hub<u32>>,
 }
 

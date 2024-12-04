@@ -16,7 +16,7 @@ pub enum Target {
 #[derive(Debug)]
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
-    Bind(Bind),
+    Bind(action::Bind),
     Vertex(action::Vertex),
     Index(Grc<Buffer>),
     Draw(Draw),
@@ -26,8 +26,8 @@ pub enum Step {
 #[derive(Default)]
 pub struct State {
     pipe: Option<Grc<RenderPipeline>>,
-    binds: HashMap<u32, Bind>,
-    buffers: HashMap<u32, Vertex>,
+    binds: HashMap<u32, action::Bind>,
+    buffers: HashMap<u32, action::Vertex>,
     // index: Option<Grc<Buffer>>,
     steps: Vec<Step>,
 }
@@ -64,7 +64,7 @@ impl State {
             self.pipe = Some(pipe.clone());
         }
     }
-    pub fn binds(&mut self, binds: &[Bind]) {
+    pub fn binds(&mut self, binds: &[action::Bind]) {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
                 if bind != now {
