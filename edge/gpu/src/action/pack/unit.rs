@@ -64,16 +64,18 @@ pub struct Draw {
     binds: Vec<Hub<action::Bind>>,
     #[builder(setter(each(name = "buffer", into)))]
     buffers: Vec<Hub<action::Vertex>>,
-    vertices: Hub<Range<u32>>,
-    instances: Hub<Range<u32>>,
+    vertex_offset: Hub<u32>,
+    vertex_length: Hub<u32>,
+    instance_offset: Hub<u32>,
+    instance_length: Hub<u32>,
 }
 
 impl Solve for Draw {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
         let draw = action::Draw {
-            vertices: self.vertices.base().await?,
-            instances: self.instances.base().await?,
+            vertices: self.vertex_offset.base().await?..self.vertex_length.base().await?,
+            instances: self.instance_offset.base().await?..self.instance_length.base().await?,
         };
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
@@ -90,14 +92,15 @@ impl Solve for Draw {
     }
 }
 
-#[derive(Debug, Back, Builder, BuildGate, Make)]
-#[builder(setter(strip_option, into), pattern = "owned")]
+// TODO: this could be provided in Store?
+#[derive(Debug, Gate, Back)]
+// #[builder(setter(strip_option, into), pattern = "owned")]
 pub struct Vertex {
-    #[builder(default)]
-    slot: Hub<u32>,
-    buffer: Hub<Grc<Buffer>>,
-    #[builder(default)]
-    offset: Option<Hub<u32>>,
+    // #[builder(default)]
+    pub slot: Hub<u32>,
+    pub buffer: Hub<Grc<Buffer>>,
+    // #[builder(default)]
+    pub offset: Option<Hub<u32>>,
 }
 
 impl Solve for Vertex {
@@ -111,3 +114,15 @@ impl Solve for Vertex {
         Ok(vertex.into())
     }
 }
+
+
+// // TODO: this could be provided in Store?
+// #[derive(Debug, Back, Builder, BuildGate, Make)]
+// #[builder(setter(strip_option, into), pattern = "owned")]
+// pub struct Vertex {
+//     #[builder(default)]
+//     slot: Hub<u32>,
+//     buffer: Hub<Grc<Buffer>>,
+//     #[builder(default)]
+//     offset: Option<Hub<u32>>,
+// }

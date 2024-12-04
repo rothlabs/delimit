@@ -26,7 +26,7 @@ impl<'a> Grid<'a> {
                        // size,
             };
             warp = loom.hedge(&warp)?;
-            area = loom.area.calc().mul(loom.count).hub();
+            area = loom.area.math().mul(loom.count).hub();
         }
         Ok(warp)
     }

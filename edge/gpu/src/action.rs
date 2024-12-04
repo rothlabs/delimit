@@ -48,7 +48,6 @@ pub struct Draw {
     pub instances: Range<u32>,
 }
 
-
 #[derive(Clone)]
 struct Node {
     need: u16,

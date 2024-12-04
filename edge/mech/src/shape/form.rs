@@ -37,7 +37,7 @@ pub struct Spline {
 impl Spline {
     pub fn nurbs_size(&self, mul: &Hub<u32>) -> Hub<u32> {
         if let Some(nurbs) = &self.nurbs {
-            nurbs.size.calc().mul(mul).hub()
+            nurbs.size.math().mul(mul).hub()
             // gpu::size().buffer(&nurbs.buffer).mul(mul).hub()?
         } else {
             0.into()

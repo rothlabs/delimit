@@ -6,11 +6,11 @@ pub struct Sort {
     past: Leaf<HashMap<u32, Node>>,
 }
 
-impl Sort  {
+impl Sort {
     pub fn new(actions: impl Into<Vec<Hub<Grc<Action>>>>) -> Self {
         Self {
             actions: actions.into(),
-            past: Leaf::default()
+            past: Leaf::default(),
         }
     }
 }

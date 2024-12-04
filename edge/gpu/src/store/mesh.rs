@@ -3,15 +3,22 @@ use super::*;
 const LABEL: &str = "gpu_store_model";
 
 #[derive(Debug)]
-pub struct Model {
+pub struct Mesh {
+    pub vertex: Hub<action::Vertex>,
     pub buffer: Leaf<Grc<Buffer>>,
     chunks: Leaf<Vec<Chunk>>,
 }
 
-impl Model {
+impl Mesh {
     pub fn new(device: &Device) -> Self {
         let buffer = vertex_buffer(device);
+        let vertex = Vertex {
+            slot: 0.into(),
+            buffer: buffer.clone().into(),
+            offset: None,
+        }.hub();
         Self {
+            vertex,
             buffer: Leaf::new(buffer),
             chunks: Leaf::default(),
         }

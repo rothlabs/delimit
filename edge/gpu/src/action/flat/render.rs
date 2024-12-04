@@ -17,7 +17,7 @@ pub enum Target {
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
     Bind(Bind),
-    Vertex(Vertex),
+    Vertex(action::Vertex),
     Index(Grc<Buffer>),
     Draw(Draw),
     DrawIndexed(Range<u32>, i32, Range<u32>),

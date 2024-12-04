@@ -18,53 +18,58 @@ impl Solve for Points {
         let store = &gpu.store;
         let rig = &store.rig.group;
         let topic = &store.topic.group_vertex;
-        let model_buffer = &store.model.buffer;
+        let model_buffer = &store.mesh.buffer;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
-        let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
-        let count = hedge.size.base().await? / stride;
+        let hedge = plot.hedge;
+        let count = hedge.size.math().div(stride).hub();
         let vector = VectorBuilder::default()
             .field(stride)
-            .field(count)
-            .field(hedge.offset)
+            .field(&count)
             .hub()?;
         let rig_buffer = &store.rig.buffer;
         let rig_offset = store.rig(64);
-        let rig_stem = gpu.writer(rig_buffer).data(vector).offset(&rig_offset).hub()?;
+        let rig_stem = gpu
+            .writer(rig_buffer)
+            .data(vector)
+            .offset(&rig_offset)
+            .hub()?;
 
-        let vertex_count: u32 = 8;
+        let res: u32 = 8;
         let points = Circle {
             frame: self.view.port.size.clone(),
-            count: vertex_count.into(),
+            count: res.into(),
             radius: 4.0.into(),
         }
         .hub();
-        let model_offset = store.model(vertex_count * 24);
-        let model_stem = gpu.writer(model_buffer).offset(&model_offset).data(points).hub()?;
-        let vertex = gpu::vertex().buffer(model_buffer).offset(model_offset).hub()?;
+        let mesh_offset = store.mesh(res * 6); // 24
+        let model_stem = gpu
+            .writer(model_buffer)
+            .offset(&mesh_offset)
+            .data(points)
+            .hub()?;
         let stems = hedge.stems.with(&[rig_stem, model_stem]);
         Ok(gpu::draw()
             .stems(stems)
             .pipe(&chart.points.pipe)
             .bind(gpu::bind().slot(0).group(topic).hub()?)
             .bind(gpu::bind().slot(1).group(rig).offset(rig_offset).hub()?)
-            .buffer(vertex)
-            .vertices(0..vertex_count * 3)
-            // TODO: get Hub<Range<u32>> from count: Hub<u32>
-            .instances(0..count)
+            .buffer(&store.mesh.vertex)
+            .vertex_offset(mesh_offset)
+            .vertex_length(res * 3)
+            .instance_offset(hedge.offset)
+            .instance_length(count)
             .hub()?)
     }
 }
 
-#[derive(Back, Debug)]
+#[derive(Debug, Gate, Back)]
 pub struct Circle {
     pub frame: Leaf<(u32, u32)>,
     pub count: Hub<u32>,
     pub radius: Hub<f32>,
 }
-
-impl GateTag for Circle {}
 
 impl Solve for Circle {
     type Base = Vec<f32>;

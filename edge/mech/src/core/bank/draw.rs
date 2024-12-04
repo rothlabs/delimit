@@ -20,9 +20,7 @@ impl ChartBank {
             .layout(layout)
             .multisample(multi)
             .make()?;
-        let points = RenderProgram {
-            pipe,
-        };
+        let points = RenderProgram { pipe };
         Ok(Self { points })
     }
 }

@@ -1,7 +1,7 @@
 struct Rig {
     stride: u32,
     count: u32,
-    offset: u32,
+    // offset: u32,
 }
 
 @group(0) @binding(0) var<storage, read> plot: array<f32>;
@@ -22,7 +22,8 @@ fn vs_main(
     @builtin(instance_index) index: u32, 
 ) -> Vertex {
     var out: Vertex;
-    let plot_index = rig.offset + index * rig.stride;
+    // let plot_index = rig.offset + index * rig.stride;
+    let plot_index = index * rig.stride;
     let position = mesh.position + vec2<f32>(plot[plot_index], plot[plot_index + 1]);
     let ratio = f32(index) / f32(rig.count - 1);
     out.position = vec4<f32>(position, 0.0, 1.0);

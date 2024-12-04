@@ -1,20 +1,24 @@
 use super::*;
-use topic::*;
+use mesh::*;
 use rig::*;
-use unit::*;
-use model::*;
 use std::num::NonZero;
+use topic::*;
+use unit::*;
 
-mod topic;
+mod mesh;
 mod rig;
+mod topic;
 mod unit;
-mod model;
 
 #[derive(Debug, Clone)]
 pub struct Store {
     pub rig: Grc<Rig>,
     pub topic: Grc<Topic>,
-    pub model: Grc<Model>,
+
+    // for vertex data of position only
+    // need another model store to for other vertex formats
+    // rename to mesh with sub mesh formats?
+    pub mesh: Grc<Mesh>,
 }
 
 impl Store {
@@ -22,7 +26,7 @@ impl Store {
         Self {
             rig: Grc::new(Rig::new(device)),
             topic: Grc::new(Topic::new(device)),
-            model: Grc::new(Model::new(device)),
+            mesh: Grc::new(Mesh::new(device)),
         }
     }
     pub fn rig(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
@@ -39,10 +43,10 @@ impl Store {
         }
         .hub()
     }
-    pub fn model(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+    pub fn mesh(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
-            kind: Kind::Model(self.model.clone()),
+            kind: Kind::Model(self.mesh.clone()),
         }
         .hub()
     }
@@ -62,7 +66,7 @@ fn storage_buffer(device: &Device) -> Grc<Buffer> {
 pub enum Kind {
     Rig(Grc<Rig>),
     Topic(Grc<Topic>),
-    Model(Grc<Model>),
+    Model(Grc<Mesh>),
 }
 
 struct Chunk {

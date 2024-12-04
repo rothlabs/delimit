@@ -2,12 +2,12 @@ use super::*;
 use std::{fmt::Debug, ops};
 
 #[derive(Gate, Back, Default, Debug)]
-pub struct Calc<T> {
+pub struct Math<T> {
     value: Hub<T>,
     ops: Vec<Operation<T>>,
 }
 
-impl<T> Solve for Calc<T>
+impl<T> Solve for Math<T>
 where
     T: 'static
         + Gather
@@ -58,16 +58,16 @@ enum OperationType {
 }
 
 #[derive(Default)]
-pub struct CalcBuilder<T> {
-    target: Calc<T>,
+pub struct MathBuilder<T> {
+    target: Math<T>,
 }
 
-impl<T> CalcBuilder<T>
+impl<T> MathBuilder<T>
 where
     T: 'static + Gather,
-    Calc<T>: IntoGateHub,
+    Math<T>: IntoGateHub,
 {
-    pub fn hub(self) -> Hub<<Calc<T> as IntoGateHub>::Base> {
+    pub fn hub(self) -> Hub<<Math<T> as IntoGateHub>::Base> {
         self.target.hub()
         // let wow = self.target.gate()?;
         // Ok(wow.into())
@@ -106,11 +106,11 @@ where
     }
 }
 
-pub trait MakeCalc<T> {
-    fn calc(&self) -> CalcBuilder<T>;
+pub trait Calculate<T> {
+    fn math(&self) -> MathBuilder<T>;
 }
 
-impl<T> MakeCalc<T> for Hub<T>
+impl<T> Calculate<T> for Hub<T>
 where
     T: 'static
         + Gather
@@ -119,9 +119,9 @@ where
         + ops::MulAssign<T>
         + ops::DivAssign<T>,
 {
-    fn calc(&self) -> CalcBuilder<T> {
-        CalcBuilder {
-            target: Calc {
+    fn math(&self) -> MathBuilder<T> {
+        MathBuilder {
+            target: Math {
                 value: self.clone(),
                 ops: vec![],
             },
