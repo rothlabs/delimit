@@ -1,3 +1,5 @@
+use typed_builder::TypedBuilder;
+
 use super::*;
 
 #[derive(Debug, Back, Builder, BuildGate, Make)]
@@ -92,14 +94,13 @@ impl Solve for Draw {
     }
 }
 
-// TODO: this could be provided in Store?
-#[derive(Debug, Gate, Back)]
-// #[builder(setter(strip_option, into), pattern = "owned")]
+#[derive(Debug, Gate, Back, TypedBuilder)]
 pub struct Vertex {
-    // #[builder(default)]
+    #[builder(default)]
     pub slot: Hub<u32>,
+    #[builder(setter(into))]
     pub buffer: Hub<Grc<Buffer>>,
-    // #[builder(default)]
+    #[builder(default)]
     pub offset: Option<Hub<u32>>,
 }
 
@@ -114,7 +115,6 @@ impl Solve for Vertex {
         Ok(vertex.into())
     }
 }
-
 
 // // TODO: this could be provided in Store?
 // #[derive(Debug, Back, Builder, BuildGate, Make)]

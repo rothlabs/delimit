@@ -24,10 +24,7 @@ impl Solve for Points {
         let stride = plot.shape.base().await?.stride();
         let hedge = plot.hedge;
         let count = hedge.size.math().div(stride).hub();
-        let vector = VectorBuilder::default()
-            .field(stride)
-            .field(&count)
-            .hub()?;
+        let vector = VectorBuilder::default().field(stride).field(&count).hub()?;
         let rig_buffer = &store.rig.buffer;
         let rig_offset = store.rig(64);
         let rig_stem = gpu

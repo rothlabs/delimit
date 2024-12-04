@@ -12,11 +12,13 @@ pub struct Mesh {
 impl Mesh {
     pub fn new(device: &Device) -> Self {
         let buffer = vertex_buffer(device);
-        let vertex = Vertex {
-            slot: 0.into(),
-            buffer: buffer.clone().into(),
-            offset: None,
-        }.hub();
+        let vertex = Vertex::builder().buffer(&buffer).build().hub();
+        // let vertex = Vertex {
+        //     slot: 0.into(),
+        //     buffer: buffer.clone().into(),
+        //     offset: None,
+        // }
+        // .hub();
         Self {
             vertex,
             buffer: Leaf::new(buffer),
