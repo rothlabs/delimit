@@ -1,10 +1,13 @@
 pub use pack::Action;
+pub use unit::Sort;
 
 use super::*;
 use std::collections::HashMap;
 
 pub mod flat;
 pub mod pack;
+
+mod unit;
 
 pub enum Pass {
     Compute,
@@ -30,6 +33,8 @@ impl PartialEq for Bind {
 pub struct Vertex {
     pub slot: u32,
     pub buffer: Grc<Buffer>,
+    pub start: Option<u32>,
+    pub end: Option<u32>,
 }
 
 impl PartialEq for Vertex {
@@ -44,30 +49,6 @@ pub struct Draw {
     pub instances: Range<u32>,
 }
 
-#[derive(Debug, Back, Builder, BuildGate, Make)]
-#[builder(pattern = "owned")]
-pub struct Flat {
-    #[builder(setter(each(name = "action")))]
-    actions: Vec<Hub<Grc<Action>>>,
-    #[builder(default)]
-    past: Leaf<HashMap<u32, Node>>,
-}
-
-impl Solve for Flat {
-    type Base = Grc<Vec<Command>>;
-    async fn solve(&self) -> node::Result<Self::Base> {
-        let actions = self.actions.base().await?;
-        let actions: Vec<&Grc<Action>> = actions.iter().collect();
-        let mut state = State {
-            actions: [actions.clone(), actions],
-            past: self.past.base()?,
-            ..Default::default()
-        };
-        state.run();
-        self.past.write_passive(|x| *x = state.nodes)?;
-        Ok(Grc::new(state.commands).into())
-    }
-}
 
 #[derive(Clone)]
 struct Node {
@@ -76,7 +57,7 @@ struct Node {
 }
 
 #[derive(Default)]
-struct State<'a> {
+struct SortingState<'a> {
     past: HashMap<u32, Node>,
     nodes: HashMap<u32, Node>,
     actions: [Vec<&'a Grc<Action>>; 2],
@@ -84,8 +65,8 @@ struct State<'a> {
     commands: Vec<Command>,
 }
 
-impl<'a> State<'a> {
-    fn run(&mut self) {
+impl<'a> SortingState<'a> {
+    fn sort(&mut self) {
         self.init();
         self.actions[1].clear();
         self.i = (0, 1);

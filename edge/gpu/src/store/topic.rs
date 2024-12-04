@@ -1,7 +1,10 @@
 use super::*;
 
+const LABEL: &str = "gpu_store_topic";
+const LABEL_VERTEX: &str = "gpu_store_topic_vertex";
+
 #[derive(Debug)]
-pub struct StorageStore {
+pub struct Topic {
     pub layout: BindGroupLayout,
     pub layout_vertex: BindGroupLayout,
     pub group: Leaf<Grc<BindGroup>>,
@@ -10,59 +13,54 @@ pub struct StorageStore {
     chunks: Leaf<Vec<Chunk>>,
 }
 
-impl StorageStore {
+impl Topic {
     pub fn new(device: &Device) -> Self {
         let buffer = storage_buffer(device);
-        let layout = storage_layout(device);
-        let layout_read = storage_layout_vertex(device);
-        let entry = BindGroupEntry {
-            binding: 0,
-            resource: buffer.as_entire_binding(),
-        };
+        let layout = layout(device);
+        let layout_read = layout_vertex(device);
         let group = device.create_bind_group(&BindGroupDescriptor {
-            label: Some("gpu_store_storage"),
+            label: Some(LABEL),
             layout: &layout,
-            entries: &[entry.clone()],
+            entries: &[entry(&buffer)],
         });
-        let group_read = device.create_bind_group(&BindGroupDescriptor {
-            label: Some("gpu_store_storage_read"),
+        let group_vertex = device.create_bind_group(&BindGroupDescriptor {
+            label: Some(LABEL_VERTEX),
             layout: &layout_read,
-            entries: &[entry],
+            entries: &[entry(&buffer)],
         });
         Self {
             layout,
             layout_vertex: layout_read,
             group: Leaf::new(Grc::new(group)),
-            group_vertex: Leaf::new(Grc::new(group_read)),
+            group_vertex: Leaf::new(Grc::new(group_vertex)),
             buffer: Leaf::new(buffer),
             chunks: Leaf::default(),
         }
     }
     pub fn grant(&self, size: u32) -> Result<Leaf<u32>> {
         let max = (self.buffer.base()?.size() / 4) as u32;
-        // println!("storage");
         grant(&self.chunks, size, max)
     }
 }
 
-fn storage_layout(device: &Device) -> BindGroupLayout {
+fn entry(buffer: &Grc<Buffer>) -> BindGroupEntry {
+    BindGroupEntry {
+        binding: 0,
+        resource: buffer.as_entire_binding(),
+    }
+}
+
+fn layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_storage"),
+        label: Some(LABEL),
         entries: &[
-            storage_compute_entry(0, false),
+            layout_entry(0, false),
             // storage_compute_entry(1, true),
         ],
     })
 }
 
-fn storage_layout_vertex(device: &Device) -> BindGroupLayout {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_storage_read"),
-        entries: &[storage_vertex_entry(0)],
-    })
-}
-
-fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
+fn layout_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry {
     BindGroupLayoutEntry {
         binding,
         visibility: ShaderStages::COMPUTE,
@@ -75,7 +73,14 @@ fn storage_compute_entry(binding: u32, read_only: bool) -> BindGroupLayoutEntry 
     }
 }
 
-fn storage_vertex_entry(binding: u32) -> BindGroupLayoutEntry {
+fn layout_vertex(device: &Device) -> BindGroupLayout {
+    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: Some(LABEL_VERTEX),
+        entries: &[layout_entry_vertex(0)],
+    })
+}
+
+fn layout_entry_vertex(binding: u32) -> BindGroupLayoutEntry {
     BindGroupLayoutEntry {
         binding,
         visibility: ShaderStages::VERTEX,

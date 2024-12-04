@@ -6,6 +6,23 @@ pub struct Encode<'a> {
 }
 
 impl<'a> Encode<'a> {
+    pub fn compute(&mut self, compute: &flat::compute::Pass) {
+        let mut pass = self
+            .inner
+            .begin_compute_pass(&ComputePassDescriptor::default());
+        for step in compute.steps.iter().rev() {
+            match step {
+                flat::compute::Step::Pipe(pipe) => pass.set_pipeline(pipe),
+                flat::compute::Step::Bind(bind) => {
+                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
+                }
+                flat::compute::Step::Dispatch(size) => {
+                    // println!("dispatch: {size}");
+                    pass.dispatch_workgroups(*size, 1, 1);
+                }
+            }
+        }
+    }
     pub fn render(&mut self, render: &flat::render::Pass, fields: &RenderPassDescriptor) {
         let mut pass = self.inner.begin_render_pass(fields);
         for step in render.steps.iter().rev() {
@@ -25,23 +42,6 @@ impl<'a> Encode<'a> {
                 }
                 flat::render::Step::DrawIndexed(indices, base_vertex, instances) => {
                     pass.draw_indexed(indices.clone(), *base_vertex, instances.clone());
-                }
-            }
-        }
-    }
-    pub fn compute(&mut self, compute: &flat::compute::Pass) {
-        let mut pass = self
-            .inner
-            .begin_compute_pass(&ComputePassDescriptor::default());
-        for step in compute.steps.iter().rev() {
-            match step {
-                flat::compute::Step::Pipe(pipe) => pass.set_pipeline(pipe),
-                flat::compute::Step::Bind(bind) => {
-                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
-                }
-                flat::compute::Step::Dispatch(size) => {
-                    // println!("dispatch: {size}");
-                    pass.dispatch_workgroups(*size, 1, 1);
                 }
             }
         }

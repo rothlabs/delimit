@@ -1,32 +1,23 @@
 use super::*;
-use storage::*;
+use topic::*;
 use rig::*;
 use unit::*;
 
-mod storage;
+mod topic;
 mod rig;
 mod unit;
 
-struct Chunk {
-    // grant: Leaf<u32>,
-    start: u32,
-    end: u32,
-}
-
 #[derive(Debug, Clone)]
 pub struct Store {
-    // pub device: Grc<Device>,
-    pub rig: Grc<RigStore>,
-    pub storage: Grc<StorageStore>,
+    pub rig: Grc<Rig>,
+    pub topic: Grc<Topic>,
 }
 
 impl Store {
-    // TODO: &Device
     pub fn new(device: &Device) -> Self {
         Self {
-            // device: gpu.device.clone(),
-            rig: Grc::new(RigStore::new(device)),
-            storage: Grc::new(StorageStore::new(device)),
+            rig: Grc::new(Rig::new(device)),
+            topic: Grc::new(Topic::new(device)),
         }
     }
     pub fn rig(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
@@ -36,13 +27,35 @@ impl Store {
         }
         .hub()
     }
-    pub fn storage(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+    pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
-            kind: Kind::Storage(self.storage.clone()),
+            kind: Kind::Topic(self.topic.clone()),
         }
         .hub()
     }
+}
+
+fn storage_buffer(device: &Device) -> Grc<Buffer> {
+    Grc::new(device.create_buffer(&BufferDescriptor {
+        label: None,
+        // 100000 bytes = 0.1 mb
+        size: 100000,
+        usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    }))
+}
+
+#[derive(Debug)]
+pub enum Kind {
+    Rig(Grc<Rig>),
+    Topic(Grc<Topic>),
+}
+
+struct Chunk {
+    // grant: Leaf<u32>,
+    start: u32,
+    end: u32,
 }
 
 fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
@@ -60,9 +73,9 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
             i += 1;
         }
         if end > max {
+            // TODO: make bigger buffer and copy to it
             panic!("buffer full!")
         }
-        // println!("buffer offset in elements: {start}");
         let grant = Leaf::new(start);
         let chunk = Chunk {
             // grant: grant.clone(),
@@ -73,16 +86,6 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
         grant
     })?;
     Ok(grant)
-}
-
-fn storage_buffer(device: &Device) -> Grc<Buffer> {
-    Grc::new(device.create_buffer(&BufferDescriptor {
-        label: None,
-        // 1000000 bytes = 1 mb
-        size: 1000000,
-        usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    }))
 }
 
 // fn uniform_buffer(device: &Device) -> Grc<Buffer> {

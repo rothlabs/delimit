@@ -5,7 +5,6 @@ struct Rig {
 }
 
 @group(0) @binding(0) var<storage, read> plot: array<f32>;
-
 @group(1) @binding(0) var<storage, read> rig: Rig;
 
 struct Mesh {

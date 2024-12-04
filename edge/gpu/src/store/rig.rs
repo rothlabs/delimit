@@ -1,45 +1,28 @@
 use std::num::NonZero;
-
 use super::*;
 
+const LABEL: &str = "gpu_store_rig";
+
 #[derive(Debug)]
-pub struct RigStore {
+pub struct Rig {
     pub layout: BindGroupLayout,
-    // pub layout_vertex: BindGroupLayout,
     pub group: Leaf<Grc<BindGroup>>,
-    // pub group_vertex: Leaf<Grc<BindGroup>>,
     pub buffer: Leaf<Grc<Buffer>>,
     chunks: Leaf<Vec<Chunk>>,
 }
 
-impl RigStore {
+impl Rig {
     pub fn new(device: &Device) -> Self {
         let buffer = storage_buffer(device);
-        let layout = rig_layout(device);
-        // let layout_vertex = uniform_layout_vertex(device);
-        let entry = BindGroupEntry {
-            binding: 0,
-            resource: BindingResource::Buffer(BufferBinding {
-                buffer: &buffer,
-                offset: 0,
-                size: Some(NonZero::new(256).unwrap()),
-            }),
-        };
+        let layout = layout(device);
         let group = device.create_bind_group(&BindGroupDescriptor {
-            label: None,
+            label: Some(LABEL),
             layout: &layout,
-            entries: &[entry.clone()],
+            entries: &[entry(&buffer)],
         });
-        // let group_vertex = device.create_bind_group(&BindGroupDescriptor {
-        //     label: None,
-        //     layout: &layout_vertex,
-        //     entries: &[entry],
-        // });
         Self {
             layout,
-            // layout_vertex,
             group: Leaf::new(Grc::new(group)),
-            // group_vertex: Leaf::new(Grc::new(group_vertex)),
             buffer: Leaf::new(buffer),
             chunks: Leaf::default(),
         }
@@ -51,14 +34,25 @@ impl RigStore {
     }
 }
 
-fn rig_layout(device: &Device) -> BindGroupLayout {
+fn entry(buffer: &Grc<Buffer>) -> BindGroupEntry {
+    BindGroupEntry {
+        binding: 0,
+        resource: BindingResource::Buffer(BufferBinding {
+            buffer,
+            offset: 0,
+            size: Some(NonZero::new(256).unwrap()),
+        }),
+    }
+}
+
+fn layout(device: &Device) -> BindGroupLayout {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("gpu_store_unifrom"),
-        entries: &[entry()],
+        label: Some(LABEL),
+        entries: &[layout_entry()],
     })
 }
 
-fn entry() -> BindGroupLayoutEntry {
+fn layout_entry() -> BindGroupLayoutEntry {
     BindGroupLayoutEntry {
         binding: 0,
         visibility: ShaderStages::COMPUTE | ShaderStages::VERTEX,
@@ -70,23 +64,3 @@ fn entry() -> BindGroupLayoutEntry {
         count: None,
     }
 }
-
-// fn rig_layout_vertex(device: &Device) -> BindGroupLayout {
-//     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-//         label: Some("gpu_store_unifrom"),
-//         entries: &[entry_vertex()],
-//     })
-// }
-
-// fn entry_vertex() -> BindGroupLayoutEntry {
-//     BindGroupLayoutEntry {
-//         binding: 0,
-//         visibility: ShaderStages::VERTEX,
-//         ty: BindingType::Buffer {
-//             ty: BufferBindingType::Storage { read_only: true },
-//             has_dynamic_offset: true,
-//             min_binding_size: None,
-//         },
-//         count: None,
-//     }
-// }

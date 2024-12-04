@@ -20,7 +20,7 @@ impl<'a> Wheel<'a> {
             let gpu = &self.chart.core.gpu;
             let mut stems = vec![];
             let size = self.extrude_size(form);
-            let offset = gpu.store.storage(&size);
+            let offset = gpu.store.topic(&size);
             // let buffer = gpu.blank(&size).label("extrude").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.extrude {
@@ -45,7 +45,7 @@ impl<'a> Wheel<'a> {
             let gpu = &self.chart.core.gpu;
             let mut stems = vec![];
             let size = self.revolve_size(form);
-            let offset = gpu.store.storage(&size);
+            let offset = gpu.store.topic(&size);
             // let buffer = gpu.blank(&size).label("revolve").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.revolve {
@@ -76,7 +76,7 @@ impl<'a> Wheel<'a> {
                 let size = spline_size.calc().add(&nurbs_expand).hub();
                 // let label = format!("nurbs {order}");
                 let gpu = &self.chart.core.gpu;
-                let offset = gpu.store.storage(&size);
+                let offset = gpu.store.topic(&size);
                 // let buffer = gpu.blank(size).label(label).hub()?;
                 let mut spin = self.spin(); // &buffer
                 if let Some(form) = &form.basis {
@@ -210,7 +210,7 @@ impl<'a> Loom<'a> {
         let gpu = &self.grid.chart.core.gpu;
         let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?.clone();
-        let main_offset = gpu.store.storage(&size);
+        let main_offset = gpu.store.topic(&size);
         // let label = format!("grid plot rank {}", self.rank);
         // let buffer = gpu.blank(size).label(label).hub()?;
         let mut weave = self.weave(warp)?;

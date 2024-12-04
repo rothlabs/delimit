@@ -11,12 +11,8 @@ struct Rig {
     length: u32,
 };
 
-// @group(0) @binding(1) var<storage, read> warp: array<f32>;
-// @group(0) @binding(2) var<storage, read> weft: array<f32>;
-// @group(0) @binding(3) var<storage, read> flow: array<u32>;
 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 // @group(0) @binding(1) var<storage, read> data_u32: array<u32>;
-
 @group(1) @binding(0) var<storage, read> rig: Rig;
 
 @compute @workgroup_size(64)

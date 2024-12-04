@@ -91,11 +91,15 @@ impl Solve for Draw {
 }
 
 #[derive(Debug, Back, Builder, BuildGate, Make)]
-#[builder(setter(into), pattern = "owned")]
+#[builder(setter(strip_option, into), pattern = "owned")]
 pub struct Vertex {
     #[builder(default)]
     slot: Hub<u32>,
     buffer: Hub<Grc<Buffer>>,
+    #[builder(default)]
+    start: Option<Hub<u32>>,
+    #[builder(default)]
+    end: Option<Hub<u32>>,
 }
 
 impl Solve for Vertex {
@@ -104,6 +108,8 @@ impl Solve for Vertex {
         let vertex = action::Vertex {
             slot: self.slot.base().await?,
             buffer: self.buffer.base().await?,
+            start: self.start.base().await?,
+            end: self.end.base().await?,
         };
         Ok(vertex.into())
     }

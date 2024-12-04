@@ -336,6 +336,10 @@ pub trait Based<T> {
     fn base(&self) -> impl Future<Output = Result<Vec<T>>>;
 }
 
+pub trait BasedOption<T> {
+    fn base(&self) -> impl Future<Output = Result<Option<T>>>;
+}
+
 pub trait Depend {
     fn depend(&self) -> impl Future<Output = Result<()>>;
 }

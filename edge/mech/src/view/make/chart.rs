@@ -16,7 +16,7 @@ impl Solve for Points {
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
         let uniform = &gpu.store.rig.group;
-        let storage = &gpu.store.storage.group_vertex;
+        let storage = &gpu.store.topic.group_vertex;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
@@ -39,7 +39,7 @@ impl Solve for Points {
         }
         .hub();
         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
-        let stem = gpu.writer(buffer.clone()).data(points).hub()?;
+        let stem = gpu.writer(&buffer).data(points).hub()?;
         let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;
         let stems = hedge.stems.with(&mesh.stems).with(&[uniform_stem]);
         let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;

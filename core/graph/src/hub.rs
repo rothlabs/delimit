@@ -256,6 +256,16 @@ impl<T: Gather> Based<T> for Vec<Hub<T>> {
     }
 }
 
+impl<T: Gather> BasedOption<T> for Option<Hub<T>> {
+    async fn base(&self) -> Result<Option<T>> {
+        Ok(if let Some(hub) = self {
+            Some(hub.base().await?)
+        } else {
+            None
+        })
+    }
+}
+
 impl<T: Gather> Depend for Hub<T> {
     fn depend(&self) -> impl Future<Output = Result<()>> {
         Box::pin(async move {

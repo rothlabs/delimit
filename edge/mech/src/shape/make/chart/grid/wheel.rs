@@ -37,7 +37,7 @@ impl Spin<'_> {
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let gpu_ = &self.wheel.chart.core.gpu;
         let uniform = &gpu_.store.rig.group;
-        let storage = &gpu_.store.storage.group;
+        let storage = &gpu_.store.topic.group;
         let stems = rig.stems.with(&form.stems);
         gpu::dispatch()
             .pipe(&program.pipe)

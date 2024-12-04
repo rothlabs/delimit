@@ -47,8 +47,8 @@ impl Core {
         T: Pod + Debug + graph::SendSync,
     {
         let size: Hub<u32> = (data.len() as u32).into();
-        let offset = self.store.storage(&size);
-        let buffer = self.store.storage.buffer.hub();
+        let offset = self.store.topic(&size);
+        let buffer = self.store.topic.buffer.hub();
         // TODO: make self.uniform_writer
         let stem = self.writer(buffer).offset(&offset).data(data).hub()?;
         Ok(Hedge {

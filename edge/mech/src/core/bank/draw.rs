@@ -9,16 +9,10 @@ impl ChartBank {
     pub fn new(port: &Viewport, layout: &PipelineLayout) -> Result<Self> {
         let gpu = &port.gpu;
         let shader = port.shader(include_wgsl!("draw/points.wgsl"));
-        // let targets = port.display.targets();
-        // let rig = gpu.bind_uniform().entry(0)?.vertex()?;
-        // let plot = gpu.bind_storage(true).entry(1)?.vertex()?;
-        // let layout = gpu.bind_layout(&[rig, plot]).make()?;
-        // TODO: put pipe_layout method on bind_layout
-
         let attribs = vertex_attr_array![0 => Float32x2];
         let buffers = vec![gpu.vertex_layout(8).attributes(&attribs).make()?];
         let vertex = shader.vertex("vs_main").buffers(&buffers).make()?;
-        let fragment = shader.fragment("fs_main").make()?; // .targets(targets)
+        let fragment = shader.fragment("fs_main").make()?;
         let multi = gpu.multisample(4).make()?;
         let pipe = port
             .pipe(vertex)
@@ -26,23 +20,8 @@ impl ChartBank {
             .layout(layout)
             .multisample(multi)
             .make()?;
-        // let count: u32 = 8;
-        // let points = mesh::Circle {
-        //     frame: port.size.clone(), //gpu.display.config.clone(),
-        //     count: count.into(),
-        //     radius: 4.0.into(),
-        // }
-        // .gate()?;
-        // let buffer = port.gpu.buffer(count as u64 * 24).vertex()?;
-        // let mesh = Hedge {
-        //     root: port.gpu.writer(buffer.clone()).data(points).hub()?,
-        //     buffer: buffer.into(),
-        // };
         let points = RenderProgram {
-            // layout,
             pipe,
-            // mesh,
-            // vertex_count: count * 3,
         };
         Ok(Self { points })
     }

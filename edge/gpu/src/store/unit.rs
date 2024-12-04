@@ -13,13 +13,7 @@ impl Solve for Grant {
         let size = self.size.base().await?;
         Ok(match &self.kind {
             Kind::Rig(store) => store.grant()?.hub(),
-            Kind::Storage(store) => store.grant(size)?.hub(),
+            Kind::Topic(store) => store.grant(size)?.hub(),
         })
     }
-}
-
-#[derive(Debug)]
-pub enum Kind {
-    Rig(Grc<RigStore>),
-    Storage(Grc<StorageStore>),
 }

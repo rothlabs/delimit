@@ -40,7 +40,7 @@ pub struct GridPlotBin {
 impl GridPlotBin {
     fn new(gpu: &Gpu) -> Result<Self> {
         let layout = gpu
-            .pipe_layout(&[&gpu.store.storage.layout, &gpu.store.rig.layout])
+            .pipe_layout(&[&gpu.store.topic.layout, &gpu.store.rig.layout])
             .make()?;
         Ok(Self {
             spin: SpinGridPlotBin::new(gpu, &layout)?,
@@ -143,7 +143,7 @@ impl DrawBank {
         let store = &port.gpu.store;
         let layout = port
             .gpu
-            .pipe_layout(&[&store.storage.layout_vertex, &store.rig.layout])
+            .pipe_layout(&[&store.topic.layout_vertex, &store.rig.layout])
             .make()?;
         Ok(Self {
             chart: draw::ChartBank::new(port, &layout)?,
