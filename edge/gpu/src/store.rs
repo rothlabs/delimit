@@ -2,15 +2,19 @@ use super::*;
 use topic::*;
 use rig::*;
 use unit::*;
+use model::*;
+use std::num::NonZero;
 
 mod topic;
 mod rig;
 mod unit;
+mod model;
 
 #[derive(Debug, Clone)]
 pub struct Store {
     pub rig: Grc<Rig>,
     pub topic: Grc<Topic>,
+    pub model: Grc<Model>,
 }
 
 impl Store {
@@ -18,6 +22,7 @@ impl Store {
         Self {
             rig: Grc::new(Rig::new(device)),
             topic: Grc::new(Topic::new(device)),
+            model: Grc::new(Model::new(device)),
         }
     }
     pub fn rig(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
@@ -34,13 +39,20 @@ impl Store {
         }
         .hub()
     }
+    pub fn model(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+        Grant {
+            size: size.into(),
+            kind: Kind::Model(self.model.clone()),
+        }
+        .hub()
+    }
 }
 
 fn storage_buffer(device: &Device) -> Grc<Buffer> {
     Grc::new(device.create_buffer(&BufferDescriptor {
         label: None,
-        // 100000 bytes = 0.1 mb
-        size: 100000,
+        ///// 1000000 bytes = 1 mb
+        size: 1000000,
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }))
@@ -50,6 +62,7 @@ fn storage_buffer(device: &Device) -> Grc<Buffer> {
 pub enum Kind {
     Rig(Grc<Rig>),
     Topic(Grc<Topic>),
+    Model(Grc<Model>),
 }
 
 struct Chunk {

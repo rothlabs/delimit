@@ -1,4 +1,3 @@
-use std::num::NonZero;
 use super::*;
 
 const LABEL: &str = "gpu_store_rig";

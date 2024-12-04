@@ -32,7 +32,11 @@ impl<'a> Encode<'a> {
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
                 flat::render::Step::Vertex(vertex) => {
-                    pass.set_vertex_buffer(vertex.slot, vertex.buffer.slice(..));
+                    if let Some(offset) = vertex.offset  {
+                        pass.set_vertex_buffer(vertex.slot, vertex.buffer.slice(offset as u64..));
+                    } else {
+                        pass.set_vertex_buffer(vertex.slot, vertex.buffer.slice(..));
+                    }
                 }
                 flat::render::Step::Index(buffer) => {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);

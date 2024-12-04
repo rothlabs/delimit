@@ -97,9 +97,7 @@ pub struct Vertex {
     slot: Hub<u32>,
     buffer: Hub<Grc<Buffer>>,
     #[builder(default)]
-    start: Option<Hub<u32>>,
-    #[builder(default)]
-    end: Option<Hub<u32>>,
+    offset: Option<Hub<u32>>,
 }
 
 impl Solve for Vertex {
@@ -108,8 +106,7 @@ impl Solve for Vertex {
         let vertex = action::Vertex {
             slot: self.slot.base().await?,
             buffer: self.buffer.base().await?,
-            start: self.start.base().await?,
-            end: self.end.base().await?,
+            offset: self.offset.base().await?,
         };
         Ok(vertex.into())
     }

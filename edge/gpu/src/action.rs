@@ -33,8 +33,7 @@ impl PartialEq for Bind {
 pub struct Vertex {
     pub slot: u32,
     pub buffer: Grc<Buffer>,
-    pub start: Option<u32>,
-    pub end: Option<u32>,
+    pub offset: Option<u32>,
 }
 
 impl PartialEq for Vertex {

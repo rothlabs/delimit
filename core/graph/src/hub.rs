@@ -234,12 +234,6 @@ impl<T: 'static + Clone + SendSync> Backed for Hub<T> {
     }
 }
 
-// impl<T> Default for Hub<T> {
-//     fn default() -> Self {
-//         Self::Tray(Tray::None)
-//     }
-// }
-
 impl<T: Default> Default for Hub<T> {
     fn default() -> Self {
         Self::Tray(Tray::Base(T::default()))

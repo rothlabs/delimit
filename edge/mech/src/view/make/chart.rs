@@ -15,21 +15,23 @@ impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
-        let uniform = &gpu.store.rig.group;
-        let storage = &gpu.store.topic.group_vertex;
+        let store = &gpu.store;
+        let rig = &store.rig.group;
+        let topic = &store.topic.group_vertex;
+        let model_buffer = &store.model.buffer;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
         let hedge = plot.hedge;
         let stride = plot.shape.base().await?.stride();
         let count = hedge.size.base().await? / stride;
-        let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(stride)
             .field(count)
             .field(hedge.offset)
             .hub()?;
-        let offset = gpu.store.rig(64);
-        let uniform_stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
+        let rig_buffer = &store.rig.buffer;
+        let rig_offset = store.rig(64);
+        let rig_stem = gpu.writer(rig_buffer).data(vector).offset(&rig_offset).hub()?;
 
         let vertex_count: u32 = 8;
         let points = Circle {
@@ -38,16 +40,15 @@ impl Solve for Points {
             radius: 4.0.into(),
         }
         .hub();
-        let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
-        let stem = gpu.writer(&buffer).data(points).hub()?;
-        let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;
-        let stems = hedge.stems.with(&mesh.stems).with(&[uniform_stem]);
-        let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;
+        let model_offset = store.model(vertex_count * 24);
+        let model_stem = gpu.writer(model_buffer).offset(&model_offset).data(points).hub()?;
+        let vertex = gpu::vertex().buffer(model_buffer).offset(model_offset).hub()?;
+        let stems = hedge.stems.with(&[rig_stem, model_stem]);
         Ok(gpu::draw()
             .stems(stems)
             .pipe(&chart.points.pipe)
-            .bind(gpu::bind().slot(0).group(storage).hub()?)
-            .bind(gpu::bind().slot(1).group(uniform).offset(offset).hub()?)
+            .bind(gpu::bind().slot(0).group(topic).hub()?)
+            .bind(gpu::bind().slot(1).group(rig).offset(rig_offset).hub()?)
             .buffer(vertex)
             .vertices(0..vertex_count * 3)
             // TODO: get Hub<Range<u32>> from count: Hub<u32>
@@ -95,6 +96,12 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
+
+//         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
+//         let stem = gpu.writer(&buffer).data(points).hub()?;
+//         let mesh = gpu::bufferhedge().buffer(buffer).stem(stem).build()?;
+//         let stems = hedge.stems.with(&mesh.stems).with(&[uniform_stem]);
+//         let vertex = gpu::vertex().buffer(&mesh.buffer).hub()?;
 
 // let texture_view = gpu.display.texture()?.sample_count(4).view()?;
 
