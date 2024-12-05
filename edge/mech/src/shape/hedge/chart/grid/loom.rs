@@ -14,17 +14,17 @@ pub struct Weave<'a> {
 
 impl Weave<'_> {
     pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let core = &self.loom.grid.chart.core;
+        let core = &self.loom.grid.mech;
         let program = &core.bank.plot.grid.weave.travel;
         self.weave(trio, program)
     }
     pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let core = &self.loom.grid.chart.core;
+        let core = &self.loom.grid.mech;
         let program = &core.bank.plot.grid.weave.orient;
         self.weave(trio, program)
     }
     pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let core = &self.loom.grid.chart.core;
+        let core = &self.loom.grid.mech;
         let program = &core.bank.plot.grid.weave.spline;
         self.weave(trio, program)
     }
@@ -33,7 +33,7 @@ impl Weave<'_> {
         trio: Trio,
         pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu = &self.loom.grid.chart.core.gpu;
+        let gpu = &self.loom.grid.mech.gpu;
         let rig_group = &gpu.store.rig.group;
         // let storage = &gpu_.store.topic.group;
         let rig_bind = gpu::Bind::builder()

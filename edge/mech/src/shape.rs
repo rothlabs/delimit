@@ -3,7 +3,7 @@ pub use form::*;
 use super::*;
 
 mod form;
-mod make;
+mod hedge;
 
 /// Continuous parametric geometry.
 #[derive(Builder, Clone, Debug)]
@@ -22,8 +22,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn chart<'a>(&'a self, core: &'a Core) -> make::Chart<'a> {
-        make::Chart { core, shape: self }
+    pub fn chart<'a>(&'a self, core: &'a Mech) -> hedge::ChartBank<'a> {
+        hedge::ChartBank { mech: core, shape: self }
     }
     pub fn plot_size(&self) -> u32 {
         self.dimension * (self.rank() + 1)

@@ -12,10 +12,10 @@ impl View {
         Self { mech, port }
     }
     // TODO: also impl on shape to create everything needed to render automatically
-    pub fn plot(&self, plot: impl Into<Hub<Plot>>) -> make::Chart {
-        make::Chart {
+    pub fn plot(&self, plot: impl Into<Hub<Chart>>) -> make::ChartView {
+        make::ChartView {
             view: self.clone(),
-            plot: plot.into(),
+            chart: plot.into(),
         }
     }
 }

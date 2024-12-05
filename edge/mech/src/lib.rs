@@ -1,7 +1,7 @@
 pub use shape::*;
 pub use view::View;
+pub use core::*;
 
-use core::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
@@ -12,8 +12,6 @@ use wgpu::*;
 mod core;
 mod shape;
 mod view;
-
-pub type Mech = Core;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -27,10 +25,12 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
-/// Discrete evaluations of a shape.
-/// Buffer layout: position, velocity-by-parameter-1, velocity-by-parameter-2, ...
+/// Symbolic discrete shape.
+/// Contains plots of position and derivatives with respect to shape parameters.
+/// The hedge is the GPU command graph for the literal discrete shape.
+/// Buffer Layout: position, velocity-by-parameter-1, velocity-by-parameter-2, acceleration-by-parameter-1, acceleration-by-parameter-2, ...
 #[derive(Clone, Debug)]
-pub struct Plot {
+pub struct Chart {
     pub hedge: Hedge,
     pub shape: Hub<Shape>,
 }

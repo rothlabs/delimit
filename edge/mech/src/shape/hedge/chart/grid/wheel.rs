@@ -8,13 +8,13 @@ pub struct Spin<'a> {
 
 impl Spin<'_> {
     pub fn extrude(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.spin.extrude;
+        let program = &self.wheel.mech.bank.plot.grid.spin.extrude;
         self.weft(rig, form, program)
     }
     pub fn revolve(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let dimension = self.wheel.chart.shape.dimension;
+        let dimension = self.wheel.shape.dimension;
         if dimension == 2 {
-            let program = &self.wheel.chart.core.bank.plot.grid.spin.revolve2;
+            let program = &self.wheel.mech.bank.plot.grid.spin.revolve2;
             return self.weft(rig, form, program);
         }
         Err(anyhow!(
@@ -22,11 +22,11 @@ impl Spin<'_> {
         ))?
     }
     pub fn basis(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.spin.basis;
+        let program = &self.wheel.mech.bank.plot.grid.spin.basis;
         self.weft(rig, form, program)
     }
     pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let program = &self.wheel.chart.core.bank.plot.grid.spin.nurbs;
+        let program = &self.wheel.mech.bank.plot.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
     fn weft(
@@ -35,7 +35,7 @@ impl Spin<'_> {
         form: &Hedge,
         pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu = &self.wheel.chart.core.gpu;
+        let gpu = &self.wheel.mech.gpu;
         let rig_group = &gpu.store.rig.group;
         let stems = rig.stems.with(&form.stems);
         let rig_bind = gpu::Bind::builder()

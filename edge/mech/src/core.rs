@@ -7,12 +7,12 @@ mod bank;
 mod make;
 
 #[derive(Clone, Debug)]
-pub struct Core {
+pub struct Mech {
     pub gpu: Gpu,
     pub bank: Grc<Bank>,
 }
 
-impl Core {
+impl Mech {
     pub fn new(port: &Viewport) -> Result<Self> {
         Ok(Self {
             bank: Bank::new(port)?.into(),
@@ -38,8 +38,8 @@ impl Core {
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }
-    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::Chart {
-        make::Chart {
+    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::MechShape {
+        make::MechShape {
             core: self.clone(),
             shape: shape.into(),
         }

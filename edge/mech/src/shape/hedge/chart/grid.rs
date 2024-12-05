@@ -4,7 +4,9 @@ mod loom;
 mod wheel;
 
 pub struct Wheel<'a> {
-    pub chart: &'a Chart<'a>,
+    // pub chart: &'a ChartBank<'a>,
+    pub mech: &'a Mech,
+    pub shape: &'a Shape,
     pub count: &'a Hub<u32>,
 }
 
@@ -16,8 +18,8 @@ impl<'a> Wheel<'a> {
         self.spline(weft)
     }
     fn travel(&self, weft: &mut Weft) -> Result<()> {
-        if let Some(form) = &self.chart.shape.form.travel {
-            let gpu = &self.chart.core.gpu;
+        if let Some(form) = &self.shape.form.travel {
+            let gpu = &self.mech.gpu;
             let mut stems = vec![];
             let size = self.extrude_size(form);
             let offset = gpu.store.topic(&size);
@@ -25,7 +27,7 @@ impl<'a> Wheel<'a> {
             let spin = self.spin();
             if let Some(form) = &form.extrude {
                 let rig = self.rig(
-                    self.chart.shape.dimension as usize,
+                    self.shape.dimension as usize,
                     &form.index,
                     &offset,
                     &size,
@@ -41,8 +43,8 @@ impl<'a> Wheel<'a> {
         Ok(())
     }
     fn orient(&self, weft: &mut Weft) -> Result<()> {
-        if let Some(form) = &self.chart.shape.form.orient {
-            let gpu = &self.chart.core.gpu;
+        if let Some(form) = &self.shape.form.orient {
+            let gpu = &self.mech.gpu;
             let mut stems = vec![];
             let size = self.revolve_size(form);
             let offset = gpu.store.topic(&size);
@@ -50,7 +52,7 @@ impl<'a> Wheel<'a> {
             let spin = self.spin();
             if let Some(form) = &form.revolve {
                 let rig = self.rig(
-                    self.chart.shape.dimension as usize,
+                    self.shape.dimension as usize,
                     &form.index,
                     &offset,
                     &size,
@@ -66,7 +68,7 @@ impl<'a> Wheel<'a> {
         Ok(())
     }
     fn spline(&self, mut weft: Weft) -> Result<Weft> {
-        for (order, form) in self.chart.shape.form.splines.iter().enumerate() {
+        for (order, form) in self.shape.form.splines.iter().enumerate() {
             if let Some(form) = form {
                 let mut stems = vec![];
                 let spline_size = self.basis_size(form);
@@ -75,7 +77,7 @@ impl<'a> Wheel<'a> {
                 let nurbs_length = nurbs_size.math().div(3).div(order as u32).hub();
                 let size = spline_size.math().add(&nurbs_expand).hub();
                 // let label = format!("nurbs {order}");
-                let gpu = &self.chart.core.gpu;
+                let gpu = &self.mech.gpu;
                 let offset = gpu.store.topic(&size);
                 // let buffer = gpu.blank(size).label(label).hub()?;
                 let mut spin = self.spin(); // &buffer
@@ -121,7 +123,7 @@ impl<'a> Wheel<'a> {
     }
     fn revolve_size(&self, form: &form::Orient) -> Hub<u32> {
         // let gpu = &self.chart.core.gpu;
-        let dimension = self.chart.shape.dimension;
+        let dimension = self.shape.dimension;
         if let Some(revolve) = &form.revolve {
             // gpu.size(revolve.buffer.clone())
             revolve
@@ -165,7 +167,7 @@ impl<'a> Wheel<'a> {
         offset: &Hub<u32>,
         length: &Hub<u32>,
     ) -> Result<Hedge> {
-        let gpu = &self.chart.core.gpu;
+        let gpu = &self.mech.gpu;
         let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(order as u32)
@@ -206,7 +208,7 @@ pub struct Loom<'a> {
 
 impl<'a> Loom<'a> {
     pub fn hedge(&self, warp: &Hedge) -> Result<Hedge> {
-        let gpu = &self.grid.chart.core.gpu;
+        let gpu = &self.grid.mech.gpu;
         let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?.clone();
         let main_offset = gpu.store.topic(&size);
@@ -284,7 +286,7 @@ impl<'a> Loom<'a> {
         })
     }
     fn offsets_and_lengths(&self) -> OffsetsAndLengths {
-        let chart = &self.grid.chart;
+        let chart = &self.grid;
         // let gpu = &chart.core.gpu;
         let flow = self.flow()?;
         let constant = chart.shape.dimension * (self.rank as u32 + 2);
@@ -315,7 +317,7 @@ impl<'a> Loom<'a> {
         Ok((offsets, lengths))
     }
     fn flow(&self) -> Result<&Flow> {
-        let flows = &self.grid.chart.shape.flows;
+        let flows = &self.grid.shape.flows;
         Ok(flows.get(self.rank).ok_or(anyhow!("no flow"))?)
     }
     fn rig(
@@ -327,8 +329,8 @@ impl<'a> Loom<'a> {
         offset: &Hub<u32>,
         length: &Hub<u32>,
     ) -> Result<Hedge> {
-        let dimension = self.grid.chart.shape.dimension;
-        let gpu = &self.grid.chart.core.gpu;
+        let dimension = self.grid.shape.dimension;
+        let gpu = &self.grid.mech.gpu;
         let buffer = &gpu.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(self.rank as u32)

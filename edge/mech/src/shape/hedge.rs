@@ -2,16 +2,17 @@ use super::*;
 
 mod chart;
 
-// TODO: rename to Chart? A Chart has Plots on it
-pub struct Chart<'a> {
-    pub core: &'a Core,
+pub struct ChartBank<'a> {
+    pub mech: &'a Mech,
     pub shape: &'a Shape,
 }
 
-impl<'a> Chart<'a> {
+impl<'a> ChartBank<'a> {
     pub fn grid(&self, counts: &'a [Hub<u32>]) -> Result<Hedge> {
         chart::Grid {
-            chart: self,
+            // chart: self,
+            mech: self.mech,
+            shape: self.shape,
             counts,
         }
         .hedge()

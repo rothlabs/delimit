@@ -8,7 +8,7 @@ pub struct Points {
     // TODO: switch to Canvas enum of Viewport or TargetTexture
     #[back(skip)]
     view: View,
-    plot: Hub<Plot>,
+    plot: Hub<Chart>,
 }
 
 impl Solve for Points {

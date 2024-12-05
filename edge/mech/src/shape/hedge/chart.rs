@@ -3,7 +3,8 @@ use super::*;
 mod grid;
 
 pub struct Grid<'a> {
-    pub chart: &'a Chart<'a>,
+    pub mech: &'a Mech,
+    pub shape: &'a Shape,
     pub counts: &'a [Hub<u32>],
 }
 
@@ -13,8 +14,8 @@ impl<'a> Grid<'a> {
         let last_count = self.counts.last().ok_or(anyhow!("no counts"))?;
         let last_weft = wefts.last().ok_or(anyhow!("no wefts"))?;
         let mut area = 1.into();
-        let mut warp = self.chart.shape.warp.clone();
-        for rank in 0..self.chart.shape.flows.len() {
+        let mut warp = self.shape.warp.clone();
+        for rank in 0..self.shape.flows.len() {
             let count = self.counts.get(rank).unwrap_or(last_count);
             // let size = count.calc().mul(&area).add(63).div(64).hub()?;
             let loom = grid::Loom {
@@ -35,7 +36,8 @@ impl<'a> Grid<'a> {
         for count in self.counts {
             // let size = count.calc().add(63).div(64).hub()?;
             let wheel = grid::Wheel {
-                chart: self.chart,
+                mech: self.mech,
+                shape: self.shape,
                 count,
                 // size: 0.into(),
             };
