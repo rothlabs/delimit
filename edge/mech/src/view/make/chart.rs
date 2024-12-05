@@ -16,20 +16,20 @@ impl Solve for Points {
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
         let gpu = &self.view.port.gpu;
         let store = &gpu.store;
-        let rig = &store.rig.group;
+        // let rig = &store.rig.group;
         let model_buffer = &store.mesh.buffer;
         let chart = &self.view.mech.bank.draw.chart;
         let plot = self.plot.base().await?;
         let stride = plot.shape.base().await?.stride();
         let hedge = plot.hedge;
-        let count = hedge.size.math().div(stride).hub();
-        let vector = VectorBuilder::default().field(stride).field(&count).hub()?;
+        let instance_length = hedge.size.math().div(stride).hub();
+        let vector = VectorBuilder::default().field(stride).field(&instance_length).hub()?;
         let rig_buffer = &store.rig.buffer;
-        let rig_offset = store.rig(64);
+        let rig = store.rig_bind(1);
         let rig_stem = gpu
             .writer(rig_buffer)
             .data(vector)
-            .offset(&rig_offset)
+            .offset(rig.offset)
             .hub()?;
 
         let res: u32 = 8;
@@ -39,31 +39,25 @@ impl Solve for Points {
             radius: 4.0.into(),
         }
         .hub();
-    
-        let mesh_offset = store.mesh(res * 6); // 24
+
+        let vertex_offset = store.mesh(res * 6); // 24
         let model_stem = gpu
             .writer(model_buffer)
-            .offset(&mesh_offset)
+            .offset(&vertex_offset)
             .data(points)
             .hub()?;
         let stems = hedge.stems.with(&[rig_stem, model_stem]);
-        let rig_bind = gpu::Bind::builder()
-            .slot(1)
-            .group(rig)
-            .offsets(vec![rig_offset])
-            .build()
-            .hub();
-        Ok(gpu::draw()
-            .stems(stems)
-            .pipe(&chart.points)
-            .bind(&store.topic.bind_vertex)
-            .bind(rig_bind)
-            .buffer(&store.mesh.vertex)
-            .vertex_offset(mesh_offset)
-            .vertex_length(res * 3)
-            .instance_offset(hedge.offset)
-            .instance_length(count)
-            .hub()?)
+        // TODO: image could return Image that includes rig offset
+        //  this way, rig bind does not need to be provided. perhapes bind group number 
+        //  would need to be provided with the pipeline
+        Ok(gpu.image(&chart.points).basic(gpu::image::Basic {
+            stems,
+            rig: rig.bind,
+            vertex_offset,
+            vertex_length: (res * 3).into(),
+            instance_offset: hedge.offset,
+            instance_length,
+        }))
     }
 }
 
@@ -104,6 +98,18 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
+
+// Ok(gpu::draw()
+        //     .stems(stems)
+        //     .pipe(&chart.points)
+        //     .bind(&store.topic.bind_vertex)
+        //     .bind(rig.bind)
+        //     .buffer(&store.mesh.vertex)
+        //     .vertex_offset(mesh_offset)
+        //     .vertex_length(res * 3)
+        //     .instance_offset(hedge.offset)
+        //     .instance_length(count)
+        //     .hub()?)
 
 //         let buffer = gpu.buffer(vertex_count as u64 * 24).vertex()?;
 //         let stem = gpu.writer(&buffer).data(points).hub()?;

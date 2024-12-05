@@ -28,12 +28,22 @@ impl Store {
             mesh: Grc::new(Mesh::new(device)),
         }
     }
-    pub fn rig(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+    pub fn rig(&self) -> Hub<u32> {
         Grant {
-            size: size.into(),
+            size: 64.into(),
             kind: Kind::Rig(self.rig.clone()),
         }
         .hub()
+    }
+    pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
+        let offset = self.rig();
+        let bind = Bind {
+            slot: slot.into(),
+            group: self.rig.group.hub(),
+            offsets: vec![offset.clone()],
+        }
+        .hub();
+        RigBind { bind, offset }
     }
     pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
@@ -45,10 +55,28 @@ impl Store {
     pub fn mesh(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
-            kind: Kind::Model(self.mesh.clone()),
+            kind: Kind::Mesh(self.mesh.clone()),
         }
         .hub()
     }
+}
+
+pub struct RigBind {
+    pub bind: Hub<action::Bind>,
+    pub offset: Hub<u32>,
+}
+
+#[derive(Debug)]
+pub enum Kind {
+    Rig(Grc<Rig>),
+    Topic(Grc<Topic>),
+    Mesh(Grc<Mesh>),
+}
+
+struct Chunk {
+    // grant: Leaf<u32>,
+    start: u32,
+    end: u32,
 }
 
 fn storage_buffer(device: &Device) -> Grc<Buffer> {
@@ -59,19 +87,6 @@ fn storage_buffer(device: &Device) -> Grc<Buffer> {
         usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
         mapped_at_creation: false,
     }))
-}
-
-#[derive(Debug)]
-pub enum Kind {
-    Rig(Grc<Rig>),
-    Topic(Grc<Topic>),
-    Model(Grc<Mesh>),
-}
-
-struct Chunk {
-    // grant: Leaf<u32>,
-    start: u32,
-    end: u32,
 }
 
 fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
@@ -103,6 +118,14 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
     })?;
     Ok(grant)
 }
+
+// pub fn rig(&self) -> Hub<u32> {
+//     Grant {
+//         size: 64.into(),
+//         kind: Kind::Rig(self.rig.clone()),
+//     }
+//     .hub()
+// }
 
 // fn uniform_buffer(device: &Device) -> Grc<Buffer> {
 //     Grc::new(device.create_buffer(&BufferDescriptor {

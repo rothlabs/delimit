@@ -174,12 +174,11 @@ impl<'a> Wheel<'a> {
             .field(offset)
             .field(length)
             .hub()?;
-        let size = 64.into();
-        let offset = gpu.store.rig(&size);
+        let offset = gpu.store.rig();
         let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,
-            size,
+            size: 64.into(),
             stems: vec![stem],
         })
     }
@@ -343,12 +342,11 @@ impl<'a> Loom<'a> {
             .field(offset)
             .field(length)
             .hub()?;
-        let size = 64.into();
-        let offset = gpu.store.rig(&size);
+        let offset = gpu.store.rig();
         let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
         Ok(Hedge {
             offset,
-            size,
+            size: 64.into(),
             stems: vec![stem],
         })
     }

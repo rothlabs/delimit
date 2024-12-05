@@ -1,3 +1,7 @@
+0. there should be an action::Write that holds Buffer and Offset info. When it is time to do a compute pass or render pass. Find action::Writes that touch each other 
+on the buffer so they can be executed together. There could be a chance to track what writes happen most frequently so they can be moved next to each other.
+
+
 1. Make node type that does not cash results and reads its stems on every solve. This is needed so it is up to date with stems that had write_passive used on them.
 2. I could keep Hedge { buffer, stem } or use Vec<ComputeCommand>. But the second option will cause unneeded recompute unless 
     sections could be marked is a number so the encoder submitter knows to skip those sections

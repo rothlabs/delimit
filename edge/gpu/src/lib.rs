@@ -6,6 +6,7 @@ pub use core::ToCore;
 pub use store::Store;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
+pub use core::image;
 
 use buffer::*;
 use bytemuck::*;

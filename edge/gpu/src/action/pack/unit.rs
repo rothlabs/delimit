@@ -34,11 +34,11 @@ impl Solve for Dispatch {
 #[derive(Debug, Gate, Back, TypedBuilder)]
 pub struct Bind {
     #[builder(default, setter(into))]
-    slot: Hub<u32>,
+    pub slot: Hub<u32>,
     #[builder(setter(into))]
-    group: Hub<Grc<BindGroup>>,
+    pub group: Hub<Grc<BindGroup>>,
     #[builder(default, setter(into))]
-    offsets: Vec<Hub<u32>>,
+    pub offsets: Vec<Hub<u32>>,
 }
 
 impl Solve for Bind {
@@ -60,25 +60,30 @@ impl Solve for Bind {
 #[derive(Debug, Back, Builder, BuildGate, Make)]
 #[builder(setter(into), pattern = "owned")]
 pub struct Draw {
-    stems: Vec<Hub<Grc<Action>>>,
-    pipe: Hub<Grc<RenderPipeline>>,
+    pub stems: Vec<Hub<Grc<Action>>>,
+    pub pipe: Hub<Grc<RenderPipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    binds: Vec<Hub<action::Bind>>,
+    pub binds: Vec<Hub<action::Bind>>,
     #[builder(setter(each(name = "buffer", into)))]
-    buffers: Vec<Hub<action::Vertex>>,
-    vertex_offset: Hub<u32>,
-    vertex_length: Hub<u32>,
-    instance_offset: Hub<u32>,
-    instance_length: Hub<u32>,
+    pub buffers: Vec<Hub<action::Vertex>>,
+    pub vertex_offset: Hub<u32>,
+    pub vertex_length: Hub<u32>,
+    pub instance_offset: Hub<u32>,
+    pub instance_length: Hub<u32>,
 }
 
 impl Solve for Draw {
     type Base = Grc<Action>;
     async fn solve(&self) -> node::Result<Grc<Action>> {
+        let vertex_offset = self.vertex_offset.base().await?;
+        let vertex_end = vertex_offset + self.vertex_length.base().await?;
+        let instance_offset = self.instance_offset.base().await?;
+        let instance_end = instance_offset + self.instance_length.base().await?;
         let draw = action::Draw {
-            vertices: self.vertex_offset.base().await?..self.vertex_length.base().await?,
-            instances: self.instance_offset.base().await?..self.instance_length.base().await?,
+            vertices: vertex_offset..vertex_end,
+            instances: instance_offset..instance_end,
         };
+        
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
             binds: self.binds.base().await?,

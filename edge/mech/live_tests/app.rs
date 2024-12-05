@@ -8,7 +8,7 @@ type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
 pub struct App {
     displays: Leaf<Vec<Display>>,
     #[builder(default)]
-    command_transfer: Leaf<CommandTransfer>,
+    command_transfers: Leaf<Vec<CommandTransfer>>,
 }
 
 impl Act for App {
@@ -22,7 +22,7 @@ impl Act for App {
             let commands = gpu::action::Sort::new(vec![action]).hub();
             let transfer = commands.transfer(&port.commands);
             transfer.depend().await?;
-            self.command_transfer.write(|x| *x = transfer).await?;
+            self.command_transfers.write(|x| x.push(transfer)).await?;
         }
         acted()
     }

@@ -33,9 +33,7 @@ impl ApplicationHandler for Gui {
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         match event {
-            WindowEvent::Resized(size) => {
-                self.gfx.resize(id, size).unwrap();
-            }
+            WindowEvent::Resized(size) => self.gfx.resize(id, size).unwrap(),
             WindowEvent::RedrawRequested => self.gfx.render(id).unwrap(),
             WindowEvent::MouseInput { state, .. } => {
                 if state == ElementState::Released {
