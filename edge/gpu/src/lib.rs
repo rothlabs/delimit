@@ -51,7 +51,7 @@ pub enum Error {
 
 #[derive(Clone, Debug)]
 pub struct Hedge {
-    pub offset: Hub<u32>,
+    pub index: Hub<u32>,
     pub size: Hub<u32>,
     pub stems: Vec<Hub<Grc<Action>>>,
 }

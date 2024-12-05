@@ -26,14 +26,14 @@ impl<'a> Wheel<'a> {
             if let Some(form) = &form.extrude {
                 let rig = self.rig(
                     self.chart.shape.dimension as usize,
-                    &form.offset,
+                    &form.index,
                     &offset,
                     &size,
                 )?;
                 stems.push(spin.extrude(&rig, form)?);
             }
             weft.travel = Some(Hedge {
-                offset,
+                index: offset,
                 size,
                 stems,
             });
@@ -51,14 +51,14 @@ impl<'a> Wheel<'a> {
             if let Some(form) = &form.revolve {
                 let rig = self.rig(
                     self.chart.shape.dimension as usize,
-                    &form.offset,
+                    &form.index,
                     &offset,
                     &size,
                 )?;
                 stems.push(spin.revolve(&rig, form)?);
             }
             weft.orient = Some(Hedge {
-                offset,
+                index: offset,
                 size,
                 stems,
             });
@@ -81,18 +81,18 @@ impl<'a> Wheel<'a> {
                 let mut spin = self.spin(); // &buffer
                 if let Some(form) = &form.basis {
                     // spline_size should be devided by 3 and order to get number of invocations
-                    let rig = self.rig(order, &form.offset, &offset, &spline_size)?;
+                    let rig = self.rig(order, &form.index, &offset, &spline_size)?;
                     // TODO: set spin size before calling basis
                     stems.push(spin.basis(&rig, form)?);
                 }
                 if let Some(form) = &form.nurbs {
                     let offset = spline_size.math().add(&offset).hub();
-                    let rig = self.rig(order, &form.offset, &offset, &nurbs_length)?;
+                    let rig = self.rig(order, &form.index, &offset, &nurbs_length)?;
                     spin.size = nurbs_length.math().add(63).div(64).hub();
                     stems.push(spin.nurbs(&rig, form)?);
                 }
                 weft.spline.push(Some(Hedge {
-                    offset,
+                    index: offset,
                     size,
                     stems,
                 }));
@@ -175,9 +175,9 @@ impl<'a> Wheel<'a> {
             .field(length)
             .hub()?;
         let offset = gpu.store.rig();
-        let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
+        let stem = gpu.writer(buffer).data(vector).index(&offset).hub()?;
         Ok(Hedge {
-            offset,
+            index: offset,
             size: 64.into(),
             stems: vec![stem],
         })
@@ -223,9 +223,9 @@ impl<'a> Loom<'a> {
                 ///////////////////////////////// added main offset
                 rig: self.rig(
                     0,
-                    &warp.offset,
-                    &weft.offset,
-                    &flow.offset,
+                    &warp.index,
+                    &weft.index,
+                    &flow.index,
                     &main_offset,
                     length,
                 )?,
@@ -245,7 +245,7 @@ impl<'a> Loom<'a> {
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             let weft = self.weft.orient()?;
             stems.push(weave.orient(loom::Trio {
-                rig: self.rig(0, &warp.offset, &weft.offset, &flow.offset, &offset, length)?,
+                rig: self.rig(0, &warp.index, &weft.index, &flow.index, &offset, length)?,
                 weft,
                 flow,
             })?);
@@ -265,9 +265,9 @@ impl<'a> Loom<'a> {
                 stems.push(weave.spline(loom::Trio {
                     rig: self.rig(
                         order,
-                        &warp.offset,
-                        &weft.offset,
-                        &flow.offset,
+                        &warp.index,
+                        &weft.index,
+                        &flow.index,
                         &offset,
                         length,
                     )?,
@@ -278,7 +278,7 @@ impl<'a> Loom<'a> {
             }
         }
         Ok(Hedge {
-            offset: main_offset,
+            index: main_offset,
             size,
             stems,
         })
@@ -343,9 +343,9 @@ impl<'a> Loom<'a> {
             .field(length)
             .hub()?;
         let offset = gpu.store.rig();
-        let stem = gpu.writer(buffer).data(vector).offset(&offset).hub()?;
+        let stem = gpu.writer(buffer).data(vector).index(&offset).hub()?;
         Ok(Hedge {
-            offset,
+            index: offset,
             size: 64.into(),
             stems: vec![stem],
         })

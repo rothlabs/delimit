@@ -39,7 +39,7 @@ impl Weave<'_> {
         let rig_bind = gpu::Bind::builder()
             .slot(1)
             .group(rig_group)
-            .offsets(vec![trio.rig.offset])
+            .offsets(vec![trio.rig.index])
             .build()
             .hub();
         let stems = trio

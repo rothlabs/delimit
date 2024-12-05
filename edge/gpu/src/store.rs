@@ -43,7 +43,7 @@ impl Store {
             offsets: vec![offset.clone()],
         }
         .hub();
-        RigBind { bind, offset }
+        RigBind { bind, index: offset }
     }
     pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
@@ -63,7 +63,7 @@ impl Store {
 
 pub struct RigBind {
     pub bind: Hub<action::Bind>,
-    pub offset: Hub<u32>,
+    pub index: Hub<u32>,
 }
 
 #[derive(Debug)]

@@ -41,7 +41,7 @@ impl Spin<'_> {
         let rig_bind = gpu::Bind::builder()
             .slot(1)
             .group(rig_group)
-            .offsets(vec![rig.offset.clone()])
+            .offsets(vec![rig.index.clone()])
             .build()
             .hub();
         gpu::dispatch()

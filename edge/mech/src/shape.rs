@@ -25,7 +25,7 @@ impl Shape {
     pub fn chart<'a>(&'a self, core: &'a Core) -> make::Chart<'a> {
         make::Chart { core, shape: self }
     }
-    pub fn stride(&self) -> u32 {
+    pub fn plot_size(&self) -> u32 {
         self.dimension * (self.rank() + 1)
     }
     pub fn rank(&self) -> u32 {

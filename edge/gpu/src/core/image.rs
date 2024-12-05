@@ -3,10 +3,10 @@ use super::*;
 pub struct Basic {
     pub stems: Vec<Hub<Grc<Action>>>,
     pub rig: Hub<action::Bind>,
-    pub vertex_offset: Hub<u32>,
-    pub vertex_length: Hub<u32>,
-    pub instance_offset: Hub<u32>,
-    pub instance_length: Hub<u32>,
+    // pub vertex_offset: Hub<u32>,
+    pub vertices: Hub<u32>,
+    // pub instance_offset: Hub<u32>,
+    pub instances: Hub<u32>,
 }
 
 impl<'a> Image<'a> {
@@ -18,11 +18,14 @@ impl<'a> Image<'a> {
             buffers: vec![],
             stems: basic.stems,
             binds: vec![basic.rig, store.topic.bind_vertex.clone()],
-            vertex_offset: basic.vertex_offset,
-            vertex_length: basic.vertex_length,
-            instance_offset: basic.instance_offset,
-            instance_length: basic.instance_length,
+            vertex_offset: 0.into(), // basic.vertex_offset,
+            vertex_length: basic.vertices,
+            instance_offset: 0.into(), // basic.instance_offset,
+            instance_length: basic.instances,
         }
         .hub()
     }
 }
+
+// local_count 
+// world_count

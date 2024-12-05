@@ -58,9 +58,9 @@ impl Core {
         let offset = self.store.topic(&size);
         let buffer = self.store.topic.buffer.hub();
         // TODO: make self.uniform_writer
-        let stem = self.writer(buffer).offset(&offset).data(data).hub()?;
+        let stem = self.writer(buffer).index(&offset).data(data).hub()?;
         Ok(Hedge {
-            offset,
+            index: offset,
             size,
             stems: vec![stem],
         })

@@ -14,54 +14,53 @@ pub struct Points {
 impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
+        let plot = self.plot.base().await?;
+        let plot_size = plot.shape.base().await?.plot_size();
+        let chart = plot.hedge;
+        
+        let res: u32 = 8;
         let gpu = &self.view.port.gpu;
         let store = &gpu.store;
-        let chart = &self.view.mech.bank.draw.chart;
-        let plot = self.plot.base().await?;
-        let stride = plot.shape.base().await?.stride();
-        let hedge = plot.hedge;
-        let instance_length = hedge.size.math().div(stride).hub();
+        let rig = store.rig_bind(1);
+        let mesh_index = store.topic(res * 6);
+        let plot_count = chart.size.math().div(plot_size).hub();
 
-        let res: u32 = 6;
         let points = Circle {
             frame: self.view.port.size.clone(),
             count: res.into(),
-            radius: 14.0.into(),
+            radius: 4.0.into(),
         }
         .hub();
 
-        let vertex_offset = store.topic(res * 6);
-        let model_stem = gpu
+        let mesh_stem = gpu
             .writer(&store.topic.buffer)
-            .offset(&vertex_offset)
+            .index(&mesh_index)
             .data(points)
             .hub()?;
 
         let vector = VectorBuilder::default()
-            .field(stride)
-            .field(vertex_offset)
-            .field(hedge.offset)
-            .field(&instance_length)
-            .hub()?;
-        let rig_buffer = &store.rig.buffer;
-        let rig = store.rig_bind(1);
-        let rig_stem = gpu
-            .writer(rig_buffer)
-            .data(vector)
-            .offset(rig.offset)
+            .field(mesh_index)
+            .field(chart.index)
+            .field(plot_size)
+            .field(&plot_count)
             .hub()?;
 
-        let stems = hedge.stems.with(&[rig_stem, model_stem]);
+        let rig_stem = gpu
+            .writer(&store.rig.buffer)
+            .data(vector)
+            .index(rig.index)
+            .hub()?;
+
+        let stems = chart.stems.with(&[rig_stem, mesh_stem]);
         // TODO: image could return Image that includes rig offset
         //  this way, rig bind does not need to be provided. perhapes bind group number
         //  would need to be provided with the pipeline
-        Ok(gpu.image(&chart.points).basic(gpu::image::Basic {
+        let pipe = &self.view.mech.bank.draw.chart.points;
+        Ok(gpu.image(pipe).basic(gpu::image::Basic {
             stems,
             rig: rig.bind,
-            vertex_offset: 0.into(),
-            vertex_length: (res * 3).into(),
-            instance_offset: 0.into(),
-            instance_length,
+            vertices: (res * 3).into(),
+            instances: plot_count,
         }))
     }
 }
