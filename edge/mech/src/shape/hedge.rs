@@ -2,15 +2,14 @@ use super::*;
 
 mod chart;
 
-pub struct ChartBank<'a> {
+pub struct Chart<'a> {
     pub mech: &'a Mech,
     pub shape: &'a Shape,
 }
 
-impl<'a> ChartBank<'a> {
+impl<'a> Chart<'a> {
     pub fn grid(&self, counts: &'a [Hub<u32>]) -> Result<Hedge> {
         chart::Grid {
-            // chart: self,
             mech: self.mech,
             shape: self.shape,
             counts,

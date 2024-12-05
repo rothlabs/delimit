@@ -4,7 +4,7 @@ use super::*;
 use bank::*;
 
 mod bank;
-mod make;
+mod hub;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
@@ -38,9 +38,9 @@ impl Mech {
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
     }
-    pub fn plot(&self, shape: impl Into<Hub<Shape>>) -> make::MechShape {
-        make::MechShape {
-            core: self.clone(),
+    pub fn chart(&self, shape: impl Into<Hub<Shape>>) -> hub::Chart {
+        hub::Chart {
+            mech: self.clone(),
             shape: shape.into(),
         }
     }

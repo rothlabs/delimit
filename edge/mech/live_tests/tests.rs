@@ -31,7 +31,7 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         .flow(flow1)
         .flow(flow2)
         .build()?;
-    let plot = mech.plot(shape).grid(40).hub()?;
+    let plot = mech.chart(shape).grid(40);
     let drawing = view.plot(&plot).points().hub()?;
     Ok(drawing)
 }

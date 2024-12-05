@@ -22,8 +22,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn chart<'a>(&'a self, core: &'a Mech) -> hedge::ChartBank<'a> {
-        hedge::ChartBank { mech: core, shape: self }
+    pub fn chart<'a>(&'a self, mech: &'a Mech) -> hedge::Chart<'a> {
+        hedge::Chart { shape: self, mech}
     }
     pub fn plot_size(&self) -> u32 {
         self.dimension * (self.rank() + 1)
@@ -131,16 +131,17 @@ impl FlowBuilder {
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub struct Instance {
-//     pub hedge: Hedge,
-//     pub layout: Layout,
-//     pub instance: Option<Box<Instance>>,
-// }
-
+// instance layout
 #[derive(Clone, Debug)]
 pub enum Layout {
     Free,
     Grid,
     Radial,
 }
+
+// #[derive(Clone, Debug)]
+// pub struct Instance {
+//     pub hedge: Hedge,
+//     pub layout: Layout,
+//     pub instance: Option<Box<Instance>>,
+// }
