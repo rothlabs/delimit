@@ -39,7 +39,6 @@ impl Gfx {
         self.displays.read(|displays| {
             for display in displays {
                 if display.window.id() == id {
-                    println!("RedrawRequested: {:?}", id);
                     return display.render();
                 }
             }

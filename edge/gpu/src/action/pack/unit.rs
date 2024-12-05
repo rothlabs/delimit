@@ -83,7 +83,7 @@ impl Solve for Draw {
             vertices: vertex_offset..vertex_end,
             instances: instance_offset..instance_end,
         };
-        
+
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
             binds: self.binds.base().await?,

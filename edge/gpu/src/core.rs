@@ -45,7 +45,10 @@ impl Core {
         }
     }
     pub fn image(&self, pipe: impl Into<Hub<Grc<RenderPipeline>>>) -> Image {
-        Image { core: self, pipe: pipe.into() }
+        Image {
+            core: self,
+            pipe: pipe.into(),
+        }
     }
     pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
     where

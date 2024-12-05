@@ -14,13 +14,15 @@ impl<'a> Image<'a> {
         let store = &self.core.store;
         Draw {
             pipe: self.pipe,
-            buffers: vec![store.mesh.vertex.clone()],
+            // buffers: vec![store.mesh.vertex.clone()],
+            buffers: vec![],
             stems: basic.stems,
             binds: vec![basic.rig, store.topic.bind_vertex.clone()],
             vertex_offset: basic.vertex_offset,
             vertex_length: basic.vertex_length,
             instance_offset: basic.instance_offset,
             instance_length: basic.instance_length,
-        }.hub()
+        }
+        .hub()
     }
 }
