@@ -2,17 +2,17 @@ use super::*;
 
 mod chart;
 
-pub struct Chart {
-    pub mech: Mech,
+pub struct Chart<'a> {
+    pub mech: &'a Mech,
     pub shape: Hub<Shape>,
 }
 
-impl Chart {
+impl Chart<'_> {
     pub fn grid(self, count: impl Into<Hub<u32>>) -> Hub<crate::Chart> {
         chart::Grid {
-            mech: self.mech,
+            mech: self.mech.clone(),
             shape: self.shape,
-            counts: vec![count.into()]
+            counts: vec![count.into()],
         }
         .hub()
     }

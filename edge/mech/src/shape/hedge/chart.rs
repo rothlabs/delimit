@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::*;
 
 mod grid;
@@ -51,7 +53,7 @@ impl<'a> Grid<'a> {
 pub struct Weft {
     pub travel: Option<Hedge>,
     pub orient: Option<Hedge>,
-    pub spline: Vec<Option<Hedge>>,
+    pub spline: HashMap<u32, Hedge>,
 }
 
 impl Weft {
@@ -61,11 +63,16 @@ impl Weft {
     fn orient(&self) -> Result<&Hedge> {
         Ok(self.orient.as_ref().ok_or(anyhow!("no orient"))?)
     }
-    fn spline(&self, order: usize) -> Result<&Hedge> {
-        let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
-        Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
+    fn spline(&self, order: u32) -> Result<&Hedge> {
+        let weft = self.spline.get(&order).ok_or(anyhow!("no spline"))?;
+        Ok(weft)
     }
 }
+
+// fn spline(&self, order: u32) -> Result<&Hedge> {
+//     let weft = self.spline.get(order).ok_or(anyhow!("no spline"))?;
+//     Ok(weft.as_ref().ok_or(anyhow!("no spline"))?)
+// }
 
 // fn loom(&self) -> grid::Loom {
 //     grid::Loom {

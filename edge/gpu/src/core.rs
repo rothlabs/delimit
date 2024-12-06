@@ -22,7 +22,7 @@ impl ToCore for Adapter {
             adapter: self.into(),
             device: device.into(),
             queue: queue.into(),
-            store,
+            store: store.into(),
         })
     }
 }
@@ -33,7 +33,7 @@ pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    pub store: Store,
+    pub store: Grc<Store>,
 }
 
 impl Core {
@@ -67,14 +67,6 @@ impl Core {
     }
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
-    }
-    pub fn pipe_layout<'a>(
-        &'a self,
-        bind_layout: &'a [&'a BindGroupLayout],
-    ) -> pipe::LayoutBuilder {
-        pipe::LayoutBuilder::default()
-            .device(&self.device)
-            .bind_layouts(bind_layout)
     }
     // TODO: put this in viewport?
     pub fn render_pass<'a>(

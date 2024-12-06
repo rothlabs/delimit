@@ -1,23 +1,21 @@
 use super::*;
 use std::f32::consts::PI;
 
-#[derive(Builder, BuildGate, Back, Debug)]
-#[builder(pattern = "owned")]
-#[builder(setter(into))]
+#[derive(Debug, Gate, Back)]
 pub struct Points {
     // TODO: switch to Canvas enum of Viewport or TargetTexture
     #[back(skip)]
-    view: View,
-    plot: Hub<Chart>,
+    pub view: View,
+    pub chart: Hub<Chart>,
 }
 
 impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
-        let plot = self.plot.base().await?;
+        let plot = self.chart.base().await?;
         let plot_size = plot.shape.base().await?.plot_size();
         let chart = plot.hedge;
-        
+
         let res: u32 = 8;
         let gpu = &self.view.port.gpu;
         let store = &gpu.store;
@@ -55,7 +53,7 @@ impl Solve for Points {
         // TODO: image could return Image that includes rig offset
         //  this way, rig bind does not need to be provided. perhapes bind group number
         //  would need to be provided with the pipeline
-        let pipe = &self.view.mech.bank.draw.chart.points;
+        let pipe = &self.view.mech.bank.image.chart.points;
         Ok(gpu.image(pipe).basic(gpu::image::Basic {
             stems,
             rig: rig.bind,
@@ -102,6 +100,17 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
+
+
+// #[derive(Builder, BuildGate, Back, Debug)]
+// #[builder(pattern = "owned")]
+// #[builder(setter(into))]
+// pub struct Points {
+//     // TODO: switch to Canvas enum of Viewport or TargetTexture
+//     #[back(skip)]
+//     view: View,
+//     chart: Hub<Chart>,
+// }
 
 // let vertex_offset = store.mesh(res * 6); // 24
 //         let model_stem = gpu

@@ -10,8 +10,9 @@ mod rig;
 mod topic;
 mod unit;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Store {
+    // pub layout: PipelineLayout,
     pub rig: Grc<Rig>,
     pub topic: Grc<Topic>,
 
@@ -22,9 +23,17 @@ pub struct Store {
 
 impl Store {
     pub fn new(device: &Device) -> Self {
+        let rig = Rig::new(device);
+        let topic = Topic::new(device);
+        // let layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+        //     label: Some("gpu_store"),
+        //     bind_group_layouts: &[&topic.layout, &rig.layout],
+        //     push_constant_ranges: &[],
+        // });
         Self {
-            rig: Grc::new(Rig::new(device)),
-            topic: Grc::new(Topic::new(device)),
+            // layout,
+            rig: Grc::new(rig),
+            topic: Grc::new(topic),
             mesh: Grc::new(Mesh::new(device)),
         }
     }

@@ -13,17 +13,17 @@ pub struct App {
 
 impl Act for App {
     async fn act(&self) -> node::Action {
-        let displays = self.displays.base()?;
-        if let Some(main) = displays.last() {
-            let port = &main.viewport;
-            let mech = Mech::new(port)?;
-            let view = View::new(mech, port.clone());
-            let action = test::draw_nurbs_surface(&view).await?;
-            let commands = gpu::action::Sort::new(vec![action]).hub();
-            let transfer = commands.transfer(&port.commands);
-            transfer.depend().await?;
-            self.command_writers.write(|x| x.push(transfer)).await?;
-        }
+        // let displays = self.displays.base()?;
+        // if let Some(main) = displays.last() {
+        //     let port = &main.viewport;
+        //     let mech = Mech::new(port)?;
+        //     // let view = View::new(mech, port.clone());
+        //     // let action = test::draw_nurbs_surface(&view).await?;
+        //     // let commands = gpu::action::Sort::new(vec![action]).hub();
+        //     // let transfer = commands.transfer(&port.commands);
+        //     // transfer.depend().await?;
+        //     // self.command_writers.write(|x| x.push(transfer)).await?;
+        // }
         acted()
     }
 }

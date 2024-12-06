@@ -3,13 +3,13 @@ use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use gui::*;
-use mech::*;
+// use mech::*;
 use node_derive::*;
 use star::*;
 use winit::{error::EventLoopError, event_loop::EventLoop};
 
 mod app;
-mod test;
+// mod test;
 
 #[tokio::main]
 async fn main() -> Result<()> {

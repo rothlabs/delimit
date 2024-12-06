@@ -1,6 +1,5 @@
 pub use compute::ComputeBuilder;
 pub use fragment::*;
-pub use layout::*;
 
 use super::*;
 
@@ -9,7 +8,6 @@ pub mod vertex;
 
 mod compute;
 mod fragment;
-mod layout;
 
 #[derive(Builder)]
 #[builder(pattern = "owned")]

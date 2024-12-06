@@ -1,6 +1,6 @@
+pub use core::*;
 pub use shape::*;
 pub use view::View;
-pub use core::*;
 
 use derive_builder::Builder;
 use gpu::*;

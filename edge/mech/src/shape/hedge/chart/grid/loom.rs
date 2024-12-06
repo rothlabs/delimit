@@ -15,17 +15,17 @@ pub struct Weave<'a> {
 impl Weave<'_> {
     pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.mech;
-        let program = &core.bank.plot.grid.weave.travel;
+        let program = &core.bank.chart.grid.weave.travel;
         self.weave(trio, program)
     }
     pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.mech;
-        let program = &core.bank.plot.grid.weave.orient;
+        let program = &core.bank.chart.grid.weave.orient;
         self.weave(trio, program)
     }
     pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let core = &self.loom.grid.mech;
-        let program = &core.bank.plot.grid.weave.spline;
+        let program = &core.bank.chart.grid.weave.spline;
         self.weave(trio, program)
     }
     pub fn weave(

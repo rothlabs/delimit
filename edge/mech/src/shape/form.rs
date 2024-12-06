@@ -28,6 +28,7 @@ pub struct Orient {
 #[builder(build_fn(error = "graph::Error"))]
 #[builder(setter(strip_option))]
 pub struct Spline {
+    pub order: u32,
     /// Basis Spline (B-Spline)
     pub basis: Option<Hedge>,
     /// Non-Uniform Rational Basis Spline
