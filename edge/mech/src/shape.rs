@@ -133,12 +133,12 @@ pub struct Flow {
 // }
 
 // instance layout
-#[derive(Clone, Debug)]
-pub enum Layout {
-    Free,
-    Grid,
-    Radial,
-}
+// #[derive(Clone, Debug)]
+// pub enum Layout {
+//     Free,
+//     Grid,
+//     Radial,
+// }
 
 pub mod flow {
     use super::*;

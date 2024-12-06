@@ -53,7 +53,7 @@ impl Solve for Points {
         // TODO: image could return Image that includes rig offset
         //  this way, rig bind does not need to be provided. perhapes bind group number
         //  would need to be provided with the pipeline
-        let pipe = &self.view.mech.bank.image.chart.points;
+        let pipe = &self.view.mech.pipe.image.chart.points;
         Ok(gpu.image(pipe).basic(gpu::image::Basic {
             stems,
             rig: rig.bind,

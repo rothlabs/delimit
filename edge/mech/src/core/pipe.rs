@@ -3,22 +3,28 @@ use super::*;
 mod chart;
 mod image;
 
+struct PipeLayout<'a> {
+    device: &'a Device,
+    layout: PipelineLayout,
+}
+
 #[derive(Debug)]
 pub struct Chart {
     pub grid: chart::Grid,
 }
 
 impl Chart {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
-        let store = &gpu.store;
-        let layout = gpu.device.create_pipeline_layout(&PipelineLayoutDescriptor {
+    pub fn new(layout: &GroupLayout) -> Self {
+        let layout = PipeLayout{
+            device: layout.device,
+            layout: layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("mech_chart"),
-            bind_group_layouts: &[&store.topic.layout, &store.rig.layout],
+            bind_group_layouts: &[&layout.topic, &layout.rig],
             push_constant_ranges: &[],
-        });
-        Ok(Self {
-            grid: chart::Grid::new(gpu, &layout)?,
-        })
+        })};
+        Self {
+            grid: chart::Grid::new(&layout),
+        }
     }
 }
 
@@ -28,15 +34,14 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new(port: &Viewport) -> Result<Self> {
-        let store = &port.gpu.store;
-        let layout = port.gpu.device.create_pipeline_layout(&PipelineLayoutDescriptor {
+    pub fn new(layout: &GroupLayout) -> Result<Self> {
+        let layout = layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("mech_chart"),
-            bind_group_layouts: &[&store.topic.layout_vertex, &store.rig.layout],
+            bind_group_layouts: &[&layout.image, &layout.rig],
             push_constant_ranges: &[],
         });
         Ok(Self {
-            chart: image::Chart::new(port, &layout)?,
+            chart: image::Chart::new(layout)?,
         })
     }
 }

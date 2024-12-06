@@ -1,19 +1,24 @@
+use layout::GroupLayout;
 use super::*;
 
 mod pipe;
 mod hub;
+mod layout;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub gpu: Gpu,
-    pub bank: Grc<Pipe>,
+    pub pipe: Grc<Pipe>,
 }
 
+// TODO: Mech should be made from Gpu and mech::View should be made from gpu::Viewport
+// mech can still contain all the Pipe info
 impl Mech {
-    pub fn new(port: &Viewport) -> Result<Self> {
+    pub fn new(gpu: &Gpu) -> Result<Self> {
+        let layout = GroupLayout::new(gpu);
         Ok(Self {
-            bank: Pipe::new(port)?.into(),
-            gpu: port.gpu.clone(),
+            pipe: Pipe::new(&layout)?.into(),
+            gpu: gpu.clone(),
         })
     }
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
@@ -34,13 +39,14 @@ pub struct Pipe {
 }
 
 impl Pipe {
-    pub fn new(port: &Viewport) -> Result<Self> {
+    pub fn new(layout: &GroupLayout) -> Result<Self> {
         Ok(Self {
-            chart: pipe::Chart::new(&port.gpu)?,
-            image: pipe::Image::new(port)?,
+            chart: pipe::Chart::new(layout)?,
+            image: pipe::Image::new(layout)?,
         })
     }
 }
+
 
 // pub fn travel(&self) -> TravelBuilder {
     //     TravelBuilder::default()
