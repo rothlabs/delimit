@@ -5,6 +5,7 @@ pub mod image;
 
 mod descriptor;
 mod encode;
+mod unit;
 
 pub trait ToCore {
     fn gpu(self) -> impl Future<Output = Result<Core>>;
