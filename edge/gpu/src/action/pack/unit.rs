@@ -9,7 +9,7 @@ pub struct Dispatch {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    binds: Vec<Hub<action::Bind>>,
+    binds: Vec<Hub<action::GroupBind>>,
     size: Hub<u32>,
 }
 
@@ -42,13 +42,13 @@ pub struct Bind {
 }
 
 impl Solve for Bind {
-    type Base = action::Bind;
-    async fn solve(&self) -> node::Result<action::Bind> {
+    type Base = action::GroupBind;
+    async fn solve(&self) -> node::Result<action::GroupBind> {
         let mut offsets = self.offsets.base().await?;
         for offset in &mut offsets {
             *offset *= 4;
         }
-        let binding = action::Bind {
+        let binding = action::GroupBind {
             slot: self.slot.base().await?,
             group: self.group.base().await?,
             offsets,
@@ -62,10 +62,10 @@ impl Solve for Bind {
 pub struct Draw {
     pub stems: Vec<Hub<Grc<Action>>>,
     pub pipe: Hub<Grc<RenderPipeline>>,
-    #[builder(setter(each(name = "bind", into)))]
-    pub binds: Vec<Hub<action::Bind>>,
+    #[builder(setter(each(name = "group", into)))]
+    pub groups: Vec<Hub<action::GroupBind>>,
     #[builder(setter(each(name = "buffer", into)))]
-    pub buffers: Vec<Hub<action::Vertex>>,
+    pub buffers: Vec<Hub<action::BufferBind>>,
     pub vertex_offset: Hub<u32>,
     pub vertex_length: Hub<u32>,
     pub instance_offset: Hub<u32>,
@@ -86,7 +86,7 @@ impl Solve for Draw {
 
         let render = pack::pass::Render {
             pipe: self.pipe.base().await?,
-            binds: self.binds.base().await?,
+            groups: self.groups.base().await?,
             buffers: self.buffers.base().await?,
             kind: pack::pass::render::Kind::Draw(draw),
         };
@@ -110,9 +110,9 @@ pub struct Vertex {
 }
 
 impl Solve for Vertex {
-    type Base = action::Vertex;
-    async fn solve(&self) -> node::Result<action::Vertex> {
-        let vertex = action::Vertex {
+    type Base = action::BufferBind;
+    async fn solve(&self) -> node::Result<action::BufferBind> {
+        let vertex = action::BufferBind {
             slot: self.slot.base().await?,
             buffer: self.buffer.base().await?,
             offset: self.offset.base().await?,

@@ -66,6 +66,7 @@ impl Core {
             stems: vec![stem],
         })
     }
+    // pub fn group(&self) 
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }

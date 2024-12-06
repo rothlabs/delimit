@@ -71,7 +71,7 @@ impl Store {
 }
 
 pub struct RigBind {
-    pub bind: Hub<action::Bind>,
+    pub bind: Hub<action::GroupBind>,
     pub index: Hub<u32>,
 }
 

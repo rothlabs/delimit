@@ -7,11 +7,11 @@ const LABEL_VERTEX: &str = "gpu_store_topic_vertex";
 pub struct Topic {
     pub layout: BindGroupLayout,
     pub layout_vertex: BindGroupLayout,
-    pub group: Leaf<Grc<BindGroup>>,
+    // pub group: Leaf<Grc<BindGroup>>,
     pub group_vertex: Leaf<Grc<BindGroup>>,
     pub buffer: Leaf<Grc<Buffer>>,
-    pub bind: Hub<action::Bind>,
-    pub bind_vertex: Hub<action::Bind>,
+    // pub bind: Hub<action::GroupBind>,
+    pub bind_vertex: Hub<action::GroupBind>,
     chunks: Leaf<Vec<Chunk>>,
 }
 
@@ -35,10 +35,10 @@ impl Topic {
         Self {
             layout,
             layout_vertex,
-            group,        //: Leaf::new(Grc::new(group)),
+            // group,        //: Leaf::new(Grc::new(group)),
             group_vertex, //: Leaf::new(Grc::new(group_vertex)),
             buffer: Leaf::new(buffer),
-            bind,
+            // bind,
             bind_vertex,
             chunks: Leaf::default(),
         }

@@ -16,8 +16,8 @@ pub enum Target {
 #[derive(Debug)]
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
-    Bind(action::Bind),
-    Vertex(action::Vertex),
+    Bind(action::GroupBind),
+    Vertex(action::BufferBind),
     Index(Grc<Buffer>),
     Draw(Draw),
     DrawIndexed(Range<u32>, i32, Range<u32>),
@@ -26,8 +26,8 @@ pub enum Step {
 #[derive(Default)]
 pub struct State {
     pipe: Option<Grc<RenderPipeline>>,
-    binds: HashMap<u32, action::Bind>,
-    buffers: HashMap<u32, action::Vertex>,
+    binds: HashMap<u32, action::GroupBind>,
+    buffers: HashMap<u32, action::BufferBind>,
     // index: Option<Grc<Buffer>>,
     steps: Vec<Step>,
 }
@@ -50,7 +50,7 @@ impl State {
     }
     pub fn push(&mut self, render: &pack::pass::Render) {
         self.pipe(&render.pipe);
-        self.binds(&render.binds);
+        self.binds(&render.groups);
         self.buffers(&render.buffers);
         self.draw(&render.kind);
     }
@@ -64,7 +64,7 @@ impl State {
             self.pipe = Some(pipe.clone());
         }
     }
-    pub fn binds(&mut self, binds: &[action::Bind]) {
+    pub fn binds(&mut self, binds: &[action::GroupBind]) {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
                 if bind != now {
@@ -76,7 +76,7 @@ impl State {
             }
         }
     }
-    fn buffers(&mut self, buffers: &[Vertex]) {
+    fn buffers(&mut self, buffers: &[BufferBind]) {
         for buffer in buffers {
             if let Some(now) = self.buffers.get_mut(&buffer.slot) {
                 if buffer != now {

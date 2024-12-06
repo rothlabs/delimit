@@ -2,7 +2,7 @@ use super::*;
 
 pub struct Basic {
     pub stems: Vec<Hub<Grc<Action>>>,
-    pub rig: Hub<action::Bind>,
+    pub rig: Hub<action::GroupBind>,
     // pub vertex_offset: Hub<u32>,
     pub vertices: Hub<u32>,
     // pub instance_offset: Hub<u32>,
@@ -17,7 +17,7 @@ impl<'a> Image<'a> {
             // buffers: vec![store.mesh.vertex.clone()],
             buffers: vec![],
             stems: basic.stems,
-            binds: vec![basic.rig, store.topic.bind_vertex.clone()],
+            groups: vec![basic.rig, store.topic.bind_vertex.clone()],
             vertex_offset: 0.into(), // basic.vertex_offset,
             vertex_length: basic.vertices,
             instance_offset: 0.into(), // basic.instance_offset,

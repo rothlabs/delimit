@@ -15,14 +15,14 @@ pub enum Pass {
 }
 
 #[derive(Debug, Clone)]
-pub struct Bind {
+pub struct GroupBind {
     pub slot: u32,
     pub group: Grc<BindGroup>,
     pub offsets: Vec<u32>,
 }
 
-impl PartialEq for Bind {
-    fn eq(&self, rhs: &Bind) -> bool {
+impl PartialEq for GroupBind {
+    fn eq(&self, rhs: &GroupBind) -> bool {
         self.slot == rhs.slot
             && self.group.global_id() == rhs.group.global_id()
             && self.offsets == rhs.offsets
@@ -30,14 +30,14 @@ impl PartialEq for Bind {
 }
 
 #[derive(Clone, Debug)]
-pub struct Vertex {
+pub struct BufferBind {
     pub slot: u32,
     pub buffer: Grc<Buffer>,
     pub offset: Option<u32>,
 }
 
-impl PartialEq for Vertex {
-    fn eq(&self, rhs: &Vertex) -> bool {
+impl PartialEq for BufferBind {
+    fn eq(&self, rhs: &BufferBind) -> bool {
         self.slot == rhs.slot && Grc::ptr_eq(&self.buffer, &rhs.buffer)
     }
 }

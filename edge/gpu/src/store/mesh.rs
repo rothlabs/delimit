@@ -4,7 +4,7 @@ const LABEL: &str = "gpu_store_model";
 
 #[derive(Debug)]
 pub struct Mesh {
-    pub vertex: Hub<action::Vertex>,
+    pub vertex: Hub<action::BufferBind>,
     pub buffer: Leaf<Grc<Buffer>>,
     chunks: Leaf<Vec<Chunk>>,
 }
