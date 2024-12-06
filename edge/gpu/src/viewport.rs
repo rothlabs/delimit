@@ -33,6 +33,7 @@ impl ToViewport for Surface<'static> {
 // (some of these could be moved to gui::Display?)
 #[derive(Clone, Debug)]
 pub struct Viewport {
+    // TODO: remove gpu: Core
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
     pub commands: Leaf<Grc<Vec<Command>>>,

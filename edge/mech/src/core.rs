@@ -1,7 +1,7 @@
 use layout::GroupLayout;
 use super::*;
 
-mod pipe;
+pub(crate) mod pipe;
 mod hub;
 mod layout;
 
@@ -41,8 +41,8 @@ pub struct Pipe {
 impl Pipe {
     pub fn new(layout: &GroupLayout) -> Result<Self> {
         Ok(Self {
-            chart: pipe::Chart::new(layout)?,
-            image: pipe::Image::new(layout)?,
+            chart: pipe::Chart::new(layout),
+            image: pipe::Image::new(layout),
         })
     }
 }

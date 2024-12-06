@@ -1,6 +1,7 @@
 pub use core::*;
 pub use shape::*;
 pub use view::View;
+pub use medium::Medium;
 
 use derive_builder::Builder;
 use gpu::*;
@@ -12,6 +13,7 @@ use wgpu::*;
 mod core;
 mod shape;
 mod view;
+mod medium;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

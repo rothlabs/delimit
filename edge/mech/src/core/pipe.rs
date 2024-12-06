@@ -1,7 +1,7 @@
 use super::*;
 
 mod chart;
-mod image;
+// mod image;
 
 struct PipeLayout<'a> {
     device: &'a Device,
@@ -30,19 +30,19 @@ impl Chart {
 
 #[derive(Debug)]
 pub struct Image {
-    pub chart: image::Chart,
+    pub chart: Grc<PipelineLayout>,//image::Chart,
 }
 
 impl Image {
-    pub fn new(layout: &GroupLayout) -> Result<Self> {
-        let layout = layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
+    pub fn new(layout: &GroupLayout) -> Self {
+        let chart = layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("mech_chart"),
             bind_group_layouts: &[&layout.image, &layout.rig],
             push_constant_ranges: &[],
-        });
-        Ok(Self {
-            chart: image::Chart::new(layout)?,
-        })
+        }).into();
+        Self {
+            chart, // image::Chart::new(layout)?,
+        }
     }
 }
 
