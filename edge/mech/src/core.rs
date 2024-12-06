@@ -1,9 +1,11 @@
-use layout::GroupLayout;
+// use layout::GroupLayout;
 use super::*;
 
 pub(crate) mod pipe;
 mod hub;
-mod layout;
+// mod layout;
+mod bind;
+mod group;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
@@ -14,12 +16,12 @@ pub struct Mech {
 // TODO: Mech should be made from Gpu and mech::View should be made from gpu::Viewport
 // mech can still contain all the Pipe info
 impl Mech {
-    pub fn new(gpu: &Gpu) -> Result<Self> {
-        let layout = GroupLayout::new(gpu);
-        Ok(Self {
-            pipe: Pipe::new(&layout)?.into(),
+    pub fn new(gpu: &Gpu) -> Self {
+        let layout = group::layout::Bank::new(&gpu.device);
+        Self {
             gpu: gpu.clone(),
-        })
+            pipe: Pipe::new(&layout).into(),
+        }
     }
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
         ShapeBuilder::default().dimension(dimension)
@@ -33,19 +35,29 @@ impl Mech {
 }
 
 #[derive(Debug)]
-pub struct Pipe {
+struct Pipe {
     pub chart: pipe::Chart,
     pub image: pipe::Image,
 }
 
 impl Pipe {
-    pub fn new(layout: &GroupLayout) -> Result<Self> {
-        Ok(Self {
+    pub fn new(layout: &group::layout::Bank) -> Self {
+        Self {
             chart: pipe::Chart::new(layout),
             image: pipe::Image::new(layout),
-        })
+        }
     }
 }
+
+#[derive(Debug)]
+struct Bind {
+    // pub topic: bind::Topic,
+    // pub image: pipe::Image,
+}
+
+
+
+
 
 
 // pub fn travel(&self) -> TravelBuilder {

@@ -2,13 +2,13 @@ use std::num::NonZero;
 use super::*;
 
 #[derive(Debug)]
-pub struct BindGroup {
-    device: Grc<Device>,
-    layout: Grc<BindGroupLayout>,
-    entries: Vec<BufferBind>,
+pub struct GroupUnit {
+    pub device: Grc<Device>,
+    pub layout: Grc<BindGroupLayout>,
+    pub entries: Vec<GroupEntry>,
 }
 
-impl Solve for BindGroup {
+impl Solve for GroupUnit {
     type Base = Grc<wgpu::BindGroup>;
     async fn solve(&self) -> node::Result<Self::Base> {
         let mut buffers = vec![];
@@ -42,7 +42,7 @@ impl Solve for BindGroup {
     }
 }
 
-impl Adapt for BindGroup {
+impl Adapt for GroupUnit {
     fn back(&mut self, back: &Back) {
         for entry in &mut self.entries {
             entry.buffer.back(back);
@@ -51,7 +51,7 @@ impl Adapt for BindGroup {
 }
 
 #[derive(Debug, Clone)]
-pub struct BufferBind {
+pub struct GroupEntry {
     pub slot: u32,
     pub buffer: Hub<Grc<Buffer>>,
     pub size: Option<u32>,

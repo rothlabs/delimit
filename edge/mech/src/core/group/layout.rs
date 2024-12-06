@@ -1,30 +1,18 @@
 use super::*;
 
-pub struct GroupLayout<'a> {
-    pub device: &'a Device,
-    // pub store: &'a Store,
+pub struct Bank<'a> {
+    pub device: &'a Grc<Device>,
     pub rig: Grc<BindGroupLayout>,
     pub topic: Grc<BindGroupLayout>,
     pub image: Grc<BindGroupLayout>,
 }
 
-impl<'a> GroupLayout<'a> {
-    pub fn new(gpu: &'a Gpu) -> Self {
-        let device = &gpu.device;
+impl<'a> Bank<'a> {
+    pub fn new(device: &'a Grc<Device>) -> Self {
+        // let device = &gpu.device;
         Self { device, rig: rig(device), topic: topic(device), image: image(device) }
     }
 }
-
-// fn entry(buffer: &Grc<Buffer>) -> BindGroupEntry {
-//     BindGroupEntry {
-//         binding: 0,
-//         resource: BindingResource::Buffer(BufferBinding {
-//             buffer,
-//             offset: 0,
-//             size: Some(NonZero::new(256).unwrap()),
-//         }),
-//     }
-// }
 
 pub fn rig(device: &Device) -> Grc<BindGroupLayout> {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {
@@ -45,16 +33,6 @@ fn rig_entry() -> BindGroupLayoutEntry {
         count: None,
     }
 }
-
-
-////////////
-
-// fn entry(buffer: &Grc<Buffer>) -> BindGroupEntry {
-//     BindGroupEntry {
-//         binding: 0,
-//         resource: buffer.as_entire_binding(),
-//     }
-// }
 
 pub fn topic(device: &Device) -> Grc<BindGroupLayout> {
     device.create_bind_group_layout(&BindGroupLayoutDescriptor {

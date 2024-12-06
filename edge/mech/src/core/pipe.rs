@@ -14,12 +14,12 @@ pub struct Chart {
 }
 
 impl Chart {
-    pub fn new(layout: &GroupLayout) -> Self {
+    pub fn new(bank: &group::layout::Bank) -> Self {
         let layout = PipeLayout{
-            device: layout.device,
-            layout: layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
+            device: bank.device,
+            layout: bank.device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("mech_chart"),
-            bind_group_layouts: &[&layout.topic, &layout.rig],
+            bind_group_layouts: &[&bank.topic, &bank.rig],
             push_constant_ranges: &[],
         })};
         Self {
@@ -34,10 +34,10 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new(layout: &GroupLayout) -> Self {
-        let chart = layout.device.create_pipeline_layout(&PipelineLayoutDescriptor {
+    pub fn new(catalog: &group::layout::Bank) -> Self {
+        let chart = catalog.device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("mech_chart"),
-            bind_group_layouts: &[&layout.image, &layout.rig],
+            bind_group_layouts: &[&catalog.image, &catalog.rig],
             push_constant_ranges: &[],
         }).into();
         Self {

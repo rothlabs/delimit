@@ -17,20 +17,20 @@ impl Solve for Points {
         let chart = plot.hedge;
 
         let res: u32 = 8;
-        let gpu = &self.view.port.gpu;
-        let store = &gpu.store;
+        // let gpu = &self.view.port.gpu;
+        let store = &self.view.gpu.store;
         let rig = store.rig_bind(1);
         let mesh_index = store.topic(res * 6);
         let plot_count = chart.size.math().div(plot_size).hub();
 
         let points = Circle {
-            frame: self.view.port.size.clone(),
+            frame: self.view.size.clone(),
             count: res.into(),
             radius: 4.0.into(),
         }
         .hub();
 
-        let mesh_stem = gpu
+        let mesh_stem = self.view.gpu
             .writer(&store.topic.buffer)
             .index(&mesh_index)
             .data(points)
@@ -43,7 +43,7 @@ impl Solve for Points {
             .field(&plot_count)
             .hub()?;
 
-        let rig_stem = gpu
+        let rig_stem = self.view.gpu
             .writer(&store.rig.buffer)
             .data(vector)
             .index(rig.index)
@@ -53,8 +53,8 @@ impl Solve for Points {
         // TODO: image could return Image that includes rig offset
         //  this way, rig bind does not need to be provided. perhapes bind group number
         //  would need to be provided with the pipeline
-        let pipe = &self.view.mech.pipe.image.chart.points;
-        Ok(gpu.image(pipe).basic(gpu::image::Basic {
+        let pipe = &self.view.medium.pipe.chart.points;
+        Ok(self.view.gpu.image(pipe).basic(gpu::image::Basic {
             stems,
             rig: rig.bind,
             vertices: (res * 3).into(),

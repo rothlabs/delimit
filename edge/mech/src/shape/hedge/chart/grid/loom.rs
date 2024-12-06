@@ -51,7 +51,8 @@ impl Weave<'_> {
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
             .pipe(pipe)
-            .bind(&gpu.store.topic.bind)
+            // .bind(&gpu.store.topic.bind)
+            .bind(&self.loom.grid.mech.bind)
             .bind(rig_bind)
             .size(&self.size)
             .stems(stems)

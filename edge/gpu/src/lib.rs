@@ -22,6 +22,7 @@ use texture::*;
 use wgpu::*;
 
 pub mod action;
+pub mod group;
 
 mod buffer;
 mod core;

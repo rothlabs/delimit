@@ -11,7 +11,7 @@ pub struct Form<'a> {
 
 #[derive(Clone, Debug)]
 pub struct Medium {
-    pipe: Grc<Pipe>,
+    pub pipe: Grc<Pipe>,
 }
 
 impl Medium {
