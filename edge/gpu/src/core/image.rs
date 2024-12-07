@@ -27,5 +27,5 @@ impl<'a> Image<'a> {
     }
 }
 
-// local_count 
+// local_count
 // world_count

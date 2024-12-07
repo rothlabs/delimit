@@ -1,6 +1,5 @@
 use super::*;
 
-
 #[derive(Debug)]
 pub struct Chart {
     pub points: Grc<RenderPipeline>,
@@ -12,9 +11,13 @@ impl Chart {
             device: form.device,
             layout: &form.layout.chart,
             target: form.target,
-            module: form.device.create_shader_module(include_wgsl!("chart/points.wgsl")),
+            module: form
+                .device
+                .create_shader_module(include_wgsl!("chart/points.wgsl")),
         };
-        Self { points: shader.pipe("vs_main", "fs_main") }
+        Self {
+            points: shader.pipe("vs_main", "fs_main"),
+        }
     }
 }
 
@@ -44,20 +47,21 @@ impl Shader<'_> {
             mask: 0,
             alpha_to_coverage_enabled: false,
         };
-        self.device.create_render_pipeline(&RenderPipelineDescriptor {
-            label: Some(vert_point),
-            layout: Some(&self.layout),
-            vertex,
-            fragment: Some(fragment),
-            primitive: PrimitiveState::default(),
-            depth_stencil: None,
-            multisample,
-            multiview: None,
-            cache: None,
-        }).into()
+        self.device
+            .create_render_pipeline(&RenderPipelineDescriptor {
+                label: Some(vert_point),
+                layout: Some(&self.layout),
+                vertex,
+                fragment: Some(fragment),
+                primitive: PrimitiveState::default(),
+                depth_stencil: None,
+                multisample,
+                multiview: None,
+                cache: None,
+            })
+            .into()
     }
 }
-
 
 // let gpu = &port.gpu;
 //         let shader = port.shader(include_wgsl!("chart/points.wgsl"));

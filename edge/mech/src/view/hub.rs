@@ -12,7 +12,8 @@ impl Image<'_> {
         chart::Points {
             view: self.view.clone(),
             chart: self.chart.clone(),
-        }.hub()
+        }
+        .hub()
     }
 }
 

@@ -16,7 +16,9 @@ pub struct Medium {
 
 impl Medium {
     pub fn new(form: Form) -> Self {
-        Self { pipe: Pipe::new(&form).into() }
+        Self {
+            pipe: Pipe::new(&form).into(),
+        }
     }
 }
 

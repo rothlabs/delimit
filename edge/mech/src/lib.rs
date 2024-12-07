@@ -1,19 +1,20 @@
 pub use core::*;
+pub use medium::Medium;
 pub use shape::*;
 pub use view::View;
-pub use medium::Medium;
 
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
 use star::*;
+use std::num::NonZero;
 use wgpu::*;
 
 mod core;
+mod medium;
 mod shape;
 mod view;
-mod medium;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

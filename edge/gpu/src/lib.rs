@@ -16,13 +16,15 @@ use graph::*;
 use node_derive::*;
 use pipe::*;
 use shader::*;
+use std::num::NonZero;
 use std::ops::Range;
 use std::{fmt::Debug, future::Future};
 use texture::*;
 use wgpu::*;
 
 pub mod action;
-pub mod group;
+pub mod active;
+pub mod stable;
 
 mod buffer;
 mod core;

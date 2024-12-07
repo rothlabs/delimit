@@ -52,7 +52,10 @@ impl Store {
             offsets: vec![offset.clone()],
         }
         .hub();
-        RigBind { bind, index: offset }
+        RigBind {
+            bind,
+            index: offset,
+        }
     }
     pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {

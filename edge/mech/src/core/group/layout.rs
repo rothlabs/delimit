@@ -2,23 +2,33 @@ use super::*;
 
 pub struct Bank<'a> {
     pub device: &'a Grc<Device>,
+    pub store: &'a Store,
     pub rig: Grc<BindGroupLayout>,
     pub topic: Grc<BindGroupLayout>,
     pub image: Grc<BindGroupLayout>,
 }
 
 impl<'a> Bank<'a> {
-    pub fn new(device: &'a Grc<Device>) -> Self {
-        // let device = &gpu.device;
-        Self { device, rig: rig(device), topic: topic(device), image: image(device) }
+    pub fn new(gpu: &'a Gpu) -> Self {
+        let device = &gpu.device;
+        let store = &gpu.store;
+        Self {
+            device,
+            store,
+            rig: rig(device),
+            topic: topic(device),
+            image: image(device),
+        }
     }
 }
 
 pub fn rig(device: &Device) -> Grc<BindGroupLayout> {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("mech_rig"),
-        entries: &[rig_entry()],
-    }).into()
+    device
+        .create_bind_group_layout(&BindGroupLayoutDescriptor {
+            label: Some("mech_rig"),
+            entries: &[rig_entry()],
+        })
+        .into()
 }
 
 fn rig_entry() -> BindGroupLayoutEntry {
@@ -35,10 +45,12 @@ fn rig_entry() -> BindGroupLayoutEntry {
 }
 
 pub fn topic(device: &Device) -> Grc<BindGroupLayout> {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("mech_topic"),
-        entries: &[topic_entry()],
-    }).into()
+    device
+        .create_bind_group_layout(&BindGroupLayoutDescriptor {
+            label: Some("mech_topic"),
+            entries: &[topic_entry()],
+        })
+        .into()
 }
 
 fn topic_entry() -> BindGroupLayoutEntry {
@@ -55,10 +67,12 @@ fn topic_entry() -> BindGroupLayoutEntry {
 }
 
 pub fn image(device: &Device) -> Grc<BindGroupLayout> {
-    device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-        label: Some("mech_image_topic"),
-        entries: &[image_entry()],
-    }).into()
+    device
+        .create_bind_group_layout(&BindGroupLayoutDescriptor {
+            label: Some("mech_image_topic"),
+            entries: &[image_entry()],
+        })
+        .into()
 }
 
 fn image_entry() -> BindGroupLayoutEntry {

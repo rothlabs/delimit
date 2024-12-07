@@ -1,8 +1,8 @@
 // use layout::GroupLayout;
 use super::*;
 
-pub(crate) mod pipe;
 mod hub;
+pub(crate) mod pipe;
 // mod layout;
 mod bind;
 mod group;
@@ -17,7 +17,7 @@ pub struct Mech {
 // mech can still contain all the Pipe info
 impl Mech {
     pub fn new(gpu: &Gpu) -> Self {
-        let layout = group::layout::Bank::new(&gpu.device);
+        let layout = group::layout::Bank::new(gpu);
         Self {
             gpu: gpu.clone(),
             pipe: Pipe::new(&layout).into(),
@@ -55,27 +55,22 @@ struct Bind {
     // pub image: pipe::Image,
 }
 
-
-
-
-
-
 // pub fn travel(&self) -> TravelBuilder {
-    //     TravelBuilder::default()
-    // }
-    // pub fn orient(&self) -> OrientBuilder {
-    //     OrientBuilder::default()
-    // }
-    // pub fn spline(&self) -> SplineBuilder {
-    //     SplineBuilder::default()
-    // }
-    // pub fn form(&self) -> FormBuilder {
-    //     FormBuilder::default()
-    // }
-    // pub fn flow(&self) -> FlowBuilder {
-    //     FlowBuilder::default()
-    // }
-    // Shape builder with dimensionality.
+//     TravelBuilder::default()
+// }
+// pub fn orient(&self) -> OrientBuilder {
+//     OrientBuilder::default()
+// }
+// pub fn spline(&self) -> SplineBuilder {
+//     SplineBuilder::default()
+// }
+// pub fn form(&self) -> FormBuilder {
+//     FormBuilder::default()
+// }
+// pub fn flow(&self) -> FlowBuilder {
+//     FlowBuilder::default()
+// }
+// Shape builder with dimensionality.
 
 // // TODO: also impl on shape to creating everything needed to render automatically
 // pub fn draw(&self, plot: impl Into<Hub<Plot>>) -> make::Draw {

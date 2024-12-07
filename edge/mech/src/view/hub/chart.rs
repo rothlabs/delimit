@@ -30,7 +30,9 @@ impl Solve for Points {
         }
         .hub();
 
-        let mesh_stem = self.view.gpu
+        let mesh_stem = self
+            .view
+            .gpu
             .writer(&store.topic.buffer)
             .index(&mesh_index)
             .data(points)
@@ -43,7 +45,9 @@ impl Solve for Points {
             .field(&plot_count)
             .hub()?;
 
-        let rig_stem = self.view.gpu
+        let rig_stem = self
+            .view
+            .gpu
             .writer(&store.rig.buffer)
             .data(vector)
             .index(rig.index)
@@ -100,7 +104,6 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
-
 
 // #[derive(Builder, BuildGate, Back, Debug)]
 // #[builder(pattern = "owned")]

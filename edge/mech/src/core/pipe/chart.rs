@@ -33,7 +33,9 @@ impl SpinGrid {
         let shader = Shader {
             device: pipe.device,
             layout: &pipe.layout,
-            module: pipe.device.create_shader_module(include_wgsl!("chart/grid/spin.wgsl")),
+            module: pipe
+                .device
+                .create_shader_module(include_wgsl!("chart/grid/spin.wgsl")),
         };
         Self {
             extrude: shader.pipe("extrude"),
@@ -56,7 +58,9 @@ impl WeaveGrid {
         let shader = Shader {
             device: pipe.device,
             layout: &pipe.layout,
-            module: pipe.device.create_shader_module(include_wgsl!("chart/grid/weave.wgsl")),
+            module: pipe
+                .device
+                .create_shader_module(include_wgsl!("chart/grid/weave.wgsl")),
         };
         Self {
             travel: shader.pipe("travel"),
@@ -74,22 +78,18 @@ struct Shader<'a> {
 
 impl Shader<'_> {
     fn pipe(&self, entry_point: &str) -> Grc<ComputePipeline> {
-        self.device.create_compute_pipeline(&ComputePipelineDescriptor {
-            label: Some(entry_point),
-            layout: Some(&self.layout),
-            module: &self.module,
-            entry_point,
-            compilation_options: Default::default(),
-            cache: None,
-        }).into()
+        self.device
+            .create_compute_pipeline(&ComputePipelineDescriptor {
+                label: Some(entry_point),
+                layout: Some(&self.layout),
+                module: &self.module,
+                entry_point,
+                compilation_options: Default::default(),
+                cache: None,
+            })
+            .into()
     }
 }
-
-
-
-
-
-
 
 // impl SpinGrid {
 //     pub fn new(layout: &Layout) -> Result<Self> {
