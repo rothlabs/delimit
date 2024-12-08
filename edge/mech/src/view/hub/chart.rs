@@ -13,15 +13,15 @@ pub struct Points {
 impl Solve for Points {
     type Base = Grc<gpu::Action>;
     async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
-        let plot = self.chart.base().await?;
-        let plot_size = plot.shape.base().await?.plot_size();
-        let chart = plot.hedge;
+        let chart = self.chart.base().await?;
+        let plot_size = chart.shape.base().await?.plot_size();
+        let chart = chart.hedge;
 
         let res: u32 = 8;
         // let gpu = &self.view.port.gpu;
-        let mech = &self.view.mech;
+        // let mech = &self.view.mech;
         let store = &self.view.gpu.store;
-        let rig = mech.rig();
+        // let rig = mech.rig();
         let mesh_index = store.topic(res * 6);
         let plot_count = chart.size.math().div(plot_size).hub();
 
@@ -47,25 +47,20 @@ impl Solve for Points {
             .field(&plot_count)
             .hub()?;
 
+        let image = self.view.medium.image();
+
         let rig_stem = self
             .view
             .gpu
             .writer(&store.rig.buffer)
             .data(vector)
-            .index(rig.index)
+            .index(&image.index)
             .hub()?;
 
         let stems = chart.stems.with(&[rig_stem, mesh_stem]);
-        // TODO: image could return Image that includes rig offset
-        //  this way, rig bind does not need to be provided. perhapes bind group number
-        //  would need to be provided with the pipeline
 
-        // this will use the medium.pipe.chart.points pipeline:
-        // self.medium.chart.points(gpu::image::Basic {
-        let pipe = &self.view.medium.pipe.chart.points;
-        Ok(self.view.gpu.image(pipe).basic(gpu::image::Basic {
+        Ok(image.basic(medium::image::Basic {
             stems,
-            rig: rig.bind,
             vertices: (res * 3).into(),
             instances: plot_count,
         }))
@@ -86,6 +81,7 @@ impl Solve for Circle {
         let (w, h) = (frame.0 as f32, frame.1 as f32);
         let count = self.count.base().await?;
         let radius = self.radius.base().await?;
+        // println!("frame: {:?}", frame);
         let points = circle_points(count, radius);
         let p0 = points.last().unwrap_or(&(0., 0.));
         let p1 = points.first().unwrap_or(&(0., 0.));
@@ -109,6 +105,20 @@ fn circle_points(count: u32, radius: f32) -> Vec<(f32, f32)> {
         })
         .collect()
 }
+
+// // TODO: image could return Image that includes rig offset
+// //  this way, rig bind does not need to be provided. perhapes bind group number
+// //  would need to be provided with the pipeline
+
+// // this will use the medium.pipe.chart.points pipeline:
+// // self.medium.chart.points(gpu::image::Basic {
+// let pipe = &self.view.medium.pipe.chart.points;
+// Ok(self.view.gpu.image(pipe).basic(gpu::image::Basic {
+//     stems,
+//     rig: rig.bind,
+//     vertices: (res * 3).into(),
+//     instances: plot_count,
+// }))
 
 // #[derive(Builder, BuildGate, Back, Debug)]
 // #[builder(pattern = "owned")]

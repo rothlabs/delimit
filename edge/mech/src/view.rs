@@ -1,7 +1,6 @@
 use super::*;
 
 mod hub;
-mod pipe;
 
 #[derive(Clone, Debug)]
 pub struct View {

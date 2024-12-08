@@ -55,11 +55,11 @@ impl Spin<'_> {
 }
 
 // let rig_bind = gpu::Bind::builder()
-        //     .slot(1)
-        //     .group(rig_group)
-        //     .offsets(vec![rig.index.clone()])
-        //     .build()
-        //     .hub();
+//     .slot(1)
+//     .group(rig_group)
+//     .offsets(vec![rig.index.clone()])
+//     .build()
+//     .hub();
 
 // let group = gpu_
 //     .bind()

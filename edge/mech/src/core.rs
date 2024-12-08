@@ -40,11 +40,11 @@ impl Mech {
             mech: self.clone(),
             device: &self.gpu.device,
             layout: &self.pipe.image,
-            target,//: &port.targets,
+            target, //: &port.targets,
         };
         Medium::new(form)
     }
-    pub fn rig(&self) -> RigBind {
+    pub fn rig(&self) -> (Hub<u32>, Hub<gpu::stable::GroupBind>) {
         let index = self.gpu.store.rig();
         let bind = gpu::active::group::Bind {
             slot: 1.into(),
@@ -52,10 +52,7 @@ impl Mech {
             offsets: vec![index.clone()],
         }
         .hub();
-        RigBind {
-            bind,
-            index,
-        }
+        (index, bind)
     }
 }
 

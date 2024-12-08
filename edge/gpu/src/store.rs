@@ -1,7 +1,6 @@
 use super::*;
 use mesh::*;
 use rig::*;
-use std::num::NonZero;
 use topic::*;
 use unit::*;
 
@@ -44,19 +43,6 @@ impl Store {
         }
         .hub()
     }
-    // pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
-    //     let offset = self.rig();
-    //     let bind = Bind {
-    //         slot: slot.into(),
-    //         group: self.rig.group.hub(),
-    //         offsets: vec![offset.clone()],
-    //     }
-    //     .hub();
-    //     RigBind {
-    //         bind,
-    //         index: offset,
-    //     }
-    // }
     pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
@@ -71,11 +57,6 @@ impl Store {
         }
         .hub()
     }
-}
-
-pub struct RigBind {
-    pub bind: Hub<stable::GroupBind>,
-    pub index: Hub<u32>,
 }
 
 #[derive(Debug)]
@@ -130,6 +111,25 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
     })?;
     Ok(grant)
 }
+
+// pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
+//     let offset = self.rig();
+//     let bind = Bind {
+//         slot: slot.into(),
+//         group: self.rig.group.hub(),
+//         offsets: vec![offset.clone()],
+//     }
+//     .hub();
+//     RigBind {
+//         bind,
+//         index: offset,
+//     }
+// }
+
+// pub struct RigBind {
+//     pub bind: Hub<stable::GroupBind>,
+//     pub index: Hub<u32>,
+// }
 
 // pub fn rig(&self) -> Hub<u32> {
 //     Grant {

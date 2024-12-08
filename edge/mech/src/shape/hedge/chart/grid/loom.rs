@@ -56,14 +56,12 @@ impl Weave<'_> {
     }
 }
 
-
 // let rig_bind = gpu::Bind::builder()
 //             .slot(1)
 //             .group(rig_group)
 //             .offsets(vec![trio.rig.index])
 //             .build()
 //             .hub();
-
 
 // TODO make func that creates this structure from ComputeProgram, Hedges, and count
 // let bind = gpu_

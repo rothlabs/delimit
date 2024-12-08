@@ -103,8 +103,6 @@ impl Core {
     }
 }
 
-
-
 // pub fn uniform_hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
 //     where
 //         T: Pod + Debug + graph::SendSync,

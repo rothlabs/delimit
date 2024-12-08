@@ -32,10 +32,12 @@ impl Medium {
             size,
         }
     }
-    pub fn image(&self, pipe: impl Into<Hub<Grc<RenderPipeline>>>) -> Image {
+    pub fn image(&self) -> Image {
+        let (index, bind) = self.mech.rig();
         Image {
-            pipe: pipe.into(),
-            bind: &self.mech.group.bind,
+            index,
+            bind,
+            medium: self,
         }
     }
 }
@@ -54,6 +56,19 @@ impl Pipe {
 }
 
 pub struct Image<'a> {
-    pipe: Hub<Grc<RenderPipeline>>,
-    bind: &'a core::group::bind::Bank,
+    pub index: Hub<u32>,
+    bind: Hub<gpu::stable::GroupBind>,
+    medium: &'a Medium,
 }
+
+// pub struct Image<'a> {
+//     pipe: Hub<Grc<RenderPipeline>>,
+//     bind: &'a core::group::bind::Bank,
+// }
+
+// pub fn image(&self, pipe: impl Into<Hub<Grc<RenderPipeline>>>) -> Image {
+//     Image {
+//         pipe: pipe.into(),
+//         bind: &self.mech.group.bind,
+//     }
+// }

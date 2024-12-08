@@ -44,7 +44,7 @@ impl Shader<'_> {
         };
         let multisample = MultisampleState {
             count: 4,
-            mask: 0,
+            mask: !0,
             alpha_to_coverage_enabled: false,
         };
         self.device
@@ -62,17 +62,3 @@ impl Shader<'_> {
             .into()
     }
 }
-
-// let gpu = &port.gpu;
-//         let shader = port.shader(include_wgsl!("chart/points.wgsl"));
-//         // let vertex = shader.vertex("vs_main").make()?;
-
-//         let fragment = shader.fragment("fs_main").make()?;
-//         let multi = gpu.multisample(4).make()?;
-//         let points = port
-//             .pipe(vertex)
-//             .fragment(fragment)
-//             .layout(layout)
-//             .multisample(multi)
-//             .make()?;
-//         Ok(Self { points })

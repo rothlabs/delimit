@@ -7,7 +7,7 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn new(layout: &PipeLayout) -> Self {
+    pub(super) fn new(layout: &PipeLayout) -> Self {
         Self {
             spin: SpinGrid::new(layout),
             weave: WeaveGrid::new(layout),
@@ -29,7 +29,7 @@ pub struct SpinGrid {
 }
 
 impl SpinGrid {
-    pub fn new(pipe: &PipeLayout) -> Self {
+    pub(super) fn new(pipe: &PipeLayout) -> Self {
         let shader = Shader {
             device: pipe.device,
             layout: &pipe.layout,
@@ -54,7 +54,7 @@ pub struct WeaveGrid {
 }
 
 impl WeaveGrid {
-    pub fn new(pipe: &PipeLayout) -> Self {
+    pub(super) fn new(pipe: &PipeLayout) -> Self {
         let shader = Shader {
             device: pipe.device,
             layout: &pipe.layout,
@@ -81,7 +81,7 @@ impl Shader<'_> {
         self.device
             .create_compute_pipeline(&ComputePipelineDescriptor {
                 label: Some(entry_point),
-                layout: Some(&self.layout),
+                layout: Some(self.layout),
                 module: &self.module,
                 entry_point,
                 compilation_options: Default::default(),

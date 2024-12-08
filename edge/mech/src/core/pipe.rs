@@ -1,7 +1,6 @@
 use super::*;
 
 mod chart;
-// mod image;
 
 struct PipeLayout<'a> {
     device: &'a Device,
@@ -16,7 +15,7 @@ pub struct Chart {
 impl Chart {
     pub fn new(bank: &group::layout::Bank) -> Self {
         let layout = PipeLayout {
-            device: &bank.device,
+            device: bank.device,
             layout: bank
                 .device
                 .create_pipeline_layout(&PipelineLayoutDescriptor {

@@ -1,7 +1,7 @@
 use super::*;
 
-pub mod layout;
 pub mod bind;
+pub mod layout;
 
 #[derive(Debug, Clone)]
 pub struct Bank {
@@ -17,19 +17,22 @@ impl Bank {
             device: bank.device.clone(),
             layout: bank.rig.clone(),
             entries: vec![rig_entry(bank.store)],
-        }.hub();
+        }
+        .hub();
         let topic = gpu::active::Group {
             device: bank.device.clone(),
             layout: bank.topic.clone(),
             entries: vec![topic_entry(bank.store)],
-        }.hub();
+        }
+        .hub();
         let image = gpu::active::Group {
             device: bank.device.clone(),
             layout: bank.image.clone(),
             entries: vec![topic_entry(bank.store)],
-        }.hub();
+        }
+        .hub();
         Self {
-            bind: group::bind::Bank::new(&topic),
+            bind: group::bind::Bank::new(&topic, &image),
             rig,
             topic,
             image,

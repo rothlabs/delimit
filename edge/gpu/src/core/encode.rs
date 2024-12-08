@@ -14,6 +14,7 @@ impl<'a> Encode<'a> {
             match step {
                 flat::compute::Step::Pipe(pipe) => pass.set_pipeline(pipe),
                 flat::compute::Step::Bind(bind) => {
+                    // println!("compute set bind group: {:#?}", bind);
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
                 flat::compute::Step::Dispatch(size) => {
@@ -29,6 +30,7 @@ impl<'a> Encode<'a> {
             match step {
                 flat::render::Step::Pipe(pipe) => pass.set_pipeline(pipe),
                 flat::render::Step::Bind(bind) => {
+                    // println!("render set bind group: {:#?}", bind);
                     pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
                 }
                 flat::render::Step::Vertex(vertex) => {
@@ -42,6 +44,7 @@ impl<'a> Encode<'a> {
                     pass.set_index_buffer(buffer.slice(..), IndexFormat::Uint16);
                 }
                 flat::render::Step::Draw(draw) => {
+                    // println!("draw: {:#?}", draw);
                     pass.draw(draw.vertices.clone(), draw.instances.clone());
                 }
                 flat::render::Step::DrawIndexed(indices, base_vertex, instances) => {
