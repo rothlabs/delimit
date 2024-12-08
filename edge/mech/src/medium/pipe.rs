@@ -50,7 +50,7 @@ impl Shader<'_> {
         self.device
             .create_render_pipeline(&RenderPipelineDescriptor {
                 label: Some(vert_point),
-                layout: Some(&self.layout),
+                layout: Some(self.layout),
                 vertex,
                 fragment: Some(fragment),
                 primitive: PrimitiveState::default(),

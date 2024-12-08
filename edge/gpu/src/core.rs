@@ -1,8 +1,6 @@
 use super::*;
 use encode::Encode;
 
-pub mod image;
-
 mod descriptor;
 mod encode;
 
@@ -42,12 +40,6 @@ impl Core {
             device: &self.device,
             module: self.device.create_shader_module(source), //.into(),
             targets: &[],
-        }
-    }
-    pub fn image(&self, pipe: impl Into<Hub<Grc<RenderPipeline>>>) -> Image {
-        Image {
-            core: self,
-            pipe: pipe.into(),
         }
     }
     pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
@@ -111,10 +103,7 @@ impl Core {
     }
 }
 
-pub struct Image<'a> {
-    core: &'a Core,
-    pipe: Hub<Grc<RenderPipeline>>,
-}
+
 
 // pub fn uniform_hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
 //     where

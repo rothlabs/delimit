@@ -18,7 +18,8 @@ impl Act for App {
             let port = &main.viewport;
             let mech = Mech::new(&port.gpu);
             let medium = mech.medium(&port.targets);
-            let view = View::new(mech, port.clone());
+            let view = medium.view(port.size.clone());
+            // let view = View::new(mech, port.clone());
             let action = tests::draw_nurbs_surface(&view)?;
             let commands = gpu::action::Sort::new(vec![action]).hub();
             let transfer = commands.transfer(&port.commands);

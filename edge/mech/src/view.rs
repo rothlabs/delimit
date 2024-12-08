@@ -6,11 +6,11 @@ mod pipe;
 #[derive(Clone, Debug)]
 pub struct View {
     // pub mech: Mech,
-    gpu: Gpu,
-    mech: Mech,
-    medium: Medium,
+    pub gpu: Gpu,
+    pub mech: Mech,
+    pub medium: Medium,
     // pub port: Viewport,
-    size: Leaf<(u32, u32)>,
+    pub size: Leaf<(u32, u32)>,
 }
 
 impl View {

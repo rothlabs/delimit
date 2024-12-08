@@ -1,6 +1,7 @@
 use super::*;
 use std::f32::consts::PI;
 
+// need mech, queue, and medium
 #[derive(Debug, Gate, Back)]
 pub struct Points {
     // TODO: switch to Canvas enum of Viewport or TargetTexture
@@ -58,6 +59,9 @@ impl Solve for Points {
         // TODO: image could return Image that includes rig offset
         //  this way, rig bind does not need to be provided. perhapes bind group number
         //  would need to be provided with the pipeline
+
+        // this will use the medium.pipe.chart.points pipeline:
+        // self.medium.chart.points(gpu::image::Basic {
         let pipe = &self.view.medium.pipe.chart.points;
         Ok(self.view.gpu.image(pipe).basic(gpu::image::Basic {
             stems,

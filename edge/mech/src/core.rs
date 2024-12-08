@@ -5,7 +5,7 @@ mod hub;
 pub(crate) mod pipe;
 // mod layout;
 // mod bind;
-mod group;
+pub(crate) mod group;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
@@ -37,6 +37,7 @@ impl Mech {
     }
     pub fn medium(&self, target: &[Option<ColorTargetState>]) -> Medium {
         let form = medium::Form {
+            mech: self.clone(),
             device: &self.gpu.device,
             layout: &self.pipe.image,
             target,//: &port.targets,

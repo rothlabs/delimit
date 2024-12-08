@@ -9,15 +9,17 @@ pub struct Basic {
     pub instances: Hub<u32>,
 }
 
+// TODO: Gpu should not have Image. Mech or Medium should because Mech has the common gpu::active::group::Bind
 impl<'a> Image<'a> {
     pub fn basic(self, basic: Basic) -> Hub<Grc<Action>> {
         // let store = &self.core.store;
+        // let wow = self.bind.topic;
         Draw {
             pipe: self.pipe,
             // buffers: vec![store.mesh.vertex.clone()],
             buffers: vec![],
             stems: basic.stems,
-            groups: vec![basic.rig],//, store.topic.bind_vertex.clone()],
+            groups: vec![basic.rig, self.bind.topic],//, store.topic.bind_vertex.clone()],
             vertex_offset: 0.into(), // basic.vertex_offset,
             vertex_length: basic.vertices,
             instance_offset: 0.into(), // basic.instance_offset,
