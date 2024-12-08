@@ -7,6 +7,7 @@ mod pipe;
 pub struct View {
     // pub mech: Mech,
     gpu: Gpu,
+    mech: Mech,
     medium: Medium,
     // pub port: Viewport,
     size: Leaf<(u32, u32)>,

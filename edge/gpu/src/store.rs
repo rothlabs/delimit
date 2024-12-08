@@ -44,19 +44,19 @@ impl Store {
         }
         .hub()
     }
-    pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
-        let offset = self.rig();
-        let bind = Bind {
-            slot: slot.into(),
-            group: self.rig.group.hub(),
-            offsets: vec![offset.clone()],
-        }
-        .hub();
-        RigBind {
-            bind,
-            index: offset,
-        }
-    }
+    // pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
+    //     let offset = self.rig();
+    //     let bind = Bind {
+    //         slot: slot.into(),
+    //         group: self.rig.group.hub(),
+    //         offsets: vec![offset.clone()],
+    //     }
+    //     .hub();
+    //     RigBind {
+    //         bind,
+    //         index: offset,
+    //     }
+    // }
     pub fn topic(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
         Grant {
             size: size.into(),
@@ -74,7 +74,7 @@ impl Store {
 }
 
 pub struct RigBind {
-    pub bind: Hub<action::GroupBind>,
+    pub bind: Hub<stable::GroupBind>,
     pub index: Hub<u32>,
 }
 

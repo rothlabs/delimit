@@ -35,24 +35,31 @@ impl Spin<'_> {
         form: &Hedge,
         pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu = &self.wheel.mech.gpu;
-        let rig_group = &gpu.store.rig.group;
+        let mech = &self.wheel.mech;
+        // let gpu = &mech.gpu;
+        // let rig_group = &gpu.store.rig.group;
         let stems = rig.stems.with(&form.stems);
-        let rig_bind = gpu::Bind::builder()
-            .slot(1)
-            .group(rig_group)
-            .offsets(vec![rig.index.clone()])
-            .build()
-            .hub();
+        let rig_bind = active::group::Bind {
+            slot: 1.into(),
+            group: mech.group.rig.clone(),
+            offsets: vec![rig.index.clone()],
+        };
         gpu::dispatch()
             .pipe(pipe)
-            .bind(&gpu.store.topic.bind)
-            .bind(rig_bind)
+            .bind(&mech.group.bind.topic)
+            .bind(rig_bind.hub())
             .size(&self.size)
             .stems(stems)
             .hub()
     }
 }
+
+// let rig_bind = gpu::Bind::builder()
+        //     .slot(1)
+        //     .group(rig_group)
+        //     .offsets(vec![rig.index.clone()])
+        //     .build()
+        //     .hub();
 
 // let group = gpu_
 //     .bind()

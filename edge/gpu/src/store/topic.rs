@@ -11,7 +11,7 @@ pub struct Topic {
     pub group_vertex: Leaf<Grc<BindGroup>>,
     pub buffer: Leaf<Grc<Buffer>>,
     // pub bind: Hub<action::GroupBind>,
-    pub bind_vertex: Hub<action::GroupBind>,
+    // pub bind_vertex: Hub<action::GroupBind>,
     chunks: Leaf<Vec<Chunk>>,
 }
 
@@ -20,18 +20,18 @@ impl Topic {
         let buffer = storage_buffer(device);
         let layout = layout(device);
         let layout_vertex = layout_vertex(device);
-        let group = Leaf::new(Grc::new(device.create_bind_group(&BindGroupDescriptor {
-            label: Some(LABEL),
-            layout: &layout,
-            entries: &[entry(&buffer)],
-        })));
-        let bind = Bind::builder().group(&group).build().hub();
+        // let group = Leaf::new(Grc::new(device.create_bind_group(&BindGroupDescriptor {
+        //     label: Some(LABEL),
+        //     layout: &layout,
+        //     entries: &[entry(&buffer)],
+        // })));
+        // let bind = Bind::builder().group(&group).build().hub();
         let group_vertex = Leaf::new(Grc::new(device.create_bind_group(&BindGroupDescriptor {
             label: Some(LABEL_VERTEX),
             layout: &layout_vertex,
             entries: &[entry(&buffer)],
         })));
-        let bind_vertex = Bind::builder().group(&group_vertex).build().hub();
+        // let bind_vertex = Bind::builder().group(&group_vertex).build().hub();
         Self {
             layout,
             layout_vertex,
@@ -39,7 +39,7 @@ impl Topic {
             group_vertex, //: Leaf::new(Grc::new(group_vertex)),
             buffer: Leaf::new(buffer),
             // bind,
-            bind_vertex,
+            // bind_vertex,
             chunks: Leaf::default(),
         }
     }

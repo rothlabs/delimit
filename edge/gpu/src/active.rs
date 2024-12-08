@@ -1,10 +1,12 @@
 use super::*;
 
+pub mod group;
+
 #[derive(Debug, Gate)]
 pub struct Group {
     pub device: Grc<Device>,
     pub layout: Grc<BindGroupLayout>,
-    pub entries: Vec<GroupEntry>,
+    pub entries: Vec<group::Entry>,
 }
 
 impl Solve for Group {
@@ -40,11 +42,4 @@ impl Adapt for Group {
             entry.buffer.back(back);
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct GroupEntry {
-    pub slot: u32,
-    pub buffer: Hub<Grc<Buffer>>,
-    pub size: Option<NonZero<u64>>,
 }

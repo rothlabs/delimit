@@ -33,15 +33,12 @@ impl Weave<'_> {
         trio: Trio,
         pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
-        let gpu = &self.loom.grid.mech.gpu;
-        let rig_group = &gpu.store.rig.group;
-        // let storage = &gpu_.store.topic.group;
-        let rig_bind = gpu::Bind::builder()
-            .slot(1)
-            .group(rig_group)
-            .offsets(vec![trio.rig.index])
-            .build()
-            .hub();
+        let mech = &self.loom.grid.mech;
+        let rig_bind = gpu::active::group::Bind {
+            slot: 1.into(),
+            group: mech.group.rig.clone(),
+            offsets: vec![trio.rig.index],
+        };
         let stems = trio
             .rig
             .stems
@@ -51,14 +48,22 @@ impl Weave<'_> {
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
         gpu::dispatch()
             .pipe(pipe)
-            // .bind(&gpu.store.topic.bind)
-            .bind(&self.loom.grid.mech.bind)
-            .bind(rig_bind)
+            .bind(&mech.group.bind.topic)
+            .bind(rig_bind.hub())
             .size(&self.size)
             .stems(stems)
             .hub()
     }
 }
+
+
+// let rig_bind = gpu::Bind::builder()
+//             .slot(1)
+//             .group(rig_group)
+//             .offsets(vec![trio.rig.index])
+//             .build()
+//             .hub();
+
 
 // TODO make func that creates this structure from ComputeProgram, Hedges, and count
 // let bind = gpu_

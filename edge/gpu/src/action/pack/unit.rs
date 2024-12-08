@@ -9,7 +9,7 @@ pub struct Dispatch {
     stems: Vec<Hub<Grc<Action>>>,
     pipe: Hub<Grc<ComputePipeline>>,
     #[builder(setter(each(name = "bind", into)))]
-    binds: Vec<Hub<action::GroupBind>>,
+    binds: Vec<Hub<stable::GroupBind>>,
     size: Hub<u32>,
 }
 
@@ -31,31 +31,31 @@ impl Solve for Dispatch {
     }
 }
 
-#[derive(Debug, Gate, Back, TypedBuilder)]
-pub struct Bind {
-    #[builder(default, setter(into))]
-    pub slot: Hub<u32>,
-    #[builder(setter(into))]
-    pub group: Hub<Grc<BindGroup>>,
-    #[builder(default, setter(into))]
-    pub offsets: Vec<Hub<u32>>,
-}
+// #[derive(Debug, Gate, Back, TypedBuilder)]
+// pub struct Bind {
+//     #[builder(default, setter(into))]
+//     pub slot: Hub<u32>,
+//     #[builder(setter(into))]
+//     pub group: Hub<Grc<BindGroup>>,
+//     #[builder(default, setter(into))]
+//     pub offsets: Vec<Hub<u32>>,
+// }
 
-impl Solve for Bind {
-    type Base = action::GroupBind;
-    async fn solve(&self) -> node::Result<action::GroupBind> {
-        let mut offsets = self.offsets.base().await?;
-        for offset in &mut offsets {
-            *offset *= 4;
-        }
-        let binding = action::GroupBind {
-            slot: self.slot.base().await?,
-            group: self.group.base().await?,
-            offsets,
-        };
-        Ok(binding.into())
-    }
-}
+// impl Solve for Bind {
+//     type Base = action::GroupBind;
+//     async fn solve(&self) -> node::Result<action::GroupBind> {
+//         let mut offsets = self.offsets.base().await?;
+//         for offset in &mut offsets {
+//             *offset *= 4;
+//         }
+//         let binding = action::GroupBind {
+//             slot: self.slot.base().await?,
+//             group: self.group.base().await?,
+//             offsets,
+//         };
+//         Ok(binding.into())
+//     }
+// }
 
 #[derive(Debug, Back, Builder, BuildGate, Make)]
 #[builder(setter(into), pattern = "owned")]
@@ -63,7 +63,7 @@ pub struct Draw {
     pub stems: Vec<Hub<Grc<Action>>>,
     pub pipe: Hub<Grc<RenderPipeline>>,
     #[builder(setter(each(name = "group", into)))]
-    pub groups: Vec<Hub<action::GroupBind>>,
+    pub groups: Vec<Hub<stable::GroupBind>>,
     #[builder(setter(each(name = "buffer", into)))]
     pub buffers: Vec<Hub<action::BufferBind>>,
     pub vertex_offset: Hub<u32>,

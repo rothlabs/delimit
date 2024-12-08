@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug)]
 pub struct Compute {
     pub pipe: Grc<ComputePipeline>,
-    pub binds: Vec<GroupBind>,
+    pub binds: Vec<stable::GroupBind>,
     pub kind: compute::Kind,
 }
 
@@ -19,7 +19,7 @@ pub mod compute {
 #[derive(Debug)]
 pub struct Render {
     pub pipe: Grc<RenderPipeline>,
-    pub groups: Vec<GroupBind>,
+    pub groups: Vec<stable::GroupBind>,
     pub buffers: Vec<BufferBind>,
     pub kind: render::Kind,
 }

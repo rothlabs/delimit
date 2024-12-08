@@ -8,14 +8,14 @@ pub struct Pass {
 #[derive(Clone, Debug)]
 pub enum Step {
     Pipe(Grc<ComputePipeline>),
-    Bind(action::GroupBind),
+    Bind(stable::GroupBind),
     Dispatch(u32),
 }
 
 #[derive(Default)]
 pub struct State {
     pipe: Option<Grc<ComputePipeline>>,
-    binds: HashMap<u32, GroupBind>,
+    binds: HashMap<u32, stable::GroupBind>,
     steps: Vec<Step>,
 }
 
@@ -44,7 +44,7 @@ impl State {
             self.pipe = Some(pipe.clone());
         }
     }
-    pub fn binds(&mut self, binds: &[action::GroupBind]) {
+    pub fn binds(&mut self, binds: &[stable::GroupBind]) {
         for bind in binds {
             if let Some(now) = self.binds.get_mut(&bind.slot) {
                 if bind != now {

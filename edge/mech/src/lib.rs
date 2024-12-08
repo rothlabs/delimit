@@ -11,8 +11,9 @@ use star::*;
 use std::num::NonZero;
 use wgpu::*;
 
+pub mod medium;
+
 mod core;
-mod medium;
 mod shape;
 mod view;
 

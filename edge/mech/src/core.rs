@@ -4,13 +4,14 @@ use super::*;
 mod hub;
 pub(crate) mod pipe;
 // mod layout;
-mod bind;
+// mod bind;
 mod group;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub gpu: Gpu,
     pub pipe: Grc<Pipe>,
+    pub group: group::Bank,
 }
 
 // TODO: Mech should be made from Gpu and mech::View should be made from gpu::Viewport
@@ -18,9 +19,11 @@ pub struct Mech {
 impl Mech {
     pub fn new(gpu: &Gpu) -> Self {
         let layout = group::layout::Bank::new(gpu);
+        let group = group::Bank::new(&layout);
         Self {
             gpu: gpu.clone(),
             pipe: Pipe::new(&layout).into(),
+            group,
         }
     }
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
@@ -32,10 +35,31 @@ impl Mech {
             shape: shape.into(),
         }
     }
+    pub fn medium(&self, target: &[Option<ColorTargetState>]) -> Medium {
+        let form = medium::Form {
+            device: &self.gpu.device,
+            layout: &self.pipe.image,
+            target,//: &port.targets,
+        };
+        Medium::new(form)
+    }
+    pub fn rig(&self) -> RigBind {
+        let index = self.gpu.store.rig();
+        let bind = gpu::active::group::Bind {
+            slot: 1.into(),
+            group: self.group.rig.clone(),
+            offsets: vec![index.clone()],
+        }
+        .hub();
+        RigBind {
+            bind,
+            index,
+        }
+    }
 }
 
 #[derive(Debug)]
-struct Pipe {
+pub struct Pipe {
     pub chart: pipe::Chart,
     pub image: pipe::Image,
 }
@@ -50,9 +74,9 @@ impl Pipe {
 }
 
 #[derive(Debug)]
-struct Bind {
-    // pub topic: bind::Topic,
-    // pub image: pipe::Image,
+pub struct RigBind {
+    pub bind: Hub<stable::GroupBind>,
+    pub index: Hub<u32>,
 }
 
 // pub fn travel(&self) -> TravelBuilder {

@@ -34,13 +34,14 @@ impl ToViewport for Surface<'static> {
 #[derive(Clone, Debug)]
 pub struct Viewport {
     // TODO: remove gpu: Core
+    // Core can be replaced with Grc<Device>
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
     pub commands: Leaf<Grc<Vec<Command>>>,
     pub stage: Grc<TextureView>,
     surface: Grc<Surface<'static>>,
     config: SurfaceConfiguration,
-    targets: Vec<Option<ColorTargetState>>,
+    pub targets: Vec<Option<ColorTargetState>>,
     format: TextureFormat,
 }
 

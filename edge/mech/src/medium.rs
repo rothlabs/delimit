@@ -3,10 +3,10 @@ use super::*;
 mod pipe;
 
 pub struct Form<'a> {
-    device: &'a Device,
-    layout: &'a core::pipe::Image,
+    pub device: &'a Device,
+    pub layout: &'a core::pipe::Image,
     // port: &'a Viewport,
-    target: &'a [Option<ColorTargetState>],
+    pub target: &'a [Option<ColorTargetState>],
 }
 
 #[derive(Clone, Debug)]
