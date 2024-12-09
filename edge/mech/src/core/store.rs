@@ -1,22 +1,20 @@
 use super::*;
-use rig::*;
-use topic::*;
+use block::*;
 use unit::*;
 
-mod rig;
-mod topic;
+mod block;
 mod unit;
 
 #[derive(Debug)]
 pub struct Store {
-    pub rig: Grc<Rig>,
-    pub topic: Grc<Topic>,
+    pub rig: Grc<Block>,
+    pub topic: Grc<Block>,
 }
 
 impl Store {
     pub fn new(device: &Device) -> Self {
-        let rig = Rig::new(device);
-        let topic = Topic::new(device);
+        let rig = Block::new(device);
+        let topic = Block::new(device);
         Self {
             rig: Grc::new(rig),
             topic: Grc::new(topic),
@@ -38,11 +36,11 @@ impl Store {
     }
 }
 
-#[derive(Debug)]
-pub enum Kind {
-    Rig(Grc<Rig>),
-    Topic(Grc<Topic>),
-}
+// #[derive(Debug)]
+// pub enum Kind {
+//     Rig(Grc<Rig>),
+//     Topic(Grc<Block>),
+// }
 
 struct Chunk {
     // grant: Leaf<u32>,

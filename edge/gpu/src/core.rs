@@ -15,12 +15,12 @@ impl ToCore for Adapter {
             ..Default::default()
         };
         let (device, queue) = self.request_device(&descriptor, None).await?;
-        let store = Store::new(&device);
+        // let store = Store::new(&device);
         Ok(Core {
             adapter: self.into(),
             device: device.into(),
             queue: queue.into(),
-            store: store.into(),
+            // store: store.into(),
         })
     }
 }
@@ -31,7 +31,7 @@ pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    pub store: Grc<Store>,
+    // pub store: Grc<Store>,
 }
 
 impl Core {

@@ -4,7 +4,7 @@ pub use action::flat::{self};
 pub use action::pack::{unit::*, Action};
 // pub use core::image;
 pub use core::ToCore;
-pub use store::Store;
+pub use block::*;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
 
@@ -30,7 +30,7 @@ mod buffer;
 mod core;
 mod pipe;
 mod shader;
-mod store;
+mod block;
 mod texture;
 mod viewport;
 

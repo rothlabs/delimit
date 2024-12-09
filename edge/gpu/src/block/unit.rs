@@ -4,16 +4,13 @@ use super::*;
 pub struct Grant {
     pub size: Hub<u32>,
     #[back(skip)]
-    pub kind: Kind,
+    pub block: Block,
 }
 
 impl Solve for Grant {
     type Base = u32;
     async fn solve(&self) -> node::Result<u32> {
         let size = self.size.base().await?;
-        Ok(match &self.kind {
-            Kind::Rig(store) => store.grant()?.hub(),
-            Kind::Topic(store) => store.grant(size)?.hub(),
-        })
+        Ok(self.block.grant(size)?.hub())
     }
 }
