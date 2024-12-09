@@ -14,16 +14,7 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         0.,   7., 6., 5.,
     ];
     let flow1 = Flow {
-        splines: vec![
-            flow::Spline {
-                order: 2,
-                hedge: topic.hedge(spline2),
-            },
-            flow::Spline {
-                order: 3,
-                hedge: topic.hedge(spline3),
-            },
-        ],
+        spline: [(2, topic.hedge(spline2)), (3, topic.hedge(spline3))].into(),
         ..Default::default()
     };
     #[rustfmt::skip]
@@ -31,17 +22,14 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         0.,   1., 0., 2.
     ];
     let flow2 = Flow {
-        splines: vec![flow::Spline {
-            order: 3,
-            hedge: topic.hedge(spline3),
-        }],
+        spline: [(3, topic.hedge(spline3))].into(),
         ..Default::default()
     };
     let shape = Shape {
         dimension: 2,
         warp: topic.hedge(warp2()),
         form: Form {
-            splines: vec![form_spline2(topic), form_spline3(topic)],
+            spline: [form_spline2(topic), form_spline3(topic)].into(),
             ..Default::default()
         },
         flows: vec![flow1, flow2],
@@ -51,20 +39,24 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     Ok(image)
 }
 
-fn form_spline2(topic: &Shelf) -> form::Spline {
-    form::Spline {
-        order: 2,
-        nurbs: Some(topic.hedge(nurbs2())),
-        ..Default::default()
-    }
+fn form_spline2(topic: &Shelf) -> (u32, form::Spline) {
+    (
+        2,
+        form::Spline {
+            nurbs: Some(topic.hedge(nurbs2())),
+            ..Default::default()
+        },
+    )
 }
 
-fn form_spline3(topic: &Shelf) -> form::Spline {
-    form::Spline {
-        order: 3,
-        nurbs: Some(topic.hedge(nurbs3())),
-        ..Default::default()
-    }
+fn form_spline3(topic: &Shelf) -> (u32, form::Spline) {
+    (
+        3,
+        form::Spline {
+            nurbs: Some(topic.hedge(nurbs3())),
+            ..Default::default()
+        },
+    )
 }
 
 #[rustfmt::skip]
@@ -73,7 +65,7 @@ fn warp2() -> Vec<f32> {
         -0.9, -0.9,
         -0.9, 0.,
         -0.9, 0.9,
-        0., 0.9, 
+        0., 0.9,
         0.9, 0.9,
         0.9, 0.,
         0.9, -0.9, 

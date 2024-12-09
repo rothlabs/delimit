@@ -58,14 +58,14 @@ impl<'a> Wheel<'a> {
         Ok(())
     }
     fn spline(&self, mut weft: Weft) -> Result<Weft> {
-        for form in &self.shape.form.splines {
+        for (order, form) in &self.shape.form.spline {
             // if let Some(form) = form {
-            let order = form.order;
+            // let order = form.order;
             let mut stems = vec![];
             let spline_size = self.basis_size(form);
             let nurbs_size = form.nurbs_size(self.count);
             let nurbs_expand = nurbs_size.math().div(3).mul(2).hub();
-            let nurbs_length = nurbs_size.math().div(3).div(order).hub();
+            let nurbs_length = nurbs_size.math().div(3).div(*order).hub();
             let size = spline_size.math().add(&nurbs_expand).hub();
             // let label = format!("nurbs {order}");
             // let gpu = &self.mech.gpu;
@@ -74,18 +74,18 @@ impl<'a> Wheel<'a> {
             let mut spin = self.spin(); // &buffer
             if let Some(form) = &form.basis {
                 // spline_size should be devided by 3 and order to get number of invocations
-                let rig = self.rig(order, &form.index, &offset, &spline_size)?;
+                let rig = self.rig(*order, &form.index, &offset, &spline_size)?;
                 // TODO: set spin size before calling basis
                 stems.push(spin.basis(&rig, form)?);
             }
             if let Some(form) = &form.nurbs {
                 let offset = spline_size.math().add(&offset).hub();
-                let rig = self.rig(order, &form.index, &offset, &nurbs_length)?;
+                let rig = self.rig(*order, &form.index, &offset, &nurbs_length)?;
                 spin.size = nurbs_length.math().add(63).div(64).hub();
                 stems.push(spin.nurbs(&rig, form)?);
             }
             weft.spline.insert(
-                order,
+                *order,
                 Hedge {
                     index: offset,
                     size,
@@ -223,7 +223,7 @@ impl<'a> Loom<'a> {
             })?);
             index += 1;
         }
-        for flow in &flow.splines {
+        for (order, flow) in &flow.spline {
             let offset = offsets
                 .get(index)
                 .ok_or(anyhow!("no offset"))?
@@ -232,18 +232,18 @@ impl<'a> Loom<'a> {
                 .hub();
             let length = lengths.get(index).ok_or(anyhow!("no length"))?;
             weave.size = length.math().add(63).div(64).hub();
-            let weft = self.weft.spline(flow.order)?;
+            let weft = self.weft.spline(*order)?;
             stems.push(weave.spline(loom::Trio {
                 rig: self.rig(
-                    flow.order,
+                    *order,
                     &warp.index,
                     &weft.index,
-                    &flow.hedge.index,
+                    &flow.index,
                     &offset,
                     length,
                 )?,
                 weft,
-                flow: &flow.hedge,
+                flow, //: &flow.hedge,
             })?);
             index += 1;
         }
@@ -273,10 +273,10 @@ impl<'a> Loom<'a> {
             // TODO: need to add last offset?
             offsets.push(size);
         }
-        for flow in &flow.splines {
+        for (order, flow) in &flow.spline {
             // if let Some(flow) = flow {
             // let size = gpu.size(&flow.buffer).div(order as u32 + 1).hub()?;
-            let size = flow.hedge.size.math().div(flow.order + 1).hub();
+            let size = flow.size.math().div(order + 1).hub();
             let last = offsets.last().ok_or(anyhow!("no offsets"))?;
             offsets.push(size.math().mul(&expand).add(last).hub());
             lengths.push(size.math().mul(self.count).mul(self.area).hub());

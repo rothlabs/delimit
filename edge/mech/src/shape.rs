@@ -29,30 +29,31 @@ impl Shape {
 pub struct Form {
     pub travel: Option<form::Travel>,
     pub orient: Option<form::Orient>,
-    pub splines: Vec<form::Spline>,
+    pub spline: BTreeMap<u32, form::Spline>,
 }
 
+// TODO: Flow should be in an enum of other kinds of operations like ButtJoin
 /// Index into Warp and `Weft`.
 #[derive(Clone, Debug, Default)]
 pub struct Flow {
     pub travel: Option<Hedge>,
     pub orient: Option<Hedge>,
-    pub splines: Vec<flow::Spline>,
+    pub spline: BTreeMap<u32, Hedge>,
 }
 
-pub mod flow {
-    use super::*;
-    #[derive(Debug, Clone)]
-    pub struct Spline {
-        pub order: u32,
-        pub hedge: Hedge,
-    }
-}
+// pub mod flow {
+//     use super::*;
+//     #[derive(Debug, Clone)]
+//     pub struct Spline {
+//         pub order: u32,
+//         pub hedge: Hedge,
+//     }
+// }
 
 // #[builder(default)]
-    // bounds: Vec<Shape>,
-    // #[builder(default)]
-    // instance: Option<Instance>,
+// bounds: Vec<Shape>,
+// #[builder(default)]
+// instance: Option<Instance>,
 
 // #[derive(Clone, Debug)]
 // pub struct Instance {
@@ -68,3 +69,15 @@ pub mod flow {
 //     Grid,
 //     Radial,
 // }
+
+// pub enum Form {
+//     Travel(form::Travel),
+//     Orient(form::Orient),
+//     Spline(form::Spline),
+// }
+
+// #[derive(Clone, Debug)]
+// pub enum Flow {
+//     Travel(Hedge),
+//     Orient(Hedge),
+//     Spline(flow::Spline),
