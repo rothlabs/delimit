@@ -36,8 +36,6 @@ impl Spin<'_> {
         pipe: &Grc<ComputePipeline>,
     ) -> graph::Result<Hub<Grc<gpu::Action>>> {
         let mech = &self.wheel.mech;
-        // let gpu = &mech.gpu;
-        // let rig_group = &gpu.store.rig.group;
         let stems = rig.stems.with(&form.stems);
         let rig_bind = active::group::Bind {
             slot: 1.into(),

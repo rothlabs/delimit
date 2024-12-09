@@ -1,39 +1,25 @@
 use super::*;
-use mesh::*;
 use rig::*;
 use topic::*;
 use unit::*;
 
-mod mesh;
 mod rig;
 mod topic;
 mod unit;
 
 #[derive(Debug)]
 pub struct Store {
-    // pub layout: PipelineLayout,
     pub rig: Grc<Rig>,
     pub topic: Grc<Topic>,
-
-    // for vertex data of position only
-    // need another mesh store to for other vertex formats
-    pub mesh: Grc<Mesh>,
 }
 
 impl Store {
     pub fn new(device: &Device) -> Self {
         let rig = Rig::new(device);
         let topic = Topic::new(device);
-        // let layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
-        //     label: Some("gpu_store"),
-        //     bind_group_layouts: &[&topic.layout, &rig.layout],
-        //     push_constant_ranges: &[],
-        // });
         Self {
-            // layout,
             rig: Grc::new(rig),
             topic: Grc::new(topic),
-            mesh: Grc::new(Mesh::new(device)),
         }
     }
     pub fn rig(&self) -> Hub<u32> {
@@ -50,20 +36,12 @@ impl Store {
         }
         .hub()
     }
-    pub fn mesh(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
-        Grant {
-            size: size.into(),
-            kind: Kind::Mesh(self.mesh.clone()),
-        }
-        .hub()
-    }
 }
 
 #[derive(Debug)]
 pub enum Kind {
     Rig(Grc<Rig>),
     Topic(Grc<Topic>),
-    Mesh(Grc<Mesh>),
 }
 
 struct Chunk {
@@ -111,6 +89,19 @@ fn grant(chunks: &Leaf<Vec<Chunk>>, size: u32, max: u32) -> Result<Leaf<u32>> {
     })?;
     Ok(grant)
 }
+
+
+// pub fn mesh(&self, size: impl Into<Hub<u32>>) -> Hub<u32> {
+//     Grant {
+//         size: size.into(),
+//         kind: Kind::Mesh(self.mesh.clone()),
+//     }
+//     .hub()
+// }
+
+    // for vertex data of position only
+    // need another mesh store to for other vertex formats
+    // pub mesh: Grc<Mesh>,
 
 // pub fn rig_bind(&self, slot: impl Into<Hub<u32>>) -> RigBind {
 //     let offset = self.rig();

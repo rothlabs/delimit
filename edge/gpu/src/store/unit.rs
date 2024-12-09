@@ -14,7 +14,6 @@ impl Solve for Grant {
         Ok(match &self.kind {
             Kind::Rig(store) => store.grant()?.hub(),
             Kind::Topic(store) => store.grant(size)?.hub(),
-            Kind::Mesh(store) => store.grant(size)?.hub(),
         })
     }
 }

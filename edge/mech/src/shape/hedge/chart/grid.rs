@@ -139,26 +139,11 @@ impl<'a> Wheel<'a> {
             0.into()
         }
     }
-    // fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
-    //     let gpu = &self.chart.core.gpu;
-    //     Ok(if let Some(nurbs) = &form.nurbs {
-    //         // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
-    //         // let size = gpu.size(nurbs.buffer.clone()).hub()?;
-    //         // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
-    //         gpu.size(nurbs.buffer.clone()).hub()?
-    //             // .mul(self.count.clone())
-    //             // .div(3)
-    //             // .mul(2)
-    //             // .hub()?
-    //     } else {
-    //         0.into()
-    //     })
-    // }
     fn rig(
         &self,
         order: u32,
         form_offset: &Hub<u32>,
-        offset: &Hub<u32>,
+        index: &Hub<u32>,
         length: &Hub<u32>,
     ) -> Result<Hedge> {
         let gpu = &self.mech.gpu;
@@ -167,27 +152,18 @@ impl<'a> Wheel<'a> {
             .field(order)
             .field(self.count.clone())
             .field(form_offset)
-            .field(offset)
+            .field(index)
             .field(length)
             .hub()?;
-        let offset = gpu.store.rig();
-        let stem = gpu.writer(buffer).data(vector).index(&offset).hub()?;
+        let index = gpu.store.rig();
+        let stem = gpu.writer(buffer).data(vector).index(&index).hub()?;
         Ok(Hedge {
-            index: offset,
+            index,
             size: 64.into(),
             stems: vec![stem],
         })
     }
 }
-
-// let uniform = self.chart.core.gpu.uniform();
-// Ok(uniform
-//     .field(order as u32)
-//     .field(self.count.clone())
-//     .field(offset)
-//     .field(length)
-//     .make()?)
-// let size = build.fields.len() as u64 * 4;
 
 type OffsetsAndLengths = Result<(Vec<Hub<u32>>, Vec<Hub<u32>>)>;
 
@@ -357,6 +333,31 @@ impl<'a> Loom<'a> {
         })
     }
 }
+
+// let uniform = self.chart.core.gpu.uniform();
+// Ok(uniform
+//     .field(order as u32)
+//     .field(self.count.clone())
+//     .field(offset)
+//     .field(length)
+//     .make()?)
+// let size = build.fields.len() as u64 * 4;
+
+    // fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
+    //     let gpu = &self.chart.core.gpu;
+    //     Ok(if let Some(nurbs) = &form.nurbs {
+    //         // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
+    //         // let size = gpu.size(nurbs.buffer.clone()).hub()?;
+    //         // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
+    //         gpu.size(nurbs.buffer.clone()).hub()?
+    //             // .mul(self.count.clone())
+    //             // .div(3)
+    //             // .mul(2)
+    //             // .hub()?
+    //     } else {
+    //         0.into()
+    //     })
+    // }
 
 // let uniform = self.grid.chart.core.gpu.uniform();
 // Ok(uniform

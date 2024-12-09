@@ -31,7 +31,8 @@ pub enum Error {
 
 /// Symbolic discrete shape.
 /// Contains plots of position and derivatives with respect to shape parameters.
-/// The hedge is the GPU command graph for the literal discrete shape.
+/// The `hedge` field is the literal discrete shape (GPU memory index and command graph).
+/// The `shape` field is the continuous shape source.
 /// Buffer Layout: position, velocity-by-parameter-1, velocity-by-parameter-2, acceleration-by-parameter-1, acceleration-by-parameter-2, ...
 #[derive(Clone, Debug)]
 pub struct Chart {

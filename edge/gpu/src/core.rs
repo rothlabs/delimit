@@ -50,7 +50,6 @@ impl Core {
         let index = self.store.topic(&size);
         let buffer = self.store.topic.buffer.hub();
         // TODO: make self.uniform_writer
-        // let stem = self.writer(buffer).index(&offset).data(data).hub()?;
         let stem = BufferWriter {
             queue: self.queue.clone(),
             buffer,
