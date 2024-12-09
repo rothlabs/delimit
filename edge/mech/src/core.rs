@@ -28,9 +28,6 @@ impl Mech {
             store,
         }
     }
-    pub fn shape(&self, dimension: u32) -> ShapeBuilder {
-        ShapeBuilder::default().dimension(dimension)
-    }
     pub fn chart(&self, shape: impl Into<Hub<Shape>>) -> hub::Chart {
         hub::Chart {
             mech: self,
