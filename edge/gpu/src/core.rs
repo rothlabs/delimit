@@ -42,20 +42,26 @@ impl Core {
             targets: &[],
         }
     }
-    pub fn hedge<T>(&self, data: Vec<T>) -> Result<Hedge>
+    pub fn hedge<T>(&self, data: Vec<T>) -> Hedge
     where
         T: Pod + Debug + graph::SendSync,
     {
         let size: Hub<u32> = (data.len() as u32).into();
-        let offset = self.store.topic(&size);
+        let index = self.store.topic(&size);
         let buffer = self.store.topic.buffer.hub();
         // TODO: make self.uniform_writer
-        let stem = self.writer(buffer).index(&offset).data(data).hub()?;
-        Ok(Hedge {
-            index: offset,
+        // let stem = self.writer(buffer).index(&offset).data(data).hub()?;
+        let stem = BufferWriter {
+            queue: self.queue.clone(),
+            buffer,
+            index: index.clone(),
+            data: data.into(),
+        }.hub();
+        Hedge {
+            index,
             size,
             stems: vec![stem],
-        })
+        }
     }
     // pub fn group(&self)
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {

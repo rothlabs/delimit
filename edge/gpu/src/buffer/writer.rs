@@ -4,11 +4,11 @@ use super::*;
 #[builder(pattern = "owned", setter(into))]
 pub struct BufferWriter<T> {
     #[back(skip)]
-    queue: Grc<Queue>,
-    buffer: Hub<Grc<Buffer>>,
-    data: Hub<Vec<T>>,
+    pub queue: Grc<Queue>,
+    pub buffer: Hub<Grc<Buffer>>,
+    pub data: Hub<Vec<T>>,
     #[builder(default)]
-    index: Hub<u32>,
+    pub index: Hub<u32>,
 }
 
 impl<T> Solve for BufferWriter<T>
@@ -27,6 +27,10 @@ where
         Ok(Grc::new(action::Action::default()).into())
     }
 }
+
+
+
+
 
 // impl<T> Adapt for BufferWriter<T>
 // where

@@ -2,24 +2,29 @@ use super::*;
 
 type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
 
-#[derive(Builder, BuildGate, Back, Debug, Make)]
-#[builder(pattern = "owned")]
-#[builder(setter(into))]
+#[derive(Debug, Gate, Back)]
 pub struct App {
-    displays: Leaf<Vec<Display>>,
-    #[builder(default)]
-    command_transfers: Leaf<Vec<CommandTransfer>>,
+    pub displays: Leaf<Vec<Display>>,
+    pub command_transfers: Leaf<Vec<CommandTransfer>>,
+}
+
+impl App {
+    pub fn new(displays: Leaf<Vec<Display>>) -> Self {
+        Self {
+            displays,
+            command_transfers: Leaf::default(),
+        }
+    }
 }
 
 impl Act for App {
     async fn act(&self) -> node::Action {
         let displays = self.displays.base()?;
-        if let Some(main) = displays.last() {
-            let port = &main.viewport;
+        if let Some(display) = displays.last() {
+            let port = &display.viewport;
             let mech = Mech::new(&port.gpu);
             let medium = mech.medium(&port.targets);
             let view = medium.view(port.size.clone());
-            // let view = View::new(mech, port.clone());
             let action = tests::draw_nurbs_surface(&view)?;
             let commands = gpu::action::Sort::new(vec![action]).hub();
             let transfer = commands.transfer(&port.commands);

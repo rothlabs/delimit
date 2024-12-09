@@ -52,6 +52,7 @@ pub enum Error {
     Any(#[from] anyhow::Error),
 }
 
+/// Contiguous data block on the GPU with dependencies.
 #[derive(Clone, Debug)]
 pub struct Hedge {
     pub index: Hub<u32>,

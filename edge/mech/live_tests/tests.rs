@@ -17,11 +17,11 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         splines: vec![
             flow::Spline {
                 order: 2,
-                hedge: gpu.hedge(spline2)?,
+                hedge: gpu.hedge(spline2),
             },
             flow::Spline {
                 order: 3,
-                hedge: gpu.hedge(spline3)?,
+                hedge: gpu.hedge(spline3),
             },
         ],
         ..Default::default()
@@ -33,26 +33,15 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     let flow2 = Flow {
         splines: vec![flow::Spline {
             order: 3,
-            hedge: gpu.hedge(spline3)?,
+            hedge: gpu.hedge(spline3),
         }],
         ..Default::default()
     };
     let shape = Shape {
         dimension: 2,
-        warp: gpu.hedge(warp2())?,
+        warp: gpu.hedge(warp2()),
         form: Form {
-            splines: vec![
-                form::Spline {
-                    order: 2,
-                    nurbs: Some(gpu.hedge(nurbs2())?),
-                    ..Default::default()
-                },
-                form::Spline {
-                    order: 3,
-                    nurbs: Some(gpu.hedge(nurbs3())?),
-                    ..Default::default()
-                },
-            ],
+            splines: vec![form_spline2(gpu), form_spline3(gpu)],
             ..Default::default()
         },
         flows: vec![flow1, flow2],
@@ -60,6 +49,24 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     let chart = mech.chart(shape).grid(40);
     let drawing = view.image(&chart).points();
     Ok(drawing)
+}
+
+// fn flow1()
+
+fn form_spline2(gpu: &Gpu) -> form::Spline {
+    form::Spline {
+        order: 2,
+        nurbs: Some(gpu.hedge(nurbs2())),
+        ..Default::default()
+    }
+}
+
+fn form_spline3(gpu: &Gpu) -> form::Spline {
+    form::Spline {
+        order: 3,
+        nurbs: Some(gpu.hedge(nurbs3())),
+        ..Default::default()
+    }
 }
 
 #[rustfmt::skip]

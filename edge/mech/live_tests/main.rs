@@ -1,5 +1,4 @@
 use app::*;
-use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use gui::*;
@@ -14,7 +13,7 @@ mod tests;
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut gui = Gui::default();
-    let app = app().displays(&gui.gfx.displays).hub()?;
+    let app = App::new(gui.gfx.displays.clone()).hub();
     app.depend().await?;
     let event_loop = EventLoop::new()?;
     event_loop.run_app(&mut gui)?;
@@ -36,6 +35,8 @@ pub enum Error {
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
+
+// let app = app().displays(&gui.gfx.displays).hub()?;
 
 // might need this to run test on different thread
 // let event_loop = EventLoopBuilder::default().with_any_thread(true).build()?;
