@@ -28,10 +28,6 @@ where
     }
 }
 
-
-
-
-
 // impl<T> Adapt for BufferWriter<T>
 // where
 //     T: 'static + Clone,

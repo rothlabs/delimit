@@ -57,6 +57,7 @@ enum OperationType {
     // DivUp,
 }
 
+// TODO: impl From<MathBuilder<T>> for Hub<T>
 #[derive(Default)]
 pub struct MathBuilder<T> {
     target: Math<T>,
@@ -69,8 +70,6 @@ where
 {
     pub fn hub(self) -> Hub<<Math<T> as IntoGateHub>::Base> {
         self.target.hub()
-        // let wow = self.target.gate()?;
-        // Ok(wow.into())
     }
     #[allow(clippy::should_implement_trait)]
     pub fn add(mut self, value: impl Into<Hub<T>>) -> Self {

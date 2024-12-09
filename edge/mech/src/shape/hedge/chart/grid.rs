@@ -19,10 +19,10 @@ impl<'a> Wheel<'a> {
     }
     fn travel(&self, weft: &mut Weft) -> Result<()> {
         if let Some(form) = &self.shape.form.travel {
-            let gpu = &self.mech.gpu;
+            // let gpu = &self.mech.gpu;
             let mut stems = vec![];
             let size = self.extrude_size(form);
-            let offset = gpu.store.topic(&size);
+            let offset = self.mech.store.topic(&size);
             // let buffer = gpu.blank(&size).label("extrude").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.extrude {
@@ -39,10 +39,10 @@ impl<'a> Wheel<'a> {
     }
     fn orient(&self, weft: &mut Weft) -> Result<()> {
         if let Some(form) = &self.shape.form.orient {
-            let gpu = &self.mech.gpu;
+            // let gpu = &self.mech.gpu;
             let mut stems = vec![];
             let size = self.revolve_size(form);
-            let offset = gpu.store.topic(&size);
+            let offset = self.mech.store.topic(&size);
             // let buffer = gpu.blank(&size).label("revolve").hub()?;
             let spin = self.spin();
             if let Some(form) = &form.revolve {
@@ -68,8 +68,8 @@ impl<'a> Wheel<'a> {
             let nurbs_length = nurbs_size.math().div(3).div(order).hub();
             let size = spline_size.math().add(&nurbs_expand).hub();
             // let label = format!("nurbs {order}");
-            let gpu = &self.mech.gpu;
-            let offset = gpu.store.topic(&size);
+            // let gpu = &self.mech.gpu;
+            let offset = self.mech.store.topic(&size);
             // let buffer = gpu.blank(size).label(label).hub()?;
             let mut spin = self.spin(); // &buffer
             if let Some(form) = &form.basis {
@@ -147,7 +147,7 @@ impl<'a> Wheel<'a> {
         length: &Hub<u32>,
     ) -> Result<Hedge> {
         let gpu = &self.mech.gpu;
-        let buffer = &gpu.store.rig.buffer;
+        let buffer = &self.mech.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(order)
             .field(self.count.clone())
@@ -155,7 +155,7 @@ impl<'a> Wheel<'a> {
             .field(index)
             .field(length)
             .hub()?;
-        let index = gpu.store.rig();
+        let index = self.mech.store.rig(1);
         let stem = gpu.writer(buffer).data(vector).index(&index).hub()?;
         Ok(Hedge {
             index,
@@ -178,10 +178,10 @@ pub struct Loom<'a> {
 
 impl<'a> Loom<'a> {
     pub fn hedge(&self, warp: &Hedge) -> Result<Hedge> {
-        let gpu = &self.grid.mech.gpu;
+        // let gpu = &self.grid.mech.gpu;
         let (offsets, lengths) = self.offsets_and_lengths()?;
         let size = offsets.last().ok_or(anyhow!("no offsets"))?.clone();
-        let main_offset = gpu.store.topic(&size);
+        let main_offset = self.grid.mech.store.topic(&size);
         // let label = format!("grid plot rank {}", self.rank);
         // let buffer = gpu.blank(size).label(label).hub()?;
         let mut weave = self.weave(warp)?;
@@ -299,7 +299,7 @@ impl<'a> Loom<'a> {
     ) -> Result<Hedge> {
         let dimension = self.grid.shape.dimension;
         let gpu = &self.grid.mech.gpu;
-        let buffer = &gpu.store.rig.buffer;
+        let buffer = &self.grid.mech.store.rig.buffer;
         let vector = VectorBuilder::default()
             .field(self.rank as u32)
             .field(order)
@@ -312,10 +312,10 @@ impl<'a> Loom<'a> {
             .field(offset)
             .field(length)
             .hub()?;
-        let offset = gpu.store.rig();
-        let stem = gpu.writer(buffer).data(vector).index(&offset).hub()?;
+        let index = self.grid.mech.store.rig(1);
+        let stem = gpu.writer(buffer).data(vector).index(&index).hub()?;
         Ok(Hedge {
-            index: offset,
+            index,
             size: 64.into(),
             stems: vec![stem],
         })
@@ -343,21 +343,21 @@ impl<'a> Loom<'a> {
 //     .make()?)
 // let size = build.fields.len() as u64 * 4;
 
-    // fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
-    //     let gpu = &self.chart.core.gpu;
-    //     Ok(if let Some(nurbs) = &form.nurbs {
-    //         // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
-    //         // let size = gpu.size(nurbs.buffer.clone()).hub()?;
-    //         // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
-    //         gpu.size(nurbs.buffer.clone()).hub()?
-    //             // .mul(self.count.clone())
-    //             // .div(3)
-    //             // .mul(2)
-    //             // .hub()?
-    //     } else {
-    //         0.into()
-    //     })
-    // }
+// fn nurbs_size(&self, form: &form::Spline) -> graph::Result<Hub<u32>> {
+//     let gpu = &self.chart.core.gpu;
+//     Ok(if let Some(nurbs) = &form.nurbs {
+//         // When acceleration is included, remove mul(2).div(3) because plot row will be same length as nurbs row
+//         // let size = gpu.size(nurbs.buffer.clone()).hub()?;
+//         // size.calc().mul(&self.size).mul(2).mul(64).div(3).hub()?
+//         gpu.size(nurbs.buffer.clone()).hub()?
+//             // .mul(self.count.clone())
+//             // .div(3)
+//             // .mul(2)
+//             // .hub()?
+//     } else {
+//         0.into()
+//     })
+// }
 
 // let uniform = self.grid.chart.core.gpu.uniform();
 // Ok(uniform

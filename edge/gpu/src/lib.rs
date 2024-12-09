@@ -1,10 +1,8 @@
+pub use action::flat;
 pub use action::flat::Command;
-// pub use action::unit::Sort;
-pub use action::flat::{self};
 pub use action::pack::{unit::*, Action};
-// pub use core::image;
 pub use core::ToCore;
-pub use block::*;
+pub use shelf::*;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
 
@@ -30,7 +28,7 @@ mod buffer;
 mod core;
 mod pipe;
 mod shader;
-mod block;
+mod shelf;
 mod texture;
 mod viewport;
 

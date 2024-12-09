@@ -31,38 +31,9 @@ pub struct Core {
     pub adapter: Grc<Adapter>,
     pub device: Grc<Device>,
     pub queue: Grc<Queue>,
-    // pub store: Grc<Store>,
 }
 
 impl Core {
-    pub fn shader(&self, source: ShaderModuleDescriptor) -> Shader {
-        Shader {
-            device: &self.device,
-            module: self.device.create_shader_module(source), //.into(),
-            targets: &[],
-        }
-    }
-    pub fn hedge<T>(&self, data: Vec<T>) -> Hedge
-    where
-        T: Pod + Debug + graph::SendSync,
-    {
-        let size: Hub<u32> = (data.len() as u32).into();
-        let index = self.store.topic(&size);
-        let buffer = self.store.topic.buffer.hub();
-        // TODO: make self.uniform_writer
-        let stem = BufferWriter {
-            queue: self.queue.clone(),
-            buffer,
-            index: index.clone(),
-            data: data.into(),
-        }.hub();
-        Hedge {
-            index,
-            size,
-            stems: vec![stem],
-        }
-    }
-    // pub fn group(&self)
     pub fn buffer(&self, size: u64) -> BufferRigBuilder {
         BufferRigBuilder::default().device(&self.device).size(size)
     }

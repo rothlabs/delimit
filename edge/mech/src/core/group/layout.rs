@@ -9,9 +9,9 @@ pub struct Bank<'a> {
 }
 
 impl<'a> Bank<'a> {
-    pub fn new(gpu: &'a Gpu) -> Self {
-        let device = &gpu.device;
-        let store = &gpu.store;
+    pub fn new(device: &'a Grc<Device>, store: &'a Store) -> Self {
+        // let device = &gpu.device;
+        // let store = &gpu.store;
         Self {
             device,
             store,

@@ -1,29 +1,31 @@
-// use layout::GroupLayout;
 use super::*;
+use store::*;
 
+pub mod group;
 mod hub;
-pub(crate) mod pipe;
-// mod layout;
-// mod bind;
-pub(crate) mod group;
+pub mod pipe;
+mod store;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub gpu: Gpu,
     pub pipe: Grc<Pipe>,
     pub group: group::Bank,
+    pub store: Store,
 }
 
 // TODO: Mech should be made from Gpu and mech::View should be made from gpu::Viewport
 // mech can still contain all the Pipe info
 impl Mech {
     pub fn new(gpu: &Gpu) -> Self {
-        let layout = group::layout::Bank::new(gpu);
+        let store = Store::new(gpu);
+        let layout = group::layout::Bank::new(&gpu.device, &store);
         let group = group::Bank::new(&layout);
         Self {
             gpu: gpu.clone(),
             pipe: Pipe::new(&layout).into(),
             group,
+            store,
         }
     }
     pub fn shape(&self, dimension: u32) -> ShapeBuilder {
@@ -45,7 +47,7 @@ impl Mech {
         Medium::new(form)
     }
     pub fn rig(&self) -> (Hub<u32>, Hub<gpu::stable::GroupBind>) {
-        let index = self.gpu.store.rig();
+        let index = self.store.rig(1);
         let bind = gpu::active::group::Bind {
             slot: 1.into(),
             group: self.group.rig.clone(),

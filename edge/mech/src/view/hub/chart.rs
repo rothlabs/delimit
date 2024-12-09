@@ -20,7 +20,7 @@ impl Solve for Points {
         let res: u32 = 8;
         // let gpu = &self.view.port.gpu;
         // let mech = &self.view.mech;
-        let store = &self.view.gpu.store;
+        let store = &self.view.mech.store;
         // let rig = mech.rig();
         let mesh_index = store.topic(res * 6);
         let plot_count = chart.size.math().div(plot_size).hub();

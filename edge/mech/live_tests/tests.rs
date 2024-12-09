@@ -2,7 +2,7 @@ use super::*;
 
 pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     let mech = &view.mech;
-    let gpu = &mech.gpu;
+    let topic = &mech.store.topic;
     #[rustfmt::skip]
     let spline2: Vec<f32> = vec![
         // index of weft form,    index of warp shapes (control points)
@@ -17,11 +17,11 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
         splines: vec![
             flow::Spline {
                 order: 2,
-                hedge: gpu.hedge(spline2),
+                hedge: topic.hedge(spline2),
             },
             flow::Spline {
                 order: 3,
-                hedge: gpu.hedge(spline3),
+                hedge: topic.hedge(spline3),
             },
         ],
         ..Default::default()
@@ -33,15 +33,15 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     let flow2 = Flow {
         splines: vec![flow::Spline {
             order: 3,
-            hedge: gpu.hedge(spline3),
+            hedge: topic.hedge(spline3),
         }],
         ..Default::default()
     };
     let shape = Shape {
         dimension: 2,
-        warp: gpu.hedge(warp2()),
+        warp: topic.hedge(warp2()),
         form: Form {
-            splines: vec![form_spline2(gpu), form_spline3(gpu)],
+            splines: vec![form_spline2(topic), form_spline3(topic)],
             ..Default::default()
         },
         flows: vec![flow1, flow2],
@@ -51,20 +51,18 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
     Ok(image)
 }
 
-// fn flow1()
-
-fn form_spline2(gpu: &Gpu) -> form::Spline {
+fn form_spline2(topic: &Shelf) -> form::Spline {
     form::Spline {
         order: 2,
-        nurbs: Some(gpu.hedge(nurbs2())),
+        nurbs: Some(topic.hedge(nurbs2())),
         ..Default::default()
     }
 }
 
-fn form_spline3(gpu: &Gpu) -> form::Spline {
+fn form_spline3(topic: &Shelf) -> form::Spline {
     form::Spline {
         order: 3,
-        nurbs: Some(gpu.hedge(nurbs3())),
+        nurbs: Some(topic.hedge(nurbs3())),
         ..Default::default()
     }
 }
