@@ -48,7 +48,7 @@ impl State {
             ..Default::default()
         })
     }
-    pub fn push(&mut self, render: &tree::pass::Render) {
+    pub fn push(&mut self, render: &tree::pass::Draw) {
         self.pipe(&render.pipe);
         self.binds(&render.groups);
         self.buffers(&render.buffers);
@@ -88,9 +88,9 @@ impl State {
             }
         }
     }
-    fn draw(&mut self, kind: &tree::pass::render::Kind) {
+    fn draw(&mut self, kind: &tree::pass::draw::Kind) {
         match kind {
-            tree::pass::render::Kind::Direct(draw) => self.steps.push(Step::Draw(draw.clone())),
+            tree::pass::draw::Kind::Direct(draw) => self.steps.push(Step::Draw(draw.clone())),
             _ => panic!("crap"),
         }
     }

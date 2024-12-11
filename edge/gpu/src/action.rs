@@ -78,8 +78,8 @@ impl<'a> SortingState<'a> {
     fn passes(&mut self) {
         while let Some(action) = self.actions[self.i.0].first() {
             match &action.kind {
-                tree::Kind::Compute(_) => self.compute(),
-                tree::Kind::Render(_) => self.render(),
+                tree::Kind::Dispatch(_) => self.compute(),
+                tree::Kind::Draw(_) => self.render(),
                 tree::Kind::Leaf => panic!("should never be leaf here"),
             }
             self.actions[self.i.0].clear();
@@ -91,11 +91,11 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    tree::Kind::Compute(compute) => {
+                    tree::Kind::Dispatch(compute) => {
                         state.push(compute);
                         self.increment(&action.stems);
                     }
-                    tree::Kind::Render(_) => self.actions[self.i.1].push(action),
+                    tree::Kind::Draw(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }
@@ -107,11 +107,11 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    tree::Kind::Render(render) => {
+                    tree::Kind::Draw(render) => {
                         state.push(render);
                         self.increment(&action.stems);
                     }
-                    tree::Kind::Compute(_) => self.actions[self.i.1].push(action),
+                    tree::Kind::Dispatch(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }

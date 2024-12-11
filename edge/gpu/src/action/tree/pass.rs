@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug)]
-pub struct Compute {
+pub struct Dispatch {
     pub pipe: Grc<ComputePipeline>,
     pub binds: Vec<stable::GroupBind>,
     pub kind: dispatch::Kind,
@@ -17,14 +17,14 @@ pub mod dispatch {
 }
 
 #[derive(Debug)]
-pub struct Render {
+pub struct Draw {
     pub pipe: Grc<RenderPipeline>,
     pub groups: Vec<stable::GroupBind>,
     pub buffers: Vec<stable::BufferBind>,
-    pub kind: render::Kind,
+    pub kind: draw::Kind,
 }
 
-pub mod render {
+pub mod draw {
     use super::*;
     #[derive(Debug)]
     pub enum Kind {

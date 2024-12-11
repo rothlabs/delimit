@@ -13,14 +13,14 @@ pub mod dispatch {
         type Base = Grc<Action>;
         async fn solve(&self) -> node::Result<Grc<Action>> {
             let size = self.size.base().await?;
-            let compute = action::tree::pass::Compute {
+            let compute = action::tree::pass::Dispatch {
                 pipe: self.pipe.base().await?,
                 binds: self.binds.base().await?,
                 kind: action::tree::pass::dispatch::Kind::Direct(size),
             };
             let action = action::tree::Action {
                 stems: self.stems.base().await?,
-                kind: action::tree::Kind::Compute(compute),
+                kind: action::tree::Kind::Dispatch(compute),
                 ..Default::default()
             };
             Ok(Grc::new(action).into())
@@ -54,15 +54,15 @@ pub mod draw {
                 instances: instance_offset..instance_end,
             };
 
-            let render = action::tree::pass::Render {
+            let render = action::tree::pass::Draw {
                 pipe: self.pipe.base().await?,
                 groups: self.groups.base().await?,
                 buffers: self.buffers.base().await?,
-                kind: action::tree::pass::render::Kind::Direct(draw),
+                kind: action::tree::pass::draw::Kind::Direct(draw),
             };
             let action = action::tree::Action {
                 stems: self.stems.base().await?,
-                kind: action::tree::Kind::Render(render),
+                kind: action::tree::Kind::Draw(render),
                 ..Default::default()
             };
             Ok(Grc::new(action).into())

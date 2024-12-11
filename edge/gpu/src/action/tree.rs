@@ -22,6 +22,7 @@ impl Default for Action {
 #[derive(Debug)]
 pub enum Kind {
     Leaf,
-    Compute(pass::Compute),
-    Render(pass::Render),
+    Dispatch(pass::Dispatch),
+    Draw(pass::Draw),
+    // CopyBuffer,
 }
