@@ -1,6 +1,6 @@
 use super::*;
 
-pub mod bind;
+pub mod command;
 
 #[derive(Debug, Clone)]
 pub struct GroupBind {
@@ -28,10 +28,4 @@ impl PartialEq for BufferBind {
     fn eq(&self, rhs: &BufferBind) -> bool {
         self.slot == rhs.slot && Grc::ptr_eq(&self.buffer, &rhs.buffer)
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct Draw {
-    pub vertices: Range<u32>,
-    pub instances: Range<u32>,
 }

@@ -203,7 +203,7 @@ impl<'a> Loom<'a> {
                 )?,
                 weft,
                 flow,
-            })?);
+            }));
             index += 1;
         }
         if let Some(flow) = &flow.orient {
@@ -220,7 +220,7 @@ impl<'a> Loom<'a> {
                 rig: self.rig(0, &warp.index, &weft.index, &flow.index, &offset, length)?,
                 weft,
                 flow,
-            })?);
+            }));
             index += 1;
         }
         for (order, flow) in &flow.spline {
@@ -244,7 +244,7 @@ impl<'a> Loom<'a> {
                 )?,
                 weft,
                 flow, //: &flow.hedge,
-            })?);
+            }));
             index += 1;
         }
         Ok(Hedge {

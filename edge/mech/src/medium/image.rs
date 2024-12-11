@@ -14,7 +14,7 @@ impl<'a> Image<'a> {
     pub fn basic(&self, basic: Basic) -> Hub<Grc<Action>> {
         // let store = &self.core.store;
         // let wow = self.bind.topic;
-        gpu::active::Draw {
+        gpu::active::command::draw::Direct {
             pipe: self.medium.pipe.chart.points.clone().into(),
             // buffers: vec![store.mesh.vertex.clone()],
             buffers: vec![],

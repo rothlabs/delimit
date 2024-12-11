@@ -19,7 +19,7 @@ pub enum Step {
     Bind(stable::GroupBind),
     Vertex(stable::BufferBind),
     Index(Grc<Buffer>),
-    Draw(stable::Draw),
+    Draw(stable::command::draw::Direct),
     DrawIndexed(Range<u32>, i32, Range<u32>),
 }
 
@@ -90,7 +90,7 @@ impl State {
     }
     fn draw(&mut self, kind: &tree::pass::render::Kind) {
         match kind {
-            tree::pass::render::Kind::Draw(draw) => self.steps.push(Step::Draw(draw.clone())),
+            tree::pass::render::Kind::Direct(draw) => self.steps.push(Step::Draw(draw.clone())),
             _ => panic!("crap"),
         }
     }

@@ -42,12 +42,13 @@ impl Spin<'_> {
             group: mech.group.rig.clone(),
             offsets: vec![rig.index.clone()],
         };
-        gpu::active::Dispatch {
+        gpu::active::command::dispatch::Direct {
             stems,
             pipe: pipe.into(),
             binds: vec![mech.group.bind.topic.clone(), rig_bind.hub()],
             size: self.size.clone(),
-        }.hub()
+        }
+        .hub()
     }
 }
 

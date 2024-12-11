@@ -56,9 +56,9 @@ impl State {
             }
         }
     }
-    fn dispatch(&mut self, kind: &tree::pass::compute::Kind) {
+    fn dispatch(&mut self, kind: &tree::pass::dispatch::Kind) {
         match kind {
-            tree::pass::compute::Kind::Dispatch(dispatch) => {
+            tree::pass::dispatch::Kind::Direct(dispatch) => {
                 self.steps.push(Step::Dispatch(*dispatch))
             }
             _ => panic!("Indirect not implemented"),

@@ -4,14 +4,14 @@ use super::*;
 pub struct Compute {
     pub pipe: Grc<ComputePipeline>,
     pub binds: Vec<stable::GroupBind>,
-    pub kind: compute::Kind,
+    pub kind: dispatch::Kind,
 }
 
-pub mod compute {
+pub mod dispatch {
     use super::*;
     #[derive(Debug)]
     pub enum Kind {
-        Dispatch(u32),
+        Direct(u32),
         Indirect,
     }
 }
@@ -28,7 +28,7 @@ pub mod render {
     use super::*;
     #[derive(Debug)]
     pub enum Kind {
-        Draw(stable::Draw),
-        Other,
+        Direct(stable::command::draw::Direct),
+        Indirect,
     }
 }

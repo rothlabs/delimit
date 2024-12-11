@@ -13,26 +13,22 @@ pub struct Weave<'a> {
 }
 
 impl Weave<'_> {
-    pub fn travel(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn travel(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.travel;
         self.weave(trio, program)
     }
-    pub fn orient(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn orient(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.orient;
         self.weave(trio, program)
     }
-    pub fn spline(&self, trio: Trio) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn spline(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.spline;
         self.weave(trio, program)
     }
-    pub fn weave(
-        &self,
-        trio: Trio,
-        pipe: &Grc<ComputePipeline>,
-    ) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn weave(&self, trio: Trio, pipe: &Grc<ComputePipeline>) -> Hub<Grc<gpu::Action>> {
         let mech = &self.loom.grid.mech;
         let rig_bind = gpu::active::group::Bind {
             slot: 1.into(),
@@ -46,12 +42,13 @@ impl Weave<'_> {
             .with(&trio.weft.stems)
             .with(&trio.flow.stems);
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
-        Ok(gpu::active::Dispatch {
+        gpu::active::command::dispatch::Direct {
             stems,
             pipe: pipe.into(),
             binds: vec![mech.group.bind.topic.clone(), rig_bind.hub()],
             size: self.size.clone(),
-        }.hub())
+        }
+        .hub()
     }
 }
 
