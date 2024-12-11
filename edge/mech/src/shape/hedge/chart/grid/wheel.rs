@@ -7,7 +7,7 @@ pub struct Spin<'a> {
 }
 
 impl Spin<'_> {
-    pub fn extrude(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn extrude(&self, rig: &Hedge, form: &Hedge) -> Hub<Grc<gpu::Action>> {
         let program = &self.wheel.mech.pipe.chart.grid.spin.extrude;
         self.weft(rig, form, program)
     }
@@ -15,17 +15,17 @@ impl Spin<'_> {
         let dimension = self.wheel.shape.dimension;
         if dimension == 2 {
             let program = &self.wheel.mech.pipe.chart.grid.spin.revolve2;
-            return self.weft(rig, form, program);
+            return Ok(self.weft(rig, form, program));
         }
         Err(anyhow!(
             "only revolve 2D and 3D supported, found dimension {dimension}"
         ))?
     }
-    pub fn basis(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn basis(&self, rig: &Hedge, form: &Hedge) -> Hub<Grc<gpu::Action>> {
         let program = &self.wheel.mech.pipe.chart.grid.spin.basis;
         self.weft(rig, form, program)
     }
-    pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    pub fn nurbs(&self, rig: &Hedge, form: &Hedge) -> Hub<Grc<gpu::Action>> {
         let program = &self.wheel.mech.pipe.chart.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
@@ -34,7 +34,7 @@ impl Spin<'_> {
         rig: &Hedge,
         form: &Hedge,
         pipe: &Grc<ComputePipeline>,
-    ) -> graph::Result<Hub<Grc<gpu::Action>>> {
+    ) -> Hub<Grc<gpu::Action>> {
         let mech = &self.wheel.mech;
         let stems = rig.stems.with(&form.stems);
         let rig_bind = active::group::Bind {
@@ -42,15 +42,22 @@ impl Spin<'_> {
             group: mech.group.rig.clone(),
             offsets: vec![rig.index.clone()],
         };
-        gpu::dispatch()
-            .pipe(pipe)
-            .bind(&mech.group.bind.topic)
-            .bind(rig_bind.hub())
-            .size(&self.size)
-            .stems(stems)
-            .hub()
+        gpu::active::Dispatch {
+            stems,
+            pipe: pipe.into(),
+            binds: vec![mech.group.bind.topic.clone(), rig_bind.hub()],
+            size: self.size.clone(),
+        }.hub()
     }
 }
+
+// gpu::dispatch()
+//             .pipe(pipe)
+//             .bind(&mech.group.bind.topic)
+//             .bind(rig_bind.hub())
+//             .size(&self.size)
+//             .stems(stems)
+//             .hub()
 
 // let rig_bind = gpu::Bind::builder()
 //     .slot(1)

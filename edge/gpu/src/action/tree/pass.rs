@@ -20,7 +20,7 @@ pub mod compute {
 pub struct Render {
     pub pipe: Grc<RenderPipeline>,
     pub groups: Vec<stable::GroupBind>,
-    pub buffers: Vec<BufferBind>,
+    pub buffers: Vec<stable::BufferBind>,
     pub kind: render::Kind,
 }
 
@@ -28,7 +28,7 @@ pub mod render {
     use super::*;
     #[derive(Debug)]
     pub enum Kind {
-        Draw(Draw),
+        Draw(stable::Draw),
         Other,
     }
 }

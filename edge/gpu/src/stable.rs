@@ -14,3 +14,22 @@ impl PartialEq for GroupBind {
             && self.offsets == rhs.offsets
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct BufferBind {
+    pub slot: u32,
+    pub buffer: Grc<Buffer>,
+    pub offset: Option<u32>,
+}
+
+impl PartialEq for BufferBind {
+    fn eq(&self, rhs: &BufferBind) -> bool {
+        self.slot == rhs.slot && Grc::ptr_eq(&self.buffer, &rhs.buffer)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Draw {
+    pub vertices: Range<u32>,
+    pub instances: Range<u32>,
+}

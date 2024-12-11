@@ -17,9 +17,9 @@ pub enum Target {
 pub enum Step {
     Pipe(Grc<RenderPipeline>),
     Bind(stable::GroupBind),
-    Vertex(action::BufferBind),
+    Vertex(stable::BufferBind),
     Index(Grc<Buffer>),
-    Draw(Draw),
+    Draw(stable::Draw),
     DrawIndexed(Range<u32>, i32, Range<u32>),
 }
 
@@ -27,7 +27,7 @@ pub enum Step {
 pub struct State {
     pipe: Option<Grc<RenderPipeline>>,
     binds: HashMap<u32, stable::GroupBind>,
-    buffers: HashMap<u32, action::BufferBind>,
+    buffers: HashMap<u32, stable::BufferBind>,
     // index: Option<Grc<Buffer>>,
     steps: Vec<Step>,
 }
@@ -48,7 +48,7 @@ impl State {
             ..Default::default()
         })
     }
-    pub fn push(&mut self, render: &pack::pass::Render) {
+    pub fn push(&mut self, render: &tree::pass::Render) {
         self.pipe(&render.pipe);
         self.binds(&render.groups);
         self.buffers(&render.buffers);
@@ -76,7 +76,7 @@ impl State {
             }
         }
     }
-    fn buffers(&mut self, buffers: &[BufferBind]) {
+    fn buffers(&mut self, buffers: &[stable::BufferBind]) {
         for buffer in buffers {
             if let Some(now) = self.buffers.get_mut(&buffer.slot) {
                 if buffer != now {
@@ -88,9 +88,9 @@ impl State {
             }
         }
     }
-    fn draw(&mut self, kind: &pack::pass::render::Kind) {
+    fn draw(&mut self, kind: &tree::pass::render::Kind) {
         match kind {
-            pack::pass::render::Kind::Draw(draw) => self.steps.push(Step::Draw(draw.clone())),
+            tree::pass::render::Kind::Draw(draw) => self.steps.push(Step::Draw(draw.clone())),
             _ => panic!("crap"),
         }
     }

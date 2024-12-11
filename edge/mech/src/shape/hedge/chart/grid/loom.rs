@@ -46,15 +46,22 @@ impl Weave<'_> {
             .with(&trio.weft.stems)
             .with(&trio.flow.stems);
         // TODO: replace with a mech fn that already has the pipe and Hub<Bind>
-        gpu::dispatch()
-            .pipe(pipe)
-            .bind(&mech.group.bind.topic)
-            .bind(rig_bind.hub())
-            .size(&self.size)
-            .stems(stems)
-            .hub()
+        Ok(gpu::active::Dispatch {
+            stems,
+            pipe: pipe.into(),
+            binds: vec![mech.group.bind.topic.clone(), rig_bind.hub()],
+            size: self.size.clone(),
+        }.hub())
     }
 }
+
+// gpu::dispatch()
+//             .pipe(pipe)
+//             .bind(&mech.group.bind.topic)
+//             .bind(rig_bind.hub())
+//             .size(&self.size)
+//             .stems(stems)
+//             .hub()
 
 // let rig_bind = gpu::Bind::builder()
 //             .slot(1)

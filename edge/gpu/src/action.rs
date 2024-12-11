@@ -1,51 +1,43 @@
-pub use pack::Action;
-pub use unit::Sort;
+pub use tree::Action;
+// pub use unit::Sort;
 
 use super::*;
 use std::collections::HashMap;
 
 pub mod flat;
-pub mod pack;
+pub mod tree;
 
-mod unit;
+// mod unit;
 
-pub enum Pass {
-    Compute,
-    Render,
+#[derive(Debug, Gate, Back)]
+pub struct Sort {
+    actions: Vec<Hub<Grc<Action>>>,
+    past: Leaf<HashMap<u32, Node>>,
 }
 
-// #[derive(Debug, Clone)]
-// pub struct GroupBind {
-//     pub slot: u32,
-//     pub group: Grc<BindGroup>,
-//     pub offsets: Vec<u32>,
-// }
-
-// impl PartialEq for GroupBind {
-//     fn eq(&self, rhs: &GroupBind) -> bool {
-//         self.slot == rhs.slot
-//             && self.group.global_id() == rhs.group.global_id()
-//             && self.offsets == rhs.offsets
-//     }
-// }
-
-#[derive(Clone, Debug)]
-pub struct BufferBind {
-    pub slot: u32,
-    pub buffer: Grc<Buffer>,
-    pub offset: Option<u32>,
-}
-
-impl PartialEq for BufferBind {
-    fn eq(&self, rhs: &BufferBind) -> bool {
-        self.slot == rhs.slot && Grc::ptr_eq(&self.buffer, &rhs.buffer)
+impl Sort {
+    pub fn new(actions: impl Into<Vec<Hub<Grc<Action>>>>) -> Self {
+        Self {
+            actions: actions.into(),
+            past: Leaf::default(),
+        }
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct Draw {
-    pub vertices: Range<u32>,
-    pub instances: Range<u32>,
+impl Solve for Sort {
+    type Base = Grc<Vec<Command>>;
+    async fn solve(&self) -> node::Result<Self::Base> {
+        let actions = self.actions.base().await?;
+        let actions: Vec<&Grc<Action>> = actions.iter().collect();
+        let mut state = SortingState {
+            actions: [actions.clone(), actions],
+            past: self.past.base()?,
+            ..Default::default()
+        };
+        state.sort();
+        self.past.write_passive(|x| *x = state.nodes)?;
+        Ok(Grc::new(state.commands).into())
+    }
 }
 
 #[derive(Clone)]
@@ -86,9 +78,9 @@ impl<'a> SortingState<'a> {
     fn passes(&mut self) {
         while let Some(action) = self.actions[self.i.0].first() {
             match &action.kind {
-                pack::Kind::Compute(_) => self.compute(),
-                pack::Kind::Render(_) => self.render(),
-                pack::Kind::Leaf => panic!("should never be leaf here"),
+                tree::Kind::Compute(_) => self.compute(),
+                tree::Kind::Render(_) => self.render(),
+                tree::Kind::Leaf => panic!("should never be leaf here"),
             }
             self.actions[self.i.0].clear();
             self.i = (self.i.1, self.i.0);
@@ -99,11 +91,11 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    pack::Kind::Compute(compute) => {
+                    tree::Kind::Compute(compute) => {
                         state.push(compute);
                         self.increment(&action.stems);
                     }
-                    pack::Kind::Render(_) => self.actions[self.i.1].push(action),
+                    tree::Kind::Render(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }
@@ -115,11 +107,11 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    pack::Kind::Render(render) => {
+                    tree::Kind::Render(render) => {
                         state.push(render);
                         self.increment(&action.stems);
                     }
-                    pack::Kind::Compute(_) => self.actions[self.i.1].push(action),
+                    tree::Kind::Compute(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }

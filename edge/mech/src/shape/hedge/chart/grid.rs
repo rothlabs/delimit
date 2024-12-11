@@ -27,7 +27,7 @@ impl<'a> Wheel<'a> {
             let spin = self.spin();
             if let Some(form) = &form.extrude {
                 let rig = self.rig(self.shape.dimension, &form.index, &offset, &size)?;
-                stems.push(spin.extrude(&rig, form)?);
+                stems.push(spin.extrude(&rig, form));
             }
             weft.travel = Some(Hedge {
                 index: offset,
@@ -76,13 +76,13 @@ impl<'a> Wheel<'a> {
                 // spline_size should be devided by 3 and order to get number of invocations
                 let rig = self.rig(*order, &form.index, &offset, &spline_size)?;
                 // TODO: set spin size before calling basis
-                stems.push(spin.basis(&rig, form)?);
+                stems.push(spin.basis(&rig, form));
             }
             if let Some(form) = &form.nurbs {
                 let offset = spline_size.math().add(&offset).hub();
                 let rig = self.rig(*order, &form.index, &offset, &nurbs_length)?;
                 spin.size = nurbs_length.math().add(63).div(64).hub();
-                stems.push(spin.nurbs(&rig, form)?);
+                stems.push(spin.nurbs(&rig, form));
             }
             weft.spline.insert(
                 *order,
