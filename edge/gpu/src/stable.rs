@@ -1,5 +1,7 @@
 use super::*;
 
+pub mod bind;
+
 #[derive(Debug, Clone)]
 pub struct GroupBind {
     pub slot: u32,

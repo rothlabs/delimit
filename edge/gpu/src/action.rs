@@ -25,7 +25,7 @@ impl Sort {
 }
 
 impl Solve for Sort {
-    type Base = Grc<Vec<Command>>;
+    type Base = Grc<Vec<flat::Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
         let actions = self.actions.base().await?;
         let actions: Vec<&Grc<Action>> = actions.iter().collect();
@@ -52,7 +52,7 @@ struct SortingState<'a> {
     nodes: HashMap<u32, Node>,
     actions: [Vec<&'a Grc<Action>>; 2],
     i: (usize, usize),
-    commands: Vec<Command>,
+    commands: Vec<flat::Command>,
 }
 
 impl<'a> SortingState<'a> {

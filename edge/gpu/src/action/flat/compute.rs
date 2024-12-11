@@ -20,14 +20,14 @@ pub struct State {
 }
 
 impl State {
-    pub fn flat(mut self) -> Command {
+    pub fn flat(mut self) -> flat::Command {
         if let Some(pipe) = self.pipe {
             self.steps.push(Step::Pipe(pipe));
         }
         for (_, bind) in self.binds {
             self.steps.push(Step::Bind(bind));
         }
-        Command::Compute(Pass { steps: self.steps })
+        flat::Command::Compute(Pass { steps: self.steps })
     }
     pub fn push(&mut self, compute: &tree::pass::Compute) {
         self.pipe(&compute.pipe);

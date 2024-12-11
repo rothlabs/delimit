@@ -33,7 +33,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn flat(mut self) -> Command {
+    pub fn flat(mut self) -> flat::Command {
         if let Some(pipe) = self.pipe {
             self.steps.push(Step::Pipe(pipe));
         }
@@ -43,7 +43,7 @@ impl State {
         for (_, buffer) in self.buffers {
             self.steps.push(Step::Vertex(buffer));
         }
-        Command::Render(Pass {
+        flat::Command::Render(Pass {
             steps: self.steps,
             ..Default::default()
         })

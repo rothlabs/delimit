@@ -1,6 +1,6 @@
 use super::*;
 
-type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
+type CommandTransfer = Hub<Transfer<Grc<Vec<flat::Command>>>>;
 
 #[derive(Builder, BuildGate, Back, Debug)]
 #[builder(pattern = "owned")]

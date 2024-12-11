@@ -37,7 +37,7 @@ pub struct Viewport {
     // Core can be replaced with Grc<Device>
     pub gpu: Core,
     pub size: Leaf<(u32, u32)>,
-    pub commands: Leaf<Grc<Vec<Command>>>,
+    pub commands: Leaf<Grc<Vec<flat::Command>>>,
     pub stage: Grc<TextureView>,
     surface: Grc<Surface<'static>>,
     config: SurfaceConfiguration,
@@ -64,7 +64,7 @@ impl Viewport {
     // pub fn pass(&self, steps: Hub<Vec<flat::render::Step>>) -> flat::render::pass::NodeBuilder {
     //     flat::render::pass::NodeBuilder::default().codec(steps)
     // }
-    pub fn commands(&self, commands: Grc<Vec<Command>>) -> Result<()> {
+    pub fn commands(&self, commands: Grc<Vec<flat::Command>>) -> Result<()> {
         self.commands.write_passive(|x| *x = commands)?;
         Ok(())
     }

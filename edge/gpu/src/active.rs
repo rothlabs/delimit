@@ -64,18 +64,6 @@ impl Solve for BufferBind {
 }
 
 #[derive(Debug, Gate, Back)]
-pub struct Draw {
-    pub stems: Vec<Hub<Grc<Action>>>,
-    pub pipe: Hub<Grc<RenderPipeline>>,
-    pub groups: Vec<Hub<stable::GroupBind>>,
-    pub buffers: Vec<Hub<stable::BufferBind>>,
-    pub vertex_offset: Hub<u32>,
-    pub vertex_length: Hub<u32>,
-    pub instance_offset: Hub<u32>,
-    pub instance_length: Hub<u32>,
-}
-
-#[derive(Debug, Gate, Back)]
 pub struct Dispatch {
     pub stems: Vec<Hub<Grc<Action>>>,
     pub pipe: Hub<Grc<ComputePipeline>>,
@@ -99,6 +87,18 @@ impl Solve for Dispatch {
         };
         Ok(Grc::new(action).into())
     }
+}
+
+#[derive(Debug, Gate, Back)]
+pub struct Draw {
+    pub stems: Vec<Hub<Grc<Action>>>,
+    pub pipe: Hub<Grc<RenderPipeline>>,
+    pub groups: Vec<Hub<stable::GroupBind>>,
+    pub buffers: Vec<Hub<stable::BufferBind>>,
+    pub vertex_offset: Hub<u32>,
+    pub vertex_length: Hub<u32>,
+    pub instance_offset: Hub<u32>,
+    pub instance_length: Hub<u32>,
 }
 
 impl Solve for Draw {
