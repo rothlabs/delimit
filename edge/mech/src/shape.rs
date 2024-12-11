@@ -1,6 +1,7 @@
 use super::*;
 
 pub mod form;
+
 mod hedge;
 
 /// Continuous parametric geometry.
@@ -41,20 +42,6 @@ pub struct Flow {
     pub spline: BTreeMap<u32, Hedge>,
 }
 
-// pub mod flow {
-//     use super::*;
-//     #[derive(Debug, Clone)]
-//     pub struct Spline {
-//         pub order: u32,
-//         pub hedge: Hedge,
-//     }
-// }
-
-// #[builder(default)]
-// bounds: Vec<Shape>,
-// #[builder(default)]
-// instance: Option<Instance>,
-
 // #[derive(Clone, Debug)]
 // pub struct Instance {
 //     pub hedge: Hedge,
@@ -69,6 +56,20 @@ pub struct Flow {
 //     Grid,
 //     Radial,
 // }
+
+// pub mod flow {
+//     use super::*;
+//     #[derive(Debug, Clone)]
+//     pub struct Spline {
+//         pub order: u32,
+//         pub hedge: Hedge,
+//     }
+// }
+
+// #[builder(default)]
+// bounds: Vec<Shape>,
+// #[builder(default)]
+// instance: Option<Instance>,
 
 // pub enum Form {
 //     Travel(form::Travel),

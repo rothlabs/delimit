@@ -1,3 +1,17 @@
+- For intersection of planes, there is two kinds of symbolic curve. The first is the MAYBE curve. The second is the existing curve of extrusion form.
+- For intersection of NURBS surfaces, there is two cymbolic curves. The first is the Maybe curves. The second is a specific curve of two surface and starting point. Then there are discrete NURBS surface intersections.
+- For plane-cylinder intersection, there is two symbolic curves. The first is MAYBE curve. The second is ellipse. Instead of finding the ellipse, it might be easier to just find the discrete starting points like how I will with NURBS intersections. But if I do find the ellipse, I can maybe go fast and more accurate evenly spaced points.
+
+- The Shape can list curves, surfaces, and then curves again because curves can be made from intersection of surfaces.
+   - No, specifying a curve after surfaces is not the same as the first curve specification. It is specifying MAYBE curves
+
+- I can dispatch(1, 1, 1) with workgroup size of 1 and loop 1024 overlap results to set an index buffer and dispatch size for the next 
+  overlap check for GPU only BVH. This one shot dispatch could be more than one if processing multiple intersection checks at once.
+- The shape structure needs a way to specify semantic groups. This way, BVH can be more effecient without automatically building a group tree which 
+  is expensive
+- I can do all the form::Spline in one dispatch if I accept some loops ending early. This way, a shape could be one Hedge where every type of operation
+ is present with a dispatch size x y z for each op in the buffer. With this setup, a 
+
 0. there should be an action::Write that holds Buffer and Offset info. When it is time to do a compute pass or render pass. Find action::Writes that touch each other 
 on the buffer so they can be executed together. There could be a chance to track what writes happen most frequently so they can be moved next to each other.
 
