@@ -37,7 +37,7 @@ impl Spin<'_> {
     ) -> Hub<Grc<Command>> {
         let mech = &self.wheel.mech;
         let stems = rig.stems.with(&form.stems);
-        let rig_bind = active::group::Bind {
+        let rig_bind = gpu::active::group::Bind {
             slot: 1.into(),
             group: mech.group.rig.clone(),
             offsets: vec![rig.index.clone()],

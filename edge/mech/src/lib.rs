@@ -1,6 +1,4 @@
 pub use core::*;
-// pub use medium::Medium;
-// pub use flat::*;
 pub use view::View;
 
 use derive_builder::Builder;
@@ -12,11 +10,10 @@ use std::collections::BTreeMap;
 use std::num::NonZero;
 use wgpu::*;
 
-// pub mod medium;
+pub mod active;
 pub mod flat;
 
 mod core;
-// mod shape;
 mod view;
 
 pub type Result<T> = std::result::Result<T, Error>;

@@ -5,7 +5,6 @@ pub mod group;
 pub mod pipe;
 pub mod medium;
 
-mod hub;
 mod store;
 mod mech;
 
@@ -31,8 +30,8 @@ impl Mech {
             store,
         }
     }
-    pub fn chart(&self, shape: impl Into<Hub<flat::Shape>>) -> hub::Chart {
-        hub::Chart {
+    pub fn chart(&self, shape: impl Into<Hub<flat::Shape>>) -> mech::Chart {
+        mech::Chart {
             mech: self,
             shape: shape.into(),
         }
@@ -42,7 +41,7 @@ impl Mech {
             mech: self.clone(),
             device: &self.gpu.device,
             layout: &self.pipe.image,
-            target, //: &port.targets,
+            target,
         };
         Medium::new(form)
     }
