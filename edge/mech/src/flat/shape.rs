@@ -1,7 +1,8 @@
 use super::*;
 
 pub mod form;
-pub mod hedge;
+
+mod chart;
 
 /// Specify how to create `Weft` evaluations.
 #[derive(Clone, Debug, Default)]
@@ -18,4 +19,20 @@ pub struct Flow {
     pub travel: Option<Hedge>,
     pub orient: Option<Hedge>,
     pub spline: BTreeMap<u32, Hedge>,
+}
+
+pub struct Chart<'a> {
+    pub mech: &'a Mech,
+    pub shape: &'a Shape,
+}
+
+impl<'a> Chart<'a> {
+    pub fn grid(&self, counts: &'a [Hub<u32>]) -> Result<Hedge> {
+        chart::Grid {
+            mech: self.mech,
+            shape: self.shape,
+            counts,
+        }
+        .hedge()
+    }
 }

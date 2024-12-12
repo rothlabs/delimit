@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Debug, Clone)]
 pub struct Bind {
-    pub topic: Hub<stable::GroupBind>,
-    pub image: Hub<stable::GroupBind>,
+    pub topic: Hub<gpu::stable::GroupBind>,
+    pub image: Hub<gpu::stable::GroupBind>,
 }
 
 impl Bind {

@@ -1,5 +1,6 @@
 pub use core::*;
 
+use std::collections::HashMap;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
@@ -11,6 +12,7 @@ use wgpu::*;
 
 pub mod active;
 pub mod flat;
+pub mod stable;
 
 mod core;
 

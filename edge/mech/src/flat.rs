@@ -12,8 +12,8 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn chart<'a>(&'a self, mech: &'a Mech) -> shape::hedge::Chart<'a> {
-        shape::hedge::Chart { shape: self, mech }
+    pub fn chart<'a>(&'a self, mech: &'a Mech) -> shape::Chart<'a> {
+        shape::Chart { shape: self, mech }
     }
     pub fn plot_size(&self) -> u32 {
         self.dimension * (self.rank() + 1)
