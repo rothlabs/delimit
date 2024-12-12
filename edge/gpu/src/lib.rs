@@ -1,11 +1,10 @@
-pub use action::flat;
-pub use action::flat::Command;
-pub use action::tree::Action;
+pub use stable::Command;
 pub use core::ToCore;
-pub use shelf::*;
+pub use store::*;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
 
+use std::collections::HashMap;
 use buffer::*;
 use bytemuck::*;
 use core::*;
@@ -20,7 +19,8 @@ use std::{fmt::Debug, future::Future};
 use texture::*;
 use wgpu::*;
 
-pub mod action;
+pub mod flat;
+pub mod command;
 pub mod active;
 pub mod stable;
 
@@ -28,7 +28,7 @@ mod buffer;
 mod core;
 mod pipe;
 mod shader;
-mod shelf;
+mod store;
 mod texture;
 mod viewport;
 
@@ -55,7 +55,7 @@ pub enum Error {
 pub struct Hedge {
     pub index: Hub<u32>,
     pub size: Hub<u32>,
-    pub stems: Vec<Hub<Grc<Action>>>,
+    pub stems: Vec<Hub<Grc<stable::Command>>>,
 }
 
 #[derive(Clone, Debug, Builder, Make)]
@@ -63,7 +63,7 @@ pub struct Hedge {
 pub struct BufferHedge {
     pub buffer: Hub<Grc<Buffer>>,
     #[builder(setter(each(name = "stem", into)))]
-    pub stems: Vec<Hub<Grc<Action>>>,
+    pub stems: Vec<Hub<Grc<stable::Command>>>,
 }
 
 #[derive(Clone, Default, Debug)]

@@ -2,7 +2,7 @@ use super::*;
 
 pub struct Render<'a> {
     pub viewport: &'a Viewport,
-    pub commands: Grc<Vec<Command>>,
+    pub commands: Grc<Vec<flat::Command>>,
 }
 
 impl<'a> Render<'a> {
@@ -16,8 +16,8 @@ impl<'a> Render<'a> {
         for command in self.commands.iter().rev() {
             // println!("commnad: {:#?}", command);
             match command {
-                Command::Compute(pass) => encoder.compute(pass),
-                Command::Render(pass) => {
+                flat::Command::Compute(pass) => encoder.compute(pass),
+                flat::Command::Render(pass) => {
                     let attachments = self
                         .viewport
                         .gpu

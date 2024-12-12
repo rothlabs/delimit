@@ -15,8 +15,8 @@ impl<T> Solve for BufferWriter<T>
 where
     T: Pod + Debug + graph::SendSync,
 {
-    type Base = Grc<action::Action>;
-    async fn solve(&self) -> node::Result<Grc<action::Action>> {
+    type Base = Grc<stable::Command>;
+    async fn solve(&self) -> node::Result<Grc<stable::Command>> {
         let buffer = self.buffer.base().await?;
         let offset = self.index.base().await.unwrap_or_default() as u64 * 4;
         self.data
@@ -24,7 +24,7 @@ where
                 self.queue.write_buffer(&buffer, offset, cast_slice(data));
             })
             .await?;
-        Ok(Grc::new(action::Action::default()).into())
+        Ok(Grc::new(stable::Command::default()).into())
     }
 }
 

@@ -8,7 +8,7 @@ pub struct Image<'a> {
 }
 
 impl Image<'_> {
-    pub fn points(&self) -> Hub<Grc<gpu::Action>> {
+    pub fn points(&self) -> Hub<Grc<Command>> {
         chart::Points {
             view: self.view.clone(),
             chart: self.chart.clone(),

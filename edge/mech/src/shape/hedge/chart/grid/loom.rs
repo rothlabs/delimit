@@ -13,22 +13,22 @@ pub struct Weave<'a> {
 }
 
 impl Weave<'_> {
-    pub fn travel(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
+    pub fn travel(&self, trio: Trio) -> Hub<Grc<Command>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.travel;
         self.weave(trio, program)
     }
-    pub fn orient(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
+    pub fn orient(&self, trio: Trio) -> Hub<Grc<Command>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.orient;
         self.weave(trio, program)
     }
-    pub fn spline(&self, trio: Trio) -> Hub<Grc<gpu::Action>> {
+    pub fn spline(&self, trio: Trio) -> Hub<Grc<Command>> {
         let core = &self.loom.grid.mech;
         let program = &core.pipe.chart.grid.weave.spline;
         self.weave(trio, program)
     }
-    pub fn weave(&self, trio: Trio, pipe: &Grc<ComputePipeline>) -> Hub<Grc<gpu::Action>> {
+    pub fn weave(&self, trio: Trio, pipe: &Grc<ComputePipeline>) -> Hub<Grc<Command>> {
         let mech = &self.loom.grid.mech;
         let rig_bind = gpu::active::group::Bind {
             slot: 1.into(),

@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<gpu::Action>>> {
+pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<Command>>> {
     let mech = &view.mech;
     let topic = &mech.store.topic;
     #[rustfmt::skip]

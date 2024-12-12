@@ -1,6 +1,6 @@
 use super::*;
 
-type CommandTransfer = Hub<Transfer<Grc<Vec<Command>>>>;
+type CommandTransfer = Hub<Transfer<Grc<Vec<flat::Command>>>>;
 
 #[derive(Debug, Gate, Back)]
 pub struct App {
@@ -26,7 +26,7 @@ impl Act for App {
             let medium = mech.medium(&port.targets);
             let view = medium.view(port.size.clone());
             let action = tests::draw_nurbs_surface(&view)?;
-            let commands = gpu::action::Sort::new(vec![action]).hub();
+            let commands = gpu::command::Sort::new(vec![action]).hub();
             let transfer = commands.transfer(&port.commands);
             transfer.depend().await?;
             self.command_transfers.write(|x| x.push(transfer)).await?;

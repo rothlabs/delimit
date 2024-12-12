@@ -1,7 +1,7 @@
 use super::*;
 
 pub struct Basic {
-    pub stems: Vec<Hub<Grc<Action>>>,
+    pub stems: Vec<Hub<Grc<Command>>>,
     // pub rig: Hub<stable::GroupBind>,
     // pub vertex_offset: Hub<u32>,
     pub vertices: Hub<u32>,
@@ -11,7 +11,7 @@ pub struct Basic {
 
 // TODO: Gpu should not have Image. Mech or Medium should because Mech has the common gpu::active::group::Bind
 impl<'a> Image<'a> {
-    pub fn basic(&self, basic: Basic) -> Hub<Grc<Action>> {
+    pub fn basic(&self, basic: Basic) -> Hub<Grc<Command>> {
         // let store = &self.core.store;
         // let wow = self.bind.topic;
         gpu::active::command::draw::Direct {

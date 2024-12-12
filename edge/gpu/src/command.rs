@@ -1,22 +1,13 @@
-pub use tree::Action;
-// pub use unit::Sort;
-
 use super::*;
-use std::collections::HashMap;
-
-pub mod flat;
-pub mod tree;
-
-// mod unit;
 
 #[derive(Debug, Gate, Back)]
 pub struct Sort {
-    actions: Vec<Hub<Grc<Action>>>,
+    actions: Vec<Hub<Grc<stable::Command>>>,
     past: Leaf<HashMap<u32, Node>>,
 }
 
 impl Sort {
-    pub fn new(actions: impl Into<Vec<Hub<Grc<Action>>>>) -> Self {
+    pub fn new(actions: impl Into<Vec<Hub<Grc<stable::Command>>>>) -> Self {
         Self {
             actions: actions.into(),
             past: Leaf::default(),
@@ -28,7 +19,7 @@ impl Solve for Sort {
     type Base = Grc<Vec<flat::Command>>;
     async fn solve(&self) -> node::Result<Self::Base> {
         let actions = self.actions.base().await?;
-        let actions: Vec<&Grc<Action>> = actions.iter().collect();
+        let actions: Vec<&Grc<stable::Command>> = actions.iter().collect();
         let mut state = SortingState {
             actions: [actions.clone(), actions],
             past: self.past.base()?,
@@ -50,7 +41,7 @@ struct Node {
 struct SortingState<'a> {
     past: HashMap<u32, Node>,
     nodes: HashMap<u32, Node>,
-    actions: [Vec<&'a Grc<Action>>; 2],
+    actions: [Vec<&'a Grc<stable::Command>>; 2],
     i: (usize, usize),
     commands: Vec<flat::Command>,
 }
@@ -78,9 +69,9 @@ impl<'a> SortingState<'a> {
     fn passes(&mut self) {
         while let Some(action) = self.actions[self.i.0].first() {
             match &action.kind {
-                tree::Kind::Dispatch(_) => self.compute(),
-                tree::Kind::Draw(_) => self.render(),
-                tree::Kind::Leaf => panic!("should never be leaf here"),
+                stable::command::Kind::Dispatch(_) => self.compute(),
+                stable::command::Kind::Draw(_) => self.render(),
+                stable::command::Kind::Leaf => panic!("should never be leaf here"),
             }
             self.actions[self.i.0].clear();
             self.i = (self.i.1, self.i.0);
@@ -91,11 +82,11 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    tree::Kind::Dispatch(compute) => {
+                    stable::command::Kind::Dispatch(compute) => {
                         state.push(compute);
                         self.increment(&action.stems);
                     }
-                    tree::Kind::Draw(_) => self.actions[self.i.1].push(action),
+                    stable::command::Kind::Draw(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }
@@ -107,18 +98,18 @@ impl<'a> SortingState<'a> {
         while let Some(action) = self.actions[self.i.0].pop() {
             if !self.past.contains_key(&action.id) {
                 match &action.kind {
-                    tree::Kind::Draw(render) => {
+                    stable::command::Kind::Draw(render) => {
                         state.push(render);
                         self.increment(&action.stems);
                     }
-                    tree::Kind::Dispatch(_) => self.actions[self.i.1].push(action),
+                    stable::command::Kind::Dispatch(_) => self.actions[self.i.1].push(action),
                     _ => (),
                 }
             }
         }
         self.commands.push(state.flat());
     }
-    fn increment(&mut self, stems: &'a [Grc<Action>]) {
+    fn increment(&mut self, stems: &'a [Grc<stable::Command>]) {
         for stem in stems {
             if let Some(node) = self.nodes.get_mut(&stem.id) {
                 node.fill += 1;

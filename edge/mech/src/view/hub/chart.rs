@@ -11,8 +11,8 @@ pub struct Points {
 }
 
 impl Solve for Points {
-    type Base = Grc<gpu::Action>;
-    async fn solve(&self) -> node::Result<Grc<gpu::Action>> {
+    type Base = Grc<Command>;
+    async fn solve(&self) -> node::Result<Grc<Command>> {
         let chart = self.chart.base().await?;
         let plot_size = chart.shape.base().await?.plot_size();
         let chart = chart.hedge;

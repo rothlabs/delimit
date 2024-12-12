@@ -29,7 +29,7 @@ impl State {
         }
         flat::Command::Compute(Pass { steps: self.steps })
     }
-    pub fn push(&mut self, compute: &tree::pass::Dispatch) {
+    pub fn push(&mut self, compute: &stable::command::Dispatch) { // tree::pass::Dispatch
         self.pipe(&compute.pipe);
         self.binds(&compute.binds);
         self.dispatch(&compute.kind);
@@ -56,9 +56,9 @@ impl State {
             }
         }
     }
-    fn dispatch(&mut self, kind: &tree::pass::dispatch::Kind) {
+    fn dispatch(&mut self, kind: &stable::command::dispatch::Kind) {
         match kind {
-            tree::pass::dispatch::Kind::Direct(dispatch) => {
+            stable::command::dispatch::Kind::Direct(dispatch) => {
                 self.steps.push(Step::Dispatch(*dispatch))
             }
             _ => panic!("Indirect not implemented"),

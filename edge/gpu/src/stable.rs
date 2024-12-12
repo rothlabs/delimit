@@ -2,6 +2,23 @@ use super::*;
 
 pub mod command;
 
+#[derive(Debug)]
+pub struct Command {
+    pub id: u32,
+    pub stems: Vec<Grc<Command>>,
+    pub kind: command::Kind,
+}
+
+impl Default for Command {
+    fn default() -> Self {
+        Self {
+            id: rand::random(),
+            stems: vec![],
+            kind: command::Kind::Leaf,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct GroupBind {
     pub slot: u32,
