@@ -1,6 +1,6 @@
 pub use core::*;
 pub use medium::Medium;
-pub use shape::*;
+// pub use flat::*;
 pub use view::View;
 
 use derive_builder::Builder;
@@ -13,9 +13,10 @@ use std::num::NonZero;
 use wgpu::*;
 
 pub mod medium;
+pub mod flat;
 
 mod core;
-mod shape;
+// mod shape;
 mod view;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -38,5 +39,5 @@ pub enum Error {
 #[derive(Clone, Debug)]
 pub struct Chart {
     pub hedge: Hedge,
-    pub shape: Hub<Shape>,
+    pub shape: Hub<flat::Shape>,
 }

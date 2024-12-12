@@ -4,7 +4,7 @@ use super::*;
 pub struct Grid {
     #[back(skip)]
     pub mech: Mech,
-    pub shape: Hub<Shape>,
+    pub shape: Hub<flat::Shape>,
     pub counts: Vec<Hub<u32>>,
 }
 

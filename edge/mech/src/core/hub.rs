@@ -4,7 +4,7 @@ mod chart;
 
 pub struct Chart<'a> {
     pub mech: &'a Mech,
-    pub shape: Hub<Shape>,
+    pub shape: Hub<flat::Shape>,
 }
 
 impl Chart<'_> {

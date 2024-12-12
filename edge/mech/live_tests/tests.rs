@@ -13,7 +13,7 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<Command>>> {
         0.,   1., 4., 3., 
         0.,   7., 6., 5.,
     ];
-    let flow1 = Flow {
+    let flow1 = mech::flat::shape::Flow {
         spline: [(2, topic.hedge(spline2)), (3, topic.hedge(spline3))].into(),
         ..Default::default()
     };
@@ -21,14 +21,14 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<Command>>> {
     let spline3: Vec<f32> = vec![
         0.,   1., 0., 2.
     ];
-    let flow2 = Flow {
+    let flow2 = mech::flat::shape::Flow {
         spline: [(3, topic.hedge(spline3))].into(),
         ..Default::default()
     };
-    let shape = Shape {
+    let shape = mech::flat::Shape {
         dimension: 2,
         warp: topic.hedge(warp2()),
-        form: Form {
+        form: mech::flat::shape::Form {
             spline: [form_spline2(topic), form_spline3(topic)].into(),
             ..Default::default()
         },
@@ -39,20 +39,20 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<Command>>> {
     Ok(image)
 }
 
-fn form_spline2(topic: &Shelf) -> (u32, form::Spline) {
+fn form_spline2(topic: &Shelf) -> (u32, mech::flat::shape::form::Spline) {
     (
         2,
-        form::Spline {
+        mech::flat::shape::form::Spline {
             nurbs: Some(topic.hedge(nurbs2())),
             ..Default::default()
         },
     )
 }
 
-fn form_spline3(topic: &Shelf) -> (u32, form::Spline) {
+fn form_spline3(topic: &Shelf) -> (u32, mech::flat::shape::form::Spline) {
     (
         3,
-        form::Spline {
+        mech::flat::shape::form::Spline {
             nurbs: Some(topic.hedge(nurbs3())),
             ..Default::default()
         },

@@ -1,6 +1,6 @@
 use super::*;
 
-type CommandTransfer = Hub<Transfer<Grc<Vec<flat::Command>>>>;
+type CommandTransfer = Hub<Transfer<Grc<Vec<gpu::flat::Command>>>>;
 
 #[derive(Debug, Gate, Back)]
 pub struct App {

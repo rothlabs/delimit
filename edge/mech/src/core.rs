@@ -28,7 +28,7 @@ impl Mech {
             store,
         }
     }
-    pub fn chart(&self, shape: impl Into<Hub<Shape>>) -> hub::Chart {
+    pub fn chart(&self, shape: impl Into<Hub<flat::Shape>>) -> hub::Chart {
         hub::Chart {
             mech: self,
             shape: shape.into(),
@@ -70,11 +70,6 @@ impl Pipe {
     }
 }
 
-#[derive(Debug)]
-pub struct RigBind {
-    pub bind: Hub<stable::GroupBind>,
-    pub index: Hub<u32>,
-}
 
 // pub fn travel(&self) -> TravelBuilder {
 //     TravelBuilder::default()
@@ -99,4 +94,10 @@ pub struct RigBind {
 //         core: self.clone(),
 //         plot: plot.into(),
 //     }
+// }
+
+// #[derive(Debug)]
+// pub struct RigBind {
+//     pub bind: Hub<stable::GroupBind>,
+//     pub index: Hub<u32>,
 // }
