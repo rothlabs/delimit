@@ -1,6 +1,30 @@
 use super::*;
 
-pub struct Bank<'a> {
+#[derive(Debug, Clone)]
+pub struct Bind {
+    pub topic: Hub<stable::GroupBind>,
+    pub image: Hub<stable::GroupBind>,
+}
+
+impl Bind {
+    pub fn new(topic: &Hub<Grc<BindGroup>>, image: &Hub<Grc<BindGroup>>) -> Self {
+        let topic = gpu::active::group::Bind {
+            slot: 0.into(),
+            group: topic.clone(),
+            offsets: vec![],
+        }
+        .hub();
+        let image = gpu::active::group::Bind {
+            slot: 0.into(),
+            group: image.clone(),
+            offsets: vec![],
+        }
+        .hub();
+        Self { topic, image }
+    }
+}
+
+pub struct Layout<'a> {
     pub device: &'a Grc<Device>,
     pub store: &'a Store,
     pub rig: Grc<BindGroupLayout>,
@@ -8,7 +32,7 @@ pub struct Bank<'a> {
     pub image: Grc<BindGroupLayout>,
 }
 
-impl<'a> Bank<'a> {
+impl<'a> Layout<'a> {
     pub fn new(device: &'a Grc<Device>, store: &'a Store) -> Self {
         // let device = &gpu.device;
         // let store = &gpu.store;

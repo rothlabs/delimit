@@ -29,12 +29,7 @@ impl Spin<'_> {
         let program = &self.wheel.mech.pipe.chart.grid.spin.nurbs;
         self.weft(rig, form, program)
     }
-    fn weft(
-        &self,
-        rig: &Hedge,
-        form: &Hedge,
-        pipe: &Grc<ComputePipeline>,
-    ) -> Hub<Grc<Command>> {
+    fn weft(&self, rig: &Hedge, form: &Hedge, pipe: &Grc<ComputePipeline>) -> Hub<Grc<Command>> {
         let mech = &self.wheel.mech;
         let stems = rig.stems.with(&form.stems);
         let rig_bind = gpu::active::group::Bind {

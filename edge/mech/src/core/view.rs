@@ -16,9 +16,3 @@ impl Image<'_> {
         .hub()
     }
 }
-
-// gpu::Action
-
-// chart::PointsBuilder::default()
-//             .view(self.view)
-//             .chart(self.chart)

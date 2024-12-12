@@ -8,7 +8,6 @@ pub enum Kind {
     // CopyBuffer,
 }
 
-
 #[derive(Debug)]
 pub struct Dispatch {
     pub pipe: Grc<ComputePipeline>,

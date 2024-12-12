@@ -1,10 +1,9 @@
-pub use stable::Command;
 pub use core::ToCore;
+pub use stable::Command;
 pub use store::*;
 pub use viewport::{ToViewport, Viewport};
 pub use wgpu;
 
-use std::collections::HashMap;
 use buffer::*;
 use bytemuck::*;
 use core::*;
@@ -13,15 +12,16 @@ use graph::*;
 use node_derive::*;
 use pipe::*;
 use shader::*;
+use std::collections::HashMap;
 use std::num::NonZero;
 use std::ops::Range;
 use std::{fmt::Debug, future::Future};
 use texture::*;
 use wgpu::*;
 
-pub mod flat;
-pub mod command;
 pub mod active;
+pub mod command;
+pub mod flat;
 pub mod stable;
 
 mod buffer;

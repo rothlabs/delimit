@@ -29,7 +29,8 @@ impl State {
         }
         flat::Command::Compute(Pass { steps: self.steps })
     }
-    pub fn push(&mut self, compute: &stable::command::Dispatch) { // tree::pass::Dispatch
+    pub fn push(&mut self, compute: &stable::command::Dispatch) {
+        // tree::pass::Dispatch
         self.pipe(&compute.pipe);
         self.binds(&compute.binds);
         self.dispatch(&compute.kind);

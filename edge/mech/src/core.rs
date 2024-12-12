@@ -1,28 +1,22 @@
 use super::*;
-use store::*;
 
-pub mod group;
-pub mod pipe;
-pub mod medium;
-
-mod store;
+mod medium;
 mod mech;
+mod view;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub gpu: Gpu,
     pub pipe: Grc<mech::Pipe>,
-    pub group: group::Bank,
-    pub store: Store,
+    pub group: mech::Group,
+    pub store: mech::Store,
 }
 
-// TODO: Mech should be made from Gpu and mech::View should be made from gpu::Viewport
-// mech can still contain all the Pipe info
 impl Mech {
     pub fn new(gpu: &Gpu) -> Self {
-        let store = Store::new(gpu);
-        let layout = group::layout::Bank::new(&gpu.device, &store);
-        let group = group::Bank::new(&layout);
+        let store = mech::Store::new(gpu);
+        let layout = mech::group::Layout::new(&gpu.device, &store);
+        let group = mech::Group::new(&layout);
         Self {
             gpu: gpu.clone(),
             pipe: mech::Pipe::new(&layout).into(),
@@ -88,6 +82,23 @@ impl Medium {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct View {
+    pub gpu: Gpu,
+    pub mech: Mech,
+    pub medium: Medium,
+    pub size: Leaf<(u32, u32)>,
+}
+
+impl View {
+    // TODO: also impl on shape to create everything needed to render automatically
+    pub fn image(&self, chart: impl Into<Hub<Chart>>) -> view::Image {
+        view::Image {
+            view: self,
+            chart: chart.into(),
+        }
+    }
+}
 
 // pub fn travel(&self) -> TravelBuilder {
 //     TravelBuilder::default()

@@ -1,5 +1,3 @@
 // use super::*;
 
-pub struct Shape {
-
-}
+pub struct Shape {}

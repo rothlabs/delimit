@@ -13,7 +13,7 @@ pub struct Chart {
 }
 
 impl Chart {
-    pub fn new(bank: &group::layout::Bank) -> Self {
+    pub fn new(bank: &group::Layout) -> Self {
         let layout = PipeLayout {
             device: bank.device,
             layout: bank
@@ -36,7 +36,7 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new(bank: &group::layout::Bank) -> Self {
+    pub fn new(bank: &group::Layout) -> Self {
         let chart = bank
             .device
             .create_pipeline_layout(&PipelineLayoutDescriptor {

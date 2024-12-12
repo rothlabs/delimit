@@ -1,5 +1,4 @@
 pub use core::*;
-pub use view::View;
 
 use derive_builder::Builder;
 use gpu::*;
@@ -14,7 +13,6 @@ pub mod active;
 pub mod flat;
 
 mod core;
-mod view;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

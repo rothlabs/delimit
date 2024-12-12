@@ -1,8 +1,8 @@
 use super::*;
 
+pub mod command;
 pub mod compute;
 pub mod render;
-pub mod command;
 
 #[derive(Debug)]
 pub enum Command {

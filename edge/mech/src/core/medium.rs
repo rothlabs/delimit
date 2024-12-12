@@ -7,7 +7,7 @@ mod pipe;
 pub struct Form<'a> {
     pub mech: Mech,
     pub device: &'a Device,
-    pub layout: &'a core::pipe::Image,
+    pub layout: &'a mech::pipe::Image,
     pub target: &'a [Option<ColorTargetState>],
 }
 
