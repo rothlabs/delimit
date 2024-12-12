@@ -2,14 +2,17 @@ use super::*;
 use store::*;
 
 pub mod group;
-mod hub;
 pub mod pipe;
+pub mod medium;
+
+mod hub;
 mod store;
+mod mech;
 
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub gpu: Gpu,
-    pub pipe: Grc<Pipe>,
+    pub pipe: Grc<mech::Pipe>,
     pub group: group::Bank,
     pub store: Store,
 }
@@ -23,7 +26,7 @@ impl Mech {
         let group = group::Bank::new(&layout);
         Self {
             gpu: gpu.clone(),
-            pipe: Pipe::new(&layout).into(),
+            pipe: mech::Pipe::new(&layout).into(),
             group,
             store,
         }
@@ -55,17 +58,33 @@ impl Mech {
     }
 }
 
-#[derive(Debug)]
-pub struct Pipe {
-    pub chart: pipe::Chart,
-    pub image: pipe::Image,
+#[derive(Clone, Debug)]
+pub struct Medium {
+    pub mech: Mech,
+    pub pipe: Grc<medium::Pipe>,
 }
 
-impl Pipe {
-    pub fn new(layout: &group::layout::Bank) -> Self {
+impl Medium {
+    pub fn new(form: medium::Form) -> Self {
         Self {
-            chart: pipe::Chart::new(layout),
-            image: pipe::Image::new(layout),
+            pipe: medium::Pipe::new(&form).into(),
+            mech: form.mech,
+        }
+    }
+    pub fn view(&self, size: Leaf<(u32, u32)>) -> View {
+        View {
+            gpu: self.mech.gpu.clone(),
+            mech: self.mech.clone(),
+            medium: self.clone(),
+            size,
+        }
+    }
+    pub fn image(&self) -> medium::Image {
+        let (index, bind) = self.mech.rig();
+        medium::Image {
+            index,
+            bind,
+            medium: self,
         }
     }
 }

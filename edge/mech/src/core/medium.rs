@@ -11,37 +11,6 @@ pub struct Form<'a> {
     pub target: &'a [Option<ColorTargetState>],
 }
 
-#[derive(Clone, Debug)]
-pub struct Medium {
-    pub mech: Mech,
-    pub pipe: Grc<Pipe>,
-}
-
-impl Medium {
-    pub fn new(form: Form) -> Self {
-        Self {
-            pipe: Pipe::new(&form).into(),
-            mech: form.mech,
-        }
-    }
-    pub fn view(&self, size: Leaf<(u32, u32)>) -> View {
-        View {
-            gpu: self.mech.gpu.clone(),
-            mech: self.mech.clone(),
-            medium: self.clone(),
-            size,
-        }
-    }
-    pub fn image(&self) -> Image {
-        let (index, bind) = self.mech.rig();
-        Image {
-            index,
-            bind,
-            medium: self,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct Pipe {
     pub chart: pipe::Chart,
@@ -57,8 +26,8 @@ impl Pipe {
 
 pub struct Image<'a> {
     pub index: Hub<u32>,
-    bind: Hub<gpu::stable::GroupBind>,
-    medium: &'a Medium,
+    pub bind: Hub<gpu::stable::GroupBind>,
+    pub medium: &'a Medium,
 }
 
 // pub struct Image<'a> {

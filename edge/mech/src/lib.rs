@@ -1,5 +1,5 @@
 pub use core::*;
-pub use medium::Medium;
+// pub use medium::Medium;
 // pub use flat::*;
 pub use view::View;
 
@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use std::num::NonZero;
 use wgpu::*;
 
-pub mod medium;
+// pub mod medium;
 pub mod flat;
 
 mod core;
