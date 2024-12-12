@@ -6,6 +6,8 @@ resolver = "2"
 
 [dependencies]
     anyhow = "1.0"
+    typenum = { workspace = true }
+    generic-array = { workspace = true }
     derive_builder = { workspace = true }
     graph = { workspace = true }
     gpu = { workspace = true }
