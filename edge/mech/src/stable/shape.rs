@@ -1,6 +1,6 @@
 use super::*;
 
-pub mod operation;
+// pub mod operation;
 
 pub enum Kind<T, D: ArrayLength> {
     Point(Grc<Vector<T, D>>),

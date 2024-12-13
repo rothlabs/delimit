@@ -1,39 +1,32 @@
 use super::*;
-use generic_array::{ArrayLength, GenericArray};
-use typenum::{op, Cmp, Integer, IsGreater, IsGreaterOrEqual, Max, Min, Sub1, Unsigned, N1, P1, U0, U1};
-use std::{marker::PhantomData, ops::Sub};
+use crate::shape::*;
 
-// mod shape;
-
-
-// impl method to get flat buffer version only if traits follow
+mod block;
 
 pub struct Shape<T, B> {
     pub block: T,
     pub bound: B,
 }
 
-pub struct Flow {
-    pub form: usize,
-    pub warp: usize,
-}
-
-pub struct Extrude<T> {
-    pub block: T,
-}
-
 pub struct Vector<T, const D: usize> {
     pub id: u32,
     pub data: [T; D],
 }
+impl<T, const D: usize> Rank<0> for Vector<T, D> {}
+impl<T, const D: usize> Dimension<D> for Vector<T, D> {}
 
-pub trait Rank0 {}
-pub trait Rank1 {}
-pub trait Rank2 {}
 
-impl<T, const D: usize> Rank0 for Vector<T, D> {}
-impl<T> Rank1 for Extrude<T> where T: Rank0 {}
-impl<T> Rank2 for Extrude<T> where T: Rank1 {}
+
+
+pub struct Extrude<T> {
+    pub block: T,
+}
+impl<T> Rank<1> for Extrude<T> where T: Rank<0> {}
+impl<T> Rank<2> for Extrude<T> where T: Rank<1> {}
+impl<T, const D: usize> Dimension<D> for Extrude<T> where T: Dimension<D> {}
+
+
+
 
 // pub struct Block<C> 
 // where 

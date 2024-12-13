@@ -14,6 +14,7 @@ pub mod active;
 pub mod flat;
 pub mod stable;
 
+mod shape;
 mod core;
 
 pub type Result<T> = std::result::Result<T, Error>;
