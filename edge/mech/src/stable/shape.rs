@@ -8,6 +8,6 @@ pub enum Kind<T, D: ArrayLength> {
 }
 
 pub struct Operation<T, D: ArrayLength> {
-    pub stems: Vec<Grc<Shape<T, D>>>,
+    // pub stems: Vec<Grc<Shape<T, D>>>,
     pub kind: operation::Kind<T, D>,
 }
