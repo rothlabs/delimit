@@ -1,3 +1,11 @@
+- it does not make logical sense to bound a struct by some typenum trait
+- itsead I could implement functions on the structs. So if I want to pull a rank 5 block, 
+    it needs rank 4 blocks. 
+
+- call a topological object without bounds a Block
+- Shape is a Block with Block bounds. The bounds must have dimensionality equal to the cardinality of the bounded Block
+- Flow is two Blocks connected in series
+
 - For intersection of planes, there is two kinds of symbolic curve. The first is the MAYBE curve. The second is the existing curve of extrusion form.
 - For intersection of NURBS surfaces, there is two cymbolic curves. The first is the Maybe curves. The second is a specific curve of two surface and starting point. Then there are discrete NURBS surface intersections.
 - For plane-cylinder intersection, there is two symbolic curves. The first is MAYBE curve. The second is ellipse. Instead of finding the ellipse, it might be easier to just find the discrete starting points like how I will with NURBS intersections. But if I do find the ellipse, I can maybe go fast and more accurate evenly spaced points.
