@@ -1,20 +1,27 @@
 use super::*;
-// use crate::shape::*;
 
 mod block;
-
-// pub struct Wow {
-//     // each level cannot refer to components in the previous level
-//     // a level must contain all the information needed for
-//     pub levels: [u8; 5],
-// }
 
 pub struct Shape<T, B> {
     pub block: T,
     pub bound: B,
 }
 
-pub struct Block {}
+pub enum Block<T, const D: usize, const O: usize> {
+    Point(Vector<T, D>),
+    Differ(Differ<T, D>),
+    Spline(Spline<T, D, O>),
+}
+
+pub struct Differ<T, const D: usize> {
+    pub stem: Grc<Block<T, D, 1>>,
+    pub kind: block::Kind<T, D>,
+}
+
+pub struct Spline<T, const D: usize, const O: usize> {
+    pub stems: [Grc<Block<T, D, 1>>; O],
+    pub kind: block::Kind<T, D>,
+}
 
 #[derive(Debug)]
 pub struct Vector<T, const D: usize> {
