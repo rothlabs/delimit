@@ -1,12 +1,13 @@
 pub use core::*;
 
-use std::collections::HashMap;
+use shape::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
 use star::*;
 use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::num::NonZero;
 use wgpu::*;
 
@@ -14,8 +15,10 @@ pub mod active;
 pub mod flat;
 pub mod stable;
 
-mod shape;
 mod core;
+mod shape;
+#[cfg(test)]
+mod tests;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

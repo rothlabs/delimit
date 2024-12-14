@@ -1,7 +1,7 @@
 use super::*;
 
-mod medium;
 mod mech;
+mod medium;
 mod view;
 
 #[derive(Clone, Debug)]

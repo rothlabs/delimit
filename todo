@@ -1,3 +1,6 @@
+- it is exetremely difficult or impossible to ensure a valid data structure at creation
+    - instead, I can ensure a valid method 
+
 - it does not make logical sense to bound a struct by some typenum trait
 - itsead I could implement functions on the structs. So if I want to pull a rank 5 block, 
     it needs rank 4 blocks. 
