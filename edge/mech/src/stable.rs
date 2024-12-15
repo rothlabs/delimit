@@ -7,38 +7,51 @@ pub struct Shape<T, B> {
     pub bound: B,
 }
 
-
+/// Vector of dimension K + 2
+/// https://en.wikipedia.org/wiki/Exterior_algebra
+/// https://en.wikipedia.org/wiki/Hodge_star_operator 
 #[derive(Debug)]
-pub struct Vector<T, const D: usize> {
+pub struct Vector<T, const K: usize> {
     pub id: u32,
-    pub data: [T; D],
-    pub wow: [u8; 0],
-}
-impl<T, const D: usize> Rank<0> for Grc<Vector<T, D>> {}
-impl<T, const D: usize> Dimension<D> for Grc<Vector<T, D>> {}
-
-#[derive(Debug)]
-pub struct Matrix<T, const D: usize> {
-    pub id: u32,
-    pub data: [[T; D]; D],
+    pub x: T,
+    pub y: T,
+    pub z: [T; K],
 }
 
-#[derive(Debug)]
-pub struct Extrude<T> {
-    pub block: T,
-}
-impl<T> Rank<1> for Grc<Extrude<T>> where T: Rank<0> {}
-impl<T> Rank<2> for Grc<Extrude<T>> where T: Rank<1> {}
-impl<T, const D: usize> Dimension<D> for Grc<Extrude<T>> where T: Dimension<D> {}
-
-impl<T> Flatten for Extrude<T> 
-where 
-    T: Rank<0> + Dimension<3>,
-{
-    fn flat(&self) -> Vec<f32> {
-        vec![1., 2., 3.]
+impl<T, const K: usize> Vector<T, K> {
+    pub fn new(x: T, y: T, z: [T; K]) -> Self {
+        Self {
+            id: rand::random(),
+            x, y, z
+        }
     }
 }
+
+impl<T, const K: usize> Rank<0> for Grc<Vector<T, K>> {}
+impl<T, const K: usize> Blade<K> for Grc<Vector<T, K>> {}
+
+// #[derive(Debug)]
+// pub struct Extrude<T> {
+//     pub block: T,
+// }
+// impl<T> Rank<1> for Grc<Extrude<T>> where T: Rank<0> {}
+// impl<T> Rank<2> for Grc<Extrude<T>> where T: Rank<1> {}
+// impl<T, const D: usize> Blade<D> for Grc<Extrude<T>> where T: Blade<D> {}
+
+// impl<T> Flatten for Extrude<T> 
+// where 
+//     T: Rank<0> + Blade<1>,
+// {
+//     fn flat(&self) -> Vec<f32> {
+//         vec![1., 2., 3.]
+//     }
+// }
+
+// #[derive(Debug)]
+// pub struct Matrix<T, const D: usize> {
+//     pub id: u32,
+//     pub data: [[T; D]; D],
+// }
 
 // How to place many bounds for many blocks?
 // a block cannot have bounds because blocks are made of blocks.

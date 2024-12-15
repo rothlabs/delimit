@@ -9,6 +9,7 @@ resolver = "2"
     typenum = { workspace = true }
     generic-array = { workspace = true }
     derive_builder = { workspace = true }
+    rand = { workspace = true }
     graph = { workspace = true }
     gpu = { workspace = true }
     star = { workspace = true }
