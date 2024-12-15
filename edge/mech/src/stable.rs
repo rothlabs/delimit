@@ -7,29 +7,21 @@ pub struct Shape<T, B> {
     pub bound: B,
 }
 
-pub enum Block<T, const D: usize, const O: usize> {
-    Point(Vector<T, D>),
-    Differ(Differ<T, D>),
-    Spline(Spline<T, D, O>),
-}
-
-pub struct Differ<T, const D: usize> {
-    pub stem: Grc<Block<T, D, 1>>,
-    pub kind: block::Kind<T, D>,
-}
-
-pub struct Spline<T, const D: usize, const O: usize> {
-    pub stems: [Grc<Block<T, D, 1>>; O],
-    pub kind: block::Kind<T, D>,
-}
 
 #[derive(Debug)]
 pub struct Vector<T, const D: usize> {
     pub id: u32,
     pub data: [T; D],
+    pub wow: [u8; 0],
 }
 impl<T, const D: usize> Rank<0> for Grc<Vector<T, D>> {}
 impl<T, const D: usize> Dimension<D> for Grc<Vector<T, D>> {}
+
+#[derive(Debug)]
+pub struct Matrix<T, const D: usize> {
+    pub id: u32,
+    pub data: [[T; D]; D],
+}
 
 #[derive(Debug)]
 pub struct Extrude<T> {
