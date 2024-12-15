@@ -1,11 +1,11 @@
 pub use core::*;
 
-use shape::*;
 use derive_builder::Builder;
 use gpu::*;
 use graph::*;
 use node_derive::*;
-use star::*;
+use shape::*;
+use star::{Calculate, VectorBuilder};
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::num::NonZero;

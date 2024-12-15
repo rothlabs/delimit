@@ -189,7 +189,7 @@ impl<'a> Loom<'a> {
         let flow = self.flow()?;
         let mut index = 0;
         if let Some(flow) = &flow.travel {
-            let length = lengths.get(index).ok_or(anyhow!("no length"))?;
+            let length = lengths.get(index).ok_or(anyhow!("travel no length"))?;
             let weft = self.weft.travel()?;
             stems.push(weave.travel(loom::Trio {
                 ///////////////////////////////// added main offset
@@ -214,7 +214,7 @@ impl<'a> Loom<'a> {
                 .math()
                 .add(&main_offset)
                 .hub();
-            let length = lengths.get(index).ok_or(anyhow!("no length"))?;
+            let length = lengths.get(index).ok_or(anyhow!("orient no length"))?;
             let weft = self.weft.orient()?;
             stems.push(weave.orient(loom::Trio {
                 rig: self.rig(0, &warp.index, &weft.index, &flow.index, &offset, length)?,
@@ -230,7 +230,7 @@ impl<'a> Loom<'a> {
                 .math()
                 .add(&main_offset)
                 .hub();
-            let length = lengths.get(index).ok_or(anyhow!("no length"))?;
+            let length = lengths.get(index).ok_or(anyhow!("spline no length"))?;
             weave.size = length.math().add(63).div(64).hub();
             let weft = self.weft.spline(*order)?;
             stems.push(weave.spline(loom::Trio {
@@ -266,12 +266,14 @@ impl<'a> Loom<'a> {
             let size = flow.size.math().div(2).mul(&expand).hub();
             // TODO: need to add last offset?
             offsets.push(size);
+            // TODO: add length
         }
         if let Some(flow) = &flow.orient {
             // let size = gpu.size(&flow.buffer).div(2).mul(&expand).hub()?;
             let size = flow.size.math().div(2).mul(&expand).hub();
             // TODO: need to add last offset?
             offsets.push(size);
+            // TODO: add length
         }
         for (order, flow) in &flow.spline {
             // if let Some(flow) = flow {

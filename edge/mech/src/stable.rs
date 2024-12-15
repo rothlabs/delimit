@@ -1,6 +1,6 @@
 use super::*;
 
-mod block;
+pub mod block;
 
 pub struct Shape<T, B> {
     pub block: T,
@@ -9,7 +9,7 @@ pub struct Shape<T, B> {
 
 /// Vector of dimension K + 2
 /// https://en.wikipedia.org/wiki/Exterior_algebra
-/// https://en.wikipedia.org/wiki/Hodge_star_operator 
+/// https://en.wikipedia.org/wiki/Hodge_star_operator
 #[derive(Debug)]
 pub struct Vector<T, const K: usize> {
     pub id: u32,
@@ -19,11 +19,14 @@ pub struct Vector<T, const K: usize> {
 }
 
 impl<T, const K: usize> Vector<T, K> {
-    pub fn new(x: T, y: T, z: [T; K]) -> Self {
+    pub fn new(x: T, y: T, z: [T; K]) -> Grc<Self> {
         Self {
             id: rand::random(),
-            x, y, z
+            x,
+            y,
+            z,
         }
+        .into()
     }
 }
 
@@ -38,8 +41,8 @@ impl<T, const K: usize> Blade<K> for Grc<Vector<T, K>> {}
 // impl<T> Rank<2> for Grc<Extrude<T>> where T: Rank<1> {}
 // impl<T, const D: usize> Blade<D> for Grc<Extrude<T>> where T: Blade<D> {}
 
-// impl<T> Flatten for Extrude<T> 
-// where 
+// impl<T> Flatten for Extrude<T>
+// where
 //     T: Rank<0> + Blade<1>,
 // {
 //     fn flat(&self) -> Vec<f32> {

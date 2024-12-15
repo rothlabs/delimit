@@ -1,11 +1,15 @@
 use super::*;
 
-pub struct Differ<T, const K: usize, S> {
+// pub enum Form {
+//     Differ()
+// }
+
+pub struct Differ<S, T, const K: usize> {
+    pub form: differ::Form<T, K>,
     pub stem: S,
-    pub kind: differ::Form<T, K>,
 }
 
-mod differ {
+pub mod differ {
     use super::*;
     pub enum Form<T, const K: usize> {
         Extrude(Grc<Vector<T, K>>),
@@ -13,20 +17,21 @@ mod differ {
     }
     pub struct Revolve<T, const K: usize> {
         pub axes: [Grc<Vector<T, K>>; K],
-        // only used for 2D. Angels encoded in axis magnitude for 3D and up 
+        // only used for 2D. Angels encoded in axis magnitude for 3D and up
         pub angle: T,
     }
 }
 
 /// Spline of O + 3 order
 /// TODO: add another constant for multiple spans (pattern): pub stems_c: [S; M]
-pub struct Spline<T, S, const O: usize> {
+#[derive(Debug)]
+pub struct Spline<S, const O: usize, T> {
+    pub form: spline::Form<T, O>,
     pub stems_a: [S; 3],
     pub stems_b: [S; O],
-    pub kind: spline::Form<T, O>,
 }
 
-mod spline {
+pub mod spline {
     use super::*;
     #[derive(Debug)]
     pub enum Form<T, const O: usize> {
@@ -45,8 +50,18 @@ mod spline {
     pub struct Knots<T, const O: usize> {
         pub id: u32,
         pub a: [T; 6],
-        pub b: [T; O],
-        pub c: [T; O],
+        pub b: [(T, T); O],
+    }
+
+    impl<T, const O: usize> Knots<T, O> {
+        pub fn new(a: [T; 6], b: [(T, T); O]) -> Grc<Self> {
+            Self {
+                id: rand::random(),
+                a,
+                b,
+            }
+            .into()
+        }
     }
 
     /// Weight Vector of order O + 3
@@ -58,12 +73,11 @@ mod spline {
     }
 }
 
-
-    // #[derive(Debug)]
-    // pub struct Revolve<T, const D: usize> {
-    //     pub vector: Grc<Vector<T, D>>,
-    //     pub stem: T,
-    // }
+// #[derive(Debug)]
+// pub struct Revolve<T, const D: usize> {
+//     pub vector: Grc<Vector<T, D>>,
+//     pub stem: T,
+// }
 
 // pub enum Kind<T, const D: usize> {
 //     Axis(Axis<T, D>),
