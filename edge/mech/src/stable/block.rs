@@ -1,27 +1,26 @@
 use super::*;
 
 #[derive(Debug)]
-pub enum Form1<T, const K: usize> {
-    Differ(Differ<Vector<T, K>, T, K>),
-    Spline0(Spline<Vector<T, K>, T, K, 0>),
-    Spline1(Spline<Vector<T, K>, T, K, 1>),
+pub enum Form<S, T, const K: usize> {
+    Differ(Differ<S, T, K>),
+    Spline0(Spline<S, T, K, 0>),
+    Spline1(Spline<S, T, K, 1>),
 }
 
-#[derive(Debug)]
-pub enum Form2<T, const K: usize> {
-    Differ(Differ<Form1<T, K>, T, K>),
-    Spline0(Spline<Form1<T, K>, T, K, 0>),
-    Spline1(Spline<Form1<T, K>, T, K, 1>),
-}
-
-impl<T, const K: usize> From<Differ<Vector<T, K>, T, K>> for Form1<T, K> {
+impl<T, const K: usize> From<Differ<Vector<T, K>, T, K>> for Form<Vector<T, K>, T, K> {
     fn from(value: Differ<Vector<T, K>, T, K>) -> Self {
         Self::Differ(value)
     }
 }
 
-impl<T, const K: usize> From<Spline<Vector<T, K>, T, K, 0>> for Form1<T, K> {
+impl<T, const K: usize> From<Spline<Vector<T, K>, T, K, 0>> for Form<Vector<T, K>, T, K> {
     fn from(value: Spline<Vector<T, K>, T, K, 0>) -> Self {
+        Self::Spline0(value)
+    }
+}
+
+impl<T, const K: usize> From<Spline<Form<Vector<T, K>, T, K>, T, K, 0>> for Form<Form<Vector<T, K>, T, K>, T, K> {
+    fn from(value: Spline<Form<Vector<T, K>, T, K>, T, K, 0>) -> Self {
         Self::Spline0(value)
     }
 }
