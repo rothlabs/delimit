@@ -1,5 +1,6 @@
 use super::*;
-// use stable::*;
+use stable::*;
+// use stable::block::*;
 
 #[tokio::test]
 async fn extrude() -> Result<()> {
@@ -16,28 +17,32 @@ async fn extrude() -> Result<()> {
     let extrude = stable::Vector::new(0.8, 0.8, []);
     let knots = stable::block::spline::Knots::new([0., 0., 0., 1., 1., 1.], []);
 
-    let differ = Grc::new(stable::block::Differ {
+    let differ: Grc<block::Form1<f64, 0>> = Grc::new(stable::block::Differ {
         form: stable::block::differ::Form::Extrude(extrude),
-        stem: stable::block::Form::Point(middle_center),
-    });
+        stem: middle_center,
+    }.into());
 
-    let spline0 = Grc::new(stable::block::Spline {
+    let spline0: Grc<block::Form1<f64, 0>> = Grc::new(stable::block::Spline {
         form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [middle_left.into(), top_right.into(), top_center.into()],
+        stems_a: [middle_left, top_right, top_center],
         stems_b: [],
-    });
+    }.into());
 
-    let spline1 = Grc::new(stable::block::Spline {
+    let spline1: Grc<block::Form1<f64, 0>> = Grc::new(stable::block::Spline {
         form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [bottom_center.into(), bottom_right.into(), middle_right.into()],
+        stems_a: [
+            bottom_center,
+            bottom_right,
+            middle_right,
+        ],
         stems_b: [],
-    });
+    }.into());
 
-    let surface = stable::block::Spline {
-        form: stable::block::spline::Form::Basis(knots),
-        stems_a: [spline0.into(), differ.into(), spline1.into()],
-        stems_b: [],
-    };
+    // let surface: Grc<block::Form2<f64, 0>> = Grc::new(stable::block::Spline {
+    //     form: stable::block::spline::Form::Basis(knots),
+    //     stems_a: [spline0, differ, spline1],
+    //     stems_b: [],
+    // }.into());
 
     Ok(())
 }

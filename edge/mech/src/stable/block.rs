@@ -1,36 +1,35 @@
 use super::*;
 
-// TODO: macro to make higher order splines
 #[derive(Debug)]
-pub enum Form<T, const K: usize> {
-    Point(Grc<Vector<T, K>>),
-    Differ(Grc<Differ<T, K>>),
-    Spline0(Grc<Spline<T, K, 0>>),
-    Spline1(Grc<Spline<T, K, 1>>),
+pub enum Form1<T, const K: usize> {
+    Differ(Differ<Vector<T, K>, T, K>),
+    Spline0(Spline<Vector<T, K>, T, K, 0>),
+    Spline1(Spline<Vector<T, K>, T, K, 1>),
 }
 
-impl<T, const K: usize> From<Grc<Vector<T, K>>> for Form<T, K> {
-    fn from(value: Grc<Vector<T, K>>) -> Self {
-        Self::Point(value)
-    }
+#[derive(Debug)]
+pub enum Form2<T, const K: usize> {
+    Differ(Differ<Form1<T, K>, T, K>),
+    Spline0(Spline<Form1<T, K>, T, K, 0>),
+    Spline1(Spline<Form1<T, K>, T, K, 1>),
 }
 
-impl<T, const K: usize> From<Grc<Differ<T, K>>> for Form<T, K> {
-    fn from(value: Grc<Differ<T, K>>) -> Self {
+impl<T, const K: usize> From<Differ<Vector<T, K>, T, K>> for Form1<T, K> {
+    fn from(value: Differ<Vector<T, K>, T, K>) -> Self {
         Self::Differ(value)
     }
 }
 
-impl<T, const K: usize> From<Grc<Spline<T, K, 0>>> for Form<T, K> {
-    fn from(value: Grc<Spline<T, K, 0>>) -> Self {
+impl<T, const K: usize> From<Spline<Vector<T, K>, T, K, 0>> for Form1<T, K> {
+    fn from(value: Spline<Vector<T, K>, T, K, 0>) -> Self {
         Self::Spline0(value)
     }
 }
 
 #[derive(Debug)]
-pub struct Differ<T, const K: usize> {
+pub struct Differ<S, T, const K: usize> {
     pub form: differ::Form<T, K>,
-    pub stem: Form<T, K>,
+    pub stem: Grc<S>,
 }
 
 pub mod differ {
@@ -51,10 +50,10 @@ pub mod differ {
 /// Spline of O + 3 order
 /// TODO: add another constant for multiple spans (pattern): pub stems_c: [S; M]
 #[derive(Debug)]
-pub struct Spline<T, const K: usize, const O: usize> {
+pub struct Spline<S, T, const K: usize, const O: usize> {
     pub form: spline::Form<T, O>,
-    pub stems_a: [Form<T, K>; 3],
-    pub stems_b: [Form<T, K>; O],
+    pub stems_a: [Grc<S>; 3],
+    pub stems_b: [Grc<S>; O],
 }
 
 pub mod spline {
