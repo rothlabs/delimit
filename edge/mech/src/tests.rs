@@ -16,28 +16,28 @@ async fn extrude() -> Result<()> {
     let extrude = stable::Vector::new(0.8, 0.8, []);
     let knots = stable::block::spline::Knots::new([0., 0., 0., 1., 1., 1.], []);
 
-    let differ = stable::block::Differ {
+    let differ = Grc::new(stable::block::Differ {
         form: stable::block::differ::Form::Extrude(extrude),
-        stem: middle_center,
-    };
+        stem: stable::block::Form::Point(middle_center),
+    });
 
-    let spline0 = stable::block::Spline {
+    let spline0 = Grc::new(stable::block::Spline {
         form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [middle_left, top_right, top_center],
+        stems_a: [middle_left.into(), top_right.into(), top_center.into()],
+        stems_b: [],
+    });
+
+    let spline1 = Grc::new(stable::block::Spline {
+        form: stable::block::spline::Form::Basis(knots.clone()),
+        stems_a: [bottom_center.into(), bottom_right.into(), middle_right.into()],
+        stems_b: [],
+    });
+
+    let surface = stable::block::Spline {
+        form: stable::block::spline::Form::Basis(knots),
+        stems_a: [spline0.into(), differ.into(), spline1.into()],
         stems_b: [],
     };
-
-    let spline1 = stable::block::Spline {
-        form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [bottom_center, bottom_right, middle_right],
-        stems_b: [],
-    };
-
-    // let surface = stable::block::Spline {
-    //     form: stable::block::spline::Form::Basis(knots),
-    //     stems_a: [spline0, differ, spline1],
-    //     stems_b: [],
-    // };
 
     Ok(())
 }
