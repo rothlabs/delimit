@@ -81,11 +81,11 @@ pub fn draw_nurbs_surface(view: &mech::View) -> Result<Hub<Grc<Command>>> {
     Ok(image)
 }
 
-fn form_travel(topic: &Shelf) -> mech::flat::shape::form::Travel {
-    mech::flat::shape::form::Travel {
-        extrude: Some(topic.hedge(extrude2())),
-    }
-}
+// fn form_travel(topic: &Shelf) -> mech::flat::shape::form::Travel {
+//     mech::flat::shape::form::Travel {
+//         extrude: Some(topic.hedge(extrude2())),
+//     }
+// }
 
 fn form_spline2(topic: &Shelf) -> (u32, mech::flat::shape::form::Spline) {
     (
@@ -122,12 +122,12 @@ fn warp2() -> Vec<f32> {
     ]
 }
 
-#[rustfmt::skip]
-fn extrude2() -> Vec<f32> {
-    vec![
-        0.707, 0.707, 
-    ]
-}
+// #[rustfmt::skip]
+// fn extrude2() -> Vec<f32> {
+//     vec![
+//         0.707, 0.707, 
+//     ]
+// }
 
 #[rustfmt::skip]
 fn nurbs2() -> Vec<f32> {

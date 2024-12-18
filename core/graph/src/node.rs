@@ -4,6 +4,7 @@ use std::future::Future;
 pub type Result<T> = std::result::Result<Hub<T>, Box<dyn std::error::Error + Send + Sync>>;
 pub type Action = Result<()>;
 
+
 pub trait Solve {
     type Base: 'static + SendSync;
     /// Solve a task.

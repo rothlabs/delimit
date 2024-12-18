@@ -6,7 +6,8 @@ resolver = "2"
         "star",
         "app",
         "repo",
-        "text",
+        "text", 
+        "engine",
     ]
 
 
