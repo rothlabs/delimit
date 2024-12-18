@@ -7,6 +7,16 @@ pub struct Shape<T, B> {
     pub bound: B,
 }
 
+impl<T, B> Flatten for Shape<T, B>
+where
+    T: Rank<2>,
+    B: Rank<1>,
+{
+    fn flat(&self) -> Vec<f32> {
+        vec![1., 2., 3.]
+    }
+}
+
 /// Vector of dimension K + 2
 /// https://en.wikipedia.org/wiki/Exterior_algebra
 /// https://en.wikipedia.org/wiki/Hodge_star_operator
@@ -31,7 +41,44 @@ impl<T, const K: usize> Vector<T, K> {
 }
 
 impl<T, const K: usize> Rank<0> for Grc<Vector<T, K>> {}
-impl<T, const K: usize> Blade<K> for Grc<Vector<T, K>> {}
+impl<T, const K: usize> Dimension<K> for Grc<Vector<T, K>> {}
+
+#[derive(Debug)]
+pub enum Block<S, T, const K: usize> {
+    Differ(block::Differ<S, T, K>),
+    Spline0(block::Spline<S, T, K, 0>),
+    Spline1(block::Spline<S, T, K, 1>),
+    Spline2(block::Spline<S, T, K, 2>),
+}
+
+impl<T, const K: usize> Rank<1> for Grc<Block<Vector<T, K>, T, K>> {}
+impl<T, const K: usize> Rank<2> for Grc<Block<Block<Vector<T, K>, T, K>, T, K>> {}
+
+impl<T, const K: usize> From<block::Differ<Vector<T, K>, T, K>> for Block<Vector<T, K>, T, K> {
+    fn from(value: block::Differ<Vector<T, K>, T, K>) -> Self {
+        Self::Differ(value)
+    }
+}
+
+impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, K, 0>> for Block<Vector<T, K>, T, K> {
+    fn from(value: block::Spline<Vector<T, K>, T, K, 0>) -> Self {
+        Self::Spline0(value)
+    }
+}
+
+impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, K, 1>> for Block<Vector<T, K>, T, K> {
+    fn from(value: block::Spline<Vector<T, K>, T, K, 1>) -> Self {
+        Self::Spline1(value)
+    }
+}
+
+impl<T, const K: usize> From<block::Spline<Block<Vector<T, K>, T, K>, T, K, 0>>
+    for Block<Block<Vector<T, K>, T, K>, T, K>
+{
+    fn from(value: block::Spline<Block<Vector<T, K>, T, K>, T, K, 0>) -> Self {
+        Self::Spline0(value)
+    }
+}
 
 // #[derive(Debug)]
 // pub struct Extrude<T> {

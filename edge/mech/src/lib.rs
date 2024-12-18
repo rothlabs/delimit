@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::num::NonZero;
 use wgpu::*;
 
+pub mod experiment;
 pub mod active;
 pub mod flat;
 pub mod stable;

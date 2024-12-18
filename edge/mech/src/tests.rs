@@ -4,45 +4,66 @@ use stable::*;
 
 #[tokio::test]
 async fn extrude() -> Result<()> {
-    // points
-    let middle_center = stable::Vector::new(0., 0., []);
-    let middle_left = stable::Vector::new(-0.9, 0., []);
-    let top_right = stable::Vector::new(0.9, 0.9, []);
-    let top_center = stable::Vector::new(0., 0.9, []);
-    let bottom_center = stable::Vector::new(0., -0.9, []);
-    let bottom_right = stable::Vector::new(0.9, -0.9, []);
-    let middle_right = stable::Vector::new(0.9, 0., []);
+    // Vector Leaf
+    let extrude = Vector::new(0.8, 0.8, []);
+    
+    let knots6 = block::spline::Knots::new([0., 0., 0., 1., 1., 1.], []);
+    let knots8 = block::spline::Knots::new([0., 0., 0., 1., 1., 1.], [(0., 1.)]);
 
-    // vectors
-    let extrude = stable::Vector::new(0.8, 0.8, []);
-    let knots = stable::block::spline::Knots::new([0., 0., 0., 1., 1., 1.], []);
+    // Point Leaf, rank 0
+    let middle_center = Vector::new(0., 0., []);
+    let middle_left = Vector::new(-0.9, 0., []);
+    let top_right = Vector::new(0.9, 0.9, []);
+    let top_center = Vector::new(0., 0.9, []);
+    let bottom_center = Vector::new(0., -0.9, []);
+    let bottom_right = Vector::new(0.9, -0.9, []);
+    let middle_right = Vector::new(0.9, 0., []);
 
-    let differ: Grc<block::Form<Vector<f64, 0>, f64, 0>> = Grc::new(stable::block::Differ {
-        form: stable::block::differ::Form::Extrude(extrude),
-        stem: middle_center,
-    }.into());
+    // Block, rank 1
+    let differ: Grc<Block<Vector<f64, 0>, f64, 0>> = Grc::new(
+        block::Differ {
+            form: block::differ::Kind::Extrude(extrude),
+            stem: middle_center,
+        }
+        .into(),
+    );
 
-    let spline0: Grc<block::Form<Vector<f64, 0>, f64, 0>> = Grc::new(stable::block::Spline {
-        form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [middle_left, top_right, top_center],
-        stems_b: [],
-    }.into());
+    // Block, rank 1
+    let spline3: Grc<Block<Vector<f64, 0>, f64, 0>> = Grc::new(
+        block::Spline {
+            kind: block::spline::Kind::Basis(knots6.clone()),
+            stems_a: [middle_left.clone(), top_right, top_center],
+            stems_b: [],
+        }
+        .into(),
+    );
 
-    let spline1: Grc<block::Form<Vector<f64, 0>, f64, 0>> = Grc::new(stable::block::Spline {
-        form: stable::block::spline::Form::Basis(knots.clone()),
-        stems_a: [
-            bottom_center,
-            bottom_right,
-            middle_right,
-        ],
-        stems_b: [],
-    }.into());
+    // Block, rank 1
+    let spline4: Grc<Block<Vector<f64, 0>, f64, 0>> = Grc::new(
+        block::Spline {
+            kind: block::spline::Kind::Basis(knots8),
+            stems_a: [bottom_center, bottom_right, middle_right],
+            stems_b: [middle_left],
+        }
+        .into(),
+    );
 
-    let surface: Grc<block::Form<block::Form<Vector<f64, 0>, f64, 0>, f64, 0>> = Grc::new(stable::block::Spline {
-        form: stable::block::spline::Form::Basis(knots),
-        stems_a: [spline0, differ, spline1],
-        stems_b: [],
-    }.into());
+    // Block, rank 2
+    let surface: Grc<Block<Block<Vector<f64, 0>, f64, 0>, f64, 0>> = Grc::new(
+        block::Spline {
+            kind: block::spline::Kind::Basis(knots6),
+            stems_a: [spline3.clone(), differ, spline4],
+            stems_b: [],
+        }
+        .into(),
+    );
+
+    let shape = Shape {
+        block: surface,
+        bound: spline3,
+    };
+
+    shape.flat();
 
     Ok(())
 }
