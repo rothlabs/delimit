@@ -1,3 +1,10 @@
+- With my graph system, a node could hold many curves. A user edit node could mutate the node that holds a ton of curves.
+- could this be implemented without RwLock? Yes, if the nodes are kept in a HashMap
+
+- The user could have a group of curves in the ECS. My graph watches that group which is just a list of curve indices. It can then produce flat version for GPU
+all at once. It might involve adding some additional information like thickness and color. 
+The point is that the shape of the graph is fixed. A new graph must be made if the situation changes.
+
 - it is exetremely difficult or impossible to ensure a valid data structure at creation
     - instead, I can ensure a valid method 
 
