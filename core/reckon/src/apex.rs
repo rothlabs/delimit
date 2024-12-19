@@ -1,11 +1,6 @@
 use super::*;
 
-mod apex;
-
-pub struct Apex<T: apex::Solve> {
-    unit: T,
-    base: Option<T::Base>
-}
+pub mod node;
 
 pub trait Solve {
     type Graph;
@@ -13,9 +8,9 @@ pub trait Solve {
     fn solve<'a>(&'a mut self, graph: &'a mut Self::Graph) -> BoxFuture<Result<&Self::Base>>;
 }
 
-impl<T: apex::Solve> Solve for Apex<T> {
+impl<T: node::Solve> Solve for Apex<T> {
     type Base = T::Base;
-    type Graph = <T as apex::Solve>::Graph;
+    type Graph = <T as node::Solve>::Graph;
     fn solve<'a>(&'a mut self, graph: &'a mut Self::Graph) -> BoxFuture<Result<&Self::Base>> {
         Box::new(async move {
             if self.base.is_none() {

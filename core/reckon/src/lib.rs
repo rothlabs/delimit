@@ -1,7 +1,7 @@
 use std::future::Future;
 // use std::pin::Pin;
 
-mod node;
+mod apex;
 
 type BoxFuture<'a, T> = Box<dyn Future<Output = T> + 'a>; // + Send + 
 
@@ -13,11 +13,12 @@ pub trait Solve<T> {
 
 pub enum Hub<T> {
     Base(T),
-    Node(Key),
+    Apex(Key),
 }
 
-pub struct Node<T, G> {
-    apex: Box<dyn node::Solve<Base = T, Graph = G>>,
+pub struct Apex<T: apex::node::Solve> {
+    unit: T,
+    base: Option<T::Base>,
     roots: Vec<Key>,
 }
 
@@ -32,6 +33,11 @@ pub enum Error {
     #[error(transparent)]
     Any(#[from] anyhow::Error),
 }
+
+// pub struct Node<T, G> {
+//     apex: Box<dyn node::Solve<Base = T, Graph = G>>,
+//     roots: Vec<Key>,
+// }
 
 
 // pub struct Graph {

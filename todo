@@ -1,3 +1,5 @@
+- macro that generates other unit struct with &mut Graph and methods to solve stems
+
 - With my graph system, a node could hold many curves. A user edit node could mutate the node that holds a ton of curves.
 - could this be implemented without RwLock? Yes, if the nodes are kept in a HashMap
 
