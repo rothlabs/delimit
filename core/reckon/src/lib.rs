@@ -22,6 +22,17 @@ pub struct Apex<T: apex::node::Solve> {
     roots: Vec<Key>,
 }
 
+struct Dependance {
+    key: usize,
+    stems: Vec<usize>,
+}
+
+struct Frame<'a, T> {
+    graph: &'a T,
+    dependance: Vec<Dependance>,
+    dependance_index: u32,
+}
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
