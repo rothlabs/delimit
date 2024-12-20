@@ -1,3 +1,5 @@
+- the node must recieve a mutable state. but also immutable list of nodes
+
 - macro that generates other unit struct with &mut Graph and methods to solve stems
 
 - With my graph system, a node could hold many curves. A user edit node could mutate the node that holds a ton of curves.

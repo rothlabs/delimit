@@ -7,5 +7,5 @@ pub type Result<T> = std::result::Result<T, anyhow::Error>;
 pub trait Solve {
     type Base;
     type Graph;
-    fn solve(&self, graph: &mut Self::Graph) -> impl Future<Output = Result<Self::Base>>;
+    fn solve(&self, graph: &Self::Graph) -> impl Future<Output = Result<Self::Base>>;
 }
