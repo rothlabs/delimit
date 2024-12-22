@@ -3,7 +3,7 @@ use super::*;
 // Matrix-based transformation
 #[derive(Debug)]
 pub struct Differ<S, T, const K: usize> {
-    pub form: differ::Kind<T, K>,
+    pub kind: differ::Kind<T, K>,
     pub stem: Grc<S>,
 }
 
@@ -19,7 +19,7 @@ pub mod differ {
     #[derive(Debug)]
     pub struct Revolve<T, const K: usize> {
         pub axes: [Grc<Vector<T, K>>; K],
-        // only used for 2D. Angels encoded in axis magnitude for 3D and up
+        // only used for 2D. Angles encoded in axis magnitude for 3D and up
         pub angle: T,
     }
 }

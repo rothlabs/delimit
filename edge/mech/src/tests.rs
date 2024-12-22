@@ -22,7 +22,7 @@ async fn extrude() -> Result<()> {
     // Block, rank 1
     let differ: Grc<Block<Vector<f64, 0>, f64, 0>> = Grc::new(
         block::Differ {
-            form: block::differ::Kind::Extrude(extrude),
+            kind: block::differ::Kind::Extrude(extrude),
             stem: middle_center,
         }
         .into(),
