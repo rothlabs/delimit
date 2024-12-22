@@ -27,7 +27,7 @@ pub mod differ {
 /// Spline of O + 3 order
 /// TODO: add another constant for multiple spans (pattern): pub stems_c: [Grc<S>; M]
 #[derive(Debug)]
-pub struct Spline<S, T, const K: usize, const O: usize> {
+pub struct Spline<S, T, const O: usize> {
     pub kind: spline::Kind<T, O>,
     pub stems_a: [Grc<S>; 3],
     pub stems_b: [Grc<S>; O],

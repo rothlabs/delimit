@@ -6,6 +6,8 @@ use stable::*;
 async fn extrude() -> Result<()> {
     // Vector Leaf
     let extrude = Vector::new(0.8, 0.8, []);
+
+    let extrude_3d = Vector::new(0.8, 0.8, [0.8]);
     
     let knots6 = block::spline::Knots::new([0., 0., 0., 1., 1., 1.], []);
     let knots8 = block::spline::Knots::new([0., 0., 0., 1., 1., 1.], [(0., 1.)]);
@@ -19,11 +21,26 @@ async fn extrude() -> Result<()> {
     let bottom_right = Vector::new(0.9, -0.9, []);
     let middle_right = Vector::new(0.9, 0., []);
 
+    let point_3d = Vector::new(0.9, 0., [0.]);
+
     // Block, rank 1
     let differ: Grc<Block<Vector<f64, 0>, f64, 0>> = Grc::new(
         block::Differ {
-            kind: block::differ::Kind::Extrude(extrude),
-            stem: middle_center,
+            kind: block::differ::Kind::Extrude(extrude.clone()),
+            stem: middle_center.into(),
+        }
+        .into(),
+    );
+
+    let wow = block::Differ {
+        kind: block::differ::Kind::Extrude(extrude),
+        stem: point_3d.clone(),
+    };
+
+    let differ2: Grc<Block<Vector<f64, 1>, f64, 1>> = Grc::new(
+        block::Differ {
+            kind: block::differ::Kind::Extrude(extrude_3d),
+            stem: point_3d,
         }
         .into(),
     );

@@ -18,8 +18,11 @@ where
 }
 
 /// Vector of dimension K + 2
+/// K is the number of axes required to describe 
+/// orientation, useful revolutions and intersections
 /// https://en.wikipedia.org/wiki/Exterior_algebra
 /// https://en.wikipedia.org/wiki/Hodge_star_operator
+/// https://en.wikipedia.org/wiki/Axis-angle_representation
 #[derive(Debug)]
 pub struct Vector<T, const K: usize> {
     pub id: u32,
@@ -46,36 +49,38 @@ impl<T, const K: usize> Dimension<K> for Grc<Vector<T, K>> {}
 #[derive(Debug)]
 pub enum Block<S, T, const K: usize> {
     Differ(block::Differ<S, T, K>),
-    Spline0(block::Spline<S, T, K, 0>),
-    Spline1(block::Spline<S, T, K, 1>),
-    Spline2(block::Spline<S, T, K, 2>),
+    Spline0(block::Spline<S, T, 0>),
+    Spline1(block::Spline<S, T, 1>),
+    Spline2(block::Spline<S, T, 2>),
 }
 
 impl<T, const K: usize> Rank<1> for Grc<Block<Vector<T, K>, T, K>> {}
 impl<T, const K: usize> Rank<2> for Grc<Block<Block<Vector<T, K>, T, K>, T, K>> {}
 
+// use this conversion to ensure K of block::Differ is the same as K of Vector
+// otherwise, it is possible to construct a mismatch such as a 2D extrusion of 3D points
 impl<T, const K: usize> From<block::Differ<Vector<T, K>, T, K>> for Block<Vector<T, K>, T, K> {
     fn from(value: block::Differ<Vector<T, K>, T, K>) -> Self {
         Self::Differ(value)
     }
 }
 
-impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, K, 0>> for Block<Vector<T, K>, T, K> {
-    fn from(value: block::Spline<Vector<T, K>, T, K, 0>) -> Self {
+impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, 0>> for Block<Vector<T, K>, T, K> {
+    fn from(value: block::Spline<Vector<T, K>, T, 0>) -> Self {
         Self::Spline0(value)
     }
 }
 
-impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, K, 1>> for Block<Vector<T, K>, T, K> {
-    fn from(value: block::Spline<Vector<T, K>, T, K, 1>) -> Self {
+impl<T, const K: usize> From<block::Spline<Vector<T, K>, T, 1>> for Block<Vector<T, K>, T, K> {
+    fn from(value: block::Spline<Vector<T, K>, T, 1>) -> Self {
         Self::Spline1(value)
     }
 }
 
-impl<T, const K: usize> From<block::Spline<Block<Vector<T, K>, T, K>, T, K, 0>>
+impl<T, const K: usize> From<block::Spline<Block<Vector<T, K>, T, K>, T, 0>>
     for Block<Block<Vector<T, K>, T, K>, T, K>
 {
-    fn from(value: block::Spline<Block<Vector<T, K>, T, K>, T, K, 0>) -> Self {
+    fn from(value: block::Spline<Block<Vector<T, K>, T, K>, T, 0>) -> Self {
         Self::Spline0(value)
     }
 }
