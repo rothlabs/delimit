@@ -15,6 +15,7 @@ pub mod experiment;
 pub mod active;
 pub mod flat;
 pub mod stable;
+pub mod store;
 
 mod core;
 mod shape;
