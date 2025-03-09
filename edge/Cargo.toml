@@ -13,7 +13,7 @@
     typenum = "1"
     generic-array = "1"
     derive_builder = "0.20.1"
-    wgpu = "22.1.0"
+    wgpu = "23"
     rand = "0.8.5"
     graph = { path = "../core/graph" }
     star = { path = "../core/star" }
@@ -21,6 +21,7 @@
     gui = { path = "gui" }
     mech = { path = "mech" }
 
+# wgpu = "22.1.0"
 
 # [profile.dev]
 #     panic = 'abort'

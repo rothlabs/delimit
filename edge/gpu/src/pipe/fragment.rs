@@ -17,7 +17,7 @@ impl<'a> FragmentBuilder<'a> {
         let built = self.build()?;
         let state = FragmentState {
             module: built.shader,
-            entry_point: built.entry,
+            entry_point: Some(built.entry),
             compilation_options: built.compilation_options,
             targets: built.targets,
         };

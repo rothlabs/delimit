@@ -29,7 +29,7 @@ pub struct GroupBind {
 impl PartialEq for GroupBind {
     fn eq(&self, rhs: &GroupBind) -> bool {
         self.slot == rhs.slot
-            && self.group.global_id() == rhs.group.global_id()
+            && self.group == rhs.group
             && self.offsets == rhs.offsets
     }
 }

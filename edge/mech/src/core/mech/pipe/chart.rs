@@ -83,7 +83,7 @@ impl Shader<'_> {
                 label: Some(entry_point),
                 layout: Some(self.layout),
                 module: &self.module,
-                entry_point,
+                entry_point: Some(entry_point),
                 compilation_options: Default::default(),
                 cache: None,
             })

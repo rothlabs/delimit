@@ -32,13 +32,13 @@ impl Shader<'_> {
     fn pipe(&self, vert_point: &str, frag_entry: &str) -> Grc<RenderPipeline> {
         let vertex = VertexState {
             module: &self.module,
-            entry_point: vert_point,
+            entry_point: Some(vert_point),
             compilation_options: PipelineCompilationOptions::default(),
             buffers: &[],
         };
         let fragment = FragmentState {
             module: &self.module,
-            entry_point: frag_entry,
+            entry_point: Some(frag_entry),
             compilation_options: PipelineCompilationOptions::default(),
             targets: self.target,
         };

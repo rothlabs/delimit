@@ -56,7 +56,7 @@ impl State {
     }
     pub fn pipe(&mut self, pipe: &Grc<RenderPipeline>) {
         if let Some(now) = self.pipe.as_mut() {
-            if pipe.global_id() != now.global_id() {
+            if pipe != now { //if pipe.global_id() != now.global_id() {
                 self.steps.push(Step::Pipe(now.clone()));
                 *now = pipe.clone();
             }

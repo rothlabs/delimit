@@ -23,7 +23,7 @@ impl ComputeBuilder<'_> {
             label: built.label,
             layout: built.layout,
             module: built.shader,
-            entry_point: built.entry,
+            entry_point: Some(built.entry),
             compilation_options: Default::default(),
             cache: built.cache,
         };

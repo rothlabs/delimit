@@ -15,7 +15,7 @@ impl<'a> Encode<'a> {
                 flat::compute::Step::Pipe(pipe) => pass.set_pipeline(pipe),
                 flat::compute::Step::Bind(bind) => {
                     // println!("compute set bind group: {:#?}", bind);
-                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
+                    pass.set_bind_group(bind.slot, &*bind.group, &bind.offsets)
                 }
                 flat::compute::Step::Dispatch(size) => {
                     // println!("dispatch: {size}");
@@ -31,7 +31,7 @@ impl<'a> Encode<'a> {
                 flat::render::Step::Pipe(pipe) => pass.set_pipeline(pipe),
                 flat::render::Step::Bind(bind) => {
                     // println!("render set bind group: {:#?}", bind);
-                    pass.set_bind_group(bind.slot, &bind.group, &bind.offsets)
+                    pass.set_bind_group(bind.slot, &*bind.group, &bind.offsets)
                 }
                 flat::render::Step::Vertex(vertex) => {
                     if let Some(offset) = vertex.offset {

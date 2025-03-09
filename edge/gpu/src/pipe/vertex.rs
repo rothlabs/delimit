@@ -17,7 +17,7 @@ impl<'a> VertexBuilder<'a> {
         let built = self.build()?;
         let state = VertexState {
             module: built.shader,
-            entry_point: built.entry,
+            entry_point: Some(built.entry),
             compilation_options: built.compilation_options,
             buffers: built.buffers,
         };

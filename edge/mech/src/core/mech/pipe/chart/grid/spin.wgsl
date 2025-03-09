@@ -9,8 +9,8 @@ struct Rig {
     weft_length: u32,
 };
 
-@group(0) @binding(0) var<storage, read_write> data: array<f32>;
 @group(1) @binding(0) var<storage, read> rig: Rig;
+@group(0) @binding(0) var<storage, read_write> data: array<f32>;
 
 // Travel ----------------------------------------------------
 
@@ -139,6 +139,7 @@ fn interpolate(index: vec3<u32>, weft_idx: u32, row_len: u32) {
     let start = data[knot_idx];
     let end = data[knot_idx + 1];
     let parameter = start + (end - start) * f32(count_mod) / f32(rig.count - 1);
+    // let parameter = f32(count_mod) / f32(rig.count - 1);
 
     // weft reset [0., 0., 0., ..., 1.]
     data[weft_idx] = 1.;
